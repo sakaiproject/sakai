@@ -64,6 +64,7 @@ import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.helper.assessment.AssessmentHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
 import org.sakaiproject.tool.assessment.qti.helper.section.SectionHelperIfc;
@@ -468,12 +469,12 @@ public class AuthoringHelper
 
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation)
   {
-	  return createImportedAssessment(document, unzipLocation, false);
+	  return createImportedAssessment(document, unzipLocation, false, null);
   }
   
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus, ArrayList failedMatchingQuestions)
   {
-    return createImportedAssessment(document, unzipLocation, null, isRespondus);
+    return createImportedAssessment(document, unzipLocation, null, isRespondus, failedMatchingQuestions);
   }
 
 	  /**
@@ -487,6 +488,11 @@ public class AuthoringHelper
   }
   
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus)
+  {
+	  return createImportedAssessment(document, unzipLocation, templateId, isRespondus, null);
+  }
+  
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, ArrayList failedMatchingQuestions)
   {
 	AssessmentFacade assessment = null;
 
@@ -598,26 +604,16 @@ public class AuthoringHelper
           Item itemXml = (Item) itemList.get(itm);
           Map itemMap = exHelper.mapItem(itemXml, isRespondus);
 
-          /* debugging
-          if (itemMap!=null && itemMap.keySet()!=null){
-              Iterator iter = itemMap.keySet().iterator();
-
-              while (iter.hasNext()) {
-                 
-                String label = (String) iter.next();
-                String value="";
-                if (itemMap.get(label)!=null){
-                  value = (String) itemMap.get(label).toString();
-                  log.debug("get Label: " + label + ", Value: " + value);
-                }
-                
-              }
-          }
-          */
-
           ItemFacade item = new ItemFacade();
           if (itemMap != null) {
-        	  exHelper.updateItem(item, itemMap, isRespondus);
+        	  try {
+        		  exHelper.updateItem(item, itemMap, isRespondus);
+        	  }
+        	  catch (RespondusMatchingException rme) {
+        		  if (failedMatchingQuestions != null) {
+        			  failedMatchingQuestions.add(itm + 1);
+        		  }
+        	  }
           }
           // make sure required fields are set
           item.setCreatedBy(me);
@@ -660,6 +656,12 @@ public class AuthoringHelper
 
       assessmentService.saveAssessment(assessment);
       return assessment;
+    }
+    catch (RespondusMatchingException rme)
+    {
+      log.error(rme.getMessage(), rme);
+      assessmentService.removeAssessment(assessment.getAssessmentId().toString());
+      throw new RespondusMatchingException(rme);
     }
     catch (Exception e)
     {

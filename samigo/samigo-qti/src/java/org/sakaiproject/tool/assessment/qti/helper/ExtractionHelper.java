@@ -72,12 +72,14 @@ import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
+import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemTypeExtractionStrategy;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -1220,47 +1222,124 @@ public class ExtractionHelper
 	  if (unzipLocation == null || text.equals("")) {
 		  return processedText;
 	  }
-	  String finalText = "";
-	  // There are two spaces between alt="" and src=". This is to match the outcome from processFormattedText.
-	  String splitDelimiter = "<img alt=\"\"  src=\"";
+	  
 	  String accessURL = ServerConfigurationService.getAccessUrl();
 	  String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
-	  String prependString = splitDelimiter + accessURL + referenceRoot;
+	  String url = accessURL + referenceRoot;
+	  String finalString =  makeImageAttachment(text, url);
+	  return finalString;
+  }
+  
+  private String makeImageAttachment(String text, String url) {
+	  String splitDelimiter = "<img alt=\"\" src=\"";
+	  String[] splittedString = text.split(splitDelimiter);
+	  if (splittedString.length == 1) {
+		  // no image files. check if audio files
+		  return makeAudioAttachment(text, url);
+	  }
+	  	  
+	  String prependString = splitDelimiter + url;
 	  ContentResource contentResource = null;
-	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  String resourceId = null;
-
-	  String contentType = "";
 	  String filename = "";
-	  StringBuffer fullFilePath = null;
 
-	  String itemText = "";
-	  String formattedText = "";
-	  String[] splittedString = processedText.split(splitDelimiter);
 	  StringBuffer updatedText = new StringBuffer(splittedString[0]);
 	  int endIndex = 0;
 	  for (int i = 1; i < splittedString.length; i++) {
 		  endIndex = splittedString[i].indexOf("\"");
 		  filename = splittedString[i].substring(0, endIndex);
-		  fullFilePath = new StringBuffer(unzipLocation);
-		  fullFilePath.append("/");
-		  fullFilePath.append(filename);
-		  MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
-		  contentType = mimetypesFileTypeMap.getContentType(filename);
-		  contentResource = attachmentHelper.createContentResource(fullFilePath.toString(), filename, contentType);
-
+		  contentResource = makeContentResource(filename);
+		  
 		  if (contentResource != null) {
 			  resourceId = contentResource.getId();
 			  updatedText.append(prependString);
 			  updatedText.append(resourceId);
+			  updatedText.append(makeAudioAttachment(splittedString[i].substring(endIndex), url));
+		  }
+		  else {
+			  throw new RuntimeException("resourceId is null");
+		  }
+	  }
+	  return updatedText.toString();
+  }
+  
+  private String makeAudioAttachment(String text, String url) {
+	  String splitDelimiter = "<embed src=\"";
+	  String[] splittedString = text.split(splitDelimiter);
+	  if (splittedString.length == 1) {
+		  return makeOtherAttachment(text, url);
+	  }
+	  
+	  String prependString = splitDelimiter + url;
+	  ContentResource contentResource = null;
+	  String resourceId = null;
+	  String filename = "";
+
+	  StringBuffer updatedText = new StringBuffer(splittedString[0]);
+	  int endIndex = 0;
+	  for (int i = 1; i < splittedString.length; i++) {
+		  String s = splittedString[i];
+		  endIndex = splittedString[i].indexOf("\"");
+		  filename = splittedString[i].substring(0, endIndex);
+		  contentResource = makeContentResource(filename);
+		  
+		  if (contentResource != null) {
+			  resourceId = contentResource.getId();
+			  updatedText.append(prependString);
+			  updatedText.append(resourceId);
+			  updatedText.append("\" type=\"application/x-shockwave-flash");
+			  updatedText.append(makeOtherAttachment(splittedString[i].substring(endIndex), url));
+		  }
+		  else {
+			  throw new RuntimeException("resourceId is null");
+		  }
+	  }
+	  return updatedText.toString();
+  }
+  
+  private String makeOtherAttachment(String text, String url) {
+	  String splitDelimiter = "<a href=\"";
+	  String[] splittedString = text.split(splitDelimiter);
+	  if (splittedString.length == 1) {
+		  return text;
+	  }
+	  
+	  String prependString = splitDelimiter + url;
+	  ContentResource contentResource = null;
+	  String resourceId = null;
+	  String filename = "";
+
+	  StringBuffer updatedText = new StringBuffer(splittedString[0]);
+	  int endIndex = 0;
+	  for (int i = 1; i < splittedString.length; i++) {
+		  endIndex = splittedString[i].indexOf("\"");
+		  filename = splittedString[i].substring(0, endIndex);
+		  contentResource = makeContentResource(filename);
+		  
+		  if (contentResource != null) {
+			  resourceId = contentResource.getId();
+			  updatedText.append(prependString);
+			  updatedText.append(resourceId);
+			  updatedText.append("\" target=\"_blank\"");
 			  updatedText.append(splittedString[i].substring(endIndex));
 		  }
 		  else {
 			  throw new RuntimeException("resourceId is null");
 		  }
-
 	  }
 	  return updatedText.toString();
+  }
+  
+  private ContentResource makeContentResource(String filename) {
+	  AttachmentHelper attachmentHelper = new AttachmentHelper();
+	  StringBuffer fullFilePath = new StringBuffer(unzipLocation);
+	  fullFilePath.append("/");
+	  fullFilePath.append(filename);
+	  MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
+	  String contentType = mimetypesFileTypeMap.getContentType(filename);
+	  ContentResource contentResource = attachmentHelper.createContentResource(fullFilePath.toString(), filename, contentType);
+	  
+	  return contentResource;
   }
   
   public String makeFCKAttachment(List respondueTextList) {
@@ -1268,7 +1347,6 @@ public class ExtractionHelper
 	  if (respondueTextList == null || respondueTextList.size() == 0) {
 		  return "";
 	  }  
-	  String finalText = "";
 	  String accessURL = ServerConfigurationService.getAccessUrl();
 	  String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
 	  String prependString = accessURL + referenceRoot;
@@ -1417,7 +1495,7 @@ public class ExtractionHelper
     // feedback
     // correct, incorrect, general
     HashMap<String, String> varequalLinkrefidMap = null;
-    HashMap<String, String> feedbacksMap = new HashMap();
+    HashMap<String, String> allFeedbacksMap = new HashMap();
     
     if (isRespondus) {
       List varequalLinkrefidMappingList = (List) itemMap.get("varequalLinkrefidMapping");
@@ -1430,62 +1508,20 @@ public class ExtractionHelper
     	  varequalLinkrefidMap.put(vl[0], vl[1]);
         }
       }
-    /*
+    
       List allFeedbackList = (List) itemMap.get("allFeedbacks");
-      allFeedbacksMap = new HashMap();
       if (allFeedbackList != null) {
           String [] af = null;
           ArrayList feedbackList = null;
           String s = null;
           for(int i = 0; i < allFeedbackList.size(); i++) {   
         	  s = (String) allFeedbackList.get(i);
-          	  af = s.split(":::", 2);
-          	  if (!allFeedbacksMap.containsKey(af[0])) {
-          		  feedbackList = new ArrayList();
-          		  feedbackList.add(af[1]);
-          		  allFeedbacksMap.put(af[0], feedbackList);
-          	  }
-          	  else {
-          		  feedbackList = (ArrayList) allFeedbacksMap.get((String) af[0]);
-          		  feedbackList.add(af[1]);
-          	  }
+          	  af = s.split(":::");
+          	  allFeedbacksMap.put(af[0], af[1]);
           }
       }
-    /*  
-    if (allFeedbackList != null) {
-          Iterator iterTest = allFeedbackList.iterator();
-          while (iterTest.hasNext()) {
-        	  String s= ((String) iterTest.next());
-          }
-      }
-      
-      if (allFeedbackList != null) {
-        Iterator iter2 = allFeedbackList.iterator();
-        String [] af = null;
-        ArrayList feedbackList = null;
-        String s = null;
-        while (iter2.hasNext()) {
-          s = (String) iter2.next();
-    	  af = s.split(":::", 2);
-    	  if (!allFeedbacksMap.containsKey(af[0])) {
-    		  feedbackList = new ArrayList();
-    		  feedbackList.add(af[1]);
-    		  allFeedbacksMap.put(af[0], feedbackList);
-    	  }
-    	  else {
-    		  feedbackList = (ArrayList) allFeedbacksMap.get((String) af[0]);
-    		  feedbackList.add(af[1]);
-    	  }
-        }
-      }
-      */
-      String allFeedback = (String) itemMap.get("allFeedback");
-      feedbacksMap.put("All", allFeedback);
-      String correctFeedback = (String) itemMap.get("correctFeedback");
-      feedbacksMap.put("C", correctFeedback);
-      String incorrectFeedback = (String) itemMap.get("incorrectFeedback");
-      feedbacksMap.put("IC", incorrectFeedback);
-      addRespondusFeedbacks(item, feedbacksMap, typeId);
+
+      addRespondusFeedbacks(item, allFeedbacksMap, typeId);
     }
     else {
       addFeedback(item, itemMap, typeId);
@@ -1518,7 +1554,7 @@ public class ExtractionHelper
     else
     {
     	if (isRespondus) {
-    		addRespondusTextAndAnswers(item, itemMap, varequalLinkrefidMap, feedbacksMap);
+    		addRespondusTextAndAnswers(item, itemMap, varequalLinkrefidMap, allFeedbacksMap);
     	}
     	else {
     		addTextAndAnswers(item, itemMap);
@@ -1616,50 +1652,6 @@ public class ExtractionHelper
     item.setLastModifiedBy("Sakai Import");
     item.setLastModifiedDate(new Date());
   }
-
-  /**
-   * add feedback
-   * @param item
-   * @param itemMap
-   * @param typeId
-   */
-  private void addRespondusFeedback(ItemFacade item, Map<String, ArrayList> map, Long typeId)
-  {
-	  String ident = null;
-	  String correctItemFeedback = "";
-	  String incorrectItemFeedback = "";
-	  String generalItemFeedback = "";
-		  for (Entry<String, ArrayList> af : map.entrySet()) {
-			  ident = af.getKey();
-			  if (ident.endsWith("ALL")) {
-				  generalItemFeedback = makeFCKAttachment((ArrayList) af.getValue());
-			  }
-			  else if (ident.endsWith("_C")) {
-				  correctItemFeedback = makeFCKAttachment((ArrayList) af.getValue());
-			  }
-			  else if (ident.endsWith("_IC")) {
-				  incorrectItemFeedback = makeFCKAttachment((ArrayList) af.getValue());
-			  }
-		  }
-
-		  if (typeId.equals(TypeIfc.TRUE_FALSE)) {
-			  correctItemFeedback = generalItemFeedback + correctItemFeedback;
-			  incorrectItemFeedback = generalItemFeedback + incorrectItemFeedback;
-		  }
-		  else if (typeId.equals(TypeIfc.ESSAY_QUESTION)) {
-			  generalItemFeedback = "";
-		  }
-		  else {
-			  correctItemFeedback = generalItemFeedback;
-			  incorrectItemFeedback = generalItemFeedback;
-		  }
-	  /*
-	  setFeedbacks(item, typeId, 
-			  XmlUtil.processFormattedText(log, correctItemFeedback),
-			  XmlUtil.processFormattedText(log, incorrectItemFeedback),
-			  XmlUtil.processFormattedText(log, generalItemFeedback));
-			  */
-  }
   
   private void addRespondusFeedbacks(ItemFacade item, Map<String, String> map, Long typeId)
   {
@@ -1667,30 +1659,41 @@ public class ExtractionHelper
 	  String correctItemFeedback = "";
 	  String incorrectItemFeedback = "";
 	  String generalItemFeedback = "";
+
+	  if (typeId.equals(TypeIfc.ESSAY_QUESTION)) {
+		  generalItemFeedback = "";
+	  }
+	  else if (typeId.equals(TypeIfc.TRUE_FALSE)) {
 		  for (Entry<String, String> af : map.entrySet()) {
 			  type = af.getKey();
-			  if (type.equals("All")) {
+			  if (type.endsWith("_ALL")) {
 				  generalItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
 			  }
-			  else if (type.equals("C")) {
+			  else if (type.endsWith("_C")) {
 				  correctItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
 			  }
-			  else if (type.equals("IC")) {
+			  else if (type.endsWith("_IC")) {
 				  incorrectItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
 			  }
 		  }
-
-		  if (typeId.equals(TypeIfc.ESSAY_QUESTION)) {
-			  generalItemFeedback = "";
+		  correctItemFeedback = generalItemFeedback + correctItemFeedback;
+		  incorrectItemFeedback = generalItemFeedback + incorrectItemFeedback;
+	  }
+	  else {
+		  for (Entry<String, String> af : map.entrySet()) {
+			  type = af.getKey();
+			  if (type.endsWith("_ALL")) {
+				  generalItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
+			  }
 		  }
-		  else {
-			  correctItemFeedback = generalItemFeedback + correctItemFeedback;
-			  incorrectItemFeedback = generalItemFeedback + incorrectItemFeedback;
-		  }
+		  correctItemFeedback = generalItemFeedback;
+		  incorrectItemFeedback = generalItemFeedback;
 
-		  item.setGeneralItemFeedback(generalItemFeedback);
-		  item.setCorrectItemFeedback(correctItemFeedback);
-		  item.setInCorrectItemFeedback(incorrectItemFeedback);
+	  }
+
+	  item.setGeneralItemFeedback(generalItemFeedback);
+	  item.setCorrectItemFeedback(correctItemFeedback);
+	  item.setInCorrectItemFeedback(incorrectItemFeedback);
   }
 
   private void addFeedback(ItemFacade item, Map<String, String> map, Long typeId)
@@ -1860,7 +1863,7 @@ public class ExtractionHelper
   }
 
   private void addRespondusTextAndAnswers(ItemFacade item, Map itemMap, HashMap<String, String> varequalLinkrefidMap, 
-		  HashMap<String, String> feedbacksMap)
+		  HashMap<String, String> allFeedbacksMap)
   {
 	  List itemTextList = (List) itemMap.get("itemText");
 	  HashSet itemTextSet = new HashSet();
@@ -1876,7 +1879,7 @@ public class ExtractionHelper
 	  answerList = aList == null ? answerList : aList;
 
 	  if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ) {
-		  answerList.add(feedbacksMap);
+		  answerList.add(allFeedbacksMap);
 	  }
 
 	  for (int i = 0; i < itemTextList.size(); i++)
@@ -1895,7 +1898,7 @@ public class ExtractionHelper
 		  {
 			  Answer answer = new Answer();
 			  if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ) {
-				  for (Entry<String, String> entrySet : feedbacksMap.entrySet()) {
+				  for (Entry<String, String> entrySet : allFeedbacksMap.entrySet()) {
 					  String allFeedback = (String) entrySet.getValue();
 					  answer.setText(this.makeFCKAttachmentFromRespondus(allFeedback));
 				  }
@@ -1933,14 +1936,13 @@ public class ExtractionHelper
 						  if (varequalLinkrefidMap.get(ident) != null) {
 							  String linkrefid = (String) varequalLinkrefidMap.get(ident);
 							  if (linkrefid.endsWith("_C") || linkrefid.endsWith("_IC")) {
-								  //if (allFeedbacksMap.get(linkrefid) != null) {
-									  //answerFeedback.setText(makeFCKAttachment((ArrayList) allFeedbacksMap.get(linkrefid)));
-									  //set.add(answerFeedback);
-									  //answer.setAnswerFeedbackSet(set);
-								  //}
+								  if (allFeedbacksMap.get(linkrefid) != null) {
+									  answerFeedback.setText(this.makeFCKAttachmentFromRespondus((String) allFeedbacksMap.get(linkrefid)));
+									  set.add(answerFeedback);
+									  answer.setAnswerFeedbackSet(set);
+								  }
 							  }
 						  }
-
 					  }
 				  }
 			  }
@@ -2178,10 +2180,6 @@ public class ExtractionHelper
 
   private void addRespondusFibTextAndAnswers(ItemFacade item, Map itemMap)
   {
-	  List itemTextList = new ArrayList();
-	  List iList = (List) itemMap.get("itemText");
-	  itemTextList = iList == null ? itemTextList : iList;
-
 	  HashSet itemTextSet = new HashSet();
 	  ItemText itemText = new ItemText();
 	  List answerFeedbackList = (List) itemMap.get("itemFeedback");
@@ -2190,17 +2188,13 @@ public class ExtractionHelper
 	  List aList = (List) itemMap.get("itemFibAnswer");
 	  answerList = aList == null ? answerList : aList;
 
+	  List itemTextList = (List) itemMap.get("itemText");
 	  StringBuilder itemTextStringbuf = new StringBuilder();
-	  if (unzipLocation == null) {
-		  String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(0));
-		  text = text.replaceAll("\\?\\?"," ");
-		  itemTextStringbuf.append(text);
+	  if (itemTextList != null && itemTextList.size() > 0) {
+		  itemTextStringbuf.append(makeFCKAttachmentFromRespondus((String) itemTextList.get(0)));
 	  }
-	  else {		  
-		  List itemTextRespondueList = (List) itemMap.get("itemTextRespondus");  
-		  itemTextStringbuf.append(makeFCKAttachment(itemTextRespondueList));
-	  }
-	  itemTextStringbuf.append("<br/>");
+
+	  //itemTextStringbuf.append("<br/>");
 	  itemTextStringbuf.append(FIB_BLANK_INDICATOR);
 	  itemText.setText(itemTextStringbuf.toString());
 	  itemText.setItem(item.getData());
@@ -2431,7 +2425,7 @@ public class ExtractionHelper
     item.setItemTextSet(itemTextSet);
   }
 
-  private void addRespondusMatchTextAndAnswers(ItemFacade item, Map itemMap)
+  private void addRespondusMatchTextAndAnswers(ItemFacade item, Map itemMap) throws RespondusMatchingException
   {
 
 	  List sourceList = (List) itemMap.get("itemMatchSourceText");
@@ -2442,6 +2436,15 @@ public class ExtractionHelper
 	  targetList = targetList == null ? new ArrayList() : targetList;
 	  correctList = correctList == null ? new ArrayList() : correctList;
 
+	  List itemTextList = (List) itemMap.get("itemText");
+	  if (itemTextList != null && itemTextList.size() > 0) {
+		  item.setInstruction(makeFCKAttachmentFromRespondus((String) itemTextList.get(0)));
+	  }
+	  
+	  if (Math.pow(sourceList.size(), 2) != targetList.size()) {
+		  throw new RespondusMatchingException("Matching question error!");
+	  }
+	  
 	  HashMap<String, String> sourceMap = new HashMap<String, String>();
 	  if (sourceList != null) {
 		  Iterator iter = sourceList.iterator();
@@ -2468,21 +2471,6 @@ public class ExtractionHelper
 			  s = ((String) iter.next()).split(":::");
 			  correctMap.put(s[0], s[1]);
 		  }
-	  }
-
-	  List itemTextList = (List) itemMap.get("itemText");
-	  String itemTextString = "";
-	  if (unzipLocation == null) {
-		  if (itemTextList != null && itemTextList.size()>0)
-		  {
-			  itemTextString = XmlUtil.processFormattedText(log, (String) itemTextList.get(0));
-			  itemTextString = itemTextString.replaceAll("\\?\\?"," ");
-			  item.setInstruction(itemTextString);
-		  }
-	  }
-	  else {
-		  List itemTextRespondueList = (List) itemMap.get("itemTextRespondus");  
-		  item.setInstruction(makeFCKAttachment(itemTextRespondueList));
 	  }
 
 	  HashSet itemTextSet = new HashSet();

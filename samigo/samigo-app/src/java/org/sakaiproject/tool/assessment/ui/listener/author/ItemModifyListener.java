@@ -495,7 +495,8 @@ public class ItemModifyListener implements ActionListener
        ItemTextIfc  itemText = (ItemTextIfc) iter.next();
        MatchItemBean choicebean =  new MatchItemBean();
        choicebean.setChoice(itemText.getText());
-
+       choicebean.setSequence(itemText.getSequence());
+       
        Set answerSet = itemText.getAnswerSet();
        Iterator iter1 = answerSet.iterator();
        while (iter1.hasNext()){
@@ -503,7 +504,7 @@ public class ItemModifyListener implements ActionListener
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
            choicebean.setMatch(answer.getText());
-           choicebean.setSequence(answer.getSequence());
+           //choicebean.setSequence(answer.getSequence());
            choicebean.setIsCorrect(Boolean.TRUE);
            Set feedbackSet = answer.getAnswerFeedbackSet();
            Iterator iter2 = feedbackSet.iterator();

@@ -21,12 +21,15 @@
 
 package org.sakaiproject.tool.assessment.services.qti;
 
+import java.util.ArrayList;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.w3c.dom.Document;
 
@@ -87,17 +90,17 @@ public class QTIService
    */
   public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation)
   {
-	  return createImportedAssessment(document, qtiVersion, unzipLocation, false);
+	  return createImportedAssessment(document, qtiVersion, unzipLocation, false, null);
   }
   
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus)
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus, ArrayList failedMatchingQuestions)
   {
     testQtiVersion(qtiVersion);
 
     try
     {
       AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.createImportedAssessment(document, unzipLocation, isRespondus);
+      return helper.createImportedAssessment(document, unzipLocation, isRespondus, failedMatchingQuestions);
     }
     catch (Exception ex)
     {

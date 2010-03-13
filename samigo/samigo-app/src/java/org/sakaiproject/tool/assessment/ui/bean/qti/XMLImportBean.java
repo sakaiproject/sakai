@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.qti.exception.RespondusMatchingException;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
@@ -222,14 +223,27 @@ public class XMLImportBean implements Serializable
     this.importType = importType;
   }
 
-  private void processFile(String fileName, boolean isRespondus) throws Exception
+  private void processFile(String fileName, boolean isRespondus) throws Exception, RespondusMatchingException
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
 
     AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
-    AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus);
-
+    ArrayList failedMatchingQuestions = new ArrayList();
+    AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus, failedMatchingQuestions);
+    if (failedMatchingQuestions.size() > 0)
+    {
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      StringBuffer sb = new StringBuffer(rb.getString("respondus_matching_err"));
+      for(int i = 0; i < failedMatchingQuestions.size() - 1; i++) {
+    	  sb.append(" ");
+    	  sb.append(failedMatchingQuestions.get(i));
+    	  sb.append(", ");
+      }
+      sb.append(failedMatchingQuestions.get(failedMatchingQuestions.size() - 1));
+      FacesMessage message = new FacesMessage(sb.toString());
+      FacesContext.getCurrentInstance().addMessage(null, message);
+    }
     
     // change grading book settings if there is no gradebook in the site
     boolean hasGradebook = false;
@@ -298,7 +312,7 @@ public class XMLImportBean implements Serializable
    * @return
    */
   
-  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus) throws Exception
+  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus, ArrayList failedMatchingQuestions) throws Exception
   {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document = null;
@@ -309,10 +323,10 @@ public class XMLImportBean implements Serializable
 	}
     QTIService qtiService = new QTIService();
     if (isCP) {
-    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus);
+    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus, failedMatchingQuestions);
     }
     else {
-    	return qtiService.createImportedAssessment(document, qti, null, isRespondus);
+    	return qtiService.createImportedAssessment(document, qti, null, isRespondus, failedMatchingQuestions);
     }
   }
 
@@ -357,6 +371,12 @@ public class XMLImportBean implements Serializable
     try
     {
     	processAsPoolFile(uploadFile);
+    }
+    catch (RespondusMatchingException rmx)
+    {
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      FacesMessage message = new FacesMessage(rb.getString("respondus_matching_err") + rmx.getMessage());
+      FacesContext.getCurrentInstance().addMessage(null, message);
     }
     catch (Exception ex)
     {
