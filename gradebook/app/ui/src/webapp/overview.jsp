@@ -116,8 +116,11 @@
 			</h:column>
 			<h:column rendered="#{overviewBean.userAbleToEditAssessments}">
 				<f:facet name="header">
-		    	<h:outputText escape="false" value="&nbsp;" />
-		    </f:facet>
+					<h:panelGroup> 
+				    	<h:outputText escape="false" value="&nbsp;" />
+				    	<h:outputText value="#{msgs.overview_edit}" styleClass="skip" />						
+					</h:panelGroup> 
+		    	</f:facet>
 				<h:commandLink action="#{overviewBean.navigateToEdit}" rendered="#{gradebookItem.assignment}">
 					<h:outputText value="#{msgs.overview_edit}" />
 					<f:param name="assignmentId" value="#{gradebookItem.id}"/>
@@ -128,6 +131,7 @@
 				<f:facet name="header">
 		    	<t:commandSortHeader columnName="mean" propertyName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}" />
+						<h:outputText value="#{msgs.overview_assignments_header_average_exp}" styleClass="skip"/>						
 						<h:outputText value="#{msgs.overview_footnote_symbol2}" />
 		      </t:commandSortHeader>
 		    </f:facet>
