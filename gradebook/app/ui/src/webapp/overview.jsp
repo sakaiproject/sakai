@@ -122,7 +122,7 @@
 					</h:panelGroup> 
 		    	</f:facet>
 				<h:commandLink action="#{overviewBean.navigateToEdit}" rendered="#{gradebookItem.assignment}">
-					<h:outputText value="#{msgs.overview_edit}" />
+					<h:outputText value="#{msgs.overview_edit}" /><h:outputText escape="false" value="&nbsp;" styleClass="skip" /><h:outputText styleClass="skip" value="#{gradebookItem.name}" />
 					<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 				</h:commandLink>
 			</h:column>
