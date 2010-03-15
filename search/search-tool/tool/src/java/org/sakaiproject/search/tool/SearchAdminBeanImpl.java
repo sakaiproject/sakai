@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
@@ -131,15 +131,15 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	public SearchAdminBeanImpl(HttpServletRequest request,
 			SearchService searchService, SiteService siteService,
-			ToolManager toolManager, SessionManager sessionManager)
+			ToolManager toolManager, SessionManager sessionManager, SecurityService securityService, ServerConfigurationService serverConfigurationService)
 			throws IdUnusedException, PermissionException
 	{
 		siteId = toolManager.getCurrentPlacement().getContext();
 		Site currentSite = siteService.getSite(siteId);
 		siteCheck = currentSite.getReference();
 		userName = sessionManager.getCurrentSessionUserId();
-		superUser = SecurityService.isSuperUser();
-		boolean allow = ( superUser ) || ( "true".equals(ServerConfigurationService.getString("search.allow.maintain.admin","false")) &&
+		superUser = securityService.isSuperUser();
+		boolean allow = ( superUser ) || ( "true".equals(serverConfigurationService.getString("search.allow.maintain.admin","false")) &&
 						siteService.allowUpdateSite(siteId));
 		if ( !allow )
 		{

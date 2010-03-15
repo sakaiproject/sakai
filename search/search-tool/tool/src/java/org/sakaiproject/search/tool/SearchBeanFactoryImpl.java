@@ -26,7 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
@@ -59,6 +61,9 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 	private UserDirectoryService userDirectoryService;
 
 	private ServletContext context;
+	
+	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
 
 	public void init()
 	{
@@ -70,6 +75,9 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		siteService = (SiteService) load(cm, SiteService.class.getName());
 		toolManager = (ToolManager) load(cm, ToolManager.class.getName());
 		userDirectoryService = (UserDirectoryService) load(cm, UserDirectoryService.class.getName());
+		securityService = (SecurityService)load(cm, SecurityService.class.getName());
+		serverConfigurationService = (ServerConfigurationService) load(cm, ServerConfigurationService.class.getName());
+		
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -115,7 +123,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		{
 			SearchAdminBeanImpl searchAdminBean = new SearchAdminBeanImpl(
 					request, searchService, siteService, toolManager,
-					sessionManager);
+					sessionManager, securityService, serverConfigurationService);
 			return searchAdminBean;
 		}
 		catch (IdUnusedException e)
