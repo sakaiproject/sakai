@@ -403,7 +403,7 @@ public class ListItem
 	protected Time retractDate;
 	public boolean useConditionalRelease = false;
 	private String submittedFunctionName;
-	private String submittedResourceFilter;
+	private String submittedResourceFilter = "";
 	private String selectedConditionKey;
 	private String conditionArgument;
 	private String conditionAssignmentPoints;
