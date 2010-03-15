@@ -31,13 +31,13 @@
 						value="#{ChatTool.currentChannelEdit.chatChannel.filterType}"
 						id="filterType" layout="spread">
 						<f:selectItem id="typeAll" itemValue="SelectAllMessages"
-							itemLabel="" />
+							itemLabel="#{msgs['custom.showall']}" />
 						<f:selectItem id="typeNumber" itemValue="SelectMessagesByNumber"
-							itemLabel="" />
+							itemLabel="#{msgs['custom.showlast']} " />
 						<f:selectItem id="typeTime" itemValue="SelectMessagesByTime"
-							itemLabel="" />
+							itemLabel="#{msgs['custom.showpast']} " />
 						<f:selectItem id="typeNone" itemValue="SelectNoneMessages"
-							itemLabel="" />
+							itemLabel="#{msgs['shownone']}" />
 
 					</t:selectOneRadio>
 				</h:panelGroup>
@@ -49,27 +49,23 @@
 
 						<h:panelGroup>
 							<t:radio for="filterType" index="3" />
-							<h:outputLabel value="#{msgs['shownone']}" />
 							<h:inputHidden id="filterParam_none" 
 								value="#{ChatTool.currentChannelEdit.filterParamNone}" />
 						</h:panelGroup>
 						<h:panelGroup>
 							<t:radio for="filterType" index="0" />
-							<h:outputLabel value="#{msgs['custom.showall']}" />
 						</h:panelGroup>
 						<h:panelGroup>
 							<t:radio for="filterType" index="1" />
-							<h:outputLabel value="#{msgs['custom.showlast']} " />
 							<h:inputText id="filterParam_last" size="3"
 								value="#{ChatTool.currentChannelEdit.filterParamLast}" />
-							<h:outputLabel value="#{msgs['custom.mess']}" />
+							<h:outputLabel value="#{msgs['custom.mess']}" for="filterParam_last"/>
 						</h:panelGroup>
 						<h:panelGroup>
 							<t:radio for="filterType" index="2" />
-							<h:outputLabel value="#{msgs['custom.showpast']} " />
 							<h:inputText id="filterParam_past" size="3"
-								value="#{ChatTool.currentChannelEdit.filterParamPast}" />
-							<h:outputLabel value="#{msgs['custom.days']}" />
+								value="#{ChatTool.currentChannelEdit.filterParamPast}"/>
+							<h:outputLabel value="#{msgs['custom.days']}" for="filterParam_past"/>
 						</h:panelGroup>
 						<h:panelGroup>
 							<h:selectBooleanCheckbox id="enableUserOverride"
