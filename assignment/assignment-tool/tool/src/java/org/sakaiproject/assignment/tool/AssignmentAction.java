@@ -813,7 +813,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 
-		if (!mode.equals(MODE_LIST_ASSIGNMENTS))
+		if (!MODE_LIST_ASSIGNMENTS.equals(mode))
 		{
 			// allow grade assignment?
 			if (state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION) == null)
@@ -823,17 +823,17 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("allowGradeSubmission", state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION));
 		}
 
-		if (mode.equals(MODE_LIST_ASSIGNMENTS))
+		if (MODE_LIST_ASSIGNMENTS.equals(mode))
 		{
 			// build the context for the student assignment view
 			template = build_list_assignments_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_STUDENT_VIEW_ASSIGNMENT))
+		else if (MODE_STUDENT_VIEW_ASSIGNMENT.equals(mode))
 		{
 			// the student view of assignment
 			template = build_student_view_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION))
+		else if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
@@ -841,28 +841,28 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for showing one assignment submission
 			template = build_student_view_submission_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION))
+		else if (MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION.equals(mode))
 		{
 			// build the context for showing one assignment submission confirmation
 			template = build_student_view_submission_confirmation_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_STUDENT_PREVIEW_SUBMISSION))
+		else if (MODE_STUDENT_PREVIEW_SUBMISSION.equals(mode))
 		{
 			// build the context for showing one assignment submission
 			template = build_student_preview_submission_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_STUDENT_VIEW_GRADE) || mode.equals(MODE_STUDENT_VIEW_GRADE_PRIVATE))
+		else if (MODE_STUDENT_VIEW_GRADE.equals(mode) || MODE_STUDENT_VIEW_GRADE_PRIVATE.equals(mode))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
 
-			if(mode.equals(MODE_STUDENT_VIEW_GRADE_PRIVATE)){
+			if(MODE_STUDENT_VIEW_GRADE_PRIVATE.equals(mode)){
 				context.put("privateView", true);
 			}
 			// build the context for showing one graded submission
 			template = build_student_view_grade_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode))
 		{
 			// allow add assignment?
 			boolean allowAddSiteAssignment = AssignmentService.allowAddSiteAssignment(contextString);
@@ -874,7 +874,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for the instructor's create new assignment view
 			template = build_instructor_new_edit_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_DELETE_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_DELETE_ASSIGNMENT.equals(mode))
 		{
 			if (state.getAttribute(DELETE_ASSIGNMENT_IDS) != null)
 			{
@@ -885,7 +885,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_delete_assignment_context(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode))
 		{
 			if (allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -893,7 +893,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_grade_assignment_context(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
+		else if (MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode))
 		{
 			if (allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -904,7 +904,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_grade_submission_context(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
+		else if (MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION.equals(mode))
 		{
 			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -912,12 +912,12 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_preview_grade_submission_context(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT.equals(mode))
 		{
 			// build the context for preview one assignment
 			template = build_instructor_preview_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_VIEW_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_VIEW_ASSIGNMENT.equals(mode))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
@@ -925,7 +925,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for view one assignment
 			template = build_instructor_view_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(mode))
 		{
 			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -933,7 +933,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_view_students_assignment_context(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
+		else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode))
 		{
 			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -941,7 +941,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_report_submissions(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_DOWNLOAD_ALL))
+		else if (MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(mode))
 		{
 			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -949,7 +949,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_download_upload_all(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_UPLOAD_ALL))
+		else if (MODE_INSTRUCTOR_UPLOAD_ALL.equals(mode))
 		{
 			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
 			{
@@ -957,7 +957,7 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_download_upload_all(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_REORDER_ASSIGNMENT.equals(mode))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
@@ -5076,7 +5076,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String oAssociateGradebookAssignment = null;
 
 		String mode = (String) state.getAttribute(STATE_MODE);
-		if (!mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT))
+		if (!MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT.equals(mode))
 		{
 			// read input data if the mode is not preview mode
 			setNewAssignmentParameters(data, true);
@@ -7769,7 +7769,7 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 
 		String mode = (String) state.getAttribute(STATE_MODE);
-		if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION))
+		if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode))
 		{
 			// retrieve the submission text (as formatted text)
 			boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
@@ -7789,11 +7789,11 @@ public class AssignmentAction extends PagedResourceActionII
 			// User[] users = { UserDirectoryService.getCurrentUser() };
 			// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode))
 		{
 			setNewAssignmentParameters(data, false);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
+		else if (MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode))
 		{
 			readGradeForm(data, state, "read");
 		}
@@ -9941,7 +9941,7 @@ public class AssignmentAction extends PagedResourceActionII
 		List returnResources = new Vector();
 
 		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
-		if (mode.equalsIgnoreCase(MODE_LIST_ASSIGNMENTS))
+		if (MODE_LIST_ASSIGNMENTS.equals(mode))
 		{
 			String view = "";
 			if (state.getAttribute(STATE_SELECTED_VIEW) != null)
@@ -10006,12 +10006,12 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, Boolean.valueOf(returnResources.size() > 1));
 		}
-		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_REORDER_ASSIGNMENT.equals(mode))
 		{
 			returnResources = AssignmentService.getListAssignmentsForContext((String) state
 					.getAttribute(STATE_CONTEXT_STRING));
 		}
-		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
+		else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode))
 		{
 			Vector submissions = new Vector();
 			
@@ -10072,7 +10072,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			returnResources = submissions;
 		}
-		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
+		else if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode))
 		{
 			// range
 			Collection groups = new Vector();
@@ -10217,12 +10217,12 @@ public class AssignmentAction extends PagedResourceActionII
 		String sort = "";
 		ascending = (String) state.getAttribute(SORTED_ASC);
 		sort = (String) state.getAttribute(SORTED_BY);
-		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT) && (sort == null || !sort.startsWith("sorted_grade_submission_by")))
+		if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) && (sort == null || !sort.startsWith("sorted_grade_submission_by")))
 		{
 			ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
 		}
-		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS) && (sort == null || sort.startsWith("sorted_submission_by")))
+		else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode) && (sort == null || sort.startsWith("sorted_submission_by")))
 		{
 			ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
@@ -10233,7 +10233,7 @@ public class AssignmentAction extends PagedResourceActionII
 			sort = (String) state.getAttribute(SORTED_BY);
 		}
 		
-		if ((returnResources.size() > 1) && !mode.equalsIgnoreCase(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
+		if ((returnResources.size() > 1) && !MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(mode))
 		{
 			try
 			{
@@ -10266,19 +10266,19 @@ public class AssignmentAction extends PagedResourceActionII
 			String viewMode = data.getParameters().getString("view");
 			state.setAttribute(STATE_SELECTED_VIEW, viewMode);
 
-			if (viewMode.equals(MODE_LIST_ASSIGNMENTS))
+			if (MODE_LIST_ASSIGNMENTS.equals(viewMode))
 			{
 				doList_assignments(data);
 			}
-			else if (viewMode.equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
+			else if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(viewMode))
 			{
 				doView_students_assignment(data);
 			}
-			else if (viewMode.equals(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
+			else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(viewMode))
 			{
 				doReport_submissions(data);
 			}
-			else if (viewMode.equals(MODE_STUDENT_VIEW))
+			else if (MODE_STUDENT_VIEW.equals(viewMode))
 			{
 				doView_student(data);
 			}
@@ -10784,18 +10784,18 @@ public class AssignmentAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute(STATE_MODE);
 		ParameterParser params = data.getParameters();
 
-		if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION) || mode.equals(MODE_STUDENT_PREVIEW_SUBMISSION)
-				|| mode.equals(MODE_STUDENT_VIEW_GRADE) || mode.equals(MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT)
-				|| mode.equals(MODE_INSTRUCTOR_DELETE_ASSIGNMENT) || mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION)
-				|| mode.equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION) || mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT)
-				|| mode.equals(MODE_INSTRUCTOR_VIEW_ASSIGNMENT) || mode.equals(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
+		if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode) || MODE_STUDENT_PREVIEW_SUBMISSION.equals(mode)
+				|| MODE_STUDENT_VIEW_GRADE.equals(mode) || MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode)
+				|| MODE_INSTRUCTOR_DELETE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
+				|| MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION.equals(mode)|| MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT.equals(mode)
+				|| MODE_INSTRUCTOR_VIEW_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_REORDER_ASSIGNMENT.equals(mode))
 		{
 			if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) == null)
 			{
 				addAlert(state, rb.getString("alert.globalNavi"));
 				state.setAttribute(ALERT_GLOBAL_NAVIGATION, Boolean.TRUE);
 
-				if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION))
+				if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode))
 				{
 					// retrieve the submission text (as formatted text)
 					boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
@@ -10813,11 +10813,11 @@ public class AssignmentAction extends PagedResourceActionII
 					// User[] users = { UserDirectoryService.getCurrentUser() };
 					// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
 				}
-				else if (mode.equals(MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT))
+				else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode))
 				{
 					setNewAssignmentParameters(data, false);
 				}
-				else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
+				else if (MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode))
 				{
 					readGradeForm(data, state, "read");
 				}
