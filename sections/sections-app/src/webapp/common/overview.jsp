@@ -47,6 +47,7 @@
                 <h:panelGroup rendered="#{ ! overviewBean.externallyManaged && overviewBean.sectionManagementEnabled}">
                     <h:commandLink action="editSection" value="#{msgs.overview_link_edit}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
+						<h:outputText value=" (#{section.title})" styleClass="skip"/>
                     </h:commandLink>
                     <h:outputFormat value=" #{msgs.overview_link_sep_char} "/>
                 </h:panelGroup>
@@ -56,6 +57,7 @@
                     value="#{msgs.overview_link_managers}"
                     rendered="#{overviewBean.sectionTaManagementEnabled}">
                         <f:param name="sectionUuid" value="#{section.uuid}"/>
+						<h:outputText value=" (#{section.title})" styleClass="skip"/>
                 </h:commandLink>
     
                 <h:panelGroup rendered="#{ ! overviewBean.externallyManaged}">
@@ -68,6 +70,7 @@
                         value="#{msgs.overview_link_students}"
                         rendered="#{overviewBean.sectionEnrollmentMangementEnabled}">
                             <f:param name="sectionUuid" value="#{section.uuid}"/>
+						<h:outputText value=" (#{section.title})" styleClass="skip"/>			
                     </h:commandLink>
                 </h:panelGroup>
             </t:div>
