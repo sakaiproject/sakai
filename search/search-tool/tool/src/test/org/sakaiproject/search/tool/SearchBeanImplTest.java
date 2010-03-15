@@ -7,6 +7,8 @@ import java.util.Properties;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
@@ -20,6 +22,8 @@ public class SearchBeanImplTest extends MockObjectTestCase {
 	Mock mockToolManager = null;
 	Mock mockPlacement = null;
 	Mock mockProperties = null;
+	Mock mockSecurityService = null;
+	Mock mockServerConfiguration = null;
 	String defaultSiteId = "defaultSiteId";
 	
 	protected void setUp() throws Exception {
@@ -29,9 +33,11 @@ public class SearchBeanImplTest extends MockObjectTestCase {
 		mockToolManager = mock(ToolManager.class,"toolManager");
 		mockPlacement = mock(Placement.class,"placement");
 		mockProperties = mock(Properties.class,"properties");
+		mockSecurityService = mock(SecurityService.class,"securityService");
+		mockServerConfiguration = mock(ServerConfigurationService.class, "serverconfigurationService");
 
 		sbi = new SearchBeanImpl(defaultSiteId,(SearchService) mockSearchService.proxy(),
-				"defaultSearch", (ToolManager) mockToolManager.proxy());
+				"defaultSearch", (ToolManager) mockToolManager.proxy(), (SecurityService)mockSecurityService.proxy(), (ServerConfigurationService)mockServerConfiguration.proxy());
 	}
 
 

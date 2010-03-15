@@ -41,8 +41,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -142,6 +142,10 @@ public class SearchBeanImpl implements SearchBean
 	
 	private ToolManager toolManager;
 
+	private SecurityService securityService;
+
+	private ServerConfigurationService serverConfigurationService;
+	
 	private String siteId;
 
 	private String sortName = "normal";
@@ -177,12 +181,15 @@ public class SearchBeanImpl implements SearchBean
 	
 	// Empty constructor to aid in testing.
 	 
-	public SearchBeanImpl(String siteId, SearchService ss, String search,ToolManager tm) {
+	public SearchBeanImpl(String siteId, SearchService ss, String search,ToolManager tm,
+			SecurityService securityService, ServerConfigurationService serverConfigurationService) {
 		super();
 		this.siteId = siteId;
 		this.searchService = ss;
 		this.search = search;
 		this.toolManager = tm;
+		this.serverConfigurationService = serverConfigurationService;
+		this.securityService = securityService;
 	}
 	
 	/**
@@ -200,7 +207,7 @@ public class SearchBeanImpl implements SearchBean
 	 *         if there is no current worksite
 	 */
 	public SearchBeanImpl(HttpServletRequest request, SearchService searchService,
-			SiteService siteService, ToolManager toolManager, UserDirectoryService userDirectoryService) throws IdUnusedException
+			SiteService siteService, ToolManager toolManager, UserDirectoryService userDirectoryService, SecurityService securityService, ServerConfigurationService serverConfigurationService) throws IdUnusedException
 	{
 		this.search = request.getParameter(SEARCH_PARAM);
 		this.searchService = searchService;
@@ -209,6 +216,8 @@ public class SearchBeanImpl implements SearchBean
 		this.placementId = this.toolManager.getCurrentPlacement().getId();
 		this.toolId = this.toolManager.getCurrentTool().getId();
 		this.siteId = this.toolManager.getCurrentPlacement().getContext();
+		this.serverConfigurationService = serverConfigurationService;
+		this.securityService = securityService;
 		try
 		{
 			this.requestPage = Integer.parseInt(request.getParameter(SEARCH_PAGE));
@@ -245,9 +254,9 @@ public class SearchBeanImpl implements SearchBean
 	public SearchBeanImpl(HttpServletRequest request, String sortName,
 			String filterName, SearchService searchService,
 			SiteService siteService, ToolManager toolManager,
-			UserDirectoryService userDirectoryService) throws IdUnusedException
+			UserDirectoryService userDirectoryService, SecurityService securityService, ServerConfigurationService serverConfigurationService) throws IdUnusedException
 	{
-		this(request, searchService, siteService, toolManager, userDirectoryService);
+		this(request, searchService, siteService, toolManager, userDirectoryService, securityService, serverConfigurationService);
 		this.sortName = sortName;
 		this.filterName = filterName;
 	}
@@ -359,7 +368,7 @@ public class SearchBeanImpl implements SearchBean
 
 	public boolean isEnabled()
 	{
-		return ("true".equals(ServerConfigurationService.getString("search.enable",
+		return ("true".equals(serverConfigurationService.getString("search.enable",
 				"false")));
 
 	}
@@ -596,9 +605,9 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public boolean hasAdmin()
 	{
-		boolean superUser = SecurityService.isSuperUser();
+		boolean superUser = securityService.isSuperUser();
 		return (superUser)
-				|| ("true".equals(ServerConfigurationService.getString(
+				|| ("true".equals(serverConfigurationService.getString(
 						"search.allow.maintain.admin", "false")) && siteService
 						.allowUpdateSite(siteId));
 	}
@@ -609,7 +618,7 @@ public class SearchBeanImpl implements SearchBean
 	public String getToolUrl()
 	{
 
-		return ServerConfigurationService.getString("portalPath") + "/tool/"
+		return serverConfigurationService.getString("portalPath") + "/tool/"
 				+ placementId;
 	}
 
@@ -634,7 +643,7 @@ public class SearchBeanImpl implements SearchBean
 
 	public String getOpenSearchUrl()
 	{
-		return ServerConfigurationService.getPortalUrl() + "/tool/" + placementId
+		return serverConfigurationService.getPortalUrl() + "/tool/" + placementId
 				+ "/opensearch";
 	}
 	
@@ -651,12 +660,12 @@ public class SearchBeanImpl implements SearchBean
 
 	public String getBaseUrl()
 	{
-		return ServerConfigurationService.getPortalUrl() + "/tool/" + placementId;
+		return serverConfigurationService.getPortalUrl() + "/tool/" + placementId;
 	}
 	
 	public String getPortalBaseUrl()
 	{
-		return ServerConfigurationService.getPortalUrl() + "/directtool/" + placementId;
+		return serverConfigurationService.getPortalUrl() + "/directtool/" + placementId;
 	}
 
 	public String getSiteTitle()
@@ -666,7 +675,7 @@ public class SearchBeanImpl implements SearchBean
 
 	public String getSystemName()
 	{
-		return FormattedText.escapeHtml(ServerConfigurationService.getString(
+		return FormattedText.escapeHtml(serverConfigurationService.getString(
 				"ui.service", "Sakai"), false);
 	}
 

@@ -100,7 +100,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		try
 		{
 			SearchBean searchBean = new SearchBeanImpl(request,
-					searchService, siteService, toolManager, userDirectoryService);
+					searchService, siteService, toolManager, userDirectoryService, securityService, serverConfigurationService);
 
 			return searchBean;
 		}
@@ -138,7 +138,7 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		try
 		{
 			SearchBean searchBean = new SearchBeanImpl(request, sortName, filterName,
-					searchService, siteService, toolManager, userDirectoryService);
+					searchService, siteService, toolManager, userDirectoryService, securityService, serverConfigurationService);
 
 			return searchBean;
 		}
