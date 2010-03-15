@@ -8,7 +8,7 @@ function toggle(elm) {
 
   var e = elm.parentNode;
   while (e){
-    if (e.tagName == "TABLE"){
+    if (e.tagName == "H1"){
       e = e.nextSibling;
       if (e && e.tagName == "OL"){
         if (!e.style.display || e.style.display== "none") {     

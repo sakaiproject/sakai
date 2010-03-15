@@ -5,12 +5,13 @@ ol {padding: 0; margin: 0; list-style: none outside;}
 
 ol.docs {display:none}
 
-li {margin-bottom: 1px; padding-left: 12px;  margin-top: 1px; font-size: 9pt}
 
 
 /** Added Oct 23, 2005 */
 
+/*
 a {font-size: 9pt}
+*/
 
 img {border: 0; margin-right: 1px}
 
@@ -23,3 +24,21 @@ tr { vertical-align: baseline}
 * html li {
         margin: 0 0 -3px 0
 } 
+
+
+.helpIndexBody h1{
+	padding:0;margin:0;font-size:9pt !important;
+}
+.helpIndexBody h1 img{
+	padding-right:3px;
+	}
+.helpIndexBody ol.docs{
+	margin:0;padding:0;
+}
+.helpIndexBody ol.docs li{
+	margin:0;padding:0;
+	}
+.helpIndexBody h2{
+	text-indent:-1.5em;font-size:9pt !important;
+	padding:2px 0 2px 1.5em !important;margin:0 0 0 1em
+}

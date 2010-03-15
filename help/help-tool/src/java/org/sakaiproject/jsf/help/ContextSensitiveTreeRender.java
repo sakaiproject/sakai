@@ -86,7 +86,7 @@ public class ContextSensitiveTreeRender extends Renderer
     //writer.write("<body onload='collapseAll([\"ol\"]); openBookMark();'>");
     writer.write("</head>\n");
 
-    writer.write("<body>\n");
+    writer.write("<body class=\"helpIndexBody\">\n");
     writer.write("<ol id=\"root\">");
     UIData data = (UIData) component;
     Object value = data.getValue();
@@ -141,12 +141,12 @@ public class ContextSensitiveTreeRender extends Renderer
       Set resources = new TreeSet(category.getResources());
       String id = category.getName();
       
-      writer.write("<li class=\"dir\">");
-      writer.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>");
+      writer.write("<li class=\"dir helpIndex\">");
+      writer.write("<h1>");
       writer.write("<img src=\"../image/toc_closed.gif\" alt=\"closed\" /></td>");      
-      writer.write("<td><a id=\"" + id + "\" href=\"#" + category.getName()
+      writer.write("<a id=\"" + id + "\" href=\"#" + category.getName()
           + "\" onclick=\"toggle(this)\">" + category.getName() + "</a></td>");
-      writer.write("</tr></table>");
+      writer.write("</h1>");
 
       writer.write("<ol class=\"docs\">");
       Set subCategories = new TreeSet(category.getCategories());
@@ -173,12 +173,12 @@ public class ContextSensitiveTreeRender extends Renderer
           }
           else
           {
-            writer.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>");
-            writer.write("<img src=\"../image/topic.gif\" alt=\"topic\"/></td>");            
-            writer.write("<td><a id=\"" + resource.getDocId()
+            writer.write("<h2>");
+            writer.write("<img src=\"../image/topic.gif\" alt=\"topic\"/>");            
+            writer.write("<a id=\"" + resource.getDocId()
                 + "\" href=\"content.hlp?docId=" + resource.getDocId()
-                + "\" target = \"content\">" + resource.getName() + "</a></td>");            
-            writer.write("</tr></table></li>\n");
+                + "\" target = \"content\">" + resource.getName() + "</a>");            
+            writer.write("</h2></li>\n");
           }
         }
       }

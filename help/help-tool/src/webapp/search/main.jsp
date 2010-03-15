@@ -45,7 +45,7 @@
 </h:form>
 <sakai:group_box title="">
     <h:outputText value="#{SearchTool.numberOfResult}" />
-    <sakai:flat_list value="#{SearchTool.searchResults}" var="result">
+    <h:dataTable border="0" styleClass="listHier" value="#{SearchTool.searchResults}" var="result" summary="#{msgs.search_result_summary}">
 	    <h:column>
 	    	<h:outputLink value="../content.hlp?docId=#{result.docId}" target="content" style="font:8pt" rendered="#{SearchTool.isRestEnabled}">
   	      <h:outputText value="#{result.name}"/>
@@ -57,7 +57,7 @@
 		<h:column>
 			<h:outputText value="#{result.formattedScore}" style="font:8pt"/>
 		</h:column>
-    </sakai:flat_list>
+    </h:dataTable>
 </sakai:group_box>
 </sakai:view_container>
 </f:view>
