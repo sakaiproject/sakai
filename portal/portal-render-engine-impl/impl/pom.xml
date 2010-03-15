@@ -11,7 +11,7 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-portal-render-engine-impl</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai project</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
@@ -60,12 +60,10 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
-      <groupId>velocity</groupId>
+      <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
-      <version>1.4</version>
     </dependency>
 <!-- required for unit tests -->
     <dependency>

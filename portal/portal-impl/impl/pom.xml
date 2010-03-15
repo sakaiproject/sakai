@@ -11,7 +11,7 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-portal-impl</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
@@ -66,9 +66,8 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-      <groupId>velocity</groupId>
+      <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
-      <version>1.4</version>
     </dependency>
     <dependency>
       <groupId>xom</groupId>

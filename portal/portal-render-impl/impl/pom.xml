@@ -11,7 +11,7 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-portal-render-impl</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
@@ -91,7 +91,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>
