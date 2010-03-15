@@ -21,9 +21,7 @@
 
 package org.sakaiproject.authz.cover;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -32,6 +30,8 @@ import org.sakaiproject.component.cover.ComponentManager;
  * <p>
  * AuthzGroupService is a static Cover for the {@link org.sakaiproject.authz.api.AuthzGroupService AuthzGroupService}; see that interface for usage details.
  * </p>
+ * @deprecated Static covers should not be used in favour of injection or lookup
+ * via the component manager. This cover will be removed in a later version of the Kernel
  */
 public class AuthzGroupService
 {

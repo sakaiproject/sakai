@@ -27,6 +27,8 @@ import org.sakaiproject.component.cover.ComponentManager;
  * <p>
  * SiteService is a static Cover for the {@link org.sakaiproject.site.api.SiteService SiteService}; see that interface for usage details.
  * </p>
+ * @deprecated Static covers should not be used in favour of injection or lookup
+ * via the component manager. This cover will be removed in a later version of the Kernel
  */
 public class SiteService
 {

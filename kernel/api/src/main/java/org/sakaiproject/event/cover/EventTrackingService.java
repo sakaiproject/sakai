@@ -29,6 +29,8 @@ import org.sakaiproject.time.api.Time;
  * <p>
  * EventTrackingService is a static Cover for the {@link org.sakaiproject.event.api.EventTrackingService EventTrackingService}; see that interface for usage details.
  * </p>
+ * @deprecated Static covers should not be used in favour of injection or lookup
+ * via the component manager. This cover will be removed in a later version of the Kernel
  */
 public class EventTrackingService
 {
