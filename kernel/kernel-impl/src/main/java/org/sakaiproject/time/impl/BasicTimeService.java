@@ -36,9 +36,9 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -81,18 +81,30 @@ public class BasicTimeService implements TimeService
 	private Hashtable M_userTzMap = new Hashtable();
 
 	// Default Timezone/Locale
-   protected String[] M_tz_locale_default = new String[] { TimeZone.getDefault().getID(), Locale.getDefault().toString() };
-   
-   // Used for fetching user's default language locale
-   ResourceLoader rl = new ResourceLoader();
+	protected String[] M_tz_locale_default = new String[] { TimeZone.getDefault().getID(), Locale.getDefault().toString() };
+
+	// Used for fetching user's default language locale
+	ResourceLoader rl = new ResourceLoader();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
+	private SessionManager sessionManager;
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	private PreferencesService preferencesService;
+
+	public void setPreferencesService(PreferencesService preferencesService) {
+		this.preferencesService = preferencesService;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -133,33 +145,33 @@ public class BasicTimeService implements TimeService
 		M_log.info("destroy()");
 	}
 
-   /** Return string with user's prefered timezone _and_ prefered locale
-    ** (dates are formatted according to the locale)
-    **/
+	/** Return string with user's prefered timezone _and_ prefered locale
+	 ** (dates are formatted according to the locale)
+	 **/
 	protected String[] getUserTimezoneLocale()
 	{
 		// Check if we already cached this user's timezone
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = sessionManager.getCurrentSessionUserId();
 		if (userId == null) return M_tz_locale_default;
 
 		String[] timeZoneLocale = (String[]) M_userTzMap.get(userId);
 		if (timeZoneLocale != null) return timeZoneLocale;
 
 		// Otherwise, get the user's preferred time zone
-		Preferences prefs = PreferencesService.getPreferences(userId);
+		Preferences prefs = preferencesService.getPreferences(userId);
 		ResourceProperties tzProps = prefs.getProperties(TimeService.APPLICATION_ID);
 		String timeZone = tzProps.getProperty(TimeService.TIMEZONE_KEY);
 
 		if (timeZone == null || timeZone.equals("")) 
-         timeZone = TimeZone.getDefault().getID();
+			timeZone = TimeZone.getDefault().getID();
 
-      // Now, get user's prefered locale
-      String localeId = rl.getLocale().toString();
+		// Now, get user's prefered locale
+		String localeId = rl.getLocale().toString();
 
-      timeZoneLocale = new String[] {timeZone, localeId};
-      
+		timeZoneLocale = new String[] {timeZone, localeId};
+
 		M_userTzMap.put(userId, timeZoneLocale);
-      
+
 		return timeZoneLocale;
 	}
 
@@ -359,9 +371,9 @@ public class BasicTimeService implements TimeService
 	{
 		// The time zone for our local times
 		public TimeZone M_tz_local = null;
-      
-      // The Locale for our local date/time formatting
-      public Locale M_locale = null;
+
+		// The Locale for our local date/time formatting
+		public Locale M_locale = null;
 
 		// a calendar to clone for GMT time construction
 		public GregorianCalendar M_GCall = null;
@@ -387,19 +399,19 @@ public class BasicTimeService implements TimeService
 		{
 		}; // disable default constructor
 
-      public LocalTzFormat(String timeZoneId, String localeId )
+		public LocalTzFormat(String timeZoneId, String localeId )
 		{
 			M_tz_local = TimeZone.getTimeZone(timeZoneId);
-         
-         Locale M_locale = null;
-         String langLoc[] = localeId.split("_");
-         if ( langLoc.length >= 2 )
-        	 if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
-        		 M_locale = new Locale("en", "GB");
-        	 else
-        		 M_locale = new Locale(langLoc[0], langLoc[1]);
-         else
-            M_locale = new Locale(langLoc[0]);
+
+			Locale M_locale = null;
+			String langLoc[] = localeId.split("_");
+			if ( langLoc.length >= 2 )
+				if (langLoc[0].equals("en") && langLoc[1].equals("ZA"))
+					M_locale = new Locale("en", "GB");
+				else
+					M_locale = new Locale(langLoc[0], langLoc[1]);
+			else
+				M_locale = new Locale(langLoc[0]);
 
 			M_fmtAl = (DateFormat)(new SimpleDateFormat("yyyyMMddHHmmssSSS"));
 			M_fmtBl = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
@@ -410,24 +422,24 @@ public class BasicTimeService implements TimeService
 			M_fmtD2 = DateFormat.getDateInstance(DateFormat.SHORT, M_locale);
 			M_fmtFl = (DateFormat)(new SimpleDateFormat("HH:mm:ss"));
 
-         // Strip the seconds from the Blz and Clz (default) formats         
-         try
-         {
-            SimpleDateFormat sdf = ((SimpleDateFormat)M_fmtBlz);
-            String pattern = sdf.toLocalizedPattern();
-            pattern = pattern.replaceAll(":ss","");
-            sdf.applyLocalizedPattern( pattern );
-            
-            sdf = ((SimpleDateFormat)M_fmtClz);
-            pattern = sdf.toLocalizedPattern();
-            pattern = pattern.replaceAll(":ss","");
-            sdf.applyLocalizedPattern( pattern );
-         }
-         catch (ClassCastException e)
-         {
-            // ignore -- not all locales support this
-         }
-         
+			// Strip the seconds from the Blz and Clz (default) formats         
+			try
+			{
+				SimpleDateFormat sdf = ((SimpleDateFormat)M_fmtBlz);
+				String pattern = sdf.toLocalizedPattern();
+				pattern = pattern.replaceAll(":ss","");
+				sdf.applyLocalizedPattern( pattern );
+
+				sdf = ((SimpleDateFormat)M_fmtClz);
+				pattern = sdf.toLocalizedPattern();
+				pattern = pattern.replaceAll(":ss","");
+				sdf.applyLocalizedPattern( pattern );
+			}
+			catch (ClassCastException e)
+			{
+				// ignore -- not all locales support this
+			}
+
 			M_fmtAl.setTimeZone(M_tz_local);
 			M_fmtBl.setTimeZone(M_tz_local);
 			M_fmtBlz.setTimeZone(M_tz_local);
@@ -806,7 +818,7 @@ public class BasicTimeService implements TimeService
 				equals = ((((MyTimeRange) obj).m_startIncluded == m_startIncluded)
 						&& (((MyTimeRange) obj).m_endIncluded == m_endIncluded)
 						&& (((MyTimeRange) obj).m_startTime.equals(m_startTime)) && (((MyTimeRange) obj).m_endTime
-						.equals(m_endTime)));
+								.equals(m_endTime)));
 			}
 
 			return equals;
@@ -818,7 +830,7 @@ public class BasicTimeService implements TimeService
 		 */
 		public int hashCode() {
 			String hash = Boolean.toString(m_startIncluded) + Boolean.toString(m_endIncluded)
-				+ m_startTime.getDisplay() + m_endTime.getDisplay();
+			+ m_startTime.getDisplay() + m_endTime.getDisplay();
 			return hash.hashCode();
 		}
 
@@ -862,94 +874,94 @@ public class BasicTimeService implements TimeService
 
 					switch (tokenCount)
 					{
-						case 1:
+					case 1:
+					{
+						if (next.charAt(0) == '=')
 						{
-							if (next.charAt(0) == '=')
-							{
-								// use the rest as a duration in ms
-								startMs = Long.parseLong(next.substring(1));
-							}
+							// use the rest as a duration in ms
+							startMs = Long.parseLong(next.substring(1));
+						}
 
-							else
-							{
-								m_startTime = newTimeGmt(next);
-							}
+						else
+						{
+							m_startTime = newTimeGmt(next);
+						}
+
+					}
+					break;
+
+					case 2:
+					{
+						// set the inclusions
+						switch (next.charAt(0))
+						{
+						// start not included
+						case '[':
+						{
+							m_startIncluded = false;
+							m_endIncluded = true;
 
 						}
-							break;
+						break;
 
-						case 2:
+						// end not included
+						case ']':
 						{
-							// set the inclusions
-							switch (next.charAt(0))
-							{
-								// start not included
-								case '[':
-								{
-									m_startIncluded = false;
-									m_endIncluded = true;
-
-								}
-									break;
-
-								// end not included
-								case ']':
-								{
-									m_startIncluded = true;
-									m_endIncluded = false;
-
-								}
-									break;
-
-								// neither included
-								case '~':
-								{
-									m_startIncluded = false;
-									m_endIncluded = false;
-
-								}
-									break;
-
-								// both included
-								case '-':
-								{
-									m_startIncluded = true;
-									m_endIncluded = true;
-
-								}
-									break;
-
-								// trouble!
-								default:
-								{
-									throw new Exception(next.charAt(0) + " invalid");
-								}
-							} // switch (next[0])
+							m_startIncluded = true;
+							m_endIncluded = false;
 
 						}
-							break;
+						break;
 
-						case 3:
+						// neither included
+						case '~':
 						{
-							if (next.charAt(0) == '=')
-							{
-								// use the rest as a duration in ms
-								endMs = Long.parseLong(next.substring(1));
-							}
-
-							else
-							{
-								m_endTime = newTimeGmt(next);
-							}
+							m_startIncluded = false;
+							m_endIncluded = false;
 
 						}
-							break;
+						break;
+
+						// both included
+						case '-':
+						{
+							m_startIncluded = true;
+							m_endIncluded = true;
+
+						}
+						break;
 
 						// trouble!
 						default:
 						{
-							throw new Exception(">3 tokens");
+							throw new Exception(next.charAt(0) + " invalid");
 						}
+						} // switch (next[0])
+
+					}
+					break;
+
+					case 3:
+					{
+						if (next.charAt(0) == '=')
+						{
+							// use the rest as a duration in ms
+							endMs = Long.parseLong(next.substring(1));
+						}
+
+						else
+						{
+							m_endTime = newTimeGmt(next);
+						}
+
+					}
+					break;
+
+					// trouble!
+					default:
+					{
+						throw new Exception(">3 tokens");
+					}
 					} // switch (tokenCount)
 
 				} // while (tokenizer.hasMoreTokens())
@@ -1128,7 +1140,7 @@ public class BasicTimeService implements TimeService
 		public String toString()
 		{
 			return "year: " + year + " month: " + month + " day: " + day + " hour: " + hour + " min: " + min + " sec: " + sec
-					+ " ms: " + ms;
+			+ " ms: " + ms;
 		}
 
 		public int getYear()
