@@ -68,11 +68,11 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseDbBinarySingleStorage;
 import org.sakaiproject.util.BaseDbDualSingleStorage;
@@ -193,7 +193,28 @@ public class DbContentService extends BaseContentService
 	{
 		m_sqlService = service;
 	}
-
+	
+	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		super.setSessionManager(sessionManager);
+		this.sessionManager = sessionManager;
+	}
+	
+	private ThreadLocalManager threadLocalManager;
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		super.setThreadLocalManager(threadLocalManager);
+		this.threadLocalManager = threadLocalManager;
+	}
+	
+	
+	private TimeService timeService;
+	public void setTimeService(TimeService timeService) {
+		super.setTimeService(timeService);
+		this.timeService = timeService;
+	}
+	
+	
 	/**
 	 * Configuration: set the table name for collections.
 	 * 
@@ -466,7 +487,7 @@ public class DbContentService extends BaseContentService
 		try
 		{
     		//enableSecurityAdvisor();
-    		Session s = SessionManager.getCurrentSession();
+    		Session s = sessionManager.getCurrentSession();
     		s.setUserId(UserDirectoryService.ADMIN_ID);
     		
 			for(char ch = 'A'; ch <= 'Z'; ch++)
@@ -580,7 +601,7 @@ public class DbContentService extends BaseContentService
 	{
 		if (filesizeColumnExists && !filesizeColumnReady)
 		{
-			long now = TimeService.newTime().getTime();
+			long now = timeService.newTime().getTime();
 			if(now > filesizeColumnCheckExpires)
 			{
 				// cached value has expired -- time to renew
@@ -1304,7 +1325,7 @@ public class DbContentService extends BaseContentService
 					 * accept(Object o) { // o is a String, the collection id return StringUtil.referencePath((String) o).equals(target); } } );
 					 */
 
-					List collections = (List) ThreadLocalManager.get("getCollections@" + target);
+					List collections = (List) threadLocalManager.get("getCollections@" + target);
 					if (collections == null)
 					{
 						collections = m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
@@ -1319,12 +1340,12 @@ public class DbContentService extends BaseContentService
 								if(update != null)
 								{
 									ResourcePropertiesEdit props = dropbox.getPropertiesEdit();
-									Time time = TimeService.newTime(update);
+									Time time = timeService.newTime(update);
 									props.addProperty(PROP_DROPBOX_CHANGE_TIMESTAMP, time.toString());
 								}
 							}
 						}
-						ThreadLocalManager.set("getCollections@" + target, collections);
+						threadLocalManager.set("getCollections@" + target, collections);
 						cacheEntities(collections);
 					}
 					// read the records with a where clause to let the database
@@ -1560,11 +1581,11 @@ public class DbContentService extends BaseContentService
 					 * accept(Object o) { // o is a String, the resource id return StringUtil.referencePath((String) o).equals(target); } } );
 					 */
 
-					List resources = (List) ThreadLocalManager.get("getResources@" + target);
+					List resources = (List) threadLocalManager.get("getResources@" + target);
 					if (resources == null)
 					{
 						resources = m_resourceStore.getAllResourcesWhere("IN_COLLECTION", target);
-						ThreadLocalManager.set("getResources@" + target, resources);
+						threadLocalManager.set("getResources@" + target, resources);
 						cacheEntities(resources);
 					}
 					// read the records with a where clause to let the database
@@ -1641,18 +1662,18 @@ public class DbContentService extends BaseContentService
 				fields[0] = individualDropboxId;
 				fields[1] = individualDropboxId;
 				fields[2] = isolateContainingId(individualDropboxId);
-				fields[3] = Long.toString(TimeService.newTime().getTime());
+				fields[3] = Long.toString(timeService.newTime().getTime());
 				fields[4] = isolateContainingId(individualDropboxId);
-				fields[5] = Long.toString(TimeService.newTime().getTime());
+				fields[5] = Long.toString(timeService.newTime().getTime());
 			}
 			else
 			{
 				fields = new Object[5];
 			fields[0] = individualDropboxId;
 				fields[1] = isolateContainingId(individualDropboxId);
-				fields[2] = Long.toString(TimeService.newTime().getTime());
+				fields[2] = Long.toString(timeService.newTime().getTime());
 				fields[3] = isolateContainingId(individualDropboxId);
-				fields[4] = Long.toString(TimeService.newTime().getTime());
+				fields[4] = Long.toString(timeService.newTime().getTime());
 			}
 			
 			try
@@ -1672,7 +1693,7 @@ public class DbContentService extends BaseContentService
 			
 			Object[] fields = new Object[3];
 			fields[0] = isolateContainingId(individualDropboxId);
-			fields[1] = Long.toString(TimeService.newTime().getTime());
+			fields[1] = Long.toString(timeService.newTime().getTime());
 			fields[2] = individualDropboxId;
 			
 			boolean ok = m_sqlService.dbWrite(sql, fields);
@@ -2481,12 +2502,12 @@ public class DbContentService extends BaseContentService
 				pageSize = MAXIMUM_PAGE_SIZE;
 		
 			String key = "getResourcesOfType@" + resourceType + ":" + pageSize + ":" + page;
-			List resources = (List) ThreadLocalManager.get(key);
+			List resources = (List) threadLocalManager.get(key);
 
 			if (resources == null) {
 				resources = this.m_resourceStore.getAllResourcesWhere("RESOURCE_TYPE_ID", resourceType, "RESOURCE_ID", page * pageSize, pageSize);
 				if (resources != null) {
-					ThreadLocalManager.set(key, resources);
+					threadLocalManager.set(key, resources);
 				}
 			}
 			
@@ -2821,7 +2842,7 @@ public class DbContentService extends BaseContentService
 						}
 						catch (Exception e)
 						{
-							created = TimeService.newTime();
+							created = timeService.newTime();
 						}
 					}
 
