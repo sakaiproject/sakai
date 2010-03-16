@@ -231,7 +231,7 @@ public interface UserDirectoryService extends EntityProducer
 	/**
 	 * Remove authentication for the current user.
 	 * 
-	 * @deprecated Unused; will likely be removed from the interface
+	 * @deprecated Unused; will likely be removed from the interface in 2.0
 	 */
 	void destroyAuthentication();
 
