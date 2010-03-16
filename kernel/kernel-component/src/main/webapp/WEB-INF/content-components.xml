@@ -16,16 +16,26 @@
             init-method="init" destroy-method="destroy" singleton="true">
 
         <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
+        <property name="functionManager">			<ref bean="org.sakaiproject.authz.api.FunctionManager"/>				</property>
         <property name="aliasService">               <ref bean="org.sakaiproject.alias.api.AliasService"/>                   </property>
         <property name="siteService">                <ref bean="org.sakaiproject.site.api.SiteService"/>                     </property>
         <property name="notificationService">        <ref bean="org.sakaiproject.event.api.NotificationService"/>            </property>
         <property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
         <property name="entityManager">              <ref bean="org.sakaiproject.entity.api.EntityManager"/>                 </property>
+        <property name="securityService">			 <ref bean="org.sakaiproject.authz.api.SecurityService"/>				</property>
         <property name="sqlService">                 <ref bean="org.sakaiproject.db.api.SqlService"/>                        </property>
         <property name="lockManager">                <ref bean="org.sakaiproject.content.api.LockManager"/>                  </property>
         <property name="authzGroupService">          <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>              </property>
         <property name="resourceTypeRegistry">       <ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/>         </property>
         <property name="virusScanner">				<ref bean="org.sakaiproject.antivirus.api.VirusScanner"/>				</property>
+        <property name="contentTypeImageService">	<ref bean="org.sakaiproject.content.api.ContentTypeImageService"/>		</property>
+        <property name="eventTrackingService">		<ref bean="org.sakaiproject.event.api.EventTrackingService"/>			</property>
+        <property name="idManager">					<ref bean="org.sakaiproject.id.api.IdManager"/>							</property>
+        <property name="threadLocalManager">		<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/>		</property>
+        <property name="timeService">				<ref bean="org.sakaiproject.time.api.TimeService"/>						</property>
+        <property name="sessionManager">			<ref bean="org.sakaiproject.tool.api.SessionManager"/>					</property>
+        <property name="toolManager">				<ref bean="org.sakaiproject.tool.api.ToolManager"/>						</property>
+        <property name="userDirectoryService"> 		<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>			</property>	
         <!--
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 		-->

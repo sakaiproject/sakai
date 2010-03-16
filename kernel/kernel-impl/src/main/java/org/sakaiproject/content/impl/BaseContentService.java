@@ -63,8 +63,8 @@ import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -82,7 +82,7 @@ import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
-import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
 import org.sakaiproject.content.types.FileUploadType;
@@ -113,7 +113,7 @@ import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.CopyrightException;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -126,7 +126,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
@@ -134,16 +134,16 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadBound;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
@@ -238,6 +238,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		m_memoryService = service;
 	}
 
+	private ToolManager toolManager;
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
 	/** Dependency: AliasService. */
 	protected AliasService m_aliasService = null;
 
@@ -266,6 +270,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		m_siteService = service;
 	}
 
+	
+
+	
+	
 	/** Dependency: NotificationService. */
 	protected NotificationService m_notificationService = null;
 
@@ -293,6 +301,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		m_serverConfigurationService = service;
 	}
+	
+	
+	private IdManager idManager;
+	
+	public void setIdManager(IdManager idManager) {
+		this.idManager = idManager;
+	}
+	
+	private FunctionManager functionManager;
+	
+	public void setFunctionManager(FunctionManager functionManager) {
+		this.functionManager = functionManager;
+	}
+	
+	private ThreadLocalManager threadLocalManager;
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
+	}
 
 	/** Dependency: EntityManager. */
 	protected EntityManager m_entityManager = null;
@@ -308,6 +334,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		m_entityManager = service;
 	}
 
+	
+	protected ContentTypeImageService contentTypeImageService;
+	
+	public void setContentTypeImageService(ContentTypeImageService contentTypeImageService) {
+		this.contentTypeImageService = contentTypeImageService;
+	}
+	
+	
 	/** Dependency: AuthzGroupService. */
 	protected AuthzGroupService m_authzGroupService = null;
 
@@ -322,6 +356,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		m_authzGroupService = service;
 	}
 
+	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
 	/** Dependency: SecurityService. */
 	protected SecurityService m_securityService = null;
 
@@ -354,12 +393,26 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	}
 	
 	
+	private EventTrackingService eventTrackingService;
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
 	private VirusScanner virusScanner;
 
 	public void setVirusScanner(VirusScanner virusScanner) {
 		this.virusScanner = virusScanner;
 	}
 
+	private TimeService timeService;
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
+	
+	private UserDirectoryService userDirectoryService;
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+	
 	/** Configuration: cache, or not. */
 	protected boolean m_caching = false;
 
@@ -742,17 +795,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					ContentHostingService.REFERENCE_ROOT);
 
 			// register functions
-			FunctionManager.registerFunction(AUTH_RESOURCE_ADD);
-			FunctionManager.registerFunction(AUTH_RESOURCE_READ);
-			FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY);
-			FunctionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN);
-			FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY);
-			FunctionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN);
-			FunctionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS);
-			FunctionManager.registerFunction(AUTH_RESOURCE_HIDDEN);
+			functionManager.registerFunction(AUTH_RESOURCE_ADD);
+			functionManager.registerFunction(AUTH_RESOURCE_READ);
+			functionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY);
+			functionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN);
+			functionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY);
+			functionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN);
+			functionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS);
+			functionManager.registerFunction(AUTH_RESOURCE_HIDDEN);
 
-			FunctionManager.registerFunction(AUTH_DROPBOX_OWN);
-			FunctionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
+			functionManager.registerFunction(AUTH_DROPBOX_OWN);
+			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
 
 
 			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "
@@ -1549,7 +1602,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		if(!available && entity != null)
 		{
 			String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
-			String userId = SessionManager.getCurrentSessionUserId();
+			String userId = sessionManager.getCurrentSessionUserId();
 			
 			// if we are in a roleswapped state, we want to ignore the creator check since it would not necessarily reflect an alternate role
 			// FIXME - unsafe check (vulnerable to collision of siteids that are the same as path elements in a resource)
@@ -1557,7 +1610,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			String roleswap = null;
 			for (int i = 0; i < refs.length; i++)
 			{
-				roleswap = SecurityService.getUserEffectiveRole("/site/" + refs[i]);
+				roleswap = m_securityService.getUserEffectiveRole("/site/" + refs[i]);
 				if (roleswap!=null)
 					break;
 			}
@@ -1571,7 +1624,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				// available if user has permission to view hidden entities
 				String lock = AUTH_RESOURCE_HIDDEN;
-				available = SecurityService.unlock(lock, entity.getReference());
+				available = m_securityService.unlock(lock, entity.getReference());
 
 				if(! available)
 				{
@@ -1618,7 +1671,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	protected boolean unlockCheck(String lock, String id)
 	{
-		boolean isAllowed = SecurityService.isSuperUser();
+		boolean isAllowed = m_securityService.isSuperUser();
 		if(! isAllowed)
 		{
 			lock = convertLockIfDropbox(lock, id);
@@ -1630,7 +1683,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				ref = getReference(id);
 			}
 
-			isAllowed = ref != null && SecurityService.unlock(lock, ref);
+			isAllowed = ref != null && m_securityService.unlock(lock, ref);
 
 			if(isAllowed && lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox.")) && m_availabilityChecksEnabled)
 			{
@@ -1663,7 +1716,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		if (uuid != null && this.isLocked(uuid))
 		{
 			// TODO: WebDAV locks need to be more sophisticated than this
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), "remove", id);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), "remove", id);
 		}
 	}
 
@@ -1679,7 +1732,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	protected void unlock(String lock, String id) throws PermissionException
 	{
-		if(SecurityService.isSuperUser())
+		if(m_securityService.isSuperUser())
 		{
 			return;
 		}
@@ -1693,9 +1746,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			ref = getReference(id);
 		}
 
-		if (!SecurityService.unlock(lock, ref))
+		if (!m_securityService.unlock(lock, ref))
 		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, ref);
 		}
 		boolean available = false;
 		try 
@@ -1708,7 +1761,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 		if(! available)
 		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), lock, ref);
 		}
 
 	} // unlock
@@ -1738,11 +1791,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	protected void addLiveCollectionProperties(ContentCollectionEdit c)
 	{
 		ResourcePropertiesEdit p = c.getPropertiesEdit();
-		String current = SessionManager.getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 		p.addProperty(ResourceProperties.PROP_CREATOR, current);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 
-		String now = TimeService.newTime().toString();
+		String now = timeService.newTime().toString();
 		p.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
@@ -1759,10 +1812,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	protected void addLiveUpdateCollectionProperties(ContentCollectionEdit c)
 	{
 		ResourcePropertiesEdit p = c.getPropertiesEdit();
-		String current = SessionManager.getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 
-		String now = TimeService.newTime().toString();
+		String now = timeService.newTime().toString();
 		p.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
 	} // addLiveUpdateCollectionProperties
@@ -1777,11 +1830,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		ResourcePropertiesEdit p = r.getPropertiesEdit();
 
-		String current = SessionManager.getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 		p.addProperty(ResourceProperties.PROP_CREATOR, current);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 
-		String now = TimeService.newTime().toString();
+		String now = timeService.newTime().toString();
 		p.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		p.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
@@ -1802,10 +1855,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		ResourcePropertiesEdit p = r.getPropertiesEdit();
 
-		String current = SessionManager.getCurrentSessionUserId();
+		String current = sessionManager.getCurrentSessionUserId();
 		p.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 
-		String now = TimeService.newTime().toString();
+		String now = timeService.newTime().toString();
 		p.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
 		p.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(r.getContentLength()));
@@ -1823,8 +1876,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		ResourcePropertiesEdit p = r.getPropertiesEdit();
 
-		String current = SessionManager.getCurrentSessionUserId();
-		String now = TimeService.newTime().toString();
+		String current = sessionManager.getCurrentSessionUserId();
+		String now = timeService.newTime().toString();
 
 		if (p.getProperty(ResourceProperties.PROP_CREATOR) == null)
 		{
@@ -2026,9 +2079,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		String containerId = isolateContainingId(id);
-		ThreadLocalManager.set("members@" + containerId, null);
-		ThreadLocalManager.set("getCollections@" + containerId, null);
-		//ThreadLocalManager.set("getResources@" + containerId, null);
+		threadLocalManager.set("members@" + containerId, null);
+		threadLocalManager.set("getCollections@" + containerId, null);
+		//threadLocalManager.set("getResources@" + containerId, null);
 
 		// check security
 		unlock(AUTH_RESOURCE_ADD, id);
@@ -2356,7 +2409,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		ContentCollection collection = null;
 		try
 		{
-			collection = (ContentCollection) ThreadLocalManager.get("findCollection@" + id);
+			collection = (ContentCollection) threadLocalManager.get("findCollection@" + id);
 		}
 		catch(ClassCastException e)
 		{
@@ -2369,7 +2422,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 			if(collection != null)
 			{
-				ThreadLocalManager.set("findCollection@" + id, collection);	// new BaseCollectionEdit(collection));
+				threadLocalManager.set("findCollection@" + id, collection);	// new BaseCollectionEdit(collection));
 			}
 		}
 		else
@@ -2443,7 +2496,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public boolean allowUpdate(String id)
 	{
-		String currentUser = SessionManager.getCurrentSessionUserId();
+		String currentUser = sessionManager.getCurrentSessionUserId();
 		String owner = "";
 
 		try
@@ -2499,7 +2552,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	protected boolean allowRemove(String id)
 	{
 		
-		String currentUser = SessionManager.getCurrentSessionUserId();
+		String currentUser = sessionManager.getCurrentSessionUserId();
 		String owner = "";
 
 		try
@@ -2560,13 +2613,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check security 
 		if ( ! allowRemoveCollection(edit.getId()) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
 
 		// clear thread-local cache SAK-12126
-		ThreadLocalManager.set("members@" + edit.getId(), null);
-		ThreadLocalManager.set("getResources@" + edit.getId(), null);
-		ThreadLocalManager.set("getCollections@" + edit.getId(), null);
+		threadLocalManager.set("members@" + edit.getId(), null);
+		threadLocalManager.set("getResources@" + edit.getId(), null);
+		threadLocalManager.set("getCollections@" + edit.getId(), null);
 
 		// check for members
 		List members = edit.getMemberResources();
@@ -2581,7 +2634,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		((BaseCollectionEdit) edit).setRemoved();
 
 		// remove the old version from thread-local cache.
-		ThreadLocalManager.set("findCollection@" + edit.getId(), null);
+		threadLocalManager.set("findCollection@" + edit.getId(), null);
 
 		// remove any realm defined for this resource
 		try
@@ -2599,9 +2652,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// track it (no notification)
 		String ref = edit.getReference(null);
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, ref, true,
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, ref, true,
 				NotificationService.NOTI_NONE));
-		EventTrackingService.cancelDelays(ref);
+		eventTrackingService.cancelDelays(ref);
 
 	} // removeCollection
 
@@ -2626,7 +2679,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		// check security 
 		if ( ! allowRemoveCollection(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, getReference(id) );
 
 		// find the collection
@@ -2641,9 +2694,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		ContentCollectionEdit edit = editCollection(id);
 
 		// clear thread-local cache SAK-12126
-		ThreadLocalManager.set("members@" + id, null);
-		ThreadLocalManager.set("getResources@" + id, null);
-		ThreadLocalManager.set("getCollections@" + edit.getId(), null);
+		threadLocalManager.set("members@" + id, null);
+		threadLocalManager.set("getResources@" + id, null);
+		threadLocalManager.set("getCollections@" + edit.getId(), null);
 
 		// clear of all members (recursive)
 		// Note: may fail if something's in use or not permitted. May result in a partial clear.
@@ -2714,16 +2767,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		((BaseCollectionEdit) edit).closeEdit();
 
 		// the collection has changed so we must remove the old version from thread-local cache
-		ThreadLocalManager.set("findCollection@" + edit.getId(), null);
+		threadLocalManager.set("findCollection@" + edit.getId(), null);
 		String containerId = isolateContainingId(edit.getId());
-		ThreadLocalManager.set("findCollection@" + containerId, null);
-		ThreadLocalManager.set("members@" + containerId, null);
-		ThreadLocalManager.set("getCollections@" + containerId, null);
-		//ThreadLocalManager.set("getResources@" + containerId, null);
+		threadLocalManager.set("findCollection@" + containerId, null);
+		threadLocalManager.set("members@" + containerId, null);
+		threadLocalManager.set("getCollections@" + containerId, null);
+		//threadLocalManager.set("getResources@" + containerId, null);
 
 		// track it (no notification)
 		String ref = edit.getReference(null);
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseCollectionEdit) edit)
+		eventTrackingService.post(eventTrackingService.newEvent(((BaseCollectionEdit) edit)
 				.getEvent(), ref, true, NotificationService.NOTI_NONE));
 
 	} // commitCollection
@@ -2731,12 +2784,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	private void postAvailableEvent(GroupAwareEntity entity, String ref, int priority)
 	{
 		// cancel all scheduled available events for this entity. 
-		EventTrackingService.cancelDelays(ref, EVENT_RESOURCE_AVAILABLE);
+		eventTrackingService.cancelDelays(ref, EVENT_RESOURCE_AVAILABLE);
 
 		// if resource isn't available yet, schedule an event to tell when it becomes available
 		if (!entity.isAvailable())
 		{
-			EventTrackingService.delay(EventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
+			eventTrackingService.delay(eventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE, ref,
 					false, priority), entity.getReleaseDate());
 			entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.FALSE.toString());
 		}
@@ -2750,7 +2803,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if (!Boolean.TRUE.toString().equalsIgnoreCase(notified) && 
 					!EVENT_RESOURCE_WRITE.equals(((BaseResourceEdit) entity).getEvent()))
 			{
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE,
+				eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_AVAILABLE,
 						ref, false, priority));
 				entity.getProperties().addProperty(PROP_AVAIL_NOTI, Boolean.TRUE.toString());
 			}
@@ -2971,11 +3024,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else if(entity instanceof ContentResource)
 			{
-				ThreadLocalManager.set("findResource@" + entity.getId(), entity);
+				threadLocalManager.set("findResource@" + entity.getId(), entity);
 			}
 			else if(entity instanceof ContentCollection)
 			{
-				ThreadLocalManager.set("findCollection@" + entity.getId(), entity);
+				threadLocalManager.set("findCollection@" + entity.getId(), entity);
 			}
 		}
 	}
@@ -3399,9 +3452,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		}
 
-		ThreadLocalManager.set("members@" + collectionId, null);
-		//ThreadLocalManager.set("getCollections@" + collectionId, null);
-		ThreadLocalManager.set("getResources@" + collectionId, null);
+		threadLocalManager.set("members@" + collectionId, null);
+		//threadLocalManager.set("getCollections@" + collectionId, null);
+		threadLocalManager.set("getResources@" + collectionId, null);
 
 		//		if (edit == null)
 		//		{
@@ -3767,7 +3820,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// form a name based on the attachments collection, a unique folder id, and the given name
-		String collection = ATTACHMENTS_COLLECTION + IdManager.createUuid() + Entity.SEPARATOR;
+		String collection = ATTACHMENTS_COLLECTION + idManager.createUuid() + Entity.SEPARATOR;
 		String id = collection + name;
 
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
@@ -3864,7 +3917,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// form a name based on the attachments collection, a unique folder id, and the given name
-		String collection = toolCollection + IdManager.createUuid() + Entity.SEPARATOR;
+		String collection = toolCollection + idManager.createUuid() + Entity.SEPARATOR;
 		String id = collection + name;
 
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
@@ -3911,7 +3964,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// form a name based on the attachments collection, a unique folder id, and the given name
-		String collection = ATTACHMENTS_COLLECTION + IdManager.createUuid() + Entity.SEPARATOR;
+		String collection = ATTACHMENTS_COLLECTION + idManager.createUuid() + Entity.SEPARATOR;
 		String id = collection + name;
 
 		// add this collection
@@ -3997,7 +4050,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check security 
 		if ( ! allowUpdateResource(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		// check for existance
@@ -4012,7 +4065,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		resource.setEvent(EVENT_RESOURCE_WRITE);
 
-		ThreadLocalManager.set(String.valueOf(resource), resource);
+		threadLocalManager.set(String.valueOf(resource), resource);
 
 		return resource;
 
@@ -4040,7 +4093,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check security 
 		if ( ! allowRemoveResource(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, getReference(id));
 
 		// check for existance
@@ -4055,7 +4108,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		resource.setEvent(EVENT_RESOURCE_REMOVE);
 
-		ThreadLocalManager.set(String.valueOf(resource), resource);
+		threadLocalManager.set(String.valueOf(resource), resource);
 
 		return resource;
 
@@ -4146,7 +4199,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check security 
 		if ( ! allowUpdateCollection(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		// check for existance
@@ -4161,7 +4214,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		collection.setEvent(EVENT_RESOURCE_WRITE);
 
-		ThreadLocalManager.set(String.valueOf(collection), collection);
+		threadLocalManager.set(String.valueOf(collection), collection);
 
 		return collection;
 
@@ -4181,7 +4234,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		ContentResource resource = null;
 		try
 		{
-			resource = (ContentResource) ThreadLocalManager.get("findResource@" + id);
+			resource = (ContentResource) threadLocalManager.get("findResource@" + id);
 		}
 		catch(ClassCastException e)
 		{
@@ -4194,7 +4247,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 			if(resource != null)
 			{
-				ThreadLocalManager.set("findResource@" + id, resource); 	// new BaseResourceEdit(resource));
+				threadLocalManager.set("findResource@" + id, resource); 	// new BaseResourceEdit(resource));
 			}
 		}
 		else
@@ -4308,14 +4361,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		// check security (throws if not permitted)
 		checkExplicitLock(id);
 		if ( ! allowRemoveResource(edit.getId()) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
 
 
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
 		String uuid = this.getUuid(id);
-		String userId = SessionManager.getCurrentSessionUserId().trim();
+		String userId = sessionManager.getCurrentSessionUserId().trim();
 		addResourceToDeleteTable(edit, uuid, userId);
 
 		// complete the edit
@@ -4332,7 +4385,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		((BaseResourceEdit) edit).setRemoved();
 
 		// remove old version of this edit from thread-local cache
-		ThreadLocalManager.set("findResource@" + edit.getId(), null);
+		threadLocalManager.set("findResource@" + edit.getId(), null);
 
 		// remove any realm defined for this resource
 		try
@@ -4350,9 +4403,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// track it (no notification)
 		String ref = edit.getReference(null);
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, ref, true,
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, ref, true,
 				NotificationService.NOTI_NONE));
-		EventTrackingService.cancelDelays(ref);
+		eventTrackingService.cancelDelays(ref);
 
 	} // removeResource
 
@@ -4470,7 +4523,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check security for remove resource (own or any)
 		if ( ! allowRemove(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, getReference(id));
 
 		// check security for read resource
@@ -4493,7 +4546,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if (isRootCollection(id))
 			{
 				cancelCollection(thisCollection);
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), null, null);
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), null, null);
 			}
 		}
 		else
@@ -4687,7 +4740,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check security for delete existing resource (any or own)
 		if ( ! allowRemove(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_REMOVE_ANY, getReference(id));
 
 		// check security for read existing resource
@@ -4710,7 +4763,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if (isRootCollection(id))
 			{
 				cancelCollection(thisCollection);
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), null, null);
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), null, null);
 			}
 		}
 		else
@@ -4964,7 +5017,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 				// track it (no notification)
 				String ref = edit.getReference(null);
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_ADD, ref, true,
+				eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_ADD, ref, true,
 						NotificationService.NOTI_NONE));
 
 				// TODO - we don't know whether to post a future notification or not 
@@ -4974,8 +5027,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 				// track it (no notification)
 				String thisRef = thisResource.getReference(null);
-				EventTrackingService.cancelDelays(thisRef);
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, thisRef, true,
+				eventTrackingService.cancelDelays(thisRef);
+				eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_REMOVE, thisRef, true,
 						NotificationService.NOTI_NONE));
 
 				if (M_log.isDebugEnabled()) M_log.debug("moveResource successful");
@@ -5521,12 +5574,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// must remove old version of this edit from thread-local cache
 		// so we get new version if we try to retrieve it in same thread
-		ThreadLocalManager.set("findResource@" + edit.getId(), null);
+		threadLocalManager.set("findResource@" + edit.getId(), null);
 		String containerId = isolateContainingId(edit.getId());
-		ThreadLocalManager.set("findCollection@" +  containerId, null);
-		ThreadLocalManager.set("members@" + containerId, null);
-		//ThreadLocalManager.set("getCollections@" + containerId, null);
-		ThreadLocalManager.set("getResources@" + containerId, null);
+		threadLocalManager.set("findCollection@" +  containerId, null);
+		threadLocalManager.set("members@" + containerId, null);
+		//threadLocalManager.set("getCollections@" + containerId, null);
+		threadLocalManager.set("getResources@" + containerId, null);
 
 		// only send notifications if the resource is available
 		// an 'available' event w/ notification will be sent when the resource becomes available
@@ -5534,13 +5587,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		String ref = edit.getReference(null);
 
 		// Cancel any previously scheduled delayed available events
-		EventTrackingService.cancelDelays(ref, ((BaseResourceEdit) edit).getEvent());
+		eventTrackingService.cancelDelays(ref, ((BaseResourceEdit) edit).getEvent());
 
 		// Send a notification with the initial event if this is a revise event and the resource is already available
 		int immediate_priority = (EVENT_RESOURCE_WRITE.equals(((BaseResourceEdit) edit).getEvent()) && edit.isAvailable()) ? 
 				priority : NotificationService.NOTI_NONE;
 
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(),
+		eventTrackingService.post(eventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(),
 				ref, true, immediate_priority));
 
 		// Post an available event for now or later
@@ -5648,7 +5701,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		if (o == null) throw new IdUnusedException(id);
 
 		// track event - removed for clarity of the event log -ggolden
-		// EventTrackingService.post(EventTrackingService.newEvent(EVENT_PROPERTIES_READ, getReference(id)));
+		// eventTrackingService.post(eventTrackingService.newEvent(EVENT_PROPERTIES_READ, getReference(id)));
 
 		return o.getProperties();
 
@@ -5707,7 +5760,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		// check security 
 		checkExplicitLock(id);
 		if ( ! allowAddProperty(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
@@ -5799,7 +5852,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		// check security 
 		checkExplicitLock(id);
 		if ( ! allowRemoveProperty(id) )
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
 					AUTH_RESOURCE_WRITE_ANY, getReference(id));
 
 		boolean collectionHint = id.endsWith(Entity.SEPARATOR);
@@ -6047,7 +6100,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// add in the user's myworkspace site, if we can find it and if the user
 		// is not anonymous
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = sessionManager.getCurrentSessionUserId();
 		if ( userId != null )
 		{
 			try
@@ -6129,7 +6182,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// need read permission
 		if (!allowGetResource(ref.getId()))
-			throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
+			throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
 		BaseResourceEdit resource = null;
 		try
@@ -6310,7 +6363,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					}
 					
 					// Track event - only for full reads
-					EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_READ, resource.getReference(null), false));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, resource.getReference(null), false));
 
 		        } 
 		        else 
@@ -6491,7 +6544,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// need read permission
 		if (!allowGetResource(ref.getId()))
-			throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
+			throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
 		BaseCollectionEdit collection = null;
 		try
@@ -6517,7 +6570,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			CollectionAccessFormatter.format(collection, ref, req, res, rb, getAccessPoint(true), getAccessPoint(false));
 
 			// track event
-			// EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
+			// eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
 		}
 		catch (Throwable t)
 		{
@@ -6680,7 +6733,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// form a key for thread-local caching
 		String threadLocalKey = "getEntityAuthzGroups@" + userId + "@" + ref.getReference();
-		Collection rv = (Collection) ThreadLocalManager.get(threadLocalKey);
+		Collection rv = (Collection) threadLocalManager.get(threadLocalKey);
 		if (rv != null)
 		{
 			return new ArrayList(rv);
@@ -6797,7 +6850,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// cache in the thread
-		ThreadLocalManager.set(threadLocalKey, new ArrayList(rv));
+		threadLocalManager.set(threadLocalKey, new ArrayList(rv));
 
 		if (M_log.isDebugEnabled())
 		{
@@ -7121,7 +7174,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							String oldRef = getReference(id);
 
 							// take the name from after /attachment/whatever/
-							id = ATTACHMENTS_COLLECTION + IdManager.createUuid()
+							id = ATTACHMENTS_COLLECTION + idManager.createUuid()
 							+ id.substring(id.indexOf('/', ATTACHMENTS_COLLECTION.length()));
 
 							// record the rename
@@ -7489,14 +7542,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				try
 				{
 					// if successful, the context is already a valid user id
-					UserDirectoryService.getUser(parts[2]);
+					userDirectoryService.getUser(parts[2]);
 				}
 				catch (UserNotDefinedException tryEid)
 				{
 					try
 					{
 						// try using it as an EID
-						String userId = UserDirectoryService.getUserId(parts[2]);
+						String userId = userDirectoryService.getUserId(parts[2]);
 
 						// switch to the ID
 						parts[2] = userId;
@@ -7889,7 +7942,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		el.removeAttribute("body");
 
 		// write the content to a file
-		String fileName = IdManager.createUuid();
+		String fileName = idManager.createUuid();
 		InputStream stream = null;
 		FileOutputStream out = null;
 		try
@@ -7989,7 +8042,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 		catch(EntityPropertyNotDefinedException epnde)
 		{
-			String now = TimeService.newTime().toString();
+			String now = timeService.newTime().toString();
 			edit.getProperties().addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		}
 		catch(EntityPropertyTypeException epte)
@@ -8101,7 +8154,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// track it
 		String ref = edit.getReference(null);
-		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), ref, true,
+		eventTrackingService.post(eventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), ref, true,
 				NotificationService.NOTI_NONE));
 		postAvailableEvent(edit, ref, NotificationService.NOTI_NONE);
 
@@ -8166,18 +8219,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			// if there's a file extension and a blank, null or unknown(application/binary) mime type,
 			// fix the mime type by doing a lookup based on the extension
-			if (((type == null) || (type.length() == 0) || (ContentTypeImageService.isUnknownType(type))))
+			if (((type == null) || (type.length() == 0) || (contentTypeImageService.isUnknownType(type))))
 			{
-				extType.put("type", ContentTypeImageService.getContentType(extension));
+				extType.put("type", contentTypeImageService.getContentType(extension));
 			}
 		}
 		else
 		{
 			// if there is no file extension, but a non-null, non-blank mime type, do a lookup based on the mime type and add an extension
 			// if there is no extension, find one according to the MIME type and add it.
-			if ((type != null) && (!type.equals("")) && (!ContentTypeImageService.isUnknownType(type)))
+			if ((type != null) && (!type.equals("")) && (!contentTypeImageService.isUnknownType(type)))
 			{
-				extension = ContentTypeImageService.getContentTypeExtension(type);
+				extension = contentTypeImageService.getContentTypeExtension(type);
 				if (extension.length() > 0)
 				{
 					id = id + "." + extension;
@@ -8584,7 +8637,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public boolean isPubView(String id)
 	{
-		boolean pubView = SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ, getReference(id));
+		boolean pubView = m_securityService.unlock(userDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ, getReference(id));
 		return pubView;
 	}
 
@@ -8598,7 +8651,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// check for pubview on the container
 		String containerId = isolateContainingId(id);
-		boolean pubView = SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ,
+		boolean pubView = m_securityService.unlock(userDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ,
 				getReference(containerId));
 		return pubView;
 	}
@@ -8925,7 +8978,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public String getDropboxCollection()
 	{
-		return getDropboxCollection(ToolManager.getCurrentPlacement().getContext());
+		return getDropboxCollection(toolManager.getCurrentPlacement().getContext());
 	}
 
 	/**
@@ -8952,7 +9005,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// Anonymous users do not get drop boxes
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = sessionManager.getCurrentSessionUserId();
 		if ( userId == null ) return rv;
 
 		// form the current user's dropbox collection within this site's
@@ -8968,7 +9021,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public String getDropboxDisplayName()
 	{
-		return getDropboxDisplayName(ToolManager.getCurrentPlacement().getContext());
+		return getDropboxDisplayName(toolManager.getCurrentPlacement().getContext());
 	}
 
 	/**
@@ -8997,7 +9050,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// return the current user's sort name
-		return UserDirectoryService.getCurrentUser().getSortName();
+		return userDirectoryService.getCurrentUser().getSortName();
 	}
 
 	/**
@@ -9005,7 +9058,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public void createDropboxCollection()
 	{
-		createDropboxCollection(ToolManager.getCurrentPlacement().getContext());
+		createDropboxCollection(toolManager.getCurrentPlacement().getContext());
 	}
 
 	/**
@@ -9093,7 +9146,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// The AUTH_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
 		// using just the dropbox collection
-		List users = SecurityService.unlockUsers(AUTH_DROPBOX_OWN, getReference(dropbox));
+		List users = m_securityService.unlockUsers(AUTH_DROPBOX_OWN, getReference(dropbox));
 		for (Iterator it = users.iterator(); it.hasNext();)
 		{
 			User user = (User) it.next();
@@ -9172,12 +9225,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 
 
-			User user = UserDirectoryService.getCurrentUser();
+			User user = userDirectoryService.getCurrentUser();
 
 			// the folder id for this user's dropbox in this group
 			String userFolder = dropbox + user.getId() + "/";
 
-			if(SecurityService.unlock(AUTH_DROPBOX_OWN, getReference(dropbox)))
+			if(m_securityService.unlock(AUTH_DROPBOX_OWN, getReference(dropbox)))
 			{
 				// see if it exists - add if it doesn't
 				try
@@ -9226,7 +9279,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public boolean isDropboxMaintainer()
 	{
-		return isDropboxMaintainer(ToolManager.getCurrentPlacement().getContext());
+		return isDropboxMaintainer(toolManager.getCurrentPlacement().getContext());
 	}
 
 	/**
@@ -9246,7 +9299,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// if the user has dropbox maintain in the site, they are the dropbox maintainer
 		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
-		return SecurityService.unlock(AUTH_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
+		return m_securityService.unlock(AUTH_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
 	}
 
 	/******************************************************************************************************************************************************************************************************************************************************
@@ -9315,7 +9368,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		Collection rv = new ArrayList();
 		String owner = "";
-		String currentUser = SessionManager.getCurrentSessionUserId();
+		String currentUser = sessionManager.getCurrentSessionUserId();
 
 		try
 		{
@@ -9403,18 +9456,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					}
 				}
 
-				if(SecurityService.isSuperUser())
+				if(m_securityService.isSuperUser())
 				{
 					rv.addAll(groups);
 				}
-				else if(SecurityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && entity != null && unlockCheck(function, entity.getId()))
+				else if(m_securityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && entity != null && unlockCheck(function, entity.getId()))
 				{
 					rv.addAll(groups);
 				}
 				else
 				{
 					Collection hierarchy = getEntityHierarchyAuthzGroups(ref);
-					String userId = SessionManager.getCurrentSessionUserId();
+					String userId = sessionManager.getCurrentSessionUserId();
 
 					for (Iterator i = groups.iterator(); i.hasNext();)
 					{
@@ -9462,7 +9515,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				int pos = id.indexOf('/', 6);
 				String userId = id.substring(6, pos);
-				String userEid = UserDirectoryService.getUserEid(userId);
+				String userEid = userDirectoryService.getUserEid(userId);
 				String rv = "/user/" + userEid + id.substring(pos);
 				return rv;
 			}
@@ -9787,7 +9840,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 			if(available && (this.m_releaseDate != null || this.m_retractDate != null || isConditionallyReleased()))
 			{
-				Time now = TimeService.newTime();
+				Time now = timeService.newTime();
 				if(this.m_releaseDate != null)
 				{
 					available = this.m_releaseDate.before(now);
@@ -9806,7 +9859,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							available = false;
 						} else {
 							// acl acts as a white list for availability
-							available = acl.contains(SessionManager.getCurrentSessionUserId());
+							available = acl.contains(sessionManager.getCurrentSessionUserId());
 						}
 					} else {
 						available = Boolean.parseBoolean(satisfiesRule);
@@ -9838,7 +9891,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else
 			{
-				m_releaseDate = TimeService.newTime(time.getTime());
+				m_releaseDate = timeService.newTime(time.getTime());
 			}
 			m_hidden = false;
 		}
@@ -9851,7 +9904,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else
 			{
-				m_retractDate = TimeService.newTime(time.getTime());
+				m_retractDate = timeService.newTime(time.getTime());
 			}
 			m_hidden = false;
 		}
@@ -9872,7 +9925,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 				else
 				{
-					this.m_releaseDate = TimeService.newTime(releaseDate.getTime());
+					this.m_releaseDate = timeService.newTime(releaseDate.getTime());
 				}
 				if(retractDate == null)
 				{
@@ -9880,7 +9933,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 				else
 				{
-					this.m_retractDate = TimeService.newTime(retractDate.getTime());
+					this.m_retractDate = timeService.newTime(retractDate.getTime());
 				}
 			}
 
@@ -10057,11 +10110,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							}
 
 							// extract release date
-							// m_releaseDate = TimeService.newTime(0);
+							// m_releaseDate = timeService.newTime(0);
 							String date0 = attributes.getValue(RELEASE_DATE);
 							if (date0 != null && !date0.trim().equals(""))
 							{
-								m_releaseDate = TimeService.newTimeGmt(date0);
+								m_releaseDate = timeService.newTimeGmt(date0);
 								if (m_releaseDate.getTime() <= START_OF_TIME)
 								{
 									m_releaseDate = null;
@@ -10069,12 +10122,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							}
 
 							// extract retract date
-							// m_retractDate = TimeService.newTimeGmt(9999,12,
+							// m_retractDate = timeService.newTimeGmt(9999,12,
 							// 31, 23, 59, 59, 999);
 							String date1 = attributes.getValue(RETRACT_DATE);
 							if (date1 != null && !date1.trim().equals(""))
 							{
-								m_retractDate = TimeService.newTimeGmt(date1);
+								m_retractDate = timeService.newTimeGmt(date1);
 								if (m_retractDate.getTime() >= END_OF_TIME)
 								{
 									m_retractDate = null;
@@ -10198,11 +10251,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 
 			// extract release date
-			// m_releaseDate = TimeService.newTime(0);
+			// m_releaseDate = timeService.newTime(0);
 			String date0 = el.getAttribute(RELEASE_DATE);
 			if(date0 != null && !date0.trim().equals(""))
 			{
-				m_releaseDate = TimeService.newTimeGmt(date0);
+				m_releaseDate = timeService.newTimeGmt(date0);
 				if(m_releaseDate.getTime() <= START_OF_TIME)
 				{
 					m_releaseDate = null;
@@ -10210,11 +10263,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 
 			// extract retract date
-			// m_retractDate = TimeService.newTimeGmt(9999,12, 31, 23, 59, 59, 999);
+			// m_retractDate = timeService.newTimeGmt(9999,12, 31, 23, 59, 59, 999);
 			String date1 = el.getAttribute(RETRACT_DATE);
 			if(date1 != null && !date1.trim().equals(""))
 			{
-				m_retractDate = TimeService.newTimeGmt(date1);
+				m_retractDate = timeService.newTimeGmt(date1);
 				if(m_retractDate.getTime() >= END_OF_TIME)
 				{
 					m_retractDate = null;
@@ -10264,7 +10317,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else
 			{
-				m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
+				m_releaseDate = timeService.newTime(other.getReleaseDate().getTime());
 			}
 			if(m_hidden || other.getRetractDate() == null)
 			{
@@ -10272,7 +10325,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else
 			{
-				m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
+				m_retractDate = timeService.newTime(other.getRetractDate().getTime());
 			}
 
 		} // set
@@ -10436,7 +10489,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		 */
 		public List getMemberResources()
 		{
-			List mbrs = (List) ThreadLocalManager.get("members@" + this.m_id);
+			List mbrs = (List) threadLocalManager.get("members@" + this.m_id);
 			if(mbrs == null)
 			{
 				mbrs = new ArrayList();
@@ -10498,7 +10551,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					}
 				}
 
-				ThreadLocalManager.set("members@" + this.m_id, mbrs);
+				threadLocalManager.set("members@" + this.m_id, mbrs);
 			}
 
 			//if (mbrs.size() == 0) return mbrs;
@@ -10522,12 +10575,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				if(entity instanceof ContentResource)
 				{
 					copy = new BaseResourceEdit((ContentResource) entity);
-					ThreadLocalManager.set("findResource@" + entity.getId(), entity);	// new BaseResourceEdit((ContentResource) entity));
+					threadLocalManager.set("findResource@" + entity.getId(), entity);	// new BaseResourceEdit((ContentResource) entity));
 				}
 				else if(entity instanceof ContentCollection)
 				{
 					copy = new BaseCollectionEdit((ContentCollection) entity);
-					ThreadLocalManager.set("findCollection@" + entity.getId(), entity); 	// new BaseCollectionEdit((ContentCollection) entity));
+					threadLocalManager.set("findCollection@" + entity.getId(), entity); 	// new BaseCollectionEdit((ContentCollection) entity));
 				}
 				if(copy != null)
 				{
@@ -10793,7 +10846,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							((BaseCollectionEdit) entity).closeEdit();
 
 							// the collection has changed so we must remove the old version from thread-local cache
-							ThreadLocalManager.set("findCollection@" + entity.getId(), null);
+							threadLocalManager.set("findCollection@" + entity.getId(), null);
 						}
 						else
 						{
@@ -10809,7 +10862,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 							// must remove old version of this edit from thread-local cache
 							// so we get new version if we try to retrieve it in same thread
-							ThreadLocalManager.set("findResource@" + entity.getId(), null);
+							threadLocalManager.set("findResource@" + entity.getId(), null);
 
 							// close the edit object
 							((BaseResourceEdit) entity).closeEdit();
@@ -10848,11 +10901,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		public int getMemberCount() 
 		{
 			int count = 0;
-			Integer countObj = (Integer) ThreadLocalManager.get("getMemberCount@" + this.m_id);
+			Integer countObj = (Integer) threadLocalManager.get("getMemberCount@" + this.m_id);
 			if(countObj == null)
 			{
 				count = m_storage.getMemberCount(this.m_id);
-				ThreadLocalManager.set("getMemberCount@" + this.m_id, Integer.valueOf(count));
+				threadLocalManager.set("getMemberCount@" + this.m_id, Integer.valueOf(count));
 			}
 			else
 			{
@@ -11068,7 +11121,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			// allocate a file path if needed
 			if (m_bodyPath != null)
 			{
-				setFilePath(TimeService.newTime());
+				setFilePath(timeService.newTime());
 			}
 		} // BaseResourceEdit
 
@@ -11104,7 +11157,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				volume += "/";
 			}
 
-			m_filePath = volume + time.toStringFilePath() + IdManager.createUuid();
+			m_filePath = volume + time.toStringFilePath() + idManager.createUuid();
 		}
 
 		/**
@@ -11153,7 +11206,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else
 			{
-				m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
+				m_releaseDate = timeService.newTime(other.getReleaseDate().getTime());
 			}
 			if(m_hidden || other.getRetractDate() == null)
 			{
@@ -11161,7 +11214,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			else
 			{
-				m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
+				m_retractDate = timeService.newTime(other.getRetractDate().getTime());
 			}
 
 		} // set
@@ -11277,7 +11330,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					String date0 = el.getAttribute(RELEASE_DATE);
 					if(date0 != null && !date0.trim().equals(""))
 					{
-						m_releaseDate = TimeService.newTimeGmt(date0);
+						m_releaseDate = timeService.newTimeGmt(date0);
 						if(m_releaseDate.getTime() <= START_OF_TIME)
 						{
 							m_releaseDate = null;
@@ -11288,7 +11341,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					String date1 = el.getAttribute(RETRACT_DATE);
 					if(date1 != null && !date1.trim().equals(""))
 					{
-						m_retractDate = TimeService.newTimeGmt(date1);
+						m_retractDate = timeService.newTimeGmt(date1);
 						if(m_retractDate.getTime() >= END_OF_TIME)
 						{
 							m_retractDate = null;
@@ -11393,7 +11446,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								String date0 = attributes.getValue(RELEASE_DATE);
 								if (date0 != null && !date0.trim().equals(""))
 								{
-									m_releaseDate = TimeService.newTimeGmt(date0);
+									m_releaseDate = timeService.newTimeGmt(date0);
 									if (m_releaseDate.getTime() <= START_OF_TIME)
 									{
 										m_releaseDate = null;
@@ -11404,7 +11457,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								String date1 = attributes.getValue(RETRACT_DATE);
 								if (date1 != null && !date1.trim().equals(""))
 								{
-									m_retractDate = TimeService.newTimeGmt(date1);
+									m_retractDate = timeService.newTimeGmt(date1);
 									if (m_retractDate.getTime() >= END_OF_TIME)
 									{
 										m_retractDate = null;
