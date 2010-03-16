@@ -19,45 +19,14 @@
 
 package org.imsglobal.basiclti;
 
-import java.util.Locale;
-import java.util.UUID;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-import java.security.MessageDigest;
-
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.net.HttpURLConnection;
-
-import java.util.Map;
-import java.util.List;
-
-import org.imsglobal.basiclti.XMLMap;
-import org.imsglobal.basiclti.Base64;
-
-import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.OutputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import net.oauth.OAuth;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthConsumer;
 import net.oauth.OAuthAccessor;
-import net.oauth.signature.OAuthSignatureMethod;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
 
 /* Leave out until we have JTidy 0.8 in the repository 
 import org.w3c.tidy.Tidy;
@@ -367,6 +336,107 @@ public class BasicLTIUtil {
 	retval = retval.replace("=", "&#61;");
 	return retval;
     }
+    
+    
+    /**
+     * <p>Compares two Strings, returning <code>true</code> if they are equal.</p>
+     *
+     * <p><code>null</code>s are handled without exceptions. Two <code>null</code>
+     * references are considered to be equal. The comparison is case sensitive.</p>
+     *
+     * <pre>
+     * StringUtils.equals(null, null)   = true
+     * StringUtils.equals(null, "abc")  = false
+     * StringUtils.equals("abc", null)  = false
+     * StringUtils.equals("abc", "abc") = true
+     * StringUtils.equals("abc", "ABC") = false
+     * </pre>
+     *
+     * @see java.lang.String#equals(Object)
+     * @param str1  the first String, may be null
+     * @param str2  the second String, may be null
+     * @return <code>true</code> if the Strings are equal, case sensitive, or
+     *  both <code>null</code>
+     */
+    public static boolean equals(String str1, String str2) {
+        return str1 == null ? str2 == null : str1.equals(str2);
+    }
+
+    /**
+     * <p>Compares two Strings, returning <code>true</code> if they are equal ignoring
+     * the case.</p>
+     *
+     * <p><code>null</code>s are handled without exceptions. Two <code>null</code>
+     * references are considered equal. Comparison is case insensitive.</p>
+     *
+     * <pre>
+     * StringUtils.equalsIgnoreCase(null, null)   = true
+     * StringUtils.equalsIgnoreCase(null, "abc")  = false
+     * StringUtils.equalsIgnoreCase("abc", null)  = false
+     * StringUtils.equalsIgnoreCase("abc", "abc") = true
+     * StringUtils.equalsIgnoreCase("abc", "ABC") = true
+     * </pre>
+     *
+     * @see java.lang.String#equalsIgnoreCase(String)
+     * @param str1  the first String, may be null
+     * @param str2  the second String, may be null
+     * @return <code>true</code> if the Strings are equal, case insensitive, or
+     *  both <code>null</code>
+     */
+    public static boolean equalsIgnoreCase(String str1, String str2) {
+        return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
+    }
+    
+    /**
+     * <p>Checks if a String is whitespace, empty ("") or null.</p>
+     *
+     * <pre>
+     * StringUtils.isBlank(null)      = true
+     * StringUtils.isBlank("")        = true
+     * StringUtils.isBlank(" ")       = true
+     * StringUtils.isBlank("bob")     = false
+     * StringUtils.isBlank("  bob  ") = false
+     * </pre>
+     *
+     * @param str  the String to check, may be null
+     * @return <code>true</code> if the String is null, empty or whitespace
+     * @since 2.0
+     */
+    public static boolean isBlank(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if ((Character.isWhitespace(str.charAt(i)) == false)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
+     *
+     * <pre>
+     * StringUtils.isNotBlank(null)      = false
+     * StringUtils.isNotBlank("")        = false
+     * StringUtils.isNotBlank(" ")       = false
+     * StringUtils.isNotBlank("bob")     = true
+     * StringUtils.isNotBlank("  bob  ") = true
+     * </pre>
+     *
+     * @param str  the String to check, may be null
+     * @return <code>true</code> if the String is
+     *  not empty and not null and not whitespace
+     * @since 2.0
+     */
+    public static boolean isNotBlank(String str) {
+        return !isBlank(str);
+    }
+
+    
+    
 
 }
 
