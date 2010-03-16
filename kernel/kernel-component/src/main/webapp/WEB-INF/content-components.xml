@@ -138,6 +138,7 @@
             init-method="init" destroy-method="destroy" singleton="true">
         <property name="sqlService"> <ref bean="org.sakaiproject.db.api.SqlService"/> </property>
         <property name="autoDdl">    <value>${auto.ddl}</value>                       </property>
+        <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 	</bean>
 	
 	<bean id="org.sakaiproject.content.impl.DropboxContextObserver"

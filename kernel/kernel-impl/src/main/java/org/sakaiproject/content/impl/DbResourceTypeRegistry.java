@@ -33,7 +33,7 @@ import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.SiteSpecificResourceType;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl 
 {
@@ -83,6 +83,12 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	}
 
 	
+	private ThreadLocalManager threadLocalManager;
+	
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
+	}
+
 	/**
 	 * Configuration: to run the ddl on init or not.
 	 *
@@ -152,7 +158,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 			}
 		}, "DbResourceTypeRegistry.setMapOfResourceTypesForContext: " + context);
 		
-		ThreadLocalManager.set("getMapOfResourceTypesForContext@" + context, new HashMap<String, Boolean>(enabled));
+		threadLocalManager.set("getMapOfResourceTypesForContext@" + context, new HashMap<String, Boolean>(enabled));
 	}
 	
 	protected void saveMap(String context, Map<String, Boolean> enabled) 
@@ -167,7 +173,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	 */
 	public Map<String, Boolean> getMapOfResourceTypesForContext(String context) 
 	{
-		Map<String, Boolean> enabled = (Map<String, Boolean>) ThreadLocalManager.get("getMapOfResourceTypesForContext@" + context);
+		Map<String, Boolean> enabled = (Map<String, Boolean>) threadLocalManager.get("getMapOfResourceTypesForContext@" + context);
 			
 		if(enabled == null)
 		{
@@ -211,7 +217,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 				}
 			}
 			
-			ThreadLocalManager.set("getMapOfResourceTypesForContext@" + context, enabled);
+			threadLocalManager.set("getMapOfResourceTypesForContext@" + context, enabled);
 		}
 
 		return new HashMap<String, Boolean>(enabled);
