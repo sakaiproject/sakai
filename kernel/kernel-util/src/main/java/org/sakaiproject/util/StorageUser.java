@@ -38,7 +38,7 @@ public interface StorageUser
 	 * 
 	 * @param ref
 	 *        The container reference.
-	 * @return The new containe Resource.
+	 * @return The new container Resource.
 	 */
 	Entity newContainer(String ref);
 
@@ -55,7 +55,7 @@ public interface StorageUser
 	 * Construct a new container resource, as a copy of another
 	 * 
 	 * @param other
-	 *        The other contianer to copy.
+	 *        The other container to copy.
 	 * @return The new container resource.
 	 */
 	Entity newContainer(Entity other);
@@ -96,11 +96,11 @@ public interface StorageUser
 	Entity newResource(Entity container, Entity other);
 
 	/**
-	 * Construct a new continer given just ids.
+	 * Construct a new container given just ids.
 	 * 
 	 * @param ref
 	 *        The container reference.
-	 * @return The new containe Resource.
+	 * @return The new container Resource.
 	 */
 	Edit newContainerEdit(String ref);
 
@@ -117,7 +117,7 @@ public interface StorageUser
 	 * Construct a new container resource, as a copy of another
 	 * 
 	 * @param other
-	 *        The other contianer to copy.
+	 *        The other container to copy.
 	 * @return The new container resource.
 	 */
 	Edit newContainerEdit(Entity other);
