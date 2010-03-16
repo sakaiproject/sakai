@@ -2826,6 +2826,29 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 }
 
 /**
+ * Alternative method signature which will first get a session for the given user, 
+ * and then get the list of pages & tools visible to that user in the site.
+ * 
+ * @param sessionid		must be a valid session for a superuser
+ * @param userid		eid, eg jsmith26
+ * @param siteid		site to get the list for.
+ * @return
+ * @throws AxisFault
+ */
+public String getPagesAndToolsForSite(String sessionid, String userid, String siteid) throws AxisFault
+{
+	//get a session for the other user
+	String newsessionid = getSessionForUser(sessionid, userid);
+	
+	//might be an exception that was returned, so check session is valid.
+	Session session = establishSession(sessionid);
+	
+	//ok, so hand over to main method to get the list for us
+	return getPagesAndToolsForSite(newsessionid, siteid);
+	
+}
+
+/**
  * Method to check if a tool is visible for a user in a site, based on KNL-428
  * This can be removed once KNL-428 is in.
  * @param site
