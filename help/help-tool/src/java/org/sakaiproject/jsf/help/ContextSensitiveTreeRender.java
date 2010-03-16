@@ -143,7 +143,7 @@ public class ContextSensitiveTreeRender extends Renderer
       
       writer.write("<li class=\"dir helpIndex\">");
       writer.write("<h1>");
-      writer.write("<img src=\"../image/toc_closed.gif\" alt=\"closed\" /></td>");      
+      writer.write("<img src=\"../image/toc_closed.gif\" alt=\"\" /></td>");      
       writer.write("<a id=\"" + id + "\" href=\"#" + category.getName()
           + "\" onclick=\"toggle(this)\">" + category.getName() + "</a></td>");
       writer.write("</h1>");
@@ -165,7 +165,7 @@ public class ContextSensitiveTreeRender extends Renderer
                   .equals(resource.getDocId())))
           {         
             writer.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td>");
-            writer.write("<img src=\"../image/topic.gif\" alt=\"topic\"/></td>");            
+            writer.write("<img src=\"../image/topic.gif\" alt=\"\"/></td>");            
             writer.write("<td><a id=\"default\"" + " href=\"content.hlp?docId="
                 + resource.getDocId() + "\" target = \"content\">"
                 + resource.getName() + "</a></td>");
@@ -174,7 +174,7 @@ public class ContextSensitiveTreeRender extends Renderer
           else
           {
             writer.write("<h2>");
-            writer.write("<img src=\"../image/topic.gif\" alt=\"topic\"/>");            
+            writer.write("<img src=\"../image/topic.gif\" alt=\"\"/>");            
             writer.write("<a id=\"" + resource.getDocId()
                 + "\" href=\"content.hlp?docId=" + resource.getDocId()
                 + "\" target = \"content\">" + resource.getName() + "</a>");            
