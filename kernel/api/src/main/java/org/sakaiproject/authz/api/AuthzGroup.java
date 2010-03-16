@@ -81,6 +81,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 
 	/**
 	 * @return the user who created this.
+	 * 
 	 */
 	User getCreatedBy();
 

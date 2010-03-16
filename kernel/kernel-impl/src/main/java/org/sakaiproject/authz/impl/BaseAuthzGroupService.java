@@ -55,7 +55,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -87,10 +87,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	/** A provider of additional Abilities for a userId. */
 	protected GroupProvider m_provider = null;
 
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
+	
 	/**
 	 * Construct storage for this service.
 	 */
@@ -246,6 +248,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	protected abstract UserDirectoryService userDirectoryService();
 
+	
+	private SiteService siteService;
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+	
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -553,7 +562,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		if (azGroup.getId() == null) throw new GroupNotDefinedException("<null>");
 
 		Reference ref = entityManager().newReference(azGroup.getId());
-		if (!SiteService.allowUpdateSiteMembership(ref.getId()))
+		if (!siteService.allowUpdateSiteMembership(ref.getId()))
 		{
 			// check security (throws if not permitted)
 			unlock(SECURE_UPDATE_AUTHZ_GROUP, authzGroupReference(azGroup.getId()));
@@ -930,8 +939,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 				String azGroupId = (String) i.next();
 				Reference ref = entityManager().newReference(azGroupId);
 				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
-						&& !SiteService.isSpecialSite(ref.getId())
-						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
+						&& !siteService.isSpecialSite(ref.getId())
+						&& (!siteService.isUserSite(ref.getId()) || userId.equals(siteService.getSiteUserId(ref.getId()))))
 				{
 					updSites.add(ref.getId());
 				}
@@ -943,8 +952,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 				String azGroupId = (String) i.next();
 				Reference ref = entityManager().newReference(azGroupId);
 				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
-						&& !SiteService.isSpecialSite(ref.getId())
-						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
+						&& !siteService.isSpecialSite(ref.getId())
+						&& (!siteService.isUserSite(ref.getId()) || userId.equals(siteService.getSiteUserId(ref.getId()))))
 				{
 					unpSites.add(ref.getId());
 				}
@@ -956,14 +965,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 				String azGroupId = (String) i.next();
 				Reference ref = entityManager().newReference(azGroupId);
 				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
-						&& !SiteService.isSpecialSite(ref.getId())
-						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
+						&& !siteService.isSpecialSite(ref.getId())
+						&& (!siteService.isUserSite(ref.getId()) || userId.equals(siteService.getSiteUserId(ref.getId()))))
 				{
 					visitSites.add(ref.getId());
 				}
 			}
 
-			SiteService.setUserSecurity(userId, updSites, unpSites, visitSites);
+			siteService.setUserSecurity(userId, updSites, unpSites, visitSites);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -988,7 +997,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			Set unpUsers = azGroup.getUsersIsAllowed(SiteService.SITE_VISIT_UNPUBLISHED);
 			Set visitUsers = azGroup.getUsersIsAllowed(SiteService.SITE_VISIT);
 
-			SiteService.setSiteSecurity(ref.getId(), updUsers, unpUsers, visitUsers);
+			siteService.setSiteSecurity(ref.getId(), updUsers, unpUsers, visitUsers);
 		}
 	}
 
@@ -1007,7 +1016,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			// no azGroup, no users
 			Set empty = new HashSet();
 
-			SiteService.setSiteSecurity(ref.getId(), empty, empty, empty);
+			siteService.setSiteSecurity(ref.getId(), empty, empty, empty);
 		}
 	}
 
