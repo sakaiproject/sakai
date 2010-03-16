@@ -34,7 +34,6 @@ import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
 
 import org.apache.commons.collections.iterators.IteratorChain;
-
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.NonPortableSession;
@@ -44,7 +43,6 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionStore;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.IteratorEnumeration;
 
