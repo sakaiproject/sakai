@@ -70,6 +70,12 @@ public interface TaggableItem {
 	public String getItemDetailUrl();
 	
 	/**
+	 * Get the url that will render private (name is hidden, etc) detail information about the item
+	 * @return
+	 */
+	public String getItemDetailPrivateUrl();
+	
+	/**
 	 * Get the params that will be added to the item's url
 	 * @return
 	 */

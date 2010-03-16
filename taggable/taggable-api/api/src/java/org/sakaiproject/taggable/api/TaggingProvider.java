@@ -21,6 +21,9 @@
 
 package org.sakaiproject.taggable.api;
 
+import java.util.List;
+import java.util.Map;
+
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.PermissionException;
 
@@ -42,6 +45,35 @@ public interface TaggingProvider {
 	 * @return True if current user is allowed to view tags, false otherwise.
 	 */
 	boolean allowViewTags(String context);
+	
+	/**
+	 * Method to check if current user is allowed to look at particular activity
+	 * @param activityRef Reference of the activity
+	 * @param userId Current user
+	 * @param taggedItem Reference of the related item that can be used for additional permission checking
+	 * @return
+	 */
+	boolean allowGetActivity(String activityRef, String userId, String taggedItem);
+	
+	/**
+	 * Method to check if current user is allowed to look at a particular item
+	 * @param itemRef Reference of the activity to which the item belongs
+	 * @param itemRef Reference of the item
+	 * @param userId Current user
+	 * @param taggedItem Reference of the related item that can be used for additional permission checking
+	 * @return
+	 */
+	boolean allowGetItem(String activityRef, String itemRef, String userId, String taggedItem);
+	
+	/**
+	 * Method to check if current user is allowed to look at a particular list of items
+	 * @param itemRef Reference of the activity to which the items belong
+	 * @param itemRefs List of references for a bunch of items (all items should belong to the same activity)
+	 * @param userId Current user
+	 * @param taggedItem Reference of the related item that can be used for additional permission checking
+	 * @return
+	 */
+	boolean allowGetItems(String activityRef, String[] itemRefs, String userId, String taggedItem);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging the
@@ -54,6 +86,18 @@ public interface TaggingProvider {
 	 *         user doesn't have permission to access the helper.
 	 */
 	TaggingHelperInfo getActivityHelperInfo(String activityRef);
+	
+	/**
+	 * Method to get the necessary data to invoke a helper tool for tagging the
+	 * activity identified by the given ref.
+	 * 
+	 * @param activityRef
+	 *            The reference to the activity that is to be tagged.
+	 * @return An object containing the data to invoke the appropriate helper
+	 *         tool. Returns null if this is not supported or if the current
+	 *         user doesn't have permission to access the helper.
+	 */
+	Map<String, TaggingHelperInfo> getActivityHelperInfo(String context, List<String> activityRefs);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging
@@ -110,6 +154,18 @@ public interface TaggingProvider {
 	 * @return
 	 */
 	String getSimpleTextLabel();
+	
+	/**
+	 * Method to get a label for some help text
+	 * @return
+	 */
+	String getHelpLabel();
+
+	/**
+	 * Method to get some descriptive help text
+	 * @return
+	 */
+	String getHelpDescription();
 
 	/**
 	 * Method to remove all tags from this activity. This method should check
