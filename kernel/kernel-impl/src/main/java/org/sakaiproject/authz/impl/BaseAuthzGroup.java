@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -178,8 +179,8 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		m_key = dbid;
 		m_id = id;
-		m_providerRealmId = StringUtil.trimToNull(providerId);
-		m_maintainRole = StringUtil.trimToNull(maintainRole);
+		m_providerRealmId = StringUtils.trimToNull(providerId);
+		m_maintainRole = StringUtils.trimToNull(maintainRole);
 
 		m_createdUserId = createdBy;
 		m_lastModifiedUserId = modifiedBy;
@@ -207,20 +208,20 @@ public class BaseAuthzGroup implements AuthzGroup
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
 
-		m_id = StringUtil.trimToNull(el.getAttribute("id"));
-		m_providerRealmId = StringUtil.trimToNull(el.getAttribute("provider-id"));
-		m_maintainRole = StringUtil.trimToNull(el.getAttribute("maintain-role"));
+		m_id = StringUtils.trimToNull(el.getAttribute("id"));
+		m_providerRealmId = StringUtils.trimToNull(el.getAttribute("provider-id"));
+		m_maintainRole = StringUtils.trimToNull(el.getAttribute("maintain-role"));
 
-		m_createdUserId = StringUtil.trimToNull(el.getAttribute("created-id"));
-		m_lastModifiedUserId = StringUtil.trimToNull(el.getAttribute("modified-id"));
+		m_createdUserId = StringUtils.trimToNull(el.getAttribute("created-id"));
+		m_lastModifiedUserId = StringUtils.trimToNull(el.getAttribute("modified-id"));
 
-		String time = StringUtil.trimToNull(el.getAttribute("created-time"));
+		String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 		if (time != null)
 		{
 			m_createdTime = TimeService.newTimeGmt(time);
 		}
 
-		time = StringUtil.trimToNull(el.getAttribute("modified-time"));
+		time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 		if (time != null)
 		{
 			m_lastModifiedTime = TimeService.newTimeGmt(time);
@@ -253,9 +254,9 @@ public class BaseAuthzGroup implements AuthzGroup
 			else if (element.getTagName().equals("grant"))
 			{
 				String userId = StringUtil.trimToNullLower(element.getAttribute("user"));
-				String roleId = StringUtil.trimToNull(element.getAttribute("role"));
-				String active = StringUtil.trimToNull(element.getAttribute("active"));
-				String provided = StringUtil.trimToNull(element.getAttribute("provided"));
+				String roleId = StringUtils.trimToNull(element.getAttribute("role"));
+				String active = StringUtils.trimToNull(element.getAttribute("active"));
+				String provided = StringUtils.trimToNull(element.getAttribute("provided"));
 
 				// record this user - role grant - just use the first one
 				BaseRole role = (BaseRole) m_roles.get(roleId);
@@ -294,10 +295,10 @@ public class BaseAuthzGroup implements AuthzGroup
 			else if (element.getTagName().equals("ability"))
 			{
 				String userId = StringUtil.trimToNullLower(element.getAttribute("user"));
-				String roleId = StringUtil.trimToNull(element.getAttribute("role"));
-				String lock = StringUtil.trimToNull(element.getAttribute("lock"));
-				String anon = StringUtil.trimToNull(element.getAttribute("anon"));
-				String auth = StringUtil.trimToNull(element.getAttribute("auth"));
+				String roleId = StringUtils.trimToNull(element.getAttribute("role"));
+				String lock = StringUtils.trimToNull(element.getAttribute("lock"));
+				String anon = StringUtils.trimToNull(element.getAttribute("anon"));
+				String auth = StringUtils.trimToNull(element.getAttribute("auth"));
 
 				// old way anon was stored
 				// add the lock to the anon role definition
@@ -1130,7 +1131,7 @@ public class BaseAuthzGroup implements AuthzGroup
 	 */
 	public void setProviderGroupId(String id)
 	{
-		m_providerRealmId = StringUtil.trimToNull(id);
+		m_providerRealmId = StringUtils.trimToNull(id);
 	}
 
 	/**
@@ -1138,7 +1139,7 @@ public class BaseAuthzGroup implements AuthzGroup
 	 */
 	public void setMaintainRole(String role)
 	{
-		m_maintainRole = StringUtil.trimToNull(role);
+		m_maintainRole = StringUtils.trimToNull(role);
 	}
 
 	/**
