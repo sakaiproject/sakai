@@ -1148,6 +1148,9 @@ background-image: url(../../image/silk/comment.png);
 	background-image: url(../../image/silk/house.png);
 }
 
+.icon-sakai-basiclti { 
+	background-image: url(../../image/silk/application_go.png); 
+}
 
 
 /** Privacy Popup Styles **/
