@@ -90,7 +90,7 @@ public SakaiScript() {
 }
 	
 /**
- * Get the Session realted to the given sessionid. If the session is inactive, will throw an AxisFault.
+ * Get the Session related to the given sessionid
  * @param sessionid		the id of the session to retrieve
  * @return				the session, if it is active
  * @throws AxisFault	if session is inactive
