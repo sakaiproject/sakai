@@ -39,7 +39,6 @@
     <dependency>
       <groupId>javax.portlet</groupId>
       <artifactId>portlet-api</artifactId>
-      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -78,12 +77,10 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.1</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>jtidy</groupId>

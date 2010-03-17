@@ -37,15 +37,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-      <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-portal-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-portal-util</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-render-api</artifactId>
@@ -60,12 +51,13 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-portal-util</artifactId>
-      <scope>test</scope>
+      <artifactId>sakai-portal-render-api</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-portal-render-api</artifactId>
+      <artifactId>sakai-portal-util</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>httpunit</groupId>
@@ -76,7 +68,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>
