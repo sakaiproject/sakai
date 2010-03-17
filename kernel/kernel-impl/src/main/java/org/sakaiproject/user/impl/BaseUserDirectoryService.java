@@ -1265,6 +1265,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// make sure we have an id
 		id = assureUuid(id, eid);
 
+		//eid can't be longer than 255 chars
+		if (eid.length() > 255) 
+		{
+			throw new UserIdInvalidException("Eid is too long");
+		}
+		
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_USER, userReference(id));
 
