@@ -125,7 +125,8 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n");
          writer.write("\n  var fiveMinutesAction = function()");
          writer.write("\n {");
-         writer.write("\n  alert('"  + attrMap.get("fiveMinutesMessage1") + "\\n\\n" + attrMap.get("fiveMinutesMessage2") + "');");          
+         //writer.write("\n  alert('"  + attrMap.get("fiveMinutesMessage1") + "\\n\\n" + attrMap.get("fiveMinutesMessage2") + "');");   
+         writer.write("\n showTimerWarning();");
          writer.write("\n }");
          writer.write("\n");
          writer.write("\n</script>");
