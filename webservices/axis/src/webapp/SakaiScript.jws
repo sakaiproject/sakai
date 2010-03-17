@@ -89,6 +89,12 @@ public SakaiScript() {
 	userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
 }
 	
+/**
+ * Get the Session realted to the given sessionid. If the session is inactive, will throw an AxisFault.
+ * @param sessionid		the id of the session to retrieve
+ * @return				the session, if it is active
+ * @throws AxisFault	if session is inactive
+ */
 private Session establishSession(String sessionid) throws AxisFault 
 {
 	Session s = sessionManager.getSession(sessionid);
@@ -102,16 +108,20 @@ private Session establishSession(String sessionid) throws AxisFault
 	return s;
 }
 
+/**
+ * Check if a session is active
+ * 
+ * @param sessionid			the id of the session to check
+ * @return					the sessionid if active, or "null" if not.
+ */
 public String checkSession(String sessionid) {
 	
 	Session s = sessionManager.getSession(sessionid);
 	
-	if (s == null)
-	{
+	if (s == null){
 		return "null";
 	}
-	else
-	{
+	else{
 		return sessionid;
 	}
 }
