@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.providers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -44,6 +46,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
@@ -59,9 +62,13 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.Tool;
 
 /**
  * Creates a provider for dealing with sites
@@ -90,6 +97,9 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+
+
+    // ACTIONS
 
     @EntityURLRedirect("/{prefix}/{id}/memberships")
     public String redirectMemberships(Map<String, String> vars) {
@@ -309,9 +319,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
         String userId = developerHelperService.getCurrentUserId();
 
-        if (userId == null)
+        if (userId == null) {
             throw new SecurityException(
                     "This action (userPerms) is not accessible to anon and there is no current user.");
+        }
 
         String siteId = view.getEntityReference().getId();
         Site site = getSiteById(siteId);
@@ -322,13 +333,116 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
         if (prefix != null) {
             for (String function : functions) {
-                if (function.startsWith(prefix))
+                if (function.startsWith(prefix)) {
                     filteredFunctions.add(function);
+                }
             }
-        } else
+        } else {
             filteredFunctions = functions;
-
+        }
         return filteredFunctions;
+    }
+
+    @EntityCustomAction(action = "pages", viewKey = EntityView.VIEW_SHOW)
+    public ActionReturn getPagesAndTools(EntityView view, Search search) {
+        // expects site/siteId/pages
+        String userId = developerHelperService.getCurrentUserId();
+        if (userId == null) {
+            throw new SecurityException(
+                    "This action (userPerms) is not accessible to anon and there is no current user.");
+        }
+        boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
+
+        String siteId = view.getEntityReference().getId();
+        Site site = getSiteById(siteId);
+        if (! admin) {
+            Member member = site.getMember(userId);
+            if (member == null || ! member.isActive()) {
+                throw new SecurityException("User ("+userId+") cannot access the site pages list for site ("+site.getId()+")");
+            }
+            //role = member.getRole();
+        }
+        boolean includeProps = false;
+        boolean includeConfig = false;
+        if (search != null) {
+            Restriction r = search.getRestrictionByProperty("props");
+            if (r != null && r.getBooleanValue()) {
+                includeProps = true;
+            }
+            Restriction r2 = search.getRestrictionByProperty("config");
+            if (r2 != null && r2.getBooleanValue()) {
+                includeConfig = true;
+            }
+        }
+
+        // hardcoding to make this backwards compatible with 2.3 - ServerConfigurationService.CURRENT_PORTAL_PATH, PORTAL_BASE);
+        String portalBase = (String) ThreadLocalManager.get("sakai:request.portal.path");
+        if (portalBase == null || "".equals(portalBase) || "/sakai-entitybroker-direct".equals(portalBase)) {
+            // this has to be here because the tc will expect it when the portal urls are generated and fail if it is missing -AZ
+            ThreadLocalManager.set("sakai:request.portal.path", "/portal");
+        }
+
+        // get the pages for this site
+        List<Map<String, Object>> data = new ArrayList<Map<String,Object>>();
+        List<SitePage> pages = site.getOrderedPages();
+        for (SitePage page : pages) {
+            HashMap<String, Object> pageData = new HashMap<String, Object>();
+            pageData.put("id", page.getId());
+            pageData.put("layoutTitle", page.getLayoutTitle());
+            pageData.put("layout", page.getLayout());
+            pageData.put("position", page.getPosition());
+            pageData.put("siteId", page.getSiteId());
+            pageData.put("skin", page.getSkin());
+            pageData.put("title", page.getTitle());
+            pageData.put("url", page.getUrl());
+            if (includeProps) {
+                // get the properties
+                HashMap<String, String> props = new HashMap<String, String>();
+                ResourceProperties rp = page.getProperties();
+                for (Iterator<String> iterator = rp.getPropertyNames(); iterator.hasNext();) {
+                    String name = iterator.next();
+                    String value = rp.getProperty(name);
+                    props.put(name, value);
+                }
+                pageData.put("properties", page.getProperties());
+            }
+            List<Map<String, Object>> tools = new ArrayList<Map<String,Object>>();
+            pageData.put("tools", tools);
+            data.add( pageData );
+            
+            // get the tool configs for each
+            for (ToolConfiguration tc : (List<ToolConfiguration>) page.getTools() ) {
+                // get the tool from column 0 for this tool config (if there is one)
+                Tool tool = tc.getTool();
+                if (tool != null) {
+                    if (! admin) {
+                        // TODO check extra permissions? probably not necessary
+                    }
+
+                    HashMap<String, Object> toolData = new HashMap<String, Object>();
+                    tools.add(toolData);
+                    // back to normal stuff again
+                    toolData.put("id", tc.getId());
+                    toolData.put("toolId", tool.getId());
+                    toolData.put("placementId", tc.getId());
+                    toolData.put("title", tool.getTitle());
+                    toolData.put("description", tool.getDescription());
+                    toolData.put("url", page.getUrl());
+                    toolData.put("home", tool.getHome());
+                    toolData.put("context", tc.getContext());
+                    toolData.put("pageId", tc.getPageId());
+                    toolData.put("pageOrder", tc.getPageOrder());
+                    toolData.put("siteId", tc.getSiteId());
+                    if (includeConfig) {
+                        toolData.put("config", tc.getConfig());
+                        toolData.put("registeredConfig", tool.getRegisteredConfig());
+                        toolData.put("mutableConfig", tool.getMutableConfig());
+                    }
+                }
+            }
+        }
+
+        return new ActionReturn(data);
     }
 
     /**
@@ -352,6 +466,9 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         return true;
     }
+
+
+    // STANDARD METHODS
 
     public boolean entityExists(String id) {
         if (id == null) {
