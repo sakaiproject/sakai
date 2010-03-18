@@ -2384,52 +2384,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			List allowGradeAssignmentUsers = allowGradeAssignmentUsers(a.getReference());
 			receivers.retainAll(allowGradeAssignmentUsers);
 			
-			String submitterId = s.getSubmitterIdString();
-			
-			// filter out users who's not able to grade this submission
-			List finalReceivers = new Vector();
-			
-			HashSet receiverSet = new HashSet();
-			if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
-			{
-				Collection groups = a.getGroups();
-				for (Iterator gIterator = groups.iterator(); gIterator.hasNext();)
-				{
-					String g = (String) gIterator.next();
-					try
-					{
-						AuthzGroup aGroup = AuthzGroupService.getAuthzGroup(g);
-						if (aGroup.isAllowed(submitterId, AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION))
-						{
-							for (Iterator rIterator = receivers.iterator(); rIterator.hasNext();)
-							{
-								User rUser = (User) rIterator.next();
-								String rUserId = rUser.getId();
-								if (!receiverSet.contains(rUserId) && aGroup.isAllowed(rUserId, AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION))
-								{
-									finalReceivers.add(rUser);
-									receiverSet.add(rUserId);
-								}
-							}
-						}
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + " notificationToInstructors, group id =" + g + " " + e.getMessage());
-					}
-				}
-			}
-			else
-			{
-				finalReceivers.addAll(receivers);
-			}
-			
 			String messageBody = getNotificationMessage(s, "submission");
 			
 			if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH))
 			{
-				// send the message immidiately
-				EmailService.sendToUsers(finalReceivers, getHeaders(null, "submission"), messageBody);
+				// send the message immediately
+				EmailService.sendToUsers(receivers, getHeaders(null, "submission"), messageBody);
 			}
 			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
 			{
@@ -2437,7 +2397,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String digestMsgBody = getPlainTextNotificationMessage(s, "submission");
 				
 				// digest the message to each user
-				for (Iterator iReceivers = finalReceivers.iterator(); iReceivers.hasNext();)
+				for (Iterator iReceivers = receivers.iterator(); iReceivers.hasNext();)
 				{
 					User user = (User) iReceivers.next();
 					DigestService.digest(user.getId(), getSubject("submission"), digestMsgBody);
@@ -3727,8 +3687,62 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowGradeAssignmentUsers(String assignmentReference)
 	{
-		return SecurityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
+		List users = SecurityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
+		if (users == null)
+		{
+			users = new Vector();
+		}
+		
+		try
+		{
+			Assignment a = getAssignment(assignmentReference);
+			if (a.getAccess() == Assignment.AssignmentAccess.GROUPED)
+			{
+				// for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
+				AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(a.getContext()));
+				if (group != null)
+				{
+					// get the roles which are allowed for submission but not for all_site control
+					Set rolesAllowAllSite = group.getRolesIsAllowed(SECURE_ALL_GROUPS);
+					Set rolesAllowGradeAssignment = group.getRolesIsAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+					// save all the roles with both "all.groups" and "grade assignment" permissions
+					rolesAllowAllSite.retainAll(rolesAllowGradeAssignment);
+					if (rolesAllowAllSite != null)
+					{
+						for (Iterator iRoles = rolesAllowAllSite.iterator(); iRoles.hasNext(); )
+						{
+							Set<String> userIds = group.getUsersHasRole((String) iRoles.next());
+							if (userIds != null)
+							{
+								for (Iterator<String> iUserIds = userIds.iterator(); iUserIds.hasNext(); )
+								{
+									String userId =  iUserIds.next();
+									try
+									{
+										User u = UserDirectoryService.getUser(userId);
+										if (!users.contains(u))
+										{
+											users.add(u);
+										}
+									}
+									catch (Exception ee)
+									{
+										M_log.warn(this + " allowGradeAssignmentUsers " + ee.getMessage() + " problem with getting user =" + userId);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + " allowGradeAssignmentUsers " + e.getMessage() + " assignmentReference=" + assignmentReference);
+		}
 
+		return users;
+		
 	} // allowGradeAssignmentUsers
 	
 	/**
