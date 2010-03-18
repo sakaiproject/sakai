@@ -26,6 +26,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -75,7 +78,7 @@ public class UsersAction extends PagedResourceActionII
 	protected List readResourcesPage(SessionState state, int first, int last)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		if (search != null)
 		{
@@ -91,7 +94,7 @@ public class UsersAction extends PagedResourceActionII
 	protected int sizeResources(SessionState state)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		if (search != null)
 		{
@@ -781,17 +784,17 @@ public class UsersAction extends PagedResourceActionII
 		// Account Edit--edit--true-------false------false
 
 		// read the form
-		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
-		String eid = StringUtil.trimToNull(data.getParameters().getString("eid"));
+		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
+		String eid = StringUtils.trimToNull(data.getParameters().getString("eid"));
 		state.setAttribute("valueEid", eid);
-		String firstName = StringUtil.trimToNull(data.getParameters().getString("first-name"));
+		String firstName = StringUtils.trimToNull(data.getParameters().getString("first-name"));
 		state.setAttribute("valueFirstName", firstName);
-		String lastName = StringUtil.trimToNull(data.getParameters().getString("last-name"));
+		String lastName = StringUtils.trimToNull(data.getParameters().getString("last-name"));
 		state.setAttribute("valueLastName", lastName);
-		String email = StringUtil.trimToNull(data.getParameters().getString("email"));
+		String email = StringUtils.trimToNull(data.getParameters().getString("email"));
 		state.setAttribute("valueEmail", email);
-		String pw = StringUtil.trimToNull(data.getParameters().getString("pw"));
-		String pwConfirm = StringUtil.trimToNull(data.getParameters().getString("pw0"));
+		String pw = StringUtils.trimToNull(data.getParameters().getString("pw"));
+		String pwConfirm = StringUtils.trimToNull(data.getParameters().getString("pw0"));
 
 		String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
@@ -811,7 +814,7 @@ public class UsersAction extends PagedResourceActionII
 		if (typeEnable)
 		{
 			// for the case of Admin User tool creating new user
-			type = StringUtil.trimToNull(data.getParameters().getString("type"));
+			type = StringUtils.trimToNull(data.getParameters().getString("type"));
 			state.setAttribute("valueType", type);
 		}
 		else
@@ -824,7 +827,8 @@ public class UsersAction extends PagedResourceActionII
 		}
 		
 		//insure valid email address
-		if(email != null && !email.matches(".+@.+\\..+")) {
+		//email.matches(".+@.+\\..+")
+		if(email != null && !EmailValidator.getInstance().isValid(email)) {
 				addAlert(state, rb.getString("useact.invemail"));	
 				return false;
 		}
