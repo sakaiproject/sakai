@@ -936,7 +936,9 @@ public class ItemContentsBean implements Serializable {
 		if (count > 0) {
 			ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
 					.toArray()[count - 1];
-			rationale = FormattedText.convertFormattedTextToPlaintext(data.getRationale()).replaceAll("(\r\n|\r)", "<br/>");
+			if (data.getRationale() != null) {
+				rationale = FormattedText.convertFormattedTextToPlaintext(data.getRationale()).replaceAll("(\r\n|\r)", "<br/>");
+			}
 		}
 		return Validator.check(rationale, "");
 	}
