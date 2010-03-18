@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>user-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>user</artifactId>
+    <groupId>org.sakaiproject.user</groupId>
     <version>2.8-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-user-tool-admin-prefs</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.user</groupId>
   <artifactId>sakai-user-tool-admin-prefs</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2005</inceptionYear>
@@ -28,7 +28,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <!-- the "classic" sakai widgets. Note: requires Sun RI JSF -->
     <dependency>

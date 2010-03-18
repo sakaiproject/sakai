@@ -8,8 +8,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai User Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>user-base</artifactId>
+  <groupId>org.sakaiproject.user</groupId>
+  <artifactId>user</artifactId>
   <packaging>pom</packaging>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</connection>
