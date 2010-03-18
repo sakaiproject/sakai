@@ -8,7 +8,7 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-user-tool</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.user</groupId>
   <artifactId>sakai-user-tool</artifactId>
   <organization>
     <name>The Sakai Foundation</name>

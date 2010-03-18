@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -44,8 +43,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
