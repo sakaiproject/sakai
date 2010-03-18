@@ -13,6 +13,13 @@
 		<h2>
 			<h:outputText value="#{msgs.roster_page_title}"/>
 			<h:commandButton
+				id="exportExcel"
+				value="#{msgs.roster_export_excel}"
+				actionListener="#{rosterBean.exportExcel}"
+				rendered="#{!rosterBean.emptyEnrollments}"
+				style="float: right; margin-left: 15px;"
+				/>
+			<h:commandButton
 				id="exportCsv"
 				value="#{msgs.roster_export_csv}"
 				actionListener="#{rosterBean.exportCsv}"

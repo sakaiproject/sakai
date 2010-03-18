@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -41,6 +43,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -66,6 +72,7 @@ import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
 public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
@@ -98,6 +105,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Gradebook localGradebook;
     private StringBuilder externallyMaintainedImportMsg;
     private UIComponent uploadButton;
+    private String csvDelimiter;
+    private NumberFormat numberFormat;
 
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -562,15 +571,21 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	        maxFileSizeInMB = FILE_SIZE_DEFAULT;
 	    }
         long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
+        
+        boolean isXlsImport = false;
 
         if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
 	            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
 	        }
 	
-	        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
+	        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
 	        
-	        if (!upFile.getName().endsWith("csv")) {
+	        if (upFile.getName().endsWith("csv")) {
+	            isXlsImport = false;
+	        } else if (upFile.getName().endsWith("xls")) {
+	            isXlsImport = true;
+	        } else {
 	            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
 	            return null;
 	        }
@@ -589,10 +604,21 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	if (pickedFileReference != null) {
 		        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
 		        
-		        if (pickedFileDesc == null || !pickedFileDesc.endsWith("csv")) {
+		        if (pickedFileDesc == null) {
 		            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error", new String[] {pickedFileDesc}));
 		            return null;
 		        }
+		        
+		        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
+	            
+	            if (pickedFileDesc.endsWith("csv")) {
+	                isXlsImport = false;
+	            } else if (pickedFileDesc.endsWith("xls")) {
+	                isXlsImport = true;
+	            } else {
+	                FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {pickedFileDesc}));
+	                return null;
+	            }
 		        
 		        fileName = pickedFileDesc;
 		        
@@ -622,12 +648,20 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		}
 			
 		try {
-			contents = csvtoArray(inputStream);
-	        inputStream.close();
+		    if (isXlsImport) {
+		        contents = excelToArray(inputStream);
+		    } else {
+		        contents = csvtoArray(inputStream);
+		    }
 		}
 		catch(IOException ioe) {
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
+		} 
+		finally {
+		    if (inputStream != null) {
+		        inputStream.close();
+		    }
 		}
 		
 		// double check that the number of rows in this spreadsheet is reasonable
@@ -752,15 +786,20 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             maxFileSizeInMB = FILE_SIZE_DEFAULT;
         }
         long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
+        boolean isXlsImport = false;
 
 	    if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
 	            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
 	        }
 	
-	        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
+	        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
 	        
-	        if (!upFile.getName().endsWith("csv")) {
+	        if (upFile.getName().endsWith("csv")) {
+	            isXlsImport = false;
+	        } else if (upFile.getName().endsWith("xls")) {
+	            isXlsImport = true;
+	        } else {
 	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
 	            return null;
 	        }
@@ -779,8 +818,19 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	if (pickedFileReference != null) {
 		        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
 		        
-		        if (pickedFileDesc == null || !pickedFileDesc.endsWith("csv")) {
+		        if (pickedFileDesc == null) {
 		            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error", new String[] {pickedFileDesc}));
+		            return null;
+		        }
+		        
+		        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
+
+		        if (pickedFileDesc.endsWith("csv")) {
+		            isXlsImport = false;
+		        } else if (pickedFileDesc.endsWith("xls")) {
+		            isXlsImport = true;
+		        } else {
+		            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {pickedFileDesc}));
 		            return null;
 		        }
 		        
@@ -812,13 +862,21 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		}
 			
 		try {
-			contents = csvtoArray(inputStream);
-	        inputStream.close();
+		    if (isXlsImport) {
+                contents = excelToArray(inputStream);
+            } else {
+                contents = csvtoArray(inputStream);
+            }
 		}
 		catch(IOException ioe) {
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
-		}
+		} 
+		finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
 		
 	    // double check that the number of rows in this spreadsheet is reasonable
 		int numStudentsInSite = getNumStudentsInSite();
@@ -1071,17 +1129,20 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	String [] parsedAssignmentName = assignmentName.split(" \\[");
         	
         	assignmentName = parsedAssignmentName[0].trim();
+        	Double pointsPossible = null;
         	if (parsedAssignmentName.length > 1) {
-        		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]");
-        		pointsPossibleAsString = parsedPointsPossible[0].trim();
-        		try{
-        			Double ppaS = new Double(pointsPossibleAsString);
-        			ppaS = new Double(FacesUtil.getRoundDown(ppaS.doubleValue(), 2));
-        			if(ppaS <= 0)
-        				pointsPossibleAsString = null;
-        		}catch(Exception e){
-        			pointsPossibleAsString = null;
-        		}
+        	    String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]");
+        	    if (parsedPointsPossible.length > 0) {
+        	        pointsPossibleAsString = parsedPointsPossible[0].trim();
+        	        try{
+        	            pointsPossible = convertStringToDouble(pointsPossibleAsString);
+        	            pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
+        	            if(pointsPossible <= 0)
+        	                pointsPossibleAsString = null;
+        	        }catch(ParseException e){
+        	            pointsPossibleAsString = null;
+        	        }
+        	    }
         	}
         	
         	// probably last column but not sure, so continue
@@ -1099,11 +1160,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	// if exists, need find those that are changed and only apply those
         	if (assignment == null) {
         		
-        		if (pointsPossibleAsString != null) {
-        			Double pointsPossible = new Double(pointsPossibleAsString);
-        			if (pointsPossible != null)
-        				pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
-        		
+        		if (pointsPossible != null) {
         			// params: gradebook id, name of assignment, points possible, due date, NOT counted, is released
         			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE);
         			assignment = getGradebookManager().getAssignment(assignmentId);
@@ -1144,26 +1201,29 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                			if (inputScore != null && inputScore.trim().length() > 0) {
            					Double scoreAsDouble = null;
            					String scoreAsString = inputScore.trim();
-           				
-           					// truncate input points/% to 2 decimal places
-           					if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
-           						scoreAsDouble = new Double(FacesUtil.getRoundDown((new Double(inputScore)).doubleValue(), 2));	
-           					} else if (getGradeEntryByLetter()){
-           						scoreAsString = (String)inputScore;
-           					}
+    
+                            AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, null);
 
-           					if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" score "+inputScore.toString());
-               			
-           					AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, null);
-               			
-           					if (getGradeEntryByLetter()) {
-           						asnGradeRecord.setLetterEarned(scoreAsString.trim());
-           						gradeRecords.add(asnGradeRecord);
-           					} else {
-           						asnGradeRecord.setPercentEarned(scoreAsDouble);
-           						asnGradeRecord.setPointsEarned(scoreAsDouble);
-           						gradeRecords.add(asnGradeRecord);
-           					}
+                            // truncate input points/% to 2 decimal places
+                            if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
+                                try {
+                                    scoreAsDouble = convertStringToDouble(scoreAsString);
+                                    scoreAsDouble = new Double(FacesUtil.getRoundDown(scoreAsDouble.doubleValue(), 2));
+                                    asnGradeRecord.setPercentEarned(scoreAsDouble);
+                                    asnGradeRecord.setPointsEarned(scoreAsDouble);
+                                    gradeRecords.add(asnGradeRecord);
+                                    if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" score "+inputScore.toString());
+                                } catch (ParseException pe) {
+                                    // this should have been caught during validation, so there is a problem
+                                    logger.error("ParseException encountered parsing " + scoreAsString);
+                                }
+                            } else if (getGradeEntryByLetter()){
+                                scoreAsString = (String)inputScore;
+
+                                asnGradeRecord.setLetterEarned(scoreAsString.trim());
+                                gradeRecords.add(asnGradeRecord);
+                                if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" score "+inputScore.toString());
+                            }
            				}
            			}
            			
@@ -1173,12 +1233,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
            		gbUpdated = true;
          	}
         	else {
-        		if (! assignment.getPointsPossible().toString().equals(pointsPossibleAsString)) {
+        		if (! assignment.getPointsPossible().equals(pointsPossible)) {
         			if (assignment.isExternallyMaintained()) {
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
         						new String[] {Validator.escapeHtml(assignment.getName()), Validator.escapeHtml(assignment.getExternalAppName())}) + "<br />");
-        			} else if (pointsPossibleAsString != null) {
-        				assignment.setPointsPossible(new Double(pointsPossibleAsString));
+        			} else if (pointsPossible != null) {
+        				assignment.setPointsPossible(pointsPossible);
         				getGradebookManager().updateAssignment(assignment);
         				gbUpdated = true;
         			}
@@ -1291,8 +1351,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     						try {
     							if(logger.isDebugEnabled()) logger.debug("checking if " +scoreAsString +" is a numeric value");
 
-    							scoreAsDouble = new Double(scoreAsString.trim());
-
+    							scoreAsDouble = convertStringToDouble(scoreAsString);
     							// check for negative values
     							if (scoreAsDouble.doubleValue() < 0) {
     								if(logger.isDebugEnabled()) logger.debug(scoreAsString + " is not a positive value");
@@ -1300,8 +1359,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     								return false;
     							}
-
-    						} catch(NumberFormatException e){
+    						} catch(ParseException e){
     							if(logger.isDebugEnabled()) logger.debug(scoreAsString + " is not a numeric value");
     							FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NOTSUPPORTED));
 
@@ -1350,7 +1408,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
    			List line = row.getRowcontent();
 
    			String userid = "";
-   			final String user = (String)line.get(0);
+   			final String user = ((String)line.get(0)).toLowerCase();
    			try {
    				userid = ((User)rosterMap.get(user)).getUserUid();
    		
@@ -1390,50 +1448,61 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			
 			if (getGradeEntryByPercent() || getGradeEntryByPoints()) {
 				Double scoreEarned = null;
+				boolean updateScore = true;
 				if (score != null && !"".equals(score)) {
-					scoreEarned = new Double(score);
+				    try {
+				        scoreEarned = convertStringToDouble(score);
+				    } catch (ParseException pe) {
+				        // this should have already been validated at this point, so there is
+				        // something wrong if we made it here
+				        logger.error("ParseException encountered while checking for grade updates with score: " + score);
+				        updateScore = false;
+				    }
+
 					// truncate to 2 decimal places
 					if (scoreEarned != null)
 						scoreEarned = new Double(FacesUtil.getRoundDown(scoreEarned.doubleValue(), 2));
 				}
 			
-				if (gr == null) {
-					if (scoreEarned != null) {
-						if (!assignment.isExternallyMaintained()) {
-							gr = new AssignmentGradeRecord(assignment,userid,scoreEarned);
-							gr.setPercentEarned(scoreEarned);  // manager will handle if % vs point grading
-							updatedGradeRecords.add(gr);
-						} else {
-							updatingExternalGrade = true;
-						}
-					}
-				}
-				else {
-					// we need to truncate points earned to 2 decimal places to more accurately
-					// see if it was changed - scores that are entered as % can be stored with
-					// unlimited decimal places in db
-					Double gbScoreEarned = null;
-					if (getGradeEntryByPercent())
-						gbScoreEarned = gr.getPercentEarned();
-					else
-						gbScoreEarned = gr.getPointsEarned();
-					
-					if (gbScoreEarned != null)
-						gbScoreEarned = new Double(FacesUtil.getRoundDown(gbScoreEarned.doubleValue(), 2));
-					
-					// 3 ways points earned different: 1 null other not (both ways) or actual
-					// values different
-					if ((gbScoreEarned == null && scoreEarned != null) || 
-						(gbScoreEarned != null && scoreEarned == null) || 
-						(gbScoreEarned != null && scoreEarned != null && gbScoreEarned.doubleValue() != scoreEarned.doubleValue())) {
-					
-						gr.setPointsEarned(scoreEarned); //manager will use correct field depending on grade entry method
-						gr.setPercentEarned(scoreEarned);
-						if (!assignment.isExternallyMaintained())
-							updatedGradeRecords.add(gr);
-						else
-							updatingExternalGrade = true;
-					}			
+				if (updateScore) {
+				    if (gr == null) {
+				        if (scoreEarned != null) {
+				            if (!assignment.isExternallyMaintained()) {
+				                gr = new AssignmentGradeRecord(assignment,userid,scoreEarned);
+				                gr.setPercentEarned(scoreEarned);  // manager will handle if % vs point grading
+				                updatedGradeRecords.add(gr);
+				            } else {
+				                updatingExternalGrade = true;
+				            }
+				        }
+				    }
+				    else {
+				        // we need to truncate points earned to 2 decimal places to more accurately
+				        // see if it was changed - scores that are entered as % can be stored with
+				        // unlimited decimal places in db
+				        Double gbScoreEarned = null;
+				        if (getGradeEntryByPercent())
+				            gbScoreEarned = gr.getPercentEarned();
+				        else
+				            gbScoreEarned = gr.getPointsEarned();
+
+				        if (gbScoreEarned != null)
+				            gbScoreEarned = new Double(FacesUtil.getRoundDown(gbScoreEarned.doubleValue(), 2));
+
+				        // 3 ways points earned different: 1 null other not (both ways) or actual
+				        // values different
+				        if ((gbScoreEarned == null && scoreEarned != null) || 
+				                (gbScoreEarned != null && scoreEarned == null) || 
+				                (gbScoreEarned != null && scoreEarned != null && gbScoreEarned.doubleValue() != scoreEarned.doubleValue())) {
+
+				            gr.setPointsEarned(scoreEarned); //manager will use correct field depending on grade entry method
+				            gr.setPercentEarned(scoreEarned);
+				            if (!assignment.isExternallyMaintained())
+				                updatedGradeRecords.add(gr);
+				            else
+				                updatingExternalGrade = true;
+				        }			
+				    }
 				}
 			} else if (getGradeEntryByLetter()) {
 				if (lgpm == null || lgpm.getGradeMap() == null)
@@ -1557,14 +1626,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			try{
         				if(logger.isDebugEnabled()) logger.debug("checking if " +points +" is a numeric value");
 
-        				double score = Double.parseDouble(points);
+        				double score = convertStringToDouble(points);
 
         				if (score < 0) {
         					FacesUtil.addErrorMessage(getLocalizedString("import_assignment_negative"));
         					return "spreadsheetPreview";
         				}
 
-        			}catch(NumberFormatException e){
+        			}catch(ParseException e){
         				if(logger.isDebugEnabled()) logger.debug(points + " is not a numeric value");
         				FacesUtil.addErrorMessage(getLocalizedString("import_assignment_notsupported"));
 
@@ -1618,14 +1687,20 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 String scoreAsString = (String) entry.getValue();
                 if (scoreAsString != null && scoreAsString.trim().length() > 0) {
                 	if (getGradeEntryByPercent() || getGradeEntryByPoints()) {
-	                    Double scoreAsDouble;
-	                	scoreAsDouble = new Double(scoreAsString);
-	                	if (scoreAsDouble != null)
-	                		scoreAsDouble = new Double(FacesUtil.getRoundDown(scoreAsDouble.doubleValue(), 2));
-	                	AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,scoreAsDouble);
-	                	asnGradeRecord.setPercentEarned(scoreAsDouble); // in case gb entry by % - sorted out in manager
-	                    gradeRecords.add(asnGradeRecord);
-	                    if(logger.isDebugEnabled())logger.debug("added grades for " + uid + " - score " + scoreAsString);
+                	    try {
+                	        Double scoreAsDouble;
+                	        scoreAsDouble = convertStringToDouble(scoreAsString);
+                	        if (scoreAsDouble != null)
+                	            scoreAsDouble = new Double(FacesUtil.getRoundDown(scoreAsDouble.doubleValue(), 2));
+                	        AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,scoreAsDouble);
+                	        asnGradeRecord.setPercentEarned(scoreAsDouble); // in case gb entry by % - sorted out in manager
+                	        gradeRecords.add(asnGradeRecord);
+                	        if(logger.isDebugEnabled())logger.debug("added grades for " + uid + " - score " + scoreAsString);
+                	    } catch (ParseException pe) {
+                	        // the score should have already been validated at this point, so
+                	        // there is something wrong
+                	        logger.error("ParseException encountered while parsing value: " + scoreAsString + " Score was not updated.");
+                	    }
                 	} else if (getGradeEntryByLetter()) {
                 		AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,null);
                 		asnGradeRecord.setLetterEarned(lgpm.standardizeInputGrade(scoreAsString));
@@ -2105,6 +2180,58 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
     }
     
+    //************************ EXCEL file parsing *****************************
+    /**
+     * method converts an input stream to an List consisting of strings
+     * representing a line.  The input stream must be for an xls file.
+     *
+     * @param inputStream
+     * @return contents
+     */
+    private List excelToArray(InputStream inputStreams) throws IOException {
+        HSSFWorkbook wb  = new HSSFWorkbook(inputStreams);
+
+        //Convert an Excel file to csv       
+        HSSFSheet sheet = wb.getSheetAt(0);
+        List array = new ArrayList();
+        Iterator it = sheet.rowIterator();
+        while (it.hasNext()){
+            HSSFRow row = (HSSFRow) it.next();
+            String rowAsString = fromHSSFRowtoCSV(row);
+            if (rowAsString.replaceAll(",", "").replaceAll("\"", "").equals("")) {
+                continue;
+            }
+            array.add(fromHSSFRowtoCSV(row));
+        }
+        return array;
+    }
+
+    private String fromHSSFRowtoCSV(HSSFRow row){
+        String csvRow = "";
+        int l = row.getLastCellNum();
+        for (int i=0;i<l;i++){
+            HSSFCell cell = row.getCell((short)i);
+            String cellValue = "";
+            if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+                cellValue = "";
+            } else if (cell.getCellType()== HSSFCell.CELL_TYPE_STRING){
+                cellValue = "\"" + cell.getStringCellValue() + "\"";
+            } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC){
+                double value = cell.getNumericCellValue();
+                cellValue = getNumberFormat().format(value);
+            }
+
+            csvRow = csvRow + cellValue;
+
+            if (i<l){
+                csvRow = csvRow + getCsvDelimiter().toCharArray()[0];
+            }
+        }
+        return csvRow;
+
+    }
+
+    
     /**
      * Process an upload ActionEvent from spreadsheetUpload.jsp or spreadsheetEntireGBImport.jsp
      * Source of this action is the Upload button on either page
@@ -2253,6 +2380,39 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         int numStudentsInSite = enrollments != null ? enrollments.size() : 0;
         return numStudentsInSite;
 	}
+	
+	private String getCsvDelimiter() {
+	    if (csvDelimiter == null) {
+	        csvDelimiter = ServerConfigurationService.getString("csv.separator", ",");
+	    }
+
+	    return csvDelimiter;
+	}
+	
+	/**
+	 * 
+	 * @param doubleAsString
+	 * @return a locale-aware Double value representation of the given String
+	 * @throws ParseException
+	 */
+	private Double convertStringToDouble(String doubleAsString) throws ParseException {
+	    Double scoreAsDouble = null;
+	    if (doubleAsString != null) {
+	        Number numericScore = getNumberFormat().parse(doubleAsString.trim());
+	        scoreAsDouble = numericScore.doubleValue();
+	    }
+
+	    return scoreAsDouble;
+	}
+	
+	private NumberFormat getNumberFormat() {
+	    if (numberFormat == null) {
+	        numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+	    }
+	    
+	    return numberFormat;
+	}
+
 
 }
 

@@ -33,9 +33,16 @@
  	            <h4><h:outputText value="#{msgs.import_entire_template_prefix} #{msgs.import_entire_template}"/></h4>
  	            <br />
 		        <h:form id="gbExportForm">
- 	    	        <h:graphicImage value="images/silk/page_white.png" />
-    	    	    <h:commandLink actionListener="#{rosterBean.exportCsvNoCourseGrade}">
-        	    	    <h:outputText value="#{msgs.import_entire_template}"/>
+              <h:graphicImage value="/../../library/image/sakai/excel.gif" />
+              <h:commandLink actionListener="#{rosterBean.exportXlsNoCourseGrade}">
+                <h:outputText value="#{msgs.import_entire_template_excel}"/>
+              </h:commandLink>
+              
+              <h:outputText value="#{msgs.import_entire_template_or}" />
+                
+ 	    	      <h:graphicImage value="images/silk/page_white.png" />
+    	    	  <h:commandLink actionListener="#{rosterBean.exportCsvNoCourseGrade}">
+        	      <h:outputText value="#{msgs.import_entire_template}"/>
  	        		</h:commandLink>
 				</h:form> <%-- End of download csv file form --%>
 			
@@ -60,7 +67,7 @@
            			<h:outputLabel for="fileupload">
                     	<h:outputText id="fileuploadLabel" value="#{msgs.upload_view_choose_file}"/>
             		</h:outputLabel>
-            		<t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file" required="true" accept="text/csv"/>
+            		<t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file" required="true" accept="application/vnd.ms-excel"/>
 					*/%>
             		<h:outputLabel for="pickedFileDesc" value="#{msgs.upload_view_choose_file}"/>
                 	<h:inputText id="pickedFileDesc" value="#{spreadsheetUploadBean.pickedFileDesc}" required="true" readonly="true"/>
