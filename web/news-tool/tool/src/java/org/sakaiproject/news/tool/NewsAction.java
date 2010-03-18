@@ -142,21 +142,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		// // if we are in edit permissions...
-		// String helperMode = (String) state.getAttribute(PermissionsAction.STATE_MODE);
-		// if (helperMode != null)
-		// {
-		// String template = PermissionsAction.buildHelperContext(portlet, context, rundata, state);
-		// if (template == null)
-		// {
-		// addAlert(state, rb.getString("theisone"));
-		// }
-		// else
-		// {
-		// return template;
-		// }
-		// }
-
 		context.put("tlang", rb);
 
 		String mode = (String) state.getAttribute(STATE_MODE);
@@ -285,7 +270,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		String newChannelTitle = data.getParameters().getString(FORM_CHANNEL_TITLE);
-		String currentChannelTitle = (String) state.getAttribute(STATE_CHANNEL_TITLE);
 
 		if (StringUtil.trimToNull(newChannelTitle) == null) 
 		{
@@ -293,63 +277,54 @@ public class NewsAction extends VelocityPortletPaneledAction
 			addAlert(state, rb.getString("cus.franam"));
 			return;			
 		}
-		else if (!newChannelTitle.equals(currentChannelTitle))
-		{
-			state.setAttribute(STATE_CHANNEL_TITLE, newChannelTitle);
-			if (Log.getLogger("chef").isDebugEnabled())
-				Log.debug("chef", this + ".doUpdate(): newChannelTitle: " + newChannelTitle);
+		state.setAttribute(STATE_CHANNEL_TITLE, newChannelTitle);
+		if (Log.getLogger("chef").isDebugEnabled())
+			Log.debug("chef", this + ".doUpdate(): newChannelTitle: " + newChannelTitle);
 
-			// update the tool config
-			Placement placement = ToolManager.getCurrentPlacement();
-			placement.setTitle(newChannelTitle);
-
-			// deliver an update to the title panel (to show the new title)
-			String titleId = titlePanelUpdateId(peid);
-			schedulePeerFrameRefresh(titleId);
-		}
+		// update the tool config
+		Placement placement = ToolManager.getCurrentPlacement();
+		placement.setTitle(newChannelTitle);
 		
-		String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
-		String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
-		
-		SitePage p = SiteService.findPage(getCurrentSitePageId());
-		// if the news tool is the only tool on the page, then we can edit the page title
-		if (p.getTools() != null && p.getTools().size() == 1)
+		try
 		{
-			if (StringUtil.trimToNull(newPageTitle) == null)
+			Site sEdit = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			SitePage pEdit = sEdit.getPage(getCurrentSitePageId());
+			String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
+			pEdit.setTitleCustom(true);
+			
+			// if the news tool is the only tool on the page, then we can edit the page title
+			if (pEdit.getTools() != null && pEdit.getTools().size() == 1)
 			{
-				//TODO: add more verbose message; requires language pack addition
-				addAlert(state, rb.getString("cus.pagnam"));
-				return;
-			}
-			else if (!newPageTitle.equals(currentPageTitle))
-			{
-				// if this is the only tool on that page, update the page's title also
-				try
+				if (StringUtil.trimToNull(newPageTitle) == null)
 				{
-					// TODO: save site page title? -ggolden
-					Site sEdit = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-					SitePage pEdit = sEdit.getPage(p.getId());
+					//TODO: add more verbose message; requires language pack addition
+					addAlert(state, rb.getString("cus.pagnam"));
+				}
+				else
+				{
+					// if this is the only tool on that page, update the page's title also
 					pEdit.setTitle(newPageTitle);
-					SiteService.save(sEdit);
 					state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
 				}
-				catch (PermissionException e) 
-				{
-					if(Log.getLogger("chef").isDebugEnabled()) {
-						Log.debug("chef", " Caught Exception " + e + " user doesn't seem to have " +
-							"rights to update site: " + ToolManager.getCurrentPlacement().getContext());
-					}
-				}
-				catch (Exception e)
-				{	
-					//Probably will never happen unless the ToolManager returns bogus Site or null
-					if(Log.getLogger("chef").isDebugEnabled()) {
-						Log.debug("chef", "NewsAction.doUpdate() caught Exception " + e);
-					}
-				} 
+				
+			}
+			SiteService.save(sEdit);
+		}
+		catch (PermissionException e) 
+		{
+			if(Log.getLogger("chef").isDebugEnabled()) {
+				Log.debug("chef", " Caught Exception " + e + " user doesn't seem to have " +
+							 "rights to update site: " + ToolManager.getCurrentPlacement().getContext());
 			}
 		}
-
+		catch (Exception e)
+		{	
+			//Probably will never happen unless the ToolManager returns bogus Site or null
+			if(Log.getLogger("chef").isDebugEnabled()) {
+				Log.debug("chef", "NewsAction.doUpdate() caught Exception " + e);
+			}
+		} 
+		
 		String newChannelUrl = data.getParameters().getString(FORM_CHANNEL_URL);
 		String currentChannelUrl = (String) state.getAttribute(STATE_CHANNEL_URL);
 
@@ -375,7 +350,6 @@ public class NewsAction extends VelocityPortletPaneledAction
 					state.setAttribute(STATE_CHANNEL_URL, url.toExternalForm());
 	
 					// update the tool config
-					Placement placement = ToolManager.getCurrentPlacement();
 					placement.getPlacementConfig().setProperty(PARAM_CHANNEL_URL, url.toExternalForm());
 
 				}

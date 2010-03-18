@@ -27,6 +27,9 @@ import java.util.Properties;
 import java.util.Collections;
 import java.net.URLEncoder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -75,7 +78,8 @@ import org.sakaiproject.event.api.NotificationService;
  */
 public class IFrameAction extends VelocityPortletPaneledAction
 {
-
+	private static Log M_log = LogFactory.getLog(IFrameAction.class);
+	
 	/** Event for accessing the web-content tool */
 	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
 	
@@ -888,7 +892,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			}
 
 			// update state
-			// state.setAttribute(SOURCE, source);
 			placement.getPlacementConfig().setProperty(SOURCE, source);
 		}
 
@@ -909,6 +912,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			}
 			catch (Throwable e)
 			{
+				M_log.warn("doConfigure_update: " + e);
 			}
 		}
 
@@ -943,7 +947,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// title
 		String title = data.getParameters().getString(TITLE);
-		// state.setAttribute(TITLE, title);
 		if (StringUtil.trimToNull(title) == null)
 		{
 			addAlert(state, rb.getString("gen.tootit"));
@@ -951,42 +954,42 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 		placement.setTitle(title);
 		
-		// for web content tool, if it is a site page tool, and the only tool on the page, update the page title / popup.
-		if ((state.getAttribute(SPECIAL) == null) && (toolConfig != null))
+		try
 		{
-			try
+			Site site = SiteService.getSite(toolConfig.getSiteId());
+			SitePage page = site.getPage(toolConfig.getPageId());
+			page.setTitleCustom(true);
+			
+			// for web content tool, if it is a site page tool, and the only tool on the page, update the page title / popup.
+			if ((state.getAttribute(SPECIAL) == null) && (toolConfig != null))
 			{
-				Site site = SiteService.getSite(toolConfig.getSiteId());
-				SitePage page = site.getPage(toolConfig.getPageId());
-
 				// if this is the only tool on that page, update the page's title also
 				if ((page.getTools() != null) && (page.getTools().size() == 1))
 				{
-					// TODO: save site page title? -ggolden
 					String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
-					String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
 					
 					if (StringUtil.trimToNull(newPageTitle) == null)
 					{
 						addAlert(state, rb.getString("gen.pagtit"));
 						return;		
 					}
-					else if (!newPageTitle.equals(currentPageTitle))
+					else 
 					{
 						page.setTitle(newPageTitle);
 						state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
 					}
-
+					
 					// popup
 					boolean popup = data.getParameters().getBoolean("popup");
 					page.setPopup(popup);
-
-					SiteService.save(site);
 				}
 			}
-			catch (Exception ignore)
-			{
-			}
+					
+			SiteService.save(site);
+		}
+		catch (Exception ignore)
+		{
+			M_log.warn("doConfigure_update: " + ignore);
 		}
 
 		// save
@@ -995,10 +998,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// we are done with customization... back to the main mode
 		state.removeAttribute(STATE_MODE);
-
-		// deliver an update to the title panel (to show the new title)
-		// String titleId = titlePanelUpdateId(peid);
-		// schedulePeerFrameRefresh(titleId);
 
 		// refresh the whole page, since popup and title may have changed
 		scheduleTopRefresh();
