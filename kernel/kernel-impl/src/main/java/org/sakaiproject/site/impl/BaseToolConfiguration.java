@@ -77,6 +77,9 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 
 	/** The order within the page. */
 	protected int m_pageOrder = -1;
+	
+	/** Flag for custom title configuration */
+	protected boolean m_custom_title = false;
 
 	private BaseSiteService siteService;
 
@@ -105,9 +108,30 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_page = page;
 		m_layoutHints = layoutHints;
 		m_pageOrder = pageOrder;
+		m_custom_title = getTitleCustom(page);
 
 		m_configLazy = true;
 		setPageCategory();
+	}
+	
+	/**
+	 ** Checks if the tool's page has set the custom_title property (for custom page or tool titles),
+	 ** or alternately checks if this tool should be cosidered a "legacy" custom tool title
+	 ** (e.g. iframe, news, linktool). 
+	 ** 
+	 ** @see org.sakaiproject.site.impl.BaseSitePage#getTitleCustom
+	 **/
+	private boolean getTitleCustom(SitePage page)
+	{
+		String custom = (String)page.getProperties().get(SitePage.PAGE_CUSTOM_TITLE_PROP);
+		if ( custom != null )
+			return Boolean.parseBoolean(custom);
+		else	if ( "sakai.iframe".equals(m_toolId) || "sakai.news".equals(m_toolId) || "sakai.rutgers.linktool".equals(m_toolId) )
+			return true;
+		else if (m_toolId != null && m_toolId.startsWith("sakai.iframe"))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -179,6 +203,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_layoutHints = other.getLayoutHints();
 		m_pageId = bOther.m_pageId;
 		m_pageOrder = bOther.m_pageOrder;
+		m_custom_title = getTitleCustom(page);
 
 		m_siteId = getContainingPage().getContainingSite().getId();
 		m_skin = bOther.m_skin;
@@ -219,6 +244,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		this.siteService = siteService;
 
 		m_page = page;
+		m_custom_title = getTitleCustom(page);
 	}
 
 	/**
@@ -235,6 +261,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		this.siteService = siteService;
 		
 		m_page = page;
+		m_custom_title = getTitleCustom(page);
 		setPageCategory();
 	}
 
@@ -252,6 +279,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		this.siteService = siteService;
 
 		m_page = page;
+		m_custom_title = getTitleCustom(page);
 		setPageCategory();
 	}
 
@@ -278,6 +306,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		}
 		m_title = StringUtil.trimToNull(el.getAttribute("title"));
 		m_layoutHints = StringUtil.trimToNull(el.getAttribute("layoutHints"));
+		m_custom_title = getTitleCustom(page);
 
 		// the children (properties)
 		NodeList children = el.getChildNodes();
@@ -525,6 +554,28 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	}
    
 	/**
+	 * @inheritDoc
+	 *
+	 *	Modified by mnorton for SAK-8908.
+	 */
+	public String getTitle()
+	{
+		String rv = null;
+		if (m_tool != null && !m_custom_title)
+		{
+			rv = m_tool.getTitle();
+		}
+		else if (m_title != null)
+		{
+			rv = m_title;
+		}
+		else
+			rv = "(title unknown)";
+
+		return rv;
+	}
+
+	/**
 	 * Replace tool title with its localized value
 	 * 
 	 * @return localized tool title
@@ -539,5 +590,4 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		
 		return localizedTitle;
 	}
-	
 }

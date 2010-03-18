@@ -147,24 +147,11 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 
 	/**
 	 * @inheritDoc
-	 *
-	 *	Modified by mnorton for SAK-8908.
 	 */
 	public String getTitle()
 	{
-		String rv = null;
-		if (m_tool != null)
-		{
-			rv = m_tool.getTitle();
-		}
-		else if (m_title != null)
-		{
-			rv = m_title;
-		}
-		else
-			rv = "(title unknown)";
-
-		return rv;
+		// shouldn't happen (see BaseToolConfiguration.getTitle()
+		return "(title unknown)";
 	}
 
 	/**
