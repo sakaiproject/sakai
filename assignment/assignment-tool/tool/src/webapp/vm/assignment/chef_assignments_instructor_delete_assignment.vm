@@ -45,7 +45,7 @@
 							  #elseif (($!assignment.getCloseTime())&&($assignment.getCloseTime().before($currentTime)))
 								$tlang.getString("gen.closed")
 							  #else
-								$tlang.getString("gen.due1")
+								$tlang.getString("gen.due")
 							  #end
 						</td>
 						<td headers="submissions">

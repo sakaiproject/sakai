@@ -2648,7 +2648,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String text = StringUtil.trimToNull(s.getSubmittedText());
 		if ( text != null)
 		{
-			buffer.append(rb.getString("noti.submit.text") + newline + newline + Validator.escapeHtmlFormattedText(text) + newline + newline);
+			buffer.append(rb.getString("gen.submittedtext") + newline + newline + Validator.escapeHtmlFormattedText(text) + newline + newline);
 		}
 		
 		// attachment if any
@@ -6345,7 +6345,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else if ((this.getCloseTime() != null) && (this.getCloseTime().before(currentTime)))
 				return rb.getString("gen.closed");
 			else
-				return rb.getString("gen.due1");
+				return rb.getString("gen.due");
 		}
 
 		/**

@@ -77,7 +77,7 @@
 					$tlang.getString("gen.open")
 				</th>
 				<th id="due">
-					$tlang.getString("gen.due1")
+					$tlang.getString("gen.due")
 				</th>
 				<th id="position">
 				    $tlang.getString("gen.position")

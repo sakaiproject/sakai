@@ -16,7 +16,7 @@
 		</tr>
 		<tr>
 			<th>
-				$tlang.getString("due2"):
+				$tlang.getString("gen.due"):
 			</th>
 			<td>
 				$!assignment.getDueTime().toStringLocalFull()

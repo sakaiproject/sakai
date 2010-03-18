@@ -6000,7 +6000,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 						}
 						e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
-								/* title */rb.getString("due") + " " + title,
+								/* title */rb.getString("gen.due") + " " + title,
 								/* description */rb.getFormattedMessage("assign_due_event_desc", new Object[]{title, dueTime.toStringLocalFull()}),
 								/* type */rb.getString("deadl"),
 								/* location */"",
@@ -9777,13 +9777,13 @@ public class AssignmentAction extends PagedResourceActionII
 						status = rb.getString("return") + " " + submission.getTimeReturned().toStringLocalFull();
 					else
 					{
-						status = rb.getString("submitt") + submission.getTimeSubmitted().toStringLocalFull();
-						if (submission.getTimeSubmitted().after(assignment.getDueTime())) status = status + rb.getString("late");
+						status = rb.getString("gen.subm4") + submission.getTimeSubmitted().toStringLocalFull();
+						if (submission.getTimeSubmitted().after(assignment.getDueTime())) status = status + rb.getString("gen.late2");
 					}
 				else
 					status = rb.getString("inpro");
 			else
-				status = rb.getString("notsta");
+				status = rb.getString("gen.notsta");
 
 			return status;
 

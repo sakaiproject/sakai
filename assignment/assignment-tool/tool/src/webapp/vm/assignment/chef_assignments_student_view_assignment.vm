@@ -28,7 +28,7 @@
 			</tr>
 			<tr> 
 				<th>
-					$tlang.getString("gen.open2")
+					$tlang.getString("gen.open")
 				</th>
 				<td>
 					$assignment.OpenTime.toStringLocalFull()
@@ -44,7 +44,7 @@
 			</tr>
 			<tr> 
 				<th>
-					$tlang.getString("gen.due2")
+					$tlang.getString("gen.due")
 				</th>
 				<td>
 					$assignment.DueTime.toStringLocalFull()
@@ -250,7 +250,7 @@
 		#else
 			<p class="discTria">
 				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	
-				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
+				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			</p>	
 		#end

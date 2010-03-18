@@ -154,7 +154,7 @@ var notifyDeleteControl = function(){
 				</tr>
 				<tr>
 					<th>
-						$tlang.getString("gen.due2")
+						$tlang.getString("gen.due")
 					</th>
 					<td>
 						$!assignment.getDueTime().toStringLocalFull()
