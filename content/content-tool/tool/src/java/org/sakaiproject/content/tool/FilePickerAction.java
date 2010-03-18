@@ -3061,8 +3061,8 @@ public class FilePickerAction extends PagedResourceHelperAction
                 }
                 catch (IdUnusedException e)
                 {
-	                // TODO Auto-generated catch block
-	                logger.warn("IdUnusedException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
+	                // its expected that some collections eg the drop box collection may not exit
+	                logger.debug("IdUnusedException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
                 catch (TypeException e)
                 {
