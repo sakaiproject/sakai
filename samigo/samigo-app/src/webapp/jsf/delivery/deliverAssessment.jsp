@@ -99,10 +99,15 @@ function checkRadio()
   }
 }
 
+var formatByQuestion = <h:outputText value="#{delivery.settings.formatByQuestion}" />;
 function setLocation()
 {
+// reset questionindex to avoid a Safari bug
 	partIndex = document.forms[0].elements['takeAssessmentForm:partIndex'].value;
 	questionIndex = document.forms[0].elements['takeAssessmentForm:questionIndex'].value;
+ 	if (!formatByQuestion)
+           document.forms[0].elements['takeAssessmentForm:questionIndex'].value = "0";
+
 	formatByPart = document.forms[0].elements['takeAssessmentForm:formatByPart'].value;
 	formatByAssessment = document.forms[0].elements['takeAssessmentForm:formatByAssessment'].value;
     //alert("partIndex = " + partIndex);
