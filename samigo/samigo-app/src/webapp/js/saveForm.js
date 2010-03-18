@@ -48,7 +48,7 @@ function GetFormContent(formId, buttonName) {
     disabledLinks = [];
     for (var i=0; i < document.links.length; i++){
 	var link = document.links[i];
-	if (link.id != null && link.onclick != null) {
+	if (link.id != null && link.id != "" && link.onclick != null) {
 	    disabledLinks.push([link.id, link.onmouseup, link.onclick]);
 	    link.onmouseup = null;
 	    link.onclick = null;
