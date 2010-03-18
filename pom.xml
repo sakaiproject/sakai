@@ -205,6 +205,7 @@
                 <module>archive</module>
                 <module>authz</module>
                 <module>config</module>
+                <module>content/content-bundles</module>
                 <module>content/content-help</module>
                 <module>content/content-tool/tool</module>
                 <module>courier</module>
