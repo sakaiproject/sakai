@@ -915,6 +915,10 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setRoom(sp.getRoomNumber());
 		userProfile.setCourse(sp.getEducationCourse());
 		userProfile.setSubjects(sp.getEducationSubjects());
+		userProfile.setStaffProfile(sp.getStaffProfile());
+		userProfile.setAcademicProfileURL(sp.getAcademicProfileUrl());
+		userProfile.setUniversityProfileURL(sp.getUniversityProfileUrl());
+		userProfile.setPublications(sp.getPublications());
 		
 		//personal info
 		userProfile.setFavouriteBooks(sp.getFavouriteBooks());
@@ -922,6 +926,9 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setFavouriteMovies(sp.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sp.getFavouriteQuotes());
 		userProfile.setOtherInformation(sp.getNotes());
+		
+		//business info
+		userProfile.setBusinessBiography(sp.getBusinessBiography());
 		
 		return userProfile;
 		

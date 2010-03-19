@@ -157,6 +157,13 @@ public class MyProfile extends BasePage {
 		userProfile.setCourse(sakaiPerson.getEducationCourse());
 		userProfile.setSubjects(sakaiPerson.getEducationSubjects());
 		
+		userProfile.setStaffProfile(sakaiPerson.getStaffProfile());
+		userProfile.setAcademicProfileURL(sakaiPerson.getAcademicProfileUrl());
+		userProfile.setUniversityProfileURL(sakaiPerson.getUniversityProfileUrl());
+		userProfile.setPublications(sakaiPerson.getPublications());
+		
+		userProfile.setBusinessBiography(sakaiPerson.getBusinessBiography());
+		
 		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());

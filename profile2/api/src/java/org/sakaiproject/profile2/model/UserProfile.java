@@ -54,7 +54,10 @@ public class UserProfile implements Serializable {
 	private String otherInformation;
 	private String course;
 	private String subjects;
-	// TODO business-related fields
+	private String staffProfile;
+	private String universityProfileURL; 
+	private String academicProfileURL; 
+	private String publications;
 	private String businessBiography;
 	private boolean locked;
 	
@@ -265,6 +268,38 @@ public class UserProfile implements Serializable {
 		this.subjects = subjects;
 	}
 
+	public String getStaffProfile() {
+		return staffProfile;
+	}
+
+	public void setStaffProfile(String staffProfile) {
+		this.staffProfile = staffProfile;
+	}
+
+	public String getUniversityProfileURL() {
+		return universityProfileURL;
+	}
+
+	public void setUniversityProfileURL(String universityProfileURL) {
+		this.universityProfileURL = universityProfileURL;
+	}
+
+	public String getAcademicProfileURL() {
+		return academicProfileURL;
+	}
+
+	public void setAcademicProfileURL(String academicProfileURL) {
+		this.academicProfileURL = academicProfileURL;
+	}
+
+	public String getPublications() {
+		return publications;
+	}
+
+	public void setPublications(String publications) {
+		this.publications = publications;
+	}
+	
 	public String getBusinessBiography() {
 		return businessBiography;
 	}
