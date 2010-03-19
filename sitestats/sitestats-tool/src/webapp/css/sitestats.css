@@ -403,14 +403,17 @@ label.indnt1 {
 /** Tool/Event tree nodes in preferences (for Tomahawk tree2) */
 .nodeToolSelected,.nodeEventSelected  {
 	/*font-weight: bold;*/
+    vertical-align:top;
 }
 .nodeToolUnselected,.nodeEventUnselected {
+    vertical-align:top;
 	font-weight: normal;
 	font-style: italic;
 	text-decoration: line-through;
 	color: #888888;
 }
 .nodeToolPartialSelected{
+    vertical-align:top;
 	font-weight: normal;
 	font-style: italic;
 	color: #555555;
@@ -427,7 +430,7 @@ label.indnt1 {
     float: left;
 }
 .nodeIcon {
-	vertical-align: bottom;
+	/*vertical-align: bottom;*/
 }
 .childCount {
 	display: none;

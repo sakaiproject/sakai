@@ -124,8 +124,10 @@ public class EventRegistryTree extends Panel {
 				navCollapse.add(new AttributeModifier("style", true, new Model("display: none")));
 								
 				// image, label, checkbox
-				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "application_side_boxes.png"));
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
+				String toolIcon = Locator.getFacade().getEventRegistryService().getToolIcon(ti.getToolId());
+				if(toolIcon == null) toolIcon = StatsManager.SILK_ICONS_DIR + "application_side_boxes.png";
+				listItem.add(new ExternalImage("image", toolIcon));
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
 				AttributeModifier onclick = new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('#"+toolId+"');"));
