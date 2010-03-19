@@ -35,5 +35,19 @@
       <artifactId>sitestats-bundle</artifactId>
     </dependency>
   </dependencies>
+
+  <!-- Build -->
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/..</directory>
+        <includes>
+          <include>schema/*.sql</include>
+          <include>updating/*.sql</include>
+          <include>updating/*.txt</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
   
 </project>
