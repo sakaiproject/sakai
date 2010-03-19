@@ -155,6 +155,9 @@
 				<value>sakai.gradebook.tool</value>
 			</list>
 		</property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager" />
+        </property>
 	</bean>
 
 	<bean id="org_sakaiproject_service_gradebook_ConditionsProvider"

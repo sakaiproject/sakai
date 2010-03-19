@@ -24,18 +24,15 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 
 /**
  * Utility class that provides safe defaults for all EntityProducer methods.
@@ -45,17 +42,22 @@ import org.sakaiproject.entity.cover.EntityManager;
  * used to register as an EntityProducer.
  */
 public class BaseEntityProducer implements EntityProducer {
-    private static final Log log = LogFactory.getLog(BaseEntityProducer.class);
+    //private static final Log log = LogFactory.getLog(BaseEntityProducer.class);
 
-	private String label;	// This should always be set.
-	private String referenceRoot = null;
-	private String serviceName = null;
+    protected String label;	// This should always be set.
+	protected String referenceRoot = "/gradebook"; // stupid default but OK since it is not used
+	protected String serviceName = null;
+
+	protected EntityManager entityManager;
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
 	/**
 	 * Register this class as an EntityProducer.
 	 */
 	public void init() {
-		EntityManager.registerEntityProducer(this, referenceRoot);
+	    entityManager.registerEntityProducer(this, referenceRoot);
 	}
 
 	public void setLabel(String label) {
