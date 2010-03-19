@@ -13,6 +13,16 @@ public interface ExternalIntegrationProvider {
     public static final String SESSION_ID = "_sessionId";
 
     /**
+     * Allows services in the external system to be located 
+     * (this is used to find external providers for overriding the default internal services)
+     * 
+     * @param <T>
+     * @param type the service API class
+     * @return the service OR null if it does not exist
+     */
+    public <T> T findService(Class<T> type);
+
+    /**
      * Fires events from EB using an external event system <br/>
      * You can assume the eventName is not null and the reference has been validated and normalized <br/>
      * NOTE: if you have no way to handle external events then throw {@link UnsupportedOperationException}

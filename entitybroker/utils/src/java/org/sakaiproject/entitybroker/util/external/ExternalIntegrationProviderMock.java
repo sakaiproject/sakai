@@ -67,4 +67,11 @@ public class ExternalIntegrationProviderMock implements ExternalIntegrationProvi
         // nothing to do
     }
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#findService(java.lang.Class)
+     */
+    public <T> T findService(Class<T> type) {
+        return null;
+    }
+
 }

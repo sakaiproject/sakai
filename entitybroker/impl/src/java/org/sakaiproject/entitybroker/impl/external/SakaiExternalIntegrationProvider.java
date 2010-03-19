@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -83,6 +84,14 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
     private SessionManager sessionManager;
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#findService(java.lang.Class)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T findService(Class<T> type) {
+        return (T) ComponentManager.get(type);
     }
 
     /* (non-Javadoc)

@@ -35,6 +35,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.SearchProvider;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
@@ -48,7 +49,7 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public interface EntityBroker extends PropertiesProvider, TagProvider {
+public interface EntityBroker extends PropertiesProvider, TagProvider, SearchProvider {
 
     /**
      * Check if an entity exists by the globally unique reference string, (the global reference

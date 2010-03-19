@@ -38,9 +38,14 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.BrowseEntity;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.QuerySearch;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
+import org.sakaiproject.entitybroker.entityprovider.extension.SearchContent;
+import org.sakaiproject.entitybroker.entityprovider.extension.SearchProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.SearchResults;
 import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchService;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 
 /**
@@ -50,6 +55,16 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
+
+    public void init() {
+        // setup the external providers
+        if (externalIntegrationProvider != null) {
+            SearchProvider searchProvider = externalIntegrationProvider.findService(SearchProvider.class);
+            if (searchProvider != null) {
+                this.searchProvider = searchProvider;
+            }
+        }
+    }
 
     /**
      * Empty constructor
@@ -99,6 +114,12 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.requestStorage = requestStorage;
     }
 
+    private ExternalIntegrationProvider externalIntegrationProvider;
+    public void setExternalIntegrationProvider(
+            ExternalIntegrationProvider externalIntegrationProvider) {
+        this.externalIntegrationProvider = externalIntegrationProvider;
+    }
+
     // OPTIONAL Data Storage providers
     private PropertiesProvider propertiesProvider;
     public void setPropertiesProvider(PropertiesProvider propertiesProvider) {
@@ -110,6 +131,10 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         this.tagSearchService = tagSearchService;
     }
 
+    private SearchProvider searchProvider;
+    public void setSearchProvider(SearchProvider searchProvider) {
+        this.searchProvider = searchProvider;
+    }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybus.EntityBroker#entityExists(java.lang.String)
@@ -503,6 +528,38 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         } else {
             System.err.println("WARN No tagSearchService defined");
             return new ArrayList<String>();
+        }
+    }
+
+    // SEARCH methods
+    
+    public boolean add(String reference, SearchContent content) {
+        if (searchProvider != null) {
+            return searchProvider.add(reference, content);
+        }
+        System.err.println("WARN No searchProvider defined");
+        return false;
+    }
+
+    public boolean remove(String reference) {
+        if (searchProvider != null) {
+            return searchProvider.remove(reference);
+        }
+        System.err.println("WARN No searchProvider defined");
+        return false;
+    }
+
+    public SearchResults search(QuerySearch query) {
+        if (searchProvider != null) {
+            return searchProvider.search(query);
+        }
+        System.err.println("WARN No searchProvider defined");
+        return null;
+    }
+
+    public void resetSearchIndexes(String context) {
+        if (searchProvider != null) {
+            searchProvider.resetSearchIndexes(context);
         }
     }
 

@@ -68,6 +68,25 @@ import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
  */
 public class EntityProviderManagerImpl implements EntityProviderManager {
 
+    public void init() {
+        System.out.println("EntityProviderManagerImpl init");
+        // register the describe and batch prefixes to reserve them
+        registerEntityProvider(
+                new EntityProvider() {
+                    public String getEntityPrefix() {
+                        return EntityRequestHandler.DESCRIBE;
+                    }
+                }
+        );
+        registerEntityProvider(
+                new EntityProvider() {
+                    public String getEntityPrefix() {
+                        return EntityRequestHandler.BATCH;
+                    }
+                }
+        );
+    }
+
     /**
      * Empty constructor
      */
@@ -103,26 +122,6 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     // old CHMs were switched to RMs to avoid holding strong references and allowing clean classloader unloads
     // protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
     // protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
-
-
-    public void init() {
-        System.out.println("EntityProviderManagerImpl init");
-        // register the describe and batch prefixes to reserve them
-        registerEntityProvider(
-                new EntityProvider() {
-                    public String getEntityPrefix() {
-                        return EntityRequestHandler.DESCRIBE;
-                    }
-                }
-        );
-        registerEntityProvider(
-                new EntityProvider() {
-                    public String getEntityPrefix() {
-                        return EntityRequestHandler.BATCH;
-                    }
-                }
-        );
-    }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)
