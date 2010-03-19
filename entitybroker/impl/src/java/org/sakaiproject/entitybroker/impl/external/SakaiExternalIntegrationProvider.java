@@ -91,7 +91,7 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
      */
     @SuppressWarnings("unchecked")
     public <T> T findService(Class<T> type) {
-        return (T) ComponentManager.get(type);
+        return (T) ComponentManager.getInstance().get(type);
     }
 
     /* (non-Javadoc)
