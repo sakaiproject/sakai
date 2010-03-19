@@ -103,7 +103,8 @@
 		<!-- Sakai services -->
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />                
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />   
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />             
 	</bean>	
 	<bean id="org.sakaiproject.sitestats.api.event.FileEventRegistry"
 	   class="org.sakaiproject.sitestats.impl.event.FileEventRegistry"

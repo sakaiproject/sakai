@@ -28,6 +28,7 @@ import java.util.Observer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
@@ -70,6 +71,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private SiteService					M_ss;
 	private ToolManager					M_tm;
 	private MemoryService				M_ms;
+	private ServerConfigurationService	M_scs;
 
 	// ################################################################
 	// Spring methods
@@ -84,6 +86,10 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 	public void setMemoryService(MemoryService memoryService) {
 		this.M_ms = memoryService;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.M_scs = serverConfigurationService;
 	}
 
 	public void setFileEventRegistry(FileEventRegistry fileEventRegistry) {
@@ -229,6 +235,8 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	public String getToolIcon(String toolId) {
 		if(toolIdIconMap == null) {
 			toolIdIconMap = new HashMap<String, String>();
+			
+			// Defaults: standard tools
 			toolIdIconMap.put("osp.evaluation", StatsManager.SILK_ICONS_DIR + "thumb_up.png");
 			toolIdIconMap.put("osp.glossary", StatsManager.SILK_ICONS_DIR + "text_list_bullets.png");
 			toolIdIconMap.put("osp.matrix", StatsManager.SILK_ICONS_DIR + "table.png");
@@ -289,7 +297,9 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			toolIdIconMap.put("sakai.tasklist", StatsManager.SILK_ICONS_DIR + "note.png");
 			toolIdIconMap.put("sakai.todolist", StatsManager.SILK_ICONS_DIR + "note.png");
 			toolIdIconMap.put("sakai.markup", StatsManager.SILK_ICONS_DIR + "layout_edit.png");
-			// admin tools
+			toolIdIconMap.put("sakai.bbb", StatsManager.SILK_ICONS_DIR + "webcam.png");
+			
+			// Defaults: admin tools
 			toolIdIconMap.put("sakai.users", StatsManager.SILK_ICONS_DIR + "folder_user.png");
 			toolIdIconMap.put("sakai.aliases", StatsManager.SILK_ICONS_DIR + "tag_blue.png");
 			toolIdIconMap.put("sakai.sites", StatsManager.SILK_ICONS_DIR + "application_cascade.png");
@@ -302,7 +312,25 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			toolIdIconMap.put("sakai.usermembership", StatsManager.SILK_ICONS_DIR + "drive_user.png");
 			toolIdIconMap.put("sakai.motd", StatsManager.SILK_ICONS_DIR + "house.png");
 			toolIdIconMap.put("sakai-sitebrowser", StatsManager.SILK_ICONS_DIR + "world.png");
-			toolIdIconMap.put("sakai-createuser", StatsManager.SILK_ICONS_DIR + "user_add.png");			
+			toolIdIconMap.put("sakai-createuser", StatsManager.SILK_ICONS_DIR + "user_add.png");
+			
+			// User-specified: process additions and overwrites from sakai.properties (STAT-232)
+			String[] tools = M_scs.getStrings("sitestats.toolicons.tools");
+			String[] icons = M_scs.getStrings("sitestats.toolicons.icons");
+			if(tools != null && icons != null) {
+				int count = tools.length;
+				if(tools.length != icons.length) {
+					LOG.warn("Number of values for property 'sitestats.toolicons.tools' doesn't match number of values in 'sitestats.toolicons.icons'! Using smaller number.");
+					if(icons.length < count) {
+						count = icons.length;
+					}
+				}
+				for(int i=0; i<count; i++) {
+					toolIdIconMap.put(tools[i], icons[i]);
+				}
+			}else if((tools != null && icons == null) || (tools == null && icons != null)) {
+				LOG.warn("Both 'sitestats.toolicons.tools' and 'sitestats.toolicons.icons' properties are required!");
+			}
 		}
 		return toolIdIconMap.get(toolId);
 	}
