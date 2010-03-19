@@ -36,6 +36,7 @@ public class AssessmentListener implements ActionListener {
 		}
 		
 		samLiteBean.createAssessment(assessment);
+		samLiteBean.setData("");
 		EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "assessmentId=" + assessment.getAssessmentId(), true));
 	}
 	

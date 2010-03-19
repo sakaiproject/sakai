@@ -22,6 +22,8 @@ public class QuestionPoolListener implements ActionListener {
 		Document doc = samLiteBean.createDocument();
 
 		createImportedQuestionPool(doc, QTIVersion.VERSION_1_2);
+		samLiteBean.setData("");
+
 	}
 
 	public QuestionPoolFacade createImportedQuestionPool(Document document, int qti) {
