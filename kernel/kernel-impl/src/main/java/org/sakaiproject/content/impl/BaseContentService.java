@@ -7414,6 +7414,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								// add resource
 								ContentResourceEdit edit = addResource(nId);
 								edit.setContentType(((ContentResource) oResource).getContentType());
+								edit.setResourceType(((ContentResource) oResource).getResourceType());
 								edit.setContent(((ContentResource) oResource).streamContent());
 								//edit.setContent(((ContentResource) oResource).getContent());
 								// import properties
