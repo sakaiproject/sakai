@@ -1,3 +1,6 @@
+/* add company profile table and index */
+/* TODO */
+
 /* add message tables and indexes */
 /* TODO */
 
