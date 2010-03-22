@@ -582,8 +582,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 	/**
- 	 * {@inheritDoc}
- 	 */
+	 * {@inheritDoc}
+	 */
 	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
 		Boolean success = (Boolean) getHibernateTemplate().execute(
 				new HibernateCallback() {
@@ -608,6 +608,23 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 				});
 
 		return success;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean saveCompanyProfile(final CompanyProfile companyProfile) {
+
+		try {
+			getHibernateTemplate().saveOrUpdate(companyProfile);
+			log.info("Saved company profile for user: "
+					+ companyProfile.getUserUuid());
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogic.saveCompanyProfile() failed. "
+					+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
 	}
 	
 	/**

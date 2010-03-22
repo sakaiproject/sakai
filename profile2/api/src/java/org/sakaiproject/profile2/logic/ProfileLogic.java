@@ -195,6 +195,7 @@ public interface ProfileLogic {
 	 * Adds a new company profile to the database.
 	 * 
 	 * @param companyProfile the company profile to add.
+	 * @return the success of the operation.
 	 */
 	public boolean addNewCompanyProfile(CompanyProfile companyProfile);
 	
@@ -212,6 +213,15 @@ public interface ProfileLogic {
 	 * @param companyProfile the ID of the company profile to remove.
 	 */
 	public boolean removeCompanyProfile(String userId, long companyProfile);
+	
+	/**
+	 * Saves an existing company profile in the database. New company profiles
+	 * should be added using the <code>addNewCompanyProfile</code> method.
+	 * 
+	 * @param companyProfile the existing company profile to be saved.
+	 * @return the success of the operation.
+	 */
+	public boolean saveCompanyProfile(CompanyProfile companyProfile);
 	
 	/**
 	 * Adds a new gallery image to the database.
