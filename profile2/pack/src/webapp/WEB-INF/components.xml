@@ -120,6 +120,7 @@
 	       	<value>org/sakaiproject/profile2/hbm/MessageThread.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/MessageParticipant.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/GalleryImage.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/CompanyProfile.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml</value>
 	      </list>

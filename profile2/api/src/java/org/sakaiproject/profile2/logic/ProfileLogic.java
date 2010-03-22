@@ -17,8 +17,8 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.List;
-import java.util.Map;
 
+import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -189,6 +189,28 @@ public interface ProfileLogic {
 	 * @param profilePrivacy	the record for the user
 	 */
 	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy);
+	
+	/**
+	 * Adds a new company profile to the database.
+	 * 
+	 * @param companyProfile the company profile to add.
+	 */
+	public boolean addNewCompanyProfile(CompanyProfile companyProfile);
+	
+	/**
+	 * Retrieves the company profiles from the database for the specified user.
+	 * 
+	 * @param userId the ID of the user to query by.
+	 */
+	public List<CompanyProfile> getCompanyProfiles(String userId);
+	
+	/**
+	 * Removes the specified company profile for the specified user.
+	 * 
+	 * @param userId the ID of the user to query by.
+	 * @param companyProfile the ID of the company profile to remove.
+	 */
+	public boolean removeCompanyProfile(String userId, long companyProfile);
 	
 	/**
 	 * Adds a new gallery image to the database.

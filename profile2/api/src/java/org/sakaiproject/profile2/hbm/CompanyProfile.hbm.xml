@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="CompanyProfile" table="PROFILE_COMPANY_PROFILES_T">
+	
+		<id name="id">
+			<column name="ID" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">COMPANY_PROFILES_S</param>
+			</generator>
+	    </id>
+	    
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_COMPANY_PROFILES_USER_UUID_I" />
+		<property name="companyName" column="COMPANY_NAME" not-null="true" />
+		<property name="companyDescription" column="COMPANY_DESCRIPTION" not-null="true" />
+		<property name="companyWebAddress" column="COMPANY_WEB_ADDRESS" not-null="true" />
+	</class>
+
+	<query name="getCompanyProfile">
+    	<![CDATA[from CompanyProfile companyProfile WHERE (companyProfile.userUuid = :userUuid AND companyProfile.id = :id)]]>
+	</query>
+		
+	<query name="getCompanyProfiles">
+    	<![CDATA[from CompanyProfile companyProfile WHERE companyProfile.userUuid = :userUuid]]>
+	</query>
+
+  	<database-object> 
+		<create>create index PROFILE_COMPANY_PROFILES_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID)</create> 
+		<drop></drop> 
+	</database-object>
+	
+</hibernate-mapping>

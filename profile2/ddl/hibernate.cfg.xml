@@ -15,7 +15,8 @@
 	       	<mapping resource="org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml" />
 	       	<mapping resource="org/sakaiproject/profile2/hbm/Message.hbm.xml" />
 	       	<mapping resource="org/sakaiproject/profile2/hbm/MessageThread.hbm.xml" />
-	       	<mapping resource="org/sakaiproject/profile2/hbm/MessageRecipient.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/MessageParticipant.hbm.xml" />
 	       	<mapping resource="org/sakaiproject/profile2/hbm/GalleryImage.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/CompanyProfile.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

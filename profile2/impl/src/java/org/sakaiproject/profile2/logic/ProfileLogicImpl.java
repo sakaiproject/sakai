@@ -38,6 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -77,7 +78,9 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
 
 	// Hibernate query constants
-	private static final String QUERY_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
+	private static final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
+	private static final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";
+	private static final String QUERY_GET_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
 	private static final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT = "getFriendRequestsForUserCount"; 
@@ -579,6 +582,86 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
+	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
+		Boolean success = (Boolean) getHibernateTemplate().execute(
+				new HibernateCallback() {
+
+					public Object doInHibernate(Session session)
+							throws HibernateException, SQLException {
+
+						try {
+							session.save(companyProfile);
+							session.flush();
+						} catch (Exception e) {
+							log
+									.error("ProfileLogicImpl.addNewCompanyProfile() failed. "
+											+ e.getClass()
+											+ ": "
+											+ e.getMessage());
+							return false;
+						}
+						return true;
+					}
+
+				});
+
+		return success;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<CompanyProfile> getCompanyProfiles(final String userId) {
+		
+		List<CompanyProfile> companyProfiles = new ArrayList<CompanyProfile>();
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILES);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	companyProfiles = (List<CompanyProfile>) getHibernateTemplate().executeFind(hcb);
+	  	
+		return companyProfiles;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean removeCompanyProfile(String userId, long companyProfileId) {
+		if (userId == null || new Long(companyProfileId) == null) {
+			throw new IllegalArgumentException(
+					"Null argument in ProfileLogicImpl.removeCompanyProfile()");
+		}
+
+		CompanyProfile companyProfile = getCompanyProfile(userId,
+				companyProfileId);
+
+		if (companyProfile == null) {
+			log.error("CompanyProfile record does not exist for userId: "
+					+ userId + ", companyProfileId: " + companyProfileId);
+			return false;
+		}
+
+		try {
+			getHibernateTemplate().delete(companyProfile);
+			log.info("User: " + userId + " removed company profile: "
+					+ companyProfileId);
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogicImpl.removeCompanyProfile() failed. "
+					+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean addNewGalleryImage(final GalleryImage galleryImage) {
 		Boolean success = (Boolean) getHibernateTemplate().execute(
 				new HibernateCallback() {
@@ -603,7 +686,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 
 		return success;
 	}
-
+	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -613,7 +696,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
-	  			Query q = session.getNamedQuery(QUERY_GALLERY_IMAGE_RECORDS);
+	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
 	  			return q.list();
 	  		}
@@ -2822,6 +2905,26 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		profileFriend = (ProfileFriend) getHibernateTemplate().execute(hcb);
 	
 		return profileFriend;
+	}
+	
+	private CompanyProfile getCompanyProfile(final String userId,
+			final long companyProfileId) {
+
+		CompanyProfile companyProfile = null;
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILE);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(ID, companyProfileId, Hibernate.LONG);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		companyProfile = (CompanyProfile) getHibernateTemplate().execute(hcb);
+	
+		return companyProfile;
 	}
 	
 	private GalleryImage getGalleryImageRecord(final String userId, final long imageId) {
