@@ -30,6 +30,7 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
@@ -233,6 +234,23 @@ public interface ProfileLogic {
 	 * @param imageId the ID of the gallery image to remove.
 	 */
 	public boolean removeGalleryImage(String userId, long imageId);
+	
+	/**
+	 * Retrieves the social networking information for the specified user from
+	 * the database.
+	 * 
+	 * @param userId the user to query by.
+	 * @return the social networking information for the specified user.
+	 */
+	public SocialNetworkingInfo getSocialNetworkingInfo(String userId);
+	
+	/**
+	 * Saves the social networking information to the database.
+	 * 
+	 * @param socialNetworkingInfo
+	 * @return
+	 */
+	public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo);
 	
 	/**
 	 * Add a new profile image record to the database. Invalidates others before it adds itself.

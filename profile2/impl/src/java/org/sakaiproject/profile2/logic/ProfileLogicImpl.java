@@ -53,6 +53,7 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -94,7 +95,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
 	private static final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
-	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; 
+	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
+	private static final String QUERY_GET_SOCIAL_NETWORKING_INFO = "getSocialNetworkingInfo";
 	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; 
 	private static final String QUERY_GET_ALL_SAKAI_PERSONS = "getAllSakaiPersons";
 	
@@ -728,6 +730,50 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			return true;
 		} catch (Exception e) {
 			log.error("ProfileLogicImpl.removeGalleryImage() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
+		
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getSocialNetworkingInfo"); 
+	  	}
+		
+		SocialNetworkingInfo socialNetworkingInfo = null;
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_SOCIAL_NETWORKING_INFO);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		socialNetworkingInfo = (SocialNetworkingInfo) getHibernateTemplate().execute(hcb);
+		
+		return socialNetworkingInfo;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean saveSocialNetworkingInfo(
+			SocialNetworkingInfo socialNetworkingInfo) {
+
+		try {
+			getHibernateTemplate().saveOrUpdate(socialNetworkingInfo);
+			log.info("Updated social networking info for user: "
+					+ socialNetworkingInfo.getUserUuid());
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogic.saveSocialNetworkingInfo() failed. "
+					+ e.getClass() + ": " + e.getMessage());
 			return false;
 		}
 	}
@@ -3284,7 +3330,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
-
 	
 	//setup TinyUrlService API
 	/*

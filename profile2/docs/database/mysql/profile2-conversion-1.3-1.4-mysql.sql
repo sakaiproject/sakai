@@ -23,6 +23,9 @@ create table PROFILE_GALLERY_IMAGES_T (
 );
 create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 
+/* add social networking table and index */
+/* TODO */
+
 /* add official image table and indexes */
 /* TODO */
 
