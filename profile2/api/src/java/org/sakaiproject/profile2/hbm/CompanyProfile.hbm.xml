@@ -16,8 +16,8 @@
 	    
 		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_COMPANY_PROFILES_USER_UUID_I" />
 		<property name="companyName" column="COMPANY_NAME" not-null="true" />
-		<property name="companyDescription" column="COMPANY_DESCRIPTION" not-null="true" />
-		<property name="companyWebAddress" column="COMPANY_WEB_ADDRESS" not-null="true" />
+		<property name="companyDescription" column="COMPANY_DESCRIPTION" not-null="false" />
+		<property name="companyWebAddress" column="COMPANY_WEB_ADDRESS" not-null="false" />
 	</class>
 
 	<query name="getCompanyProfile">
