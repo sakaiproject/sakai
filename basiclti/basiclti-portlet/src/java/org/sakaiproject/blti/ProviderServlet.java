@@ -353,7 +353,7 @@ public class ProviderServlet extends HttpServlet {
 			try {
 				user = UserDirectoryService.getUserByEid(eid);
 			} catch (Exception e) {
-				M_log.error(e.getLocalizedMessage(), e);
+				M_log.debug(e.getLocalizedMessage(), e);
 				user = null;
 			}
 
@@ -384,7 +384,7 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			site = SiteService.getSite(siteId);
 		} catch (Exception e) {
-			M_log.error(e.getLocalizedMessage(), e);
+			M_log.debug(e.getLocalizedMessage(), e);
 		}
 
 		// If trusted and site does not exist, error, otherwise, create the site
