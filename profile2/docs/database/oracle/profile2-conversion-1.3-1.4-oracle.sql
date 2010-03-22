@@ -25,8 +25,16 @@ create table PROFILE_GALLERY_IMAGES_T (
 create sequence GALLERY_IMAGES_S;
 create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 
-/* add social networking table and index */
-/* TODO */
+/* add social networking table */
+create table PROFILE_SOCIAL_NETWORKING_INFO_T (
+	USER_UUID varchar2(99) not null,
+	FACEBOOK_USERNAME varchar2(255),
+	LINKEDIN_USERNAME varchar2(255),
+	MYSPACE_USERNAME varchar2(255),
+	SKYPE_USERNAME varchar2(255),
+	TWITTER_USERNAME varchar2(255),
+	primary key (USER_UUID)
+);
 
 /* add official image table and indexes */
 /* TODO */
