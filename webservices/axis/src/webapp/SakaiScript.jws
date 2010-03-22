@@ -2808,6 +2808,12 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 			//if we got this far, add the details about the tool to the document
 			Element toolNode = dom.createElement("tool");
 			
+			//tool uuid
+			Attr toolIdAttr = dom.createAttribute("id");
+			toolIdAttr.setNodeValue(toolConfig.getId());
+			toolNode.setAttributeNode(toolIdAttr);
+			
+			//registration (eg sakai.profile2)
 			Element toolIdNode = dom.createElement("tool-id");
 			toolIdNode.appendChild(dom.createTextNode(toolConfig.getToolId()));
 			toolNode.appendChild(toolIdNode);
