@@ -2,7 +2,16 @@
 /* TODO */
 
 /* add gallery table and indexes */
-/* TODO */
+create table PROFILE_GALLERY_IMAGES_T (
+	ID number(19,0) not null,
+	USER_UUID varchar2(99) not null,
+	RESOURCE_MAIN varchar2(255) not null,
+	RESOURCE_THUMB varchar2(255) not null,
+	DISPLAY_NAME varchar2(255) not null,
+	primary key (ID)
+);
+create sequence GALLERY_IMAGES_S;
+create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 
 /* add official image table and indexes */
 /* TODO */
