@@ -1,5 +1,13 @@
 /* add company profile table and index */
-/* TODO */
+create table PROFILE_COMPANY_PROFILES_T (
+	ID bigint not null auto_increment,
+	USER_UUID varchar(99) not null,
+	COMPANY_NAME varchar(255) not null,
+	COMPANY_DESCRIPTION varchar(255) not null,
+	COMPANY_WEB_ADDRESS varchar(255) not null,
+	primary key (ID)
+);
+create index PROFILE_COMPANY_PROFILES_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID);
 
 /* add message tables and indexes */
 /* TODO */
