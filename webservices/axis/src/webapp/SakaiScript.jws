@@ -101,7 +101,7 @@ private Session establishSession(String sessionid) throws AxisFault
 
 	if (s == null)
 	{
-		throw new AxisFault("Session "+sessionid+" is not active");
+		throw new AxisFault("Session \""+sessionid+"\" is not active");
 	}
 	s.setActive();
 	sessionManager.setCurrentSession(s);
@@ -2847,11 +2847,12 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
  */
 public String getPagesAndToolsForSite(String sessionid, String userid, String siteid) throws AxisFault
 {
+	
 	//get a session for the other user
 	String newsessionid = getSessionForUser(sessionid, userid);
 	
 	//might be an exception that was returned, so check session is valid.
-	Session session = establishSession(sessionid);
+	Session session = establishSession(newsessionid);
 	
 	//ok, so hand over to main method to get the list for us
 	return getPagesAndToolsForSite(newsessionid, siteid);
