@@ -24,7 +24,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -71,7 +71,7 @@ public class MyBusinessEdit extends Panel {
 		// business biography
 		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
 		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
-		TextField businessBiography = new TextField("businessBiography", new PropertyModel(userProfile, "businessBiography"));
+		TextArea businessBiography = new TextArea("businessBiography", new PropertyModel(userProfile, "businessBiography"));
 		businessBiographyContainer.add(businessBiography);
 		form.add(businessBiographyContainer);
 		
@@ -146,7 +146,7 @@ public class MyBusinessEdit extends Panel {
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 		
-		// TODO save once SakaiPerson business fields are added
+		sakaiPerson.setBusinessBiography(userProfile.getBusinessBiography());
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

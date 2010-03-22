@@ -328,7 +328,7 @@ public class MyProfile extends BasePage {
 		myBusinessDisplay.setOutputMarkupId(true);
 		add(myBusinessDisplay);
 		// TODO remove this line when PRFL-206 fixed.
-		myBusinessDisplay.setVisible(false);
+		//myBusinessDisplay.setVisible(false);
 		
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
