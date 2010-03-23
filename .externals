@@ -18,7 +18,6 @@ help https://source.sakaiproject.org/svn/help/trunk
 linktool https://source.sakaiproject.org/svn/linktool/trunk
 login https://source.sakaiproject.org/svn/login/trunk
 mailarchive https://source.sakaiproject.org/svn/mailarchive/trunk
-mailtool https://source.sakaiproject.org/svn/mailtool/trunk
 master https://source.sakaiproject.org/svn/master/trunk
 memory https://source.sakaiproject.org/svn/memory/trunk
 message https://source.sakaiproject.org/svn/message/trunk
@@ -28,7 +27,6 @@ podcasts https://source.sakaiproject.org/svn/podcasts/trunk
 portal https://source.sakaiproject.org/svn/portal/trunk
 postem https://source.sakaiproject.org/svn/postem/trunk
 presence https://source.sakaiproject.org/svn/presence/trunk
-presentation https://source.sakaiproject.org/svn/presentation/trunk
 providers https://source.sakaiproject.org/svn/providers/trunk
 reference https://source.sakaiproject.org/svn/reference/trunk
 reports https://source.sakaiproject.org/svn/reports/trunk
