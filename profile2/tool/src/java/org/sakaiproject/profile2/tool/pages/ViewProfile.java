@@ -465,8 +465,7 @@ public class ViewProfile extends BasePage {
 			businessInfoContainer.setVisible(false);
 		} else {
 			visibleContainerCount++;
-		}
-		
+		}		
 		
 		/* PERSONAL INFO */
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");

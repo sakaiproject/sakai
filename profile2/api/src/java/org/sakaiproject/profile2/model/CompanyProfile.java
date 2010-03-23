@@ -17,6 +17,8 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <code>CompanyProfile</code> is a model for storing information about a
@@ -32,6 +34,8 @@ public class CompanyProfile implements Serializable {
 	private String companyName;
 	private String companyDescription;
 	private String companyWebAddress;
+	
+	private Map<String, String> props;
 	
 	public CompanyProfile() {
 		
@@ -86,4 +90,26 @@ public class CompanyProfile implements Serializable {
 		this.companyWebAddress = companyWebAddress;
 	}
 	
+	public void setProps(Map<String, String> props) {
+		this.props = props;
+	}
+
+	public Map<String, String> getProps() {
+		return props;
+	}
+	
+	public void setProperty(String key, String value) {
+        if (props == null) {
+            props = new HashMap<String, String>();
+        }
+        props.put(key, value);
+    }
+
+    public String getProperty(String key) {
+        if (props == null) {
+            return null;
+        }
+        return props.get(key);
+    }
+    
 }

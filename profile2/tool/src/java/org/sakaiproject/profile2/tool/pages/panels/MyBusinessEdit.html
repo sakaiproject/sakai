@@ -39,19 +39,29 @@
 
 	<div wicket:id="formFeedback">[formFeedback]</div>
 
-	<table class="profileContent">
-		<!-- business biography -->
-		<tr wicket:id="businessBiographyContainer">
+	<!-- business biography -->
+	<table class="profileContent" wicket:id="businessBiographyContainer">
+		<tr>
 			<td class="label" wicket:id="businessBiographyLabel">[businessBiographyLabel</td>
 			<td class="content"><textarea wicket:id="businessBiography"
 				class="formInputArea" rows="4" cols="40"></textarea></td>
 		</tr>
-		<!-- TODO company profiles -->
 	</table>
-
-	<div class="profileFormButtons"><input type="submit"
-		wicket:id="submit" value="Save changes" /> <input type="button"
-		wicket:id="cancel" value="Cancel" /></div>
+	<!-- company profiles -->	
+	<table class="profileContent" wicket:id="companyProfilesContainer">
+		<tr>
+			<td class="label" wicket:id="companyProfilesLabel">[companyProfilesLabel]</td>
+		</tr>
+		<tr>
+			<td class="company-profile-tabpanel" wicket:id="companyProfiles">[companyProfiles]</td>
+		</tr>
+	</table>
+	
+	<div class="profileFormButtons">
+	<input type="button" wicket:id="addCompanyProfileButton"></input>
+	<input type="button" wicket:id="removeCompanyProfileButton"></input>
+	<input type="submit" wicket:id="submit" value="Save changes" />
+	<input type="button" wicket:id="cancel" value="Cancel" /></div>
 
 	</form>
 	</div>

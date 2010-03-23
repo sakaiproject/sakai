@@ -314,6 +314,10 @@ public class UserProfile implements Serializable {
 		return companyProfiles;
 	}
 	
+	public void removeCompanyProfile(CompanyProfile companyProfile) {
+		companyProfiles.remove(companyProfile);
+	}
+	
 	public void setCompanyProfiles(List<CompanyProfile> companyProfiles) {
 		this.companyProfiles = companyProfiles;
 	}
