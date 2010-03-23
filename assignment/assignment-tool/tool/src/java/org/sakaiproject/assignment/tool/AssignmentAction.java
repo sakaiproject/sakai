@@ -446,8 +446,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private static final String NEW_ASSIGNMENT_DUEAMPM = "new_assignment_dueampm";
 	
-	private static final String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
-
 	private static final String NEW_ASSIGNMENT_PAST_DUE_DATE = "new_assignment_past_due_date";
 	
 	// close date
@@ -6015,7 +6013,7 @@ public class AssignmentAction extends PagedResourceActionII
 		                     // edit the calendar ojbject and add an assignment id field
 	                        CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 	                                
-	                        edit.setField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
+	                        edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
 	                        
 	                        c.commitEvent(edit);
 						}

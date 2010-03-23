@@ -93,4 +93,7 @@ public class AssignmentConstants {
 	/** Event for grading an assignment submission. */
 	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
 
+	/** Calendar event field for assignment due dates */
+	public static final String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
+
 }
