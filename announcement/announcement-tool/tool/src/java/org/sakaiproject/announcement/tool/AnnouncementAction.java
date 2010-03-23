@@ -4288,6 +4288,13 @@ public class AnnouncementAction extends PagedResourceActionII
 	public void doUpdate(RunData runData, Context context)
 	{
 		AnnouncementActionState state = (AnnouncementActionState) getState(context, runData, AnnouncementActionState.class);
+		
+		if (!SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))  // SAK-18202
+		{	
+			M_log.debug(this + ".doUpdate - Do not have permission to update");
+			state.setStatus(CANCEL_STATUS); 
+			return;
+		}
 
 		if (state.getStatus().equals(MERGE_STATUS))
 		{
