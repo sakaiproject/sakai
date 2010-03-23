@@ -1149,7 +1149,88 @@ div.wicket-aa ul li.selected {
    	/* cursor: pointer; */
 }
 
+/* business-related */
 
+.tabpanel .tab-row {
+  float:left;
+  width:100%;
+  line-height:normal;
+ }
+
+.tabpanel .tab-row ul {
+  margin:0;
+  padding:10px 10px 0;
+  list-style:none;
+ }
+  
+.tabpanel .tab-row li {
+  float:left;
+  margin:0;
+  padding:0 0 0 9px;
+ }
+  
+.tabpanel .tab-row a {
+  display:block;
+  padding:5px 15px 4px 6px;
+  text-decoration:none;
+  font-weight:bold;
+  white-space:nowrap;
+  color:#eee;
+ }
+  
+.tab-panel {
+	clear: left;
+}
+  
+.tabpanel .tab-row a:hover {
+  color:#fff;
+ }
+  
+.tabpanel .tab-row li.selected {
+
+ }
+  
+.tabpanel .tab-row li.selected a {
+  color:#333;
+  padding-bottom:5px;
+  
+}
+  
+.company-profile-tabpanel .tab-row ul {
+    height: 20px;
+    margin: 0;
+    padding-left: 10px;
+}
+
+.company-profile-tabpanel .tab-row li {
+    margin: 0;
+    padding: 0;
+    display: inline;
+    list-style-type: none;
+}
+
+.company-profile-tabpanel .tab-row a:link, .company-profile-tabpanel .tab-row a:visited {
+    float: left;
+    background: #f3f3f3;
+    font-size: 12px;
+    line-height: 14px;
+    font-weight: bold;
+    padding: 2px 10px 2px 10px;
+    margin-right: 4px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    color: #666;
+}
+
+.company-profile-tabpanel .tab-row li.selected a:link, .company-profile-tabpanel .tab-row a:visited.active {
+    border-bottom: 1px solid #fff;
+    background: #fff;
+    color: #000;
+}
+
+.company-profile-tabpanel .tab-row a:hover {
+    background: #fff;
+}
 
 /* close button */
 .closebutton {

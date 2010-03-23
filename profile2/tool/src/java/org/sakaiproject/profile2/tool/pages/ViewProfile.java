@@ -19,7 +19,9 @@ package org.sakaiproject.profile2.tool.pages;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -31,6 +33,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.extensions.markup.html.tabs.TabbedPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -40,10 +45,12 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
+import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.pages.panels.CompanyProfileDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
@@ -400,18 +407,57 @@ public class ViewProfile extends BasePage {
 		businessInfoContainer.add(new Label("mainSectionHeading_business", new ResourceModel("heading.business")));
 		add(businessInfoContainer);
 		
-		// TODO get remaining business fields.
 		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
 		
 		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
 		businessBiographyContainer.add(new Label("businessBiography", sakaiPerson.getBusinessBiography()));
 		
 		businessInfoContainer.add(businessBiographyContainer);
-		
+				
 		if (StringUtils.isBlank(sakaiPerson.getBusinessBiography())) {
 			businessBiographyContainer.setVisible(false);
 		} else {
 			visibleFieldCount_business++;
+		}
+		
+		// TODO get remaining business fields.
+		WebMarkupContainer companyProfilesContainer = new WebMarkupContainer(
+		"companyProfilesContainer");
+
+		companyProfilesContainer.add(new Label("companyProfilesLabel",
+				new ResourceModel("profile.business.company.profiles")));
+
+		List<CompanyProfile> companyProfiles = profileLogic.getCompanyProfiles(userUuid);
+		
+		List<ITab> tabs = new ArrayList<ITab>();
+		if (null != profileLogic.getCompanyProfiles(userUuid)) {
+
+			int companyProfileNum = 1;
+			for (final CompanyProfile companyProfile : companyProfiles) {
+
+				tabs.add(new AbstractTab(new Model<String>("Company "
+						+ companyProfileNum++)) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Panel getPanel(String panelId) {
+
+						return new CompanyProfileDisplay(panelId,
+								companyProfile);
+					}
+
+				});
+			}
+		}
+
+		companyProfilesContainer.add(new TabbedPanel("companyProfiles", tabs));
+		businessInfoContainer.add(companyProfilesContainer);
+
+		if (0 == tabs.size()) {			
+			companyProfilesContainer.setVisible(false);
+		} else {
+			visibleContainerCount++;
 		}
 		
 		//if nothing/not allowed, hide whole panel

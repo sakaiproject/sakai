@@ -163,6 +163,7 @@ public class MyProfile extends BasePage {
 		userProfile.setPublications(sakaiPerson.getPublications());
 		
 		userProfile.setBusinessBiography(sakaiPerson.getBusinessBiography());
+		userProfile.setCompanyProfiles(profileLogic.getCompanyProfiles(userUuid));
 		
 		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());

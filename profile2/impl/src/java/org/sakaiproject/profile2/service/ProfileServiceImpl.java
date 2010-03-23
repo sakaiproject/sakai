@@ -25,6 +25,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -95,6 +96,8 @@ public class ProfileServiceImpl implements ProfileService {
 			addImageUrlToProfile(userProfile);
 			addThumbnailImageUrlToProfile(userProfile);
 			
+			addBusinessInfoToProfile(userProfile, sakaiPerson);
+			
 			return userProfile;
 			
 		}
@@ -145,6 +148,11 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setFavouriteMovies(null);
 			userProfile.setFavouriteQuotes(null);
 			userProfile.setOtherInformation(null);
+		}
+		
+		//unset business info if not allowed
+		if (profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			addBusinessInfoToProfile(userProfile, sakaiPerson);
 		}
 		
 		//profile status
@@ -833,6 +841,18 @@ public class ProfileServiceImpl implements ProfileService {
 	private void addBasicInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
 		userProfile.setNickname(sp.getNickname());
 		userProfile.setDateOfBirth(sp.getDateOfBirth());
+	}
+	
+	/**
+	 * Helper method to set company profiles into profile.
+	 * 
+	 * @param userProfile
+	 */
+	private void addBusinessInfoToProfile(UserProfile userProfile,
+			SakaiPerson sp) {
+		userProfile.setBusinessBiography(sp.getBusinessBiography());
+		userProfile.setCompanyProfiles(profileLogic
+				.getCompanyProfiles(userProfile.getUserUuid()));
 	}
 	
 	/**

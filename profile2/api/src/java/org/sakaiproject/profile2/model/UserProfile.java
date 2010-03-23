@@ -19,6 +19,7 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +60,7 @@ public class UserProfile implements Serializable {
 	private String academicProfileURL; 
 	private String publications;
 	private String businessBiography;
+	private List<CompanyProfile> companyProfiles;
 	private boolean locked;
 	
 	
@@ -306,6 +308,14 @@ public class UserProfile implements Serializable {
 	
 	public void setBusinessBiography(String businessBiography) {
 		this.businessBiography = businessBiography;
+	}
+	
+	public List<CompanyProfile> getCompanyProfiles() {
+		return companyProfiles;
+	}
+	
+	public void setCompanyProfiles(List<CompanyProfile> companyProfiles) {
+		this.companyProfiles = companyProfiles;
 	}
 	
 	public void setLocked(boolean locked) {
