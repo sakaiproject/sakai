@@ -889,12 +889,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-presentation-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.sakaiproject.common</groupId>
                 <artifactId>sakai-privacy-api</artifactId>
                 <version>${sakai.common.version}</version>
