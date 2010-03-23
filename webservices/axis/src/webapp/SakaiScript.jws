@@ -1439,6 +1439,30 @@ public String getSitesUserCanAccess(String sessionid) throws AxisFault
 	}
 }
 
+
+/**
+ * Return XML document listing all sites the given user has read or write access to. 
+ *
+ * @param 	sessionid 		the session id of a super user
+ * @param   userid			eid (eg jsmith26) if the user you want the list for
+ * @return
+ * @throws AxisFault		if not super user or any other error occurs from main method
+ */
+public String getSitesUserCanAccess(String sessionid, String userid) throws AxisFault
+{
+	
+	//get a session for the other user
+	String newsessionid = getSessionForUser(sessionid, userid);
+	
+	//might be an exception that was returned, so check session is valid.
+	Session session = establishSession(newsessionid);
+	
+	//ok, so hand over to main method to get the list for us
+	return getSitesUserCanAccess(newsessionid);
+	
+}
+
+
 /** 
 * Get a site's title 
 * 
