@@ -393,17 +393,26 @@ public class ViewProfile extends BasePage {
 		}
 		
 		/* BUSINESS INFO*/
-		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("mainSectionContainer_business");
-		businessInfoContainer.setOutputMarkupId(true);
-		
-		// TODO get info etc.
-		// String company = sakaiPerson.getBusinessCompany();
 		int visibleFieldCount_business = 0;
 		
-		//heading
+		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("mainSectionContainer_business");
+		businessInfoContainer.setOutputMarkupId(true);
 		businessInfoContainer.add(new Label("mainSectionHeading_business", new ResourceModel("heading.business")));
-		
 		add(businessInfoContainer);
+		
+		// TODO get remaining business fields.
+		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
+		
+		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
+		businessBiographyContainer.add(new Label("businessBiography", sakaiPerson.getBusinessBiography()));
+		
+		businessInfoContainer.add(businessBiographyContainer);
+		
+		if (StringUtils.isBlank(sakaiPerson.getBusinessBiography())) {
+			businessBiographyContainer.setVisible(false);
+		} else {
+			visibleFieldCount_business++;
+		}
 		
 		//if nothing/not allowed, hide whole panel
 		if(visibleFieldCount_business == 0 || !isBusinessInfoAllowed) {
