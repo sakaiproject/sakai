@@ -19,7 +19,7 @@
 				<label #if(!$alias) for="id" #end>
 					$tlang.getString("alias.edit.alias1")
 				</label>
-				#if(!$alias)<input type="text" name="id" id="id" />#else$validator.escapeHtml($alias.Id)#end
+				#if(!$alias)<input type="text" name="id" id="id" maxlength="99" />#else$validator.escapeHtml($alias.Id)#end
 			</p>	
 			<p class="shorttext">
 				<label for="target">
