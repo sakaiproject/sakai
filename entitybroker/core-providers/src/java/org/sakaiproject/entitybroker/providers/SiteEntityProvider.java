@@ -30,6 +30,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.azeckoski.reflectutils.ReflectUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
@@ -83,6 +87,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
+
+	private AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
 
     private UserEntityProvider userEntityProvider;
 
@@ -174,6 +184,63 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         return perms;
     }
+
+	@EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)
+    public String handleSetPerms(EntityReference ref, Map<String, Object> params) {
+        String userId = developerHelperService.getCurrentUserId();
+
+        if(userId == null)
+            throw new SecurityException("This action (setPerms) is not accessible to anon and there is no current user.");
+
+        String siteId = ref.getId();
+    
+        Site site = getSiteById(siteId);
+
+        try {
+            AuthzGroup authzGroup = authzGroupService.getAuthzGroup(site.getReference());
+
+            boolean changed = false;
+
+            for (String name : params.keySet()) {
+                if (!name.contains(":"))
+                    continue;
+    
+                String value = (String) params.get(name);
+
+                String roleId = name.substring(0, name.indexOf(":"));
+
+				Role role = authzGroup.getRole(roleId);
+				if(role == null) {
+					throw new IllegalArgumentException(
+                        "Invalid role id '" + roleId + "' provided in POST parameters.");
+				}
+                String function = name.substring(name.indexOf(":") + 1);
+
+                if("true".equals(value))
+                    role.allowFunction(function);
+                else
+                    role.disallowFunction(function);
+
+                changed = true;
+            }
+
+            if(changed) {
+				try
+				{
+					authzGroupService.save(authzGroup);
+				}
+				catch(AuthzPermissionException ape) {
+					throw new SecurityException("The permissions for this site (" + siteId
+						+ ") cannot be updated by the current user.");
+				}
+			}
+        }
+		catch(GroupNotDefinedException gnde) {
+			throw new IllegalArgumentException("No realm defined for site (" + siteId + ").");
+		}
+
+        return "SUCCESS";
+	}
 
     @EntityCustomAction(action = "group", viewKey = "")
     public EntityGroup handleGroups(EntityView view, Map<String, Object> params) {
