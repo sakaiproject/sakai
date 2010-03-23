@@ -90,6 +90,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -1928,6 +1929,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					CalendarEvent oEvent = (CalendarEvent) oEvents.get(i);
 					try
 					{
+						// Skip calendar events based on assignment due dates
+						String assignmentId = oEvent.getField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+						if (assignmentId != null && assignmentId.length() > 0)
+							continue;
+
 						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
 								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
 
