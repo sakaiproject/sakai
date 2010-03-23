@@ -346,7 +346,7 @@ function showDivs()
       divisionNo = "" + myDocumentElements[i].id;
       if(divisionNo.indexOf("__hide_division_")>=0)
         { 
-             showDiv(divisionNo.substring(16),'/samigo');
+             showDiv(divisionNo.substring(16),'/samigo-app');
            
         }
     }  
@@ -361,7 +361,7 @@ function hideDivs()
       divisionNo = "" + myDocumentElements[i].id;
       if(divisionNo.indexOf("__hide_division_")>=0)
         { 
-              hideDiv(divisionNo.substring(16),'/samigo');  
+              hideDiv(divisionNo.substring(16),'/samigo-app');  
           
         }
     }  
@@ -379,11 +379,11 @@ function showHideDivs(showOrHide)
       if(divisionNo.indexOf("__hide_division_")>=0)
         {  if(showOrHide=='show')
 	    {
-             showDiv(divisionNo.substring(16),'/samigo');
+             showDiv(divisionNo.substring(16),'/samigo-app');
             }
             else
 	    {
-              hideDiv(divisionNo.substring(16),'/samigo');  
+              hideDiv(divisionNo.substring(16),'/samigo-app');  
             }
         
         }
