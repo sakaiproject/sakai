@@ -32,5 +32,10 @@ public class MockResourceLoader extends HashMap<String, String>
 	{
 		return "Message for key " + key;
 	}
+	
+	public String getFormattedMessage(String key, Object[] args)
+	{
+		return "Message for key " + key + " with args "+ args;
+	}
 
 }
