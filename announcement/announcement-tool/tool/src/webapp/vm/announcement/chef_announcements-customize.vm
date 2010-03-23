@@ -103,7 +103,7 @@
 			<label for ="rssAlias">
 				$tlang.getString("custom.rss_alias")
 			</label>
-			<input type="text" name="rssAlias" id="rssAlias" value="$!rssAlias" />
+			<input type="text" name="rssAlias" id="rssAlias" maxlength="40" 	value="$!rssAlias" />
 		</p>
 		
 		<p class="shorttext indnt2">
