@@ -215,7 +215,12 @@ public class ItemBean
    */
   public void setItemDiscount(String discount)
   {
-    this.itemDiscount= discount;
+	if (discount.startsWith("-"))
+    	{
+ 	  this.itemDiscount= discount.substring(1);
+    	}else{
+     	  this.itemDiscount= discount;
+        }
   }
   
   /**
