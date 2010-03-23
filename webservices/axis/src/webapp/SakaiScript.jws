@@ -2677,6 +2677,26 @@ public String getUserId(String sessionid, String eid) throws AxisFault
 }
 
 /**
+ * Gets the user ID associated with the sessionid
+ * 
+ * @param sessionid		sessionid for a valid session.
+ * @return				the user ID (generally a UUID) for the user associated with the given session, or an empty string ""
+ * @throws AxisFault	
+ */
+public String getUserId(String sessionid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		return session.getUserId();
+	} catch (Exception e) {  
+		e.printStackTrace();
+	 	LOG.warn("WS getUserId() failed for session: " + sessionid);
+		return "";
+	}
+}
+
+/**
  * Return XML document listing all pages and tools in those pages for a given site.
  * The session id must be of a valid, active user in that site, or a super user, or it will throw an exception.
  * If a page is hidden in a site, the page and all tools in that page will be skipped from the returned document, as they are in the portal.
