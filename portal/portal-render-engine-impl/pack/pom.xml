@@ -16,10 +16,6 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
-  <properties>
-    <!-- SAK-14526 Disable tests as they might be testing another system -->
-    <maven.test.skip>true</maven.test.skip>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -71,6 +67,18 @@
     </dependency>
   </dependencies>
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- SAK-14526 Disable tests as they might be testing another system -->
+            <exclude>**/AnonPortalTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
     <resources/>
     <sourceDirectory>src/java</sourceDirectory>
      <testResources>
