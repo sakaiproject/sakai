@@ -84,6 +84,7 @@ public class EditTemplateListener
     }
     templateBean.setTemplateName(tempName);
     templateBean.setIdString("0"); //new template
+    templateBean.setTypeId(null); //new template
     templateBean.setValueMap(getMetaDataMap());
     templateBean.setMarkForReview(Boolean.FALSE);
   }
