@@ -1439,7 +1439,6 @@ public String getSitesUserCanAccess(String sessionid) throws AxisFault
 	}
 }
 
-
 /**
  * Return XML document listing all sites the given user has read or write access to. 
  *
@@ -1460,6 +1459,96 @@ public String getSitesUserCanAccess(String sessionid, String userid) throws Axis
 	//ok, so hand over to main method to get the list for us
 	return getSitesUserCanAccess(newsessionid);
 	
+}
+
+/**
+ * Return XML document listing all sites user has read or write access based on their session id, including My Workspace sites
+ *
+ * @param 	sessionid 		the session id of a user who's list of sites you want to retrieve
+ * @return					xml or an empty list <list/>. The return XML format is below:
+ * <list>
+ *	<item>
+ *		<siteId>!admin</siteId>
+ *		<siteTitle>Administration Workspace</siteTitle>
+ *	</item>
+ *	<item>
+ *		...
+ *	</item>
+ *	...
+ *</list>
+ *
+ */
+
+public String getAllSitesForUser(String sessionid) throws AxisFault
+{
+	Session s = establishSession(sessionid);
+	
+	try 
+	{
+		List<Site> allSites = siteService.getSites(SelectionType.ACCESS, null, null,null, SortType.TITLE_ASC, null);
+		List<Site> moreSites = siteService.getSites(SelectionType.UPDATE, null, null,null, SortType.TITLE_ASC, null);
+
+		// Remove duplicates and combine
+		allSites.removeAll( moreSites );
+		allSites.addAll( moreSites );
+		
+		try {
+			Site myWorkspace = siteService.getSiteVisit(siteService.getUserSiteId(s.getUserId()));
+			allSites.add(myWorkspace);
+		} catch (Exception e) {
+			LOG.error("WS getAllSitesForUser(): cannot add My Workspace site: " + e.getClass().getName() + " : " + e.getMessage());
+		}
+		
+		if (allSites == null || (allSites.size() == 0)) {
+			return "<list/>";
+		}
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		for (Site site: allSites){
+			
+			Node item = dom.createElement("item");
+			Node siteId = dom.createElement("siteId");
+			siteId.appendChild( dom.createTextNode(site.getId()) );
+			Node siteTitle = dom.createElement("siteTitle");
+			siteTitle.appendChild( dom.createTextNode(site.getTitle()) );
+			
+			item.appendChild(siteId);
+			item.appendChild(siteTitle);
+			list.appendChild(item);
+		}
+		
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) 
+	{
+		LOG.error("WS getAllSitesForUser(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+	}
+}
+
+
+/**
+ * Return XML document listing all sites user has read or write access based on their session id, including My Workspace sites
+ *
+ * @param 	sessionid 		the session id of a super user
+ * @param   userid			eid (eg jsmith26) if the user you want the list for
+ * @return
+ * @throws AxisFault		if not super user or any other error occurs from main method
+ */
+public String getAllSitesForUser(String sessionid, String userid) throws AxisFault
+{
+	
+	//get a session for the other user
+	String newsessionid = getSessionForUser(sessionid, userid);
+	
+	//might be an exception that was returned, so check session is valid.
+	Session session = establishSession(newsessionid);
+	
+	//ok, so hand over to main method to get the list for us
+	return getAllSitesForUser(newsessionid);
 }
 
 
@@ -2951,5 +3040,7 @@ private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
 	//no sets were completely matched
 	return false;
 }
+
+
 
 }
