@@ -21,9 +21,11 @@
 #helppopup( "superadminhelp" ${rlb.jsp_page_sadmin_permission} ${rlb.jsp_page_sadmin_permission_help} )
 #helppopup( "pageownerhelp" ${rlb.jsp_page_owner_permission} ${rlb.jsp_page_owner_permission_help} )
 #helppopup( "publichelp" ${rlb.jsp_page_public_permission} ${rlb.jsp_page_public_permission_help} )
+#helppopup( "worldhelp" ${rlb.jsp_page_world_permission} ${rlb.jsp_page_world_permission_help})
 #helppopup2( "siteenablehelp" ${rlb.jsp_page_site_en_permission} ${rlb.jsp_page_site_en_permission_help1} ${rlb.jsp_page_site_en_permission_help2})
 #helppopup( "pageownerdisphelp" ${rlb.jsp_page_owner_permission} ${rlb.jsp_page_owner_permission_help})
 #helppopup( "publicdisphelp" ${rlb.jsp_page_publicdisp_permission} ${rlb.jsp_page_publicdisp_permission_help})
+#helppopup( "worlddisphelp" ${rlb.jsp_page_worlddisp_permission} ${rlb.jsp_page_worlddisp_permission_help})
 #helppopup( "siteenabledisphelp" ${rlb.jsp_page_site_en_d_permission} ${rlb.jsp_page_site_en_d_permission_help})
 #helppopup( "incomminghelp"  ${rlb.jsp_incomming_pages} ${rlb.jsp_incomming_pages_help})
 #helppopup( "outgoinghelp"  ${rlb.jsp_outgoing_pages} ${rlb.jsp_outgoing_pages_help})
@@ -90,6 +92,18 @@
 			$('.rwiki_help_popup_link').blur(function(){
 					hidePopup(this.name)
 				});
+
+			$('#publicReadId').click(function(){
+				if ($(this).attr('checked')){
+					$('#worldReadYes').show();					
+					$('#worldReadNo').hide();
+				}
+				else
+				{
+					$('#worldReadYes').hide();					
+					$('#worldReadNo').show();
+				}
+			});
 			});
 	</script>
 	<div id="rwiki_head" ><!-- avoid min height in IEX-->
@@ -147,14 +161,14 @@
 		<table class="itemSummary rwiki_item_summary specialLink" cellspacing="0" summary="This table gives the permissions for this page. Column 1 gives the role name. Column 2 lists the status of the 'create' permission. Column 3 lists the status of the 'read' permission. Column 4 lists the status of the 'edit' permission. Column 5 lists the status of the 'admin' permission. Column 6 lists the status of the 'super-admin' permission. Edit, read and create permissions can be enabled and disabled on this page by checking and unchecking the checkboxes in the relevant column. This will change the status of the permission as given in the table.">
 		  <tbody>
 		    <tr id="permissions">
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="permissionshelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_page_perms_by_role}</a></th>
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="createhelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_create}</a></th>
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="readhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_read}</a></th>
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="updatehelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_edit}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="permissionshelp">${rlb.jsp_page_perms_by_role}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="createhelp" >${rlb.jsp_permission_create}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="readhelp">${rlb.jsp_permission_read}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="updatehelp">${rlb.jsp_permission_edit}</a></th>
 		    	<!--<td><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'deletehelp'); return false;"
-		    		onMouseOut="hidePopup('deletehelp');"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_delete}</a></td>-->
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="adminhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_admin}</a></th>
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="superadminhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_super_admin}</a></th>
+		    		onMouseOut="hidePopup('deletehelp');">${rlb.jsp_permission_delete}</a></td>-->
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="adminhelp">${rlb.jsp_permission_admin}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="superadminhelp">${rlb.jsp_permission_super_admin}</a></th>
 		    </tr>
 		    #set( $pmcounter = 0 )		  		
 		    #foreach( $role in ${realmBean.roles} )
@@ -215,7 +229,7 @@
 
 		    #if (${permissionsBean.adminAllowed})
 			   <tr id="permissionsGroup">
-			     <th><a href="#" class="rwiki_help_popup_link" name="siteenablehelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_enable_disable_page}</a></th>
+			     <th><a href="#" class="rwiki_help_popup_link" name="siteenablehelp">${rlb.jsp_enable_disable_page}</a></th>
 			     <td></td>
 			     <td>
 			     #if (${currentRWikiObject.groupRead} )
@@ -247,7 +261,7 @@
 			      <td style="border-left:none;border-right:none" colspan="5">&nbsp;</td>
 			   </tr>
 			   <tr id="permissionsOwner">
-			      <th scope="row"><a href="#" class="rwiki_help_popup_link" name="pageownerhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_page_owner}</a></th>
+			      <th scope="row"><a href="#" class="rwiki_help_popup_link" name="pageownerhelp">${rlb.jsp_page_owner}</a></th>
 			      <td>&nbsp;</td>
 			      <td>
 			      #if (${currentRWikiObject.ownerRead})
@@ -272,8 +286,9 @@
 			      </td>
 			      <td>&nbsp;</td>
 			   </tr>
+
 			   <tr id="permissionsPublic">
-			     <th scope="row"><a href="#" class="rwiki_help_popup_link" name="publichelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_public}</a></th>
+			     <th scope="row"><a href="#" class="rwiki_help_popup_link" name="publichelp">${rlb.jsp_public_new}</a></th>
 			     <td></td>
 			     <td>
 			     #if (${currentRWikiObject.publicRead})
@@ -286,12 +301,28 @@
 			     #if (${currentRWikiObject.publicWrite})
 				      <label class="skip"  for="publicWriteId">${rlb.jsp_public} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="publicWrite" id="publicWriteId" checked="checked" onClick="if ( checked) publicRead.checked = checked;"/>
 			     #else
-				      <label class="skip"  for="publicWriteId">${rlb.jsp_public} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="publicWrite" id="publicWriteId" onClick="if (checked) publicRead.checked = checked;"/>
+				      <label class="skip"  for="publicWriteId">${rlb.jsp_public} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="publicWrite" id="publicWriteId" onClick="if (checked) {publicRead.checked = checked;publicRead.checked = checked;$('#worldReadYes').show();$('#worldReadNo').hide()}"/>
 			     #end
 			     </td>
 			     <td></td>
 			     <td></td>
 			   </tr>
+			   <tr id="permissionsWorld">
+			     <th scope="row"><a href="#" class="rwiki_help_popup_link" name="worldhelp">${rlb.jsp_world}</a></th>
+			     <td></td>
+			     <td>
+			     #if (${currentRWikiObject.publicRead})
+						<div id="worldRead" class="highlight"><span id="worldReadYes">${rlb.jsp_yes}</span><span id="worldReadNo" style="display:none">${rlb.jsp_no}</span></div>
+			     #else
+						<div id="worldRead" class="highlight"><span id="worldReadYes"  style="display:none">${rlb.jsp_yes}</span><span id="worldReadNo">${rlb.jsp_no}</span></div>
+						#end
+			     </td>
+			     <td>
+			     </td>
+			     <td></td>
+			     <td></td>
+			   </tr>
+
 			   <tr>
 			    <td colspan="7" class="exclude">
 			     <div class="rwiki_editControl">
@@ -363,7 +394,7 @@
 			     <td>&nbsp;</td>
 			   </tr>
 			   <tr id="permissionsPublic">
-			     <th><a href="#" class="rwiki_help_popup_link" name="publicdisphelp" >${rlb.jsp_public}</a></th>
+			     <th><a href="#" class="rwiki_help_popup_link" name="publicdisphelp" >${rlb.jsp_public_new}</a></th>
 			     <td></td>
 			     <td>
 			      #granted( ${currentRWikiObject.publicRead} true)
@@ -375,6 +406,23 @@
 			     <td></td>
 			   </tr>
 			   <tr>
+				 <tr id="permissionsWorld">
+					 <th scope="row"><a href="#" class="rwiki_help_popup_link" name="worlddisphelp">${rlb.jsp_world}</a></th>
+					 <td></td>
+					 <td>
+					 #if (${currentRWikiObject.publicRead})
+						<span id="worldReadYes">${rlb.jsp_yes}</span>
+					 #else
+						<span id="worldReadNo">${rlb.jsp_no}</span>
+						#end
+					 </td>
+					 <td>
+					 </td>
+					 <td></td>
+					 <td></td>
+				 			   </tr>
+
+
 			     <td colspan="7" class="exclude">
 			     <div class="rwiki_editControl">
 				    #if (${realmBean.siteUpdateAllowed})
