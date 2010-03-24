@@ -492,9 +492,9 @@ create sequence PROFILE_IMAGES_S;
 create sequence SAKAI_PERSON_META_S;
 create index SAKAI_PERSON_META_USER_UUID_I on SAKAI_PERSON_META_T (USER_UUID);
 create index SAKAI_PERSON_META_PROPERTY_I on SAKAI_PERSON_META_T (PROPERTY);
--- Replace Profile by Profile2 for new and existing tools:
+-- Replace Profile by Profile2 for new and existing sites:
 -- update SAKAI_SITE_TOOL set REGISTRATION='sakai.profile2' where REGISTRATION='sakai.profile';
--- Replace Profile by Profile2 only for existing tools:
+-- Replace Profile by Profile2 only for new sites:
 update SAKAI_SITE_TOOL set REGISTRATION='sakai.profile2' where REGISTRATION='sakai.profile' and SITE_ID='!user';
 -- END Profile2 1.3 (SAK-17773)
 
