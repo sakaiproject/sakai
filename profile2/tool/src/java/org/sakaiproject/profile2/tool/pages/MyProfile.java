@@ -35,6 +35,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.NotifyingAjaxLazyLoadPanel;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -162,6 +163,7 @@ public class MyProfile extends BasePage {
 		userProfile.setUniversityProfileURL(sakaiPerson.getUniversityProfileUrl());
 		userProfile.setPublications(sakaiPerson.getPublications());
 		
+		// business fields
 		userProfile.setBusinessBiography(sakaiPerson.getBusinessBiography());
 		userProfile.setCompanyProfiles(profileLogic.getCompanyProfiles(userUuid));
 		
@@ -170,6 +172,16 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(ProfileUtils.unescapeHtml(sakaiPerson.getNotes()));
+		
+		// social networking fields
+		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userProfile.getUserUuid());
+		if (null != socialNetworkingInfo) {
+			userProfile.setFacebookUsername(socialNetworkingInfo.getFacebookUsername());
+			userProfile.setLinkedinUsername(socialNetworkingInfo.getLinkedinUsername());
+			userProfile.setMyspaceUsername(socialNetworkingInfo.getMyspaceUsername());
+			userProfile.setSkypeUsername(socialNetworkingInfo.getSkypeUsername());
+			userProfile.setTwitterUsername(socialNetworkingInfo.getTwitterUsername());
+		}
 		
 		//PRFL-97 workaround. SakaiPerson table needs to be upgraded so locked is not null, but this handles it if not upgraded.
 		if(sakaiPerson.getLocked() == null) {

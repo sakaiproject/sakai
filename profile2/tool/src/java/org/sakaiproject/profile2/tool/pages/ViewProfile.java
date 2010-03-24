@@ -420,7 +420,6 @@ public class ViewProfile extends BasePage {
 			visibleFieldCount_business++;
 		}
 		
-		// TODO get remaining business fields.
 		WebMarkupContainer companyProfilesContainer = new WebMarkupContainer(
 		"companyProfilesContainer");
 
@@ -477,6 +476,7 @@ public class ViewProfile extends BasePage {
 		String favouriteMovies = sakaiPerson.getFavouriteMovies();
 		String favouriteQuotes = sakaiPerson.getFavouriteQuotes();
 		String otherInformation = sakaiPerson.getNotes();
+		// TODO social networking info
 		int visibleFieldCount_personal = 0;
 		
 		//heading

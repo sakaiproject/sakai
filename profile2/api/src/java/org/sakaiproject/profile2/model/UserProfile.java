@@ -61,6 +61,11 @@ public class UserProfile implements Serializable {
 	private String publications;
 	private String businessBiography;
 	private List<CompanyProfile> companyProfiles;
+	private String facebookUsername;
+	private String linkedinUsername;
+	private String myspaceUsername;
+	private String skypeUsername;
+	private String twitterUsername;
 	private boolean locked;
 	
 	
@@ -322,6 +327,46 @@ public class UserProfile implements Serializable {
 		this.companyProfiles = companyProfiles;
 	}
 	
+	public String getFacebookUsername() {
+		return facebookUsername;
+	}
+
+	public void setFacebookUsername(String facebookUsername) {
+		this.facebookUsername = facebookUsername;
+	}
+
+	public String getLinkedinUsername() {
+		return linkedinUsername;
+	}
+
+	public void setLinkedinUsername(String linkedinUsername) {
+		this.linkedinUsername = linkedinUsername;
+	}
+
+	public String getMyspaceUsername() {
+		return myspaceUsername;
+	}
+
+	public void setMyspaceUsername(String myspaceUsername) {
+		this.myspaceUsername = myspaceUsername;
+	}
+
+	public String getSkypeUsername() {
+		return skypeUsername;
+	}
+
+	public void setSkypeUsername(String skypeUsername) {
+		this.skypeUsername = skypeUsername;
+	}
+
+	public String getTwitterUsername() {
+		return twitterUsername;
+	}
+
+	public void setTwitterUsername(String twitterUsername) {
+		this.twitterUsername = twitterUsername;
+	}
+
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}

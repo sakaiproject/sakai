@@ -25,11 +25,11 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -97,6 +97,7 @@ public class ProfileServiceImpl implements ProfileService {
 			addThumbnailImageUrlToProfile(userProfile);
 			
 			addBusinessInfoToProfile(userProfile, sakaiPerson);
+			addSocialNetworkingInfoToProfile(userProfile);
 			
 			return userProfile;
 			
@@ -148,9 +149,17 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setFavouriteMovies(null);
 			userProfile.setFavouriteQuotes(null);
 			userProfile.setOtherInformation(null);
+			
+			// social networking fields
+			userProfile.setFacebookUsername(null);
+			userProfile.setLinkedinUsername(null);
+			userProfile.setMyspaceUsername(null);
+			userProfile.setSkypeUsername(null);
+			userProfile.setTwitterUsername(null);
+		} else {
+			addSocialNetworkingInfoToProfile(userProfile);
 		}
 		
-		//unset business info if not allowed
 		if (profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			addBusinessInfoToProfile(userProfile, sakaiPerson);
 		}
@@ -855,6 +864,26 @@ public class ProfileServiceImpl implements ProfileService {
 				.getCompanyProfiles(userProfile.getUserUuid()));
 	}
 	
+	/**
+	 * Helper method to set social networking info into profile.
+	 * 
+	 * @param userProfile
+	 */
+	private void addSocialNetworkingInfoToProfile(UserProfile userProfile) {
+		SocialNetworkingInfo socialNetworkingInfo = profileLogic
+				.getSocialNetworkingInfo(userProfile.getUserUuid());
+		
+		if (null == socialNetworkingInfo) {
+			return;
+		}
+		
+		userProfile.setFacebookUsername(socialNetworkingInfo.getFacebookUsername());
+		userProfile.setLinkedinUsername(socialNetworkingInfo.getLinkedinUsername());
+		userProfile.setMyspaceUsername(socialNetworkingInfo.getMyspaceUsername());
+		userProfile.setSkypeUsername(socialNetworkingInfo.getSkypeUsername());
+		userProfile.setTwitterUsername(socialNetworkingInfo.getTwitterUsername());
+	}
+
 	/**
 	 * Helper method to set personal info into profile
 	 * @param userProfile
