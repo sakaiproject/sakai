@@ -620,11 +620,11 @@ public class SchedulerTool
     }
   }
 
-   public Map getBeanJobs() {
-      Map beanJobs = new Hashtable();
-      Map serverJobs = getSchedulerManager().getBeanJobs();
-      for (Iterator i=serverJobs.keySet().iterator();i.hasNext();) {
-         Object job = i.next();
+   public Map<String, String> getBeanJobs() {
+      Map<String, String> beanJobs = new TreeMap<String, String>();
+      Map<String, JobBeanWrapper> serverJobs = getSchedulerManager().getBeanJobs();
+      for (Iterator<String> i=serverJobs.keySet().iterator();i.hasNext();) {
+         String job = i.next();
          beanJobs.put(job, job);
       }
       return beanJobs;
