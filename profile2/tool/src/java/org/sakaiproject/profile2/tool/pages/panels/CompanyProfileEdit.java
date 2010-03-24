@@ -21,12 +21,13 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.CompanyProfile;
 
 /**
- * Panel for editing company profile data
+ * Panel for displaying and editing company profile data
  */
 public class CompanyProfileEdit extends Panel {
 
@@ -34,7 +35,7 @@ public class CompanyProfileEdit extends Panel {
 	
 	public CompanyProfileEdit(String id, CompanyProfile companyProfile) {
 
-		super(id);
+		super(id, new Model(companyProfile));
 
 		WebMarkupContainer companyNameContainer = new WebMarkupContainer(
 				"companyNameContainer");

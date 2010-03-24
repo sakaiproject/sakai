@@ -431,11 +431,11 @@ public class ViewProfile extends BasePage {
 		List<ITab> tabs = new ArrayList<ITab>();
 		if (null != profileLogic.getCompanyProfiles(userUuid)) {
 
-			int companyProfileNum = 1;
 			for (final CompanyProfile companyProfile : companyProfiles) {
 
-				tabs.add(new AbstractTab(new Model<String>("Company "
-						+ companyProfileNum++)) {
+				visibleFieldCount_business++;
+				
+				tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
 
 					private static final long serialVersionUID = 1L;
 

@@ -43,6 +43,9 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
+/**
+ * Panel for displaying and editing business profile data.
+ */
 public class MyBusinessEdit extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -50,18 +53,27 @@ public class MyBusinessEdit extends Panel {
 	
 	private TabbedPanel companyProfileTabs;
 
-	private List<CompanyProfile> profilesToSave = null;
+	private List<CompanyProfile> companyProfilesToAdd = null;
+	private List<CompanyProfile> companyProfilesToRemove = null;
+	
+	private enum TabDisplay { START, END }
 	
 	public MyBusinessEdit(final String id, final UserProfile userProfile) {
-		this(id, userProfile, null);
+		this(id, userProfile, new ArrayList<CompanyProfile>(),
+				new ArrayList<CompanyProfile>(), TabDisplay.START);
 	}
-	
+		
 	public MyBusinessEdit(final String id, final UserProfile userProfile,
-			final List<CompanyProfile> profilesToSaveExternal) {
+			List<CompanyProfile> companyProfilesToAdd,
+			List<CompanyProfile> companyProfilesToRemove,
+			TabDisplay tabDisplay) {
 
 		super(id);
 
 		log.debug("MyBusinessEdit()");
+
+		this.companyProfilesToAdd = companyProfilesToAdd;
+		this.companyProfilesToRemove = companyProfilesToRemove;
 
 		// heading
 		add(new Label("heading", new ResourceModel("heading.business.edit")));
@@ -93,70 +105,74 @@ public class MyBusinessEdit extends Panel {
 				"businessBiographyContainer");
 		businessBiographyContainer.add(new Label("businessBiographyLabel",
 				new ResourceModel("profile.business.bio")));
-		TextArea businessBiography = new TextArea("businessBiography",
-				new PropertyModel(userProfile, "businessBiography"));
+		TextArea<String> businessBiography = new TextArea<String>(
+				"businessBiography", new PropertyModel<String>(userProfile,
+						"businessBiography"));
 		businessBiographyContainer.add(businessBiography);
 		form.add(businessBiographyContainer);
 
-		WebMarkupContainer companyProfileEditsContainer = createCompanyProfileEditsContainer(
-				userProfile, profilesToSaveExternal);
+		// company profiles
+		WebMarkupContainer companyProfileEditsContainer = createCompanyProfileEditsContainer(userProfile, tabDisplay);
 		form.add(companyProfileEditsContainer);
 
-		AjaxFallbackButton addCompanyProfileButton = new AjaxFallbackButton(
-				"addCompanyProfileButton", new ResourceModel(
-						"button.business.add.profile"), form) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				// TODO Auto-generated method stub
-
-			}
-
-		};
+		AjaxFallbackButton addCompanyProfileButton = createAddCompanyProfileButton(
+				id, userProfile, form, formFeedback);
 		form.add(addCompanyProfileButton);
 
-		AjaxFallbackButton removeCompanyProfileButton = new AjaxFallbackButton(
-				"removeCompanyProfileButton", new ResourceModel(
-						"button.business.remove.profile"), form) {
+		AjaxFallbackButton removeCompanyProfileButton = createRemoveCompanyProfileButton(
+				id, userProfile, form);
+		form.add(removeCompanyProfileButton);
 
+		AjaxFallbackButton submitButton = createSaveChangesButton(id,
+				userProfile, form, formFeedback);
+		form.add(submitButton);
+
+		AjaxFallbackButton cancelButton = createCancelChangesButton(id,
+				userProfile, form);
+		form.add(cancelButton);
+
+		add(form);
+	}
+
+	private AjaxFallbackButton createCancelChangesButton(final String id,
+			final UserProfile userProfile, Form form) {
+		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel",
+				new ResourceModel("button.cancel"), form) {
 			private static final long serialVersionUID = 1L;
 
-			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-				if (profilesToSave.size() > 0) {
-					profilesToSave.remove(companyProfileTabs.getSelectedTab());
-					
-					companyProfileTabs.getTabs().remove(
-							companyProfileTabs.getSelectedTab());
-					companyProfileTabs.setSelectedTab(0);
+				// undo any changes in progress
+				for (CompanyProfile profile : companyProfilesToAdd) {
+					userProfile.removeCompanyProfile(profile);
 				}
 
-				// repaint panel
-				Component newPanel = new MyBusinessEdit(id, userProfile,
-						profilesToSave);
+				for (CompanyProfile profile : companyProfilesToRemove) {
+					userProfile.addCompanyProfile(profile);
+				}
+
+				Component newPanel = new MyBusinessDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
 				if (target != null) {
 					target.addComponent(newPanel);
-					// resize iframe
 					target.appendJavascript("setMainFrameHeight(window.name);");
 				}
 
 			}
-
 		};
-		form.add(removeCompanyProfileButton);
+		cancelButton.setDefaultFormProcessing(false);
+		return cancelButton;
+	}
 
-		// submit button
+	private AjaxFallbackButton createSaveChangesButton(final String id,
+			final UserProfile userProfile, Form form, final Label formFeedback) {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit",
 				new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				// save() form, show message, then load display panel
+
 				if (save(form)) {
 
 					// post update event
@@ -176,10 +192,6 @@ public class MyBusinessEdit extends Panel {
 					}
 
 				} else {
-					// String js =
-					// "alert('Failed to save information. Contact your system administrator.');";
-					// target.prependJavascript(js);
-
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.profile.save.business.failed"));
 					formFeedback.add(new AttributeModifier("class", true,
@@ -188,49 +200,91 @@ public class MyBusinessEdit extends Panel {
 				}
 			}
 		};
-		form.add(submitButton);
+		return submitButton;
+	}
 
-		// cancel button
-		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel",
-				new ResourceModel("button.cancel"), form) {
+	private AjaxFallbackButton createRemoveCompanyProfileButton(
+			final String id, final UserProfile userProfile, Form form) {
+		AjaxFallbackButton removeCompanyProfileButton = new AjaxFallbackButton(
+				"removeCompanyProfileButton", new ResourceModel(
+						"button.business.remove.profile"), form) {
+
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				Component newPanel = new MyBusinessDisplay(id, userProfile);
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				// if there's nothing to remove
+				if (-1 == companyProfileTabs.getSelectedTab()) {
+					return;
+				}
+				
+				CompanyProfile companyProfileToRemove = userProfile
+						.getCompanyProfiles().get(
+								companyProfileTabs.getSelectedTab());
+
+				userProfile.removeCompanyProfile(companyProfileToRemove);
+
+				// this check is in case it's been added but never saved
+				if (companyProfilesToAdd.contains(companyProfileToRemove)) {
+					companyProfilesToAdd.remove(companyProfileToRemove);
+				} else {
+					companyProfilesToRemove.add(companyProfileToRemove);
+				}
+
+				Component newPanel = new MyBusinessEdit(id, userProfile,
+						companyProfilesToAdd, companyProfilesToRemove,
+						TabDisplay.START);
+
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
+
+				if (target != null) {
+					target.addComponent(newPanel);
+					target.appendJavascript("setMainFrameHeight(window.name);");
+				}
+			}
+		};
+		return removeCompanyProfileButton;
+	}
+
+	private AjaxFallbackButton createAddCompanyProfileButton(final String id,
+			final UserProfile userProfile, Form form, final Label formFeedback) {
+		AjaxFallbackButton addCompanyProfileButton = new AjaxFallbackButton(
+				"addCompanyProfileButton", new ResourceModel(
+						"button.business.add.profile"), form) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				CompanyProfile companyProfileToAdd = new CompanyProfile(
+						userProfile.getUserUuid(), "", "", "");
+				companyProfilesToAdd.add(companyProfileToAdd);
+				userProfile.addCompanyProfile(companyProfileToAdd);
+
+				Component newPanel = new MyBusinessEdit(id, userProfile,
+						companyProfilesToAdd, companyProfilesToRemove,
+						TabDisplay.END);
+				newPanel.setOutputMarkupId(true);
+				MyBusinessEdit.this.replaceWith(newPanel);
+
 				if (target != null) {
 					target.addComponent(newPanel);
 					// resize iframe
-					target.appendJavascript("setMainFrameHeight(window.name);");
-					// need a scrollTo action here, to scroll down the page to
-					// the section
+					target
+							.prependJavascript("setMainFrameHeight(window.name);");
 				}
-
 			}
 		};
-		cancelButton.setDefaultFormProcessing(false);
-		form.add(cancelButton);
-
-		// add form to page
-		add(form);
+		return addCompanyProfileButton;
 	}
 	
+	// creates the company profile edit container
 	private WebMarkupContainer createCompanyProfileEditsContainer(
-			final UserProfile userProfile, final List<CompanyProfile> profilesToSaveExternal) {
+			final UserProfile userProfile, TabDisplay tabDisplay) {
 
-		if (null == profilesToSaveExternal) {
-			profilesToSave = new ArrayList<CompanyProfile>();
-			
-			if (null != userProfile.getCompanyProfiles()) {
-				for (CompanyProfile companyProfile : userProfile.getCompanyProfiles()) {
-					profilesToSave.add(companyProfile);
-				}
-			}
-		} else {
-			profilesToSave = profilesToSaveExternal;
-		}
-		
 		WebMarkupContainer companyProfilesContainer = new WebMarkupContainer(
 				"companyProfilesContainer");
 
@@ -240,26 +294,10 @@ public class MyBusinessEdit extends Panel {
 		List<ITab> tabs = new ArrayList<ITab>();
 		if (null != userProfile.getCompanyProfiles()) {
 
-			int companyProfileNum = 1;
 			for (final CompanyProfile companyProfile : userProfile
 					.getCompanyProfiles()) {
 
-				// ignore those marked for removal
-				
-				log.info("there are " + profilesToSave.size() + " marked to save");
-				
-				for (CompanyProfile profile : profilesToSave) {
-					log.info("profile to save: " + profile.getCompanyName());
-				}
-				
-				if (!profilesToSave.contains(companyProfile)) {
-					continue;
-				}
-				
-				log.info("adding tab for company " + companyProfileNum);
-				
-				tabs.add(new AbstractTab(new Model<String>("Company "
-						+ companyProfileNum++)) {
+				tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -275,31 +313,70 @@ public class MyBusinessEdit extends Panel {
 
 		companyProfileTabs = new TabbedPanel("companyProfiles", tabs);
 		companyProfilesContainer.add(companyProfileTabs);
-		
-		return companyProfilesContainer;
 
+		if (tabs.size() > 0) {
+			switch (tabDisplay) {
+			case START:
+				companyProfileTabs.setSelectedTab(0);
+				break;
+			case END:
+				companyProfileTabs.setSelectedTab(tabs.size() - 1);
+			}
+		} else {
+			companyProfilesContainer.setVisible(false);
+		}
+
+		return companyProfilesContainer;
 	}
 	
-	//called when the form is to be saved
+	// called when the form is to be saved
 	private boolean save(Form form) {
-		
-		//get the backing model
+
+		// get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
-		
-		//get SakaiProxy, get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
+
+		// get SakaiProxy, get userId from the UserProfile (because admin could
+		// be editing), then get existing SakaiPerson for that userId
 		SakaiProxy sakaiProxy = Locator.getSakaiProxy();
-		
+
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		
-		sakaiPerson.setBusinessBiography(userProfile.getBusinessBiography());
-		
-		// TODO save company profiles
-		//Locator.getProfileLogic().r
 
-		//update SakaiPerson
-		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-			log.info("Saved SakaiPerson for: " + userId );
+		sakaiPerson.setBusinessBiography(userProfile.getBusinessBiography());
+
+		// add new company profiles
+		for (CompanyProfile companyProfile : companyProfilesToAdd) {
+			if (!Locator.getProfileLogic().addNewCompanyProfile(companyProfile)) {
+				
+				log.info("Couldn't add CompanyProfile for: " + userId);
+				return false;
+			}
+		}
+		
+		// save company profiles
+		for (CompanyProfile companyProfile : userProfile.getCompanyProfiles()) {
+
+			if (!Locator.getProfileLogic().saveCompanyProfile(companyProfile)) {
+				
+				log.info("Couldn't save CompanyProfile for: " + userId);
+				return false;
+			}
+		}
+
+		// remove any company profile marked for deletion
+		for (CompanyProfile companyProfile : companyProfilesToRemove) {
+			
+			if (!Locator.getProfileLogic().removeCompanyProfile(userId,
+					companyProfile.getId())) {
+				
+				log.info("Couldn't delete CompanyProfile for: " + userId);
+				return false;
+			}
+		}
+
+		// update SakaiPerson
+		if (sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+			log.info("Saved SakaiPerson for: " + userId);
 			return true;
 		} else {
 			log.info("Couldn't save SakaiPerson for: " + userId);

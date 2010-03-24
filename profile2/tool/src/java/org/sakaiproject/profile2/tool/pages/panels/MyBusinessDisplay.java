@@ -38,6 +38,9 @@ import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 
+/**
+ * Panel for displaying business profile data.
+ */
 public class MyBusinessDisplay extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -52,7 +55,6 @@ public class MyBusinessDisplay extends Panel {
 
 		int visibleFieldCount = 0;
 
-		// heading
 		add(new Label("heading", new ResourceModel("heading.business")));
 
 		visibleFieldCount = addBusinessBiography(userProfile, visibleFieldCount);
@@ -102,20 +104,17 @@ public class MyBusinessDisplay extends Panel {
 
 		if (null != userProfile.getCompanyProfiles()) {
 
-			int companyProfileNum = 1;
 			for (final CompanyProfile companyProfile : userProfile
 					.getCompanyProfiles()) {
 
-				tabs.add(new AbstractTab(new Model<String>("Company "
-						+ companyProfileNum++)) {
+				tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public Panel getPanel(String panelId) {
-						
-						return new CompanyProfileDisplay(panelId,
-								companyProfile);
+
+						return new CompanyProfileDisplay(panelId, companyProfile);
 					}
 
 				});

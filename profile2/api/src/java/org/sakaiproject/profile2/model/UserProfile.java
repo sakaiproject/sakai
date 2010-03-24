@@ -315,6 +315,10 @@ public class UserProfile implements Serializable {
 		this.businessBiography = businessBiography;
 	}
 	
+	public void addCompanyProfile(CompanyProfile companyProfile) {
+		companyProfiles.add(companyProfile);
+	}
+	
 	public List<CompanyProfile> getCompanyProfiles() {
 		return companyProfiles;
 	}

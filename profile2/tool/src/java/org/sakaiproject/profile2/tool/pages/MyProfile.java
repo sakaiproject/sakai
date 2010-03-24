@@ -340,8 +340,6 @@ public class MyProfile extends BasePage {
 		Panel myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
 		myBusinessDisplay.setOutputMarkupId(true);
 		add(myBusinessDisplay);
-		// TODO remove this line when PRFL-206 finished.
-		myBusinessDisplay.setVisible(false);
 		
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);

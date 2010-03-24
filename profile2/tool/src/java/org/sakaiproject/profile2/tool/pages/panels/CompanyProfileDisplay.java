@@ -19,16 +19,17 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.CompanyProfile;
 
 /**
- * Panel for displaying company profile data.
+ * Panel for displaying and editing company profile data
  */
 public class CompanyProfileDisplay extends Panel {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	public CompanyProfileDisplay(String id, CompanyProfile companyProfile) {
 
 		super(id);
@@ -37,8 +38,8 @@ public class CompanyProfileDisplay extends Panel {
 				"companyNameContainer");
 		companyNameContainer.add(new Label("companyNameLabel",
 				new ResourceModel("profile.business.company.name")));
-		companyNameContainer.add(new Label("companyName", companyProfile
-				.getCompanyName()));
+		companyNameContainer.add(new Label("companyName",
+				new PropertyModel(companyProfile, "companyName")));
 
 		add(companyNameContainer);
 
@@ -47,18 +48,17 @@ public class CompanyProfileDisplay extends Panel {
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
 		companyWebAddressContainer.add(new Label("companyWebAddress",
-				companyProfile.getCompanyWebAddress()));
+				new PropertyModel(companyProfile, "companyWebAddress")));
 
 		add(companyWebAddressContainer);
 
 		WebMarkupContainer companyDescriptionContainer = new WebMarkupContainer(
 				"companyDescriptionContainer");
 		companyDescriptionContainer.add(new Label("companyDescriptionLabel",
-				new ResourceModel("profile.business.company.description")));
+				new ResourceModel("profile.business.company.description")));		
 		companyDescriptionContainer.add(new Label("companyDescription",
-				companyProfile.getCompanyDescription()));
-		
-		add(companyDescriptionContainer);
+				new PropertyModel(companyProfile, "companyDescription")));
 
+		add(companyDescriptionContainer);
 	}
 }
