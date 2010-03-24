@@ -42,7 +42,7 @@
                 
  	    	      <h:graphicImage value="images/silk/page_white.png" />
     	    	  <h:commandLink actionListener="#{rosterBean.exportCsvNoCourseGrade}">
-        	      <h:outputText value="#{msgs.import_entire_template}"/>
+        	      <h:outputText value="#{msgs.import_entire_template_csv}"/>
  	        		</h:commandLink>
 				</h:form> <%-- End of download csv file form --%>
 			
