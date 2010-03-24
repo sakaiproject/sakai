@@ -6,13 +6,56 @@
 <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
 <div id="dialog"></div>
 <script type="text/javascript">
+<!--
     $(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
 		sakai.setupSelectList('siteList','selunselallid','selectedSelected');
     });
+    function resetSelectedItemsCount()
+	{
+		var anyItemSelected = false;
+		for (var i=0; i < document.sitesForm.selectedMembers.length && !anyItemSelected; i++)
+		{
+			if (document.sitesForm.selectedMembers[i].checked)
+			{
+				anyItemSelected = true;
+				break;
+			}
+		}
+		var linkList = document.getElementsByName("linkList");
+		for (var j=0; j < linkList.length; j++)
+		{
+			var item = linkList.item(j);
+			if (anyItemSelected)
+			{
+				// there is at least one site selected
+				item.disabled = false;
+			}
+			else
+			{
+				// no site selected
+				item.disabled = true;
+			}
+		}
+	}
+	// -->
 </script>
 <div class ="portletBody">
-	#if($menu)#toolbar($menu)#end
+	<div class="navIntraToolLink viewNav">
+		#if($linkList)
+			<span>
+				#set ($itemsOnLine = 0)
+				#foreach($link in $linkList)
+					#set($action = $listActions.get("$key"))
+					#if($itemsOnLine > 0)|#end
+					 <input  id="$link.getId()-link" type="button" #if ($link.getToggleable()) name="linkList" #end
+						onclick="$link.getLink()"
+						#if($link.getDisabled()) disabled="disabled" #end alt="$link.getLabel()" value="$link.getLabel()" />
+					#set ($itemsOnLine = $itemsOnLine + 1)
+				#end
+			</span>
+		#end
+	</div>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="navPanel">
 		<div class="viewNav">
@@ -94,8 +137,9 @@
 			#end
 		</div>	
 	#end
-	#if ($sites.size() > 0)
-			<form name="sitesForm" action="#toolForm("SiteAction")" method="post">
+	<form id="sitesForm" name="sitesForm" action="#toolForm("SiteAction")" method="post">
+		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
+		#if ($sites.size() > 0)
 			<table class ="listHier lines nolines" summary ="$tlang.getString('list.summary')" border ="0" id ="siteList">
 				<tr>
 					<th id="checkbox" class="screenOnly attach">
@@ -184,7 +228,7 @@
 						<tr>
 							<td headers="checkbox" class="screenOnly attach">
 								#if ($service.allowUpdateSite($site.Id))
-									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount" />
+									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount" onchange="resetSelectedItemsCount();" />
 									<label class="skip" for="site$siteCount">Select $validator.escapeHtml($site.getTitle())</label>
 								#end
 							</td>
@@ -234,7 +278,6 @@
 					#end
 				#end
 			</table>
-		</form>
 	#else
 		<div class="instruction">
 		<br />
@@ -245,4 +288,6 @@
 			$tlang.getString("list.inthe") "$!viewSelected".
 		</div>	
 	#end
+	</form>
 </div>
+		

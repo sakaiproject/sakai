@@ -121,6 +121,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.model.*;
+import org.sakaiproject.site.util.ActionLinkItem;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteParticipantHelper;
@@ -1385,17 +1386,15 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("sortby_publish", SortType.PUBLISHED_ASC.toString());
 			context.put("sortby_createdon", SortType.CREATED_ON_ASC.toString());
 
-			// top menu bar
-			Menu bar = new MenuImpl(portlet, data, (String) state
-					.getAttribute(STATE_ACTION));
+			// top link list
+			List<ActionLinkItem> linkList = new Vector<ActionLinkItem>();
 			if (SiteService.allowAddSite(null)) {
-				bar.add(new MenuEntry(rb.getString("java.new"), "doNew_site"));
+				linkList.add(new ActionLinkItem("new", rb.getString("java.new"), "javascript:document.getElementById('sakai_action').value='doNew_site';document.getElementById('sitesForm').submit();", false, false));
 			}
-			bar.add(new MenuEntry(rb.getString("java.revise"), null, true,
-					MenuItem.CHECKED_NA, "doGet_site", "sitesForm"));
-			bar.add(new MenuEntry(rb.getString("java.delete"), null, true,
-					MenuItem.CHECKED_NA, "doMenu_site_delete", "sitesForm"));
-			context.put("menu", bar);
+			linkList.add(new ActionLinkItem("edit", rb.getString("java.revise"), "javascript:document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();", true, true));
+			linkList.add(new ActionLinkItem("delete", rb.getString("java.delete"), "javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();", true, true));
+			context.put("linkList", linkList);
+			
 			// default to be no pageing
 			context.put("paged", Boolean.FALSE);
 
@@ -2763,7 +2762,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-editClass.vm
 			 * 
 			 */
-			bar = new MenuImpl(portlet, data, (String) state
+			Menu bar = new MenuImpl(portlet, data, (String) state
 					.getAttribute(STATE_ACTION));
 			if (SiteService.allowAddSite(null)) {
 				bar.add(new MenuEntry(rb.getString("java.addclasses"),
@@ -11848,4 +11847,6 @@ public class SiteAction extends PagedResourceActionII {
 			doBack(data);
 		}
 	}
+	
 }
+
