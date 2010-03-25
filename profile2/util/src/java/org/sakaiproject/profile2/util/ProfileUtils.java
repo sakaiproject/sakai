@@ -257,41 +257,39 @@ public class ProfileUtils {
 		int MILLIS_IN_HOUR = 1000 * 60 * 60;
 		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 		int MILLIS_IN_WEEK = 1000 * 60 * 60 * 24 * 7;
-
-		String message=""; 
 				
 		if(diff < MILLIS_IN_SECOND) {
 			//less than a second
-			message = Messages.getString("Label.just_then"); 
+			return Messages.getString("Label.just_then"); 
 		} else if (diff < MILLIS_IN_MINUTE) {
 			//less than a minute, calc seconds
 			int numSeconds = diff/MILLIS_IN_SECOND;
 			if(numSeconds == 1) {
 				//one sec
-				message = numSeconds + Messages.getString("Label.second_ago"); 
+				return Messages.getString("Label.second_ago", new Object[] {numSeconds}); 
 			} else {
 				//more than one sec
-				message = numSeconds + Messages.getString("Label.seconds_ago"); 
+				return Messages.getString("Label.seconds_ago", new Object[] {numSeconds}); 
 			}
 		} else if (diff < MILLIS_IN_HOUR) {
 			//less than an hour, calc minutes
 			int numMinutes = diff/MILLIS_IN_MINUTE;
 			if(numMinutes == 1) {
 				//one minute
-				message = numMinutes + Messages.getString("Label.minute_ago"); 
+				return Messages.getString("Label.minute_ago", new Object[] {numMinutes}); 
 			} else {
 				//more than one minute
-				message = numMinutes + Messages.getString("Label.minutes_ago"); 
+				return Messages.getString("Label.minutes_ago", new Object[] {numMinutes}); 
 			}
 		} else if (diff < MILLIS_IN_DAY) {
 			//less than a day, calc hours
 			int numHours = diff/MILLIS_IN_HOUR;
 			if(numHours == 1) {
 				//one hour
-				message = numHours + Messages.getString("Label.hour_ago"); 
+				return Messages.getString("Label.hour_ago", new Object[] {numHours}); 
 			} else {
 				//more than one hour
-				message = numHours + Messages.getString("Label.hours_ago"); 
+				return Messages.getString("Label.hours_ago", new Object[] {numHours}); 
 			}
 		} else if (diff < MILLIS_IN_WEEK) {
 			//less than a week, calculate days
@@ -299,7 +297,7 @@ public class ProfileUtils {
 			
 			//now calculate which day it was
 			if(numDays == 1) {
-				message = Messages.getString("Label.yesterday"); 
+				return Messages.getString("Label.yesterday"); 
 			} else {
 				//set calendar and get day of week
 				Calendar postingCal = Calendar.getInstance();
@@ -310,7 +308,7 @@ public class ProfileUtils {
 				//set to localised value: 'on Wednesday' for example
 				String dayName = getDayName(postingDay,locale);
 				if(dayName != null) {
-					message = Messages.getString("Label.on") + toProperCase(dayName); 
+					return Messages.getString("Label.on", new Object[] {toProperCase(dayName)});
 				}
 			}
 			
@@ -318,7 +316,7 @@ public class ProfileUtils {
 			//over a week ago, we want it blank though.
 		}
 
-		return message;
+		return null;
 	}
 	
 	/**
