@@ -27,6 +27,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -47,6 +48,7 @@ import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
+import org.sakaiproject.profile2.tool.components.PhoneNumberValidator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyContactEdit extends Panel {
@@ -106,7 +108,7 @@ public class MyContactEdit extends Panel {
 		//email
 		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
-		TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
+		final TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
 		email.add(EmailAddressValidator.getInstance());
 		//readonly view
 		Label emailReadOnly = new Label("emailReadOnly", new PropertyModel(userProfile, "email"));
@@ -129,7 +131,7 @@ public class MyContactEdit extends Panel {
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage")) {
+		final TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage")) {
 			
 			private static final long serialVersionUID = 1L; 
 
@@ -158,29 +160,57 @@ public class MyContactEdit extends Panel {
 		//workphone
 		WebMarkupContainer workphoneContainer = new WebMarkupContainer("workphoneContainer");
 		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
-		TextField workphone = new TextField("workphone", new PropertyModel(userProfile, "workphone"));
+		final TextField workphone = new TextField("workphone", new PropertyModel(userProfile, "workphone"));
+		workphone.add(new PhoneNumberValidator());
 		workphoneContainer.add(workphone);
+
+		//workphone feedback
+        final FeedbackLabel workphoneFeedback = new FeedbackLabel("workphoneFeedback", workphone);
+        workphoneFeedback.setOutputMarkupId(true);
+        workphoneContainer.add(workphoneFeedback);
+        workphone.add(new ComponentVisualErrorBehaviour("onblur", workphoneFeedback));
 		form.add(workphoneContainer);
 		
 		//homephone
 		WebMarkupContainer homephoneContainer = new WebMarkupContainer("homephoneContainer");
 		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
-		TextField homephone = new TextField("homephone", new PropertyModel(userProfile, "homephone"));
+		final TextField homephone = new TextField("homephone", new PropertyModel(userProfile, "homephone"));
+		homephone.add(new PhoneNumberValidator());
 		homephoneContainer.add(homephone);
+		
+		//homephone feedback
+        final FeedbackLabel homephoneFeedback = new FeedbackLabel("homephoneFeedback", homephone);
+        homephoneFeedback.setOutputMarkupId(true);
+        homephoneContainer.add(homephoneFeedback);
+        homephone.add(new ComponentVisualErrorBehaviour("onblur", homephoneFeedback));
 		form.add(homephoneContainer);
 		
 		//mobilephone
 		WebMarkupContainer mobilephoneContainer = new WebMarkupContainer("mobilephoneContainer");
 		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
-		TextField mobilephone = new TextField("mobilephone", new PropertyModel(userProfile, "mobilephone"));
+		final TextField mobilephone = new TextField("mobilephone", new PropertyModel(userProfile, "mobilephone"));
+		mobilephone.add(new PhoneNumberValidator());
 		mobilephoneContainer.add(mobilephone);
+		
+		//mobilephone feedback
+        final FeedbackLabel mobilephoneFeedback = new FeedbackLabel("mobilephoneFeedback", mobilephone);
+        mobilephoneFeedback.setOutputMarkupId(true);
+        mobilephoneContainer.add(mobilephoneFeedback);
+        mobilephone.add(new ComponentVisualErrorBehaviour("onblur", mobilephoneFeedback));
 		form.add(mobilephoneContainer);
 		
 		//facsimile
 		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
 		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
-		TextField facsimile = new TextField("facsimile", new PropertyModel(userProfile, "facsimile"));
+		final TextField facsimile = new TextField("facsimile", new PropertyModel(userProfile, "facsimile"));
+		facsimile.add(new PhoneNumberValidator());
 		facsimileContainer.add(facsimile);
+
+		//facsimile feedback
+        final FeedbackLabel facsimileFeedback = new FeedbackLabel("facsimileFeedback", facsimile);
+        facsimileFeedback.setOutputMarkupId(true);
+        facsimileContainer.add(facsimileFeedback);
+        facsimile.add(new ComponentVisualErrorBehaviour("onblur", facsimileFeedback));
 		form.add(facsimileContainer);
 		
 		//submit button
@@ -188,6 +218,7 @@ public class MyContactEdit extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show message, then load display panel
 
+				
 				if(save(form)) {
 					
 					//post update event
@@ -214,6 +245,60 @@ public class MyContactEdit extends Panel {
 				
 				
             }
+			
+			// This is called if the form validation fails, ie Javascript turned off, 
+			//or we had preexisting invalid data before this fix was introduced
+			protected void onError(AjaxRequestTarget target, Form form) {
+				
+				//check which item didn't validate and update the class and feedback model for that component
+				if(!email.isValid()) {
+					email.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					emailFeedback.setDefaultModel(new ResourceModel("EmailAddressValidator"));
+					target.addComponent(email);
+					target.addComponent(emailFeedback);
+				}
+				if(!homepage.isValid()) {
+					homepage.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					homepageFeedback.setDefaultModel(new ResourceModel("UrlValidator"));
+					target.addComponent(homepage);
+					target.addComponent(homepageFeedback);
+				}
+				if(!facsimile.isValid()) {
+					facsimile.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					facsimileFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+					target.addComponent(facsimile);
+					target.addComponent(facsimileFeedback);
+				}
+				
+				if(!workphone.isValid()) {
+					workphone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					workphoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+					target.addComponent(workphone);
+					target.addComponent(workphoneFeedback);
+				}
+				if(!homephone.isValid()) {
+					homephone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					homephoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+					target.addComponent(homephone);
+					target.addComponent(homephoneFeedback);
+				}
+				if(!mobilephone.isValid()) {
+					mobilephone.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					mobilephoneFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+					target.addComponent(mobilephone);
+					target.addComponent(mobilephoneFeedback);
+				}
+				if(!facsimile.isValid()) {
+					facsimile.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					facsimileFeedback.setDefaultModel(new ResourceModel("PhoneNumberValidator"));
+					target.addComponent(facsimile);
+					target.addComponent(facsimileFeedback);
+				}
+
+			}
+			
+			
+			
 		};
 		form.add(submitButton);
 		
