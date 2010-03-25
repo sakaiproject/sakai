@@ -38,6 +38,7 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.util.FormattedText;
@@ -221,11 +222,7 @@ public class ProfileUtils {
 	 * @return
 	 */
 	public static String toProperCase(String input) {
-		if (input == null || input.trim().length() == 0) {
-			return input;
-		}
-		String output = input.toLowerCase();
-		return output.substring(0, 1).toUpperCase() + output.substring(1);
+		return WordUtils.capitalizeFully(input);
 	}
 	
 	
