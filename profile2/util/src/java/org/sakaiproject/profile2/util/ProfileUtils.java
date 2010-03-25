@@ -436,6 +436,11 @@ public class ProfileUtils {
 	 * No two encryptions are the same using the encryption method that Profile2 uses 
 	 * but they decrypt to the same value which is why we can use it.
 	 */
-	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123"; 
+	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123";
+	
+	public static String getFacebookURL(String facebookUsername) {
+		
+		return "http://www.facebook.com/" + facebookUsername + "/";
+	}
 	
 }

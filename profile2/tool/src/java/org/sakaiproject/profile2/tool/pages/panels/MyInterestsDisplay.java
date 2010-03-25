@@ -54,6 +54,11 @@ public class MyInterestsDisplay extends Panel {
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
+
+		// social networking
+		String facebookUsername = userProfile.getFacebookUsername();
+		
+		// favourites and other
 		String favouriteBooks = userProfile.getFavouriteBooks();
 		String favouriteTvShows = userProfile.getFavouriteTvShows();
 		String favouriteMovies = userProfile.getFavouriteMovies();
@@ -62,6 +67,18 @@ public class MyInterestsDisplay extends Panel {
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.interests")));
+		
+		//social networking
+		
+		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
+		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
+		facebookContainer.add(new Label("facebookLink", ProfileUtils.getFacebookURL(facebookUsername)));
+		add(facebookContainer);
+		if(StringUtils.isBlank(facebookUsername)) {
+			facebookContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
 		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");

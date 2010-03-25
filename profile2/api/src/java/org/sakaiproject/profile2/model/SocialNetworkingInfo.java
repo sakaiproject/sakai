@@ -37,16 +37,9 @@ public class SocialNetworkingInfo implements Serializable {
 		
 	}
 
-	public SocialNetworkingInfo(String userUuid, String facebookUsername,
-			String linkedinUsername, String myspaceUsername,
-			String skypeUsername, String twitterUsername) {
+	public SocialNetworkingInfo(String userUuid) {
 
 		this.userUuid = userUuid;
-		this.facebookUsername = facebookUsername;
-		this.linkedinUsername = linkedinUsername;
-		this.myspaceUsername = myspaceUsername;
-		this.skypeUsername = skypeUsername;
-		this.twitterUsername = twitterUsername;
 	}
 
 	public String getUserUuid() {

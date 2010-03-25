@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -37,6 +38,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
@@ -90,7 +92,13 @@ public class MyInterestsEdit extends Panel {
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
-	   		
+	   	
+		// social networking
+		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
+		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
+		facebookContainer.add(new TextField("facebookUsername", new PropertyModel(userProfile, "facebookUsername")));
+		form.add(facebookContainer);
+		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
 		booksContainer.add(new Label("booksLabel", new ResourceModel("profile.favourite.books")));
@@ -210,6 +218,17 @@ public class MyInterestsEdit extends Panel {
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 
+		// save social networking information
+		SocialNetworkingInfo socialNetworkingInfo = new SocialNetworkingInfo(userProfile.getUserUuid());
+		socialNetworkingInfo.setFacebookUsername(userProfile.getFacebookUsername());
+		socialNetworkingInfo.setLinkedinUsername(userProfile.getLinkedinUsername());
+		socialNetworkingInfo.setMyspaceUsername(userProfile.getMyspaceUsername());
+		socialNetworkingInfo.setSkypeUsername(userProfile.getSkypeUsername());
+		socialNetworkingInfo.setTwitterUsername(userProfile.getTwitterUsername());
+		if (!Locator.getProfileLogic().saveSocialNetworkingInfo(socialNetworkingInfo)) {
+			return false;
+		}
+		
 		//get values and set into SakaiPerson
 		sakaiPerson.setFavouriteBooks(userProfile.getFavouriteBooks());
 		sakaiPerson.setFavouriteTvShows(userProfile.getFavouriteTvShows());

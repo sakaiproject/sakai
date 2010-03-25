@@ -47,6 +47,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
@@ -471,16 +472,33 @@ public class ViewProfile extends BasePage {
 		personalInfoContainer.setOutputMarkupId(true);
 		
 		//setup info
+		
+		// social networking
+		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userUuid);
+		String facebookUsername = socialNetworkingInfo.getFacebookUsername();
+		
+		// favourites and other
 		String favouriteBooks = sakaiPerson.getFavouriteBooks();
 		String favouriteTvShows = sakaiPerson.getFavouriteTvShows();
 		String favouriteMovies = sakaiPerson.getFavouriteMovies();
 		String favouriteQuotes = sakaiPerson.getFavouriteQuotes();
 		String otherInformation = sakaiPerson.getNotes();
-		// TODO social networking info
+
 		int visibleFieldCount_personal = 0;
 		
 		//heading
 		personalInfoContainer.add(new Label("mainSectionHeading_personal", new ResourceModel("heading.interests")));
+		
+		//social networking
+		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
+		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
+		facebookContainer.add(new Label("facebookLink", ProfileUtils.getFacebookURL(facebookUsername)));
+		personalInfoContainer.add(facebookContainer);
+		if(StringUtils.isBlank(facebookUsername)) {
+			facebookContainer.setVisible(false);
+		} else {
+			visibleFieldCount_personal++;
+		}
 		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
