@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -51,7 +52,22 @@ public class CompanyProfileEdit extends Panel {
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
 		companyWebAddressContainer.add(new TextField("companyWebAddress",
-				new PropertyModel(companyProfile, "companyWebAddress")));
+				new PropertyModel(companyProfile, "companyWebAddress")) {
+			
+			private static final long serialVersionUID = 1L; 
+
+            // add http:// if missing 
+            @Override 
+            protected void convertInput() { 
+                    String input = getInput(); 
+
+                    if (StringUtils.isNotBlank(input) && !(input.startsWith("http://") || input.startsWith("https://"))) { 
+                            setConvertedInput("http://" + input);
+                    } else {
+                            setConvertedInput(StringUtils.isBlank(input) ? null : input);
+                    }
+            }
+		});
 
 		add(companyWebAddressContainer);
 
