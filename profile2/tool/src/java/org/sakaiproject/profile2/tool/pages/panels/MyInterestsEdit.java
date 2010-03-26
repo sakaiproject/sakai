@@ -107,6 +107,12 @@ public class MyInterestsEdit extends Panel {
 		linkedinContainer.add(new TextField("linkedinUsername", new PropertyModel(userProfile, "linkedinUsername")));
 		form.add(linkedinContainer);
 		
+		//myspace
+		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
+		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
+		myspaceContainer.add(new TextField("myspaceUsername", new PropertyModel(userProfile, "myspaceUsername")));
+		form.add(myspaceContainer);
+		
 		//skype
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));

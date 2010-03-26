@@ -98,6 +98,17 @@ public class MyInterestsDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		
+		//myspace
+		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
+		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
+		myspaceContainer.add(new ExternalLink("myspaceLink", ProfileUtils.getMyspaceURL(myspaceUsername), ProfileUtils.getMyspaceURL(myspaceUsername)));
+		add(myspaceContainer);
+		if(StringUtils.isBlank(myspaceUsername)) {
+			myspaceContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
 		//skypeme (no URL, as we don't want user skyping themselves)
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));

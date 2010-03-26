@@ -518,6 +518,17 @@ public class ViewProfile extends BasePage {
 			visibleFieldCount_personal++;
 		}
 		
+		//myspace
+		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
+		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
+		myspaceContainer.add(new ExternalLink("myspaceLink", ProfileUtils.getMyspaceURL(myspaceUsername), ProfileUtils.getMyspaceURL(myspaceUsername)));
+		personalInfoContainer.add(myspaceContainer);
+		if(StringUtils.isBlank(myspaceUsername)) {
+			myspaceContainer.setVisible(false);
+		} else {
+			visibleFieldCount_personal++;
+		}
+		
 		//skypeme
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
