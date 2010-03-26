@@ -4383,6 +4383,13 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			String alias = StringUtil.trimToNull(runData.getParameters().getString("rssAlias"));
 			
+			//server check to ensure the length of alias SAK-18178
+			if (alias.length()>99){
+				addAlert(sstate,"The length of alias cannot be greater than 99 characters");
+				state.setStatus(OPTIONS_STATUS);
+				return;
+			}
+			
 			// SAK-17786 Check for XSS
 			StringBuilder alertMsg = new StringBuilder();
 			alias = FormattedText.processFormattedText(alias, alertMsg);
