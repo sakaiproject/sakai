@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.model.CompanyProfile;
 
 /**
@@ -51,7 +52,8 @@ public class CompanyProfileEdit extends Panel {
 				"companyWebAddressContainer");
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
-		companyWebAddressContainer.add(new TextField("companyWebAddress",
+		
+		TextField companyWebAddress = new TextField("companyWebAddress",
 				new PropertyModel(companyProfile, "companyWebAddress")) {
 			
 			private static final long serialVersionUID = 1L; 
@@ -67,8 +69,10 @@ public class CompanyProfileEdit extends Panel {
                             setConvertedInput(StringUtils.isBlank(input) ? null : input);
                     }
             }
-		});
-
+		};
+		companyWebAddress.add(new UrlValidator());
+		companyWebAddressContainer.add(companyWebAddress);
+		
 		add(companyWebAddressContainer);
 
 		WebMarkupContainer companyDescriptionContainer = new WebMarkupContainer(

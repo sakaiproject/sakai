@@ -16,8 +16,10 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -34,31 +36,46 @@ public class CompanyProfileDisplay extends Panel {
 
 		super(id);
 
+		String companyName = companyProfile.getCompanyName();
+		String companyWebAddress = companyProfile.getCompanyWebAddress();
+		String companyDescription = companyProfile.getCompanyDescription();
+
 		WebMarkupContainer companyNameContainer = new WebMarkupContainer(
 				"companyNameContainer");
 		companyNameContainer.add(new Label("companyNameLabel",
 				new ResourceModel("profile.business.company.name")));
-		companyNameContainer.add(new Label("companyName",
-				new PropertyModel(companyProfile, "companyName")));
+		companyNameContainer.add(new Label("companyName", companyName));
 
 		add(companyNameContainer);
+
+		if (StringUtils.isBlank(companyName)) {
+			companyNameContainer.setVisible(false);
+		}
 
 		WebMarkupContainer companyWebAddressContainer = new WebMarkupContainer(
 				"companyWebAddressContainer");
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
-		companyWebAddressContainer.add(new Label("companyWebAddress",
-				new PropertyModel(companyProfile, "companyWebAddress")));
+		companyWebAddressContainer.add(new ExternalLink("companyWebAddress",
+				companyWebAddress, companyWebAddress));
 
 		add(companyWebAddressContainer);
+
+		if (StringUtils.isBlank(companyWebAddress)) {
+			companyWebAddressContainer.setVisible(false);
+		}
 
 		WebMarkupContainer companyDescriptionContainer = new WebMarkupContainer(
 				"companyDescriptionContainer");
 		companyDescriptionContainer.add(new Label("companyDescriptionLabel",
-				new ResourceModel("profile.business.company.description")));		
+				new ResourceModel("profile.business.company.description")));
 		companyDescriptionContainer.add(new Label("companyDescription",
-				new PropertyModel(companyProfile, "companyDescription")));
+				companyDescription));
 
 		add(companyDescriptionContainer);
+		
+		if (StringUtils.isBlank(companyDescription)) {
+			companyDescriptionContainer.setVisible(false);
+		}
 	}
 }
