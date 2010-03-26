@@ -387,6 +387,15 @@ public interface SakaiProxy {
 	public boolean isAccountUpdateAllowed(String userId);
 	
 	/**
+	 * Is the profile2.profile.business.enabled flag set in sakai.properties? If
+	 * not set, defaults to <code>false</code>.
+	 * 
+	 * @return <code>true</code> if the profile2.profile.business.enabled flag
+	 *         is set, otherwise returns <code>false</code>.
+	 */
+	public boolean isBusinessProfileEnabled();
+	
+	/**
 	 * Is the profile2.convert flag set in sakai.properties?
 	 * If not set, defaults to false
 	 * 

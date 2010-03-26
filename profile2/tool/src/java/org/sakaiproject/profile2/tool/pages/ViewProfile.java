@@ -55,6 +55,7 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.CompanyProfileDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
+import org.sakaiproject.profile2.tool.pages.panels.ViewBusiness;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -401,72 +402,22 @@ public class ViewProfile extends BasePage {
 			visibleContainerCount++;
 		}
 		
-		/* BUSINESS INFO*/
-		int visibleFieldCount_business = 0;
-		
-		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("mainSectionContainer_business");
-		businessInfoContainer.setOutputMarkupId(true);
-		businessInfoContainer.add(new Label("mainSectionHeading_business", new ResourceModel("heading.business")));
-		add(businessInfoContainer);
-		
-		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
-		
-		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
-		businessBiographyContainer.add(new Label("businessBiography", sakaiPerson.getBusinessBiography()));
-		
-		businessInfoContainer.add(businessBiographyContainer);
-				
-		if (StringUtils.isBlank(sakaiPerson.getBusinessBiography())) {
-			businessBiographyContainer.setVisible(false);
-		} else {
-			visibleFieldCount_business++;
-		}
-		
-		WebMarkupContainer companyProfilesContainer = new WebMarkupContainer(
-		"companyProfilesContainer");
+		/* BUSINESS INFO (OPTIONAL) */
+		if (sakaiProxy.isBusinessProfileEnabled()) {
+			ViewBusiness businessPanel = new ViewBusiness("viewBusiness",
+					userUuid, sakaiPerson, isBusinessInfoAllowed);
 
-		companyProfilesContainer.add(new Label("companyProfilesLabel",
-				new ResourceModel("profile.business.company.profiles")));
-
-		List<CompanyProfile> companyProfiles = profileLogic.getCompanyProfiles(userUuid);
-		
-		List<ITab> tabs = new ArrayList<ITab>();
-		if (null != profileLogic.getCompanyProfiles(userUuid)) {
-
-			for (final CompanyProfile companyProfile : companyProfiles) {
-
-				visibleFieldCount_business++;
-				
-				tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public Panel getPanel(String panelId) {
-
-						return new CompanyProfileDisplay(panelId,
-								companyProfile);
-					}
-
-				});
+			if (0 == businessPanel.getVisibleFieldCount() || !isBusinessInfoAllowed) {
+				businessPanel.setVisible(false);
+			} else {
+				visibleContainerCount++;
 			}
-		}
-
-		companyProfilesContainer.add(new TabbedPanel("companyProfiles", tabs));
-		businessInfoContainer.add(companyProfilesContainer);
-
-		if (0 == tabs.size()) {			
-			companyProfilesContainer.setVisible(false);
+			add(businessPanel);
+			
 		} else {
-			visibleContainerCount++;
+			Panel businessPanel = new EmptyPanel("viewBusiness");
+			add(businessPanel);
 		}
-		
-		//if nothing/not allowed, hide whole panel
-		if(visibleFieldCount_business == 0 || !isBusinessInfoAllowed) {
-			businessInfoContainer.setVisible(false);
-		} else {
-			visibleContainerCount++;
-		}		
 		
 		/* PERSONAL INFO */
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");

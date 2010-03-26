@@ -931,6 +931,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isBusinessProfileEnabled() {
+		return serverConfigurationService.getBoolean(
+				"profile2.profile.business.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED);
+	}
 	
 	/**
  	* {@inheritDoc}

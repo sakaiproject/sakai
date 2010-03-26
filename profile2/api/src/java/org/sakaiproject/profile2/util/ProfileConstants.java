@@ -169,7 +169,8 @@ public class ProfileConstants {
 	public static final String SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE = "Profile2"; //profile2.integration.twitter.source
 	public static final boolean SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED = true; //profile2.picture.change.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED = true; //profile2.privacy.change.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_GALLERY_ENABLED = true;
+	public static final boolean SAKAI_PROP_PROFILE2_GALLERY_ENABLED = true; //profile2.gallery.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED = false; //profile2.profile.business.enabled
 	
 	/*
 	 * MESSAGING

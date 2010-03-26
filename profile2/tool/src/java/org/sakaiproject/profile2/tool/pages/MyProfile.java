@@ -337,8 +337,13 @@ public class MyProfile extends BasePage {
 		add(myAcademicDisplay);
 		
 		//business panel - load the display version by default
-		Panel myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
-		myBusinessDisplay.setOutputMarkupId(true);
+		Panel myBusinessDisplay;
+		if (sakaiProxy.isBusinessProfileEnabled()) {
+			myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
+			myBusinessDisplay.setOutputMarkupId(true);
+		} else {
+			myBusinessDisplay = new EmptyPanel("myBusiness");
+		}
 		add(myBusinessDisplay);
 		
 		//interests panel - load the display version by default
