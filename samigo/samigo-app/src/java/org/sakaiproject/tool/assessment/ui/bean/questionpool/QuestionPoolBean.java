@@ -61,17 +61,12 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.ResourceLoader;
-
-// from navigo
+import org.sakaiproject.event.cover.EventTrackingService;
 
 
 /**
  * This holds question pool information.
  *
- * Used to be org.navigoproject.ui.web.form.questionpool.QuestionPoolForm
- *
- * @author Rachel Gollub <rgollub@stanford.edu>
- * @author Lydia Li<lydial@stanford.edu>
  * $Id$
  */
 public class QuestionPoolBean implements Serializable
@@ -1173,6 +1168,10 @@ public String getAddOrEdit()
 			}
 		}
 
+		//Questionpool has been revised
+		EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.questionmoved", "/sam/" +AgentFacade.getCurrentSiteId() + "/sourceId=" + sourceId + " destId=" + destId, true));
+
+
 		buildTree();
 		setQpDataModelByLevel();
 		
@@ -1327,6 +1326,10 @@ public String getAddOrEdit()
        String itemid = itemfacade.getItemIdString();
        QuestionPoolService delegate = new QuestionPoolService();
        delegate.removeQuestionFromPool(itemid, new Long(sourceId));
+
+       //Questionpool has been deleted
+       EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.deleteitem", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + itemid, true));
+
 
        // check to see if any pools are linked to this item
        List poollist = delegate.getPoolIdsByItem(itemfacade.getItemIdString());
@@ -1685,6 +1688,10 @@ String poolId = ContextUtil.lookupParam("qpid");
 	Long poolId= pool.getQuestionPoolId();
 
         delegate.deletePool(poolId, AgentFacade.getAgentString(), tree);
+
+          //Questionpool has been deleted
+          EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.delete", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed poolId=" + poolId, true));
+
         }
 	buildTree();
 	

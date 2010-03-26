@@ -974,9 +974,10 @@ public class ItemAuthorBean
 			  delegate.saveItem(itemf);
 		  }
 	  }
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "removed itemId=" + deleteId, true));
-	  
-	  AssessmentService assessdelegate = new AssessmentService();
+	//An item has been deleted
+	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.item.delete", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
+
+	AssessmentService assessdelegate = new AssessmentService();
       // reorder item numbers
 
 	  SectionFacade sectfacade = assessdelegate.getSection(currSection.getSectionId().toString());
@@ -998,7 +999,8 @@ public class ItemAuthorBean
 	  AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
 	  assessmentBean.setAssessment(assessment);
 	  assessdelegate.updateAssessmentLastModifiedInfo(assessment);
-
+  	  //Assessment has been revised
+	  EventTrackingService.post(EventTrackingService.newEvent("sam.asessment.revise", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId + "from assessmentId=" + assessmentBean.getAssessmentId(), true));
 	  return "editAssessment";
   }
 
