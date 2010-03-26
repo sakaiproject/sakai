@@ -93,11 +93,19 @@ public class MyInterestsEdit extends Panel {
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
 	   	
-		// social networking
+		//social networking
+		
+		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
 		facebookContainer.add(new TextField("facebookUsername", new PropertyModel(userProfile, "facebookUsername")));
 		form.add(facebookContainer);
+		
+		// skype
+		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
+		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
+		skypeContainer.add(new TextField("skypeUsername", new PropertyModel(userProfile, "skypeUsername")));
+		form.add(skypeContainer);
 		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
@@ -225,6 +233,7 @@ public class MyInterestsEdit extends Panel {
 		socialNetworkingInfo.setMyspaceUsername(userProfile.getMyspaceUsername());
 		socialNetworkingInfo.setSkypeUsername(userProfile.getSkypeUsername());
 		socialNetworkingInfo.setTwitterUsername(userProfile.getTwitterUsername());
+		
 		if (!Locator.getProfileLogic().saveSocialNetworkingInfo(socialNetworkingInfo)) {
 			return false;
 		}

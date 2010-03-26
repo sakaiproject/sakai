@@ -26,7 +26,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -57,6 +59,10 @@ public class MyInterestsDisplay extends Panel {
 
 		// social networking
 		String facebookUsername = userProfile.getFacebookUsername();
+		String linkedinUsername = userProfile.getLinkedinUsername();
+		String myspaceUsername = userProfile.getMyspaceUsername();
+		String skypeUsername = userProfile.getSkypeUsername();
+		String twitterUsername = userProfile.getTwitterUsername();
 		
 		// favourites and other
 		String favouriteBooks = userProfile.getFavouriteBooks();
@@ -70,12 +76,24 @@ public class MyInterestsDisplay extends Panel {
 		
 		//social networking
 		
+		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
-		facebookContainer.add(new Label("facebookLink", ProfileUtils.getFacebookURL(facebookUsername)));
+		facebookContainer.add(new ExternalLink("facebookLink", ProfileUtils.getFacebookURL(facebookUsername), ProfileUtils.getFacebookURL(facebookUsername)));
 		add(facebookContainer);
 		if(StringUtils.isBlank(facebookUsername)) {
 			facebookContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//skypeme (no URL, as we don't want user skyping themselves)
+		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
+		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
+		skypeContainer.add(new Label("skypeLink", skypeUsername));
+		add(skypeContainer);
+		if (StringUtils.isBlank(skypeUsername)) {
+			skypeContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

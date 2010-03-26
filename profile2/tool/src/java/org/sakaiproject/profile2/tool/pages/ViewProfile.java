@@ -38,6 +38,7 @@ import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.markup.html.tabs.TabbedPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -476,6 +477,10 @@ public class ViewProfile extends BasePage {
 		// social networking
 		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userUuid);
 		String facebookUsername = socialNetworkingInfo.getFacebookUsername();
+		String linkedinUsername = socialNetworkingInfo.getLinkedinUsername();
+		String myspaceUsername = socialNetworkingInfo.getMyspaceUsername();
+		String skypeUsername = socialNetworkingInfo.getSkypeUsername();
+		String twitterUsername = socialNetworkingInfo.getTwitterUsername();
 		
 		// favourites and other
 		String favouriteBooks = sakaiPerson.getFavouriteBooks();
@@ -490,12 +495,25 @@ public class ViewProfile extends BasePage {
 		personalInfoContainer.add(new Label("mainSectionHeading_personal", new ResourceModel("heading.interests")));
 		
 		//social networking
+		
+		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
-		facebookContainer.add(new Label("facebookLink", ProfileUtils.getFacebookURL(facebookUsername)));
+		facebookContainer.add(new ExternalLink("facebookLink", ProfileUtils.getFacebookURL(facebookUsername), ProfileUtils.getFacebookURL(facebookUsername)));
 		personalInfoContainer.add(facebookContainer);
 		if(StringUtils.isBlank(facebookUsername)) {
 			facebookContainer.setVisible(false);
+		} else {
+			visibleFieldCount_personal++;
+		}
+		
+		//skypeme
+		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
+		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
+		skypeContainer.add(new ExternalLink("skypeLink", ProfileUtils.getSkypeMeURL(skypeUsername), new ResourceModel("profile.socialnetworking.skype.link").getObject()));
+		personalInfoContainer.add(skypeContainer);
+		if(StringUtils.isBlank(skypeUsername)) {
+			skypeContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;
 		}
