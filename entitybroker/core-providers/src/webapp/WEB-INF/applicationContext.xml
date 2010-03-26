@@ -15,6 +15,7 @@
             class="org.sakaiproject.entitybroker.providers.SiteEntityProvider">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
         <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
     </bean>
 

@@ -37,6 +37,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -92,6 +93,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	private FunctionManager functionManager;
+
+	public void setFunctionManager(FunctionManager functionManager) {
+		this.functionManager = functionManager;
 	}
 
     private UserEntityProvider userEntityProvider;
@@ -391,22 +398,49 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                     "This action (userPerms) is not accessible to anon and there is no current user.");
         }
 
-        String siteId = view.getEntityReference().getId();
-        Site site = getSiteById(siteId);
-        Role currentUserRole = site.getUserRole(userId);
-        Set<String> functions = currentUserRole.getAllowedFunctions();
+		Set<String> filteredFunctions = new TreeSet<String>();
 
-        Set<String> filteredFunctions = new TreeSet<String>();
+        if (developerHelperService.isUserAdmin("/user/" + userId)) {
+            // Special case for the super admin
+            if(prefix != null)
+                filteredFunctions.addAll(functionManager.getRegisteredFunctions(prefix));
+            else
+                filteredFunctions.addAll(functionManager.getRegisteredFunctions());
+        }
+        else {
+            String siteId = view.getEntityReference().getId();
+            Site site = getSiteById(siteId);
 
-        if (prefix != null) {
-            for (String function : functions) {
-                if (function.startsWith(prefix)) {
-                    filteredFunctions.add(function);
+            AuthzGroup siteHelperRealm = null;
+
+            try {
+                siteHelperRealm = authzGroupService.getAuthzGroup("!site.helper");
+            }
+            catch(GroupNotDefinedException gnde) {
+                // This should probably be logged but not rethrown.
+            }
+
+            Role currentUserRole = site.getUserRole(userId);
+
+            Role siteHelperRole = siteHelperRealm.getRole(currentUserRole.getId());
+
+            Set<String> functions = currentUserRole.getAllowedFunctions();
+
+            if(siteHelperRole != null) {
+                // Merge in all the functions from the same role in !site.helper
+                functions.addAll(siteHelperRole.getAllowedFunctions());
+            }
+
+            if(prefix != null) {
+                for(String function : functions) {
+                    if(function.startsWith(prefix))
+                        filteredFunctions.add(function);
                 }
             }
-        } else {
-            filteredFunctions = functions;
+            else
+                filteredFunctions = functions;
         }
+
         return filteredFunctions;
     }
 
