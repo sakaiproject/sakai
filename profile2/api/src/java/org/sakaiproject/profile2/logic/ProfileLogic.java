@@ -178,6 +178,15 @@ public interface ProfileLogic {
 	public ProfilePrivacy getDefaultPrivacyRecord(String userId);
 	
 	/**
+	 * Create a default social networking information record for the specified
+	 * user.
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId);
+	
+	/**
 	 * Retrieve the profile privacy record from the database for this user
 	 *
 	 * @param userId	uuid of the user to retrieve the record for or null if they don't have one.

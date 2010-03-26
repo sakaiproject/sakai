@@ -776,6 +776,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return socialNetworkingInfo;
 	}
 
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId) {
+		
+		return new SocialNetworkingInfo(userId);
+	}
 
 	/**
 	 * {@inheritDoc}

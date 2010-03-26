@@ -427,6 +427,9 @@ public class ViewProfile extends BasePage {
 		
 		// social networking
 		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userUuid);
+		if (null == socialNetworkingInfo) {
+			socialNetworkingInfo = profileLogic.getDefaultSocialNetworkingInfo(userUuid);
+		}
 		String facebookUsername = socialNetworkingInfo.getFacebookUsername();
 		String linkedinUsername = socialNetworkingInfo.getLinkedinUsername();
 		String myspaceUsername = socialNetworkingInfo.getMyspaceUsername();
