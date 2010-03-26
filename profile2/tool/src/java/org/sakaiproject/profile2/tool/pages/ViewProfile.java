@@ -529,6 +529,17 @@ public class ViewProfile extends BasePage {
 			visibleFieldCount_personal++;
 		}
 		
+		//twitter
+		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
+		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
+		twitterContainer.add(new ExternalLink("twitterLink", ProfileUtils.getTwitterURL(twitterUsername), ProfileUtils.getTwitterURL(twitterUsername)));
+		personalInfoContainer.add(twitterContainer);
+		if(StringUtils.isBlank(twitterUsername)) {
+			twitterContainer.setVisible(false);
+		} else {
+			visibleFieldCount_personal++;
+		}
+		
 		//skypeme
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));

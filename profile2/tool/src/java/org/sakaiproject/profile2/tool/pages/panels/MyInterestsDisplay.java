@@ -109,6 +109,17 @@ public class MyInterestsDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		
+		//twitter
+		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
+		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
+		twitterContainer.add(new ExternalLink("twitterLink", ProfileUtils.getTwitterURL(twitterUsername), ProfileUtils.getTwitterURL(twitterUsername)));
+		add(twitterContainer);
+		if(StringUtils.isBlank(twitterUsername)) {
+			twitterContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
 		//skypeme (no URL, as we don't want user skyping themselves)
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
