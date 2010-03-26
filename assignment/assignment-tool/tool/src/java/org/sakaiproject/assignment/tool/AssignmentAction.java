@@ -7818,156 +7818,162 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public boolean readGradeForm(RunData data, SessionState state, String gradeOption)
 	{
-
-		ParameterParser params = data.getParameters();
-		int typeOfGrade = -1;
-		
-		String submissionId = params.getString("submissionId");
-
-		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue()
-				: false;
-
 		// whether user has changed anything from previous grading information
 		boolean hasChange = false;
 		
-		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
-		String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
-				checkForFormattingErrors);
-		// comment value changed?
-		hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackComment, GRADE_SUBMISSION_FEEDBACK_COMMENT):hasChange;
-		if (feedbackComment != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
-		}
-		
+		ParameterParser params = data.getParameters();
+		String sId = params.getString("submissionId");
 
-		String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
-		// feedbackText value changed?
-		hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackText, GRADE_SUBMISSION_FEEDBACK_TEXT):hasChange;
-		if (feedbackText != null)
+		// security check for allowing grading submission or not
+		if (AssignmentService.allowGradeSubmission(sId))
 		{
-			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
-		}
-		
-		// any change inside attachment list?
-		if (!hasChange)
-		{
-			List stateAttachments = state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT) == null?null:((List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT)).isEmpty()?null:(List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
-			List inputAttachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+			int typeOfGrade = -1;
+			boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue()
+					: false;
 			
-			if (stateAttachments == null && inputAttachments != null
-				|| stateAttachments != null && inputAttachments == null	
-				|| stateAttachments != null && inputAttachments != null && !(stateAttachments.containsAll(inputAttachments) && inputAttachments.containsAll(stateAttachments)))
+			boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
+			String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
+					checkForFormattingErrors);
+			// comment value changed?
+			hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackComment, GRADE_SUBMISSION_FEEDBACK_COMMENT):hasChange;
+			if (feedbackComment != null)
 			{
-				hasChange = true;
+				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
 			}
-		}
-		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
+			
 
-		String g = StringUtil.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
-
-		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
-		try
-		{
-
-			AssignmentSubmission submission = AssignmentService.getSubmission(sId);
-			Assignment a = submission.getAssignment();
-			typeOfGrade = a.getContent().getTypeOfGrade();
-
-			if (withGrade)
+			String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
+			// feedbackText value changed?
+			hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackText, GRADE_SUBMISSION_FEEDBACK_TEXT):hasChange;
+			if (feedbackText != null)
 			{
-				// any change in grade. Do not check for ungraded assignment type
-				hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), GRADE_SUBMISSION_GRADE):valueDiffFromStateAttribute(state, g, GRADE_SUBMISSION_GRADE)):hasChange;
-				if (g != null)
+				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
+			}
+			
+			// any change inside attachment list?
+			if (!hasChange)
+			{
+				List stateAttachments = state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT) == null?null:((List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT)).isEmpty()?null:(List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
+				List inputAttachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+				
+				if (stateAttachments == null && inputAttachments != null
+					|| stateAttachments != null && inputAttachments == null	
+					|| stateAttachments != null && inputAttachments != null && !(stateAttachments.containsAll(inputAttachments) && inputAttachments.containsAll(stateAttachments)))
 				{
-					state.setAttribute(GRADE_SUBMISSION_GRADE, g);
+					hasChange = true;
+				}
+			}
+			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
+
+			String g = StringUtil.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
+
+			try
+			{
+	
+				AssignmentSubmission submission = AssignmentService.getSubmission(sId);
+				Assignment a = submission.getAssignment();
+				typeOfGrade = a.getContent().getTypeOfGrade();
+	
+				if (withGrade)
+				{
+					// any change in grade. Do not check for ungraded assignment type
+					hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), GRADE_SUBMISSION_GRADE):valueDiffFromStateAttribute(state, g, GRADE_SUBMISSION_GRADE)):hasChange;
+					if (g != null)
+					{
+						state.setAttribute(GRADE_SUBMISSION_GRADE, g);
+					}
+					else
+					{
+						state.removeAttribute(GRADE_SUBMISSION_GRADE);
+					}
+					
+					// for points grading, one have to enter number as the points
+					String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
+					
+					// do grade validation only for Assignment with Grade tool
+					if (typeOfGrade == Assignment.SCORE_GRADE_TYPE)
+					{
+						if ((grade != null))
+						{
+							// the preview grade process might already scaled up the grade by 10
+							if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
+							{
+								validPointGrade(state, grade);
+								
+								if (state.getAttribute(STATE_MESSAGE) == null)
+								{
+									int maxGrade = a.getContent().getMaxGradePoint();
+									try
+									{
+										if (Integer.parseInt(scalePointGrade(state, grade)) > maxGrade)
+										{
+											if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
+											{
+												// alert user first when he enters grade bigger than max scale
+												addAlert(state, rb.getFormattedMessage("grad2", new Object[]{grade, displayGrade(state, String.valueOf(maxGrade))}));
+												state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
+											}
+											else
+											{
+												// remove the alert once user confirms he wants to give student higher grade
+												state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+											}
+										}
+									}
+									catch (NumberFormatException e)
+									{
+										alertInvalidPoint(state, grade);
+										M_log.warn(this + ":readGradeForm " + e.getMessage());
+									}
+								}
+								
+								state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
+							}
+						}
+					}
+	
+					// if ungraded and grade type is not "ungraded" type
+					if ((grade == null || "ungraded".equals(grade)) && (typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) && "release".equals(gradeOption))
+					{
+						addAlert(state, rb.getString("plespethe2"));
+					}
+				}
+				
+				// allow resubmit number and due time
+				if (params.getString("allowResToggle") != null && params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+				{
+					// read in allowResubmit params 
+					readAllowResubmitParams(params, state, submission);
 				}
 				else
 				{
-					state.removeAttribute(GRADE_SUBMISSION_GRADE);
+					resetAllowResubmitParams(state);
 				}
-				
-				// for points grading, one have to enter number as the points
-				String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
-				
-				// do grade validation only for Assignment with Grade tool
-				if (typeOfGrade == Assignment.SCORE_GRADE_TYPE)
-				{
-					if ((grade != null))
-					{
-						// the preview grade process might already scaled up the grade by 10
-						if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
-						{
-							validPointGrade(state, grade);
-							
-							if (state.getAttribute(STATE_MESSAGE) == null)
-							{
-								int maxGrade = a.getContent().getMaxGradePoint();
-								try
-								{
-									if (Integer.parseInt(scalePointGrade(state, grade)) > maxGrade)
-									{
-										if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
-										{
-											// alert user first when he enters grade bigger than max scale
-											addAlert(state, rb.getFormattedMessage("grad2", new Object[]{grade, displayGrade(state, String.valueOf(maxGrade))}));
-											state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
-										}
-										else
-										{
-											// remove the alert once user confirms he wants to give student higher grade
-											state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
-										}
-									}
-								}
-								catch (NumberFormatException e)
-								{
-									alertInvalidPoint(state, grade);
-									M_log.warn(this + ":readGradeForm " + e.getMessage());
-								}
-							}
-							
-							state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
-						}
-					}
-				}
-
-				// if ungraded and grade type is not "ungraded" type
-				if ((grade == null || "ungraded".equals(grade)) && (typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) && "release".equals(gradeOption))
-				{
-					addAlert(state, rb.getString("plespethe2"));
-				}
+				// record whether the resubmission options has been changed or not
+				hasChange = hasChange || change_resubmit_option(state, submission);
 			}
-			
-			// allow resubmit number and due time
-			if (params.getString("allowResToggle") != null && params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+			catch (IdUnusedException e)
 			{
-				// read in allowResubmit params 
-				readAllowResubmitParams(params, state, submission);
+				addAlert(state, rb.getString("cannotfin5"));
+				M_log.warn(this + ":readGradeForm " + e.getMessage());
 			}
-			else
+			catch (PermissionException e)
 			{
-				resetAllowResubmitParams(state);
+				addAlert(state, rb.getString("not_allowed_to_view"));
+				M_log.warn(this + ":readGradeForm " + e.getMessage());
 			}
-			// record whether the resubmission options has been changed or not
-			hasChange = hasChange || change_resubmit_option(state, submission);
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state, rb.getString("cannotfin5"));
-			M_log.warn(this + ":readGradeForm " + e.getMessage());
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state, rb.getString("not_allowed_to_view"));
-			M_log.warn(this + ":readGradeForm " + e.getMessage());
-		}
 		
-		if (state.getAttribute(STATE_MESSAGE) == null)
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
+				grade = (typeOfGrade == Assignment.SCORE_GRADE_TYPE)?scalePointGrade(state, grade):grade;
+				state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
+			}
+		}
+		else
 		{
-			String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
-			grade = (typeOfGrade == Assignment.SCORE_GRADE_TYPE)?scalePointGrade(state, grade):grade;
-			state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
+			// generate alert
+			addAlert(state, rb.getFormattedMessage("not_allowed_to_grade_submission", new Object[]{sId}));
 		}
 		
 		return hasChange;
