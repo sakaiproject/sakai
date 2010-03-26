@@ -12,52 +12,50 @@
   <artifactId>search-impl</artifactId>
   <packaging>jar</packaging>
 
-	<profiles>
-		<profile>
-			<id>1.5</id>
-			<activation>
-				<jdk>1.5</jdk>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject.search</groupId>
-					<artifactId>search-test-1.5</artifactId>
-					<version>${project.version}</version>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
+    <profiles>
+        <profile>
+            <id>1.5</id>
+            <activation>
+                <jdk>1.5</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.search</groupId>
+                    <artifactId>search-test-1.5</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <properties>
+                <deploy.target />
+                <maven.test.jvmargs />
+                <poi.version>3.6</poi.version>
+                <lucene.version>2.9.2</lucene.version>
+                <bouncycastle.artifact.version>jdk15</bouncycastle.artifact.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>1.6</id>
+            <activation>
+                <jdk>1.6</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.search</groupId>
+                    <artifactId>search-test-1.6</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <properties>
+                <maven.test.jvmargs />
+                <poi.version>3.6</poi.version>
+                <lucene.version>2.9.1</lucene.version>
+                <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
+            </properties>
+        </profile>
+    </profiles>
 
-			<properties>
-				<deploy.target />
-				<maven.test.jvmargs />
-				<poi.version>3.6</poi.version>
-				<lucene.version>2.9.2</lucene.version>
-				<bouncycastle.artifact.version>jdk15</bouncycastle.artifact.version>
-			</properties>
-
-		</profile>
-		<profile>
-			<id>1.6</id>
-			<activation>
-				<jdk>1.6</jdk>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject.search</groupId>
-					<artifactId>search-test-1.6</artifactId>
-					<version>${project.version}</version>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-			<properties>
-				<maven.test.jvmargs />
-				<poi.version>3.6</poi.version>
-				<lucene.version>2.9.1</lucene.version>
-				<bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
-			</properties>
-
-		</profile>
-	</profiles>
   <build>
     <resources>
       <resource>
@@ -280,6 +278,16 @@
     <dependency>
     	<groupId>commons-lang</groupId>
     	<artifactId>commons-lang</artifactId>
+    </dependency>
+    <!--  added for search/entitybroker integration -->
+    <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-utils</artifactId>
     </dependency>
   </dependencies>
 </project>
