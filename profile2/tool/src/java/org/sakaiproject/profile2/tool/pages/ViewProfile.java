@@ -247,7 +247,7 @@ public class ViewProfile extends BasePage {
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		homepageContainer.add(new Label("homepage", homepage));
+		homepageContainer.add(new ExternalLink("homepage", homepage, homepage));
 		contactInfoContainer.add(homepageContainer);
 		if(StringUtils.isBlank(homepage)) {
 			homepageContainer.setVisible(false);

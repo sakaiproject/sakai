@@ -26,6 +26,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -74,7 +75,7 @@ public class MyContactDisplay extends Panel {
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		homepageContainer.add(new Label("homepage", homepage));
+		homepageContainer.add(new ExternalLink("homepage", homepage, homepage));
 		add(homepageContainer);
 		if(StringUtils.isBlank(homepage)) {
 			homepageContainer.setVisible(false);
