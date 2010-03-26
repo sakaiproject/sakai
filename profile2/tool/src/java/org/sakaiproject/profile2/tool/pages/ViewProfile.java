@@ -507,6 +507,17 @@ public class ViewProfile extends BasePage {
 			visibleFieldCount_personal++;
 		}
 		
+		//linkedin
+		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
+		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
+		linkedinContainer.add(new ExternalLink("linkedinLink", ProfileUtils.getLinkedinURL(linkedinUsername), ProfileUtils.getLinkedinURL(linkedinUsername)));
+		personalInfoContainer.add(linkedinContainer);
+		if(StringUtils.isBlank(linkedinUsername)) {
+			linkedinContainer.setVisible(false);
+		} else {
+			visibleFieldCount_personal++;
+		}
+		
 		//skypeme
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));

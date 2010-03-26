@@ -87,6 +87,17 @@ public class MyInterestsDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		
+		//linkedin
+		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
+		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
+		linkedinContainer.add(new ExternalLink("linkedinLink", ProfileUtils.getLinkedinURL(linkedinUsername), ProfileUtils.getLinkedinURL(linkedinUsername)));
+		add(linkedinContainer);
+		if(StringUtils.isBlank(linkedinUsername)) {
+			linkedinContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
 		//skypeme (no URL, as we don't want user skyping themselves)
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
