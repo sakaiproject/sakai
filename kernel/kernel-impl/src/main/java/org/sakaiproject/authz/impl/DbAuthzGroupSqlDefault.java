@@ -291,25 +291,28 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmIdSql(Collection azGroups)
 	{
+		StringBuilder sqlBuilder = new StringBuilder();
 		String sql = "select     SR.REALM_ID " + "from       SAKAI_REALM_FUNCTION SRF "
 				+ "inner join SAKAI_REALM_RL_FN SRRF on SRF.FUNCTION_KEY = SRRF.FUNCTION_KEY "
 				+ "inner join SAKAI_REALM_RL_GR SRRG on SRRF.ROLE_KEY = SRRG.ROLE_KEY and SRRF.REALM_KEY = SRRG.REALM_KEY "
 				+ "inner join SAKAI_REALM SR on SRRF.REALM_KEY = SR.REALM_KEY "
 				+ "where      SRF.FUNCTION_NAME = ? and SRRG.USER_ID = ? and SRRG.ACTIVE = '1' ";
 
+		sqlBuilder.append(sql);
 		if (azGroups != null)
 		{
-			sql += "and SR.REALM_ID in (";
+			sqlBuilder.append("and SR.REALM_ID in (");
 			for (int i = 0; i < azGroups.size() - 1; i++)
-				sql += "?,";
+				sqlBuilder.append("?,");
 
-			sql += "?) ";
+			sqlBuilder.append("?) ");
 		}
-		return sql;
+		return sqlBuilder.toString();
 	}
 	
 	public String getSelectRealmIdRoleSwapSql(Collection azGroups)
 	{
+		StringBuilder sqlBuilder = new StringBuilder();
 		String sql = "select     SR.REALM_ID " + "from       SAKAI_REALM_FUNCTION SRF "
 				+ "inner join SAKAI_REALM_RL_FN SRRF on SRF.FUNCTION_KEY = SRRF.FUNCTION_KEY "
 				+ "inner join SAKAI_REALM_RL_GR SRRG on SRRF.REALM_KEY = SRRG.REALM_KEY "
@@ -317,16 +320,17 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 				+ "join SAKAI_REALM_ROLE ROLE on ROLE.ROLE_KEY = SRRF.ROLE_KEY "
 				+ "where      SRF.FUNCTION_NAME = ? and SRRG.USER_ID = ? and SRRG.ACTIVE = '1' ";
 
+		sqlBuilder.append(sql);
 		if (azGroups != null)
 		{
-			sql += "and SR.REALM_ID in (";
+			sqlBuilder.append("and SR.REALM_ID in (");
 			for (int i = 0; i < azGroups.size() - 1; i++)
-				sql += "?,";
+				sqlBuilder.append("?,");
 		
-			sql += "?) ";
+			sqlBuilder.append("?) ");
 		}
-		sql += "and ROLE.ROLE_NAME = ? "; 
-		return sql;
+		sqlBuilder.append("and ROLE.ROLE_NAME = ? "); 
+		return sqlBuilder.toString();
 	}
 
 	public String getSelectRealmProvider2Sql()

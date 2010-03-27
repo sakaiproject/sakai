@@ -6231,19 +6231,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 
 				String one = new String(content);
-				String two = "";
+				StringBuilder two = new StringBuilder("");
 				for (int i = 0; i < one.length(); i++)
 				{
 					if (one.charAt(i) == '+')
 					{
-						two += "%2b";
+						two.append("%2b");
 					}
 					else
 					{
-						two += one.charAt(i);
+						two.append(one.charAt(i));
 					}
 				}
-				res.sendRedirect(two);
+				res.sendRedirect(two.toString());
 			}
 
 			else
@@ -6873,7 +6873,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 	protected Collection getEntityHierarchyAuthzGroups(Reference ref) 
 	{
-		Collection rv = new TreeSet();
+		Collection<String> rv = new TreeSet<String>();
 
 		// add the root
 		rv.add(getReference("/"));
@@ -6885,15 +6885,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
 			rv.add(root);
-
+			StringBuilder rootBuilder = new StringBuilder();
+			rootBuilder.append(root);
+			
 			for (int next = 2; next < paths.length; next++)
 			{
-				root += paths[next];
+				rootBuilder.append(paths[next]);
 				if ((next < paths.length - 1) || container)
 				{
-					root +=  Entity.SEPARATOR;
+					rootBuilder.append(Entity.SEPARATOR);
 				}
-				rv.add(root);
+				rv.add(rootBuilder.toString());
 			}
 		}
 
@@ -8589,19 +8591,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			// check each collection from the root
 			String[] parts = StringUtil.split(target, "/");
 			String id = "/";
-
+			StringBuilder idBuilder = new StringBuilder();
+			idBuilder.append(id);
 			for (int i = 1; i < parts.length; i++)
 			{
 				// grow the id to the next collection
-				id = id + parts[i] + "/";
+				idBuilder.append(parts[i] + "/");
 
 				// does it exist?
-				ContentCollection collection = findCollection(id);
+				ContentCollection collection = findCollection(idBuilder.toString());
 
 				// if not, can we make it
 				if (collection == null)
 				{
-					ContentCollectionEdit edit = addValidPermittedCollection(id);
+					ContentCollectionEdit edit = addValidPermittedCollection(idBuilder.toString());
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, parts[i]);
 					commitCollection(edit);
 				}

@@ -5,6 +5,6 @@ import java.util.List;
 
 public class ToyMessagePad {
 	
-	public static List<String> messages = new ArrayList<String>();
+	public final static List<String> messages = new ArrayList<String>();
 
 }

@@ -46,7 +46,7 @@ import org.sakaiproject.user.cover.PreferencesService;
  */
 public class ResourceLoader extends DummyMap implements InternationalizedMessages
 {
-	protected static Log M_log = LogFactory.getLog(ResourceLoader.class);
+	protected static final Log M_log = LogFactory.getLog(ResourceLoader.class);
 
 	// name of ResourceBundle
 	protected String baseName = null;
@@ -477,7 +477,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 
 
 	/**
-	 ** Return ResourçceBundle properties as if Map.keySet() 
+	 ** Return Resourï¿½ceBundle properties as if Map.keySet() 
 	 **/
 	public Set keySet()
 	{

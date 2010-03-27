@@ -64,9 +64,13 @@ public class VendorHbmTransformerImpl implements VendorHbmTransformer {
                 return mappingDoc;
           }
         } finally {
-            try {
-                if (xsl != null) xsl.close();
-            } catch (Exception e) {}
+            
+                if (xsl != null)
+					try {
+						xsl.close();
+					} catch (IOException e) {
+					}
+            
 
         }
     }

@@ -249,7 +249,7 @@ public class MockTime implements Time
 	}
 
 
-    	public static SimpleDateFormat RFC822DATEFORMAT
+    	public static final SimpleDateFormat RFC822DATEFORMAT
         	// = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.US);
         	= new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z");
 

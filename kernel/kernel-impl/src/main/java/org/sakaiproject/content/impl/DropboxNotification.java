@@ -436,17 +436,18 @@ public class DropboxNotification extends EmailNotification
 		{
 			// grow this collection id as we descend into the collections
 			String root = Entity.SEPARATOR + parts[2] + Entity.SEPARATOR + parts[3] + Entity.SEPARATOR;
-
+			StringBuilder rootBuilder = new StringBuilder();
+			rootBuilder.append(root);
 			// take all the collection parts
 			for (int i = 4; i < parts.length - 1; i++)
 			{
 				buf.append(" > ");
 				String collectionId = parts[i];
-				root = root + collectionId + Entity.SEPARATOR;
+				rootBuilder.append(collectionId + Entity.SEPARATOR);
 				try
 				{
 					// get the display name
-					ContentCollection collection = ContentHostingService.getCollection(root);
+					ContentCollection collection = ContentHostingService.getCollection(rootBuilder.toString());
 					buf.append(collection.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 				}
 				catch (Exception any)
