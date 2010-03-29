@@ -131,7 +131,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//unset contact info if not allowed
-		if(!profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			log.debug("academic info not allowed");
 			userProfile.setPosition(null);
 			userProfile.setDepartment(null);
@@ -252,7 +252,7 @@ public class ProfileServiceImpl implements ProfileService {
 		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//check if the academic fields are allowed to be viewed by this user.
-		if(profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			addAcademicInfoToProfile(userProfile, sakaiPerson);
 		}
 		
@@ -311,7 +311,7 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setFacsimile(null);
 		}
 		
-		if(!profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			userProfile.setPosition(null);
 			userProfile.setDepartment(null);
 			userProfile.setSchool(null);

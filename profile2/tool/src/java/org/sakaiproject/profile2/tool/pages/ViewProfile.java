@@ -144,7 +144,7 @@ public class ViewProfile extends BasePage {
 		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isAcademicInfoAllowed = profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isBusinessInfoAllowed = profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);

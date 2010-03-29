@@ -47,11 +47,18 @@ alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY bit not null DEFAULT f
 /* add the new gallery column (PRFL-171) */
 alter table PROFILE_PRIVACY_T add MY_PICTURES int not null DEFAULT 0;
 
-/* add the new gallery column (PRFL-194) */
+/* add the new messages column (PRFL-194) */
 alter table PROFILE_PRIVACY_T add MESSAGES int not null DEFAULT 0;
 
 /* add the new businessInfo column (PRFL-210) */
 alter table PROFILE_PRIVACY_T add BUSINESS_INFO int not null DEFAULT 0;
+
+/* add the new staff and student info columns and copy old ACADEMIC_INFO value into them to maintain privacy (PRFL-267) */
+alter table PROFILE_PRIVACY_T add STAFF_INFO int not null DEFAULT 0;
+alter table PROFILE_PRIVACY_T add STUDENT_INFO int not null DEFAULT 0;
+update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
+update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
+/* TODO delete ACADEMIC_INFO */
 
 /* add the new useOfficialImage column (PRFL-90) */
 alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null DEFAULT false;

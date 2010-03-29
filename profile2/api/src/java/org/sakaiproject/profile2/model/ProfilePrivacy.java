@@ -46,6 +46,8 @@ public class ProfilePrivacy implements Serializable {
 	private int myStatus;
 	private int myPictures;
 	private int messages;
+	private int studentInfo;
+	private int staffInfo;
 	
 	/** 
 	 * Empty constructor
@@ -167,6 +169,21 @@ public class ProfilePrivacy implements Serializable {
 		return messages;
 	}
 
+	public void setStaffInfo(int staffInfo) {
+		this.staffInfo = staffInfo;
+	}
+	
+	public int getStaffInfo() {
+		return staffInfo;
+	}
+	
+	public void setStudentInfo(int studentInfo) {
+		this.studentInfo = studentInfo;
+	}
+
+	public int getStudentInfo() {
+		return studentInfo;
+	}
 
 	@Override
 	public String toString() {

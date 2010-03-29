@@ -1063,7 +1063,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		props.put("profileImage", serverConfigurationService.getInt("profile2.privacy.default.profileImage", ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE));
 		props.put("basicInfo", serverConfigurationService.getInt("profile2.privacy.default.basicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO));
 		props.put("contactInfo", serverConfigurationService.getInt("profile2.privacy.default.contactInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO));
-		props.put("academicInfo", serverConfigurationService.getInt("profile2.privacy.default.academicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO));
+		props.put("academicInfo",  serverConfigurationService.getInt("profile2.privacy.default.academicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO));
+		props.put("staffInfo", serverConfigurationService.getInt("profile2.privacy.default.staffInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_STAFFINFO));
+		props.put("studentInfo", serverConfigurationService.getInt("profile2.privacy.default.studentInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_STUDENTINFO));
 		props.put("personalInfo", serverConfigurationService.getInt("profile2.privacy.default.personalInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO));
 		props.put("birthYear", serverConfigurationService.getBoolean("profile2.privacy.default.birthYear", ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY));
 		props.put("search", serverConfigurationService.getInt("profile2.privacy.default.search", ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH));

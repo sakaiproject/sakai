@@ -180,17 +180,33 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
-		//academicInfo privacy
-		WebMarkupContainer academicInfoContainer = new WebMarkupContainer("academicInfoContainer");
-		academicInfoContainer.add(new Label("academicInfoLabel", new ResourceModel("privacy.academicinfo")));
-		DropDownChoice academicInfoChoice = new DropDownChoice("academicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
-		academicInfoChoice.setOutputMarkupId(true);
-		academicInfoContainer.add(academicInfoChoice);
+		//staffInfo privacy
+		WebMarkupContainer staffInfoContainer = new WebMarkupContainer("staffInfoContainer");
+		staffInfoContainer.add(new Label("staffInfoLabel", new ResourceModel("privacy.staffinfo")));
+		DropDownChoice staffInfoChoice = new DropDownChoice("staffInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		staffInfoChoice.setOutputMarkupId(true);
+		staffInfoContainer.add(staffInfoChoice);
 		//tooltip
-		academicInfoContainer.add(new IconWithClueTip("academicInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.academicinfo.tooltip")));
-		form.add(academicInfoContainer);
+		staffInfoContainer.add(new IconWithClueTip("staffInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.staff.tooltip")));
+		form.add(staffInfoContainer);
 		//updater
-		academicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		staffInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		//studentInfo privacy
+		WebMarkupContainer studentInfoContainer = new WebMarkupContainer("studentInfoContainer");
+		studentInfoContainer.add(new Label("studentInfoLabel", new ResourceModel("privacy.studentinfo")));
+		DropDownChoice studentInfoChoice = new DropDownChoice("studentInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		studentInfoChoice.setOutputMarkupId(true);
+		studentInfoContainer.add(studentInfoChoice);
+		//tooltip
+		studentInfoContainer.add(new IconWithClueTip("studentInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.student.tooltip")));
+		form.add(studentInfoContainer);
+		//updater
+		studentInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -365,7 +381,7 @@ public class MyPrivacy extends BasePage {
 			profileImageChoice.setEnabled(false);
 			basicInfoChoice.setEnabled(false);
 			contactInfoChoice.setEnabled(false);
-			academicInfoChoice.setEnabled(false);
+			studentInfoChoice.setEnabled(false);
 			businessInfoChoice.setEnabled(false);
 			personalInfoChoice.setEnabled(false);
 			birthYearCheckbox.setEnabled(false);
