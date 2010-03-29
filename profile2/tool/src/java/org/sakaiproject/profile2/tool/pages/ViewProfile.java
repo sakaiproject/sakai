@@ -319,8 +319,6 @@ public class ViewProfile extends BasePage {
 		String position = sakaiPerson.getTitle();
 		String school = sakaiPerson.getCampus();
 		String room = sakaiPerson.getRoomNumber();
-		String course = sakaiPerson.getEducationCourse();
-		String subjects = sakaiPerson.getEducationSubjects();
 		
 		int visibleFieldCount_academic = 0;
 		
@@ -370,29 +368,7 @@ public class ViewProfile extends BasePage {
 		} else {
 			visibleFieldCount_academic++;
 		}
-		
-		//course
-		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
-		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
-		courseContainer.add(new Label("course", course));
-		academicInfoContainer.add(courseContainer);
-		if(StringUtils.isBlank(course)) {
-			courseContainer.setVisible(false);
-		} else {
-			visibleFieldCount_academic++;
-		}
-		
-		//subjects
-		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
-		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
-		subjectsContainer.add(new Label("subjects", subjects));
-		academicInfoContainer.add(subjectsContainer);
-		if(StringUtils.isBlank(subjects)) {
-			subjectsContainer.setVisible(false);
-		} else {
-			visibleFieldCount_academic++;
-		}
-		
+				
 		add(academicInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel
@@ -406,8 +382,8 @@ public class ViewProfile extends BasePage {
 		WebMarkupContainer studentInfoContainer = new WebMarkupContainer("mainSectionContainer_student");
 		studentInfoContainer.setOutputMarkupId(true);
 		
-		String _course = sakaiPerson.getEducationCourse();
-		String _subjects = sakaiPerson.getEducationSubjects();
+		String course = sakaiPerson.getEducationCourse();
+		String subjects = sakaiPerson.getEducationSubjects();
 		
 		int visibleFieldCount_student = 0;
 		
@@ -415,23 +391,23 @@ public class ViewProfile extends BasePage {
 		studentInfoContainer.add(new Label("mainSectionHeading_student", new ResourceModel("heading.student")));
 		
 		//course
-		WebMarkupContainer _courseContainer = new WebMarkupContainer("courseContainer");
-		_courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
-		_courseContainer.add(new Label("course", _course));
-		studentInfoContainer.add(_courseContainer);
-		if(StringUtils.isBlank(_course)) {
-			_courseContainer.setVisible(false);
+		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
+		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
+		courseContainer.add(new Label("course", course));
+		studentInfoContainer.add(courseContainer);
+		if(StringUtils.isBlank(course)) {
+			courseContainer.setVisible(false);
 		} else {
 			visibleFieldCount_student++;
 		}
 		
 		//subjects
-		WebMarkupContainer _subjectsContainer = new WebMarkupContainer("subjectsContainer");
-		_subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
-		_subjectsContainer.add(new Label("subjects", _subjects));
-		studentInfoContainer.add(_subjectsContainer);
-		if(StringUtils.isBlank(_subjects)) {
-			_subjectsContainer.setVisible(false);
+		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
+		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
+		subjectsContainer.add(new Label("subjects", subjects));
+		studentInfoContainer.add(subjectsContainer);
+		if(StringUtils.isBlank(subjects)) {
+			subjectsContainer.setVisible(false);
 		} else {
 			visibleFieldCount_student++;
 		}
@@ -444,10 +420,6 @@ public class ViewProfile extends BasePage {
 		} else {
 			visibleContainerCount++;
 		}
-		
-		// TODO remove the following line when student info removed from academic
-		// information, which is going to be renamed "University Staff"
-		studentInfoContainer.setVisible(false);
 		
 		/* BUSINESS INFO (OPTIONAL) */
 		if (sakaiProxy.isBusinessProfileEnabled()) {

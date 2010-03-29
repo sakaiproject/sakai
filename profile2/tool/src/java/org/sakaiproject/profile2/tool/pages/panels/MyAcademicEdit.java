@@ -84,9 +84,7 @@ public class MyAcademicEdit extends Panel {
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
-		
-		form.add(new Label("forStaff", new ResourceModel("heading.section.academic.staff")));
-		
+				
 		//position
 		WebMarkupContainer positionContainer = new WebMarkupContainer("positionContainer");
 		positionContainer.add(new Label("positionLabel", new ResourceModel("profile.position")));
@@ -114,23 +112,7 @@ public class MyAcademicEdit extends Panel {
 		TextField room = new TextField("room", new PropertyModel(userProfile, "room"));
 		roomContainer.add(room);
 		form.add(roomContainer);
-		
-		form.add(new Label("forStudents", new ResourceModel("heading.section.academic.students")));
-		
-		//course
-		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
-		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
-		TextField course = new TextField("course", new PropertyModel(userProfile, "course"));
-		courseContainer.add(course);
-		form.add(courseContainer);
-		
-		//subjects
-		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
-		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
-		TextField subjects = new TextField("subjects", new PropertyModel(userProfile, "subjects"));
-		subjectsContainer.add(subjects);
-		form.add(subjectsContainer);
-		
+				
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
@@ -207,8 +189,6 @@ public class MyAcademicEdit extends Panel {
 		sakaiPerson.setTitle(userProfile.getPosition());
 		sakaiPerson.setCampus(userProfile.getSchool());
 		sakaiPerson.setRoomNumber(userProfile.getRoom());
-		sakaiPerson.setEducationCourse(userProfile.getCourse());
-		sakaiPerson.setEducationSubjects(userProfile.getSubjects());
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

@@ -442,10 +442,6 @@ public class MyProfile extends BasePage {
 		myStudentDisplay.setOutputMarkupId(true);
 		add(myStudentDisplay);
 		
-		// TODO remove the following line when student info removed from academic
-		// information, which is going to be renamed "University Staff"
-		myStudentDisplay.setVisible(false);
-		
 		//business panel - load the display version by default
 		Panel myBusinessDisplay;
 		if (sakaiProxy.isBusinessProfileEnabled()) {
