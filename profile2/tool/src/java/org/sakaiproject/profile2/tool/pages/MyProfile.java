@@ -20,25 +20,30 @@ package org.sakaiproject.profile2.tool.pages;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.NotifyingAjaxLazyLoadPanel;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
@@ -49,6 +54,7 @@ import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
+import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -259,9 +265,100 @@ public class MyProfile extends BasePage {
 		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
 		int visibleSideLinksCount = 0;
 		
-		WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
+		//ADMIN: ADD AS CONNECTION
+		if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
+			
+			//init
+			boolean friend = false;
+			boolean friendRequestToThisPerson = false;
+			boolean friendRequestFromThisPerson = false;
+			String currentUserUuid = sakaiProxy.getCurrentUserId();
+			String nickname = userProfile.getNickname();
+			if(StringUtils.isBlank(nickname)) {
+				nickname="";
+			}
+
+			//setup model to store the actions in the modal windows
+			final FriendAction friendActionModel = new FriendAction();
+
+			//setup friend status
+			friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
+			if(!friend) {
+				friendRequestToThisPerson = profileLogic.isFriendRequestPending(currentUserUuid, userUuid);
+			}
+			if(!friend && !friendRequestToThisPerson) {
+				friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserUuid);
+			}
+			
+			WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
+			final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
+
+			//link
+			final AjaxLink<Void> addFriendLink = new AjaxLink<Void>("addFriendLink") {
+				private static final long serialVersionUID = 1L;
+				public void onClick(AjaxRequestTarget target) {
+	    			addFriendWindow.show(target);
+				}
+			};
+			final Label addFriendLabel = new Label("addFriendLabel");
+			addFriendLink.add(addFriendLabel);
+			addFriendContainer.add(addFriendLink);
+			
+			//setup link/label and windows
+			if(friend) {
+				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+				addFriendLink.setEnabled(false);
+			} else if (friendRequestToThisPerson) {
+				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+				addFriendLink.setEnabled(false);
+			} else if (friendRequestFromThisPerson) {
+				//TODO (confirm pending friend request link)
+				//could be done by setting the content off the addFriendWindow.
+				//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
+				addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
+	    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+				addFriendLink.setEnabled(false);
+			}  else {
+				addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
+				addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserUuid, userUuid)); 
+			}
+			
+			sideLinks.add(addFriendContainer);
+		
+			//ADD FRIEND MODAL WINDOW HANDLER 
+			addFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+				private static final long serialVersionUID = 1L;
+	
+				public void onClose(AjaxRequestTarget target){
+	            	if(friendActionModel.isRequested()) { 
+	            		//friend was successfully requested, update label and link
+	            		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
+	            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+	            		addFriendLink.setEnabled(false);
+	            		target.addComponent(addFriendLink);
+	            	}
+	            }
+	        });
+			
+			add(addFriendWindow);
+		
+			visibleSideLinksCount++;
+		} else {
+			//blank components
+			WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
+			addFriendContainer.add(new AjaxLink("addFriendLabel") {
+				public void onClick(AjaxRequestTarget target) {}
+			}).add(new Label("addFriendLink"));
+			sideLinks.add(addFriendContainer);
+			add(new WebMarkupContainer("addFriendWindow"));
+		}
+		
+		
 		
 		//ADMIN: LOCK/UNLOCK A PROFILE
+		WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
 		final Label lockProfileLabel = new Label("lockProfileLabel");
 		
 		final AjaxLink<Void> lockProfileLink = new AjaxLink<Void>("lockProfileLink") {
@@ -294,6 +391,9 @@ public class MyProfile extends BasePage {
 		} else {
 			visibleSideLinksCount++;
 		}
+		
+		
+		
 		
 		//hide entire list if no links to show
 		if(visibleSideLinksCount == 0) {
