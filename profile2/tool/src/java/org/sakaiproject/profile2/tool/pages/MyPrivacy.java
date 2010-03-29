@@ -212,8 +212,7 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
-		// TODO remove this line when PRFL-206 fixed.
-		businessInfoContainer.setVisible(false);
+		businessInfoContainer.setVisible(sakaiProxy.isBusinessProfileEnabled());
 		
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
