@@ -27,6 +27,8 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.model.CompanyProfile;
+import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
+import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 
 /**
  * Panel for displaying and editing company profile data
@@ -52,33 +54,42 @@ public class CompanyProfileEdit extends Panel {
 				"companyWebAddressContainer");
 		companyWebAddressContainer.add(new Label("companyWebAddressLabel",
 				new ResourceModel("profile.business.company.web")));
-		
+
 		TextField companyWebAddress = new TextField("companyWebAddress",
 				new PropertyModel(companyProfile, "companyWebAddress")) {
-			
-			private static final long serialVersionUID = 1L; 
 
-            // add http:// if missing 
-            @Override 
-            protected void convertInput() { 
-                    String input = getInput(); 
+			private static final long serialVersionUID = 1L;
 
-                    if (StringUtils.isNotBlank(input) && !(input.startsWith("http://") || input.startsWith("https://"))) { 
-                            setConvertedInput("http://" + input);
-                    } else {
-                            setConvertedInput(StringUtils.isBlank(input) ? null : input);
-                    }
-            }
+			// add http:// if missing
+			@Override
+			protected void convertInput() {
+				String input = getInput();
+
+				if (StringUtils.isNotBlank(input)
+						&& !(input.startsWith("http://") || input
+								.startsWith("https://"))) {
+					setConvertedInput("http://" + input);
+				} else {
+					setConvertedInput(StringUtils.isBlank(input) ? null : input);
+				}
+			}
 		};
 		companyWebAddress.add(new UrlValidator());
 		companyWebAddressContainer.add(companyWebAddress);
-		
+
+		final FeedbackLabel companyWebAddressFeedback = new FeedbackLabel(
+				"companyWebAddressFeedback", companyWebAddress);
+		companyWebAddressFeedback.setOutputMarkupId(true);
+		companyWebAddressContainer.add(companyWebAddressFeedback);
+		companyWebAddress.add(new ComponentVisualErrorBehaviour("onblur",
+				companyWebAddressFeedback));
+
 		add(companyWebAddressContainer);
 
 		WebMarkupContainer companyDescriptionContainer = new WebMarkupContainer(
 				"companyDescriptionContainer");
 		companyDescriptionContainer.add(new Label("companyDescriptionLabel",
-				new ResourceModel("profile.business.company.description")));		
+				new ResourceModel("profile.business.company.description")));
 		companyDescriptionContainer.add(new TextArea("companyDescription",
 				new PropertyModel(companyProfile, "companyDescription")));
 
