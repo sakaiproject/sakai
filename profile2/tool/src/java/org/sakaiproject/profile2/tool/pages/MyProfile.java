@@ -54,6 +54,7 @@ import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
+import org.sakaiproject.profile2.tool.pages.panels.MyStudentDisplay;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -435,6 +436,15 @@ public class MyProfile extends BasePage {
 		Panel myAcademicDisplay = new MyAcademicDisplay("myAcademic", userProfile);
 		myAcademicDisplay.setOutputMarkupId(true);
 		add(myAcademicDisplay);
+		
+		//student panel
+		Panel myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
+		myStudentDisplay.setOutputMarkupId(true);
+		add(myStudentDisplay);
+		
+		// TODO remove the following line when student info removed from academic
+		// information, which is going to be renamed "University Staff"
+		myStudentDisplay.setVisible(false);
 		
 		//business panel - load the display version by default
 		Panel myBusinessDisplay;

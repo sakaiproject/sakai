@@ -232,6 +232,7 @@ public class ProfileConstants {
 	public static final String EVENT_PROFILE_CONTACT_UPDATE = "profile.contact.update";
 	public static final String EVENT_PROFILE_INTERESTS_UPDATE = "profile.interests.update";
 	public static final String EVENT_PROFILE_BUSINESS_UPDATE = "profile.business.update";
+	public static final String EVENT_PROFILE_STUDENT_UPDATE = "profile.student.update";
 	
 	public static final String EVENT_FRIEND_REQUEST = "profile.friend.request";
 	public static final String EVENT_FRIEND_CONFIRM = "profile.friend.confirm";

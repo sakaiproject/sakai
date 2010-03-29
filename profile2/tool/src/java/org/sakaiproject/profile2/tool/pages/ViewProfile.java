@@ -402,6 +402,53 @@ public class ViewProfile extends BasePage {
 			visibleContainerCount++;
 		}
 		
+		/* STUDENT INFO*/
+		WebMarkupContainer studentInfoContainer = new WebMarkupContainer("mainSectionContainer_student");
+		studentInfoContainer.setOutputMarkupId(true);
+		
+		String _course = sakaiPerson.getEducationCourse();
+		String _subjects = sakaiPerson.getEducationSubjects();
+		
+		int visibleFieldCount_student = 0;
+		
+		//heading
+		studentInfoContainer.add(new Label("mainSectionHeading_student", new ResourceModel("heading.student")));
+		
+		//course
+		WebMarkupContainer _courseContainer = new WebMarkupContainer("courseContainer");
+		_courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
+		_courseContainer.add(new Label("course", _course));
+		studentInfoContainer.add(_courseContainer);
+		if(StringUtils.isBlank(_course)) {
+			_courseContainer.setVisible(false);
+		} else {
+			visibleFieldCount_student++;
+		}
+		
+		//subjects
+		WebMarkupContainer _subjectsContainer = new WebMarkupContainer("subjectsContainer");
+		_subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
+		_subjectsContainer.add(new Label("subjects", _subjects));
+		studentInfoContainer.add(_subjectsContainer);
+		if(StringUtils.isBlank(_subjects)) {
+			_subjectsContainer.setVisible(false);
+		} else {
+			visibleFieldCount_student++;
+		}
+		
+		add(studentInfoContainer);
+		
+		//if nothing/not allowed, hide whole panel
+		if(visibleFieldCount_student == 0 || !isAcademicInfoAllowed) {
+			studentInfoContainer.setVisible(false);
+		} else {
+			visibleContainerCount++;
+		}
+		
+		// TODO remove the following line when student info removed from academic
+		// information, which is going to be renamed "University Staff"
+		studentInfoContainer.setVisible(false);
+		
 		/* BUSINESS INFO (OPTIONAL) */
 		if (sakaiProxy.isBusinessProfileEnabled()) {
 			ViewBusiness businessPanel = new ViewBusiness("viewBusiness",
