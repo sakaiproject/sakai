@@ -39,13 +39,13 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-public class MyAcademicEdit extends Panel {
+public class MyStaffEdit extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInterestsEdit.class);
     private transient SakaiProxy sakaiProxy;
 
-    public MyAcademicEdit(final String id, final UserProfile userProfile) {
+    public MyStaffEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
 		log.debug("MyInterestsEdit()");
@@ -60,7 +60,7 @@ public class MyAcademicEdit extends Panel {
 		final String userId = userProfile.getUserUuid();
 		
 		//heading
-		add(new Label("heading", new ResourceModel("heading.academic.edit")));
+		add(new Label("heading", new ResourceModel("heading.staff.edit")));
 		
 		//setup form		
 		Form form = new Form("form", new Model(userProfile));
@@ -125,7 +125,7 @@ public class MyAcademicEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INTERESTS_UPDATE, "/profile/"+userId, true);
 					
 					//repaint panel
-					Component newPanel = new MyAcademicDisplay(id, userProfile);
+					Component newPanel = new MyStaffDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
@@ -152,7 +152,7 @@ public class MyAcademicEdit extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-            	Component newPanel = new MyAcademicDisplay(id, userProfile);
+            	Component newPanel = new MyStaffDisplay(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {

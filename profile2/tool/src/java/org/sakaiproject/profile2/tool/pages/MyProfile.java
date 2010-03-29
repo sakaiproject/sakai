@@ -48,7 +48,7 @@ import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
-import org.sakaiproject.profile2.tool.pages.panels.MyAcademicDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyStaffDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyBusinessDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
@@ -432,10 +432,10 @@ public class MyProfile extends BasePage {
 		myContactDisplay.setOutputMarkupId(true);
 		add(myContactDisplay);
 		
-		//academic panel - load the display version by default
-		Panel myAcademicDisplay = new MyAcademicDisplay("myAcademic", userProfile);
-		myAcademicDisplay.setOutputMarkupId(true);
-		add(myAcademicDisplay);
+		//university staff panel - load the display version by default
+		Panel myStaffDisplay = new MyStaffDisplay("myStaff", userProfile);
+		myStaffDisplay.setOutputMarkupId(true);
+		add(myStaffDisplay);
 		
 		//student panel
 		Panel myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);

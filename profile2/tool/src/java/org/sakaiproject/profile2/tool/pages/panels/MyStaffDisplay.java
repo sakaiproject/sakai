@@ -32,14 +32,14 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 
-public class MyAcademicDisplay extends Panel {
+public class MyStaffDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
 	private transient SakaiProxy sakaiProxy;
 	
-	public MyAcademicDisplay(final String id, final UserProfile userProfile) {
+	public MyStaffDisplay(final String id, final UserProfile userProfile) {
 		super(id);
 		
 		//this panel stuff
@@ -55,7 +55,7 @@ public class MyAcademicDisplay extends Panel {
 		String room = userProfile.getRoom();
 		
 		//heading
-		add(new Label("heading", new ResourceModel("heading.academic")));
+		add(new Label("heading", new ResourceModel("heading.staff")));
 		
 		//department
 		WebMarkupContainer departmentContainer = new WebMarkupContainer("departmentContainer");
@@ -107,7 +107,7 @@ public class MyAcademicDisplay extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
-				Component newPanel = new MyAcademicEdit(id, userProfile);
+				Component newPanel = new MyStaffEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
@@ -140,7 +140,7 @@ public class MyAcademicDisplay extends Panel {
 	/* reinit for deserialisation (ie back button) */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
-		log.debug("MyAcademicDisplay has been deserialized.");
+		log.debug("MyStaffDisplay has been deserialized.");
 		//re-init our transient objects
 		sakaiProxy = getSakaiProxy();
 	}
