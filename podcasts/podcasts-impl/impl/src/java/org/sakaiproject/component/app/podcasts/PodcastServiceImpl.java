@@ -1129,7 +1129,6 @@ public class PodcastServiceImpl implements PodcastService {
 		ContentResource refreshedResource = null;
 		
 		final SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		formatterProp.setTimeZone(TimeService.getLocalTimeZone());
 		Date tempDate = null;
 
 		try {
@@ -1139,7 +1138,7 @@ public class PodcastServiceImpl implements PodcastService {
 			// Convert GMT time stored by Resources into local time
 			if (releaseDate == null) {
 				tempDate = formatterProp.parse(rp.getTimeProperty(
-							ResourceProperties.PROP_MODIFIED_DATE).toStringLocal());
+							ResourceProperties.PROP_MODIFIED_DATE).toString());
 			}
 			else {
 				tempDate = new Date(releaseDate.getTime());
