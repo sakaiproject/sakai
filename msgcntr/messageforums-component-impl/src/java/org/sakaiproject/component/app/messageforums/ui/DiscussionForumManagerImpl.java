@@ -1139,7 +1139,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     
     
     forumManager.saveDiscussionForum(forum, draft);
-
+    //set flag to false since permissions could have changed.  This will force a clearing and resetting
+    //of the permissions cache.
+    ThreadLocalManager.set("message_center_permission_set", Boolean.valueOf(false));
     if (saveArea)
     {
       //Area area = getDiscussionForumArea();

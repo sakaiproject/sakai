@@ -1179,6 +1179,7 @@ public class DiscussionForumTool
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
+      reset();
       return gotoMain();
     }    
     selectedTopic = createTopic(forum.getId());
@@ -1187,6 +1188,7 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
+      reset();
       return gotoMain();
     }
     setPermissionMode(PERMISSION_MODE_TOPIC);
