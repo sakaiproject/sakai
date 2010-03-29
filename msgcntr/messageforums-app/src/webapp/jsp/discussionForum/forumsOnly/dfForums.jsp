@@ -22,7 +22,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 
 	<h:form id="msgForum">
-  <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" rendered="#{ForumTool.newForum || ForumTool.instructor || ForumTool.displayPendingMsgQueue}">
+  <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" >
     <sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>
     <sakai:tool_bar_item value="#{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}" rendered="#{ForumTool.instructor}" />
 	  <sakai:tool_bar_item value="#{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}" />
@@ -30,9 +30,6 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 	  <sakai:tool_bar_item value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}" />
 	  <sakai:tool_bar_item value="#{msgs.watch}" action="#{ForumTool.processActionWatch}" />
 
-  </sakai:tool_bar>
-  <sakai:tool_bar rendered="#{! ForumTool.instructor}">
-	  <sakai:tool_bar_item value="#{msgs.watch}" action="#{ForumTool.processActionWatch}" />
   </sakai:tool_bar>
 
  	<h3 style="margin-bottom:1em"><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h3>
