@@ -58,7 +58,7 @@
 					</p>
 				#end
 			#elseif($model.isUserSite())
-			#else
+			#elseif (!$item.isCollection())
 				<p>
 					<label for="notify">
 						$tlang.getString("gen.email1")
