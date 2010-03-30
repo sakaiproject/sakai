@@ -19,6 +19,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -34,10 +35,13 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
+import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyStaffEdit extends Panel {
@@ -120,6 +124,38 @@ public class MyStaffEdit extends Panel {
 		staffProfileContainer.add(new TextArea("staffProfile", new PropertyModel(userProfile, "staffProfile")));
 		form.add(staffProfileContainer);
 		
+		//university profile URL
+		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
+		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
+		TextField universityProfileUrl = new TextField("universityProfileUrl", new PropertyModel(userProfile, "universityProfileUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			// add http:// if missing
+			@Override
+			protected void convertInput() {
+				String input = getInput();
+
+				if (StringUtils.isNotBlank(input)
+						&& !(input.startsWith("http://") || input
+								.startsWith("https://"))) {
+					setConvertedInput("http://" + input);
+				} else {
+					setConvertedInput(StringUtils.isBlank(input) ? null : input);
+				}
+			}
+		};
+		universityProfileUrl.add(new UrlValidator());
+		universityProfileUrlContainer.add(universityProfileUrl);
+		
+		final FeedbackLabel universityProfileUrlFeedback = new FeedbackLabel(
+				"universityProfileUrlFeedback", universityProfileUrl);
+		universityProfileUrlFeedback.setOutputMarkupId(true);
+		universityProfileUrlContainer.add(universityProfileUrlFeedback);
+		universityProfileUrl.add(new ComponentVisualErrorBehaviour("onblur",
+				universityProfileUrlFeedback));
+		
+		form.add(universityProfileUrlContainer);
+		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
@@ -197,6 +233,7 @@ public class MyStaffEdit extends Panel {
 		sakaiPerson.setCampus(userProfile.getSchool());
 		sakaiPerson.setRoomNumber(userProfile.getRoom());
 		sakaiPerson.setStaffProfile(userProfile.getStaffProfile());
+		sakaiPerson.setUniversityProfileUrl(userProfile.getUniversityProfileUrl());
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

@@ -26,6 +26,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -54,6 +55,7 @@ public class MyStaffDisplay extends Panel {
 		String school = userProfile.getSchool();
 		String room = userProfile.getRoom();
 		String staffProfile = userProfile.getStaffProfile();
+		String universityProfileUrl = userProfile.getUniversityProfileUrl();
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.staff")));
@@ -109,6 +111,17 @@ public class MyStaffDisplay extends Panel {
 		add(staffProfileContainer);
 		if(StringUtils.isBlank(staffProfile)) {
 			staffProfileContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//university profile URL
+		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
+		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
+		universityProfileUrlContainer.add(new ExternalLink("universityProfileUrl", universityProfileUrl, universityProfileUrl));
+		add(universityProfileUrlContainer);
+		if(StringUtils.isBlank(universityProfileUrl)) {
+			universityProfileUrlContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

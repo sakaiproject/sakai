@@ -138,8 +138,8 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setSchool(null);
 			userProfile.setRoom(null);
 			userProfile.setStaffProfile(null);
-			userProfile.setAcademicProfileURL(null);
-			userProfile.setUniversityProfileURL(null);
+			userProfile.setAcademicProfileUrl(null);
+			userProfile.setUniversityProfileUrl(null);
 			userProfile.setPublications(null);
 		}
 		
@@ -331,8 +331,8 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setSchool(null);
 			userProfile.setRoom(null);
 			userProfile.setStaffProfile(null);
-			userProfile.setAcademicProfileURL(null);
-			userProfile.setUniversityProfileURL(null);
+			userProfile.setAcademicProfileUrl(null);
+			userProfile.setUniversityProfileUrl(null);
 			userProfile.setPublications(null);
 		}
 		
@@ -849,8 +849,8 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setSchool(sp.getCampus());
 		userProfile.setRoom(sp.getRoomNumber());
 		userProfile.setStaffProfile(sp.getStaffProfile());
-		userProfile.setAcademicProfileURL(sp.getAcademicProfileUrl());
-		userProfile.setUniversityProfileURL(sp.getUniversityProfileUrl());
+		userProfile.setAcademicProfileUrl(sp.getAcademicProfileUrl());
+		userProfile.setUniversityProfileUrl(sp.getUniversityProfileUrl());
 		userProfile.setPublications(sp.getPublications());
 	}
 	
@@ -1004,8 +1004,8 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setSchool(sp.getCampus());
 		userProfile.setRoom(sp.getRoomNumber());
 		userProfile.setStaffProfile(sp.getStaffProfile());
-		userProfile.setAcademicProfileURL(sp.getAcademicProfileUrl());
-		userProfile.setUniversityProfileURL(sp.getUniversityProfileUrl());
+		userProfile.setAcademicProfileUrl(sp.getAcademicProfileUrl());
+		userProfile.setUniversityProfileUrl(sp.getUniversityProfileUrl());
 		userProfile.setPublications(sp.getPublications());
 		
 		//student info

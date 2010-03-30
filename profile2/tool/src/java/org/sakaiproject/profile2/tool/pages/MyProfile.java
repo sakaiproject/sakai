@@ -166,8 +166,8 @@ public class MyProfile extends BasePage {
 		userProfile.setSubjects(sakaiPerson.getEducationSubjects());
 		
 		userProfile.setStaffProfile(sakaiPerson.getStaffProfile());
-		userProfile.setAcademicProfileURL(sakaiPerson.getAcademicProfileUrl());
-		userProfile.setUniversityProfileURL(sakaiPerson.getUniversityProfileUrl());
+		userProfile.setAcademicProfileUrl(sakaiPerson.getAcademicProfileUrl());
+		userProfile.setUniversityProfileUrl(sakaiPerson.getUniversityProfileUrl());
 		userProfile.setPublications(sakaiPerson.getPublications());
 		
 		// business fields

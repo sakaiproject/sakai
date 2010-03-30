@@ -56,8 +56,8 @@ public class UserProfile implements Serializable {
 	private String course;
 	private String subjects;
 	private String staffProfile;
-	private String universityProfileURL; 
-	private String academicProfileURL; 
+	private String universityProfileUrl; 
+	private String academicProfileUrl; 
 	private String publications;
 	private String businessBiography;
 	private List<CompanyProfile> companyProfiles;
@@ -283,20 +283,20 @@ public class UserProfile implements Serializable {
 		this.staffProfile = staffProfile;
 	}
 
-	public String getUniversityProfileURL() {
-		return universityProfileURL;
+	public String getUniversityProfileUrl() {
+		return universityProfileUrl;
 	}
 
-	public void setUniversityProfileURL(String universityProfileURL) {
-		this.universityProfileURL = universityProfileURL;
+	public void setUniversityProfileUrl(String universityProfileUrl) {
+		this.universityProfileUrl = universityProfileUrl;
 	}
 
-	public String getAcademicProfileURL() {
-		return academicProfileURL;
+	public String getAcademicProfileUrl() {
+		return academicProfileUrl;
 	}
 
-	public void setAcademicProfileURL(String academicProfileURL) {
-		this.academicProfileURL = academicProfileURL;
+	public void setAcademicProfileUrl(String academicProfileUrl) {
+		this.academicProfileUrl = academicProfileUrl;
 	}
 
 	public String getPublications() {
