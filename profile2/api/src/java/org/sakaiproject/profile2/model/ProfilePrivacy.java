@@ -37,7 +37,6 @@ public class ProfilePrivacy implements Serializable {
 	private int profileImage;
 	private int basicInfo;
 	private int contactInfo;
-	private int academicInfo;
 	private int businessInfo;
 	private int personalInfo;
 	private boolean showBirthYear;
@@ -103,14 +102,6 @@ public class ProfilePrivacy implements Serializable {
 		this.businessInfo = businessInfo;
 	}
 	
-	public void setAcademicInfo(int academicInfo) {
-		this.academicInfo = academicInfo;
-	}
-
-	public int getAcademicInfo() {
-		return academicInfo;
-	}
-
 	public int getPersonalInfo() {
 		return personalInfo;
 	}
