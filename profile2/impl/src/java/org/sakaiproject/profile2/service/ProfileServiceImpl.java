@@ -131,12 +131,21 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//unset contact info if not allowed
-		if(!profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			log.debug("academic info not allowed");
-			userProfile.setPosition(null);
+		if(!profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("staff info not allowed");
 			userProfile.setDepartment(null);
+			userProfile.setPosition(null);
 			userProfile.setSchool(null);
 			userProfile.setRoom(null);
+			userProfile.setStaffProfile(null);
+			userProfile.setAcademicProfileURL(null);
+			userProfile.setUniversityProfileURL(null);
+			userProfile.setPublications(null);
+		}
+		
+		//unset contact info if not allowed
+		if(!profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("student info not allowed");
 			userProfile.setCourse(null);
 			userProfile.setSubjects(null);
 		}
@@ -251,9 +260,14 @@ public class ProfileServiceImpl implements ProfileService {
 		//check friend status
 		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
-		//check if the academic fields are allowed to be viewed by this user.
+		//check if the staff fields are allowed to be viewed by this user.
+		if(profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			addStaffInfoToProfile(userProfile, sakaiPerson);
+		}
+		
+		//check if the student fields are allowed to be viewed by this user.
 		if(profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			addAcademicInfoToProfile(userProfile, sakaiPerson);
+			addStudentInfoToProfile(userProfile, sakaiPerson);
 		}
 		
 		//add full image url
@@ -309,6 +323,17 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setWorkphone(null);
 			userProfile.setMobilephone(null);
 			userProfile.setFacsimile(null);
+		}
+		
+		if(!profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			userProfile.setDepartment(null);
+			userProfile.setPosition(null);
+			userProfile.setSchool(null);
+			userProfile.setRoom(null);
+			userProfile.setStaffProfile(null);
+			userProfile.setAcademicProfileURL(null);
+			userProfile.setUniversityProfileURL(null);
+			userProfile.setPublications(null);
 		}
 		
 		if(!profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
@@ -818,11 +843,27 @@ public class ProfileServiceImpl implements ProfileService {
 	 * @param userProfile
 	 * @param sp
 	 */
-	private void addAcademicInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
+	private void addStaffInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
 		userProfile.setDepartment(sp.getOrganizationalUnit());
 		userProfile.setPosition(sp.getTitle());
 		userProfile.setSchool(sp.getCampus());
 		userProfile.setRoom(sp.getRoomNumber());
+		userProfile.setStaffProfile(sp.getStaffProfile());
+		userProfile.setAcademicProfileURL(sp.getAcademicProfileUrl());
+		userProfile.setUniversityProfileURL(sp.getUniversityProfileUrl());
+		userProfile.setPublications(sp.getPublications());
+	}
+	
+	/**
+	 * This is a helper method to take the values from SakaiPerson and add to UserProfile
+	 * 
+	 * TODO have one of these helpers for each block of info we get from SakaiPerson and abstract methods to use these.
+	 * The blocks have been added below they just need to be used
+	 * 
+	 * @param userProfile
+	 * @param sp
+	 */
+	private void addStudentInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
 		userProfile.setCourse(sp.getEducationCourse());
 		userProfile.setSubjects(sp.getEducationSubjects());
 	}
@@ -957,17 +998,19 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setMobilephone(sp.getMobile());
 		userProfile.setFacsimile(sp.getFacsimileTelephoneNumber());
 		
-		//academic info
+		//staff info
 		userProfile.setDepartment(sp.getOrganizationalUnit());
 		userProfile.setPosition(sp.getTitle());
 		userProfile.setSchool(sp.getCampus());
 		userProfile.setRoom(sp.getRoomNumber());
-		userProfile.setCourse(sp.getEducationCourse());
-		userProfile.setSubjects(sp.getEducationSubjects());
 		userProfile.setStaffProfile(sp.getStaffProfile());
 		userProfile.setAcademicProfileURL(sp.getAcademicProfileUrl());
 		userProfile.setUniversityProfileURL(sp.getUniversityProfileUrl());
 		userProfile.setPublications(sp.getPublications());
+		
+		//student info
+		userProfile.setCourse(sp.getEducationCourse());
+		userProfile.setSubjects(sp.getEducationSubjects());
 		
 		//personal info
 		userProfile.setFavouriteBooks(sp.getFavouriteBooks());

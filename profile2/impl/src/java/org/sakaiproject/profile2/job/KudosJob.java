@@ -86,10 +86,12 @@ public class KudosJob implements StatefulJob {
 			put("allBasicInfo", new BigDecimal(0.10));
 			put("connectionsContactInfo", new BigDecimal(0.05));
 			put("allContactInfo", new BigDecimal(0.10));
-			put("connectionsAcademicInfo", new BigDecimal(0.05));
-			put("allAcademicInfo", new BigDecimal(0.10));
 			put("connectionsPersonalInfo", new BigDecimal(0.05));
 			put("allPersonalInfo", new BigDecimal(0.10));
+			put("connectionsStaffInfo", new BigDecimal(0.05));
+			put("allStaffInfo", new BigDecimal(0.10));
+			put("connectionsStudentInfo", new BigDecimal(0.05));
+			put("allStudentInfo", new BigDecimal(0.10));
 			put("connectionsSearch", new BigDecimal(0.05));
 			put("allSearch", new BigDecimal(0.10));
 			put("connectionsViewConnections", new BigDecimal(0.05));

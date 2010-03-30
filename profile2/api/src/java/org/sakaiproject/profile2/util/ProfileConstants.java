@@ -146,7 +146,6 @@ public class ProfileConstants {
 	public static final boolean DEFAULT_PROFILEIMAGE_VISIBILITY = true;
 	public static final boolean DEFAULT_BASICINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_CONTACTINFO_VISIBILITY = true;
-	public static final boolean DEFAULT_ACADEMICINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_PERSONALINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_MYFRIENDS_VISIBILITY = true;
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;

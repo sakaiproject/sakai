@@ -144,10 +144,11 @@ public class ViewProfile extends BasePage {
 		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isAcademicInfoAllowed = profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isBusinessInfoAllowed = profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isStaffInfoAllowed = profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isStudentInfoAllowed = profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
@@ -372,7 +373,7 @@ public class ViewProfile extends BasePage {
 		add(staffInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel
-		if(visibleFieldCount_staff == 0 || !isAcademicInfoAllowed) {
+		if(visibleFieldCount_staff == 0 || !isStaffInfoAllowed) {
 			staffInfoContainer.setVisible(false);
 		} else {
 			visibleContainerCount++;
@@ -415,7 +416,7 @@ public class ViewProfile extends BasePage {
 		add(studentInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel
-		if(visibleFieldCount_student == 0 || !isAcademicInfoAllowed) {
+		if(visibleFieldCount_student == 0 || !isStudentInfoAllowed) {
 			studentInfoContainer.setVisible(false);
 		} else {
 			visibleContainerCount++;
