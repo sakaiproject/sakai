@@ -340,6 +340,10 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
      */
     public EntityUser getUserById(String userId) {
         userId = findAndCheckUserId(userId, null);
+        //we could have been passed a Id that no longer referes to a user
+        if (userId == null) {
+        	return null;
+        }
         EntityReference ref = new EntityReference("user", userId);
         EntityUser eu = (EntityUser) getEntity(ref);
         return eu;

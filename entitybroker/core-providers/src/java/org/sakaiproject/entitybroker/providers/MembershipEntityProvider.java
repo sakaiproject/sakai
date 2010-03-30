@@ -734,13 +734,18 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             // group and site
             members = sg.group.getMembers();
         }
+       
         for (Member member : members) {
-            EntityUser eu = userEntityProvider.getUserById(member.getUserId());
-            if (eu != null) {
-                EntityMember em = new EntityMember(member, sg.locationReference, eu);
-                l.add(em);
-            }
+        	//The id passed may not be a valid user
+        	EntityUser eu = userEntityProvider.getUserById(member.getUserId());
+        	if (eu != null) {
+        		EntityMember em = new EntityMember(member, sg.locationReference, eu);
+        		l.add(em);
+        	}
+
+
         }
+        log.info("about to return!");
         return l;
     }
 
@@ -764,6 +769,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
             locationReference = "/group/" + groupId;
             Group group = siteService.findGroup(groupId);
+            //FIXME if an invalid group ID is passed this NPE's
             Site site = group.getContainingSite();
             holder.locationReference = locationReference;
             holder.group = group;
