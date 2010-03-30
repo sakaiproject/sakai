@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -112,7 +113,13 @@ public class MyStaffEdit extends Panel {
 		TextField room = new TextField("room", new PropertyModel(userProfile, "room"));
 		roomContainer.add(room);
 		form.add(roomContainer);
-				
+		
+		//staffprofile
+		WebMarkupContainer staffProfileContainer = new WebMarkupContainer("staffProfileContainer");
+		staffProfileContainer.add(new Label("staffProfileLabel", new ResourceModel("profile.staffprofile")));
+		staffProfileContainer.add(new TextArea("staffProfile", new PropertyModel(userProfile, "staffProfile")));
+		form.add(staffProfileContainer);
+		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
@@ -189,6 +196,7 @@ public class MyStaffEdit extends Panel {
 		sakaiPerson.setTitle(userProfile.getPosition());
 		sakaiPerson.setCampus(userProfile.getSchool());
 		sakaiPerson.setRoomNumber(userProfile.getRoom());
+		sakaiPerson.setStaffProfile(userProfile.getStaffProfile());
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

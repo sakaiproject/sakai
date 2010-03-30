@@ -320,6 +320,7 @@ public class ViewProfile extends BasePage {
 		String position = sakaiPerson.getTitle();
 		String school = sakaiPerson.getCampus();
 		String room = sakaiPerson.getRoomNumber();
+		String staffProfile = sakaiPerson.getStaffProfile();
 		
 		int visibleFieldCount_staff = 0;
 		
@@ -369,7 +370,18 @@ public class ViewProfile extends BasePage {
 		} else {
 			visibleFieldCount_staff++;
 		}
-				
+		
+		//staff profile
+		WebMarkupContainer staffProfileContainer = new WebMarkupContainer("staffProfileContainer");
+		staffProfileContainer.add(new Label("staffProfileLabel", new ResourceModel("profile.staffprofile")));
+		staffProfileContainer.add(new Label("staffProfile", staffProfile));
+		staffInfoContainer.add(staffProfileContainer);
+		if(StringUtils.isBlank(staffProfile)) {
+			staffProfileContainer.setVisible(false);
+		} else {
+			visibleFieldCount_staff++;
+		}
+		
 		add(staffInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel

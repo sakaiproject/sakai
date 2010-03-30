@@ -53,6 +53,7 @@ public class MyStaffDisplay extends Panel {
 		String position = userProfile.getPosition();
 		String school = userProfile.getSchool();
 		String room = userProfile.getRoom();
+		String staffProfile = userProfile.getStaffProfile();
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.staff")));
@@ -100,7 +101,18 @@ public class MyStaffDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}	
-				
+		
+		//staff profile
+		WebMarkupContainer staffProfileContainer = new WebMarkupContainer("staffProfileContainer");
+		staffProfileContainer.add(new Label("staffProfileLabel", new ResourceModel("profile.staffprofile")));
+		staffProfileContainer.add(new Label("staffProfile", staffProfile));
+		add(staffProfileContainer);
+		if(StringUtils.isBlank(staffProfile)) {
+			staffProfileContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 			
