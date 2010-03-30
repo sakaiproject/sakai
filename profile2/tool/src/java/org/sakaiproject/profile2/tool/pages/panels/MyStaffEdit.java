@@ -188,6 +188,12 @@ public class MyStaffEdit extends Panel {
 		
 		form.add(academicProfileUrlContainer);
 		
+		//publications
+		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
+		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
+		publicationsContainer.add(new TextArea("publications", new PropertyModel(userProfile, "publications")));
+		form.add(publicationsContainer);
+		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;

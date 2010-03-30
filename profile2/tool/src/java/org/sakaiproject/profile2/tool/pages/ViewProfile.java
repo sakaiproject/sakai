@@ -323,6 +323,7 @@ public class ViewProfile extends BasePage {
 		String staffProfile = sakaiPerson.getStaffProfile();
 		String universityProfileUrl = sakaiPerson.getUniversityProfileUrl();
 		String academicProfileUrl = sakaiPerson.getAcademicProfileUrl();
+		String publications = sakaiPerson.getPublications();
 		
 		int visibleFieldCount_staff = 0;
 		
@@ -384,8 +385,6 @@ public class ViewProfile extends BasePage {
 			visibleFieldCount_staff++;
 		}
 		
-		add(staffInfoContainer);
-		
 		//university profile URL
 		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
 		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
@@ -407,6 +406,19 @@ public class ViewProfile extends BasePage {
 		} else {
 			visibleFieldCount_contact++;
 		}
+		
+		//publications
+		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
+		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
+		publicationsContainer.add(new Label("publications", publications));
+		staffInfoContainer.add(publicationsContainer);
+		if(StringUtils.isBlank(publications)) {
+			publicationsContainer.setVisible(false);
+		} else {
+			visibleFieldCount_staff++;
+		}
+		
+		add(staffInfoContainer);
 		
 		//if nothing/not allowed, hide whole panel
 		if(visibleFieldCount_staff == 0 || !isStaffInfoAllowed) {
