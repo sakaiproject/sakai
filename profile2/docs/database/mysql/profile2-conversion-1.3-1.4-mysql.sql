@@ -57,7 +57,7 @@ alter table PROFILE_PRIVACY_T add BUSINESS_INFO int not null DEFAULT 0;
 alter table PROFILE_PRIVACY_T add STAFF_INFO int not null DEFAULT 0;
 alter table PROFILE_PRIVACY_T add STUDENT_INFO int not null DEFAULT 0;
 update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
-update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
+update PROFILE_PRIVACY_T set STUDENT_INFO = ACADEMIC_INFO;
 alter table PROFILE_PRIVACY_T drop ACADEMIC_INFO;
 
 /* add the new useOfficialImage column (PRFL-90) */
