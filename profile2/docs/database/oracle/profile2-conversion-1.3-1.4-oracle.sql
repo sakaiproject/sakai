@@ -1,4 +1,4 @@
-/* add company profile table and index */
+/* add company profile table and index (PRFL-224) */
 create table PROFILE_COMPANY_PROFILES_T (
 	ID number(19,0) not null,
 	USER_UUID varchar2(99) not null,
@@ -13,7 +13,7 @@ create index PROFILE_COMPANY_PROFILES_USER_UUID_I on PROFILE_COMPANY_PROFILES_T 
 /* add message tables and indexes */
 /* TODO */
 
-/* add gallery table and indexes */
+/* add gallery table and indexes (PRFL-134, PRFL-171) */
 create table PROFILE_GALLERY_IMAGES_T (
 	ID number(19,0) not null,
 	USER_UUID varchar2(99) not null,
@@ -25,7 +25,7 @@ create table PROFILE_GALLERY_IMAGES_T (
 create sequence GALLERY_IMAGES_S;
 create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 
-/* add social networking table */
+/* add social networking table (PRFL-252, PRFL-224) */
 create table PROFILE_SOCIAL_NETWORKING_INFO_T (
 	USER_UUID varchar2(99) not null,
 	FACEBOOK_USERNAME varchar2(255),
