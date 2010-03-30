@@ -4261,7 +4261,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions.iterator(), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment);
+				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), 
+								new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment);
 
 				if (exceptionMessage.length() > 0)
 				{
@@ -11757,8 +11758,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			int result = -1;
 
-			/** *********** fo sorting assignments ****************** */
-			if ("duedate".equals(m_criteria))
+			/************** for sorting submissions ********************/
+			if ("submitterName".equals(m_criteria))
+			{
+				String name1 = getSubmitterSortname(o1);
+				String name2 = getSubmitterSortname(o2);
+				result = name1.compareTo(name2);
+			}
+			/** *********** for sorting assignments ****************** */
+			else if ("duedate".equals(m_criteria))
 			{
 				// sorted by the assignment due date
 				Time t1 = ((Assignment) o1).getDueTime();
@@ -11834,6 +11842,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				result = -result;
 			}
 			return result;
+		}
+
+		/**
+		 * get the submitter sortname String for the AssignmentSubmission object
+		 * @param o2
+		 * @return
+		 */
+		private String getSubmitterSortname(Object o2) {
+			String rv = "";
+			if (o2 instanceof AssignmentSubmission)
+			{
+				User[] users2 = ((AssignmentSubmission) o2).getSubmitters();
+				if (users2 != null)
+				{
+					for (int i = 0; i < users2.length; i++)
+					{
+						rv += users2[i].getSortName() + " ";
+					}
+				}
+			}
+			return rv;
 		}
 	}
 	
