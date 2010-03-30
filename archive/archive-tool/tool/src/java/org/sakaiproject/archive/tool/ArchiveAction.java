@@ -257,9 +257,8 @@ public class ArchiveAction
 					
 					try
 					{
-						// merge
-						addAlert(state, "\n" + rb.getString("archive.import1") + " " + count + ": " + rb.getString("archive.import2") + " "+ path + " " + rb.getString("archive.site") + " "
-								+ nSiteId + " " + rb.getString("archive.importcreatorid") + " " + siteCreatorName + " " + rb.getString("archive.complete") + "\n");
+						Object[] params = new Object[]{count, path, nSiteId, siteCreatorName};
+						addAlert(state, rb.getFormattedMessage("archive.import1", params));
 						addAlert(state, ArchiveService.merge(path, nSiteId, siteCreatorName));
 						
 					}
