@@ -56,6 +56,7 @@ public class MyStaffDisplay extends Panel {
 		String room = userProfile.getRoom();
 		String staffProfile = userProfile.getStaffProfile();
 		String universityProfileUrl = userProfile.getUniversityProfileUrl();
+		String academicProfileUrl = userProfile.getAcademicProfileUrl();
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.staff")));
@@ -122,6 +123,17 @@ public class MyStaffDisplay extends Panel {
 		add(universityProfileUrlContainer);
 		if(StringUtils.isBlank(universityProfileUrl)) {
 			universityProfileUrlContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//academic/research profile URL
+		WebMarkupContainer academicProfileUrlContainer = new WebMarkupContainer("academicProfileUrlContainer");
+		academicProfileUrlContainer.add(new Label("academicProfileUrlLabel", new ResourceModel("profile.academicprofileurl")));
+		academicProfileUrlContainer.add(new ExternalLink("academicProfileUrl", academicProfileUrl, academicProfileUrl));
+		add(academicProfileUrlContainer);
+		if(StringUtils.isBlank(academicProfileUrl)) {
+			academicProfileUrlContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

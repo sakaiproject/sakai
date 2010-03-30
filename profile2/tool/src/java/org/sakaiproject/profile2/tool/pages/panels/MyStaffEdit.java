@@ -156,6 +156,38 @@ public class MyStaffEdit extends Panel {
 		
 		form.add(universityProfileUrlContainer);
 		
+		//academic/research profile URL
+		WebMarkupContainer academicProfileUrlContainer = new WebMarkupContainer("academicProfileUrlContainer");
+		academicProfileUrlContainer.add(new Label("academicProfileUrlLabel", new ResourceModel("profile.academicprofileurl")));
+		TextField academicProfileUrl = new TextField("academicProfileUrl", new PropertyModel(userProfile, "academicProfileUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			// add http:// if missing
+			@Override
+			protected void convertInput() {
+				String input = getInput();
+
+				if (StringUtils.isNotBlank(input)
+						&& !(input.startsWith("http://") || input
+								.startsWith("https://"))) {
+					setConvertedInput("http://" + input);
+				} else {
+					setConvertedInput(StringUtils.isBlank(input) ? null : input);
+				}
+			}
+		};
+		academicProfileUrl.add(new UrlValidator());
+		academicProfileUrlContainer.add(academicProfileUrl);
+		
+		final FeedbackLabel academicProfileUrlFeedback = new FeedbackLabel(
+				"academicProfileUrlFeedback", academicProfileUrl);
+		academicProfileUrlFeedback.setOutputMarkupId(true);
+		academicProfileUrlContainer.add(academicProfileUrlFeedback);
+		academicProfileUrl.add(new ComponentVisualErrorBehaviour("onblur",
+				academicProfileUrlFeedback));
+		
+		form.add(academicProfileUrlContainer);
+		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
@@ -234,7 +266,8 @@ public class MyStaffEdit extends Panel {
 		sakaiPerson.setRoomNumber(userProfile.getRoom());
 		sakaiPerson.setStaffProfile(userProfile.getStaffProfile());
 		sakaiPerson.setUniversityProfileUrl(userProfile.getUniversityProfileUrl());
-
+		sakaiPerson.setAcademicProfileUrl(userProfile.getAcademicProfileUrl());
+		
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );

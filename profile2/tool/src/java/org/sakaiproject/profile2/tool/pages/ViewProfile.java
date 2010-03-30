@@ -322,6 +322,7 @@ public class ViewProfile extends BasePage {
 		String room = sakaiPerson.getRoomNumber();
 		String staffProfile = sakaiPerson.getStaffProfile();
 		String universityProfileUrl = sakaiPerson.getUniversityProfileUrl();
+		String academicProfileUrl = sakaiPerson.getAcademicProfileUrl();
 		
 		int visibleFieldCount_staff = 0;
 		
@@ -385,13 +386,24 @@ public class ViewProfile extends BasePage {
 		
 		add(staffInfoContainer);
 		
-		// university profile URL
+		//university profile URL
 		WebMarkupContainer universityProfileUrlContainer = new WebMarkupContainer("universityProfileUrlContainer");
 		universityProfileUrlContainer.add(new Label("universityProfileUrlLabel", new ResourceModel("profile.universityprofileurl")));
 		universityProfileUrlContainer.add(new ExternalLink("universityProfileUrl", universityProfileUrl, universityProfileUrl));
 		staffInfoContainer.add(universityProfileUrlContainer);
 		if(StringUtils.isBlank(universityProfileUrl)) {
 			universityProfileUrlContainer.setVisible(false);
+		} else {
+			visibleFieldCount_contact++;
+		}
+		
+		//academic/research profile URL
+		WebMarkupContainer academicProfileUrlContainer = new WebMarkupContainer("academicProfileUrlContainer");
+		academicProfileUrlContainer.add(new Label("academicProfileUrlLabel", new ResourceModel("profile.academicprofileurl")));
+		academicProfileUrlContainer.add(new ExternalLink("academicProfileUrl", academicProfileUrl, academicProfileUrl));
+		staffInfoContainer.add(academicProfileUrlContainer);
+		if(StringUtils.isBlank(academicProfileUrl)) {
+			academicProfileUrlContainer.setVisible(false);
 		} else {
 			visibleFieldCount_contact++;
 		}
