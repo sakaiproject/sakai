@@ -8115,34 +8115,24 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (params.getString("url_alias") != null) {
 			siteInfo.url_alias = params.getString("url_alias");
-			// The point of these site aliases is to have easy-to-recall,
-			// easy-to-guess URLs. So we take a very conservative approach
-			// here and disallow any aliases which would require special 
-			// encoding or would simply be ignored when building a valid 
-			// resource reference or outputting that reference as a URL.
-			boolean isSimpleResourceName = siteInfo.url_alias.equals(Validator.escapeResourceName(siteInfo.url_alias));
-			boolean isSimpleUrl = siteInfo.url_alias.equals(Validator.escapeUrl(siteInfo.url_alias));
-			if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
-				addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.isinval"));
-				M_log.warn(this + ".updateSiteInfo: " + rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.isinval"));
-			} else {
-				try {
-					String reference = AliasService.getTarget(siteInfo.url_alias);
-					boolean aliasForOtherSite = true;
-					if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null)
+
+			try {
+				String reference = AliasService.getTarget(siteInfo.url_alias);
+				boolean aliasForOtherSite = true;
+				if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null)
+				{
+					String currentSiteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+					if (reference.indexOf(currentSiteId) != -1)
 					{
-						String currentSiteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-						if (reference.indexOf(currentSiteId) != -1)
-						{
-							aliasForOtherSite = false;
-						}
+						aliasForOtherSite = false;
 					}
-					if (aliasForOtherSite)
-						addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.exists"));
-				} catch (IdUnusedException e) {
-					// Do nothing. We want the alias to be unused.
 				}
+				if (aliasForOtherSite)
+					addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.exists"));
+			} catch (IdUnusedException e) {
+				// Do nothing. We want the alias to be unused.
 			}
+
 		}
 		
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
