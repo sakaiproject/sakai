@@ -46,7 +46,7 @@ public class ConcurrentIndexManager implements IndexListener
 {
 	protected static final Log log = LogFactory.getLog(ConcurrentIndexManager.class);
 
-	private Timer timer = new Timer(true);;
+	private Timer timer = new Timer("IndexManager",true);
 
 	private List<IndexManagementTimerTask> tasks;
 
