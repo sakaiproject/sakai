@@ -813,6 +813,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getPortalPath() {
 		return serverConfigurationService.getString("portalPath", "/portal");
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isUsingNormalPortal() {
+		return StringUtils.equals(getPortalPath(), "/portal");
+	}
 
 	/**
  	* {@inheritDoc}

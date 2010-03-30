@@ -1,7 +1,5 @@
 package org.sakaiproject.profile2.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,9 +34,11 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		
 		//link direct to ViewProfile page and add in the user param
 		String extraParams = null;
-		Map<String,String> vars = new HashMap<String,String>();
-		vars.put(ProfileConstants.WICKET_PARAM_USERID, userUuid);
-		extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_PROFILE_VIEW, vars);
+		if(sakaiProxy.isUsingNormalPortal()){
+			Map<String,String> vars = new HashMap<String,String>();
+			vars.put(ProfileConstants.WICKET_PARAM_USERID, userUuid);
+			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_PROFILE_VIEW, vars);
+		}
 		
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
 	}
@@ -56,12 +56,14 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		
 		//link direct to messages page, if we have a threadId, add the appropriate params in
 		String extraParams = null;
-		if(StringUtils.isNotBlank(threadId)) {
-			Map<String,String> vars = new HashMap<String,String>();
-			vars.put(ProfileConstants.WICKET_PARAM_THREAD, threadId);
-			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGE_VIEW, vars);
-		} else {
-			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGE_LIST, null);
+		if(sakaiProxy.isUsingNormalPortal()){
+			if(StringUtils.isNotBlank(threadId)) {
+				Map<String,String> vars = new HashMap<String,String>();
+				vars.put(ProfileConstants.WICKET_PARAM_THREAD, threadId);
+				extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGE_VIEW, vars);
+			} else {
+				extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGE_LIST, null);
+			}
 		}
 		
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
@@ -77,7 +79,10 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		}
 		
 		//link direct to connections page, no extra params needed
-		String extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_CONNECTIONS, null);
+		String extraParams = null;
+		if(sakaiProxy.isUsingNormalPortal()){
+			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_CONNECTIONS, null);
+		}
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
 	}
 
