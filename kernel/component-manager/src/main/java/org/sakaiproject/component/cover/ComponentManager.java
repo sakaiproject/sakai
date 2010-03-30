@@ -23,6 +23,7 @@ package org.sakaiproject.component.cover;
 
 import java.util.Set;
 
+import org.sakaiproject.component.impl.MockCompMgr;
 import org.sakaiproject.component.impl.SpringCompMgr;
 
 /**
@@ -37,6 +38,7 @@ import org.sakaiproject.component.impl.SpringCompMgr;
  * single-instance singleton ComponentManger of a particular type is created.
  * </p>
  */
+@SuppressWarnings("unchecked")
 public class ComponentManager {
 	/** A component manager - use the Spring based one. */
 	protected static org.sakaiproject.component.api.ComponentManager m_componentManager = null;
@@ -54,6 +56,31 @@ public class ComponentManager {
 	private static boolean lateRefresh = false;
 
 	/**
+	 * Setup the CM in testingMode if this is true (this is to be used for unit tests only),
+	 * has no effect if the CM is already initialized
+	 */
+	public static boolean testingMode = false;
+	/**
+	 * @return true if this CM is in testing mode
+	 */
+	public static boolean isTestingMode() {
+	    return (m_componentManager == null && testingMode) || m_componentManager instanceof MockCompMgr;
+	}
+	/**
+	 * TESTING ONLY <br/>
+	 * closes and then destroys the component manager <br/>
+	 * WARNING: this is NOT safe to do in a production system 
+	 */
+	public static void shutdown() {
+        synchronized (m_syncObj) {
+            if (m_componentManager != null) {
+        	    m_componentManager.close();
+        	    m_componentManager = null;
+            }
+        }
+	}
+
+	/**
 	 * Access the component manager of the single instance.
 	 * 
 	 * @return The ComponentManager.
@@ -64,8 +91,12 @@ public class ComponentManager {
 			// if we do not yet have our component manager instance, create and
 			// init / populate it
 			if (m_componentManager == null) {
-				m_componentManager = new SpringCompMgr(null);
-				((SpringCompMgr) m_componentManager).init(lateRefresh);
+			    if (testingMode) {
+			        m_componentManager = new MockCompMgr(false);
+			    } else {
+			        m_componentManager = new SpringCompMgr(null);
+			        ((SpringCompMgr) m_componentManager).init(lateRefresh);
+			    }
 			}
 		}
 
