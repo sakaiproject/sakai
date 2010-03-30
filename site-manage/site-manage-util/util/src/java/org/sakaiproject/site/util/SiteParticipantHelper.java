@@ -118,7 +118,10 @@ public class SiteParticipantHelper {
 								if (!participant.getSectionEidList().contains(sectionTitle)) {
 									participant.addSectionEidToList(sectionTitle);
 								}
-								participant.credits = participant.credits.concat(", <br />" + e.getCredits());
+								if (e.getCredits() != null && e.getCredits().length() >0)
+								{
+									participant.credits = participant.credits.concat(", <br />" + e.getCredits());
+								}
 							}
 							else
 							{
