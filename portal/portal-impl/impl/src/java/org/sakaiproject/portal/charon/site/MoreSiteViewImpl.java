@@ -94,6 +94,10 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 				if ("course".equals(type))
 				{
 					term = siteProperties.getProperty("term");
+					if(null==term) {
+						term = rb.getString("moresite_unknown_term");
+					}
+
 				}
 				else if ("project".equals(type))
 				{
