@@ -36,6 +36,7 @@ import java.util.Stack;
 import java.util.Vector;
 import java.text.Collator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -808,7 +809,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		// Check to see if the older non-merged parameter is present.
 		// This is really the "merged" parameter, but it was incorrectly
 		// named. This is for backward compatibility.
-		String configParameter = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter(
+		String configParameter = StringUtils.trimToNull(portlet.getPortletConfig().getInitParameter(
 				PORTLET_CONFIG_PARM_NON_MERGED_CHANNELS));
 		String configParameterName = configParameter != null ? PORTLET_CONFIG_PARM_NON_MERGED_CHANNELS
 				: PORTLET_CONFIG_PARM_MERGED_CHANNELS;
@@ -871,7 +872,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		if (channelId == null)
 		{
 			// try the portlet parameter
-			channelId = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter("channel"));
+			channelId = StringUtils.trimToNull(portlet.getPortletConfig().getInitParameter("channel"));
 			if (channelId == null)
 			{
 				// form based on the request's site's "main" channel
@@ -4042,7 +4043,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		if (channelId == null)
 		{
 			// try the portlet parameter
-			channelId = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter("channel"));
+			channelId = StringUtils.trimToNull(portlet.getPortletConfig().getInitParameter("channel"));
 			if (channelId == null)
 			{
 				// form based on the request's context's "main" channel
@@ -4381,10 +4382,11 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		try
 		{
-			String alias = StringUtil.trimToNull(runData.getParameters().getString("rssAlias"));
+			String alias = StringUtils.trimToNull(runData.getParameters().getString("rssAlias"));
 			
 			//server check to ensure the length of alias SAK-18178
-			if (alias.length()>99){
+			//due to the trim above this may be null
+			if (alias != null && alias.length()>99){
 				addAlert(sstate,"The length of alias cannot be greater than 99 characters");
 				state.setStatus(OPTIONS_STATUS);
 				return;
