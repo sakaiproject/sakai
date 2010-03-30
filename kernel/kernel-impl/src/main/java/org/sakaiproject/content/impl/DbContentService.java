@@ -954,7 +954,6 @@ public class DbContentService extends BaseContentService
 				
 				if ( migrateData && binaryCollection && xmlCollection ) {
 
-					
 					// migrate the base XML entities
 					Type1BlobCollectionConversionHandler t1ch = new Type1BlobCollectionConversionHandler();
 					
@@ -994,34 +993,14 @@ public class DbContentService extends BaseContentService
 						M_log.fatal("\n" +
 								"There are migrated content collection entries in the \n" +
 								"BINARY_ENTITY column  of CONTENT_COLLECTION you must ensure that this \n" +
-								"data is not required and set all entries to null before staring \n" +
+								"data is not required and set all entries to null before starting \n" +
 								"up with migrate data disabled. Failure to do this could loose \n" +
 								"updates since this database was upgraded \n");
 						M_log.fatal("STOP ============================================");
 						/*we need to close these here otherwise the system exit will lead them to being left open
 						 * While this may be harmful is bad practice and prevents us identifying real issues
 						 */
-						try {
-							rs.close();
-						}
-						catch (SQLException e) {
-							
-						}
-						try {
-							statement.close();
-							
-						}
-						catch (SQLException e) {
-							
-						}
-						try {
-							if (selectStatement != null)
-							selectStatement.close();
-							
-						}
-						catch (SQLException e) {
-							
-						}
+		                cleanup(connection, statement, rs, selectStatement, updateStatement);
 						System.exit(-10);
 					}
 				}
@@ -1035,33 +1014,14 @@ public class DbContentService extends BaseContentService
 						M_log.fatal("\n" +
 								"There are migrated content collection entries in the \n" +
 								"BINARY_ENTITY column  of CONTENT_RESOURCE you must ensure that this \n" +
-								"data is not required and set all entries to null before staring \n" +
+								"data is not required and set all entries to null before starting \n" +
 								"up with migrate data disabled. Failure to do this could loose \n" +
 								"updates since this database was upgraded \n");
 						M_log.fatal("STOP ============================================");
 						/*we need to close these here otherwise the system exit will lead them to being left open
 						 * While this may be harmful is bad practice and prevents us identifying real issues
 						 */
-						try {
-							rs.close();
-						}
-						catch (SQLException e) {
-							
-						}
-						try {
-							statement.close();
-							
-						}
-						catch (SQLException e) {
-							
-						}
-						try {
-							selectStatement.close();
-							
-						}
-						catch (SQLException e) {
-							
-						}
+		                cleanup(connection, statement, rs, selectStatement, updateStatement);
 						System.exit(-10);
 					}
 				}
@@ -1075,51 +1035,23 @@ public class DbContentService extends BaseContentService
 						M_log.fatal("\n" +
 								"There are migrated content collection entries in the \n" +
 								"BINARY_ENTITY column  of CONTENT_RESOURCE_DELETE you must ensure that this \n" +
-								"data is not required and set all entries to null before staring \n" +
+								"data is not required and set all entries to null before starting \n" +
 								"up with migrate data disabled. Failure to do this could loose \n" +
 								"updates since this database was upgraded \n");
 						M_log.fatal("STOP ============================================");
 						/*we need to close these here otherwise the system exit will lead them to being left open
 						 * While this may be harmful is bad practice and prevents us identifying real issues
 						 */
-						try {
-							rs.close();
-						}
-						catch (SQLException e) {
-							
-						}
-						try {
-							statement.close();
-							
-						}
-						catch (SQLException e) {
-							
-						}
-						try {
-							selectStatement.close();
-							
-						}
-						catch (SQLException e) {
-							
-						}
+		                cleanup(connection, statement, rs, selectStatement, updateStatement);
 						System.exit(-10);
 					}
 				}
 				
-			}
-			catch (SQLException e)
-			{
-				M_log.warn("Unable to get database setatemnt ",e);
-				
+			} catch (SQLException e) {
+				M_log.warn("Unable to get database statement: " + e, e);
 			} finally {
-				try { rs.close(); } catch ( SQLException ex ) {}
-				try { statement.close(); } catch ( SQLException ex ) {}
-				try { selectStatement.close(); } catch ( SQLException ex ) {}
-				try { updateStatement.close(); } catch ( SQLException ex ) {}
-				m_sqlService.returnConnection(connection);
+				cleanup(connection, statement, rs, selectStatement, updateStatement);
 			}
-			
-			
 
 			if (migrateData && binaryCollection && xmlCollection) {
 				// build the collection store - a single level store
@@ -1155,7 +1087,7 @@ public class DbContentService extends BaseContentService
 						m_locksInDb, "resource", resourceUser, m_sqlService);
 				m_resourceStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 				
-			}else {
+			} else {
 				// build the resources store - a single level store
 				m_resourceStore = new BaseDbSingleStorage(m_resourceTableName, "RESOURCE_ID", 
 						(bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
@@ -1188,6 +1120,47 @@ public class DbContentService extends BaseContentService
 			}
 
 		} // DbStorage
+
+        /**
+         * Cleanup the resultset, statements, and connection in the finally block or as needed
+         * @param connection
+         * @param statement
+         * @param rs
+         * @param selectStatement
+         * @param updateStatement
+         */
+        private void cleanup(Connection connection, Statement statement, ResultSet rs,
+                PreparedStatement selectStatement, PreparedStatement updateStatement) {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException ex) {
+                M_log.warn("Failed to close resultset: " + ex, ex);
+            }
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException ex) {
+                M_log.warn("Failed to close statement: " + ex, ex);
+            }
+            try {
+                if (selectStatement != null) {
+                    selectStatement.close();
+                }
+            } catch (SQLException ex) {
+                M_log.warn("Failed to close selectStatement: " + ex, ex);
+            }
+            try {
+                if (updateStatement != null) {
+                    updateStatement.close();
+                }
+            } catch (SQLException ex) {
+                M_log.warn("Failed to close updateStatement: " + ex, ex);
+            }
+            m_sqlService.returnConnection(connection);
+        }
 
 		/**
 		 * Open and be ready to read / write.
