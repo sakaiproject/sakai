@@ -3237,7 +3237,30 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		if (submission == null) throw new IdUnusedException(submissionId);
-
+		
+		// double check the submission submitter information:
+		// if current user is not the original submitter and if he doesn't have grading permission, he should have access to other people's submission.
+		String assignmentId = submission.getAssignmentId();
+		try
+		{
+			Assignment a = getAssignment(assignmentId);
+			if (!allowGradeSubmission(a.getReference()))
+			{
+				List submitterIds = submission.getSubmitterIds();
+				if (submitterIds != null && !submitterIds.contains(SessionManager.getCurrentSessionUserId()))
+				{
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionId);
+				}
+			}
+		}
+		catch (IdUnusedException ee)
+		{
+			throw new IdUnusedException(assignmentId);
+		}
+		catch (PermissionException ee)
+		{
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT, assignmentId);
+		}
 		// track event
 		// EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getReference(), false));
 
