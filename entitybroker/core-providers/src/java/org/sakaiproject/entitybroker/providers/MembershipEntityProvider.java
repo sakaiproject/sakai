@@ -748,7 +748,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
 
 
         }
-        log.info("about to return!");
+        
         return l;
     }
 
