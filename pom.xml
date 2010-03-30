@@ -44,6 +44,7 @@
             <modules>
                 <module>kernel-deploy</module>
 		<module>framework-shared-deploy</module>
+                <module>jstl-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement/announcement-api/api</module>
@@ -79,6 +80,7 @@
                 <module>kernel-deploy</module>
                 <module>master</module>
                 <module>core-deploy</module>
+                <module>jstl-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement</module>
@@ -136,6 +138,7 @@
                 <module>kernel-deploy</module>
                 <module>master</module>
                 <module>core-deploy</module>
+                <module>jstl-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement</module>
@@ -192,7 +195,8 @@
             <modules>
                 <module>kernel-deploy</module>
                 <module>core-deploy</module>
-		        <module>framework-shared-deploy</module>
+                <module>framework-shared-deploy</module>
+                <module>jstl-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement/announcement-api/api</module>
