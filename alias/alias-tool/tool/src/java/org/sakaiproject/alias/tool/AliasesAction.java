@@ -447,6 +447,11 @@ public class AliasesAction extends PagedResourceActionII
 		// read the form
 		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
 		String target = StringUtil.trimToNull(data.getParameters().getString("target"));
+		
+		if (id!=null && id.length()>99){ //SAK-18178
+			addAlert(state,"The length of alias cannot be greater than 99 characters");
+			return false;
+		} 	 
 
 		// get the alias
 		AliasEdit alias = (AliasEdit) state.getAttribute("alias");
