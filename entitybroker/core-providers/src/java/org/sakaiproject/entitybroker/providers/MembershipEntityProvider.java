@@ -726,6 +726,9 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         ArrayList<EntityMember> l = new ArrayList<EntityMember>();
         Set<Member> members = null;
         SiteGroup sg = findLocationByReference(locationReference);
+        if (sg == null) {
+        	return new ArrayList<EntityMember>();
+        }
         isAllowedAccessMembers(sg.site);
         if (sg.group == null) {
             // site only
@@ -769,7 +772,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
             locationReference = "/group/" + groupId;
             Group group = siteService.findGroup(groupId);
-            //FIXME if an invalid group ID is passed this NPE's
+            //an invalid group ID might be passed
+            if (group == null) {
+            	return null;
+            }
             Site site = group.getContainingSite();
             holder.locationReference = locationReference;
             holder.group = group;
