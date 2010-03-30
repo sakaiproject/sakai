@@ -63,6 +63,7 @@ import org.sakaiproject.user.api.AuthenticatedUserProvider;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
+import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -1196,6 +1197,19 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public int countSearchUsers(String criteria)
 	{
 		return m_storage.countSearch(criteria);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public List<User> searchExternalUsers(String criteria, int first, int last){
+		
+		if (m_provider instanceof ExternalUserSearchUDP) {
+			return ((ExternalUserSearchUDP) m_provider).searchUsers(criteria, first, last);
+		} else {
+			M_log.error("searchExternalUsers not supported by Provider: " + m_provider.getClass().getName());
+		}
+		return null;
 	}
 
 	/**
