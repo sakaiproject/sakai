@@ -116,5 +116,9 @@ public interface UserEdit extends User, Edit
 	 */
 	void restrictEditType();
 	
+	/**
+	 * Make the users eid unchangeable during the edit
+	 */
+	void restrictEditEid();
 	
 }
