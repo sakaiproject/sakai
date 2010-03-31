@@ -77,6 +77,8 @@ class UserEditStub implements UserEdit {
 	public void restrictEditType() {
 	}
 
+    public void restrictEditEid() {
+    }
 	public void setEid(String eid) {
 		this.eid = eid;
 	}
