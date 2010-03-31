@@ -1386,16 +1386,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("sortby_publish", SortType.PUBLISHED_ASC.toString());
 			context.put("sortby_createdon", SortType.CREATED_ON_ASC.toString());
 
-			// top link list
-			List<ActionLinkItem> linkList = new Vector<ActionLinkItem>();
-			if (SiteService.allowAddSite(null)) {
-				linkList.add(new ActionLinkItem("new", rb.getString("java.new"), "javascript:document.getElementById('sakai_action').value='doNew_site';document.getElementById('sitesForm').submit();", false, false));
-			}
-			linkList.add(new ActionLinkItem("edit", rb.getString("java.revise"), "javascript:document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();", true, true));
-			linkList.add(new ActionLinkItem("delete", rb.getString("java.delete"), "javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();", true, true));
-			context.put("linkList", linkList);
-			
-			// default to be no pageing
+			// default to be no paging
 			context.put("paged", Boolean.FALSE);
 
 			Menu bar2 = new MenuImpl(portlet, data, (String) state

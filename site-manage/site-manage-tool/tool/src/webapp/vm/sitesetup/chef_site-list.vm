@@ -22,25 +22,55 @@
 				break;
 			}
 		}
-		var linkList = document.getElementsByName("linkList");
-		for (var j=0; j < linkList.length; j++)
-		{
-			var item = linkList.item(j);
-			if (anyItemSelected)
-			{
-				// there is at least one site selected
-				item.disabled = false;
-			}
-			else
-			{
-				// no site selected
-				item.disabled = true;
+		var ul = document.getElementById("actionToolBar");
+		var liCount = 0;
+		var j = 0;
+		var k = 0;
+		for (;j<ul.childNodes.length;j++) {
+        	var item = ul.childNodes[j];
+            if (item.nodeName == "LI") 
+            {
+	            liCount++;
+				if (liCount > 1)
+				{
+					if (anyItemSelected)
+							{
+								if (liCount==2 || liCount==3)
+								{
+									item.style.display="none";
+								}
+								else if (liCount==4 || liCount==5)
+								{
+									item.style.display="";
+								}
+							}
+							else
+							{
+								// no site selected
+								if (liCount==2 || liCount==3)
+								{
+									item.style.display="";
+								}
+								else if (liCount==4 || liCount==5)
+								{
+									item.style.display="none"
+								}
+							}
+				}
 			}
 		}
 	}
 	// -->
 </script>
 <div class ="portletBody">
+	<ul id="actionToolBar" id="actionToolBar" class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_site")" title="$tlang.getString('java.new')">$tlang.getString("java.new").trim()</a></span></li>
+		<li><span style="current">$tlang.getString("java.revise")</span></li>
+		<li><span style="current">$tlang.getString("java.delete")</span></li>
+		<li style="display:none"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise").trim()</a></span></li>
+		<li style="display:none"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete").trim()</span></a></li>
+	</ul>
+
 	<div class="navIntraToolLink viewNav">
 		#if($linkList)
 			<span>
