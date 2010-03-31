@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -245,6 +245,10 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 	public boolean willArchiveMerge() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public List<User> searchExternalUsers(String criteria, int first, int last){
+		return null;
 	}
 
 }
