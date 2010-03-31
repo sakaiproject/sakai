@@ -22,19 +22,17 @@
 // package
 package org.sakaiproject.content.tool;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -84,7 +82,7 @@ public class ResourcesMetadata
 	public static final String NAMESPACE_XSD = "http://www.w3.org/2001/XMLSchema#";
 	public static final String NAMESPACE_XSD_ABBREV = "xs:";
 
-	protected static Integer NamespaceNumber = Integer.valueOf(0);
+	protected static AtomicInteger namespaceNumber = new AtomicInteger(0);
 	
 	public static final String PROPERTY_NAME_DC_TITLE = "title";
 	public static final String PROPERTY_LABEL_DC_TITLE = rb.getString("label.dc_title");
@@ -1002,11 +1000,9 @@ public class ResourcesMetadata
 	protected static String assignAbbrev(String namespace)
 	{
 		String abbrev = "error";
-		synchronized(NamespaceNumber)
-		{
-			abbrev = "s" + NamespaceNumber;
-			NamespaceNumber = Integer.valueOf(NamespaceNumber.byteValue() + 1);
-		}
+		// removed the sync block from here
+        abbrev = "s" + namespaceNumber;
+        namespaceNumber = new AtomicInteger(namespaceNumber.byteValue() + 1);
 		setNamespaceAbbrev(namespace, abbrev);
 		return abbrev;
 	}
@@ -1468,46 +1464,40 @@ public class ResourcesMetadata
 	
 	public String getDottedname()
 	{
-		String name = "";
-		Iterator it = m_dottedparts.iterator();
-		while(it.hasNext())
-		{
-			String part = (String) it.next();
-			name += part;
-			if(it.hasNext())
-			{
-				name += DOT;
-			}
-		}
-		return name;
+	    StringBuilder name = new StringBuilder();
+        Iterator it = m_dottedparts.iterator();
+        while (it.hasNext()) {
+            String part = (String) it.next();
+            name.append(part);
+            if (it.hasNext()) {
+                name.append(DOT);
+            }
+        }
+		return name.toString();
 	}
 	
 	public String getParentname()
 	{
-		String name = "";
-		if(m_parent != null)
-		{
-			name = m_parent.getDottedname();
-		}
-		else
-		{
-			boolean first = true;
-			Iterator it = m_dottedparts.iterator();
-			while(it.hasNext())
-			{
-				String part = (String) it.next();
-				if(it.hasNext())
-				{
-					if(!first)
-					{
-						name += DOT;
-					}
-					name += part;
-					first = false;
-				}
-			}
-		}
-		return name;
+        String name = "";
+        if (m_parent != null) {
+            name = m_parent.getDottedname();
+        } else {
+            boolean first = true;
+            StringBuilder sb = new StringBuilder();
+            Iterator it = m_dottedparts.iterator();
+            while (it.hasNext()) {
+                String part = (String) it.next();
+                if (it.hasNext()) {
+                    if (!first) {
+                        sb.append(DOT);
+                    }
+                    sb.append(part);
+                    first = false;
+                }
+            }
+            name = sb.toString();
+        }
+        return name;
 	}
 	
 	public void setDottedparts(String path)
