@@ -244,6 +244,9 @@ public class User implements org.sakaiproject.user.api.UserEdit {
 	public void restrictEditPassword() {
 	}
 
+	public void restrictEditEid() {
+		
+	}
 	public void restrictEditType() {
 	}
 
