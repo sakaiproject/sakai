@@ -238,10 +238,10 @@ public class HierDataTableRender extends HtmlBasicRenderer
 		for (data.setRowIndex(data.getFirst()); data.isRowAvailable(); data.setRowIndex(data.getRowIndex() + 1)) {
 			DiscussionMessageBean dmb = (DiscussionMessageBean) data.getRowData();
 
-			// if this row has been deleted... skip it!
-			if (dmb.getDeleted()) {
-				continue;
-			}
+//			// if this row has been deleted... skip it!
+//			if (dmb.getDeleted()) {
+//				continue;
+//			}
 
 			// walk up the messages to get the parent "thread"
 			Message tmpMsg = dmb.getMessage();
