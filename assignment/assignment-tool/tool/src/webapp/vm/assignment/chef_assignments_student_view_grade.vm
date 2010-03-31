@@ -44,7 +44,7 @@
 			<table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
 				<tr>
 					<th>
-						$tlang.getString("gen.tit2")
+						$tlang.getString("gen.title")
 					</th>
 					<td valign="top">
 						$validator.escapeHtml($assignment.title)
@@ -80,7 +80,7 @@
 					#if ($submission.getGraded() && $submission.getGradeReleased())
 						<tr>	
 							<th>
-								$tlang.getString("gen.gra3")
+								$tlang.getString("gen.gra")
 							</th>
 							<td class="highlight">
 								<strong>

@@ -426,7 +426,7 @@
 						</a>
 					</th>
 					<th id="status">
-						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitStatus")'; return false;"  title="$tlang.getString("listsub.sorbysta")">
+						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitStatus")'; return false;"  title="$tlang.getString("list.sorbysta")">
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals($!sort_submitStatus)) 
 								#if ($sortedAsc.equals("true")) 
@@ -524,7 +524,7 @@
 									#end
 									$validator.escapeHtml($submitterName)
 									<div class="itemAction">
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
+										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.gra")</a>
 										#foreach ($provider in $providers)
 											#set ($item = $producer.getItem($submission, $siteUser.getId()))
 											#set ($helperInfo = false)
@@ -600,7 +600,7 @@
 								&nbsp;
 							</td>
 							<td headers="status">
-								$tlang.getString("status.noSubmission")
+								$tlang.getString("listsub.nosub")
 							</td>
 							#if ($withGrade)
 								<td headers="grade">
@@ -617,7 +617,7 @@
 	#end
 	<hr class="itemSeparator" />
 	<h3>$tlang.getString("gen.assdet")</h3>
-	<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString("gen.theassinf2")">
+	<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString("gen.theassinf")">
 		<tr> 
 			<th>
 				$tlang.getString("gen.asstit")
@@ -671,7 +671,7 @@
 		#end
 		<tr> 
 			<th>
-				$tlang.getString("gen.stusub2")
+				$tlang.getString("gen.stusub")
 			</th>
 			<td>
 				$submissionTypeTable.get($submissionType)
@@ -724,7 +724,7 @@
 	#end
 	#if ($size == 0)
 	#else
-		<h4>$tlang.getString("gen.addres")</h4>
+		<h4>$tlang.getString("gen.att")</h4>
 		<ul class="attachList indnt1">
 			#foreach ($attachment in $attachments) 
 				#set ($props = false)

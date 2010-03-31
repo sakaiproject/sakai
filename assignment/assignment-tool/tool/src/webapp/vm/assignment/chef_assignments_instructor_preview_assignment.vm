@@ -97,7 +97,7 @@
 								#if ($withGrade)
 									<tr>
 										<th>
-											$tlang.getString("gen.stusub2")
+											$tlang.getString("gen.stusub")
 										</th>
 										<td>
 											$submissionTypeTable.get($value_SubmissionType)
@@ -189,7 +189,7 @@
 							#if ($size == 0)
 							#else
 								<h4>
-									$tlang.getString("gen.addres")
+									$tlang.getString("gen.att")
 								</h4>	
 								<ul class="attachList indnt1">
 									#foreach ($attachment in $attachments) 
@@ -239,7 +239,7 @@
 						#if ($withGrade)
 							<tr>
 								<th>
-									$tlang.getString("gen.status2")
+									$tlang.getString("gen.status")
 								</th>
 								<td>
 									#if ($value_OpenDate.after($currentTime))
@@ -284,7 +284,7 @@
 					#if ($size == 0)
 					#else
 						<h4>
-							$tlang.getString("gen.addres")
+							$tlang.getString("gen.att")
 						</h4>	
 						<ul class="attachList indnt1">
 							#foreach ($attachment in $attachments) 

@@ -64,7 +64,7 @@
 <div class="portletBody">
 	<h3>
 	#if ($!download)
-		$tlang.getString('downloadall.title')
+		$tlang.getString('downall')
 	#else
 		$tlang.getString('uploadall.title')
 	#end
@@ -118,7 +118,7 @@
 				<label for="feedbackComments">$tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	
 			 ## feedback attachments
 				<input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" #if($!hasFeedbackAttachment)checked="checked"#end />
-				<label for="feedbackAttachments">$tlang.getString("uploadall.choose.file.feedbackAttachments")</label><br/>
+				<label for="feedbackAttachments">$tlang.getString("download.feedback.attachment")</label><br/>
 			</p>
 			#if (!$download)
 				<h4>$tlang.getString("uploadall.releaseOption")</h4>

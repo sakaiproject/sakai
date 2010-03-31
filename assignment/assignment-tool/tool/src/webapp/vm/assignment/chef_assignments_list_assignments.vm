@@ -189,7 +189,7 @@ function allowClick(object)
 						</th>
 					#end
 					<th id="status">
-						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"   title="$tlang.getString("listassig.sorbysta")">
+						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"   title="$tlang.getString("list.sorbysta")">
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status")) 
 								#if ($sortedAsc.equals("true")) 
@@ -207,7 +207,7 @@ function allowClick(object)
 								#if ($sortedAsc.equals("true")) 
 									<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 								#else 
-									<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+									<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
 								#end 
 							#end 
 						</a>
@@ -219,7 +219,7 @@ function allowClick(object)
 								#if ($sortedAsc.equals("true")) 
 									<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 								#else 
-									<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+									<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
 								#end 
 							#end 
 						</a>
@@ -234,7 +234,7 @@ function allowClick(object)
 										#if ($sortedAsc.equals("true")) 
 											<img id="sortascendingtotalsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 										#else 
-											<img id="sortdescendingtotalsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" />
+											<img id="sortdescendingtotalsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
 										#end 
 									</a>
 								#end
@@ -245,7 +245,7 @@ function allowClick(object)
 										#if ($sortedAsc.equals("true")) 
 											<img id="sortascendingungradedsubmissions" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" />
 										#else 
-											<img id="sortdescendingungradedsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" />
+											<img id="sortdescendingungradedsubmissions" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" />
 										#end 
 									</a>	
 								#end
@@ -261,7 +261,7 @@ function allowClick(object)
 									#if ($sortedAsc.equals("true")) 
 										<img id="sortascendingungraded" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 									#else 
-										<img id="sortdescendingungraded" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+										<img id="sortdescendingungraded" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
 									#end 
 								#end 
 							</a>
@@ -327,7 +327,7 @@ function allowClick(object)
 										</h4>
 										<div class="itemAction">
 											#set($prevAction=false)
-											#if ($!allowUpdateAssignment)#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
+											#if ($!allowUpdateAssignment)#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")</a>#end
 											#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
 											#if ($taggable && $allowAddAssignment)
 												#foreach ($provider in $providers)
@@ -347,7 +347,7 @@ function allowClick(object)
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) | #end
 											#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
 											## show "view submissions" link for ungraded type of assignment
-												<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end										
+												<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.gra")#else$!tlang.getString("viewsubmissions")#end</a>#end										
 										</div>
 									#else
 										#if ($!allowAddAssignment)

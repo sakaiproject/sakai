@@ -209,7 +209,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public String getName() {
-		return rb.getString("service_name");
+		return rb.getString("gen.assig");
 	}
 
 	public void init() {

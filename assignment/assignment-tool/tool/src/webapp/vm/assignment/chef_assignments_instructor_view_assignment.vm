@@ -91,7 +91,7 @@
 			#end
 			<tr> 
 				<th>
-					$tlang.getString("gen.stusub2")
+					$tlang.getString("gen.stusub")
 				</th>
 				<td>
 					$submissionTypeTable.get($assignment.getContent().getTypeOfSubmission())
@@ -118,7 +118,7 @@
 			#end
 			<tr> 
 				<th>
-					$tlang.getString("gen.gra3")
+					$tlang.getString("gen.gra")
 				</th>
 				<td>
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
@@ -217,7 +217,7 @@
 		#elseif ($allowAddAssignment && $hideAssignmentFlag)
 			## hide the assignment content
 			<p class="discTria">
-				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	
+				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top"  /></a>
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			</p>	
@@ -266,7 +266,7 @@
 					#end
 					<tr>
 						<th>
-							$tlang.getString("gen.status2")
+							$tlang.getString("gen.status")
 						</th>
 						<td>
 							#if ($!submission)
@@ -281,7 +281,7 @@
 											#end
 										#end
 									#elseif ($submission.getGraded() && $submission.getGradeReleased())
-										$tlang.getString("gen.gra3")
+										$tlang.getString("gen.gra")
 									#else
 										$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
 										#if ($submission.getTimeSubmitted().after($assignment.DueTime))

@@ -11,7 +11,7 @@
 			<div class="alertMessage">  $tlang.getString("gen.alert")  $validator.escapeHtml($alertMessage)</div><div class="clear"></div>
 		#else
 			<div class="alertMessage">
-				$tlang.getString("delete_assig.areyousur") 
+				$tlang.getString("areyousur") 
 				#if ($assignments.size() > 1)
 					$tlang.getString("delete_assig.theass")
 				#else
@@ -22,7 +22,7 @@
 		<form name="form1" method="post" action="#toolForm("AssignmentAction")">
 			<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("gen.lisofassto")">
 				<tr>
-					<th id="title">$tlang.getString("gen.tit1")</th>
+					<th id="title">$tlang.getString("gen.title")</th>
 					<th id="duedate">$tlang.getString("gen.duedat")</th>
 					##<th id="section">$tlang.getString("gen.sect")</th>
 					<th id="status">$tlang.getString("gen.status")</th>
@@ -55,7 +55,7 @@
 				#end
 			</table>
 			<p class="act">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delete_assig.del")" />
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delet")" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_delete_assignment" value="$tlang.getString("gen.can")" />
 			</p>
 		</form>

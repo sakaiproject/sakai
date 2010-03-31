@@ -93,7 +93,7 @@
 			#end
 			<tr> 
 				<th>
-					$tlang.getString("gen.gra3")
+					$tlang.getString("gen.gra")
 				</th>
 				<td>
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
@@ -249,7 +249,7 @@
 		#end
 		#else
 			<p class="discTria">
-				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	
+				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf")">	
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			</p>	

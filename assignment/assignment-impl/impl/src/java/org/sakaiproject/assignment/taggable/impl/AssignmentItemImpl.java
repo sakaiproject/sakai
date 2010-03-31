@@ -151,7 +151,7 @@ public class AssignmentItemImpl implements TaggableItem {
 	}
 	
 	public String getTypeName() {
-		return rb.getString("service_name");
+		return rb.getString("gen.assig");
 	}
 	
 	private Site getSite(String siteId) {

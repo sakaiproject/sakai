@@ -141,7 +141,7 @@ var notifyDeleteControl = function(){
 			<table class="itemSummary"  summary="$tlang.getString("gen.theassinf")">
 				<tr>
 					<th>
-						$tlang.getString("gen.tit2")
+						$tlang.getString("gen.title")
 					</th>
 					<td>
 						$validator.escapeHtml($assignment.getTitle())
@@ -184,7 +184,7 @@ var notifyDeleteControl = function(){
 					#if (!$!nonElectronicType)
 				<tr>
 					<th>
-						$tlang.getString("gen.status2")
+						$tlang.getString("gen.status")
 					</th>
 					<td>
 						#if ($!submission)
@@ -224,7 +224,7 @@ var notifyDeleteControl = function(){
 					#if ($submission.getGraded() && $submission.getGradeReleased())
 						<tr>	
 							<th>
-								$tlang.getString("gen.gra3")
+								$tlang.getString("gen.gra")
 							</th>
 							<td class="highlight">
 								<strong>
@@ -285,7 +285,7 @@ var notifyDeleteControl = function(){
 				#end
 			</table>
 		<h4>
-			$tlang.getString("gen.assinfshort")
+			$tlang.getString("gen.instr")
 		</h4>
 		
 		#if ($!assignment.getContent().getInstructions().length()>0)

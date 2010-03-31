@@ -103,7 +103,7 @@ function handleEnterKeyPress(ev)
 		<table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
 #*			<tr>
 				<th>
-						$tlang.getString("gen.tit2")
+						$tlang.getString("gen.title")
 				</th>
 				<td>
 					$validator.escapeHtml($assignment.title)
@@ -167,7 +167,7 @@ function handleEnterKeyPress(ev)
 			#if ($withGrade)
 				<tr>
 					<th>
-						$tlang.getString("gen.status2")
+						$tlang.getString("gen.status")
 					</th>	
 					<td>
 					$submission.getStatus()
@@ -534,7 +534,7 @@ function handleEnterKeyPress(ev)
 										<select name="$name_grade" id="grade" >
 											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
 											#foreach ($i in ["Pass", "Fail"])
-													<option  value="$i" #if ($!value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass3") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+													<option  value="$i" #if ($!value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
 											#end
 										</select>
 									</p>	

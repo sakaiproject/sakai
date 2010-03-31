@@ -49,7 +49,7 @@
 			##assignment title
 			<tr>
 				<th>
-					$tlang.getString('confirm.submission.label.assignment')
+					$tlang.getString('assignment')
 				</th>
 				<td>
 					$validator.escapeHtml($!assignment_title)
@@ -59,7 +59,7 @@
 			<tr>
 				<th>
 					#if ($!submitted)
-						$tlang.getString('confirm.submission.label.submission.id')
+						$tlang.getString('submission.id')
 					#else
 					 $tlang.getString('confirm.savesubmission.label.submission.id')
 					#end

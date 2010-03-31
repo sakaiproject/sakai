@@ -86,13 +86,13 @@
 				#end
 				<tr>
 					<th>
-						$tlang.getString("gen.status2") 
+						$tlang.getString("gen.status") 
 					</th>
 					<td>
 						#if ($!grade && $grade.length()>0 && $grade!="ungraded")
-							$tlang.getString("gen.gra3")
+							$tlang.getString("gen.gra")
 						#else
-							$tlang.getString("gen.ung1")
+							$tlang.getString("ungra")
 						#end
 					</td>
 				</tr>
@@ -218,7 +218,7 @@
 				#if ($!grade && $grade.length()>0 && $grade!="ungraded")
 					<span class="highlight">$grade</span>
 				#else
-					<span class="highlight">$tlang.getString("gen.ung1")</span>
+					<span class="highlight">$tlang.getString("ungra")</span>
 				#end
 			</div>
 			<br />

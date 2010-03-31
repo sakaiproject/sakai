@@ -2574,7 +2574,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.id") + " " + siteId +newline + newline);
 		// assignment title and due date
-		buffer.append(rb.getString("noti.assignment") + " " + a.getTitle()+newline);
+		buffer.append(rb.getString("assignment") + " " + a.getTitle()+newline);
 		buffer.append(rb.getString("noti.assignment.duedate") + " " + a.getDueTime().toStringLocalFull()+newline + newline);
 		// submitter name and id
 		User[] submitters = s.getSubmitters();
@@ -2599,7 +2599,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(newline + newline);
 		
 		// submit time
-		buffer.append(rb.getString("noti.submit.id") + " " + s.getId() + newline);
+		buffer.append(rb.getString("submission.id") + " " + s.getId() + newline);
 		
 		// submit time 
 		buffer.append(rb.getString("noti.submit.time") + " " + s.getTimeSubmitted().toStringLocalFull() + newline + newline);
@@ -7727,7 +7727,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					break;
 
 				case 4:
-					retVal = rb.getString("pass");
+					retVal = rb.getString("passfail");
 					break;
 
 				case 5:
@@ -9471,7 +9471,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else if (m.getContent().getTypeOfGrade() == Assignment.PASS_FAIL_GRADE_TYPE) {
 				String ret = rb.getString("ungra");
 				if (grade != null) {
-					if (grade.equalsIgnoreCase("Pass")) ret = rb.getString("pass3");
+					if (grade.equalsIgnoreCase("Pass")) ret = rb.getString("pass");
 					else if (grade.equalsIgnoreCase("Fail")) ret = rb.getString("fail");
 				}
 				return ret;
@@ -9485,7 +9485,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				else
 				{
 					// return "ungraded" in stead
-					return rb.getString("gen.ung1");
+					return rb.getString("ungra");
 				}
 			}
 		}
@@ -9684,7 +9684,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						{
 							if (!getGraded())
 							{
-								retVal = rb.getString("listsub.resubmi") + " " + submitTime.toStringLocalFull();
+								retVal = rb.getString("gen.resub") + " " + submitTime.toStringLocalFull();
 								if (submitTime.after(getAssignment().getDueTime()))
 									retVal = retVal + rb.getString("gen.late2");
 							}
@@ -9704,7 +9704,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						if (allowGrade)
 						{
 							// ungraded submission
-							retVal = rb.getString("gen.ung1");
+							retVal = rb.getString("ungra");
 						}
 						else
 						{
@@ -9769,7 +9769,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				else	
 				{
 					if (allowGrade)
-						retVal = rb.getString("gen.ung1");
+						retVal = rb.getString("ungra");
 					else
 						// submission saved, not submitted.
 						retVal = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");

@@ -5934,7 +5934,7 @@ public class AssignmentAction extends PagedResourceActionII
 						while ((!found) && (events.hasNext()))
 						{
 							e = (CalendarEvent) events.next();
-							if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+							if (((String) e.getDisplayName()).indexOf(rb.getString("gen.assig") + " " + title) != -1)
 							{
 								found = true;
 							}
@@ -6510,7 +6510,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (anySubmitted)
 						{
 							// if there is any submitted submission to this assignment, show alert
-							addAlert(state, rb.getString("assig1") + " " + a.getTitle() + " " + rb.getString("hassum"));
+							addAlert(state, rb.getString("gen.assig") + " " + a.getTitle() + " " + rb.getString("hassum"));
 						}
 						
 						if (anyDraft)
@@ -6997,7 +6997,7 @@ public class AssignmentAction extends PagedResourceActionII
 					while ((!found) && (events.hasNext()))
 					{
 						e = (CalendarEvent) events.next();
-						if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+						if (((String) e.getDisplayName()).indexOf(rb.getString("gen.assig") + " " + title) != -1)
 						{
 							found = true;
 						}
@@ -9800,33 +9800,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		/**
-		 * get submission status
-		 */
-		private String getSubmissionStatus(AssignmentSubmission submission, Assignment assignment)
-		{
-			String status = "";
-
-			if (submission != null)
-				if (submission.getSubmitted())
-					if (submission.getGraded() && submission.getGradeReleased())
-						status = rb.getString("grad3");
-					else if (submission.getReturned())
-						status = rb.getString("return") + " " + submission.getTimeReturned().toStringLocalFull();
-					else
-					{
-						status = rb.getString("gen.subm4") + submission.getTimeSubmitted().toStringLocalFull();
-						if (submission.getTimeSubmitted().after(assignment.getDueTime())) status = status + rb.getString("gen.late2");
-					}
-				else
-					status = rb.getString("inpro");
-			else
-				status = rb.getString("gen.notsta");
-
-			return status;
-
-		} // getSubmissionStatus
-
-		/**
 		 * get assignment maximun grade available based on the assignment grade type
 		 *
 		 * @param gradeType
@@ -9847,7 +9820,7 @@ public class AssignmentAction extends PagedResourceActionII
 			else if (gradeType == 1)
 			{
 				// Ungraded grade type
-				maxGrade = rb.getString("nogra");
+				maxGrade = rb.getString("gen.nograd");
 			}
 			else if (gradeType == 2)
 			{
@@ -9862,12 +9835,12 @@ public class AssignmentAction extends PagedResourceActionII
 			else if (gradeType == 4)
 			{
 				// Pass/fail grade type
-				maxGrade = rb.getString("pass2");
+				maxGrade = rb.getString("pass");
 			}
 			else if (gradeType == 5)
 			{
 				// Grade type that only requires a check
-				maxGrade = rb.getString("check2");
+				maxGrade = rb.getString("check");
 			}
 
 			return maxGrade;

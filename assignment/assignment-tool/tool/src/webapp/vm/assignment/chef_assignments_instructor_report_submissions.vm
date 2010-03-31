@@ -126,7 +126,7 @@
 						</th>
 						<th id="assignment">
 							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_assignment")'; return false;" 
-							  title="$tlang.getString("repsubmi.check")">
+							  title="$tlang.getString("check")">
 								$tlang.getString("gen.assig")
 								#if ($sortedBy.equals($!sortedBy_assignment)) 
 									#if ($sortedAsc.equals("true")) 
@@ -238,7 +238,7 @@
 										 $tlang.getString("gen.pf")
 									#elseif ($gradeScale == 5)
 										## Grade type that only requires a check
-										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("repsubmi.check")" />
+										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("check")" />
 									#end
 							</td>
 							<td headers="submitted">

@@ -1,14 +1,14 @@
 <div class="portletBody">
 
 	<h3>
-		$tlang.getString("assig1")<span class="highlight"> - $tlang.getString("gen.pre")</span>
+		$tlang.getString("gen.assig")<span class="highlight"> - $tlang.getString("gen.pre")</span>
 	</h3>	
 
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<table class="itemSummary" summary="$tlang.getString("gen.assdet")" border="0">
 		 <tr>
 			<th>
-				$tlang.getString("gen.tit2")
+				$tlang.getString("gen.title")
 			</th>
 			<td>
 				$validator.escapeHtml($assignment.getTitle())
@@ -47,7 +47,7 @@
 		#if ($withGrade)	
 			<tr>
 				<th>
-					$tlang.getString("gen.status2")
+					$tlang.getString("gen.status")
 				</th>
 				<td>
 					#if ($!submission)
@@ -143,7 +143,7 @@
 				</p>
 
 		#end
-		##	$tlang.getString("gen.tit1")
+		##	$tlang.getString("gen.title")
 	 #end
 	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$assignment.Id" />
