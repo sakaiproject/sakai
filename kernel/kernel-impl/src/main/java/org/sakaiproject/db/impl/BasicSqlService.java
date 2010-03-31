@@ -711,41 +711,42 @@ public abstract class BasicSqlService implements SqlService
 				index += len;
 				if (m_showSql) lenRead += len;
 			}
-		}
-		catch (Exception e)
-		{
-			LOG.warn("Sql.dbReadBinary(): " + e);
-		}
-		finally
-		{
-			try
-			{
-				if (null != result) result.close();
-				if (null != pstmt) pstmt.close();
+        } catch (Exception e) {
+            LOG.warn("Sql.dbReadBinary(): " + e);
+        } finally {
+            if (null != result) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+                    LOG.warn("Sql.dbReadBinary(): result close fail: " + e);
+                }
+            }
+            if (null != pstmt) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    LOG.warn("Sql.dbReadBinary(): pstmt close fail: " + e);
+                }
+            }
+            // return the connection only if we have borrowed a new one for this call
+            if (callerConn == null) {
+                if (null != conn) {
+                    // if we commit on read
+                    if (m_commitAfterRead) {
+                        try {
+                            conn.commit();
+                        } catch (SQLException e) {
+                            LOG.warn("Sql.dbReadBinary(): conn commit fail: " + e);
+                        }
+                    }
+                    returnConnection(conn);
+                }
+            }
+        }
 
-				// return the connection only if we have borrowed a new one for this call
-				if (callerConn == null)
-				{
-					if (null != conn)
-					{
-						// if we commit on read
-						if (m_commitAfterRead)
-						{
-							conn.commit();
-						}
-
-						returnConnection(conn);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Sql.dbReadBinary(): " + e);
-			}
-		}
-
-		if (m_showSql)
+		if (m_showSql) {
 			debug("sql read binary: len: " + lenRead + "  time: " + connectionTime + " / " + (System.currentTimeMillis() - start), sql, fields);
+		}
 	}
 
 	/**
