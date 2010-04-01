@@ -23,6 +23,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/search/${project.version}</url.localsite>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
 	</properties>
 	<profiles>
 		<profile>
