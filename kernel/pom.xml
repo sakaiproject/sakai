@@ -41,6 +41,7 @@
             <url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>
         -->
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url.localsite>
+	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
     </properties>
     <mailingLists>
         <mailingList>
