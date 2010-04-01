@@ -529,7 +529,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			return true;
 		
 		} catch ( Exception e ) {
-			M_log.error("findUserByEmail(): failed [email = " + email + "]", e);
+			M_log.error("findUserByEmail(): failed [email = " + email + "]");
+			M_log.debug("Exception: ", e);
 			return false;
 		}
 		
