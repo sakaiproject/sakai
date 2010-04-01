@@ -215,7 +215,8 @@ public class UserPrefsTool
 
 	private List prefLocales = new ArrayList();
 
-	private String DEFAULT_TAB_COUNT = "4";
+	private int DEFAULT_TAB_COUNT = 4;
+
 	private String prefTabCount = null;
 
 	private String[] selectedExcludeItems;
@@ -387,9 +388,21 @@ public class UserPrefsTool
 		prefTabCount = props.getProperty("tabs");
 
 		if ( prefTabCount == null )
-			prefTabCount = DEFAULT_TAB_COUNT; 
+			prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
 
 		return prefTabCount;
+	}
+
+	/**
+	 * @return the listing of valid tab choices
+	 */
+	public List<SelectItem> getTabsChoices() {
+	    List<SelectItem> l = new ArrayList<SelectItem>(DEFAULT_TAB_COUNT);
+	    for (int i = 0; i < DEFAULT_TAB_COUNT; i++) {
+	        String value = String.valueOf(i+1);
+            l.add( new SelectItem( value, value ) );
+        }
+	    return l;
 	}
 
 	/**
@@ -398,13 +411,21 @@ public class UserPrefsTool
 	 **/
 	public void setTabCount( String count )
 	{
-		if ( count == null || count.trim().equals("") )
-			prefTabCount = DEFAULT_TAB_COUNT; 
-		else
+		if ( count == null || count.trim().equals("") ) {
+			prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
+		} else {
 			prefTabCount = count.trim();
-
-		if ( Integer.parseInt(prefTabCount) < Integer.parseInt(DEFAULT_TAB_COUNT) )
-			prefTabCount = count;
+		}
+		// make sure this is a valid number
+		int countInt;
+        try {
+            countInt = Integer.parseInt(prefTabCount);
+        } catch (NumberFormatException e) {
+            countInt = DEFAULT_TAB_COUNT;
+        }
+		if ( countInt > 0 && countInt < DEFAULT_TAB_COUNT ) {
+            prefTabCount = count;
+		}
 	}
 
 	/**
@@ -735,7 +756,16 @@ public class UserPrefsTool
 		//defaultPage=tablist[0];
 
 		// Set the default tab count to the system property, initially.
-		DEFAULT_TAB_COUNT = ServerConfigurationService.getString ("portal.default.tabs", DEFAULT_TAB_COUNT);
+		String tabCountConfig = ServerConfigurationService.getString ("portal.default.tabs", String.valueOf(DEFAULT_TAB_COUNT));
+		try {
+            int value = Integer.valueOf(tabCountConfig.trim());
+            if (value <= 0 || value > 100) {
+                throw new NumberFormatException(tabCountConfig + " is out of valid range (0 .. 100)");
+            }
+            DEFAULT_TAB_COUNT = value;
+        } catch (NumberFormatException e) {
+            LOG.warn("Invalid portal.default.tabs value specified ("+tabCountConfig+") must specify a number between 0 and 100, default to "+DEFAULT_TAB_COUNT+": "+e);
+        }
 
 		LOG.debug("new UserPrefsTool()");
 	}
