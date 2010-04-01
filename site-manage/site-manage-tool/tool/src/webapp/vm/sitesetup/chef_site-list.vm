@@ -14,9 +14,10 @@
     function resetSelectedItemsCount()
 	{
 		var anyItemSelected = false;
-		for (var i=0; i < document.sitesForm.selectedMembers.length && !anyItemSelected; i++)
+		var selectedMembers=document.getElementsByName("selectedMembers");
+		for (var i=0; i < selectedMembers.length && !anyItemSelected; i++)
 		{
-			if (document.sitesForm.selectedMembers[i].checked)
+			if (selectedMembers[i].checked)
 			{
 				anyItemSelected = true;
 				break;
