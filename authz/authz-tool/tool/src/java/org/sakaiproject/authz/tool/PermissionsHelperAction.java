@@ -300,7 +300,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				{
 					Group group = (Group) iGroups.next();
 					// need to either have realm update permission on the group level or better at the site level
-					if (!AuthzGroupService.allowUpdate(group.getReference()) && !AuthzGroupService.allowUpdate(site.getReference()))
+					if (!AuthzGroupService.allowUpdate(group.getReference()))
 					{
 						iGroups.remove();
 					}
@@ -517,11 +517,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 		catch (GroupNotDefinedException e)
 		{
-			// TODO: GroupNotDefinedException
+			addAlert(state, rb.getFormattedMessage("alert_sitegroupnotdefined", new Object[]{edit.getReference()}));
 		}
 		catch (AuthzPermissionException e)
 		{
-			// TODO: AuthzPermissionException
+			addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{edit.getReference()}));
 		}
 
 		// clean up state
