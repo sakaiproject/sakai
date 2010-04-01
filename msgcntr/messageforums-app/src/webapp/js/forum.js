@@ -408,5 +408,5 @@ function InsertHTML(header) {
 	// Insert the desired HTML.
 		oEditor.InsertHtml( finalhtml );
 	}
-	else alert( 'You must be on WYSIWYG mode!' );
+	else alert( 'You must be in WYSIWYG mode!' );
 }
