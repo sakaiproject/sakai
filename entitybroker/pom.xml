@@ -33,6 +33,7 @@
         <spring.test.version>2.5.6.SEC01</spring.test.version>
         <hsqldb.version>1.8.0.5</hsqldb.version>
         <easymock.version>2.0</easymock.version>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 <!-- Define the modules that are part of this -->
     <profiles>
