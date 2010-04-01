@@ -22,6 +22,7 @@
     </modules>
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}</url.localsite>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
       <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</connection>
