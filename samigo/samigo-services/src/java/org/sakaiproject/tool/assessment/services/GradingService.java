@@ -784,6 +784,11 @@ public class GradingService
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
         Long itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
+        if (item == null) {
+        	//this probably shouldn't happen
+        	log.error("unable to retrive itemDataIfc for: " + publishedItemHash.get(itemId));
+        	continue;
+        }
         Long itemType = item.getTypeId();  
     	autoScore = (float) 0;
 
