@@ -40,7 +40,9 @@ public class LdapUserData
 	private String eid;
 
 	private String firstName;
-
+	
+	private String preferredFirstName;
+	
 	private String lastName;
 
 	private String email;
@@ -84,6 +86,14 @@ public class LdapUserData
 	public void setFirstName(String firstName)
 	{
 		this.firstName = firstName;
+	}
+	
+	public String getPreferredFirstName() {
+		return preferredFirstName;
+	}
+
+	public void setPreferredFirstName(String preferredFirstName) {
+		this.preferredFirstName = preferredFirstName;
 	}
 
 	/**
@@ -190,6 +200,7 @@ public class LdapUserData
 		return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
 			.append("eid",eid)
 			.append("firstName",firstName)
+			.append("preferredFirstName",preferredFirstName)
 			.append("lastName",lastName)
 			.append("email",email)
 			.append("type",type)

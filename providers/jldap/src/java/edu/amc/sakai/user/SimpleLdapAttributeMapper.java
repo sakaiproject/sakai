@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -142,6 +143,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
      * {@link AttributeMappingConstants#USER_DN_PROPERTY}. Then iterates
      * over {@link LDAPEntry#getAttributeSet()}, handing each attribute
      * to {@link #mapLdapAttributeOntoUserData(LDAPAttribute, LdapUserData, Collection)}.  
+     * Then enforces the preferred first name field, if it exists.
      * Finally, assigns a "type" to the {@link LdapUserData} as defined
      * by {@link #mapLdapEntryToSakaiUserType(LDAPEntry)}.
 	 * 
@@ -169,10 +171,12 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
             mapLdapAttributeOntoUserData(ldapAttribute, userData, logicalAttrNames);
         }
         
+        //enforce use of firstNamePreferred if its set
+        userData.setFirstName(usePreferredFirstName(userData));
+        
         // calculating a user's "type" potentially involves calculations
         // against the entire LDAPEntry
         userData.setType(mapLdapEntryToSakaiUserType(ldapEntry));
-		
 	}
 	
 	public String getUserBindDn(LdapUserData userData) {
@@ -224,9 +228,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         }
         
         for ( String logicalAttrName : logicalAttrNames ) {
-            
-            mapLdapAttributeOntoUserData(attribute, userData, logicalAttrName);
-            
+        	mapLdapAttributeOntoUserData(attribute, userData, logicalAttrName);
         }
         
     }
@@ -266,6 +268,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         				"][value = " + attrValue + "]");
         	}
             userData.setFirstName(attrValue);
+        } else if ( logicalAttrName.equals(AttributeMappingConstants.PREFERRED_FIRST_NAME_ATTR_MAPPING_KEY) ) {
+        	if ( M_log.isDebugEnabled() ) {
+            	M_log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstNamePreferred: " +
+            			"[logical attr name = " + logicalAttrName + 
+            			"][physical attr name = " + attribute.getName() + 
+            			"][value = " + attrValue + "]");
+            }
+        	userData.setPreferredFirstName(attrValue);
         } else if ( logicalAttrName.equals(AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY) ) {
         	if ( M_log.isDebugEnabled() ) {
         		M_log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.lastName: " +
@@ -490,5 +500,27 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	public void setUserTypeMapper(UserTypeMapper userTypeMapper) {
 		this.userTypeMapper = userTypeMapper;
 	}
+	
+	/**
+	 * Determines if a user has a preferredFirstName set and if so, returns it for use.
+	 * Otherwise, returns their firstName as normal.
+	 * 
+	 * @param userData the <code>LdapUserData</code> for the user
+	 * @return a String of the user's first name.
+	 */
+	protected String usePreferredFirstName(LdapUserData userData) {
+		if(StringUtils.isNotBlank(userData.getPreferredFirstName())) {
+			 if (M_log.isDebugEnabled()) {
+				 M_log.debug("usePreferredFirstName() using firstNamePreferred.");
+			 }
+			return userData.getPreferredFirstName();
+		} else {
+			 if (M_log.isDebugEnabled()) {
+				 M_log.debug("usePreferredFirstName() using firstName.");
+			 }
+			return userData.getFirstName();
+		}
+	}
+	
 
 }

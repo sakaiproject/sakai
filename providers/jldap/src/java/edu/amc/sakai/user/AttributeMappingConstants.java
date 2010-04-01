@@ -43,6 +43,11 @@ public abstract class AttributeMappingConstants {
 	public static final String FIRST_NAME_ATTR_MAPPING_KEY = "firstName";
 	
 	/** Key into {@link #DEFAULT_ATTR_MAPPINGS} representing the logical
+	 * name of a user entry's preferred given name attribute
+	 */
+	public static final String PREFERRED_FIRST_NAME_ATTR_MAPPING_KEY = "preferredFirstName";
+	
+	/** Key into {@link #DEFAULT_ATTR_MAPPINGS} representing the logical
 	 * name of a user entry's surname attribute
 	 */
 	public static final String LAST_NAME_ATTR_MAPPING_KEY = "lastName";
@@ -66,6 +71,11 @@ public abstract class AttributeMappingConstants {
 	 * the physical name of a user entry's given name attribute
 	 */
 	public static final String DEFAULT_FIRST_NAME_ATTR = "givenName";
+	
+	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
+	 * the physical name of a user entry's preferred given name attribute.
+	 */
+	public static final String DEFAULT_PREFERRED_FIRST_NAME_ATTR = "preferredName";
 	
 	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
 	 * the physical name of a user entry's surname attribute
@@ -93,6 +103,7 @@ public abstract class AttributeMappingConstants {
 		
 		DEFAULT_ATTR_MAPPINGS.put(LOGIN_ATTR_MAPPING_KEY, DEFAULT_LOGIN_ATTR);
 		DEFAULT_ATTR_MAPPINGS.put(FIRST_NAME_ATTR_MAPPING_KEY, DEFAULT_FIRST_NAME_ATTR);
+		DEFAULT_ATTR_MAPPINGS.put(PREFERRED_FIRST_NAME_ATTR_MAPPING_KEY, DEFAULT_PREFERRED_FIRST_NAME_ATTR);
 		DEFAULT_ATTR_MAPPINGS.put(LAST_NAME_ATTR_MAPPING_KEY, DEFAULT_LAST_NAME_ATTR);
 		DEFAULT_ATTR_MAPPINGS.put(EMAIL_ATTR_MAPPING_KEY, DEFAULT_EMAIL_ATTR);
 		DEFAULT_ATTR_MAPPINGS.put(GROUP_MEMBERSHIP_ATTR_MAPPING_KEY, DEFAULT_GROUP_MEMBERSHIP_ATTR);

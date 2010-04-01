@@ -203,6 +203,7 @@
 			<map>
 				<entry key="login"><value>cn</value></entry>         
 				<entry key="firstName"><value>givenName</value></entry> 
+				<entry key="preferredFirstName"><value>preferredName</value></entry>
 				<entry key="lastName"><value>sn</value></entry> 
 				<entry key="email"><value>email</value></entry>  
 				<entry key="groupMembership"><value>groupMembership</value></entry>     
