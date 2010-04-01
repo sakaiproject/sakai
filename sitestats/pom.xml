@@ -38,6 +38,7 @@
         <perftests.includes />
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <!-- Project modules -->
