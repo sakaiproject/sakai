@@ -171,7 +171,7 @@ public class UserDirectoryService implements
 		return userList;
 	}
 
-	public List getUsers(Collection ids) {
+	public List getUsers(Collection<String> ids) {
 		List<org.sakaiproject.mock.domain.User> userList = new ArrayList<org.sakaiproject.mock.domain.User>();
 		for(Iterator<Entry<String, org.sakaiproject.mock.domain.User>> iter = users.entrySet().iterator(); iter.hasNext();) {
 			org.sakaiproject.mock.domain.User user = iter.next().getValue();
@@ -180,7 +180,7 @@ public class UserDirectoryService implements
 		return userList;
 	}
 
-	public List getUsers(int first, int last) {
+	public List<User> getUsers(int first, int last) {
 		return getUsers();
 	}
 
@@ -257,4 +257,7 @@ public class UserDirectoryService implements
 		return false;
 	}
 
+	public List<User> searchExternalUsers(String criteria, int first, int last) {
+		return null;
+	}
 }
