@@ -108,7 +108,7 @@ public class FormHandler {
 			buff.append(messageLocator.getMessage("mailBodySalut1",productionSiteName));
 			
 			String body = buff.toString();
-			m_log.debug("body: " + body);
+			
 			
 			List<String> headers = new ArrayList<String>();
 			headers.add("Precedence: bulk");
