@@ -141,7 +141,6 @@
 	    
     <properties>
     	<wicket.version>1.4.5</wicket.version>
-		<jetty.version>6.1.4</jetty.version>
     	<log4j.version>1.2.14</log4j.version>
     	<slf4j.version>1.4.2</slf4j.version>
     	<twitter4j.version>1.1.7</twitter4j.version>
