@@ -138,5 +138,19 @@ public interface LdapAttributeMapper {
 	 *   <code>null</null> if the DN is not known.
 	 */
 	public String getUserBindDn(LdapUserData userData);
+	
+	/**
+	 * Builds a filter to perform a wildcard search for criteria in uid, email, first name or last name
+	 * <p>In order to minimise hitting the limits of searches, this only performs a wildcard match on anything <i>after</i>
+	 * the supplied criteria.<br />
+	 * For example, a search for 'john' will match 'john' and 'johnson' but not 'gudjohnsen'.
+	 * <p>
+	 * For reference, the LDAP search filter is of the form:
+	 * "(|(uid=criteria*)(mail=criteria*)(givenName=criteria*)(sn=criteria*))"
+	 * 
+	 * @param	the search string
+	 * @return	the formatted search filter
+	 */
+	public String getFindUserByCrossAttributeSearchFilter(String criteria);
 
 }

@@ -32,9 +32,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserFactory;
 import org.sakaiproject.util.StringUtil;
 
 import com.novell.ldap.LDAPConnection;
@@ -55,7 +57,7 @@ import com.novell.ldap.LDAPSocketFactory;
  * @author David Ross, Albany Medical College
  * @author Rishi Pande, Virginia Tech
  */
-public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig
+public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig, ExternalUserSearchUDP
 {
 	/** Default LDAP connection port */
 	public static final int DEFAULT_LDAP_PORT = 389;
@@ -1608,5 +1610,70 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
+
+	/** 
+     * Search all the externally provided users that match this criteria in eid, 
+     * email, first or last name. 
+     * 
+     * @param criteria 
+     * The search criteria. 
+     * @param first 
+     * The first record position to return. 
+     * @param last 
+     * The last record position to return. 
+     * @return A list (User) of all the aliases matching the criteria, within the 
+     * record range given (sorted by sort name). 
+     */  
+	//public List<User> searchUsers(String criteria, int first, int last) {
+	//	M_log.error("Not yet implemented");
+	//	return null;
+	//}
+
+	/** 
+     * Search for externally provided users that match this criteria in eid, email, first or last name. 
+     * 
+     * <p>Returns a List of User objects. This list will be <b>empty</b> if no results are returned or <b>null</b>
+     * if your external provider does not implement this interface.<br />
+     * 
+     * The list will also be null if the LDAP server returns an error, for example an '(11) Administrative Limit Exceeded' 
+     * or '(4) Sizelimit Exceeded', due to a search term being too broad and returning too many results.</p>
+     *
+     * <p>See LdapAttributeMapper.getFindUserByCrossAttributeSearchFilter for the filter used.</p>
+     * 
+     * @param criteria 
+     * 		The search criteria. 
+     * @param first 
+     * 		The first record position to return. LDAP does not support paging so this value is unused.
+     * @param last 
+     * 		The last record position to return. LDAP does not support paging so this value is unused.
+     * @return 
+     * 		A list (User) of all the users matching the criteria.
+     */ 
+	public List<User> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
+		
+		String filter = ldapAttributeMapper.getFindUserByCrossAttributeSearchFilter(criteria);
+		List<User> users = new ArrayList<User>();
+		
+		try {
+			//no limit to the number of search results, use the LDAP server's settings.
+			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, 0);
+			
+			for(LdapUserData ldapUserData: ldapUsers) {
+				
+				//create a user object and map the data onto it
+				UserEdit user = factory.newUser();
+				mapUserDataOntoUserEdit(ldapUserData, user);
+				
+				users.add(user);
+			}
+
+		} catch (LDAPException e) {
+			M_log.warn("An error occurred searching for users: " + e.getClass().getName() + ": (" + e.getResultCode() + ") " + e.getMessage());
+			return null;
+		}
+		
+		return users;
+	}
+
 
 }
