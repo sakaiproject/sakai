@@ -11,12 +11,7 @@
 			<div class="alertMessage">  $tlang.getString("gen.alert")  $validator.escapeHtml($alertMessage)</div><div class="clear"></div>
 		#else
 			<div class="alertMessage">
-				$tlang.getString("areyousur") 
-				#if ($assignments.size() > 1)
-					$tlang.getString("delete_assig.theass")
-				#else
-					$tlang.getString("delete_assig.thiass")
-				#end
+				$confirmMessage
 			</div><div class="clear"></div>
 		#end
 		<form name="form1" method="post" action="#toolForm("AssignmentAction")">
