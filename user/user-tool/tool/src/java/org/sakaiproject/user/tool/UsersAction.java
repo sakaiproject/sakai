@@ -440,7 +440,8 @@ public class UsersAction extends PagedResourceActionII
 		{
 			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
 
-			addAlert(state, rb.getString("useact.use") + " " + id + " " + rb.getString("useact.notfou"));
+			Object[] params = new Object[]{id};
+			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -504,7 +505,8 @@ public class UsersAction extends PagedResourceActionII
 		{
 			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
 
-			addAlert(state, rb.getString("useact.use") + " " + id + " " + rb.getString("useact.notfou"));
+			Object[] params = new Object[]{id};
+			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -558,7 +560,8 @@ public class UsersAction extends PagedResourceActionII
 		{
 			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
 
-			addAlert(state, rb.getString("useact.use") + " " + id + " " + rb.getString("useact.notfou"));
+			Object[] params = new Object[]{id};
+			addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -909,7 +912,8 @@ public class UsersAction extends PagedResourceActionII
 				}
 				catch (UserNotDefinedException e)
 				{
-					addAlert(state, rb.getString("useact.use") + " " + user.getId() + " " + rb.getString("useact.notfou"));
+					Object[] params = new Object[]{id};
+					addAlert(state, rb.getFormattedMessage("useact.use_notfou", params));
 					
 					return false;
 				}
