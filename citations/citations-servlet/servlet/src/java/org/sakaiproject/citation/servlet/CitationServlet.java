@@ -449,7 +449,7 @@ public class CitationServlet extends VmServlet
 		{
 			collectionTitle = "your current citation list";
 		}
-		Object[] titleArgs = { collectionTitle };  // TODO temporary placeholder
+		Object[] titleArgs = { Validator.escapeHtml(collectionTitle) };  // TODO temporary placeholder
 		setVmReference( "titleArgs", titleArgs, req );
 
 		// return the servlet template

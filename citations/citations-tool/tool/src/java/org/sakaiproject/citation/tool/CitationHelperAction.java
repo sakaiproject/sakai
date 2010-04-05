@@ -602,13 +602,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		}
+		if(collectionTitle == null) {
+			collectionTitle = (String)state.getAttribute( STATE_COLLECTION_TITLE );
+		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
-			context.put( "collectionTitle", collectionTitle );
-		}
-		else
-		{
-			context.put( "collectionTitle", (String)state.getAttribute( STATE_COLLECTION_TITLE ) );
+			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
 		}
 
 		// get the collection we're now working on
@@ -676,14 +675,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		}
-
+		if(collectionTitle == null) {
+			collectionTitle = (String)state.getAttribute( STATE_COLLECTION_TITLE );
+		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
-			context.put( "collectionTitle", collectionTitle );
-		}
-		else
-		{
-			context.put( "collectionTitle", (String)state.getAttribute( STATE_COLLECTION_TITLE ) );
+			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
 		}
 
 		// get the collection we're now working on
@@ -941,13 +938,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		}
+		if(collectionTitle == null) {
+			collectionTitle = (String)state.getAttribute( STATE_COLLECTION_TITLE );
+		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
-			context.put( "collectionTitle", collectionTitle );
-		}
-		else
-		{
-			context.put( "collectionTitle", (String)state.getAttribute( STATE_COLLECTION_TITLE ) );
+			context.put( "collectionTitle", Validator.escapeHtml(collectionTitle));
 		}
 
 		context.put("openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel());

@@ -256,7 +256,7 @@ public class CitationListAccessServlet implements HttpAccess
 					+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
 					+ "<title>"
 					+ rb.getString("list.title") + ": "
-					+ title
+					+ Validator.escapeHtml(title)
 					+ "</title>\n"
 					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/library/skin/default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
@@ -267,7 +267,7 @@ public class CitationListAccessServlet implements HttpAccess
     		List<Citation> citations = collection.getCitations();
     		
     		out.println("<div class=\"portletBody\">\n\t<div class=\"indnt1\">");
-    		out.println("\t<h3>" + rb.getString("list.title") + ": " + title + "</h3>");
+    		out.println("\t<h3>" + rb.getString("list.title") + ": " + Validator.escapeHtml(title) + "</h3>");
     		if( description != null && !description.trim().equals("") )
     		{
     			out.println("\t<p>" + description + "</p>");
