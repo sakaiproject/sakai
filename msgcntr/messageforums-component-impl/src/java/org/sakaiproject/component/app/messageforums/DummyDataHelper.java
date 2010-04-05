@@ -247,8 +247,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setBody("Drafted :this is  the body 1");
     pmm1.setCreated(new Date());
     pmm1.setCreatedBy("john smith");
-    pmm1.setGradebook("gb1");
-    pmm1.setGradebookAssignment("asst1");
     pmm1.setId(Long.valueOf(3));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
@@ -267,8 +265,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setBody("Drafted this is the body 2");
     pmm2.setCreated(new Date());
     pmm2.setCreatedBy("john smith");
-    pmm2.setGradebook("gb1");
-    pmm2.setGradebookAssignment("asst1");
     pmm2.setId(Long.valueOf(42));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("Normal");
@@ -295,8 +291,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setBody("getDeletedPrivateMessages this is the body 1");
     pmm1.setCreated(new Date());
     pmm1.setCreatedBy("john smith");
-    pmm1.setGradebook("gb1");
-    pmm1.setGradebookAssignment("asst1");
     pmm1.setId(Long.valueOf(1213));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
@@ -315,8 +309,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setBody("getDeletedPrivateMessages this is the body 2");
     pmm2.setCreated(new Date());
     pmm2.setCreatedBy("john smith");
-    pmm2.setGradebook("gb1");
-    pmm2.setGradebookAssignment("asst1");
     pmm2.setId(Long.valueOf(1214));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("getDeletedPrivateMessages Normal");
@@ -343,8 +335,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setBody("this is the body 1");
     pmm1.setCreated(new Date());
     pmm1.setCreatedBy("john smith");
-    pmm1.setGradebook("gb1");
-    pmm1.setGradebookAssignment("asst1");
     pmm1.setId(Long.valueOf(13));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
@@ -363,8 +353,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setBody("this is the body 2");
     pmm2.setCreated(new Date());
     pmm2.setCreatedBy("john smith");
-    pmm2.setGradebook("gb1");
-    pmm2.setGradebookAssignment("asst1");
     pmm2.setId(Long.valueOf(4));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("Normal");
@@ -391,8 +379,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setBody("this is the body 1");
     pmm1.setCreated(new Date());
     pmm1.setCreatedBy("john smith");
-    pmm1.setGradebook("gb1");
-    pmm1.setGradebookAssignment("asst1");
     pmm1.setId(Long.valueOf(13));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
@@ -411,8 +397,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setBody("this is the body 2");
     pmm2.setCreated(new Date());
     pmm2.setCreatedBy("john smith");
-    pmm2.setGradebook("gb1");
-    pmm2.setGradebookAssignment("asst1");
     pmm2.setId(Long.valueOf(4));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("Normal");
@@ -515,8 +499,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm1.setBody("this is the body 1");
     mm1.setCreated(new Date());
     mm1.setCreatedBy("john smith");
-    mm1.setGradebook("gb1");
-    mm1.setGradebookAssignment("asst1");
     mm1.setId(Long.valueOf(3));
     mm1.setInReplyTo(null);
     mm1.setLabel("Normal");
@@ -535,8 +517,6 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm2.setBody("this is the body 2");
     mm2.setCreated(new Date());
     mm2.setCreatedBy("john smith");
-    mm2.setGradebook("gb1");
-    mm2.setGradebookAssignment("asst1");
     mm2.setId(Long.valueOf(4));
     mm2.setInReplyTo(getMessageByID3());
     mm2.setLabel("Normal");

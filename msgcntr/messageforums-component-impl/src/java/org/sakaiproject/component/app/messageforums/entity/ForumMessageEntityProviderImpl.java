@@ -95,8 +95,6 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
       props.put("approved", message.getApproved().toString());
     if (message.getGradeAssignmentName() != null)
       props.put("assignment_name", message.getGradeAssignmentName());
-    if (message.getGradeComment() != null)
-      props.put("grade_comment", message.getGradeComment());
     
     return props;
   }

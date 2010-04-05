@@ -43,14 +43,11 @@ public class MessageImpl extends MutableEntityImpl implements Message
 	private Set attachmentsSet; // = new HashSet();
 	private String label;
 	private Message inReplyTo;
-	private String gradebook;
-	private String gradebookAssignment;
 	private String typeUuid;
 	private Boolean approved;
 	private Boolean draft;
 	private Topic topic;
 	private Boolean hasAttachments = Boolean.FALSE;
-	private String gradeComment;
 	private String gradeAssignmentName; 
 	private Boolean deleted;
 	private Long threadId;
@@ -154,26 +151,6 @@ public class MessageImpl extends MutableEntityImpl implements Message
 	public void setBody(String body)
 	{
 		this.body = body;
-	}
-
-	public String getGradebook()
-	{
-		return gradebook;
-	}
-
-	public void setGradebook(String gradebook)
-	{
-		this.gradebook = gradebook;
-	}
-
-	public String getGradebookAssignment()
-	{
-		return gradebookAssignment;
-	}
-
-	public void setGradebookAssignment(String gradebookAssignment)
-	{
-		this.gradebookAssignment = gradebookAssignment;
 	}
 
 	public Message getInReplyTo()
@@ -469,16 +446,6 @@ public class MessageImpl extends MutableEntityImpl implements Message
 	public void setThreadLastPost(Long messageId) {
 		this.lastTreadPostId = messageId;
 		
-	}
-
-	public String getGradeComment()
-	{
-		return gradeComment;
-	}
-
-	public void setGradeComment(String gradeComment)
-	{
-		this.gradeComment = gradeComment;
 	}
 
 	public String getGradeAssignmentName()

@@ -46,9 +46,6 @@
     <property name="hasAttachments">
       <column name="HAS_ATTACHMENTS" not-null="true" index="MFR_MESSAGE_HAS_ATTACHMENTS_I"/>
     </property>
-    <property name="gradeComment" type="text">
-      <column name="GRADECOMMENT" not-null="false" />
-    </property>
 	<property name="gradeAssignmentName" column="GRADEASSIGNMENTNAME" type="string" not-null="false"/>
 	<property name="numReaders" column="NUM_READERS" type="integer"/>
 
@@ -73,12 +70,6 @@
     <property name="threadId" column="THREADID" type="long" />
   	<property name="dateThreadlastUpdated" column="LASTTHREADATE" type="timestamp" />
   	<property name="threadLastPost" column="LASTTHREAPOST" type="long" />
-    <property name="gradebook">
-      <column name="GRADEBOOK" length="255" not-null="false" />
-    </property>    
-    <property name="gradebookAssignment">
-      <column name="GRADEBOOK_ASSIGNMENT" length="255" not-null="false" />
-    </property>
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>

@@ -165,13 +165,7 @@
 	        <key column="dt_surrogateKey"/>
 	        <index column="dt_index_col" />
 	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
-	    </list>        
-	    <property name="gradebook">
-	      <column name="GRADEBOOK" length="255" not-null="false" />
-	    </property>    
-	    <property name="gradebookAssignment">
-	      <column name="GRADEBOOK_ASSIGNMENT" length="255" not-null="false" />
-	    </property>
+	    </list>
 	  </subclass>
 
     </subclass>

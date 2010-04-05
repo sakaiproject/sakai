@@ -48,10 +48,6 @@ public interface Message extends MutableEntity {
     public void setAuthor(String author);
     public String getBody();
     public void setBody(String body);
-    public String getGradebook();
-    public void setGradebook(String gradebook);
-    public String getGradebookAssignment();
-    public void setGradebookAssignment(String gradebookAssignment);
     public Message getInReplyTo();
     public void setInReplyTo(Message inReplyTo);
     public String getLabel();
@@ -64,8 +60,6 @@ public interface Message extends MutableEntity {
     public Topic getTopic();
     public void addAttachment(Attachment attachment);
     public void removeAttachment(Attachment attachment);
-    public String getGradeComment();
-    public void setGradeComment(String gradeComment);
     public String getGradeAssignmentName();
     public void setGradeAssignmentName(String gradeAssignmentName);
     
