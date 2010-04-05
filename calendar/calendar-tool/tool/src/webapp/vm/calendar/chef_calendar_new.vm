@@ -1,6 +1,13 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_new.vm,v 1.7 2005/06/14 20:13:13 suiyy.umich.edu Exp $
 
 <script type="text/javascript">
+<!-- For debugger safety -->
+if(!window.console) {
+  window.console = new function() {
+    this.log = function(str) {}; this.dir = function(str) {};
+  };
+}
+
 
 focus_path = [ "activitytitle" ];
 
@@ -30,6 +37,7 @@ function hourChange(FieldName)
         case 'startHour':
         case 'startMinute':
         {
+       
             startHour = parseInt(document.getElementById('startHour').value);
             if (startHour != 100)
                 minuteChange(FieldName);
@@ -161,10 +169,17 @@ function minuteChange(FieldName)
 				{
 					endHour = 0;
 				}
+               if (startHour==12 && startAmpmIndex==0) 
+               {   
+                   startHour = 0;
+               }
                 startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
                 endAmpmIndex = document.getElementById('endAmpm').selectedIndex;
                 sm = (startHour + startAmpmIndex * 12) * 60 + startMinute;
                 em = (endHour + endAmpmIndex * 12) * 60 + endMinute;
+       console.log("sm:"+sm+"em:"+em);
+       console.log("startHour"+startHour+"endHour:"+endHour);
+
                 if (em == sm)
                 { <!-- set duTime to be zero -->
                     duHour = 0; 
