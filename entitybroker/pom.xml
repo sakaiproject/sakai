@@ -257,13 +257,12 @@
             <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>generic-dao</artifactId>
-                <version>0.9.17</version>
-<!--                <version>[0.9.11,1.0.0)</version>-->
+                <version>0.9.18</version>
             </dependency>
             <dependency>
                 <groupId>org.azeckoski</groupId>
                 <artifactId>reflectutils</artifactId>
-                <version>0.9.11</version>
+                <version>0.9.14</version>
             </dependency>
             <!-- testing -->
             <dependency>
