@@ -3364,7 +3364,7 @@ public class DiscussionForumTool
 	  
 	  Topic topicInDb = forumManager.getTopicById(topic.getId());
 	  
-	  return topicInDb != null;
+	  return topicInDb != null && uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum());
   }
   
   private void setupForum() {
