@@ -497,20 +497,20 @@ public class SearchBeanImpl implements SearchBean
 							searchEnd, filterName, sortName);
 					if (searchResults != null && searchResults.size() < 3) {
 						if ((searchResults.size() > 0 && searchResults.get(0).getScore() < 1)) {
-							log.info("closest match: " + searchResults.get(0).getScore());
+							log.debug("closest match: " + searchResults.get(0).getScore());
 							String sug = searchService.getSearchSuggestion(search);
-							log.info("got suggestion: " + sug);
+							log.debug("got suggestion: " + sug);
 							this.searchTermSuggestion = sug;
 						} else if (searchResults.size() == 0) {
-							log.info("No hits getting suggestion");
+							log.debug("No hits getting suggestion");
 							String sug = searchService.getSearchSuggestion(search);
-							log.info("got suggestion: " + sug);
+							log.debug("got suggestion: " + sug);
 							this.searchTermSuggestion = sug;
 						}
 					} else if (searchResults == null || searchResults.size() == 0) {
-						log.info("No hits getting suggestion");
+						log.debug("No hits getting suggestion");
 						String sug = searchService.getSearchSuggestion(search);
-						log.info("got suggestion: " + sug);
+						log.debug("got suggestion: " + sug);
 						this.searchTermSuggestion = sug;
 					}
 				}

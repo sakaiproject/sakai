@@ -135,9 +135,10 @@ public interface SearchService extends Diagnosable
 	 * @param searchEnd
 	 * @param searchStart
 	 * @return
+	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
 	SearchList search(String searchTerms, List<String> contexts, int searchStart,
-			int searchEnd);
+			int searchEnd) throws InvalidSearchQueryException;
 
 	/**
 	 * This is the same as standard search, but the caller can specify, by name, the 
@@ -152,9 +153,10 @@ public interface SearchService extends Diagnosable
 	 * @param filterName a lucene filter 
 	 * @param sorterName a lucene sorter
 	 * @return
+	 * @throws InvalidSearchQueryException if unable to parse the query
 	 */
 	public SearchList search(String searchTerms, List<String> contexts, int start,
-			int end, String filterName, String sorterName);
+			int end, String filterName, String sorterName) throws InvalidSearchQueryException;
 	/**
 	 * Adds a function for the SearchService to respond to and route to the
 	 * index builder. EntityProducers that want their content to be searched,
