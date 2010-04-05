@@ -25,6 +25,9 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -38,6 +41,8 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
  */
 public class FullSearchBean
 {
+	
+	private static Log log = LogFactory.getLog(FullSearchBean.class);
 
 	/**
 	 * The search criteria
@@ -179,21 +184,30 @@ public class FullSearchBean
 	 */
 	public List search()
 	{
+		log.debug("search()");
 		if (searchResults == null)
 		{
-			List l = new ArrayList();
+			List<String> l = new ArrayList<String>();
 
 			l.add(toolManager.getCurrentPlacement().getContext());
 
 			long start = System.currentTimeMillis();
 			int searchStart = requestPage * pagesize;
 			int searchEnd = searchStart + pagesize;
-			searchResults = searchService.search(search, l, searchStart,
-					searchEnd);
-			long end = System.currentTimeMillis();
-			timeTaken = end - start;
-			nresults = searchResults.getFullSize();
+			try {
+				searchResults = searchService.search(search, l, searchStart,
+						searchEnd);
+				long end = System.currentTimeMillis();
+				timeTaken = end - start;
+				nresults = searchResults.getFullSize();
+			} 
+			catch (InvalidSearchQueryException e) {
+				//TODO we need to handle the exception and return a message to the user
+				e.printStackTrace();
+			}
+			
 		}
+		log.debug("got a searchresult of: " + searchResults.size());
 		return searchResults;
 	}
 
