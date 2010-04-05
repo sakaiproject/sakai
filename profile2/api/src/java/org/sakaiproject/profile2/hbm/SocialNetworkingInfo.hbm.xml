@@ -5,7 +5,7 @@
 
 <hibernate-mapping package="org.sakaiproject.profile2.model">
 
-	<class name="SocialNetworkingInfo" table="PROFILE_SOCIAL_NETWORKING_INFO_T">
+	<class name="SocialNetworkingInfo" table="PROFILE_SOCIAL_INFO_T">
 
 		<!-- one per user -->
 		<id name="userUuid" column="USER_UUID" length="99">

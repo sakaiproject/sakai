@@ -26,7 +26,7 @@ create sequence GALLERY_IMAGES_S;
 create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 
 /* add social networking table (PRFL-252, PRFL-224) */
-create table PROFILE_SOCIAL_NETWORKING_INFO_T (
+create table PROFILE_SOCIAL_INFO_T (
 	USER_UUID varchar2(99) not null,
 	FACEBOOK_USERNAME varchar2(255),
 	LINKEDIN_USERNAME varchar2(255),
