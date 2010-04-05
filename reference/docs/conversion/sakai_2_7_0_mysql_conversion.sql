@@ -640,6 +640,26 @@ alter table MFR_AREA_T add constraint MFR_AREA_CONTEXT_UUID_UNIQUE unique (CONTE
  
 CREATE UNIQUE INDEX MFR_PVT_FRM_OWNER ON MFR_PRIVATE_FORUM_T(OWNER, surrogateKey);
 
+--////////////////////////////////////////////////////
+--//  MSGCNTR-132
+--//  Drop unused MC table columns
+--////////////////////////////////////////////////////
+
+ALTER TABLE MFR_MESSAGE_T
+DROP COLUMN GRADEBOOK;
+
+ALTER TABLE MFR_MESSAGE_T
+DROP COLUMN GRADEBOOK_ASSIGNMENT;
+
+ALTER TABLE MFR_MESSAGE_T
+DROP COLUMN GRADECOMMENT;
+
+ALTER TABLE MFR_TOPIC_T
+DROP COLUMN GRADEBOOK;
+
+ALTER TABLE MFR_TOPIC_T
+DROP COLUMN GRADEBOOK_ASSIGNMENT;
+
 --/////////////////////////////////////////////////
 --/////////////////////////////////////////////////    
 --/////////////////////////////////////////////////
