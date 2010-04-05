@@ -6643,24 +6643,36 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentEdit aEdit = editAssignment(assignmentId, "doDelete_assignment", state, false);
 			if (aEdit != null)
 			{
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{ 
 				ResourcePropertiesEdit pEdit = aEdit.getPropertiesEdit();
 
 				String associateGradebookAssignment = pEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
 				String title = aEdit.getTitle();
 
 				// remove related event if there is one
 				removeCalendarEvent(state, aEdit, pEdit, title);
-				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
 				// remove related announcement if there is one
 				removeAnnouncement(state, pEdit);
-				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
 				// we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
 				// delete assignment and its submissions altogether
 				deleteAssignmentObjects(state, aEdit, true);
-
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
 				// remove from Gradebook
 				integrateGradebook(state, (String) ids.get (i), associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
+				}
+				}
+				}
+				}
+				}
 			}
 		} // for
 
@@ -6742,7 +6754,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				
 				// remove the assignment content
-				AssignmentContentEdit acEdit = editAssignmentContent(aContent.getId(), "deleteAssignmentObjects", state, false);
+				AssignmentContentEdit acEdit = editAssignmentContent(aContent.getReference(), "deleteAssignmentObjects", state, false);
 				if (acEdit != null)
 					AssignmentService.removeAssignmentContent(acEdit);
 			}
