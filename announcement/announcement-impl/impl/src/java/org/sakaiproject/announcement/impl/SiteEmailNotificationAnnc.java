@@ -206,7 +206,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			{
 				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append("<a href=\"" + attachment.getUrl() + "\">" + attachmentTitle + "</a>" + newline);
+				buf.append(attachmentTitle + ": " +attachment.getUrl() + newline);
 			}
 		}
 
