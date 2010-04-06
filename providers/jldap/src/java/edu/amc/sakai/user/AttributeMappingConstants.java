@@ -62,6 +62,12 @@ public abstract class AttributeMappingConstants {
 	 */
 	public static final String GROUP_MEMBERSHIP_ATTR_MAPPING_KEY = "groupMembership";
 	
+	/** Key into {@link #DEFAULT_ATTR_MAPPINGS} representing the logical
+	 * name of a user entry's JPEG photo attribute
+	 */
+	public static final String JPEG_PHOTO_ATTR_MAPPING_KEY = "jpegphoto";
+	
+	
 	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
 	 * the physical name of a user entry's login (aka Sakai "EID") attribute
 	 */
@@ -91,6 +97,11 @@ public abstract class AttributeMappingConstants {
 	 * the physical name of a user entry's group membership attribute
 	 */
 	public static final String DEFAULT_GROUP_MEMBERSHIP_ATTR = "groupMembership";
+	
+	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
+	 * the physical name of a user entry's JPEG photo attribute
+	 */
+	public static final String DEFAULT_JPEG_PHOTO_ATTR = "jpegPhoto";
 	
 	/**
 	 * Default set of user entry attribute mappings. Keys are

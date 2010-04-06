@@ -206,7 +206,8 @@
 				<entry key="preferredFirstName"><value>preferredName</value></entry>
 				<entry key="lastName"><value>sn</value></entry> 
 				<entry key="email"><value>email</value></entry>  
-				<entry key="groupMembership"><value>groupMembership</value></entry>     
+				<entry key="groupMembership"><value>groupMembership</value></entry>   
+				<entry key="jpegPhoto"><value>jpegPhoto</value></entry>   
 			</map>
 		</property -->
 		
