@@ -108,7 +108,11 @@ public class ResourcesWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Integer.toString(getTotalFiles());
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				String val = Integer.toString(getTotalFiles());
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatFiles() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {
@@ -166,8 +170,13 @@ public class ResourcesWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
-				return Long.toString(totalDistinctFileReads);
+				String val = Long.toString(totalDistinctFileReads);
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatOpenedFiles() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
+				
 			}
 			
 			@Override
@@ -268,12 +277,17 @@ public class ResourcesWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
+				String val = null;
 				if(mostOpenedFile != null) {
-					return Locator.getFacade().getStatsManager().getResourceName(mostOpenedFile, false);
+					val = Locator.getFacade().getStatsManager().getResourceName(mostOpenedFile, false);
 				}else{
-					return "-";
+					val = "-";
 				}
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatMostOpenedFile() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			
 			@Override
@@ -363,7 +377,10 @@ public class ResourcesWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
+				String val = null;
 				if(user != null) {
 					String id = null;
 					if(("-").equals(user) || ("?").equals(user)){
@@ -375,10 +392,12 @@ public class ResourcesWidget extends Panel {
 							id = user;
 						}
 					}
-					return id;
+					val = id;
 				}else{
-					return "-";
+					val = "-";
 				}
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatUserThatOpenedMoreFiles() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			
 			@Override

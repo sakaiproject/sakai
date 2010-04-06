@@ -96,7 +96,11 @@ public class VisitsWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteVisits(siteId));
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteVisits(siteId));
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {
@@ -151,7 +155,11 @@ public class VisitsWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUniqueVisits(siteId));
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUniqueVisits(siteId));
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatUniqueVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {
@@ -206,7 +214,11 @@ public class VisitsWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUsers(siteId));
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUsers(siteId));
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatEnrolledUsers() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {
@@ -238,6 +250,8 @@ public class VisitsWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				int enrUsersWithVisits = 0;
 				Set<String> enrUsers = getSiteUsers();
 				Set<String> usersWithVisits = getUsersWithVisits();
@@ -246,7 +260,9 @@ public class VisitsWidget extends Panel {
 						enrUsersWithVisits++;
 					}
 				}
-				return String.valueOf(enrUsersWithVisits);
+				String val = String.valueOf(enrUsersWithVisits);
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatEnrolledUsersWithVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {
@@ -298,6 +314,8 @@ public class VisitsWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				int enrUsersWithoutVisits = 0;
 				Set<String> enrUsers = getSiteUsers();
 				Set<String> usersWithVisits = getUsersWithVisits();
@@ -306,7 +324,9 @@ public class VisitsWidget extends Panel {
 						enrUsersWithoutVisits++;
 					}
 				}
-				return String.valueOf(enrUsersWithoutVisits);
+				String val = String.valueOf(enrUsersWithoutVisits);
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatEnrolledUsersWithoutVisits() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {

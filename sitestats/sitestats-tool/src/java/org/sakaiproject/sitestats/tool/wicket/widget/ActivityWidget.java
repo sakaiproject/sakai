@@ -106,7 +106,11 @@ public class ActivityWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteActivity(siteId, getPrefsdata().getToolEventsStringList()));
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				String val = Long.toString(Locator.getFacade().getStatsManager().getTotalSiteActivity(siteId, getPrefsdata().getToolEventsStringList()));
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatActivityEvents() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			@Override
 			public String getSecondValue() {
@@ -164,12 +168,17 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
+				String val = null;
 				if(mostActiveTool != null) {
-					return Locator.getFacade().getEventRegistryService().getToolName(mostActiveTool);
+					val = Locator.getFacade().getEventRegistryService().getToolName(mostActiveTool);
 				}else{
-					return "-";
+					val = "-";
 				}
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatMostActiveTool() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			
 			@Override
@@ -278,7 +287,10 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
 				processData();
+				String val = null;
 				if(mostActiveUser != null) {
 					String id = null;
 					if(("-").equals(mostActiveUser) || ("?").equals(mostActiveUser)){
@@ -290,10 +302,12 @@ public class ActivityWidget extends Panel {
 							id = mostActiveUser;
 						}
 					}
-					return id;
+					val = id;
 				}else{
-					return "-";
+					val = "-";
 				}
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatMostActiveUser() in " + (System.currentTimeMillis() - start) + " ms");
+				return val;
 			}
 			
 			@Override
