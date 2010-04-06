@@ -6027,6 +6027,10 @@ extends VelocityPortletStateAction
 					else if (timeObj.after(timeObj_p3))
 						state.setCurrentPage("third");
 				}
+				
+				// clean state
+				sstate.removeAttribute(STATE_SCHEDULE_TO);
+				sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
 			}
 			catch (IdUnusedException  e)
 			{
@@ -6414,6 +6418,10 @@ extends VelocityPortletStateAction
 						{
 							state.setState("week");
 						}
+						
+						// clean state
+						sstate.removeAttribute(STATE_SCHEDULE_TO);
+						sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
 					}
 					catch (IdUnusedException  e)
 					{
