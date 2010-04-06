@@ -178,6 +178,11 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 	
 	public void setForumSynopticInfoHelper(String userId, String siteId, int newMessageCount){
+		//this could be an anon access
+		if (userId == null && forumManager.getAnonRole()) {
+			userId = ".anon";
+		}
+		
 		setSynopticInfoHelper(userId, siteId, false, newMessageCount);
 	}
 	

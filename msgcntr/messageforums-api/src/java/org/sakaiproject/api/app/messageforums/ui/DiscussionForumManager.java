@@ -514,6 +514,11 @@ public interface DiscussionForumManager
    * @return forumId
    */
   public String ForumIdForMessage(Long messageId);
+  
+  /**
+   * Does the current site have anonymous visiting enabled
+   * @return
+   */
   public boolean  getAnonRole();
   
   /**

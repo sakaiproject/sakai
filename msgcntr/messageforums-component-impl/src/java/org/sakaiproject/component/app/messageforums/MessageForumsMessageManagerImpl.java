@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,8 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -479,6 +476,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	   if (topicId == null || userId == null) {
            LOG.error("findUnreadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
         		   		" and userId: " + userId);
+ 
            throw new IllegalArgumentException("Null Argument");
        }
 
@@ -489,7 +487,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
    public int findUnreadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findUnreadMessageCountByTopicId failed with topicId: " + topicId);
+            LOG.error("findUnreadMessageCountByTopicId failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 

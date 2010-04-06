@@ -2788,9 +2788,11 @@ public class DiscussionForumTool
 
     	// retrieve read status for all of the messages in this topic
     	Map messageReadStatusMap=null;
-    	if(getUserId()!=null){
+    	if(getUserId()!= null){
+    		LOG.debug("getting unread counts for " + getUserId());
     		messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, getUserId());
-    	}else if(getUserId()==null&&this.forumManager.getAnonRole()==true){
+    	}else if(getUserId() == null && this.forumManager.getAnonRole()==true){
+    		LOG.debug("getting unread counts for anon user");
     		messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, ".anon");
     	}
 

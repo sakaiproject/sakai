@@ -904,7 +904,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     try {
 		return isInstructor(userDirectoryService.getUser(userId), siteId);
 	} catch (UserNotDefinedException e) {
-		LOG.error("DiscussionForumManagerImpl: isInstructor(String userId, String siteId): " + e.getMessage());
+		LOG.debug("DiscussionForumManagerImpl: isInstructor(String userId, String siteId): " + e.getMessage());
 		return false;
 	}
   }
@@ -1633,16 +1633,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     Collections.sort(roleList);
     return roleList.iterator();
   }
+  
   public boolean  getAnonRole()
   {
-    LOG.debug("getAnonRoles()");
-   List roleList = new ArrayList();
-    AuthzGroup realm = null;
+   LOG.debug("getAnonRoles()");
+   AuthzGroup realm = null;
    try
     {
       realm = AuthzGroupService.getAuthzGroup(getContextSiteId());      
       Role anon = realm.getRole(".anon");
-     if (sessionManager.getCurrentSessionUserId()==null&&anon != null&&anon.getAllowedFunctions().contains("site.visit"))
+     if (sessionManager.getCurrentSessionUserId()==null && anon != null && anon.getAllowedFunctions().contains("site.visit"))
       {
 			return true;
       }
