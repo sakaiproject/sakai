@@ -22,6 +22,7 @@
 package org.sakaiproject.user.tool;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -258,7 +259,7 @@ public class UsersAction extends PagedResourceActionII
 
 		if (totalNumber < endNumber) endNumber = totalNumber;
 
-		params = new Object[]{$startNumber, $endNumber, $totalNumber};
+		params = new Object[]{startNumber, endNumber, totalNumber};
 
 		context.put("startNumber", Integer.valueOf(startNumber));
 		context.put("endNumber", Integer.valueOf(endNumber));
