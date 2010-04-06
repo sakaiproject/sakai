@@ -89,6 +89,9 @@ public class ProfileConstants {
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 	
+	//the property that an external provider may set into the user properties for the jpegPhoto field.
+	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
+	
 	/*
 	 * PREFERENCES
 	 */

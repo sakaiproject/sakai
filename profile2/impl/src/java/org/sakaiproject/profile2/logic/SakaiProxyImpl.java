@@ -1131,6 +1131,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getProvidedImageUrl(User user) {
+		return user.getProperties().getProperty(ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

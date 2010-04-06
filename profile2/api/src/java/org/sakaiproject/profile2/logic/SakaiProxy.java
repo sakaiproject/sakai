@@ -547,4 +547,14 @@ public interface SakaiProxy {
 	 */
 	public boolean toggleProfileLocked(String userId, boolean locked);
 	
+	/**
+	 * Gets the jpegPhoto property from the set of properties attached to a User object. 
+	 * 
+	 * This was added to the JLDAP Provider at SAK-17816.
+	 * 
+	 * @param user	User object to get the value from.
+	 * @return the value, or null if the property does not exist.
+	 */
+	public String getProvidedImageUrl(User user);
+	
 }
