@@ -207,7 +207,7 @@
 		#end
 		## end if there are any groups at all			
 		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
-			<a id="clearall" href="#">$thelp.getString("per.lis.clearall")</a> | 	<a id="restdef" href="#">$thelp.getString("per.lis.restoredef")</a>
+			<a id="restdef" href="#">$thelp.getString("per.lis.restoredef")</a>
 		</div>
 	</div>
 	
