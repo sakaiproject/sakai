@@ -6,7 +6,6 @@
 	<!--  SakaiProxy -->
  	<bean id="org.sakaiproject.profile2.logic.SakaiProxy"
     	class="org.sakaiproject.profile2.logic.SakaiProxyImpl"
-        singleton="true"
         init-method="init">
         <!-- API injection -->
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
@@ -21,34 +20,37 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
 		
-		<!-- Inject other resources -->
+		<!-- inject other resources -->
 		<property name="emailTemplates" ref="org.sakaiproject.profile2.emailtemplates.List" />
 		
 	</bean>
 	
-        
-	<!--  Setup the Profile IMPL as a DAO with Hibernate and give it the other beans as well  -->
-	<bean id="org.sakaiproject.profile2.api.ProfileDAO"
-    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
-    	singleton="true"
+	<!-- setup a DAO, accessed via the transaction proxy -->
+	<bean id="org.sakaiproject.profile2.dao.ProfileDaoTarget"
+    	class="org.sakaiproject.profile2.dao.impl.ProfileDaoImpl"
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<!-- <property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>-->
 	</bean>
-	
-	
-	<!-- Give the DAO above the GlobalTransactionManager -->
-	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+        
+	<!--  register the DAO as a transactional interceptor. Use the classloader proxy from gendao because this is a protected DAO -->
+	<bean id="org.sakaiproject.profile2.dao.ProfileDao"
+		class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">		
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		<property name="target" ref="org.sakaiproject.profile2.api.ProfileDAO" />
+		<property name="target" ref="org.sakaiproject.profile2.dao.ProfileDaoTarget" />
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
 			</props>
 		</property>
 	</bean>	
+	
+	<!-- ProfileLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
+    	init-method="init">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
 	
 	<!--  API Service beans -->
 	<bean id="org.sakaiproject.profile2.service.BaseProfileService" abstract="true">
@@ -79,7 +81,6 @@
 	<bean id="org.sakaiproject.profile2.service.ProfileLinkService" 
 		class="org.sakaiproject.profile2.service.ProfileLinkServiceImpl"
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
-    
     
     <!-- EntityBroker beans -->
 	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProviderImpl">

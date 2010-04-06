@@ -1,0 +1,1044 @@
+package org.sakaiproject.profile2.dao.impl;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.hibernate.CacheMode;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
+import org.sakaiproject.profile2.dao.ProfileDao;
+import org.sakaiproject.profile2.model.CompanyProfile;
+import org.sakaiproject.profile2.model.GalleryImage;
+import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageParticipant;
+import org.sakaiproject.profile2.model.MessageThread;
+import org.sakaiproject.profile2.model.ProfileFriend;
+import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.model.ProfileImageExternal;
+import org.sakaiproject.profile2.model.ProfileImageOfficial;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
+import org.sakaiproject.profile2.model.UserProfile;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+/**
+ * Internal DAO Interface for Profile2
+ * 
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+ *
+ */
+public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
+
+	private static final Logger log = Logger.getLogger(ProfileDaoImpl.class);
+
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> getRequestedConnectionUserIdsForUser(final String userId) {
+		
+		List<String> requests = new ArrayList<String>();
+		
+		//get friends of this user [and map it automatically to the Friend object]
+		//updated: now just returns a List of Strings
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE); 
+	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
+	  			
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	requests = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return requests;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> getConfirmedConnectionUserIdsForUser(final String userId) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("true", Boolean.TRUE); 
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return userUuids;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> findSakaiPersonsByNameOrEmail(final String search) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL);
+	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return userUuids;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> findSakaiPersonsByInterest(final String search) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
+	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return userUuids;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<ProfileImage> getCurrentProfileImageRecords(final String userId) {
+		
+		List<ProfileImage> images = new ArrayList<ProfileImage>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	return images;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImage getCurrentProfileImageRecord(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileImage) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<ProfileImage> getOtherProfileImageRecords(final String userId) {
+		
+		List<ProfileImage> images = new ArrayList<ProfileImage>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	return images;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileFriend getConnectionRecord(final String userId, final String friendId) {
+		
+		//this particular query checks for records when userId/friendId is in either column
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileFriend) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public CompanyProfile getCompanyProfile(final String userId, final long companyProfileId) {
+
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILE);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(ID, companyProfileId, Hibernate.LONG);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (CompanyProfile) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public GalleryImage getGalleryImageRecord(final String userId, final long imageId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(ID, imageId, Hibernate.LONG);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (GalleryImage) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImageOfficial getOfficialImageRecordForUser(final String userUuid) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_OFFICIAL_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileImageOfficial) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getConnectionRequestsForUserCount(final String userId) {
+		
+		int count = 0;
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE); 
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return count;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean addNewConnection(ProfileFriend profileFriend) {
+		
+		try {
+			getHibernateTemplate().save(profileFriend);
+			return true;
+			
+		} catch (Exception e) {
+			log.error("requestFriend failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+		
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean updateConnection(ProfileFriend profileFriend) {
+		
+		try {
+			getHibernateTemplate().update(profileFriend);
+			return true;
+		} catch (Exception e) {
+			log.error("confirmFriendRequest failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean removeConnection(ProfileFriend profileFriend) {
+		
+		//delete
+		try {
+			getHibernateTemplate().delete(profileFriend);
+			return true;
+		} catch (Exception e) {
+			log.error("removeConnection failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileFriend getPendingConnection(final String userId, final String friendId) {
+		
+		if(userId == null || friendId == null){
+	  		throw new IllegalArgumentException("Null Argument in getPendingConnection"); 
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUEST);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
+	  			q.setParameter(CONFIRMED, false, Hibernate.BOOLEAN);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileFriend) getHibernateTemplate().execute(hcb);
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileStatus getUserStatus(final String userId, final Date oldestDate) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(OLDEST_STATUS_DATE, oldestDate, Hibernate.DATE);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileStatus) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean setUserStatus(ProfileStatus profileStatus) {
+		
+		try {
+			//only allowing one status object per user, hence saveOrUpdate
+			getHibernateTemplate().saveOrUpdate(profileStatus);
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogic.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); 
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean clearUserStatus(ProfileStatus profileStatus) {
+				
+		try {
+			getHibernateTemplate().delete(profileStatus);
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogic.clearUserStatus() failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePrivacy addNewPrivacyRecord(ProfilePrivacy privacy) {
+		
+		try {
+			getHibernateTemplate().save(privacy);
+			return privacy;
+		} catch (Exception e) {
+			log.error("addPrivacyRecord failed. " + e.getClass() + ": " + e.getMessage());  
+			return null;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePrivacy getPrivacyRecord(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfilePrivacy) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean updatePrivacyRecord(final ProfilePrivacy privacy) {
+
+		try {
+			getHibernateTemplate().saveOrUpdate(privacy);
+			return true;
+		} catch (Exception e) {
+			log.error("updatePrivacyRecord failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
+		
+		try {
+			getHibernateTemplate().save(companyProfile);
+			return true;
+		} catch (Exception e) {
+			log.error("addNewCompanyProfile failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean updateCompanyProfile(final CompanyProfile companyProfile) {
+
+		try {
+			getHibernateTemplate().saveOrUpdate(companyProfile);
+			return true;
+		} catch (Exception e) {
+			log.error("updateCompanyProfile failed. "+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<CompanyProfile> getCompanyProfiles(final String userId) {
+		
+		List<CompanyProfile> companyProfiles = new ArrayList<CompanyProfile>();
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILES);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	companyProfiles = (List<CompanyProfile>) getHibernateTemplate().executeFind(hcb);
+		return companyProfiles;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean removeCompanyProfile(final CompanyProfile companyProfile) {
+
+		try {
+			getHibernateTemplate().delete(companyProfile);
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogicImpl.removeCompanyProfile() failed. "+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean addNewGalleryImage(final GalleryImage galleryImage) {
+		
+		try {
+			getHibernateTemplate().save(galleryImage);
+			return true;
+		} catch (Exception e) {
+			log.error("addNewGalleryImage failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<GalleryImage> getGalleryImages(final String userId) {
+		
+		List<GalleryImage> galleryImages = new ArrayList<GalleryImage>();
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	galleryImages = (List<GalleryImage>) getHibernateTemplate().executeFind(hcb);
+		return galleryImages;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean removeGalleryImage(final GalleryImage galleryImage) {
+		
+		try {
+			getHibernateTemplate().delete(galleryImage);
+			return true;
+		} catch (Exception e) {
+			log.error("removeGalleryImage failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_SOCIAL_NETWORKING_INFO);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (SocialNetworkingInfo) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo) {
+
+		try {
+			getHibernateTemplate().saveOrUpdate(socialNetworkingInfo);
+			return true;
+		} catch (Exception e) {
+			log.error("saveSocialNetworkingInfo failed. "+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean addNewProfileImage(final ProfileImage profileImage) {
+		
+		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					try {
+						//first get the current ProfileImage records for this user
+						List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(profileImage.getUserUuid()));
+            
+						for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
+							ProfileImage currentImage = (ProfileImage)i.next();
+              
+							//invalidate each
+							currentImage.setCurrent(false);
+              
+							//save
+							session.update(currentImage);
+						}
+              
+						//now save the new one
+						session.save(profileImage);
+						
+						// flush session
+			            session.flush();
+            
+					} catch(Exception e) {
+						log.error("addNewProfileImage failed. " + e.getClass() + ": " + e.getMessage()); 
+						return Boolean.FALSE;
+					}
+					return Boolean.TRUE;
+				}			
+		});
+		return success.booleanValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> getAllSakaiPersonIds() {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return userUuids;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<UserProfile> getUserProfiles(final int start, final int count) {
+		
+		List<UserProfile> profiles = new ArrayList<UserProfile>();
+
+		//get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into UserProfile pojo
+		//the idea is we *dont* want a SakaiPerson object
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSONS);
+
+	  			//see scalars in the hbm
+	  			q.setFirstResult(start);
+	  			q.setMaxResults(count);
+	  			q.setResultTransformer(Transformers.aliasToBean(UserProfile.class));
+	  			q.setCacheMode(CacheMode.GET);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	profiles = (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
+	  	return profiles;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImageExternal getExternalImageRecordForUser(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileImageExternal) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean saveExternalImage(ProfileImageExternal externalImage) {
+	
+		try {
+			getHibernateTemplate().saveOrUpdate(externalImage);
+			return true;
+		} catch (Exception e) {
+			log.error("saveExternalImage failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePreferences addNewPreferencesRecord(ProfilePreferences prefs) {
+		
+		try {
+			getHibernateTemplate().save(prefs);
+			return prefs;
+		} catch (Exception e) {
+			log.error("ProfileLogic.createDefaultPreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());  
+			return null;
+		}
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_PREFERENCES_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfilePreferences) getHibernateTemplate().execute(hcb);
+	}
+
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean savePreferencesRecord(ProfilePreferences prefs) {
+		
+		try {
+			getHibernateTemplate().saveOrUpdate(prefs);
+			return true;
+		} catch (Exception e) {
+			log.error("savePreferencesRecord failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getAllUnreadMessagesCount(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getThreadsWithUnreadMessagesCount(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<MessageThread> getMessageThreads(final String userId) {
+		
+		List<MessageThread> threads = new ArrayList<MessageThread>();
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	threads = (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
+	  	return threads;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getMessageThreadsCount(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS_COUNT);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Message> getMessagesInThread(final String threadId) {
+		
+		List<Message> messages = new ArrayList<Message>();
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	messages = (List<Message>) getHibernateTemplate().executeFind(hcb);
+	  	return messages;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getMessagesInThreadCount(final String threadId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD_COUNT);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public Message getMessage(final String id) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE);
+	  			q.setParameter(ID, id, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (Message) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public MessageThread getMessageThread(final String threadId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD);
+	  			q.setParameter(ID, threadId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (MessageThread)getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public Message getLatestMessageInThread(final String threadId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (Message) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean toggleMessageRead(MessageParticipant participant, final boolean read) {
+		
+		try {
+			participant.setRead(read);
+			getHibernateTemplate().saveOrUpdate(participant);
+			return true;
+		} catch (Exception e) {
+			log.error("toggleMessageRead failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID);
+	  			q.setParameter(MESSAGE_ID, messageId, Hibernate.STRING);
+	  			q.setParameter(UUID, userUuid, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (MessageParticipant) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> getThreadParticipants(final String threadId) {
+		
+		List<String> participants = new ArrayList<String>();
+		
+		//get
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_THREAD_PARTICIPANTS);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	participants = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return participants;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void saveNewThread(MessageThread thread) {
+		
+		try {
+			getHibernateTemplate().save(thread);
+			log.info("MessageThread saved with id= " + thread.getId());  
+		} catch (Exception e) {
+			log.error("saveNewThread failed. " + e.getClass() + ": " + e.getMessage());  
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void saveNewMessage(Message message) {
+		
+		try {
+			getHibernateTemplate().save(message);			
+			log.info("Message saved with id= " + message.getId());  
+		} catch (Exception e) {
+			log.error("saveNewMessage failed. " + e.getClass() + ": " + e.getMessage());  
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void saveNewMessageParticipant(MessageParticipant participant) {
+		
+		try {
+			getHibernateTemplate().save(participant);
+			log.info("MessageParticipant saved with id= " + participant.getId());  
+		} catch (Exception e) {
+			log.error("saveNewMessageParticipant failed. " + e.getClass() + ": " + e.getMessage());  
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void saveNewMessageParticipants(List<MessageParticipant> participants) {
+		
+		for(MessageParticipant participant : participants) {
+		
+			try {
+				getHibernateTemplate().save(participant);
+				log.info("MessageParticipant saved with id= " + participant.getId());  
+			} catch (Exception e) {
+				log.error("saveNewMessageParticipant failed. " + e.getClass() + ": " + e.getMessage());  
+			}
+		}
+	}
+	
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean saveOfficialImageUrl(ProfileImageOfficial officialImage) {
+		
+		try {
+			getHibernateTemplate().saveOrUpdate(officialImage);
+			return true;
+		} catch (Exception e) {
+			log.error("saveOfficialImageUrl failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	public void init() {
+	      log.debug("init");
+	}
+	
+}

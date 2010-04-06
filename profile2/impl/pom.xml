@@ -61,6 +61,10 @@
 			<groupId>stax</groupId>
 			<artifactId>stax</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>generic-dao</artifactId>
+		</dependency>
    		<!-- 
 		<dependency>
       		<groupId>org.sakaiproject.tinyurl</groupId>

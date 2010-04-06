@@ -356,7 +356,7 @@ public class MyBusinessEdit extends Panel {
 		// save company profiles
 		for (CompanyProfile companyProfile : userProfile.getCompanyProfiles()) {
 
-			if (!Locator.getProfileLogic().saveCompanyProfile(companyProfile)) {
+			if (!Locator.getProfileLogic().updateCompanyProfile(companyProfile)) {
 				
 				log.info("Couldn't save CompanyProfile for: " + userId);
 				return false;

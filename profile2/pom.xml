@@ -154,6 +154,7 @@
     	<wicketstuff.htmlvalidator.version>1.3.1</wicketstuff.htmlvalidator.version>
     	<sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>
     	<quartz.version>1.5.2</quartz.version>
+    	<genericdao.version>0.9.18</genericdao.version>
     	<legacy.profile.api.version>2.8-SNAPSHOT</legacy.profile.api.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -234,6 +235,11 @@
 				<version>${quartz.version}</version>
 				<scope>provided</scope>
 			</dependency>
+	        <dependency>
+	            <groupId>org.sakaiproject</groupId>
+	            <artifactId>generic-dao</artifactId>
+	            <version>${genericdao.version}</version>
+	        </dependency>
 			
 			<!-- StAX is bundled with JDK1.6, need this for 1.5 though (impl/pom.xml as well) -->
 			<dependency>

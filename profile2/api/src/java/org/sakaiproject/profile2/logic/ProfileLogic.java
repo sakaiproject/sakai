@@ -230,7 +230,7 @@ public interface ProfileLogic {
 	 * @param companyProfile the existing company profile to be saved.
 	 * @return the success of the operation.
 	 */
-	public boolean saveCompanyProfile(CompanyProfile companyProfile);
+	public boolean updateCompanyProfile(CompanyProfile companyProfile);
 	
 	/**
 	 * Adds a new gallery image to the database.
@@ -804,13 +804,7 @@ public interface ProfileLogic {
 	 */
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
 	
-	/**
-	 * Get a ProfileImageExternal record for a user
-	 * @param userId uuid of the user
-	 * @return
-	 */
-	public ProfileImageExternal getExternalImageRecordForUser(final String userId);
-	
+		
 	/**
 	 * Get the URL to an image that a user has specified as their profile image
 	 * @param userId		uuid of user
@@ -873,12 +867,6 @@ public interface ProfileLogic {
 	 */
 	public MessageThread getMessageThread(final String threadId);
 	
-	/**
-	 * Get the latest Message in a MessageThread
-	 * @param threadId 	id of the thread
-	 * @return
-	 */
-	public Message getLatestMessageInThread(final String threadId);
 		
 	/**
 	 * Gets a list of MessageThreads with messages to a given user, each containing the most recent messages in each thread
@@ -940,10 +928,10 @@ public interface ProfileLogic {
 	/**
 	 * Toggle a single message as read/unread
 	 * @param participant	the MessageParticipant record as this is the item that stores read/unread status
-	 * @param read		boolean if to be toggled as read/unread
+	 * @param status		boolean if to be toggled as read/unread
 	 * @return
 	 */
-	public boolean toggleMessageRead(MessageParticipant participant, final boolean read);
+	public boolean toggleMessageRead(MessageParticipant participant, final boolean status);
 	
 	/**
 	 * Get a MessageParticipant record
@@ -953,25 +941,6 @@ public interface ProfileLogic {
 	 */
 	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid);
 	
-	/**
-	 * Create a new/default MessageParticipant record. If a user is viewing a series of messages and doesn't have a recipient record, one will be created.
-	 * <p>For instance, if an existing thread adds a user to the list, they will not have a record for the previous messages. They need one though, so they can mark them as unread/delete them.
-	 * <p>This is a persistent object</p>
-	 * @param messageId		message id to get the record for
-	 * @param userUuid		uuid to get the record for
-	 * @return
-	 */
-	public MessageParticipant createDefaultMessageParticipantRecord(final String messageId, final String userUuid);
-
-	/**
-	 * Create a default MessageParticipant object for a message and user. Not persisted.
-	 * @see {@link createDefaultMessageParticipantRecord(long, String)}
-	 * @param messageId
-	 * @param userUuid
-	 * @return
-	 */
-	public MessageParticipant getDefaultMessageParticipantRecord(final String messageId, final String userUuid);
-
 	
 	/**
 	 * Get a list of all participants in a thread

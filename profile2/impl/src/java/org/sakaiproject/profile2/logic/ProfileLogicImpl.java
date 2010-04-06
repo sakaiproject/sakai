@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,12 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.CacheMode;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.transform.Transformers;
+import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
@@ -58,9 +52,6 @@ import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import twitter4j.Twitter;
 
@@ -74,67 +65,9 @@ import twitter4j.Twitter;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogic {
+public class ProfileLogicImpl implements ProfileLogic {
 
 	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
-
-	// Hibernate query constants
-	private static final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
-	private static final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";
-	private static final String QUERY_GET_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
-	private static final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
-	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
-	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT = "getFriendRequestsForUserCount"; 
-	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; 
-	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; 
-	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord"; 
-	private static final String QUERY_GET_USER_STATUS = "getUserStatus"; 
-	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord"; 
-	private static final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord"; 
-	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; 
-	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
-	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
-	private static final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
-	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
-	private static final String QUERY_GET_SOCIAL_NETWORKING_INFO = "getSocialNetworkingInfo";
-	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; 
-	private static final String QUERY_GET_ALL_SAKAI_PERSONS = "getAllSakaiPersons";
-	
-	//ProfileImageOfficial
-	private static final String QUERY_GET_OFFICIAL_IMAGE_RECORD = "getProfileImageOfficialRecord"; 
-
-	
-	// from Message.hbm.xml
-	private static final String QUERY_GET_ALL_UNREAD_MESSAGES_COUNT = "getAllUnreadMessagesCount";
-	private static final String QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT = "getThreadsWithUnreadMessagesCount";
-	private static final String QUERY_GET_MESSAGES_IN_THREAD="getMessagesInThread";
-	private static final String QUERY_GET_MESSAGES_IN_THREAD_COUNT="getMessagesInThreadCount";
-	private static final String QUERY_GET_MESSAGE="getMessage";
-	private static final String QUERY_GET_LATEST_MESSAGE_IN_THREAD = "getLatestMessageInThread";
-	private static final String QUERY_GET_MESSAGE_THREADS="getMessageThreads";
-	private static final String QUERY_GET_MESSAGE_THREADS_COUNT="getMessageThreadsCount";
-	
-	//from MessageThread.hbm.xml
-	private static final String QUERY_GET_MESSAGE_THREAD="getMessageThread";
-
-	//from MessageRecipient.hbm.xml
-	private static final String QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID="getMessageParticipantForMessageAndUuid";
-	private static final String QUERY_GET_THREAD_PARTICIPANTS="getThreadParticipants";
-
-	
-
-	// Hibernate object fields
-	private static final String USER_UUID = "userUuid";
-	private static final String FRIEND_UUID = "friendUuid";
-	private static final String CONFIRMED = "confirmed";
-	private static final String OLDEST_STATUS_DATE = "oldestStatusDate";
-	private static final String SEARCH = "search";
-	private static final String UUID = "uuid";
-	private static final String ID = "id";
-	private static final String THREAD = "thread";
-	private static final String MESSAGE_ID = "messageId";
-
-
 
 	
 	/**
@@ -144,7 +77,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		List<User> users = new ArrayList<User>();
 		List<Person> connections = new ArrayList<Person>();
-		users = sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userId));
+		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userId));
 		
 		for(User u: users) {
 			Person p = new Person();
@@ -173,7 +106,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		List<User> users = new ArrayList<User>();
 		List<Person> requests = new ArrayList<Person>();
-		users = UserDirectoryService.getUsers(getRequestedConnectionUserIdsForUser(userId));
+		users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
 		
 		for(User u: users) {
 			Person p = new Person();
@@ -191,21 +124,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */	
 	public int getConnectionRequestsForUserCount(final String userId) {
-		int count = 0;
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE); 
-	  			return q.uniqueResult();
-	  		}
-	  	};
-	  	
-	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	  	return count;
+		return dao.getConnectionRequestsForUserCount(userId);
 	}
 
 
@@ -233,27 +152,26 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public boolean requestFriend(String userId, String friendId) {
+		
 		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getFriendsForUser"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getFriendsForUser"); 
 	  	}
 		
-		//check values are valid, ie userId, friendId etc
+		//TODO check values are valid, ie userId, friendId etc
 		
-		try {
-			//make a ProfileFriend object with 'Friend Request' constructor
-			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
-			getHibernateTemplate().save(profileFriend);
-			log.info("User: " + userId + " requested friend: " + friendId);  
+		//make a ProfileFriend object with 'Friend Request' constructor
+		ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
+		
+		//make the request
+		if(dao.addNewConnection(profileFriend)) {
 			
+			log.info("User: " + userId + " requested friend: " + friendId);  
+
 			//send email notification
 			sendConnectionEmailNotification(friendId, userId, ProfileConstants.EMAIL_NOTIFICATION_REQUEST);
 			return true;
-			
-		} catch (Exception e) {
-			log.error("ProfileLogic.requestFriend() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
 		}
-		
+		return false;
 	}
 	
 	/**
@@ -261,14 +179,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean isFriendRequestPending(String fromUser, String toUser) {
 		
-		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
+		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
 		if(profileFriend == null) {
 			log.debug("ProfileLogic.isFriendRequestPending: No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");   
 			return false;
 		}
 		
-		Person person = new Person();
 		return true;
 	}
 	
@@ -278,11 +195,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public boolean confirmFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.confirmFriendRequest"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.confirmFriendRequest"); 
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
-		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
+		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
 		if(profileFriend == null) {
 			log.error("ProfileLogic.confirmFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");   
@@ -293,20 +210,16 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	profileFriend.setConfirmed(true);
 	  	profileFriend.setConfirmedDate(new Date());
 		
-		//save
-		try {
-			getHibernateTemplate().update(profileFriend);
-			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); 
+		if(dao.updateConnection(profileFriend)) {
 			
+			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); 
 			//send email notification
 			sendConnectionEmailNotification(fromUser, toUser, ProfileConstants.EMAIL_NOTIFICATION_CONFIRM);
 			
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.confirmFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
-		}
-	
+		} 
+		
+		return false;
 	}
 	
 	/**
@@ -315,28 +228,24 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public boolean ignoreFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.ignoreFriendRequest"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.ignoreFriendRequest"); 
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
-		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
+		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
 		if(profileFriend == null) {
 			log.error("ProfileLogic.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");   
 			return false;
 		}
-		
 	  	
 		//delete
-		try {
-			getHibernateTemplate().delete(profileFriend);
+		if(dao.removeConnection(profileFriend)) {
 			log.info("User: " + toUser + " ignored friend request from: " + fromUser);  
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.ignoreFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
 		}
-	
+		
+		return false;
 	}
 	
 	/**
@@ -345,51 +254,26 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public boolean removeFriend(String userId, String friendId) {
 		
 		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.removeFriend"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.removeFriend"); 
 	  	}
 		
 		//get the friend object for this connection pair (could be any way around)
-		ProfileFriend profileFriend = getFriendRecord(userId, friendId);
+		ProfileFriend profileFriend = dao.getConnectionRecord(userId, friendId);
 		
 		if(profileFriend == null){
 			log.error("ProfileFriend record does not exist for userId: " + userId + ", friendId: " + friendId);  
 			return false;
 		}
 				
-		//if ok, delete it
-		try {
-			getHibernateTemplate().delete(profileFriend);
-			log.info("User: " + userId + " removed friend: " + friendId);  
+		//delete
+		if(dao.removeConnection(profileFriend)) {
+			log.info("User: " + userId + " remove friend: " + friendId);  
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.removeFriend() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
 		}
-		
-		
+		return false;
 	}
 	
-	//only gets a pending request
-	private ProfileFriend getPendingFriendRequest(final String userId, final String friendId) {
-		
-		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getPendingFriendRequest"); 
-	  	}
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUEST);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
-	  			q.setParameter(CONFIRMED, false, Hibernate.BOOLEAN);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
 	
-		return (ProfileFriend) getHibernateTemplate().execute(hcb);
-	
-	}
 
 	
 	/**
@@ -398,25 +282,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public ProfileStatus getUserStatus(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getUserStatus"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getUserStatus"); 
 	  	}
 		
 		// compute oldest date for status 
 		Calendar cal = Calendar.getInstance(); 
 		cal.add(Calendar.DAY_OF_YEAR, -7); 
 		final Date oldestStatusDate = cal.getTime(); 
-				
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(OLDEST_STATUS_DATE, oldestStatusDate, Hibernate.DATE);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		return (ProfileStatus) getHibernateTemplate().execute(hcb);
+		
+		return dao.getUserStatus(userId, oldestStatusDate);
 	}
 	
 	
@@ -438,16 +312,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean setUserStatus(ProfileStatus profileStatus) {
 		
-		try {
-			//only allowing oen status object per user, hence saveOrUpdate
-			getHibernateTemplate().saveOrUpdate(profileStatus);
+		if(dao.setUserStatus(profileStatus)){
 			log.info("Updated status for user: " + profileStatus.getUserUuid()); 
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); 
-			return false;
-		}
+		} 
 		
+		return false;
 	}
 	
 	
@@ -456,8 +326,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean clearUserStatus(String userId) {
 		
-		//validate userId here - TODO
-		
 		ProfileStatus profileStatus = getUserStatus(userId);
 		
 		if(profileStatus == null){
@@ -465,16 +333,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			return false;
 		}
 				
-		//if ok, delete it
-		try {
-			getHibernateTemplate().delete(profileStatus);
+		if(dao.clearUserStatus(profileStatus)) {
 			log.info("User: " + userId + " cleared status");  
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.clearUserStatus() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
 		}
 		
+		return false;
 	}
 
 	
@@ -487,18 +351,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
 		
-		//see ProfilePrivacy for this constructor and what it all means
-		ProfilePrivacy profilePrivacy = getDefaultPrivacyRecord(userId);
+		ProfilePrivacy profilePrivacy = dao.addNewPrivacyRecord(getDefaultPrivacyRecord(userId));
 		
-		//save
-		try {
-			getHibernateTemplate().save(profilePrivacy);
+		if(profilePrivacy != null) {
 			log.info("Created default privacy record for user: " + userId); 
-			return profilePrivacy;
-		} catch (Exception e) {
-			log.error("ProfileLogic.createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage());  
-			return null;
 		}
+		
+		return profilePrivacy;
 	}
 	
 	/**
@@ -536,25 +395,16 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getPrivacyRecordForUser"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
 	  	}
 		
 		ProfilePrivacy privacy = null;
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		privacy = (ProfilePrivacy) getHibernateTemplate().execute(hcb);
+		privacy = dao.getPrivacyRecord(userId);
 		
-		//if none, get a default, which can be overridden by sakai.properties
+		//if none, get a default, non-persisted.
 		if(privacy == null) {
-			privacy = this.getDefaultPrivacyRecord(userId);
+			privacy = getDefaultPrivacyRecord(userId);
 		}
 		
 		return privacy;
@@ -571,82 +421,44 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			return false;
 		}
 		
-		try {
-			getHibernateTemplate().saveOrUpdate(profilePrivacy);
+		if(dao.updatePrivacyRecord(profilePrivacy)) {
 			log.info("Saved privacy record for user: " + profilePrivacy.getUserUuid()); 
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
-		}
+		} 
 		
+		return false;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
-		Boolean success = (Boolean) getHibernateTemplate().execute(
-				new HibernateCallback() {
-
-					public Object doInHibernate(Session session)
-							throws HibernateException, SQLException {
-
-						try {
-							session.save(companyProfile);
-							session.flush();
-						} catch (Exception e) {
-							log
-									.error("ProfileLogicImpl.addNewCompanyProfile() failed. "
-											+ e.getClass()
-											+ ": "
-											+ e.getMessage());
-							return false;
-						}
-						return true;
-					}
-
-				});
-
-		return success;
+		
+		if(dao.addNewCompanyProfile(companyProfile)){
+			log.info("Added new company profile for user: " + companyProfile.getUserUuid()); 
+			return true;
+		} 
+		
+		return false;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean saveCompanyProfile(final CompanyProfile companyProfile) {
+	public boolean updateCompanyProfile(final CompanyProfile companyProfile) {
 
-		try {
-			getHibernateTemplate().saveOrUpdate(companyProfile);
-			log.info("Saved company profile for user: "
-					+ companyProfile.getUserUuid());
+		if(dao.updateCompanyProfile(companyProfile)){
+			log.info("Saved company profile for user: "+ companyProfile.getUserUuid());
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.saveCompanyProfile() failed. "
-					+ e.getClass() + ": " + e.getMessage());
-			return false;
 		}
+		return false;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<CompanyProfile> getCompanyProfiles(final String userId) {
-		
-		List<CompanyProfile> companyProfiles = new ArrayList<CompanyProfile>();
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILES);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	companyProfiles = (List<CompanyProfile>) getHibernateTemplate().executeFind(hcb);
-	  	
-		return companyProfiles;
+		return dao.getCompanyProfiles(userId);
 	}
 	
 	/**
@@ -654,77 +466,45 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	 */
 	public boolean removeCompanyProfile(String userId, long companyProfileId) {
 		if (userId == null || new Long(companyProfileId) == null) {
-			throw new IllegalArgumentException(
-					"Null argument in ProfileLogicImpl.removeCompanyProfile()");
+			throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeCompanyProfile()");
 		}
 
-		CompanyProfile companyProfile = getCompanyProfile(userId,
-				companyProfileId);
+		CompanyProfile companyProfile = dao.getCompanyProfile(userId, companyProfileId);
 
 		if (companyProfile == null) {
-			log.error("CompanyProfile record does not exist for userId: "
-					+ userId + ", companyProfileId: " + companyProfileId);
+			log.error("CompanyProfile record does not exist for userId: "+ userId + ", companyProfileId: " + companyProfileId);
 			return false;
 		}
 
-		try {
-			getHibernateTemplate().delete(companyProfile);
-			log.info("User: " + userId + " removed company profile: "
-					+ companyProfileId);
+		if(dao.removeCompanyProfile(companyProfile)){
+			log.info("User: " + userId + " removed company profile: "+ companyProfileId);
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogicImpl.removeCompanyProfile() failed. "
-					+ e.getClass() + ": " + e.getMessage());
-			return false;
 		}
+		
+		return false;
 	}
+	
+	
+	
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public boolean addNewGalleryImage(final GalleryImage galleryImage) {
-		Boolean success = (Boolean) getHibernateTemplate().execute(
-				new HibernateCallback() {
-
-					public Object doInHibernate(Session session)
-							throws HibernateException, SQLException {
-
-						try {
-							session.save(galleryImage);
-							session.flush();
-						} catch (Exception e) {
-							log.error("ProfileLogicImpl.addNewGalleryImage() failed. "
-											+ e.getClass()
-											+ ": "
-											+ e.getMessage());
-							return false;
-						}
-						return true;
-					}
-
-				});
-
-		return success;
+		
+		if(dao.addNewGalleryImage(galleryImage)){
+			log.info("Added new gallery image for user: " + galleryImage.getUserUuid()); 
+			return true;
+		} 
+		
+		return false;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<GalleryImage> getGalleryImages(final String userId) {
-		List<GalleryImage> galleryImages = new ArrayList<GalleryImage>();
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	galleryImages = (List<GalleryImage>) getHibernateTemplate().executeFind(hcb);
-	  	
-		return galleryImages;
+		return dao.getGalleryImages(userId);
 	}
 	
 	/**
@@ -735,21 +515,19 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
 	  	}
 		
-		GalleryImage galleryImage = getGalleryImageRecord(userId, imageId);
+		GalleryImage galleryImage = dao.getGalleryImageRecord(userId, imageId);
 		
 		if(galleryImage == null){
 			log.error("GalleryImage record does not exist for userId: " + userId + ", imageId: " + imageId);
 			return false;
 		}
-				
-		try {
-			getHibernateTemplate().delete(galleryImage);
+		
+		if(dao.removeGalleryImage(galleryImage)){
 			log.info("User: " + userId + " removed gallery image: " + imageId);
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogicImpl.removeGalleryImage() failed. " + e.getClass() + ": " + e.getMessage());
-			return false;
-		}
+		} 
+		
+		return false;
 	}
 	
 	/**
@@ -758,49 +536,30 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getSocialNetworkingInfo"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getSocialNetworkingInfo"); 
 	  	}
 		
-		SocialNetworkingInfo socialNetworkingInfo = null;
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_SOCIAL_NETWORKING_INFO);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		socialNetworkingInfo = (SocialNetworkingInfo) getHibernateTemplate().execute(hcb);
-		
-		return socialNetworkingInfo;
+		return dao.getSocialNetworkingInfo(userId);
 	}
 
 	/**
  	 * {@inheritDoc}
  	 */
 	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId) {
-		
 		return new SocialNetworkingInfo(userId);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean saveSocialNetworkingInfo(
-			SocialNetworkingInfo socialNetworkingInfo) {
+	public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo) {
 
-		try {
-			getHibernateTemplate().saveOrUpdate(socialNetworkingInfo);
-			log.info("Updated social networking info for user: "
-					+ socialNetworkingInfo.getUserUuid());
+		if(dao.saveSocialNetworkingInfo(socialNetworkingInfo)) {
+			log.info("Updated social networking info for user: " + socialNetworkingInfo.getUserUuid());
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.saveSocialNetworkingInfo() failed. "
-					+ e.getClass() + ": " + e.getMessage());
-			return false;
-		}
+		} 
+		
+		return false;
 	}
 	
 	/**
@@ -808,38 +567,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean addNewProfileImage(final String userId, final String mainResource, final String thumbnailResource) {
 		
-		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					try {
-						//first get the current ProfileImage records for this user
-						List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(userId));
-            
-						for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
-							ProfileImage currentImage = (ProfileImage)i.next();
-              
-							//invalidate each
-							currentImage.setCurrent(false);
-              
-							//save
-							session.update(currentImage);
-						}
-						//now create a new ProfileImage object with the new data - this is our new current ProfileImage
-						ProfileImage newProfileImage = new ProfileImage(userId, mainResource, thumbnailResource, true);
-              
-						//save the new ProfileImage to the db
-						session.save(newProfileImage);
-						
-						// flush session
-			            session.flush();
-            
-					} catch(Exception e) {
-						log.error("ProfileLogic.saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage()); 
-						return Boolean.FALSE;
-					}
-					return Boolean.TRUE;
-				}			
-		});
-		return success.booleanValue();
+		ProfileImage profileImage = new ProfileImage(userId, mainResource, thumbnailResource, true);
+		if(dao.addNewProfileImage(profileImage)){
+			log.info("Added a new profile image for user: " + userId);
+			return true;
+		}
+		
+		return false;
 	}
 
 
@@ -848,8 +582,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public List<SearchResult> findUsersByNameOrEmail(String search, String userId) {
 		
-		//perform search (uses private method to wrap the two searches into one)
-		List<String> userUuids = new ArrayList<String>(findUsersByNameOrEmail(search));
+		//get users from SakaiPerson
+		List<String> userUuids = new ArrayList<String>(dao.findSakaiPersonsByNameOrEmail(search));
+
+		//get users from a user search
+		List<String> usersUuidsFromUserSearch = new ArrayList<String>(sakaiProxy.searchUsers(search));
+		
+		//combine with no duplicates
+		userUuids.removeAll(usersUuidsFromUserSearch);
+		userUuids.addAll(usersUuidsFromUserSearch);
 
 		//restrict to only return the max number. UI will print message
 		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
@@ -872,7 +613,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public List<SearchResult> findUsersByInterest(String search, String userId) {
 		
 		//perform search (uses private method to wrap the search)
-		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByInterest(search));
+		List<String> userUuids = new ArrayList<String>(dao.findSakaiPersonsByInterest(search));
 		
 		//restrict to only return the max number. UI will print message
 		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
@@ -888,25 +629,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 	
+	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<String> getAllSakaiPersonIds() {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	
-	  	return userUuids;
+		return dao.getAllSakaiPersonIds();
 	}
 	
 	
@@ -927,7 +655,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		//get friends of current user
 		//TODO change this to be a single lookup rather than iterating over a list
-		List<String> friendUuids = new ArrayList<String>(getConfirmedConnectionUserIdsForUser(userY));
+		List<String> friendUuids = new ArrayList<String>(dao.getConfirmedConnectionUserIdsForUser(userY));
 		
 		//if list of confirmed friends contains this user, they are a friend
 		if(friendUuids.contains(userX)) {
@@ -955,7 +683,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	
     	//pass to main
     	return isUserXVisibleInSearchesByUserY(userX, profilePrivacy, userY, friend);
-		
 	}
 	
 	
@@ -1192,8 +919,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean isUserXStaffInfoVisibleByUserY(String userX, String userY,
-			boolean friend) {
+	public boolean isUserXStaffInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//if user is requesting own info, they ARE allowed
     	if(userY.equals(userX)) {
@@ -1210,8 +936,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean isUserXStaffInfoVisibleByUserY(String userX,
-			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+	public boolean isUserXStaffInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
 		
 		//if user is requesting own info, they ARE allowed
     	if(userY.equals(userX)) {
@@ -1600,7 +1325,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		byte[] image = null;
 		
 		//get record from db
-		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		ProfileImage profileImage = dao.getCurrentProfileImageRecord(userId);
 		
 		if(profileImage == null) {
 			log.debug("ProfileLogic.getCurrentProfileImageForUser() null for userId: " + userId);
@@ -1631,7 +1356,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		ResourceWrapper resource = new ResourceWrapper();
 		
 		//get record from db
-		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		ProfileImage profileImage = dao.getCurrentProfileImageRecord(userId);
 		
 		if(profileImage == null) {
 			log.debug("ProfileLogic.getCurrentProfileImageForUserWrapped() null for userId: " + userId);
@@ -1660,7 +1385,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public boolean hasUploadedProfileImage(String userId) {
 		
 		//get record from db
-		ProfileImage record = getCurrentProfileImageRecord(userId);
+		ProfileImage record = dao.getCurrentProfileImageRecord(userId);
 		
 		if(record == null) {
 			return false;
@@ -1674,7 +1399,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public boolean hasExternalProfileImage(String userId) {
 		
 		//get record from db
-		ProfileImageExternal record = getExternalImageRecordForUser(userId);
+		ProfileImageExternal record = dao.getExternalImageRecordForUser(userId);
 		
 		if(record == null) {
 			return false;
@@ -1688,17 +1413,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
 		
-		ProfilePreferences prefs = getDefaultPreferencesRecord(userId);
+		ProfilePreferences prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
 		
-		//save
-		try {
-			getHibernateTemplate().save(prefs);
+		if(prefs != null) {
 			log.info("Created default preferences record for user: " + userId); 
-			return prefs;
-		} catch (Exception e) {
-			log.error("ProfileLogic.createDefaultPreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());  
-			return null;
 		}
+		
+		return prefs;
 	}
 	
 	
@@ -1726,21 +1447,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getPreferencesRecordForUser"); 
+	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPreferencesRecordForUser"); 
 	  	}
 		
-		ProfilePreferences prefs = null;
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_PREFERENCES_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		prefs = (ProfilePreferences) getHibernateTemplate().execute(hcb);
+		ProfilePreferences prefs = dao.getPreferencesRecordForUser(userId);
 		
 		if(prefs == null) {
 			return null;
@@ -1750,7 +1460,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
 		
 		return prefs;
-		
 	}
 	
 	/**
@@ -1768,14 +1477,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			prefs.setTwitterPasswordEncrypted(null);
 		}
 		
-		try {
-			getHibernateTemplate().saveOrUpdate(prefs);
+		if(dao.savePreferencesRecord(prefs)){
 			log.info("Updated preferences record for user: " + prefs.getUserUuid()); 
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.savePreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
-		}
+		} 
+		
+		return false;
 	}
 	
 	
@@ -1955,26 +1662,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public ProfileImageExternal getExternalImageRecordForUser(final String userId) {
-		
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getExternalImageRecordForUser"); 
-	  	}
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
 	
-		return (ProfileImageExternal) getHibernateTemplate().execute(hcb);
-	}
 	
 	/**
  	 * {@inheritDoc}
@@ -1982,7 +1670,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public String getExternalImageUrl(final String userId, final int imageType) {
 		
 		//get external image record for this user
-		ProfileImageExternal externalImage = getExternalImageRecordForUser(userId);
+		ProfileImageExternal externalImage = dao.getExternalImageRecordForUser(userId);
 		
 		//if none, return null
     	if(externalImage == null) {
@@ -2023,23 +1711,22 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean saveExternalImage(final String userId, final String mainUrl, final String thumbnailUrl) {
 		
-		//make an object out of the params
-		ProfileImageExternal ext = new ProfileImageExternal(userId, mainUrl, thumbnailUrl);
+		ProfileImageExternal externalImage = new ProfileImageExternal(userId, mainUrl, thumbnailUrl);
 		
-		try {
-			getHibernateTemplate().saveOrUpdate(ext);
-			log.info("Updated external image record for user: " + ext.getUserUuid()); 
+		if(dao.saveExternalImage(externalImage)) {
+			log.info("Updated external image record for user: " + userId); 
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.setExternalImage() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
-		}
+		} 
+		
+		return false;
 	}
 
 	
 		
 	/**
  	 * {@inheritDoc}
+ 	 * 
+ 	 * TODO: GET RID OF THIS. The new ProfileImageRenderer will be able to render URLs as is.
  	 */
 	public ResourceWrapper getURLResourceAsBytes(String url) {
 		
@@ -2098,22 +1785,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public int getAllUnreadMessagesCount(final String userId) {
-		
-		int count = 0;
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE);
-	  			return q.uniqueResult();
-	  		}
-	  	};
-	  	
-	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	  	return count;
+		return dao.getAllUnreadMessagesCount(userId);
 	}
 	
 	
@@ -2121,22 +1793,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public int getThreadsWithUnreadMessagesCount(final String userId) {
-		
-		int count = 0;
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE);
-	  			return q.uniqueResult();
-	  		}
-	  	};
-	  	
-	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	  	return count;
+		return dao.getThreadsWithUnreadMessagesCount(userId);
 	}
 	
 	
@@ -2163,7 +1820,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		message.setMessage(messageStr);
 		message.setDatePosted(new Date());
 		message.setThread(thread.getId());
-		saveNewMessage(message);
+		//saveNewMessage(message);
 		
 		
 		//setup participants
@@ -2210,7 +1867,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			message.setMessage(reply);
 			message.setDatePosted(new Date());
 			message.setThread(threadId);
-			saveNewMessage(message);
+			dao.saveNewMessage(message);
 			
 			//get the thread subject
 			String subject = getMessageThread(threadId).getSubject();
@@ -2223,7 +1880,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 					participant.setRead(true); //sender 
 				} 
 				
-				saveNewMessageParticipant(participant);
+				dao.saveNewMessageParticipant(participant);
 			}
 			
 			//send email notifications
@@ -2242,23 +1899,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public List<MessageThread> getMessageThreads(final String userId) {
 		
-		List<MessageThread> threads = new ArrayList<MessageThread>();
-		
-		//get threadIds
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	threads = (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
+		List<MessageThread> threads = dao.getMessageThreads(userId);
 	  	
 	  	//get latest message for each thread
 	  	for(MessageThread thread : threads) {
-	  		thread.setMostRecentMessage(getLatestMessageInThread(thread.getId()));
+	  		thread.setMostRecentMessage(dao.getLatestMessageInThread(thread.getId()));
 	  	}
 	  	
 	  	return threads;
@@ -2268,64 +1913,21 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public int getMessageThreadsCount(final String userId) {
-		
-		int count = 0;
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
-	  	
-	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	  	return count;
+		return dao.getMessageThreadsCount(userId);
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<Message> getMessagesInThread(final String threadId) {
-		
-		List<Message> messages = new ArrayList<Message>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	messages = (List<Message>) getHibernateTemplate().executeFind(hcb);
-	
-	  	return messages;
+		return dao.getMessagesInThread(threadId);
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public int getMessagesInThreadCount(final String threadId) {
-		
-		int count = 0;
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD_COUNT);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
-	  	
-	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	  	return count;
+		return dao.getMessagesInThreadCount(threadId);
 	}
 	
 	
@@ -2334,17 +1936,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public Message getMessage(final String id) {
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE);
-	  			q.setParameter(ID, id, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		return (Message) getHibernateTemplate().execute(hcb);
+		return dao.getMessage(id);
 	}
 	
 	/**
@@ -2352,58 +1944,25 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public MessageThread getMessageThread(final String threadId) {
 		
-		MessageThread thread = null;
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD);
-	  			q.setParameter(ID, threadId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		thread = (MessageThread)getHibernateTemplate().execute(hcb);
-		if(thread == null) {
+		MessageThread thread = dao.getMessageThread(threadId);
+		if(thread == null){
 			return null;
 		}
 		
 		//add the latest message for this thread
-		thread.setMostRecentMessage(getLatestMessageInThread(threadId));
+		thread.setMostRecentMessage(dao.getLatestMessageInThread(threadId));
 		
 		return thread;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public Message getLatestMessageInThread(final String threadId) {
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
 	
-		return (Message) getHibernateTemplate().execute(hcb);
-	}
 
 
 	/**
  	 * {@inheritDoc}
  	 */
-	
-	public boolean toggleMessageRead(MessageParticipant participant, final boolean read) {
-		try {
-			participant.setRead(read);
-			getHibernateTemplate().saveOrUpdate(participant);
-			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.toggleMessageRead() failed. " + e.getClass() + ": " + e.getMessage());
-			return false;
-		}
+	public boolean toggleMessageRead(MessageParticipant participant, final boolean status) {
+		return dao.toggleMessageRead(participant, status);
 	}
 	
 
@@ -2421,43 +1980,18 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid) {
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID);
-	  			q.setParameter(MESSAGE_ID, messageId, Hibernate.STRING);
-	  			q.setParameter(UUID, userUuid, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		return (MessageParticipant) getHibernateTemplate().execute(hcb);
+		return dao.getMessageParticipant(messageId, userUuid);
 	}
 
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public MessageParticipant createDefaultMessageParticipantRecord(final String messageId, final String userUuid) {
-		
-		MessageParticipant participant = getDefaultMessageParticipantRecord(messageId, userUuid);
-		
-		//save
-		try {
-			getHibernateTemplate().save(participant);
-			log.info("Created default message participant record for user: " + userUuid); 
-			return participant;
-		} catch (Exception e) {
-			log.error("ProfileLogic.createDefaultMessageParticipantRecord() failed. " + e.getClass() + ": " + e.getMessage());  
-			return null;
-		}
-	}
 	
 	
 	/**
- 	 * {@inheritDoc}
- 	 */
-	public MessageParticipant getDefaultMessageParticipantRecord(final String messageId, final String userUuid) {
+	 * Create a default MessageParticipant object for a message and user. This is so they can mark messages as unread/delete them. Not persisted until actioned.
+	 * @param messageId
+	 * @param userUuid
+	 * @return
+	 */
+	private MessageParticipant getDefaultMessageParticipantRecord(final String messageId, final String userUuid) {
 		
 		MessageParticipant participant = new MessageParticipant();
 		participant.setMessageId(messageId);
@@ -2472,21 +2006,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 * {@inheritDoc}
  	 */
 	public List<String> getThreadParticipants(final String threadId) {
-		
-		List<String> participants = new ArrayList<String>();
-		
-		//get
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_THREAD_PARTICIPANTS);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	participants = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return participants;
+		return dao.getThreadParticipants(threadId);
 	}
 	
 	/**
@@ -2650,26 +2170,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//	return persons;
 		//}
 		
-		List<UserProfile> profiles = new ArrayList<UserProfile>();
-
-		//get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into UserProfile pojo
-		//the idea is we *dont* want a SakaiPerson object
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSONS);
-
-	  			//see scalars in the hbm
-	  			
-	  			q.setFirstResult(start);
-	  			q.setMaxResults(count);
-	  			q.setResultTransformer(Transformers.aliasToBean(UserProfile.class));
-	  			q.setCacheMode(CacheMode.GET);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	profiles = (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
+		List<UserProfile> profiles = dao.getUserProfiles(start, count);
 		
 	  	//foreach UserProfile returned, build our person object
 	  	for(UserProfile profile: profiles) {
@@ -2703,7 +2204,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public String getOfficialImageUrl(final String userUuid) {
 		//get external image record for this user
-		ProfileImageOfficial official = getOfficialImageRecordForUser(userUuid);
+		ProfileImageOfficial official = dao.getOfficialImageRecordForUser(userUuid);
 		
 		//if none, return null
     	if(official == null) {
@@ -2723,17 +2224,14 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean saveOfficialImageUrl(final String userUuid, final String url) {
 		
-		//make an object out of the params
-		ProfileImageOfficial official = new ProfileImageOfficial(userUuid, url);
+		ProfileImageOfficial officialImage = new ProfileImageOfficial(userUuid, url);
 		
-		try {
-			getHibernateTemplate().saveOrUpdate(official);
-			log.info("Updated official image record for user: " + official.getUserUuid()); 
+		if(dao.saveOfficialImageUrl(officialImage)) {
+			log.info("Updated official image record for user: " + userUuid); 
 			return true;
-		} catch (Exception e) {
-			log.error("ProfileLogic.saveOfficialImageUrl() failed. " + e.getClass() + ": " + e.getMessage());  
-			return false;
-		}
+		} 
+		
+		return false;
 	}
 	
 	/**
@@ -2772,100 +2270,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		base.append(ProfileConstants.LINK_ENTITY_PREFIX);
 		return base.toString();
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	/**
-	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
-	 * Returns: (all those where userId is the friend_uuid and confirmed=false)
-	 *
-	 * @param userId		uuid of the user to retrieve the list of friends for
-	 */
-	private List<String> getRequestedConnectionUserIdsForUser(final String userId) {
 		
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getFriendRequestsForUser()"); 
-	  	}
-		
-		List<String> requests = new ArrayList<String>();
-		
-		//get friends of this user [and map it automatically to the Friend object]
-		//updated: now just returns a List of Strings
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE); 
-	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
-	  			
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	requests = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	
-	  	return requests;
-	}
-	
-	/**
-	 * Get a list of confirmed connections for a given user. Uses a native SQL query so we can use unions
-	 * Returns: (all those where userId is the user_uuid and confirmed=true) & (all those where user is friend_uuid and confirmed=true)
-	 *
-	 * This only returns userIds. If you want a list of Person objects, see getConnectionsForUser()
-	 * 
-	 * @param userId		uuid of the user to retrieve the list of friends for
-	 */
-	private List<String> getConfirmedConnectionUserIdsForUser(final String userId) {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("true", Boolean.TRUE); 
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	
-	  	return userUuids;
-	}
-	
-	
 	
 	
 	// helper method to check if all required twitter fields are set properly
@@ -2877,198 +2282,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	
 	
 	
-	//private method to query SakaiPerson for matches
-	//this should go in the profile ProfilePersistence API
-	private List<String> findSakaiPersonsByNameOrEmail(final String search) {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL);
-	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
 	
-	  	return userUuids;
-	}
-	
-	
-	//private method to query SakaiPerson for matches
-	//this should go in the profile ProfilePersistence API
-	private List<String> findSakaiPersonsByInterest(final String search) {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
-	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	
-	  	return userUuids;
-	}
-
-
-	
-	
-	
-	/**
-	 * Get the current ProfileImage records from the database.
-	 * There should only ever be one, but in case things get out of sync this returns all.
-	 * This method is only used when we are adding a new image as we need to invalidate all of the others
-	 * If you are just wanting to retrieve the latest image, see getCurrentProfileImageRecord()
-	 *
-	 * @param userId		userId of the user
-	 */
-	private List<ProfileImage> getCurrentProfileImageRecords(final String userId) {
-		
-		List<ProfileImage> images = new ArrayList<ProfileImage>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
-	  	
-	  	return images;
-	}
-
-
-	/**
-	 * Get the current ProfileImage record from the database.
-	 * There should only ever be one, but if there are more this will return the latest. 
-	 * This is called when retrieving a profile image for a user. When adding a new image, there is a call
-	 * to a private method called getCurrentProfileImageRecords() which should invalidate any multiple current images
-	 *
-	 * @param userId		userId of the user
-	 */
-	private ProfileImage getCurrentProfileImageRecord(final String userId) {
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		return (ProfileImage) getHibernateTemplate().execute(hcb);
-	}
-	
-	
-	/**
-	 * Get old ProfileImage records from the database. 
-	 * TODO: Used for displaying old the profile pictures album
-	 *
-	 * @param userId		userId of the user
-	 */
-	private List<ProfileImage> getOtherProfileImageRecords(final String userId) {
-		
-		List<ProfileImage> images = new ArrayList<ProfileImage>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
-	  	
-	  	return images;
-	}
-
-
-	//gets a friend record and tries both column arrangements
-	private ProfileFriend getFriendRecord(final String userId, final String friendId) {
-		
-		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getFriendRecord"); 
-	  	}
-		
-		ProfileFriend profileFriend = null;
-		
-		//this particular query checks for records when userId/friendId is in either column
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		profileFriend = (ProfileFriend) getHibernateTemplate().execute(hcb);
-	
-		return profileFriend;
-	}
-	
-	private CompanyProfile getCompanyProfile(final String userId,
-			final long companyProfileId) {
-
-		CompanyProfile companyProfile = null;
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILE);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(ID, companyProfileId, Hibernate.LONG);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		companyProfile = (CompanyProfile) getHibernateTemplate().execute(hcb);
-	
-		return companyProfile;
-	}
-	
-	private GalleryImage getGalleryImageRecord(final String userId, final long imageId) {
-		GalleryImage galleryImage = null;
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(ID, imageId, Hibernate.LONG);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
-	
-		galleryImage = (GalleryImage) getHibernateTemplate().execute(hcb);
-	
-		return galleryImage;
-	}
 	
 	//private method to back the search methods. returns only uuids which then need to be checked for privacy settings etc.
 	private List<String> findUsersByNameOrEmail(String search) {
 		
 		//get users from SakaiPerson
-		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByNameOrEmail(search));
+		List<String> userUuids = new ArrayList<String>(dao.findSakaiPersonsByNameOrEmail(search));
 
 		//get users from UserDirectoryService
 		List<String> usersUuidsFromUserDirectoryService = new ArrayList<String>(sakaiProxy.searchUsers(search));
@@ -3191,90 +2411,18 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	 * helper method to save a message once all parts have been created. takes care of rollbacks incase of failure (TODO)
 	 */
 	private boolean saveAllNewMessageParts(MessageThread thread, Message message, List<MessageParticipant> participants) {
-		saveNewThread(thread);
-		saveNewMessage(message);
-		saveNewMessageParticipants(participants);
+		dao.saveNewThread(thread);
+		dao.saveNewMessage(message);
+		dao.saveNewMessageParticipants(participants);
 
 		return true;
 	}
 	
 	
-	/*
-	 * Save a thread
-	 */
-	private void saveNewThread(MessageThread thread) {
-		
-		try {
-			getHibernateTemplate().save(thread);
-			log.info("MessageThread saved with id= " + thread.getId());  
-		} catch (Exception e) {
-			log.error("ProfileLogic.saveNewThread() failed. " + e.getClass() + ": " + e.getMessage());  
-		}
-	}
-	
-	/*
-	 * Save a message
-	 */
-	private void saveNewMessage(Message message) {
-		
-		try {
-			getHibernateTemplate().save(message);			
-			log.info("Message saved with id= " + message.getId());  
-		} catch (Exception e) {
-			log.error("ProfileLogic.saveNewMessage() failed. " + e.getClass() + ": " + e.getMessage());  
-		}
-	}
-	
-	/*
-	 * Save a message participant
-	 */
-	private void saveNewMessageParticipant(MessageParticipant participant) {
-		
-		try {
-			getHibernateTemplate().save(participant);
-			log.info("MessageParticipant saved with id= " + participant.getId());  
-		} catch (Exception e) {
-			log.error("ProfileLogic.saveNewMessageParticipant() failed. " + e.getClass() + ": " + e.getMessage());  
-		}
-	}
-	
-	/*
-	 * Save a list of message participants
-	 */
-	private void saveNewMessageParticipants(List<MessageParticipant> participants) {
-		
-		for(MessageParticipant participant : participants) {
-		
-			try {
-				getHibernateTemplate().save(participant);
-				log.info("MessageParticipant saved with id= " + participant.getId());  
-			} catch (Exception e) {
-				log.error("ProfileLogic.saveNewMessageParticipant() failed. " + e.getClass() + ": " + e.getMessage());  
-			}
-		}
-	}
 	
 	
-	/*
-	 * Gets a ProfileImageOfficial record for the given user
-	 */
-	private ProfileImageOfficial getOfficialImageRecordForUser(final String userUuid) {
-		
-		if(userUuid == null){
-	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getOfficialImageRecordForUser"); 
-	  	}
-		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_OFFICIAL_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
 	
-		return (ProfileImageOfficial) getHibernateTemplate().execute(hcb);
-	}
+	
 	
 	
 	
@@ -3402,6 +2550,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
+	}
+	
+	//setup DAO
+	private ProfileDao dao;
+	public void setDao(ProfileDao dao) {
+		this.dao = dao;
 	}
 	
 	//setup TinyUrlService API
