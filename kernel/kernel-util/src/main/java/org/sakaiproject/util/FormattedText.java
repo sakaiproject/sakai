@@ -611,34 +611,32 @@ public class FormattedText
 	 *        The anchor tag to be normalized.
 	 * @return The anchor tag containing only href and target="_blank".
 	 */
-	public static String processAnchor(String anchor)
-	{
-		String newAnchor = "";
-		String href = null;
+    public static String processAnchor(String anchor) {
+        String newAnchor = "";
+        String href = null;
 
-		// get href
-		try
-		{
-			Matcher matcher = M_patternHref.matcher(anchor);
-			if (matcher.find()) href = matcher.group();
-		}
-		catch (Exception e)
-		{
-			M_log.warn("FormattedText.processAnchor ", e);
-		}
+        // get href
+        try {
+            Matcher matcher = M_patternHref.matcher(anchor);
+            if (matcher.find()) {
+                href = matcher.group();
+            }
+        } catch (Exception e) {
+            M_log.warn("FormattedText.processAnchor ", e);
+        }
 
-		// open in a new window
-		if (href != null)
-		{
-			href = href.replaceAll("\"", "");
-			href = href.replaceAll(">", "");
-			href = href.replaceFirst("href=", "href=\"");
-			newAnchor = "<a " + href + "\" target=\"_blank\">";
-		}
-		else
-			M_log.warn("FormattedText.processAnchor href == null");
-		return newAnchor;
-	}
+        // open in a new window
+        if (href != null) {
+            href = href.replaceAll("\"", "");
+            href = href.replaceAll(">", "");
+            href = href.replaceFirst("href=", "href=\"");
+            newAnchor = "<a " + href + "\" target=\"_blank\">";
+        } else {
+            M_log.debug("FormattedText.processAnchor href == null");
+            newAnchor = anchor; // default to the original one so we don't lose the anchor
+        }
+        return newAnchor;
+    }
 
 	/**
 	 * Processes and validates character data as HTML. Disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags. Encodes the text according to the formatted text specification, for the rest of the system to use.
