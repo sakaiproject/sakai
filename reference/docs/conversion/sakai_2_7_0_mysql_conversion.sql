@@ -705,7 +705,7 @@ add (
 alter table GB_GRADEBOOK_T
 add (
 	IS_EQUAL_WEIGHT_CATS tinyint(1),
-	IS_SCALED_EXTRA_CREDIT tinyint(1)
+	IS_SCALED_EXTRA_CREDIT tinyint(1),
 	DO_SHOW_MEAN tinyint(1),
 	DO_SHOW_MEDIAN tinyint(1),
 	DO_SHOW_MODE tinyint(1),
