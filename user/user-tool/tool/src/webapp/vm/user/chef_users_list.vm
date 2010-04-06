@@ -19,9 +19,6 @@
 		<div class="listNav">
 						#if($totalNumber>0)
 						<div class="instruction">	
-						\#{
-							Object[] params = new Object[]{$startNumber, $endNumber, $totalNumber};
-						}#
 						$tlang.getFormattedMessage("uselis.list.youare_of_results", params))
 						</div>
 						#end
@@ -49,21 +46,8 @@
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("sitedipag.listnavselect")</span>
 							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
-\#{
-  ArrayList list = new ArrayList();
-  list.add(5);
-  list.add(10);
-  list.add(20);
-  list.add(50);
-  list.add(100);
-  list.add(200);
-  pageContext.setAttribute("list", list);
-}#
 #foreach (value in list)
-\#{
-  Object[] params = new Object[]{value};
-}#
-								<option value="$value" #if($pagesize == $value) selected="selected" #end>$tlang.getFormattedMessage("uselis.show",params)</option>
+								<option value="$value" #if($pagesize == $value) selected="selected" #end>$tlang.getFormattedMessage("uselis.show",new Object[]{value})</option>
 #end
 							</select>
 						</form>

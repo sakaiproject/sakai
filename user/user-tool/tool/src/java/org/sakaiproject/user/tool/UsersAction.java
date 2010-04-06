@@ -240,6 +240,15 @@ public class UsersAction extends PagedResourceActionII
 		int endNumber = pageSize * currentPageNubmer;
 
 		int totalNumber = 0;
+		Object[] params;
+		ArrayList list = new ArrayList();
+		list.add(5);
+		list.add(10);
+		list.add(20);
+		list.add(50);
+		list.add(100);
+		list.add(200);
+
 		try
 		{
 			totalNumber = Integer.valueOf(state.getAttribute(STATE_NUM_MESSAGES).toString()).intValue();
@@ -249,9 +258,13 @@ public class UsersAction extends PagedResourceActionII
 
 		if (totalNumber < endNumber) endNumber = totalNumber;
 
+		params = new Object[]{$startNumber, $endNumber, $totalNumber};
+
 		context.put("startNumber", Integer.valueOf(startNumber));
 		context.put("endNumber", Integer.valueOf(endNumber));
 		context.put("totalNumber", Integer.valueOf(totalNumber));
+		context.put("params", params);
+		context.put("list", list);
 		pagingInfoToContext(state, context);
 
 		// add the search commands
