@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Tool using Sun's RI (sakai-jsf-sun-ri-tool)</name>
+    <name>Sakai JSF Tool using Sun's RI (jsf-sun-ri-tool)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-tool-sun</artifactId>
     <organization>

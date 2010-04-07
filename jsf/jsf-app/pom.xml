@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Extensions (sakai-jsf-app)</name>
+    <name>Sakai JSF Extensions (jsf-app)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-app</artifactId>
     <organization>

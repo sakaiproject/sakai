@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Widgets (sakai-jsf-widgets)</name>
+    <name>Sakai JSF Widgets (jsf-widgets)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-widgets</artifactId>
     <organization>
