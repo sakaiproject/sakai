@@ -69,9 +69,9 @@
 					</sakai:panel_edit>
 				</sakai:hideDivision> --%>
 				
-				<%-- <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/> --%>
+				<%-- <sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/> --%>
 				
-				<%--<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
+				<%--<sakai:script contextBase="/jsf-resource" path="/hideDivision/hideDivision.js"/>
 				
 				<sakai:hideDivision title="#{msgs.advanced}">--%>
 				<%--<sakai:panel_edit>
@@ -94,7 +94,7 @@
 					</sakai:panel_titled>
 				
 				</sakai:hideDivision>
-				<script type="text/javascript">showHideDiv(<h:outputText value="#{msgs.divid}"/>, '/sakai-jsf-resource');</script>--%>
+				<script type="text/javascript">showHideDiv(<h:outputText value="#{msgs.divid}"/>, '/jsf-resource');</script>--%>
 				
 				<br />
 				
