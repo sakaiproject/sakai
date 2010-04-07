@@ -31,10 +31,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -42,11 +42,16 @@ public class MyInfoDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
-	private transient ProfileLogic profileLogic;
-	private transient SakaiProxy sakaiProxy;
 	private int visibleFieldCount = 0;
 	private String birthday = ""; 
 	private String birthdayDisplay = "";
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
 	
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
 		super(id);
@@ -56,9 +61,7 @@ public class MyInfoDisplay extends Panel {
 		//this panel stuff
 		final Component thisPanel = this;
 		
-		//get API's
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 		
 		//get userId of this profile
 		String userId = userProfile.getUserUuid();
@@ -194,16 +197,8 @@ public class MyInfoDisplay extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInfoDisplay has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
 	
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
 	
 }

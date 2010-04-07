@@ -48,11 +48,11 @@ import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
-import org.sakaiproject.profile2.tool.pages.panels.MyStaffDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyBusinessDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyStaffDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyStudentDisplay;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
@@ -507,8 +507,8 @@ public class MyProfile extends BasePage {
 		in.defaultReadObject();
 		log.debug("MyProfile has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		//profileLogic = getProfileLogic();
+		//sakaiProxy = getSakaiProxy();
 	}	
 	
 	

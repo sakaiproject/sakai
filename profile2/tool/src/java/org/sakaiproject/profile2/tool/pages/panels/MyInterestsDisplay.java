@@ -28,11 +28,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInterestsDisplay extends Panel {
@@ -40,16 +39,16 @@ public class MyInterestsDisplay extends Panel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
-	private transient SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
 	
 	public MyInterestsDisplay(final String id, final UserProfile userProfile) {
 		super(id);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
 		
 		//get userProfile from userProfileModel
 		//UserProfile userProfile = (UserProfile) this.getModelObject();
@@ -229,12 +228,7 @@ public class MyInterestsDisplay extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInterestsDisplay has been deserialized.");
 		//re-init our transient objects
-		sakaiProxy = getSakaiProxy();
 	}
 
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
 	
 }

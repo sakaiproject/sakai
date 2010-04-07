@@ -80,4 +80,11 @@
 	<listener>
 		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
 	</listener>
+	
+	<!-- Standard Spring listener for dependency injection. The Sakai one above replaces this in Sakai apps -->
+	<!-- 
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	-->
 </web-app>

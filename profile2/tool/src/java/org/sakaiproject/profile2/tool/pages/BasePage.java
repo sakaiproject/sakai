@@ -27,13 +27,11 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
 
 import wicket.contrib.tinymce.settings.TinyMCESettings;
 
@@ -41,8 +39,15 @@ import wicket.contrib.tinymce.settings.TinyMCESettings;
 public class BasePage extends WebPage implements IHeaderContributor {
 
 	private static final Logger log = Logger.getLogger(BasePage.class); 
-	protected transient SakaiProxy sakaiProxy;
-	protected transient ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	protected ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
+	protected ProfileImageService profileImageService;
 	
 	public BasePage() {
 		//super();
@@ -50,10 +55,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		log.debug("BasePage()");
 		
 		//get SakaiProxy API
-		sakaiProxy = getSakaiProxy();
+		//sakaiProxy = getSakaiProxy();
 		
 		//get ProfileLogic API
-		profileLogic = getProfileLogic();
+		//profileLogic = getProfileLogic();
 		
 		//set Locale - all pages will inherit this.
 		setUserPreferredLocale();
@@ -211,8 +216,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	public void renderHead(IHeaderResponse response) {
 		//get Sakai skin
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String toolCSS = getToolSkinCSS(skinRepo);
+		String skinRepo = sakaiProxy.getSkinRepoProperty();
+		String toolCSS = sakaiProxy.getToolSkinCSS(skinRepo);
 		String toolBaseCSS = skinRepo + "/tool_base.css";
 		
 		//Sakai additions
@@ -255,46 +260,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 	}
 	
-	protected String getToolSkinCSS(String skinRepo) {
-		String skin = null;
-		try {
-			skin = SiteService.findTool(SessionManager.getCurrentToolSession().getPlacementId()).getSkin();			
-		}
-		catch(Exception e) {
-			skin = ServerConfigurationService.getString("skin.default");
-		}
-		
-		if(skin == null) {
-			skin = ServerConfigurationService.getString("skin.default");
-		}
-		
-		return skinRepo + "/" + skin + "/tool.css";
-	}
-	
-	/*
-	protected Label newResourceLabel(String id, Component component) {
-		return new Label(id, new StringResourceModel(id, component, null));
-	}
-	
-	public String getResourceModel(String resourceKey, IModel model) {
-		return new StringResourceModel(resourceKey, this, model).getString();
-	}
-	*/
-	
 	public BasePage getBasePage() {
 		return this;
 	}
-
-	
-	/* helper methods for our child pages to get at the API's */
-	protected SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	protected ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
-
 	
 	/* disable caching
 	protected void setHeaders(WebResponse response) { 

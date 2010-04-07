@@ -25,11 +25,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -48,17 +49,19 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(FriendsFeedDataProvider.class); 
-	private transient ProfileLogic profileLogic;
 	private transient List<Person> friends = new ArrayList<Person>();
 	private String userId;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
 	public FriendsFeedDataProvider(final String userId) {
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
 		
 		//set userId
 		this.userId = userId;
-		
-		//get Profile
-		profileLogic = getProfileLogic();
 		
 		//get list of friends
 		friends = getFriendsForUser(userId);
@@ -122,13 +125,10 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		in.defaultReadObject();
 		log.debug("FriendsFeedDataProvider has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
 		friends = getFriendsForUser(userId);
 	}
     
-    private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
+    
 }
 
 

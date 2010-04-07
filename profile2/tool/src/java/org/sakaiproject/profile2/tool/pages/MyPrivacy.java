@@ -422,8 +422,7 @@ public class MyPrivacy extends BasePage {
 		in.defaultReadObject();
 		log.debug("MyPrivacy has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
 	
 	

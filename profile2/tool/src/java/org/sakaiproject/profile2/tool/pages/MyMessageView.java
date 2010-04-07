@@ -320,8 +320,7 @@ public class MyMessageView extends BasePage {
 		in.defaultReadObject();
 		log.debug("MessageList has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
 	
 }

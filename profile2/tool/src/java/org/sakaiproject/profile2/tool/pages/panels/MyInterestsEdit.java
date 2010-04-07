@@ -36,11 +36,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -52,15 +53,17 @@ public class MyInterestsEdit extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInterestsEdit.class);
-    private transient SakaiProxy sakaiProxy;
+    
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	public MyInterestsEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
 		log.debug("MyInterestsEdit()");
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
 		
 		//this panel
 		final Component thisPanel = this;
@@ -238,9 +241,7 @@ public class MyInterestsEdit extends Panel {
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		
-		//get SakaiProxy, get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
-		SakaiProxy sakaiProxy = getSakaiProxy();
-		
+		//get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 
@@ -252,7 +253,7 @@ public class MyInterestsEdit extends Panel {
 		socialNetworkingInfo.setSkypeUsername(userProfile.getSkypeUsername());
 		socialNetworkingInfo.setTwitterUsername(userProfile.getTwitterUsername());
 		
-		if (!Locator.getProfileLogic().saveSocialNetworkingInfo(socialNetworkingInfo)) {
+		if (!profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo)) {
 			return false;
 		}
 		
@@ -277,11 +278,7 @@ public class MyInterestsEdit extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInterestsEdit has been deserialized.");
 		//re-init our transient objects
-		sakaiProxy = getSakaiProxy();
-	}
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
+		
 	}
 
 	

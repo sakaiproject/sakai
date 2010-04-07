@@ -26,22 +26,25 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
-import org.sakaiproject.profile2.tool.pages.MyFriends;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.FormattedText;
 
 public class AddFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient SakaiProxy sakaiProxy;
-	private transient ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	/*
 	 * userX is the current user
@@ -51,10 +54,6 @@ public class AddFriend extends Panel {
 	public AddFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
         super(id);
 
-      //get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-        
         //get friendName
         final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
         
@@ -158,14 +157,7 @@ public class AddFriend extends Panel {
         add(form);
     }
 	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
-
+	
 		
 }
 

@@ -29,25 +29,24 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 
 public class MyStaffDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
-	private transient SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private SakaiProxy sakaiProxy;
 	
 	public MyStaffDisplay(final String id, final UserProfile userProfile) {
 		super(id);
 		
 		//this panel stuff
 		final Component thisPanel = this;
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
 		
 		//get info from userProfile
 		String department = userProfile.getDepartment();
@@ -191,13 +190,8 @@ public class MyStaffDisplay extends Panel {
 		in.defaultReadObject();
 		log.debug("MyStaffDisplay has been deserialized.");
 		//re-init our transient objects
-		sakaiProxy = getSakaiProxy();
 	}
 
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
 	
 	
 }

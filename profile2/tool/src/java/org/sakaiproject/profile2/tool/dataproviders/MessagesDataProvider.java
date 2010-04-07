@@ -20,11 +20,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.DetachableMessageModel;
 
 /**
@@ -39,14 +40,17 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	private static final long serialVersionUID = 1L;
 	private final String threadId;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
 	public MessagesDataProvider(String threadId) {
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.threadId = threadId;
 	}
 	
-	protected ProfileLogic getProfileLogic(){
-		return Locator.getProfileLogic();
-	}
-
 	/**
 	 * retrieves messages from database, gets the sublist and returns an iterator for that sublist
 	 * 
@@ -55,7 +59,7 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	public Iterator<Message> iterator(int first, int count){
 		
 		try {
-			List<Message> slice = getProfileLogic().getMessagesInThread(threadId).subList(first, first + count);
+			List<Message> slice = profileLogic.getMessagesInThread(threadId).subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -70,7 +74,7 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
 	public int size(){
-		return getProfileLogic().getMessagesInThreadCount(threadId);
+		return profileLogic.getMessagesInThreadCount(threadId);
 	}
 
 	/**

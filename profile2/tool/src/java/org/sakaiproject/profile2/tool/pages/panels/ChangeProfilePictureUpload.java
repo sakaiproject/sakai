@@ -31,10 +31,10 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.service.ProfileImageService;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
@@ -46,7 +46,12 @@ public class ChangeProfilePictureUpload extends Panel{
     
 	private static final long serialVersionUID = 1L;
 	private FileUploadField uploadField;
-	private transient SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
+	private ProfileImageService profileImageService;
 
     private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
@@ -56,8 +61,6 @@ public class ChangeProfilePictureUpload extends Panel{
 	public ChangeProfilePictureUpload(String id)   {
 		super(id);
 		log.debug("ChangeProfilePictureUpload()");
-
-		sakaiProxy = getSakaiProxy();
 		
 		//get user for this profile and render it
 		String userUuid = sakaiProxy.getCurrentUserId();
@@ -72,8 +75,6 @@ public class ChangeProfilePictureUpload extends Panel{
 	public ChangeProfilePictureUpload(String id, String userUuid)   {
 		super(id);
 		log.debug("ChangeProfilePictureUpload(" + userUuid +")");
-		
-		sakaiProxy = getSakaiProxy();
 		
 		//double check only super users
 		if(!sakaiProxy.isSuperUser()) {
@@ -123,13 +124,13 @@ public class ChangeProfilePictureUpload extends Panel{
 					//note that this has changed so it uses the service. if needs to be changed back so there is no dependency on the PIS,
 					//just grab the bits from the methods in PIS that do what is required, remove from applicationContext.xml, Locator.java and ProfileApplication.java
 					//likewise for ChangeProfilePictureUrl.java
-					if(getProfileImageService().setProfileImage(userUuid, imageBytes, mimeType, null)) {
+					if(profileImageService.setProfileImage(userUuid, imageBytes, mimeType, null)) {
 						
 						//log it
 						log.info("User " + userUuid + " successfully changed profile picture by upload.");
 						
 						//post update event
-						getSakaiProxy().postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userUuid, true);
+						sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userUuid, true);
 						
 						//refresh image data
 						if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
@@ -148,7 +149,7 @@ public class ChangeProfilePictureUpload extends Panel{
 		};
 		
 		//get the max upload size from Sakai
-		int maxSize = getSakaiProxy().getMaxProfilePictureSize();
+		int maxSize = sakaiProxy.getMaxProfilePictureSize();
 		
 		//setup form
 		form.setMaxSize(Bytes.megabytes(maxSize));	
@@ -210,14 +211,6 @@ public class ChangeProfilePictureUpload extends Panel{
 		//re-init our transient objects
 		//profileImageService = getProfileImageService();
 		//sakaiProxy = getSakaiProxy();
-	}
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileImageService getProfileImageService() {
-		return Locator.getProfileImageService();
 	}
 	
 }

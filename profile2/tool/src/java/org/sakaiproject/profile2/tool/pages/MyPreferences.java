@@ -388,8 +388,6 @@ public class MyPreferences extends BasePage{
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		log.debug("MyPreferences has been deserialized.");
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
 	}
 
 }

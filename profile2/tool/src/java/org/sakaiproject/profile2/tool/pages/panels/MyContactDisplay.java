@@ -29,16 +29,18 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 
 public class MyContactDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
-	private transient SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
 	
 	public MyContactDisplay(final String id, final UserProfile userProfile) {
 		super(id);
@@ -46,9 +48,6 @@ public class MyContactDisplay extends Panel {
 		//this panel stuff
 		final Component thisPanel = this;
 			
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		String email = userProfile.getEmail();
 		String homepage = userProfile.getHomepage();
@@ -166,12 +165,7 @@ public class MyContactDisplay extends Panel {
 		in.defaultReadObject();
 		log.debug("MyContactDisplay has been deserialized.");
 		//re-init our transient objects
-		sakaiProxy = getSakaiProxy();
+		
 	}
 
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-	
 }

@@ -21,8 +21,8 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -31,6 +31,9 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class GalleryImageRenderer extends Panel {
 
 	private static final long serialVersionUID = 1L;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
 
 	/**
 	 * Creates a new instance of <code>GalleryImageRenderer</code>.
@@ -43,8 +46,6 @@ public class GalleryImageRenderer extends Panel {
 			add(new ContextImage("img",new Model(ProfileConstants.UNAVAILABLE_IMAGE)));
 			return;
 		}
-		
-		SakaiProxy sakaiProxy = Locator.getSakaiProxy();
 
 		final byte[] imageBytes = sakaiProxy.getResource(imageResourceId);
 		

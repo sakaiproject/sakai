@@ -26,10 +26,10 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.NewMessageModel;
 
 /**
@@ -39,17 +39,17 @@ import org.sakaiproject.profile2.tool.models.NewMessageModel;
 public class QuickMessageTo extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient SakaiProxy sakaiProxy;
-	private transient ProfileLogic profileLogic;
+
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	
 	public QuickMessageTo(String id, final ModalWindow window, final String uuidTo){
         super(id);
 
-        //get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-        
         //window setup
 		window.setTitle(new ResourceModel("title.message.compose")); 
 		//window.setInitialHeight(150);
@@ -106,15 +106,6 @@ public class QuickMessageTo extends Panel {
         
         
     }
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
-
 		
 }
 

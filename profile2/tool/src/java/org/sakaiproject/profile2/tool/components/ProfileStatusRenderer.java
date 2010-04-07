@@ -22,10 +22,10 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 /** 
@@ -41,6 +41,9 @@ public class ProfileStatusRenderer extends Panel {
 	private String dateClass;
 	private boolean allowed;
 	private boolean friend;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	/**
 	 * Render the status panel for the user. Privacy checks according to the requesting user.
@@ -152,9 +155,6 @@ public class ProfileStatusRenderer extends Panel {
 			return;
 		}
 
-		//get API's
-        ProfileLogic profileLogic = getProfileLogic();
-		
 		//get status
 		ProfileStatus status = profileLogic.getUserStatus(userX);
 		if(status == null) {
@@ -196,8 +196,6 @@ public class ProfileStatusRenderer extends Panel {
 	//helper to check if allowed
 	private boolean checkAllowed(String userX, String userY) {
 		
-		//get API's
-        ProfileLogic profileLogic = getProfileLogic();
 		
         //if bad userUuids
         if(blankUuids(userX, userY)) {
@@ -215,9 +213,6 @@ public class ProfileStatusRenderer extends Panel {
 	
 	//helper to check if allowed, given ProfilePrivacy as well
 	private boolean checkAllowed(String userX, String userY, ProfilePrivacy privacy) {
-		
-		//get API's
-        ProfileLogic profileLogic = getProfileLogic();
 		
         //if bad userUuids
         if(blankUuids(userX, userY)) {
@@ -243,9 +238,6 @@ public class ProfileStatusRenderer extends Panel {
 	 */
 	private boolean checkAllowed(String userX, String userY, ProfilePrivacy privacy, boolean friend) {
 		
-		//get API's
-        ProfileLogic profileLogic = getProfileLogic();
-		
         //if bad userUuids
         if(blankUuids(userX, userY)) {
         	return false;
@@ -270,9 +262,6 @@ public class ProfileStatusRenderer extends Panel {
 		return (StringUtils.equals(userX, userY));
 	}
 
-	//helper
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
+
 	
 }

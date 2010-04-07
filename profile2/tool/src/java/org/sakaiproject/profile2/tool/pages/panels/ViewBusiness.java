@@ -27,9 +27,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.CompanyProfile;
-import org.sakaiproject.profile2.tool.Locator;
 
 /**
  * Panel for displaying business profile information.
@@ -37,9 +38,11 @@ import org.sakaiproject.profile2.tool.Locator;
 public class ViewBusiness extends Panel {
 
 	private static final long serialVersionUID = 1L;
-
 	private int visibleFieldCount_business = 0;
-
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
 	public ViewBusiness(String id, String userUuid, SakaiPerson sakaiPerson,
 			boolean isBusinessInfoAllowed) {
 
@@ -74,8 +77,7 @@ public class ViewBusiness extends Panel {
 		companyProfilesContainer.add(new Label("companyProfilesLabel",
 				new ResourceModel("profile.business.company.profiles")));
 
-		List<CompanyProfile> companyProfiles = Locator.getProfileLogic()
-				.getCompanyProfiles(userUuid);
+		List<CompanyProfile> companyProfiles = profileLogic.getCompanyProfiles(userUuid);
 
 		List<ITab> tabs = new ArrayList<ITab>();
 		if (null != companyProfiles) {

@@ -36,11 +36,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
@@ -55,8 +55,14 @@ public class ConfirmedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
-    private transient SakaiProxy sakaiProxy;
-    private transient ProfileLogic profileLogic;
+   
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
+    
 	private Integer numConfirmedFriends = 0;
 	private boolean ownList = false;
 	
@@ -66,10 +72,6 @@ public class ConfirmedFriends extends Panel {
 		
 		log.debug("ConfirmedFriends()");
 		
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-			
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
 		
@@ -296,16 +298,8 @@ public class ConfirmedFriends extends Panel {
 		in.defaultReadObject();
 		log.debug("ConfirmedFriends has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
 	
 	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
 }

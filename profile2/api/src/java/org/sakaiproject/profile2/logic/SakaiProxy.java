@@ -557,4 +557,19 @@ public interface SakaiProxy {
 	 */
 	public String getProvidedImageUrl(User user);
 	
+	/**
+	 * Wrapper for ServerConfigurationService.getString("skin.repo")
+	 * @return
+	 */
+	public String getSkinRepoProperty();
+	
+	/**
+	 * Gets the tool skin CSS first by checking the tool, otherwise by using the default property.
+	 * @param	the location of the skin repo
+	 * @return
+	 */
+	public String getToolSkinCSS(String skinRepo);
+	
+	
+	
 }

@@ -16,11 +16,13 @@
 
 package org.sakaiproject.profile2.tool.models;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.service.ProfileImageService;
 
 /**
  * Detachable model for an instance of Message
@@ -32,15 +34,18 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 
 	private static final long serialVersionUID = 1L;
 	private final String id;
-
-	protected ProfileLogic getProfileLogic(){
-		return Locator.getProfileLogic();
-	}
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	  
 	/**
 	 * @param m
 	 */
 	public DetachableMessageModel(Message m){
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.id = m.getId();
 	}
 	
@@ -48,6 +53,10 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 * @param id
 	 */
 	public DetachableMessageModel(String id){
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.id = id;
 	}
 	
@@ -83,6 +92,6 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 */
 	protected Message load(){
 		// loads message from the database
-		return getProfileLogic().getMessage(id);
+		return profileLogic.getMessage(id);
 	}
 }

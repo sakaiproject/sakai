@@ -36,11 +36,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -50,13 +51,18 @@ public class MyBusinessEdit extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInterestsEdit.class);
-	
 	private TabbedPanel companyProfileTabs;
-
 	private List<CompanyProfile> companyProfilesToAdd = null;
 	private List<CompanyProfile> companyProfilesToRemove = null;
-	
 	private enum TabDisplay { START, END }
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
+	
 	
 	public MyBusinessEdit(final String id, final UserProfile userProfile) {
 		this(id, userProfile, new ArrayList<CompanyProfile>(),
@@ -90,7 +96,7 @@ public class MyBusinessEdit extends Panel {
 		// add warning message if superUser and not editing own profile
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
-		if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
+		if (sakaiProxy.isSuperUserAndProxiedToUser(
 				userProfile.getUserUuid())) {
 			editWarning.setDefaultModel(new StringResourceModel(
 					"text.edit.other.warning", null, new Object[] { userProfile
@@ -176,7 +182,7 @@ public class MyBusinessEdit extends Panel {
 				if (save(form)) {
 
 					// post update event
-					Locator.getSakaiProxy().postEvent(
+					sakaiProxy.postEvent(
 							ProfileConstants.EVENT_PROFILE_BUSINESS_UPDATE,
 							"/profile/" + userProfile.getUserUuid(), true);
 
@@ -335,10 +341,6 @@ public class MyBusinessEdit extends Panel {
 		// get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 
-		// get SakaiProxy, get userId from the UserProfile (because admin could
-		// be editing), then get existing SakaiPerson for that userId
-		SakaiProxy sakaiProxy = Locator.getSakaiProxy();
-
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 
@@ -346,7 +348,7 @@ public class MyBusinessEdit extends Panel {
 
 		// add new company profiles
 		for (CompanyProfile companyProfile : companyProfilesToAdd) {
-			if (!Locator.getProfileLogic().addNewCompanyProfile(companyProfile)) {
+			if (!profileLogic.addNewCompanyProfile(companyProfile)) {
 				
 				log.info("Couldn't add CompanyProfile for: " + userId);
 				return false;
@@ -356,7 +358,7 @@ public class MyBusinessEdit extends Panel {
 		// save company profiles
 		for (CompanyProfile companyProfile : userProfile.getCompanyProfiles()) {
 
-			if (!Locator.getProfileLogic().updateCompanyProfile(companyProfile)) {
+			if (!profileLogic.updateCompanyProfile(companyProfile)) {
 				
 				log.info("Couldn't save CompanyProfile for: " + userId);
 				return false;
@@ -366,7 +368,7 @@ public class MyBusinessEdit extends Panel {
 		// remove any company profile marked for deletion
 		for (CompanyProfile companyProfile : companyProfilesToRemove) {
 			
-			if (!Locator.getProfileLogic().removeCompanyProfile(userId,
+			if (!profileLogic.removeCompanyProfile(userId,
 					companyProfile.getId())) {
 				
 				log.info("Couldn't delete CompanyProfile for: " + userId);

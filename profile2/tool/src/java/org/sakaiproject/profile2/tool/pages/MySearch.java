@@ -42,7 +42,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.SearchResult;
-import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -57,6 +56,8 @@ public class MySearch extends BasePage {
 
 	private List<SearchResult> results = new ArrayList<SearchResult>();
 	private static final Logger log = Logger.getLogger(MySearch.class); 
+	
+	
 	
 	public MySearch() {
 		
@@ -475,8 +476,7 @@ public class MySearch extends BasePage {
 		in.defaultReadObject();
 		log.debug("MySearch has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
 	
 	

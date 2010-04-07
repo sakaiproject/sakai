@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -37,13 +36,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ResourceReferences;
 import org.sakaiproject.profile2.tool.models.NewMessageModel;
-import org.sakaiproject.profile2.tool.pages.MyMessageView;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.wicketstuff.objectautocomplete.AutoCompletionChoicesProvider;
@@ -55,18 +53,18 @@ public class ComposeNewMessage extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ComposeNewMessage.class);
-	private transient SakaiProxy sakaiProxy;
-	private transient ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	public ComposeNewMessage(String id) {
 		super(id);
 		
 		//this panel
 		final Component thisPanel = this;
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
 		
 		//current user
 		final String userId = sakaiProxy.getCurrentUserId();
@@ -224,12 +222,5 @@ public class ComposeNewMessage extends Panel {
 	}
 	*/
 	
-
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
 
 }

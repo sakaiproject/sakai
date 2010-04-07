@@ -19,7 +19,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -33,11 +32,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.service.ProfileImageService;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -46,9 +45,17 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class ChangeProfilePictureUrl extends Panel{
     
 	private static final long serialVersionUID = 1L;
-    private transient SakaiProxy sakaiProxy;
-    private transient ProfileLogic profileLogic;
 	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
+
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
+	private ProfileImageService profileImageService;
+    
 
 	/**
 	 * Default constructor if modifying own
@@ -57,8 +64,6 @@ public class ChangeProfilePictureUrl extends Panel{
 		super(id);
 		log.debug("ChangeProfilePictureUpload()");
 
-		sakaiProxy = getSakaiProxy();
-		
 		//get user for this profile and render it
 		String userUuid = sakaiProxy.getCurrentUserId();
 		renderChangeProfilePictureUrl(userUuid);
@@ -72,8 +77,6 @@ public class ChangeProfilePictureUrl extends Panel{
 	public ChangeProfilePictureUrl(String id, String userUuid)   {
 		super(id);
 		log.debug("ChangeProfilePictureUpload(" + userUuid +")");
-		
-		sakaiProxy = getSakaiProxy();
 		
 		//double check only super users
 		if(!sakaiProxy.isSuperUser()) {
@@ -93,9 +96,7 @@ public class ChangeProfilePictureUrl extends Panel{
 	 */
 	private void renderChangeProfilePictureUrl(final String userUuid) {  
                 
-        //get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
+     
 			
 		//setup SimpleText object to back the single form field 
 		StringModel stringModel = new StringModel();
@@ -154,7 +155,7 @@ public class ChangeProfilePictureUrl extends Panel{
         		String url = stringModel.getString();
         		
         		//save via ProfileImageService
-				if(getProfileImageService().setProfileImage(userUuid, url, null)) {
+				if(profileImageService.setProfileImage(userUuid, url, null)) {
 					//log it
 					log.info("User " + userUuid + " successfully changed profile picture by url.");
 					
@@ -194,22 +195,8 @@ public class ChangeProfilePictureUrl extends Panel{
 		in.defaultReadObject();
 		log.debug("ChangeProfilePictureUrl has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
-	
-	private ProfileImageService getProfileImageService() {
-		return Locator.getProfileImageService();
-	}
-	
 	
 }
 

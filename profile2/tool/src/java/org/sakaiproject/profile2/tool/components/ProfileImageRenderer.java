@@ -22,9 +22,9 @@ import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /** 
@@ -35,6 +35,12 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class ProfileImageRenderer extends Panel {
 	
 	private static final long serialVersionUID = 1L;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	/**
 	 * Render a profile image for a user, based on the settings supplied
@@ -52,11 +58,7 @@ public class ProfileImageRenderer extends Panel {
 			add(new ContextImage("img",new Model<String>(getDefaultImage())));
 			return;
 		}
-		
-		//get API's
-        SakaiProxy sakaiProxy = getSakaiProxy();
-        ProfileLogic profileLogic = getProfileLogic();
-                
+		      
 		//what type of image are we to show?
 		int type = sakaiProxy.getProfilePictureType();
 		
@@ -112,17 +114,6 @@ public class ProfileImageRenderer extends Panel {
 		return ProfileConstants.UNAVAILABLE_IMAGE;
 	}
 	
-	/**
-	 * API helper methods
-	 * @return
-	 */
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
 	
 	
 }

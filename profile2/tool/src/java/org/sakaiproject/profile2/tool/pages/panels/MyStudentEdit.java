@@ -30,9 +30,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyStudentEdit extends Panel {
@@ -40,6 +41,10 @@ public class MyStudentEdit extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger log = Logger.getLogger(MyStudentEdit.class);
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+
 	
 	public MyStudentEdit(final String id, final UserProfile userProfile) {
 		
@@ -60,7 +65,7 @@ public class MyStudentEdit extends Panel {
 		//add warning message if superUser and not editing own profile
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
-		if(Locator.getSakaiProxy().isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
+		if(sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
 			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
@@ -90,7 +95,7 @@ public class MyStudentEdit extends Panel {
 				if (save(form)) {
 
 					// post update event
-					Locator.getSakaiProxy().postEvent(
+					sakaiProxy.postEvent(
 							ProfileConstants.EVENT_PROFILE_STUDENT_UPDATE,
 							"/profile/" + userProfile.getUserUuid(), true);
 
@@ -150,12 +155,12 @@ public class MyStudentEdit extends Panel {
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		
-		SakaiPerson sakaiPerson = Locator.getSakaiProxy().getSakaiPerson(userProfile.getUserUuid());
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userProfile.getUserUuid());
 		sakaiPerson.setEducationCourse(userProfile.getCourse());
 		sakaiPerson.setEducationSubjects(userProfile.getSubjects());
 		
 		//update SakaiPerson
-		if(Locator.getSakaiProxy().updateSakaiPerson(sakaiPerson)) {
+		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userProfile.getUserUuid() );
 			return true;
 		} else {

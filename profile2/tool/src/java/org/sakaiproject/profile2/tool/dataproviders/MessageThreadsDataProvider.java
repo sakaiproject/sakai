@@ -20,11 +20,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.MessageThread;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.DetachableMessageThreadModel;
 
 /**
@@ -39,14 +40,17 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	private static final long serialVersionUID = 1L;
 	private final String userUuid;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
 	public MessageThreadsDataProvider(String userUuid) {
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.userUuid = userUuid;
 	}
 	
-	protected ProfileLogic getProfileLogic(){
-		return Locator.getProfileLogic();
-	}
-
 	/**
 	 * retrieve a sublist from the database, for paging
 	 * TODO make it retrieve only the sublist from the DB, this just gets the lot and then returns a sublist.
@@ -56,7 +60,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	public Iterator<MessageThread> iterator(int first, int count){
 		
 		try {
-			List<MessageThread> slice = getProfileLogic().getMessageThreads(userUuid).subList(first, first + count);
+			List<MessageThread> slice = profileLogic.getMessageThreads(userUuid).subList(first, first + count);
 			Collections.sort(slice, Collections.reverseOrder());
 			return slice.iterator();
 		}
@@ -72,7 +76,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
 	public int size(){
-		return getProfileLogic().getMessageThreadsCount(userUuid);
+		return profileLogic.getMessageThreadsCount(userUuid);
 	}
 
 	/**

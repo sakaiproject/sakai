@@ -30,7 +30,6 @@ import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryImagePanel;
@@ -55,8 +54,7 @@ public class ViewPictures extends BasePage {
 	private void createGalleryForm(final String userUuid) {
 		
 		Label galleryHeading = new Label("galleryHeading", new StringResourceModel(
-				"heading.pictures.view.pictures", null, new Object[] { Locator
-						.getSakaiProxy().getUserDisplayName(userUuid) }));
+				"heading.pictures.view.pictures", null, new Object[] { sakaiProxy.getUserDisplayName(userUuid) }));
 		
 		add(galleryHeading);
 

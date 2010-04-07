@@ -22,12 +22,7 @@ import java.io.ObjectInputStream;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.tool.pages.panels.RequestedFriends;
 import org.sakaiproject.profile2.util.ProfileConstants;

@@ -17,7 +17,6 @@
 package org.sakaiproject.profile2.tool.pages.windows;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -27,22 +26,25 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
-import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.FormattedText;
 
 public class ConfirmFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient SakaiProxy sakaiProxy;
-	private transient ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	/*
 	 * userX is the current user
@@ -52,10 +54,6 @@ public class ConfirmFriend extends Panel {
 	public ConfirmFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
         super(id);
 
-      //get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-        
         //get friendName
         final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
                 
@@ -143,15 +141,6 @@ public class ConfirmFriend extends Panel {
         
     }
 
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
-	
-	
 	
 }
 

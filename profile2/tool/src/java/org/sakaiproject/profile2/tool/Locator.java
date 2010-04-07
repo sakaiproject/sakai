@@ -21,20 +21,29 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.service.ProfileImageService;
 
+/**
+ * A simple class to lookup dependencies from the Application object.
+ * The Application class must have getters and setters for these fields.
+ *
+ *@deprecated use Spring Annotations for injection
+ */
 public class Locator {
 
+	@Deprecated
 	public static SakaiProxy getSakaiProxy()
     {
         ProfileApplication app = (ProfileApplication)RequestCycle.get().getApplication();
         return app.getSakaiProxy();
     }
 	
+	@Deprecated
 	public static ProfileLogic getProfileLogic()
     {
 		ProfileApplication app = (ProfileApplication)RequestCycle.get().getApplication();
         return app.getProfileLogic();
     }
 	
+	@Deprecated
 	public static ProfileImageService getProfileImageService()
     {
 		ProfileApplication app = (ProfileApplication)RequestCycle.get().getApplication();

@@ -20,17 +20,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 
 /**
@@ -58,16 +58,18 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriendsDataProvider.class); 
 	private transient List<Person> friends = new ArrayList<Person>();
-	private transient ProfileLogic profileLogic;
 	private String userId;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	public ConfirmedFriendsDataProvider(final String userId) {
 		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		//set userId
 		this.userId = userId;
-		
-		//get Profile
-		profileLogic = getProfileLogic();
 		
 		//get list of friends for user
 		friends = getFriendsForUser(userId);
@@ -112,14 +114,11 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 		in.defaultReadObject();
 		log.debug("ConfirmedFriendsDataProvider has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
 		friends = getFriendsForUser(userId);
 	}
     
     
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
+	
 }
 
 

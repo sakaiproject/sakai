@@ -33,10 +33,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -45,9 +45,14 @@ public class MyStatusPanel extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyStatusPanel.class);
-    private transient SakaiProxy sakaiProxy;
-    private transient ProfileLogic profileLogic;
+   
     private ProfileStatusRenderer status;
+    
+    @SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
     
     //get default text that fills the textField
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
@@ -56,11 +61,7 @@ public class MyStatusPanel extends Panel {
 		super(id);
 		
 		log.debug("MyStatusPanel()");
-
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-				
+	
 		//get info
 		final String displayName = userProfile.getDisplayName();
 		final String userId = userProfile.getUserUuid();
@@ -226,16 +227,8 @@ public class MyStatusPanel extends Panel {
 		in.defaultReadObject();
 		log.debug("MyStatusPanel has been deserialized");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+	
 	}
 	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
 	
 }

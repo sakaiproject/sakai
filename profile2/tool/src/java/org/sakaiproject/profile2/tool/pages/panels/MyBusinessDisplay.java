@@ -34,9 +34,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 
 /**
  * Panel for displaying business profile data.
@@ -46,6 +47,9 @@ public class MyBusinessDisplay extends Panel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
 	public MyBusinessDisplay(final String id, final UserProfile userProfile) {
 		super(id);
 
@@ -156,7 +160,7 @@ public class MyBusinessDisplay extends Panel {
 				"button.edit")));
 		editButton.setOutputMarkupId(true);
 
-		if (userProfile.isLocked() && !Locator.getSakaiProxy().isSuperUser()) {
+		if (userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
 

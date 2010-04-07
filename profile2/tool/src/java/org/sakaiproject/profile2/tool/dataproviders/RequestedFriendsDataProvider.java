@@ -25,12 +25,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.tool.Locator;
 
 /**
  * RequestedFriendsDataProvider.java
@@ -53,16 +54,18 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 	private static final Logger log = Logger.getLogger(RequestedFriendsDataProvider.class); 
 
 	private transient List<Person> requests = new ArrayList<Person>();
-	private transient ProfileLogic profileLogic;
 	private String userId;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	public RequestedFriendsDataProvider(final String userId) {
 		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		//set userId
 		this.userId = userId;
-		
-		//get Profile
-		profileLogic = getProfileLogic();
 		
 		//get list of requests for user
 		requests = getFriendsForUser(userId);
@@ -106,13 +109,9 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 		in.defaultReadObject();
 		log.debug("RequestedFriendsDataProvider has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
 		requests = getFriendsForUser(userId);
 	}
 	
-    private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
-	}
 }
 
 

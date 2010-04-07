@@ -16,10 +16,11 @@
 
 package org.sakaiproject.profile2.tool.models;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.MessageThread;
-import org.sakaiproject.profile2.tool.Locator;
 
 /**
  * Detachable model for an instance of MessageThread
@@ -32,14 +33,17 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	private static final long serialVersionUID = 1L;
 	private final String id;
 
-	protected ProfileLogic getProfileLogic(){
-		return Locator.getProfileLogic();
-	}
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	  
 	/**
 	 * @param m
 	 */
 	public DetachableMessageThreadModel(MessageThread m){
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.id = m.getId();
 	}
 	
@@ -47,6 +51,10 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @param id
 	 */
 	public DetachableMessageThreadModel(String id){
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.id = id;
 	}
 	
@@ -81,6 +89,6 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @see org.apache.wicket.model.LoadableDetachableModel#load()
 	 */
 	protected MessageThread load(){
-		return getProfileLogic().getMessageThread(id);
+		return profileLogic.getMessageThread(id);
 	}
 }

@@ -30,8 +30,10 @@ import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
 import org.sakaiproject.profile2.tool.pages.ViewPictures;
@@ -43,8 +45,13 @@ public class GalleryFeed extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = Logger
-			.getLogger(ChangeProfilePictureUrl.class);
+	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;	
 
 	@SuppressWarnings("unchecked")
 	public GalleryFeed(String id, final String ownerUserId,
@@ -60,8 +67,7 @@ public class GalleryFeed extends Panel {
 					"heading.feed.my.pictures"));
 		} else {
 			heading = new Label("heading", new StringResourceModel(
-					"heading.feed.view.pictures", null, new Object[] { Locator
-							.getSakaiProxy().getUserDisplayName(ownerUserId) }));
+					"heading.feed.view.pictures", null, new Object[] { sakaiProxy.getUserDisplayName(ownerUserId) }));
 		}
 		add(heading);
 		
@@ -122,7 +128,7 @@ public class GalleryFeed extends Panel {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 
-				if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
+				if (sakaiProxy.isSuperUserAndProxiedToUser(
 						ownerUserId)) {
 					setResponsePage(new MyPictures(ownerUserId));
 				} else if (viewingUserId.equals(ownerUserId)) {

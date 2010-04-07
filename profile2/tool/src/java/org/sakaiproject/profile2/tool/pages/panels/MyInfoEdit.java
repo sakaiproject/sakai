@@ -37,10 +37,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -49,16 +49,17 @@ public class MyInfoEdit extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoEdit.class);
-    private transient SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
         log.debug("MyInfoEdit()");
 
-        //get API's
-		sakaiProxy = getSakaiProxy();
-		
+       
 		//this panel
 		final Component thisPanel = this;
 		
@@ -230,9 +231,7 @@ public class MyInfoEdit extends Panel {
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		
-		//get SakaiProxy, get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
-		SakaiProxy sakaiProxy = getSakaiProxy();
-		
+		//get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 	
@@ -280,11 +279,7 @@ public class MyInfoEdit extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInfoEdit has been deserialized.");
 		//re-init our transient objects
-		sakaiProxy = getSakaiProxy();
 	}
 	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
 
 }

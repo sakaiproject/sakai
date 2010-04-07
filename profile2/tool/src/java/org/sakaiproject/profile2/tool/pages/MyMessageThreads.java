@@ -31,10 +31,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.profile2.exception.MessageRecipientNotDefinedException;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -53,10 +51,6 @@ public class MyMessageThreads extends BasePage {
 	public MyMessageThreads() {
 		
 		log.debug("MessageThreads()");
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
 		
 		//get current user
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -211,8 +205,7 @@ public class MyMessageThreads extends BasePage {
 		in.defaultReadObject();
 		log.debug("MessageThreads has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		
 	}
 	
 }

@@ -27,8 +27,11 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
@@ -46,6 +49,15 @@ public class GalleryImageEdit extends Panel {
 
 	private final WebMarkupContainer imageOptionsContainer;
 	private final WebMarkupContainer removeConfirmContainer;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
+	private ProfileImageService profileImageService;
 
 	public GalleryImageEdit(String id, final ModalWindow mainImageWindow,
 			final String userId, final GalleryImage image,
@@ -152,13 +164,13 @@ public class GalleryImageEdit extends Panel {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				if (Locator.getProfileImageService().removeProfileGalleryImage(
+				if (profileImageService.removeProfileGalleryImage(
 						userId, image)) {
 
 					// close modal window
 					mainImageWindow.close(target);
 
-					if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
+					if (sakaiProxy.isSuperUserAndProxiedToUser(
 							userId)) {
 						setResponsePage(new MyPictures(galleryPageIndex, userId));
 					} else {
@@ -214,19 +226,19 @@ public class GalleryImageEdit extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-				if (Locator.getProfileImageService().setProfileImage(
+				if (profileImageService.setProfileImage(
 						userId,
-						Locator.getSakaiProxy().getResource(
+						sakaiProxy.getResource(
 								image.getMainResource()), "", "")) {
 
-					Locator.getSakaiProxy().postEvent(
+					sakaiProxy.postEvent(
 							ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD,
 							"/profile/" + userId, true);
 
 					// close modal window
 					mainImageWindow.close(target);
 
-					if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
+					if (sakaiProxy.isSuperUserAndProxiedToUser(
 							userId)) {
 						setResponsePage(new MyProfile(userId));
 					} else {

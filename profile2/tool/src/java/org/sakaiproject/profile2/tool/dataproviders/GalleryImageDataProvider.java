@@ -18,10 +18,12 @@ package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.util.Iterator;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.models.DetachableGalleryImageModel;
 
 /**
@@ -30,19 +32,21 @@ import org.sakaiproject.profile2.tool.models.DetachableGalleryImageModel;
 public class GalleryImageDataProvider implements IDataProvider {
 
 	private static final long serialVersionUID = 1L;
-
 	private String userId;
+	
+	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
+	private ProfileImageService profileImageService;
 
 	public GalleryImageDataProvider(String userId) {
-		if (userId == null || userId.equals("")) {
-			throw new IllegalArgumentException("userId must be specified");
-		}
-
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		this.userId = userId;
 	}
 
 	public Iterator<GalleryImage> iterator(int first, int count) {	
-		return Locator.getProfileImageService().getProfileGalleryImages(userId)
+		return profileImageService.getProfileGalleryImages(userId)
 				.subList(first, first + count).iterator();
 	}
 
@@ -56,7 +60,7 @@ public class GalleryImageDataProvider implements IDataProvider {
 	}
 
 	public int size() {
-		return Locator.getProfileImageService().getProfileGalleryImages(userId)
+		return profileImageService.getProfileGalleryImages(userId)
 				.size();
 	}
 

@@ -48,7 +48,6 @@ import org.apache.wicket.util.file.Files;
 import org.apache.wicket.util.file.Folder;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
@@ -67,14 +66,14 @@ public class MyPictures extends BasePage {
 	private FileListView addPictureListView;
 	private Folder addPictureUploadFolder;
 	private Label uploadWarningLabel;
-	
 	private GridView gridView;
 
+	
 	/**
 	 * Constructor for current user.
 	 */
 	public MyPictures() {
-		this(0, Locator.getSakaiProxy().getCurrentUserId());
+		renderMyPictures(0, sakaiProxy.getCurrentUserId());
 	}
 
 	/**
@@ -85,20 +84,29 @@ public class MyPictures extends BasePage {
 	 *            to after making a change to the gallery.
 	 */
 	public MyPictures(int pageToDisplay) {
-		this(pageToDisplay, Locator.getSakaiProxy().getCurrentUserId());
+		renderMyPictures(pageToDisplay, sakaiProxy.getCurrentUserId());
 	}
 
 	/**
 	 * This constructor enables an admin user to edit another user's gallery.
 	 */
 	public MyPictures(String userUuid) {
-		this(0, userUuid);
+		renderMyPictures(0, userUuid);
+	}
+	
+	/**
+	 * This constructor allows us to go directly to a page for a user
+	 * @param pageToDisplay
+	 * @param userUuid
+	 */
+	public MyPictures(int pageToDisplay, String userUuid) {
+		renderMyPictures(pageToDisplay, userUuid);
 	}
 
 	/**
-	 * This constructor enables an admin user to edit another user's gallery.
+	 * Does the actual rendering of the page
 	 */
-	public MyPictures(int pageToDisplay, String userUuid) {
+	private void renderMyPictures(int pageToDisplay, String userUuid) {
 
 		log.debug("MyPictures()");
 
@@ -328,7 +336,7 @@ public class MyPictures extends BasePage {
 
 				byte[] imageBytes = upload.getBytes();
 
-				if (!Locator.getProfileImageService().addProfileGalleryImage(
+				if (!profileImageService.addProfileGalleryImage(
 						userUuid, imageBytes, upload.getContentType(),
 						upload.getClientFileName())) {
 
@@ -338,7 +346,7 @@ public class MyPictures extends BasePage {
 				}
 
 				// post upload event
-				getSakaiProxy().postEvent(
+				sakaiProxy.postEvent(
 						ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD,
 						"/profile/" + sakaiProxy.getCurrentUserId(), true);
 

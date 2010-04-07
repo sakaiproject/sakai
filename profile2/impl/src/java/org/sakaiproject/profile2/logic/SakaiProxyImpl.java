@@ -1138,6 +1138,33 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return user.getProperties().getProperty(ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getSkinRepoProperty(){
+		return serverConfigurationService.getString("skin.repo");
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getToolSkinCSS(String skinRepo){
+		
+		String skin = null;
+		try {
+			skin = siteService.findTool(sessionManager.getCurrentToolSession().getPlacementId()).getSkin();			
+		}
+		catch(Exception e) {
+			skin = serverConfigurationService.getString("skin.default");
+		}
+		
+		if(skin == null) {
+			skin = serverConfigurationService.getString("skin.default");
+		}
+		
+		return skinRepo + "/" + skin + "/tool.css";
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

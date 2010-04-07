@@ -21,7 +21,6 @@ import java.io.ObjectInputStream;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -35,11 +34,11 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.RequestedFriendsDataProvider;
@@ -54,18 +53,18 @@ public class RequestedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(RequestedFriends.class);
-	private transient SakaiProxy sakaiProxy;
-	private transient ProfileLogic profileLogic; 
 	private Integer numRequestedFriends = 0;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
 	public RequestedFriends(final String id, final String userUuid) {
 		super(id);
 		
 		log.debug("RequestedFriends()");
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -256,16 +255,7 @@ public class RequestedFriends extends Panel {
 		in.defaultReadObject();
 		log.debug("RequestedFriends has been deserialized");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
-	}
-	
-	private SakaiProxy getSakaiProxy() {
-		return Locator.getSakaiProxy();
-	}
-
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
+		
 	}
 	
 	
