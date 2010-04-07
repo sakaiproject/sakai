@@ -16,7 +16,14 @@
 
 package org.sakaiproject.profile2.tool;
 
+import org.apache.wicket.Page;
+import org.apache.wicket.Request;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Response;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.WebRequestCycle;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -44,6 +51,18 @@ public class ProfileApplication extends WebApplication {
 		getApplicationSettings().setAccessDeniedPage(MyProfile.class);
 		
 	}
+	
+	// Throw RuntimeExceptions so they are caught by the Sakai ErrorReportHandler
+	@Override
+	public RequestCycle newRequestCycle(Request request, Response response) {
+		return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response) {
+			@Override
+			public Page onRuntimeException(Page page, RuntimeException e) {
+				throw e;
+			}
+		};
+	}
+	
 	
 	public ProfileApplication() {
 	}
