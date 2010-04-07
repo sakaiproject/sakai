@@ -47,7 +47,7 @@
 							<span class="skip">$tlang.getString("sitedipag.listnavselect")</span>
 							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
 #foreach (value in list)
-								<option value="$value" #if($pagesize == $value) selected="selected" #end>$tlang.getFormattedMessage("uselis.show",new Object[]{value})</option>
+								<option value="$value" #if($pagesize == $value) selected="selected" #end>$tlang.getFormattedMessage("uselis.show", value)</option>
 #end
 							</select>
 						</form>
