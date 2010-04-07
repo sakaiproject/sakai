@@ -60,7 +60,7 @@ public class ViewRenderer extends Renderer
 			String headBaseCss = (String)req.getAttribute("sakai.html.head.css.base");
 			if (headBaseCss == null || headBaseCss.length() == 0) {
 				// include default stylesheet
-				headBaseCss = "<link href=\"/sakai-jsf-resource/css/sakai.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+				headBaseCss = "<link href=\"/jsf-resource/css/sakai.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 			}
 			String toolCssHref = (String) RendererUtil.getAttribute(context, component, "toolCssHref");
 			if (toolCssHref != null) {

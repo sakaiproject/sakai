@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////
 // Sakai modification: path to calendar
 ////////////////////////////////////////////////////////
-var CALENDAR_PATH = "/sakai-jsf-resource/inputDate/"
+var CALENDAR_PATH = "/jsf-resource/inputDate/"
 
 // if two digit year input dates after this year considered 20 century.
 var NUM_CENTYEAR = 30;
