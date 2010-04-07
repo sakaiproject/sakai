@@ -2,9 +2,9 @@
 <script type="text/javascript" src="/library/js/jquery.js"></script>
 <sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 <sakai:script contextBase="/messageforums-tool" path="/js/bulkops.js"/>		
-<sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/inputDate.js"/>		
-<sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/calendar1.js"/>		
-<sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/calendar2.js"/>			
+<sakai:script contextBase="/jsf-resource" path="/inputDate/inputDate.js"/>		
+<sakai:script contextBase="/jsf-resource" path="/inputDate/calendar1.js"/>		
+<sakai:script contextBase="/jsf-resource" path="/inputDate/calendar2.js"/>			
 
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\privateMsg\msgHeader.jsp-->
 <h:panelGrid columns="2"  style="width: 100%" summary="layout" styleClass="navPanel ">
