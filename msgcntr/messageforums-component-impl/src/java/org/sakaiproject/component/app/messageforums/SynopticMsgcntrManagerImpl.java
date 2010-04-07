@@ -178,15 +178,15 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 	
 	public void setForumSynopticInfoHelper(String userId, String siteId, int newMessageCount){
+		setSynopticInfoHelper(userId, siteId, false, newMessageCount);
+	}
+	
+	private void setSynopticInfoHelper(String userId, String siteId, boolean messages, int newMessageCount){
 		//this could be an anon access
 		if (userId == null && forumManager.getAnonRole()) {
 			return;
 		}
 		
-		setSynopticInfoHelper(userId, siteId, false, newMessageCount);
-	}
-	
-	private void setSynopticInfoHelper(String userId, String siteId, boolean messages, int newMessageCount){
 		SynopticMsgcntrItem item = getSiteSynopticMsgcntrItem(userId, siteId);
 		if(item == null){
 			//item does not exist, call the reset function to set the 
