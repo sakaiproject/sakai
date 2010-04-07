@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -582,24 +584,33 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	public List<SearchResult> findUsersByNameOrEmail(String search, String userId) {
 		
-		//get users from SakaiPerson
-		List<String> userUuids = new ArrayList<String>(dao.findSakaiPersonsByNameOrEmail(search));
-
-		//get users from a user search
-		List<String> usersUuidsFromUserSearch = new ArrayList<String>(sakaiProxy.searchUsers(search));
+		List<String> uuids = new ArrayList<String>();
 		
-		//combine with no duplicates
-		userUuids.removeAll(usersUuidsFromUserSearch);
-		userUuids.addAll(usersUuidsFromUserSearch);
+		//add users from SakaiPerson
+		uuids.addAll(dao.findSakaiPersonsByNameOrEmail(search));
+
+		//add local users from UserDirectoryService
+		uuids.addAll(sakaiProxy.searchUsers(search));
+		
+		//add external users from UserDirectoryService
+		//uuids.addAll(sakaiProxy.searchExternalUsers(search));
+		
+		//remove duplicates by passing through a Set and converting back out, order not important
+		Set<String> set = new HashSet<String>();
+		set.addAll(uuids);
+		uuids.clear();
+		uuids.addAll(set);
+		
+		log.info("Found " + uuids.size() + " results for search: " + search);
 
 		//restrict to only return the max number. UI will print message
 		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
-		if(userUuids.size() >= maxResults) {
-			userUuids = userUuids.subList(0, maxResults);
+		if(uuids.size() >= maxResults) {
+			uuids = uuids.subList(0, maxResults);
 		}
 		
 		//format into SearchResult records (based on friend status, privacy status etc)
-		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(userUuids, userId));
+		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(uuids, userId));
 		
 		return results;
 		
@@ -2281,25 +2292,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 	}
 	
 	
-	
-	
-	
-	//private method to back the search methods. returns only uuids which then need to be checked for privacy settings etc.
-	private List<String> findUsersByNameOrEmail(String search) {
-		
-		//get users from SakaiPerson
-		List<String> userUuids = new ArrayList<String>(dao.findSakaiPersonsByNameOrEmail(search));
-
-		//get users from UserDirectoryService
-		List<String> usersUuidsFromUserDirectoryService = new ArrayList<String>(sakaiProxy.searchUsers(search));
-		
-		//combine with no duplicates
-		userUuids.removeAll(usersUuidsFromUserDirectoryService);
-		userUuids.addAll(usersUuidsFromUserDirectoryService);
-		
-		return userUuids;
-	
-	}
 	
 	
 	//private utility method used by findUsersByNameOrEmail() and findUsersByInterest() to format results from

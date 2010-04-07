@@ -257,11 +257,19 @@ public interface SakaiProxy {
 	public boolean removeResource(String resourceId);
 	
 	/**
-	 * Search UserDirectoryService for a user that matches in name or email
+	 * Search UserDirectoryService for users that match in name or email.
 	 *
 	 * @param search	search string. Return's List of Sakai userId's 
 	 */
 	public List<String> searchUsers(String search);
+	
+	/**
+	 * Search UserDirectoryService for externally provided users that match in name or email.
+	 *
+	 * @param search	search string. Return's List of Sakai userId's 
+	 */
+	public List<String> searchExternalUsers(String search);
+	
 	
 	/**
 	 * Post an event to Sakai

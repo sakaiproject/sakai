@@ -602,7 +602,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		List<String> userUuids = new ArrayList<String>();
 		
-		//search for users
 		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS));
 		
 		for(Iterator<User> i = results.iterator(); i.hasNext();){
@@ -613,6 +612,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		return userUuids;
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public List<String> searchExternalUsers(String search) {
+		
+		List<String> userUuids = new ArrayList<String>();
+
+		List<User> results = new ArrayList<User>(userDirectoryService.searchExternalUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS));
+		
+		for(Iterator<User> i = results.iterator(); i.hasNext();){
+			User user = (User)i.next();
+			//get id
+			userUuids.add(user.getId());	
+	  	}
+		
+		return userUuids;
+	}
+	
 	
 	/**
  	* {@inheritDoc}
