@@ -70,6 +70,7 @@
 					<h:column>
 							<f:verbatim><h4 class="textPanelHeader"></f:verbatim>		  
 								<h:outputText value="#{eachEntry.entry.title}" />
+								<h:outputText rendered="#{eachEntry.entry.status == msgs.draft}" value="#{msgs.mainDraft}"/>
 							<f:verbatim></h4></f:verbatim>
 							<f:verbatim><div class="textPanel"></f:verbatim>
 							<syllabus:syllabus_htmlShowArea value="#{eachEntry.entry.asset}" />
