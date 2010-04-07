@@ -21,8 +21,7 @@ import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.service.ProfileImageService;
-import org.sakaiproject.profile2.tool.pages.errors.InternalErrorPage;
-import org.sakaiproject.profile2.tool.pages.errors.SessionExpiredPage;
+import org.sakaiproject.profile2.tool.pages.MyProfile;
 
 public class ProfileApplication extends WebApplication {    
     	
@@ -40,9 +39,9 @@ public class ProfileApplication extends WebApplication {
 		getMarkupSettings().setDefaultBeforeDisabledLink(null);
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 		
-		// Wicket session timeout/error page
-		getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
-		getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
+		// On Wicket session timeout, redirect to main page
+		getApplicationSettings().setPageExpiredErrorPage(MyProfile.class);
+		getApplicationSettings().setAccessDeniedPage(MyProfile.class);
 		
 	}
 	
