@@ -198,6 +198,12 @@ public class JamesServlet extends HttpServlet
 		String smtpPort = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.port"));
 		boolean enabled = ServerConfigurationService.getBoolean("smtp.enabled", false);
 
+		// check for missing values
+		if(host == null) host = "127.0.0.1";
+		if(dns1 == null) dns1 = "127.0.0.1";
+		if(dns2 == null) dns2 = "127.0.0.1";
+		if(smtpPort == null) smtpPort = "25";
+    
 		M_log.debug("init(): host: " + host + " enabled: " + enabled + " dns1: " + dns1 + " dns2: "
 			    + dns2 + " smtp.port: " + smtpPort + " logdir: " + logDir);
 
