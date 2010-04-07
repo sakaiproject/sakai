@@ -185,6 +185,9 @@ public class DiscussionForumTool
   private static final String INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM="cdfm_insufficient_privileges_change_forum";
   private static final String INSUFFICIENT_PRIVILEGES_NEW_TOPIC = "cdfm_insufficient_privileges_new_topic";
   private static final String INSUFFICIENT_PRIVILEGES_CREATE_TOPIC="cdfm_insufficient_privileges_create_topic";
+  private static final String FORUM_LOCKED = "cdfm_forum_locked";
+  private static final String TOPIC_LOCKED = "cdfm_topic_locked";
+  private static final String ERROR_POSTING_THREAD = "cdfm_error_posting_thread";
   private static final String USER_NOT_ALLOWED_CREATE_FORUM="cdfm_user_not_allowed_create_forum";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM="cdfm_insufficient_privileges_delete_forum";
   private static final String SHORT_DESC_TOO_LONG = "cdfm_short_desc_too_long";
@@ -3170,39 +3173,42 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
 
     
-    if(selectedTopic == null)
-    {
-    	LOG.debug("selectedTopic is null in processDfMsgPost()");
-    	return gotoMain();
-    }else if(!selectedTopic.getIsNewResponse()){
-    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
-    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
-    	return gotoMain();
+    if(!canUserPostMessage("processDfMsgPost")){
+  		//this checks if the conditions are correct for the user to post for the current topic and forum
+  		//i.e. currentTopic != null, currentForum isn't locked, ect
+  		gotoMain();
     }
-    forumManager.saveMessage(dMsg);
-    DiscussionTopic dSelectedTopic = (DiscussionTopic) forumManager.getTopicWithAttachmentsById(selectedTopic.getTopic().getId());
-    setSelectedForumForCurrentTopic(dSelectedTopic);
-    selectedTopic.setTopic(dSelectedTopic);
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
+    try{
+    	forumManager.saveMessage(dMsg);
 
-    selectedTopic.getTopic().addMessage(dMsg);
-    
-    /** mark message creator as having read the message */
-    //update synopticLite tool information:
-    incrementSynopticToolInfo(dMsg, true);
-    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);        
+    	DiscussionTopic dSelectedTopic = (DiscussionTopic) forumManager.getTopicWithAttachmentsById(selectedTopic.getTopic().getId());
+    	setSelectedForumForCurrentTopic(dSelectedTopic);
+    	selectedTopic.setTopic(dSelectedTopic);
+    	selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+    	//selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    	selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
 
-    this.composeBody = null;
-    this.composeLabel = null;
-    this.composeTitle = null;
+    	selectedTopic.getTopic().addMessage(dMsg);
 
-    this.attachments.clear();
+    	/** mark message creator as having read the message */
+    	//update synopticLite tool information:
+    	incrementSynopticToolInfo(dMsg, true);
+    	messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);        
 
-    // refresh page with unread status     
-    selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
-    sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager));
+    	this.composeBody = null;
+    	this.composeLabel = null;
+    	this.composeTitle = null;
+
+    	this.attachments.clear();
+
+    	// refresh page with unread status     
+    	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+    	sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager));
+    }catch(Exception e){
+    	LOG.error("DiscussionForumTool: processDfMsgPost", e);
+    	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+    	gotoMain();
+    }
     return ALL_MESSAGES;
   }
   
@@ -3280,28 +3286,32 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
     dMsg.setDraft(Boolean.TRUE);
 
-    if(selectedTopic == null)
-    {
-    	LOG.debug("selectedTopic is null in processDfMsgSaveDraft()");
-    	return gotoMain();
+    if(!canUserPostMessage("processDfMsgSaveDraft")){
+  		//this checks if the conditions are correct for the user to post for the current topic and forum
+  		//i.e. currentTopic != null, currentForum isn't locked, ect
+  		gotoMain();
     }
+    try{
+    	forumManager.saveMessage(dMsg);
+    	setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+    			.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    	selectedTopic.setTopic((DiscussionTopic) forumManager
+    			.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    	selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+    	//selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+    	selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
+    	selectedTopic.getTopic().addMessage(dMsg);
 
-    forumManager.saveMessage(dMsg);
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.getTopic().addMessage(dMsg);
+    	this.composeBody = null;
+    	this.composeLabel = null;
+    	this.composeTitle = null;
 
-    this.composeBody = null;
-    this.composeLabel = null;
-    this.composeTitle = null;
-
-    this.attachments.clear();
-
+    	this.attachments.clear();
+    }catch(Exception e){
+    	LOG.error("DiscussionForumTool: processDfMsgSaveDraft", e);
+    	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+    	gotoMain();
+    }
     return ALL_MESSAGES;
   }
 
@@ -3837,6 +3847,30 @@ public class DiscussionForumTool
     setErrorMessage(getResourceBundleString(CONFIRM_DELETE_MESSAGE));
     return MESSAGE_VIEW;
   }
+  
+  private boolean canUserPostMessage(String methodCalled){
+	  boolean allowedToPost = true;
+	  
+	  if(selectedTopic == null)
+	  {
+		  LOG.debug("selectedTopic is null in " + methodCalled);
+		  allowedToPost = false;
+	  }else if(!selectedTopic.getIsNewResponse()){
+		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
+		  LOG.debug(methodCalled + ": Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
+		  allowedToPost = false;
+	  }else if(selectedTopic.getTopic().getLocked()){
+		  setErrorMessage(getResourceBundleString(TOPIC_LOCKED, new Object[]{selectedTopic.getTopic().getTitle()}));
+		  LOG.debug(methodCalled + ": Topic is locked: " + selectedTopic.getTopic().getTitle());
+		  allowedToPost = false;
+	  }else if(selectedForum != null && selectedForum.getForum().getLocked()){
+		  setErrorMessage(getResourceBundleString(FORUM_LOCKED, new Object[]{selectedForum.getForum().getTitle()}));
+		  LOG.debug(methodCalled + ": Forum is locked: " + selectedTopic.getTopic().getTitle());
+		  allowedToPost = false;
+	  }
+
+	  return allowedToPost;
+  }
 
   public String processDfReplyMsgPost()
   {
@@ -3846,134 +3880,140 @@ public class DiscussionForumTool
 	  }
 	  functionClick = 0;
 		
-  	if(selectedTopic == null)
-  	{
-  		LOG.debug("selectedTopic is null in processDfReplyMsgPost");
-  		return gotoMain();
-  	}else if(!selectedTopic.getIsNewResponse()){
-    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
-    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
-    	return gotoMain();
-    }
-  	
-  	DiscussionTopic topicWithMsgs = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
-    List tempList = topicWithMsgs.getMessages();
-    if(tempList != null)
-    {
-    	boolean existed = false;
-    	Long selMsgId = selectedMessage.getMessage().getId();
-    	for(int i=0; i<tempList.size(); i++)
-    	{
-    		Message tempMsg = (Message)tempList.get(i);
-    		if(tempMsg.getId().equals(selMsgId))
-    		{
-    			existed = true;
-    			break;
-    		}
-    	}
-    	if(!existed)
-    	{
-      	this.errorSynch = true;
-        return null;
-    	}
-    }
-    else
-    {
-    	this.errorSynch = true;
-      return null;
-    }
-    
-    Message dMsg = constructMessage();
+  	if(!canUserPostMessage("processDfReplyMsgPost")){
+  		//this checks if the conditions are correct for the user to post for the current topic and forum
+  		//i.e. currentTopic != null, currentForum isn't locked, ect
+  		gotoMain();
+  	}
+  	try{
+  		DiscussionTopic topicWithMsgs = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
+  		List tempList = topicWithMsgs.getMessages();
+  		if(tempList != null)
+  		{
+  			boolean existed = false;
+  			Long selMsgId = selectedMessage.getMessage().getId();
+  			for(int i=0; i<tempList.size(); i++)
+  			{
+  				Message tempMsg = (Message)tempList.get(i);
+  				if(tempMsg.getId().equals(selMsgId))
+  				{
+  					existed = true;
+  					break;
+  				}
+  			}
+  			if(!existed)
+  			{
+  				this.errorSynch = true;
+  				return null;
+  			}
+  		}
+  		else
+  		{
+  			this.errorSynch = true;
+  			return null;
+  		}
 
-    dMsg.setInReplyTo(selectedMessage.getMessage());
-    forumManager.saveMessage(dMsg);
-    
-    //update synoptic tool info
-    incrementSynopticToolInfo(dMsg, true);
-    
-    setSelectedForumForCurrentTopic(topicWithMsgs);
-    selectedTopic.setTopic(topicWithMsgs);
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.getTopic().addMessage(dMsg);
-    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);
+  		Message dMsg = constructMessage();
 
-    this.composeBody = null;
-    this.composeLabel = null;
-    this.composeTitle = null;
+  		dMsg.setInReplyTo(selectedMessage.getMessage());
+  		forumManager.saveMessage(dMsg);
 
-    this.attachments.clear();
+  		//update synoptic tool info
+  		incrementSynopticToolInfo(dMsg, true);
 
-    //return ALL_MESSAGES;
-    //check selectedThreadHead exists
-    if(selectedThreadHead == null){
-    	selectedThreadHead = new DiscussionMessageBean(selectedMessage.getMessage(), messageManager);
-	    //make sure we have the thread head of depth 0
-	    while(selectedThreadHead.getMessage().getInReplyTo() != null){
-	    	selectedThreadHead = new DiscussionMessageBean(
-	    			messageManager.getMessageByIdWithAttachments(selectedThreadHead.getMessage().getInReplyTo().getId()), 
-	    			messageManager);
-	    }
-    }
-    
-    sendEmailNotification(dMsg,selectedThreadHead);
+  		setSelectedForumForCurrentTopic(topicWithMsgs);
+  		selectedTopic.setTopic(topicWithMsgs);
+  		selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+  		//selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+  		selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
+  		selectedTopic.getTopic().addMessage(dMsg);
+  		messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);
+
+  		this.composeBody = null;
+  		this.composeLabel = null;
+  		this.composeTitle = null;
+
+  		this.attachments.clear();
+
+  		//return ALL_MESSAGES;
+  		//check selectedThreadHead exists
+  		if(selectedThreadHead == null){
+  			selectedThreadHead = new DiscussionMessageBean(selectedMessage.getMessage(), messageManager);
+  			//make sure we have the thread head of depth 0
+  			while(selectedThreadHead.getMessage().getInReplyTo() != null){
+  				selectedThreadHead = new DiscussionMessageBean(
+  						messageManager.getMessageByIdWithAttachments(selectedThreadHead.getMessage().getInReplyTo().getId()), 
+  						messageManager);
+  			}
+  		}
+
+  		sendEmailNotification(dMsg,selectedThreadHead);
+  	}catch(Exception e){
+  		LOG.error("DiscussionForumTool: processDfReplyMsgPost", e);
+  		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+  		gotoMain();
+  	}
     return processActionGetDisplayThread();
   }
 
   public String processDfReplyMsgSaveDraft()
   {
-  	if(selectedTopic == null)
-  	{
-  		LOG.debug("selectedTopic is null in processDfReplyMsgSaveDraft");
-  		return gotoMain();
-  	}
-  	
-    List tempList = forumManager.getMessagesByTopicId(selectedTopic.getTopic().getId());
-    if(tempList != null)
-    {
-    	boolean existed = false;
-    	for(int i=0; i<tempList.size(); i++)
-    	{
-    		Message tempMsg = (Message)tempList.get(i);
-    		if(tempMsg.getId().equals(selectedMessage.getMessage().getId()))
-    		{
-    			existed = true;
-    			break;
-    		}
-    	}
-    	if(!existed)
-    	{
-      	this.errorSynch = true;
-        return null;
-    	}
-    }
-    else
-    {
-    	this.errorSynch = true;
-      return null;
-    }
+	  if(!canUserPostMessage("processDfReplyMsgSaveDraft")){
+		  //this checks if the conditions are correct for the user to post for the current topic and forum
+		  //i.e. currentTopic != null, currentForum isn't locked, ect
+		  gotoMain();
+	  }
+	  try{
+
+		  List tempList = forumManager.getMessagesByTopicId(selectedTopic.getTopic().getId());
+		  if(tempList != null)
+		  {
+			  boolean existed = false;
+			  for(int i=0; i<tempList.size(); i++)
+			  {
+				  Message tempMsg = (Message)tempList.get(i);
+				  if(tempMsg.getId().equals(selectedMessage.getMessage().getId()))
+				  {
+					  existed = true;
+					  break;
+				  }
+			  }
+			  if(!existed)
+			  {
+				  this.errorSynch = true;
+				  return null;
+			  }
+		  }
+		  else
+		  {
+			  this.errorSynch = true;
+			  return null;
+		  }
 
 
-  	Message dMsg = constructMessage();
-    dMsg.setDraft(Boolean.TRUE);
-    dMsg.setInReplyTo(selectedMessage.getMessage());
-    forumManager.saveMessage(dMsg);
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.getTopic().addMessage(dMsg);
+		  Message dMsg = constructMessage();
+		  dMsg.setDraft(Boolean.TRUE);
+		  dMsg.setInReplyTo(selectedMessage.getMessage());
+		  forumManager.saveMessage(dMsg);
+		  setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.setTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+		  //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+		  selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
+		  selectedTopic.getTopic().addMessage(dMsg);
 
-    this.composeBody = null;
-    this.composeLabel = null;
-    this.composeTitle = null;
+		  this.composeBody = null;
+		  this.composeLabel = null;
+		  this.composeTitle = null;
 
-    this.attachments.clear();
-
+		  this.attachments.clear();
+	  }catch(Exception e){
+		  LOG.error("DiscussionForumTool: processDfReplyMsgSaveDraft", e);
+		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+		  gotoMain();
+	  }
     return processActionGetDisplayThread();
   }
 
@@ -4041,258 +4081,267 @@ public class DiscussionForumTool
 		return null;
 	}
 	functionClick = 0;
-  	if(selectedTopic == null)
-  	{
-  		LOG.debug("selectedTopic is null in processDfMsgRevisedPost");
-  		return gotoMain();
-  	}else if(!selectedTopic.getIsNewResponse()){
-    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
-    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
-    	return gotoMain();
-    }
-  	
-	DiscussionTopic dfTopic = selectedTopic.getTopic();
-	DiscussionForum dfForum = selectedForum.getForum();
-  	
-    Message dMsg = selectedMessage.getMessage();
-    
-    messageManager.markMessageReadForUser(dfTopic.getId(), dMsg.getId(), true);
-
-    if(!uiPermissionsManager.isReviseAny(dfTopic, dfForum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isReviseOwn(dfTopic, dfForum)))
-	{
-		setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_REVISE_MESSAGE));
-		return null;
+	if(!canUserPostMessage("processDfMsgRevisedPost")){
+		//this checks if the conditions are correct for the user to post for the current topic and forum
+		//i.e. currentTopic != null, currentForum isn't locked, ect
+		gotoMain();
 	}
-    
-    for (int i = 0; i < prepareRemoveAttach.size(); i++)
-    {
-      DecoratedAttachment removeAttach = (DecoratedAttachment) prepareRemoveAttach.get(i);
-      dMsg.removeAttachment(removeAttach.getAttachment());
-    }
+	try{
+		DiscussionTopic dfTopic = selectedTopic.getTopic();
+		DiscussionForum dfForum = selectedForum.getForum();
 
-    List oldList = dMsg.getAttachments();
-    for (int i = 0; i < attachments.size(); i++)
-    {
-    	DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
-      boolean existed = false;
-      for (int j = 0; j < oldList.size(); j++)
-      {
-        Attachment existedAttach = (Attachment) oldList.get(j);
-        if (existedAttach.getAttachmentId()
-            .equals(thisAttach.getAttachment().getAttachmentId()))
-        {
-          existed = true;
-          break;
-        }
-      }
-      if (!existed)
-      {
-        dMsg.addAttachment(thisAttach.getAttachment());
-      }
-    }
-    String currentBody = getComposeBody();
-    String revisedInfo = "<p class=\"lastRevise textPanelFooter\">" + getResourceBundleString(LAST_REVISE_BY);
-    
-    revisedInfo += getUserNameOrEid();
-    
-    revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
-    Date now = new Date();
-    revisedInfo += now.toString() + " </p> ";
-    
-/*    if(currentBody != null && currentBody.length()>0 && currentBody.startsWith("Last Revised By "))
+		Message dMsg = selectedMessage.getMessage();
+
+		messageManager.markMessageReadForUser(dfTopic.getId(), dMsg.getId(), true);
+
+		if(!uiPermissionsManager.isReviseAny(dfTopic, dfForum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isReviseOwn(dfTopic, dfForum)))
+		{
+			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_REVISE_MESSAGE));
+			return null;
+		}
+
+		for (int i = 0; i < prepareRemoveAttach.size(); i++)
+		{
+			DecoratedAttachment removeAttach = (DecoratedAttachment) prepareRemoveAttach.get(i);
+			dMsg.removeAttachment(removeAttach.getAttachment());
+		}
+
+		List oldList = dMsg.getAttachments();
+		for (int i = 0; i < attachments.size(); i++)
+		{
+			DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
+			boolean existed = false;
+			for (int j = 0; j < oldList.size(); j++)
+			{
+				Attachment existedAttach = (Attachment) oldList.get(j);
+				if (existedAttach.getAttachmentId()
+						.equals(thisAttach.getAttachment().getAttachmentId()))
+				{
+					existed = true;
+					break;
+				}
+			}
+			if (!existed)
+			{
+				dMsg.addAttachment(thisAttach.getAttachment());
+			}
+		}
+		String currentBody = getComposeBody();
+		String revisedInfo = "<p class=\"lastRevise textPanelFooter\">" + getResourceBundleString(LAST_REVISE_BY);
+
+		revisedInfo += getUserNameOrEid();
+
+		revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
+		Date now = new Date();
+		revisedInfo += now.toString() + " </p> ";
+
+		/*    if(currentBody != null && currentBody.length()>0 && currentBody.startsWith("Last Revised By "))
     {
     	if(currentBody.lastIndexOf(" <br/> ") > 0)
     	{
     		currentBody = currentBody.substring(currentBody.lastIndexOf(" <br/> ") + 7);
     	}
     }*/
-    
-    revisedInfo = revisedInfo.concat(currentBody);
 
-    StringBuilder alertMsg = new StringBuilder();
-    dMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
-    dMsg.setBody(FormattedText.processFormattedText(revisedInfo, alertMsg));
-    dMsg.setDraft(Boolean.FALSE);
-    dMsg.setModified(new Date());
-    
-    dMsg.setModifiedBy(getUserNameOrEid());
-    if (!selectedTopic.isTopicModerated() || !selectedTopic.getIsModeratedAndHasPerm())
-    {
-    	dMsg.setApproved(Boolean.TRUE);
+		revisedInfo = revisedInfo.concat(currentBody);
+
+		StringBuilder alertMsg = new StringBuilder();
+		dMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
+		dMsg.setBody(FormattedText.processFormattedText(revisedInfo, alertMsg));
+		dMsg.setDraft(Boolean.FALSE);
+		dMsg.setModified(new Date());
+
+		dMsg.setModifiedBy(getUserNameOrEid());
+		if (!selectedTopic.isTopicModerated() || !selectedTopic.getIsModeratedAndHasPerm())
+		{
+			dMsg.setApproved(Boolean.TRUE);
+		}
+		else
+		{
+			dMsg.setApproved(null);
+		}
+
+		setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+				.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		selectedTopic.setTopic((DiscussionTopic) forumManager
+				.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		dMsg.setTopic((DiscussionTopic) forumManager
+				.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		//    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+		//    Topic currentTopic = forumManager.getTopicByIdWithMessagesAndAttachments(dMsg.getTopic().getId());
+		//    dMsg.getTopic().setBaseForum(currentTopic.getBaseForum());
+		//dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
+
+		forumManager.saveMessage(dMsg);
+
+		List messageList = selectedTopic.getMessages();
+		for (int i = 0; i < messageList.size(); i++)
+		{
+			DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
+			if (dmb.getMessage().getId().equals(dMsg.getId()))
+			{
+				selectedTopic.getMessages().set(i,
+						new DiscussionMessageBean(dMsg, messageManager));
+			}
+		}
+
+		try
+		{
+			DiscussionTopic topic = null;
+			try
+			{
+				topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+				setSelectedForumForCurrentTopic(topic);
+				selectedTopic = getDecoratedTopic(topic);
+			}
+			catch (NumberFormatException e)
+			{
+				LOG.error(e.getMessage(), e);
+			}
+
+		}
+		catch (Exception e)
+		{
+			LOG.error(e.getMessage(), e);
+			setErrorMessage(e.getMessage());
+			return null;
+		}
+
+		prepareRemoveAttach.clear();
+		composeBody = null;
+		composeLabel = null;
+		composeTitle = null;
+		attachments.clear();
+
+		getSelectedTopic();
+		getThreadFromMessage();
+	}catch(Exception e){
+    	LOG.error("DiscussionForumTool: processDfMsgRevisedPost", e);
+    	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+    	gotoMain();
     }
-    else
-    {
-    	dMsg.setApproved(null);
-    }
 
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    dMsg.setTopic((DiscussionTopic) forumManager
-            .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-//    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-//    Topic currentTopic = forumManager.getTopicByIdWithMessagesAndAttachments(dMsg.getTopic().getId());
-//    dMsg.getTopic().setBaseForum(currentTopic.getBaseForum());
-    //dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
-    forumManager.saveMessage(dMsg);
-
-    List messageList = selectedTopic.getMessages();
-    for (int i = 0; i < messageList.size(); i++)
-    {
-      DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
-      if (dmb.getMessage().getId().equals(dMsg.getId()))
-      {
-        selectedTopic.getMessages().set(i,
-            new DiscussionMessageBean(dMsg, messageManager));
-      }
-    }
-
-    try
-    {
-      DiscussionTopic topic = null;
-      try
-      {
-        topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
-        setSelectedForumForCurrentTopic(topic);
-        selectedTopic = getDecoratedTopic(topic);
-      }
-      catch (NumberFormatException e)
-      {
-        LOG.error(e.getMessage(), e);
-      }
-      
-    }
-    catch (Exception e)
-    {
-      LOG.error(e.getMessage(), e);
-      setErrorMessage(e.getMessage());
-      return null;
-    }
-
-    prepareRemoveAttach.clear();
-    composeBody = null;
-    composeLabel = null;
-    composeTitle = null;
-    attachments.clear();
-
-    getSelectedTopic();
-    getThreadFromMessage();
     return MESSAGE_VIEW;
   }
 
   public String processDfMsgSaveRevisedDraft()
   {
-  	if(selectedTopic == null)
-  	{
-  		LOG.debug("selectedTopic is null in processDfMsgSaveRevisedDraft");
-  		return gotoMain();
-  	}
-  		
-    Message dMsg = selectedMessage.getMessage();
+	  if(!canUserPostMessage("processDfMsgSaveRevisedDraft")){
+		  //this checks if the conditions are correct for the user to post for the current topic and forum
+		  //i.e. currentTopic != null, currentForum isn't locked, ect
+		  gotoMain();
+	  }
+	  try{
 
-    for (int i = 0; i < prepareRemoveAttach.size(); i++)
-    {
-      DecoratedAttachment removeAttach = (DecoratedAttachment) prepareRemoveAttach.get(i);
-      dMsg.removeAttachment(removeAttach.getAttachment());
-    }
+		  Message dMsg = selectedMessage.getMessage();
 
-    List oldList = dMsg.getAttachments();
-    for (int i = 0; i < attachments.size(); i++)
-    {
-    	DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
-      boolean existed = false;
-      for (int j = 0; j < oldList.size(); j++)
-      {
-        Attachment existedAttach = (Attachment) oldList.get(j);
-        if (existedAttach.getAttachmentId()
-            .equals(thisAttach.getAttachment().getAttachmentId()))
-        {
-          existed = true;
-          break;
-        }
-      }
-      if (!existed)
-      {
-        dMsg.addAttachment(thisAttach.getAttachment());
-      }
-    }
-    String currentBody = getComposeBody();
-    String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
+		  for (int i = 0; i < prepareRemoveAttach.size(); i++)
+		  {
+			  DecoratedAttachment removeAttach = (DecoratedAttachment) prepareRemoveAttach.get(i);
+			  dMsg.removeAttachment(removeAttach.getAttachment());
+		  }
 
-    revisedInfo += getUserNameOrEid();
-    
-    revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
-    Date now = new Date();
-    revisedInfo += now.toString() + " <br/> ";    
-    revisedInfo = revisedInfo.concat(currentBody);
+		  List oldList = dMsg.getAttachments();
+		  for (int i = 0; i < attachments.size(); i++)
+		  {
+			  DecoratedAttachment thisAttach = (DecoratedAttachment) attachments.get(i);
+			  boolean existed = false;
+			  for (int j = 0; j < oldList.size(); j++)
+			  {
+				  Attachment existedAttach = (Attachment) oldList.get(j);
+				  if (existedAttach.getAttachmentId()
+						  .equals(thisAttach.getAttachment().getAttachmentId()))
+				  {
+					  existed = true;
+					  break;
+				  }
+			  }
+			  if (!existed)
+			  {
+				  dMsg.addAttachment(thisAttach.getAttachment());
+			  }
+		  }
+		  String currentBody = getComposeBody();
+		  String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
 
-    dMsg.setTitle(getComposeTitle());
-    dMsg.setBody(revisedInfo);
-    dMsg.setDraft(Boolean.TRUE);
-    dMsg.setModified(new Date());
-    
-    dMsg.setModifiedBy(getUserNameOrEid());
-    
-    //  if the topic is moderated, we want to leave approval null.
-	// if the topic is not moderated, all msgs are approved
-	if (!selectedTopic.isTopicModerated())
-	{
-		dMsg.setApproved(Boolean.TRUE);
-	}
-    
-//    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-//        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-//    selectedTopic.setTopic((DiscussionTopic) forumManager
-//        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-//    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());    
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    dMsg.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    //dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
-    forumManager.saveMessage(dMsg);
+		  revisedInfo += getUserNameOrEid();
 
-    List messageList = selectedTopic.getMessages();
-    for (int i = 0; i < messageList.size(); i++)
-    {
-      DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
-      if (dmb.getMessage().getId().equals(dMsg.getId()))
-      {
-        selectedTopic.getMessages().set(i,
-            new DiscussionMessageBean(dMsg, messageManager));
-      }
-    }
+		  revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
+		  Date now = new Date();
+		  revisedInfo += now.toString() + " <br/> ";    
+		  revisedInfo = revisedInfo.concat(currentBody);
 
-    try
-    {
-      DiscussionTopic topic = null;
-      try
-      {
-        topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
-        setSelectedForumForCurrentTopic(topic);
-        selectedTopic = getDecoratedTopic(topic); 
-      }
-      catch (NumberFormatException e)
-      {
-        LOG.error(e.getMessage(), e);
-      }
-           
-    }
-    catch (Exception e)
-    {
-      LOG.error(e.getMessage(), e);
-      setErrorMessage(e.getMessage());
-      return null;
-    }
+		  dMsg.setTitle(getComposeTitle());
+		  dMsg.setBody(revisedInfo);
+		  dMsg.setDraft(Boolean.TRUE);
+		  dMsg.setModified(new Date());
 
-    prepareRemoveAttach.clear();
-    composeBody = null;
-    composeLabel = null;
-    composeTitle = null;
-    attachments.clear();
+		  dMsg.setModifiedBy(getUserNameOrEid());
+
+		  //  if the topic is moderated, we want to leave approval null.
+		  // if the topic is not moderated, all msgs are approved
+		  if (!selectedTopic.isTopicModerated())
+		  {
+			  dMsg.setApproved(Boolean.TRUE);
+		  }
+
+		  //    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+		  //        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  //    selectedTopic.setTopic((DiscussionTopic) forumManager
+		  //        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  //    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());    
+		  setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.setTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  dMsg.setTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  //dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
+		  forumManager.saveMessage(dMsg);
+
+		  List messageList = selectedTopic.getMessages();
+		  for (int i = 0; i < messageList.size(); i++)
+		  {
+			  DiscussionMessageBean dmb = (DiscussionMessageBean) messageList.get(i);
+			  if (dmb.getMessage().getId().equals(dMsg.getId()))
+			  {
+				  selectedTopic.getMessages().set(i,
+						  new DiscussionMessageBean(dMsg, messageManager));
+			  }
+		  }
+
+		  try
+		  {
+			  DiscussionTopic topic = null;
+			  try
+			  {
+				  topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
+				  setSelectedForumForCurrentTopic(topic);
+				  selectedTopic = getDecoratedTopic(topic); 
+			  }
+			  catch (NumberFormatException e)
+			  {
+				  LOG.error(e.getMessage(), e);
+			  }
+
+		  }
+		  catch (Exception e)
+		  {
+			  LOG.error(e.getMessage(), e);
+			  setErrorMessage(e.getMessage());
+			  return null;
+		  }
+
+		  prepareRemoveAttach.clear();
+		  composeBody = null;
+		  composeLabel = null;
+		  composeTitle = null;
+		  attachments.clear();
+	  }catch(Exception e){
+		  LOG.error("DiscussionForumTool: processDfReplyMsgPost", e);
+		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+		  gotoMain();
+	  }
 
     return ALL_MESSAGES;
   }
@@ -4329,71 +4378,76 @@ public class DiscussionForumTool
 
   public String processDfReplyTopicPost()
   {
-  	if(selectedTopic == null)
-  	{ 
-  		LOG.debug("selectedTopic is null in processDfReplyTopicPost");
-  		return gotoMain();
-  	}else if(!selectedTopic.getIsNewResponse()){
-    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
-    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
-    	return gotoMain();
-    }
-  	
-    Message dMsg = constructMessage();
+	  if(!canUserPostMessage("processDfReplyTopicPost")){
+		  //this checks if the conditions are correct for the user to post for the current topic and forum
+		  //i.e. currentTopic != null, currentForum isn't locked, ect
+		  gotoMain();
+	  }
+	  try{
+		  Message dMsg = constructMessage();
 
-    forumManager.saveMessage(dMsg);
-    
-    //update synoptic tool info
-    incrementSynopticToolInfo(dMsg, false);
-    
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.getTopic().addMessage(dMsg);
+		  forumManager.saveMessage(dMsg);
 
-    //notify watchers
-    sendEmailNotification(dMsg,selectedThreadHead);
-    this.composeBody = null;
-    this.composeLabel = null;
-    this.composeTitle = null;
+		  //update synoptic tool info
+		  incrementSynopticToolInfo(dMsg, false);
 
-    this.attachments.clear();
+		  setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.setTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+		  //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+		  selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
+		  selectedTopic.getTopic().addMessage(dMsg);
 
+		  //notify watchers
+		  sendEmailNotification(dMsg,selectedThreadHead);
+		  this.composeBody = null;
+		  this.composeLabel = null;
+		  this.composeTitle = null;
+
+		  this.attachments.clear();
+	  }catch(Exception e){
+		  LOG.error("DiscussionForumTool: processDfReplyTopicPost", e);
+		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+		  gotoMain();
+	  }
     return ALL_MESSAGES;
   }
 
   public String processDfReplyTopicSaveDraft()
   {
-  	if(selectedTopic == null)
-  	{ 
-  		LOG.debug("selectedTopic is null in processDfReplyTopicSaveDraft");
-  		return gotoMain();
-  	}
-  	
-    Message dMsg = constructMessage();
-    dMsg.setDraft(Boolean.TRUE);
+	  if(!canUserPostMessage("processDfReplyTopicSaveDraft'")){
+		  //this checks if the conditions are correct for the user to post for the current topic and forum
+		  //i.e. currentTopic != null, currentForum isn't locked, ect
+		  gotoMain();
+	  }
+	  try{
 
-    forumManager.saveMessage(dMsg);
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.setTopic((DiscussionTopic) forumManager
-        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
-    selectedTopic.getTopic().addMessage(dMsg);
+		  Message dMsg = constructMessage();
+		  dMsg.setDraft(Boolean.TRUE);
 
-    this.composeBody = null;
-    this.composeLabel = null;
-    this.composeTitle = null;
+		  forumManager.saveMessage(dMsg);
+		  setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.setTopic((DiscussionTopic) forumManager
+				  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+		  selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+		  //selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
+		  selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
+		  selectedTopic.getTopic().addMessage(dMsg);
 
-    this.attachments.clear();
+		  this.composeBody = null;
+		  this.composeLabel = null;
+		  this.composeTitle = null;
 
-    return ALL_MESSAGES;
+		  this.attachments.clear();
+	  }catch(Exception e){
+		  LOG.error("DiscussionForumTool: processDfReplyTopicSaveDraft", e);
+		  setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
+		  gotoMain();
+	  }
+	  return ALL_MESSAGES;
   }
 
   public String processDfReplyTopicCancel()
