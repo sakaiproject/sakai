@@ -584,33 +584,32 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	public List<SearchResult> findUsersByNameOrEmail(String search, String userId) {
 		
-		List<String> uuids = new ArrayList<String>();
+		List<User> users = new ArrayList<User>();
+		List<String> sakaiPersonUuids = new ArrayList<String>();
 		
 		//add users from SakaiPerson
-		uuids.addAll(dao.findSakaiPersonsByNameOrEmail(search));
+		sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);
+		users.addAll(sakaiProxy.getUsers(sakaiPersonUuids));
 
 		//add local users from UserDirectoryService
-		uuids.addAll(sakaiProxy.searchUsers(search));
+		users.addAll(sakaiProxy.searchUsers(search));
 		
 		//add external users from UserDirectoryService
 		//uuids.addAll(sakaiProxy.searchExternalUsers(search));
 		
-		//remove duplicates by passing through a Set and converting back out, order not important
-		Set<String> set = new HashSet<String>();
-		set.addAll(uuids);
-		uuids.clear();
-		uuids.addAll(set);
+		//remove duplicates
+		ProfileUtils.removeDuplicates(users);
 		
-		log.info("Found " + uuids.size() + " results for search: " + search);
+		log.info("Found " + users.size() + " results for search: " + search);
 
 		//restrict to only return the max number. UI will print message
 		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
-		if(uuids.size() >= maxResults) {
-			uuids = uuids.subList(0, maxResults);
+		if(users.size() >= maxResults) {
+			users = users.subList(0, maxResults);
 		}
 		
 		//format into SearchResult records (based on friend status, privacy status etc)
-		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(uuids, userId));
+		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(users, userId));
 		
 		return results;
 		
@@ -623,17 +622,21 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	public List<SearchResult> findUsersByInterest(String search, String userId) {
 		
-		//perform search (uses private method to wrap the search)
-		List<String> userUuids = new ArrayList<String>(dao.findSakaiPersonsByInterest(search));
+		List<User> users = new ArrayList<User>();
+		List<String> sakaiPersonUuids = new ArrayList<String>();
+		
+		//add users from SakaiPerson		
+		sakaiPersonUuids = dao.findSakaiPersonsByInterest(search);
+		users.addAll(sakaiProxy.getUsers(sakaiPersonUuids));
 		
 		//restrict to only return the max number. UI will print message
 		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
-		if(userUuids.size() >= maxResults) {
-			userUuids = userUuids.subList(0, maxResults);
+		if(users.size() >= maxResults) {
+			users = users.subList(0, maxResults);
 		}
 		
 		//format into SearchResult records (based on friend status, privacy status etc)
-		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(userUuids, userId));
+		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(users, userId));
 		
 		return results;
 		
@@ -2295,37 +2298,25 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	
 	//private utility method used by findUsersByNameOrEmail() and findUsersByInterest() to format results from
-	//the supplied userUuids to SearchResult records based on friend or friendRequest status and the privacy settings for each user
+	//the supplied users to SearchResult records based on friend or friendRequest status and the privacy settings for each user
 	//that was in the initial search results
-	private List<SearchResult> createSearchResultRecordsFromSearch(List<String> userUuids, String userId) {
+	private List<SearchResult> createSearchResultRecordsFromSearch(List<User> users, String userId) {
 
 		List<SearchResult> results = new ArrayList<SearchResult>();
 			
-		//TODO get the list of Users via getUsers(userUuids) instead of individually in the iterator below?
-		//Is this an issue? Its cached?
-		
 		//get type of requesting user so we can check if they are allowed to connect to the users found
 		String searchingUserType = sakaiProxy.getUserType(userId);
 		
-		//for each userUuid, is userId a friend?
-		//also, get privacy record for the userUuid. if searches not allowed for this user pair, skip to next
+		//for each user, is userId a friend?
+		//also, get privacy record for the user. if searches not allowed for this user pair, skip to next
 		//otherwise create SearchResult record and add to list
-		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
-			String userUuid = (String)i.next();
+		for(User u : users){
+			String userUuid = u.getId();
 			
 			//if user is in the list of invisible users, skip unless current user is admin
 			if(!sakaiProxy.isSuperUser() && sakaiProxy.getInvisibleUsers().contains(userUuid)){
 				continue;
 			}
-			
-			//get User object
-			User u = sakaiProxy.getUserQuietly(userUuid);
-			
-			//if they don't exist, skip
-			if(u == null) {
-				continue;
-			}
-			
 			
 			//get User details
 			String displayName = u.getDisplayName();

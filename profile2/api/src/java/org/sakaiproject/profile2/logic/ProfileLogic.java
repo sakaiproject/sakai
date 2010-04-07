@@ -285,13 +285,14 @@ public interface ProfileLogic {
 	 * Find all users that match the search string in either name or email. 
 	 * This first queries Sakai's UserDirectoryProvider for matches, then queries SakaiPerson and combines the lists
 	 * This approach is so that we can get attempt to get all users, with or without profiles.
-	 * 
+	 * <p>
 	 * We then check to see if the returned user is a friend of the person performing the search
 	 * We then check to see if this person has their privacy settings restricted such that this user should not be
 	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
-	 * [The above is performed in a private method]
-	 *
+	 * <p>
 	 * Once this list is returned, can lookup more info based on SearchResult.getUserUuid()
+	 * <p>
+	 * This list is automatically cleaned for non-existent users by way of the UserDirectoryService.getUsers call.
 	 * 
 	 * @param search 	string to search for
 	 * @param userId 	uuid of user performing the search
@@ -301,17 +302,18 @@ public interface ProfileLogic {
 
 	/**
 	 * Find all users that match the search string in any of the relevant SakaiPerson fields
-	 * 
+	 * <p>
 	 * We then check to see if the returned user is a friend of the person performing the search
 	 * We then check to see if this person has their privacy settings restricted such that this user should not be
 	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
-	 * [The above is performed in a private method]
-	 * 
+	 * <p>
 	 * Once this list is returned, can lookup more info based on SearchResult.getUserUuid()
+	 * <p>
+	 * This list is automatically cleaned for non-existent users by way of the UserDirectoryService.getUsers call.
 	 * 
 	 * @param search 	string to search for
 	 * @param userId 	uuid of user performing the search
-	 * @return List 	only userIds (for speed and since the list might be very long).
+	 * @return List 	of SearchResult objects containing a few other pieces of information.
 	 */
 	public List<SearchResult> findUsersByInterest(String search, String userId);
 	

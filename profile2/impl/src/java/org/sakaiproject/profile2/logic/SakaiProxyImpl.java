@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -598,37 +597,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public List<String> searchUsers(String search) {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
-		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS));
-		
-		for(Iterator<User> i = results.iterator(); i.hasNext();){
-			User user = (User)i.next();
-			//get id
-			userUuids.add(user.getId());	
-	  	}
-		
-		return userUuids;
+	public List<User> searchUsers(String search) {
+		return userDirectoryService.searchUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS);
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
-	public List<String> searchExternalUsers(String search) {
-		
-		List<String> userUuids = new ArrayList<String>();
-
-		List<User> results = new ArrayList<User>(userDirectoryService.searchExternalUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS));
-		
-		for(Iterator<User> i = results.iterator(); i.hasNext();){
-			User user = (User)i.next();
-			//get id
-			userUuids.add(user.getId());	
-	  	}
-		
-		return userUuids;
+	public List<User> searchExternalUsers(String search) {
+		return userDirectoryService.searchExternalUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS);
 	}
 	
 	

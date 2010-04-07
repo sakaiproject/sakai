@@ -259,16 +259,18 @@ public interface SakaiProxy {
 	/**
 	 * Search UserDirectoryService for users that match in name or email.
 	 *
-	 * @param search	search string. Return's List of Sakai userId's 
+	 * @param search	search string.
+	 * @return a List of User objects
 	 */
-	public List<String> searchUsers(String search);
+	public List<User> searchUsers(String search);
 	
 	/**
 	 * Search UserDirectoryService for externally provided users that match in name or email.
 	 *
-	 * @param search	search string. Return's List of Sakai userId's 
+	 * @param search	search string.
+	 * @return a List of User objects
 	 */
-	public List<String> searchExternalUsers(String search);
+	public List<User> searchExternalUsers(String search);
 	
 	
 	/**

@@ -29,9 +29,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.swing.ImageIcon;
@@ -447,7 +449,6 @@ public class ProfileUtils {
 	 *         username.
 	 */
 	public static String getFacebookURL(String facebookUsername) {
-		
 		return "http://www.facebook.com/" + facebookUsername + "/";
 	}
 	
@@ -460,7 +461,6 @@ public class ProfileUtils {
 	 *         username.
 	 */
 	public static String getLinkedinURL(String linkedinUsername) {
-		
 		return "http://www.linkedin.com/in/" + linkedinUsername;
 	}
 	
@@ -471,7 +471,6 @@ public class ProfileUtils {
 	 * @return the MySpace user profile URL for the specified MySpace username.
 	 */
 	public static String getMyspaceURL(String myspaceUsername) {
-		
 		return "http://www.myspace.com/" + myspaceUsername;
 	}
 	
@@ -482,7 +481,6 @@ public class ProfileUtils {
 	 * @return the SkypeMe URL for the specified Skype username.
 	 */
 	public static String getSkypeMeURL(String skypeUsername) {
-		
 		return "skype:" + skypeUsername + "?call";
 	}
 	
@@ -493,7 +491,35 @@ public class ProfileUtils {
 	 * @return the Twitter URL for the specified Twitter username.
 	 */
 	public static String getTwitterURL(String twitterUsername) {
-		
 		return "http://twitter.com/" + twitterUsername;
+	}
+	
+	/**
+	 * Remove duplicates from a list, order is not retained.
+	 * 
+	 * @param list	list of objects to clean
+	 */
+	public static <T> void removeDuplicates(List<T> list){
+		Set<T> set = new HashSet<T>();
+		set.addAll(list);
+		list.clear();
+		list.addAll(set);
+	}
+	
+	/**
+	 * Remove dupliactes from a list, order is retained.
+	 *
+	 * @param list	list of objects to clean
+	 */
+	public static <T> void removeDuplicatesWithOrder(List<T> list) {
+		Set<T> set = new HashSet<T> ();
+		List<T> newList = new ArrayList<T>();
+		for(T e: list) {
+			if (set.add(e)) {
+				newList.add(e);
+	    	}
+		}
+	    list.clear();
+	    list.addAll(newList);
 	}
 }
