@@ -19,7 +19,7 @@
 		<div class="listNav">
 						#if($totalNumber>0)
 						<div class="instruction">	
-						$tlang.getFormattedMessage("uselis.list.youare_of_results", params))
+						$tlang.getFormattedMessage("uselis.list.youare_of_results", $params)
 						</div>
 						#end
 						#if ($pagesize != 0)
