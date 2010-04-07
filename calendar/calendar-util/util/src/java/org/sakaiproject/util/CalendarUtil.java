@@ -108,9 +108,11 @@ public class CalendarUtil
 	*/
 	public int getNextMonth()
 	{
-		m_calendar.set(Calendar.MONTH, getMonthInteger());
+		// set day to first of month
+		m_calendar.set(Calendar.DAY_OF_MONTH,1);
 		
-		setDay(getYear(),getMonthInteger(),1);
+		// set to next month
+		m_calendar.add(Calendar.MONTH, 1);
 		
 		return getMonthInteger();
 	
