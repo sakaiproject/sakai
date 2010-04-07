@@ -180,6 +180,7 @@ public class DiscussionForumTool
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEAGES_TO="cdfm_insufficient_privileages_to";
+  private static final String INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD="cdfm_insufficient_privileges_post_thread";  
   private static final String INSUFFICIENT_PRIVILEGES_REVISE_MESSAGE="cdfm_insufficient_privileges_revise_message";
   private static final String INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM="cdfm_insufficient_privileges_change_forum";
   private static final String INSUFFICIENT_PRIVILEGES_NEW_TOPIC = "cdfm_insufficient_privileges_new_topic";
@@ -3168,9 +3169,14 @@ public class DiscussionForumTool
 	LOG.debug("processDfMsgPost()");
     Message dMsg = constructMessage();
 
+    
     if(selectedTopic == null)
     {
     	LOG.debug("selectedTopic is null in processDfMsgPost()");
+    	return gotoMain();
+    }else if(!selectedTopic.getIsNewResponse()){
+    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
+    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
     	return gotoMain();
     }
     forumManager.saveMessage(dMsg);
@@ -3844,7 +3850,11 @@ public class DiscussionForumTool
   	{
   		LOG.debug("selectedTopic is null in processDfReplyMsgPost");
   		return gotoMain();
-  	}
+  	}else if(!selectedTopic.getIsNewResponse()){
+    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
+    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
+    	return gotoMain();
+    }
   	
   	DiscussionTopic topicWithMsgs = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
     List tempList = topicWithMsgs.getMessages();
@@ -4035,7 +4045,11 @@ public class DiscussionForumTool
   	{
   		LOG.debug("selectedTopic is null in processDfMsgRevisedPost");
   		return gotoMain();
-  	}
+  	}else if(!selectedTopic.getIsNewResponse()){
+    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
+    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
+    	return gotoMain();
+    }
   	
 	DiscussionTopic dfTopic = selectedTopic.getTopic();
 	DiscussionForum dfForum = selectedForum.getForum();
@@ -4319,7 +4333,11 @@ public class DiscussionForumTool
   	{ 
   		LOG.debug("selectedTopic is null in processDfReplyTopicPost");
   		return gotoMain();
-  	}
+  	}else if(!selectedTopic.getIsNewResponse()){
+    	setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
+    	LOG.debug("Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
+    	return gotoMain();
+    }
   	
     Message dMsg = constructMessage();
 
