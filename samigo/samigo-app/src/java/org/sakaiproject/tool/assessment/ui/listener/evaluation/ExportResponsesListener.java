@@ -34,12 +34,9 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>
- * This handles the selection of the Total Score entry page.
- *  </p>
+ * This handles the export of student responses.
+ * </p>
  * <p>Description: Action Listener for Evaluation Total Score front door</p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
  * @version $Id: TotalScoreListener.java 30029 2007-05-04 15:41:31Z ktsao@stanford.edu $
  */
 

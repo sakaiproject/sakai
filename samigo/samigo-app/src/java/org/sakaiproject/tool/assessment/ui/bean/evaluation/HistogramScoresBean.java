@@ -38,15 +38,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
- * <p>$Id$</p>
- * Copyright: Copyright (c) 2003-2004
- * </p>
- *
- * Used to be org.navigoproject.ui.web.form.evaluation.HistogramScoresForm.java
- * </p>
- *
- * @author Huong Nguyen
- * @version 1.0
+ * <p>JSF bean for displaying the Histogram page.</p>
  */
 public class HistogramScoresBean
   implements Serializable
