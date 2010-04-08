@@ -2219,7 +2219,7 @@ public abstract class BasicSqlService implements SqlService
 
 	/**
 	 * <p>
-	 * StreamWithConnection is a cover over a stream that comes from a statmenet result in a connection, holding all these until closed.
+	 * StreamWithConnection is a cover over a stream that comes from a statement result in a connection, holding all these until closed.
 	 * </p>
 	 */
 	public class StreamWithConnection extends InputStream
@@ -2232,137 +2232,156 @@ public abstract class BasicSqlService implements SqlService
 
 		protected InputStream m_stream;
 
-		public StreamWithConnection(InputStream stream, ResultSet result, PreparedStatement pstmt, Connection conn)
-		{
-			if (SWC_LOG.isDebugEnabled())
-			{
-				SWC_LOG.debug("new StreamWithConnection(InputStream " + stream + ", ResultSet " + result + ", PreparedStatement " + pstmt
-						+ ", Connection " + conn + ")");
-			}
+        public StreamWithConnection(InputStream stream, ResultSet result, PreparedStatement pstmt,
+                Connection conn) {
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("new StreamWithConnection(InputStream " + stream + ", ResultSet "
+                        + result + ", PreparedStatement " + pstmt + ", Connection " + conn + ")");
+            }
 
-			m_conn = conn;
-			m_result = result;
-			m_pstmt = pstmt;
-			m_stream = stream;
-		}
+            m_conn = conn;
+            m_result = result;
+            m_pstmt = pstmt;
+            m_stream = stream;
+        }
 
-		public void close() throws IOException
-		{
-			SWC_LOG.trace("close()");
+        /* (non-Javadoc)
+         * @see java.io.InputStream#close()
+         */
+        public void close() throws IOException {
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("close()");
+            }
+            try {
+                if (m_stream != null) {
+                    m_stream.close();
+                }
+                m_stream = null;
+            } catch (Exception e) {
+            }
+            try {
+                if (null != m_result) {
+                    m_result.close();
+                }
+                m_result = null;
+            } catch (Exception e) {
+            }
+            try {
+                if (null != m_pstmt) {
+                    m_pstmt.close();
+                }
+                m_pstmt = null;
+            } catch (Exception e) {
+            }
+            if (null != m_conn) {
+                returnConnection(m_conn);
+                m_conn = null;
+            }
+        }
 
-			if (m_stream != null) m_stream.close();
-			m_stream = null;
+        /* (non-Javadoc)
+         * @see java.lang.Object#finalize()
+         */
+        protected void finalize() {
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("finalize()");
+            }
+            try {
+                close();
+            } catch (IOException any) {
+                LOG.error(any.getMessage(), any);
+            }
+        }
 
-			try
-			{
-				if (null != m_result)
-				{
-					m_result.close();
-				}
-				m_result = null;
-			}
-			catch (SQLException any)
-			{
-			}
-
-			try
-			{
-				if (null != m_pstmt)
-				{
-					m_pstmt.close();
-				}
-				m_pstmt = null;
-			}
-			catch (SQLException any)
-			{
-			}
-
-			if (null != m_conn)
-			{
-				returnConnection(m_conn);
-				m_conn = null;
-			}
-		}
-
-		protected void finalize()
-		{
-			SWC_LOG.debug("finalize()");
-
-			try
-			{
-				close();
-			}
-			catch (IOException any)
-			{
-				LOG.error(any.getMessage(), any);
-			}
-		}
-
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#read()
+		 */
 		public int read() throws IOException
 		{
-			SWC_LOG.trace("read()");
-
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("read()");
+            }
 			return m_stream.read();
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#read(byte[])
+		 */
 		public int read(byte b[]) throws IOException
 		{
-			if (SWC_LOG.isDebugEnabled())
-			{
+			if (SWC_LOG.isDebugEnabled()) {
 				SWC_LOG.debug("read(byte " + Arrays.toString(b) + ")");
 			}
 
 			return m_stream.read(b);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#read(byte[], int, int)
+		 */
 		public int read(byte b[], int off, int len) throws IOException
 		{
-			if (SWC_LOG.isDebugEnabled())
-			{
+			if (SWC_LOG.isDebugEnabled()) {
 				SWC_LOG.debug("read(byte " + Arrays.toString(b) + ", int " + off + ", int " + len + ")");
 			}
 
 			return m_stream.read(b, off, len);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#skip(long)
+		 */
 		public long skip(long n) throws IOException
 		{
-			if (SWC_LOG.isDebugEnabled())
-			{
+			if (SWC_LOG.isDebugEnabled()) {
 				SWC_LOG.debug("skip(long " + n + ")");
 			}
 
 			return m_stream.skip(n);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#available()
+		 */
 		public int available() throws IOException
 		{
-			SWC_LOG.trace("available()");
-
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("available()");
+            }
 			return m_stream.available();
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#mark(int)
+		 */
 		public synchronized void mark(int readlimit)
 		{
-			if (SWC_LOG.isDebugEnabled())
-			{
+			if (SWC_LOG.isDebugEnabled()) {
 				SWC_LOG.debug("mark(int " + readlimit + ")");
 			}
 
 			m_stream.mark(readlimit);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#reset()
+		 */
 		public synchronized void reset() throws IOException
 		{
-			SWC_LOG.trace("reset()");
-
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("reset()");
+            }
 			m_stream.reset();
 		}
 
+		/* (non-Javadoc)
+		 * @see java.io.InputStream#markSupported()
+		 */
 		public boolean markSupported()
 		{
-			SWC_LOG.trace("markSupported()");
-
+            if (SWC_LOG.isDebugEnabled()) {
+                SWC_LOG.debug("markSupported()");
+            }
 			return m_stream.markSupported();
 		}
 	}
