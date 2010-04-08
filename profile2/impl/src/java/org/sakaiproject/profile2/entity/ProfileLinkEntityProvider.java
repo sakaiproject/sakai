@@ -34,7 +34,7 @@ import org.sakaiproject.profile2.service.ProfileLinkService;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileLinkEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class ProfileLinkEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
 	public final static String ENTITY_PREFIX = "my";
 	

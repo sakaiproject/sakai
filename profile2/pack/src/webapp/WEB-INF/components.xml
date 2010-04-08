@@ -83,23 +83,20 @@
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
     
     <!-- EntityBroker beans -->
-	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProvider">
 		<property name="profileService" ref="org.sakaiproject.profile2.service.ProfileService" />
 		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
 	</bean>
-	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider">
 		<property name="privacyService" ref="org.sakaiproject.profile2.service.ProfilePrivacyService" />
 	</bean>
-	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider">
 		<property name="preferencesService" ref="org.sakaiproject.profile2.service.ProfilePreferencesService" />
 	</bean>
-	
-	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider">
 		<property name="statusService" ref="org.sakaiproject.profile2.service.ProfileStatusService" />
 	</bean>
-	<bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
 		<property name="linkService" ref="org.sakaiproject.profile2.service.ProfileLinkService" />
 	</bean>
 	

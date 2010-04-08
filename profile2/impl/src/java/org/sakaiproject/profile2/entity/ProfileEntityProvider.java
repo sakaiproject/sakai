@@ -49,7 +49,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
 	public final static String ENTITY_PREFIX = "profile";
 	

@@ -39,7 +39,7 @@ import org.sakaiproject.tool.api.SessionManager;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileStatusEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 	
 	public final static String ENTITY_PREFIX = "profile-status";
 	
