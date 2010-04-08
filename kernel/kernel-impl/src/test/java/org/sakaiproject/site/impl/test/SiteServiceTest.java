@@ -1,0 +1,69 @@
+package org.sakaiproject.site.impl.test;
+
+import java.sql.SQLException;
+
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.impl.test.ContentHostingServiceTest;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.impl.DbSiteService;
+import org.sakaiproject.test.SakaiKernelTestBase;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+
+public class SiteServiceTest extends SakaiKernelTestBase {
+	private static final Log log = LogFactory.getLog(SiteServiceTest.class);
+	public static Test suite()
+	{
+		TestSetup setup = new TestSetup(new TestSuite(SiteServiceTest.class))
+		{
+			protected void setUp() throws Exception 
+			{
+				log.debug("starting oneTimeSetup");
+				oneTimeSetup(null);
+				log.debug("finished oneTimeSetup");
+			}
+			protected void tearDown() throws Exception 
+			{
+				log.debug("starting tearDown");
+				oneTimeTearDown();
+				log.debug("finished tearDown");
+			}
+		};
+		return setup;
+	}
+	
+	public void testNullSiteId() {
+		SiteService siteService = org.sakaiproject.site.cover.SiteService.getInstance();
+		SessionManager sessionManager = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+		
+		
+		try {
+			Site site = siteService.addSite("", "other");
+			
+			fail();
+		} catch (IdInvalidException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IdUsedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		
+	}
+}
