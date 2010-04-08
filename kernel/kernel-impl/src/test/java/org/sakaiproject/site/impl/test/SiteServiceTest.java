@@ -51,11 +51,9 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		
 		try {
 			Site site = siteService.addSite("", "other");
-			
 			fail();
 		} catch (IdInvalidException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.info("when passed a null id the test correctly responded with an IdInvalidException");
 		} catch (IdUsedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
