@@ -1215,7 +1215,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (m_provider instanceof ExternalUserSearchUDP) {
 			providedUserRecords =  ((ExternalUserSearchUDP) m_provider).searchExternalUsers(criteria, first, last, this);
 		} else {
-			M_log.error("searchExternalUsers not supported by Provider: " + m_provider.getClass().getName());
+			M_log.debug("searchExternalUsers capability is not supported by your provider");
 		}
 		
 		if (providedUserRecords != null){
