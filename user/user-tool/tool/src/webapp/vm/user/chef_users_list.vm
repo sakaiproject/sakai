@@ -46,9 +46,15 @@
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("sitedipag.listnavselect")</span>
 							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
-#foreach (value in list)
-								<option value="$value" #if($pagesize == $value) selected="selected" #end>$tlang.getFormattedMessage("uselis.show", value)</option>
-#end
+
+							#foreach ($value in $list)
+								## $value is an Integer array of length one
+								#foreach($intValue in $value)
+									## this is to get the first and only Integer element and its int value
+									#set($ivalue=$intValue.intValue())
+								#end
+								<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("uselis.show", $value)</option>
+							#end
 							</select>
 						</form>
 						#if ($pagesize != 0)

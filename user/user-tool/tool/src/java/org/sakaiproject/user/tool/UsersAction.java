@@ -243,12 +243,12 @@ public class UsersAction extends PagedResourceActionII
 		int totalNumber = 0;
 		Object[] params;
 		ArrayList list = new ArrayList();
-		list.add(5);
-		list.add(10);
-		list.add(20);
-		list.add(50);
-		list.add(100);
-		list.add(200);
+		list.add(new Integer[]{Integer.valueOf(5)});
+		list.add(new Integer[]{Integer.valueOf(10)});
+		list.add(new Integer[]{Integer.valueOf(20)});
+		list.add(new Integer[]{Integer.valueOf(50)});
+		list.add(new Integer[]{Integer.valueOf(100)});
+		list.add(new Integer[]{Integer.valueOf(200)});
 
 		try
 		{
