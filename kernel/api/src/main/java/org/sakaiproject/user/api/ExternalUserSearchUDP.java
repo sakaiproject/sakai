@@ -26,8 +26,8 @@ public interface ExternalUserSearchUDP {
      * @param factory 
      * 		Use this factory's newUser() method to create the UserEdit objects you populate and return in the List.
      * @return 
-     * 		A List (User) of all the users matching the criteria or null if an error occurred.
+     * 		A List (UserEdit) of all the users matching the criteria or null if an error occurred.
      */ 
-	public List<User> searchExternalUsers(String criteria, int first, int last, UserFactory factory);
+	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory);
 	
 }

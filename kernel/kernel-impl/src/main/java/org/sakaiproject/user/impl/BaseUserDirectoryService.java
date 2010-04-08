@@ -1209,12 +1209,23 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public List<User> searchExternalUsers(String criteria, int first, int last){
 		
+		List<User> users = new ArrayList<User>();
+		List<UserEdit> providedUserRecords = null;
+		
 		if (m_provider instanceof ExternalUserSearchUDP) {
-			return ((ExternalUserSearchUDP) m_provider).searchExternalUsers(criteria, first, last, this);
+			providedUserRecords =  ((ExternalUserSearchUDP) m_provider).searchExternalUsers(criteria, first, last, this);
 		} else {
 			M_log.error("searchExternalUsers not supported by Provider: " + m_provider.getClass().getName());
 		}
-		return null;
+		
+		if (providedUserRecords != null){
+			for (UserEdit user : providedUserRecords){
+				checkAndEnsureMappedIdForProvidedUser(user);
+				users.add(user);
+			}
+		}
+		
+		return users;
 	}
 
 	/**
