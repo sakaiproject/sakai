@@ -99,6 +99,7 @@
 	<bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
 		<property name="linkService" ref="org.sakaiproject.profile2.service.ProfileLinkService" />
 	</bean>
+	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
 	
 
 	<!-- Add our HBM files to the Sakai global session factory -->
