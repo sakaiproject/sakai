@@ -43,8 +43,16 @@ import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+/**
+ * This is the entity provider for a user's profile.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
+public class ProfileEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
+	public final static String ENTITY_PREFIX = "profile";
+	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}

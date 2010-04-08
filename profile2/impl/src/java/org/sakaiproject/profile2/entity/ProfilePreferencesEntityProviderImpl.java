@@ -33,7 +33,15 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.service.ProfilePreferencesService;
 import org.sakaiproject.tool.api.SessionManager;
 
-public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+/**
+ * This is the entity provider for a user's profile preferences.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
+public class ProfilePreferencesEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+	
+	public final static String ENTITY_PREFIX = "profile-preferences";
 	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;

@@ -33,7 +33,15 @@ import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.service.ProfileStatusService;
 import org.sakaiproject.tool.api.SessionManager;
 
-public class ProfileStatusEntityProviderImpl implements ProfileStatusEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+/**
+ * This is the entity provider for a user's profile status.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
+public class ProfileStatusEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+	
+	public final static String ENTITY_PREFIX = "profile-status";
 	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;

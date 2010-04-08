@@ -28,8 +28,16 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.profile2.service.ProfileLinkService;
 
-public class ProfileLinkEntityProviderImpl implements ProfileLinkEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+/**
+ * This is an entity provider that resolves links. Each has a special use case.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
+public class ProfileLinkEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
+	public final static String ENTITY_PREFIX = "my";
+	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}

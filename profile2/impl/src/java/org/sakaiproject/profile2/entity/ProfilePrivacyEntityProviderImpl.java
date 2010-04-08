@@ -33,8 +33,16 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.service.ProfilePrivacyService;
 import org.sakaiproject.tool.api.SessionManager;
 
-public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+/**
+ * This is the entity provider for a user's profile privacy.
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
+public class ProfilePrivacyEntityProviderImpl implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
+	public final static String ENTITY_PREFIX = "profile-privacy";
+	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
