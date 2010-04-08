@@ -49,7 +49,7 @@ implements Serializable
 	private org.sakaiproject.tool.assessment.ui.model.PagingModel takePager;
 	private boolean hasHighestMultipleSubmission = false;  // this is used to display the message on the bottom if there are any highest multiple submissions. 
 	private boolean hasAnyAssessmentBeenModified = false;  // this is used to display the message on the bottom if there is any assessment been modified after submitted.
-	private String displayAllAssessments = "1";
+	private String displayAllAssessments = "2";
 	/**
 	 * ArrayLists should be lists of DeliveryBean objects
 	 *
