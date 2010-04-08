@@ -595,13 +595,13 @@ public class ProfileLogicImpl implements ProfileLogic {
 		users.addAll(sakaiProxy.searchUsers(search));
 		
 		//add external users from UserDirectoryService
-		//uuids.addAll(sakaiProxy.searchExternalUsers(search));
+		users.addAll(sakaiProxy.searchExternalUsers(search));
 		
 		//remove duplicates
 		ProfileUtils.removeDuplicates(users);
 		
-		log.info("Found " + users.size() + " results for search: " + search);
-
+		log.debug("Found " + users.size() + " results for search: " + search);
+		
 		//restrict to only return the max number. UI will print message
 		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 		if(users.size() >= maxResults) {
