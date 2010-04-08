@@ -41,7 +41,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ResourcesMetadata
 {
 	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("content");
+	private ResourceLoader rb = new ResourceLoader("content");
 	
 	static final Log logger = LogFactory.getLog(ResourcesMetadata.class);
     
@@ -85,8 +85,8 @@ public class ResourcesMetadata
 	protected static AtomicInteger namespaceNumber = new AtomicInteger(0);
 	
 	public static final String PROPERTY_NAME_DC_TITLE = "title";
-	public static final String PROPERTY_LABEL_DC_TITLE = rb.getString("label.dc_title");
-	public static final String PROPERTY_DESCRIPTION_DC_TITLE = rb.getString("descr.dc_title");
+	public static final String PROPERTY_LABEL_DC_TITLE = "label.dc_title";
+	public static final String PROPERTY_DESCRIPTION_DC_TITLE = "descr.dc_title";
 	public static final String PROPERTY_TYPE_DC_TITLE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_TITLE = WIDGET_STRING;
 	
@@ -101,8 +101,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_ALTERNATIVE = "alternative";
-	public static final String PROPERTY_LABEL_DC_ALTERNATIVE = rb.getString("label.dc_alt");
-	public static final String PROPERTY_DESCRIPTION_DC_ALTERNATIVE = rb.getString("descr.dc_alt");
+	public static final String PROPERTY_LABEL_DC_ALTERNATIVE = "label.dc_alt";
+	public static final String PROPERTY_DESCRIPTION_DC_ALTERNATIVE = "descr.dc_alt";
 	public static final String PROPERTY_TYPE_DC_ALTERNATIVE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_ALTERNATIVE = WIDGET_STRING;
 		
@@ -117,8 +117,8 @@ public class ResourcesMetadata
 							);
 	
 	public static final String PROPERTY_NAME_DC_CREATOR = "creator";
-	public static final String PROPERTY_LABEL_DC_CREATOR = rb.getString("label.dc_creator");
-	public static final String PROPERTY_DESCRIPTION_DC_CREATOR = rb.getString("descr.dc_creator");
+	public static final String PROPERTY_LABEL_DC_CREATOR = "label.dc_creator";
+	public static final String PROPERTY_DESCRIPTION_DC_CREATOR = "descr.dc_creator";
 	public static final String PROPERTY_TYPE_DC_CREATOR = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_CREATOR = WIDGET_STRING;
 	
@@ -133,8 +133,8 @@ public class ResourcesMetadata
 							);
 	
 	public static final String PROPERTY_NAME_DC_SUBJECT = "subject";
-	public static final String PROPERTY_LABEL_DC_SUBJECT = rb.getString("label.dc_subject");
-	public static final String PROPERTY_DESCRIPTION_DC_SUBJECT = rb.getString("descr.dc_subject");
+	public static final String PROPERTY_LABEL_DC_SUBJECT = "label.dc_subject";
+	public static final String PROPERTY_DESCRIPTION_DC_SUBJECT = "descr.dc_subject";
 	public static final String PROPERTY_TYPE_DC_SUBJECT = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_SUBJECT = WIDGET_TEXTAREA;
 	
@@ -149,8 +149,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_DESCRIPTION = "description";
-	public static final String PROPERTY_LABEL_DC_DESCRIPTION = rb.getString("label.dc_descr");
-	public static final String PROPERTY_DESCRIPTION_DC_DESCRIPTION = rb.getString("descr.dc_descr");
+	public static final String PROPERTY_LABEL_DC_DESCRIPTION = "label.dc_descr";
+	public static final String PROPERTY_DESCRIPTION_DC_DESCRIPTION = "descr.dc_descr";
 	public static final String PROPERTY_TYPE_DC_DESCRIPTION = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_DESCRIPTION = WIDGET_TEXTAREA;
 	
@@ -165,8 +165,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_PUBLISHER = "publisher";
-	public static final String PROPERTY_LABEL_DC_PUBLISHER = rb.getString("label.dc_publisher");
-	public static final String PROPERTY_DESCRIPTION_DC_PUBLISHER = rb.getString("descr.dc_publisher");
+	public static final String PROPERTY_LABEL_DC_PUBLISHER = "label.dc_publisher";
+	public static final String PROPERTY_DESCRIPTION_DC_PUBLISHER = "descr.dc_publisher";
 	public static final String PROPERTY_TYPE_DC_PUBLISHER = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_PUBLISHER = WIDGET_STRING;
 	
@@ -181,8 +181,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_CONTRIBUTOR = "contributor";
-	public static final String PROPERTY_LABEL_DC_CONTRIBUTOR = rb.getString("label.dc_contributor");
-	public static final String PROPERTY_DESCRIPTION_DC_CONTRIBUTOR = rb.getString("descr.dc_contributor");
+	public static final String PROPERTY_LABEL_DC_CONTRIBUTOR = "label.dc_contributor";
+	public static final String PROPERTY_DESCRIPTION_DC_CONTRIBUTOR = "descr.dc_contributor";
 	public static final String PROPERTY_TYPE_DC_CONTRIBUTOR = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_CONTRIBUTOR = WIDGET_TEXTAREA;
 	
@@ -197,8 +197,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_TYPE = "type";
-	public static final String PROPERTY_LABEL_DC_TYPE = rb.getString("label.dc_type");
-	public static final String PROPERTY_DESCRIPTION_DC_TYPE = rb.getString("descr.dc_type");
+	public static final String PROPERTY_LABEL_DC_TYPE = "label.dc_type";
+	public static final String PROPERTY_DESCRIPTION_DC_TYPE = "descr.dc_type";
 	public static final String PROPERTY_TYPE_DC_TYPE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_TYPE = WIDGET_STRING;
 
@@ -213,8 +213,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_FORMAT = "format";
-	public static final String PROPERTY_LABEL_DC_FORMAT = rb.getString("label.dc_format");
-	public static final String PROPERTY_DESCRIPTION_DC_FORMAT = rb.getString("descr.dc_format");
+	public static final String PROPERTY_LABEL_DC_FORMAT = "label.dc_format";
+	public static final String PROPERTY_DESCRIPTION_DC_FORMAT = "descr.dc_format";
 	public static final String PROPERTY_TYPE_DC_FORMAT = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_FORMAT = WIDGET_STRING;
 	
@@ -229,8 +229,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_IDENTIFIER = "identifier";
-	public static final String PROPERTY_LABEL_DC_IDENTIFIER = rb.getString("label.dc_id");
-	public static final String PROPERTY_DESCRIPTION_DC_IDENTIFIER = rb.getString("descr.dc_id");
+	public static final String PROPERTY_LABEL_DC_IDENTIFIER = "label.dc_id";
+	public static final String PROPERTY_DESCRIPTION_DC_IDENTIFIER = "descr.dc_id";
 	public static final String PROPERTY_TYPE_DC_IDENTIFIER = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_IDENTIFIER = WIDGET_STRING; // WIDGET_ANYURI;
 	
@@ -245,8 +245,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_SOURCE = "source";
-	public static final String PROPERTY_LABEL_DC_SOURCE = rb.getString("label.dc_source");
-	public static final String PROPERTY_DESCRIPTION_DC_SOURCE = rb.getString("descr.dc_source");
+	public static final String PROPERTY_LABEL_DC_SOURCE = "label.dc_source";
+	public static final String PROPERTY_DESCRIPTION_DC_SOURCE = "descr.dc_source";
 	public static final String PROPERTY_TYPE_DC_SOURCE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_SOURCE = WIDGET_STRING;
 	
@@ -261,8 +261,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_LANGUAGE = "language";
-	public static final String PROPERTY_LABEL_DC_LANGUAGE = rb.getString("label.dc_lang");
-	public static final String PROPERTY_DESCRIPTION_DC_LANGUAGE = rb.getString("descr.dc_lang");
+	public static final String PROPERTY_LABEL_DC_LANGUAGE = "label.dc_lang";
+	public static final String PROPERTY_DESCRIPTION_DC_LANGUAGE = "descr.dc_lang";
 	public static final String PROPERTY_TYPE_DC_LANGUAGE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_LANGUAGE = WIDGET_STRING;
 
@@ -277,8 +277,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_COVERAGE = "coverage";
-	public static final String PROPERTY_LABEL_DC_COVERAGE = rb.getString("label.dc_coverage");
-	public static final String PROPERTY_DESCRIPTION_DC_COVERAGE = rb.getString("descr.dc_coverage");
+	public static final String PROPERTY_LABEL_DC_COVERAGE = "label.dc_coverage";
+	public static final String PROPERTY_DESCRIPTION_DC_COVERAGE = "descr.dc_coverage";
 	public static final String PROPERTY_TYPE_DC_COVERAGE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_COVERAGE = WIDGET_STRING;
 
@@ -293,8 +293,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_RIGHTS = "rights";
-	public static final String PROPERTY_LABEL_DC_RIGHTS = rb.getString("label.dc_rights");
-	public static final String PROPERTY_DESCRIPTION_DC_RIGHTS = rb.getString("descr.dc_rights");
+	public static final String PROPERTY_LABEL_DC_RIGHTS = "label.dc_rights";
+	public static final String PROPERTY_DESCRIPTION_DC_RIGHTS = "descr.dc_rights";
 	public static final String PROPERTY_TYPE_DC_RIGHTS = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_RIGHTS = WIDGET_STRING;
 
@@ -309,8 +309,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_AUDIENCE = "audience";
-	public static final String PROPERTY_LABEL_DC_AUDIENCE = rb.getString("label.dc_audience");
-	public static final String PROPERTY_DESCRIPTION_DC_AUDIENCE = rb.getString("descr.dc_audience");
+	public static final String PROPERTY_LABEL_DC_AUDIENCE = "label.dc_audience";
+	public static final String PROPERTY_DESCRIPTION_DC_AUDIENCE = "descr.dc_audience";
 	public static final String PROPERTY_TYPE_DC_AUDIENCE = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_AUDIENCE = WIDGET_STRING;
 
@@ -325,8 +325,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_TABLEOFCONTENTS = "tableOfContents";
-	public static final String PROPERTY_LABEL_DC_TABLEOFCONTENTS = rb.getString("label.dc_toc");
-	public static final String PROPERTY_DESCRIPTION_DC_TABLEOFCONTENTS = rb.getString("descr.dc_toc");
+	public static final String PROPERTY_LABEL_DC_TABLEOFCONTENTS = "label.dc_toc";
+	public static final String PROPERTY_DESCRIPTION_DC_TABLEOFCONTENTS = "descr.dc_toc";
 	public static final String PROPERTY_TYPE_DC_TABLEOFCONTENTS = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_TABLEOFCONTENTS = WIDGET_TEXTAREA;
 	
@@ -341,8 +341,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_ABSTRACT = "abstract";
-	public static final String PROPERTY_LABEL_DC_ABSTRACT = rb.getString("label.dc_abstract");
-	public static final String PROPERTY_DESCRIPTION_DC_ABSTRACT = rb.getString("descr.dc_abstract");
+	public static final String PROPERTY_LABEL_DC_ABSTRACT = "label.dc_abstract";
+	public static final String PROPERTY_DESCRIPTION_DC_ABSTRACT = "descr.dc_abstract";
 	public static final String PROPERTY_TYPE_DC_ABSTRACT = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_ABSTRACT = WIDGET_TEXTAREA;
 	
@@ -357,8 +357,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_CREATED = "created";
-	public static final String PROPERTY_LABEL_DC_CREATED = rb.getString("label.dc_created");
-	public static final String PROPERTY_DESCRIPTION_DC_CREATED = rb.getString("descr.dc_created");
+	public static final String PROPERTY_LABEL_DC_CREATED = "label.dc_created";
+	public static final String PROPERTY_DESCRIPTION_DC_CREATED = "descr.dc_created";
 	public static final String PROPERTY_TYPE_DC_CREATED = NAMESPACE_XSD + XSD_NORMALIZED_STRING;  //XSD_DATE;
 	public static final String PROPERTY_WIDGET_DC_CREATED = WIDGET_STRING; // WIDGET_DATE;
 	
@@ -373,8 +373,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_ISSUED = "issued";
-	public static final String PROPERTY_LABEL_DC_ISSUED = rb.getString("label.dc_issued");
-	public static final String PROPERTY_DESCRIPTION_DC_ISSUED = rb.getString("descr.dc_issued");
+	public static final String PROPERTY_LABEL_DC_ISSUED = "label.dc_issued";
+	public static final String PROPERTY_DESCRIPTION_DC_ISSUED = "descr.dc_issued";
 	public static final String PROPERTY_TYPE_DC_ISSUED = NAMESPACE_XSD + XSD_NORMALIZED_STRING;  //XSD_DATE;
 	public static final String PROPERTY_WIDGET_DC_ISSUED = WIDGET_STRING; // WIDGET_DATE;
 	
@@ -389,8 +389,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_MODIFIED = "modified";
-	public static final String PROPERTY_LABEL_DC_MODIFIED = rb.getString("label.dc_modified");
-	public static final String PROPERTY_DESCRIPTION_DC_MODIFIED = rb.getString("descr.dc_modified");
+	public static final String PROPERTY_LABEL_DC_MODIFIED = "label.dc_modified";
+	public static final String PROPERTY_DESCRIPTION_DC_MODIFIED = "descr.dc_modified";
 	public static final String PROPERTY_TYPE_DC_MODIFIED = NAMESPACE_XSD + XSD_NORMALIZED_STRING;  //XSD_DATE;
 	public static final String PROPERTY_WIDGET_DC_MODIFIED = WIDGET_STRING; // WIDGET_DATE;
 	
@@ -405,8 +405,8 @@ public class ResourcesMetadata
 							);
 
 	public static final String PROPERTY_NAME_DC_EDULEVEL = "educationLevel";
-	public static final String PROPERTY_LABEL_DC_EDULEVEL = rb.getString("label.dc_edlevel");
-	public static final String PROPERTY_DESCRIPTION_DC_EDULEVEL = rb.getString("descr.dc_edlevel");
+	public static final String PROPERTY_LABEL_DC_EDULEVEL = "label.dc_edlevel";
+	public static final String PROPERTY_DESCRIPTION_DC_EDULEVEL = "descr.dc_edlevel";
 	public static final String PROPERTY_TYPE_DC_EDULEVEL = NAMESPACE_XSD + XSD_STRING;
 	public static final String PROPERTY_WIDGET_DC_EDULEVEL = WIDGET_TEXTAREA;
 	
@@ -423,8 +423,8 @@ public class ResourcesMetadata
 	/* File System mount points */
 	public static final String PROPERTY_NAME_FSMOUNT_NAMESPACE = ContentHostingHandlerResolver.CHH_BEAN_NAME.split(":")[0];
 	public static final String PROPERTY_NAME_FSMOUNT_ACTIVE = ContentHostingHandlerResolver.CHH_BEAN_NAME.split(":")[1];
-	public static final String PROPERTY_LABEL_FSMOUNT_ACTIVE = rb.getString("label.fsmount_active");
-	public static final String PROPERTY_DESCRIPTION_FSMOUNT_ACTIVE = rb.getString("descr.fsmount_active");
+	public static final String PROPERTY_LABEL_FSMOUNT_ACTIVE = "label.fsmount_active";
+	public static final String PROPERTY_DESCRIPTION_FSMOUNT_ACTIVE = "descr.fsmount_active";
 	// TYPE should be a BOOLEAN but that does not appear to be implemented -- miserable.
 	// Instead, we store a string and ask users to type "YES" or "NO".  Yes, this sucks.
 	public static final String PROPERTY_TYPE_FSMOUNT_ACTIVE = NAMESPACE_XSD + XSD_STRING;
@@ -807,7 +807,11 @@ public class ResourcesMetadata
 	 */
 	public String getLabel()
 	{
-		return m_label;
+		String name = rb.getString(m_label);
+		if (name.indexOf("missing_key")!=-1)
+			return m_label;
+		else
+			return name;
 	}
 
 	/**
