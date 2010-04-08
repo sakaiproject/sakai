@@ -1632,7 +1632,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	/** 
      * Search for externally provided users that match this criteria in eid, email, first or last name. 
      * 
-     * <p>Returns a List of User objects. This list will be <b>empty</b> if no results are returned or <b>null</b>
+     * <p>Returns a List of UserEdit objects. This list will be <b>empty</b> if no results are returned or <b>null</b>
      * if your external provider does not implement this interface.<br />
      * 
      * The list will also be null if the LDAP server returns an error, for example an '(11) Administrative Limit Exceeded' 
@@ -1646,13 +1646,15 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
      * 		The first record position to return. LDAP does not support paging so this value is unused.
      * @param last 
      * 		The last record position to return. LDAP does not support paging so this value is unused.
+     * @param factory 
+     * 		Use this factory's newUser() method to create the UserEdit objects you populate and return in the List.
      * @return 
-     * 		A list (User) of all the users matching the criteria.
+     * 		A list (UserEdit) of all the users matching the criteria.
      */ 
-	public List<User> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
+	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
 		
 		String filter = ldapAttributeMapper.getFindUserByCrossAttributeSearchFilter(criteria);
-		List<User> users = new ArrayList<User>();
+		List<UserEdit> users = new ArrayList<UserEdit>();
 		
 		try {
 			//no limit to the number of search results, use the LDAP server's settings.
