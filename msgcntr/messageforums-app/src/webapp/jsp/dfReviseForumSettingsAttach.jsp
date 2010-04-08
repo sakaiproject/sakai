@@ -180,7 +180,7 @@
 	      
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"
-          								 rendered="#{ForumTool.selectedForum.forum.id != null && !ForumTool.selectedForum.markForDeletion}" accesskey="s"> 
+          								 rendered="#{!ForumTool.selectedForum.markForDeletion}" accesskey="s"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
 				<h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
