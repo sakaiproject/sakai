@@ -398,6 +398,10 @@ public class MockUserDirectoryService implements UserDirectoryService
 		return null;
 	}
 
+	public List<User> searchExternalUsers(String param1, int param2, int param3) {
+		return null;
+		
+	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.EntityProducer#getLabel()
 	 */
@@ -435,5 +439,7 @@ public class MockUserDirectoryService implements UserDirectoryService
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+	
+	
+ 
 }

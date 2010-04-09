@@ -101,6 +101,11 @@ public class MockUser implements UserEdit
 		// TODO Auto-generated method stub
 
 	}
+	
+	
+	public void restrictEditEid(){
+		
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.user.api.UserEdit#setEmail(java.lang.String)
