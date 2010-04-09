@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -42,7 +43,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -55,6 +55,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	private static ResourceLoader rb = new ResourceLoader("announcement");
 	
 	public static int DEFAULT_DISPLAY_NUMBER_OPTION = 100;
+    public static int DEFAULT_DAYS_IN_PAST_OPTION = 30;
 
 	/**
 	 * Holds the display options for the Announcements tool
@@ -245,28 +246,30 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		/**
 		 * Utility routine used to get an integer named value from a map or supply a default value if none is found.
 		 */
-		private int getIntegerParameter(Map params, String paramName, int defaultValue)
+		private int getIntegerParameter(Map<?, ?> params, String paramName, int defaultValue)
 		{
-			String intValString = (String) params.get(paramName);
-
-			if (StringUtil.trimToNull(intValString) != null)
-			{
-				return Integer.parseInt(intValString);
-			}
-			else
-			{
-				return defaultValue;
-			}
+            int value = defaultValue;
+            String intValString = (String) params.get(paramName);
+            if (StringUtils.trimToNull(intValString) != null) {
+                try {
+                    value = Integer.parseInt(intValString);
+                } catch (NumberFormatException e) {
+                    value = defaultValue;
+                }
+            } else {
+                value = defaultValue;
+            }
+            return value;
 		}
 
 		/**
 		 * Utility routine used to get an boolean named value from a map or supply a default value if none is found.
 		 */
-		boolean getBooleanParameter(Map params, String paramName, boolean defaultValue)
+		boolean getBooleanParameter(Map<?, ?> params, String paramName, boolean defaultValue)
 		{
 			String booleanValString = (String) params.get(paramName);
 
-			if (StringUtil.trimToNull(booleanValString) != null)
+			if (StringUtils.trimToNull(booleanValString) != null)
 			{
 				return Boolean.valueOf(booleanValString).booleanValue();
 			}
@@ -279,7 +282,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		/**
 		 * Loads properties from a map into our object.
 		 */
-		public void loadProperties(Map params)
+		public void loadProperties(Map<?, ?> params)
 		{
 			setShowAllColumns(getBooleanParameter(params, varNameShowAllColumns, showAllColumns));
 			setShowAnnouncementBody(getBooleanParameter(params, varNameShowAnnouncementBody, showAnnouncementBody));
@@ -394,14 +397,14 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 				setShowOnlyOptionsButton(parameters.getBoolean(varNameShowOnlyOptionsButton));
 			}
 
-			setNumberOfDaysInThePast(parameters.getInt(varNameNumberOfDaysInPast));
-			setEnforceNumberOfDaysInThePastLimit(StringUtil.trimToNull(parameters.get(varNameNumberOfDaysInPast)) != null);
+			setNumberOfDaysInThePast(parameters.getInt(varNameNumberOfDaysInPast, DEFAULT_DAYS_IN_PAST_OPTION));
+			setEnforceNumberOfDaysInThePastLimit(StringUtils.trimToNull(parameters.get(varNameNumberOfDaysInPast)) != null);
 
 			setNumberOfAnnouncements(parameters.getInt(varNameNumberOfAnnouncements, DEFAULT_DISPLAY_NUMBER_OPTION));
-			setEnforceNumberOfAnnouncementsLimit(StringUtil.trimToNull(parameters.get(varNameNumberOfAnnouncements)) != null);
+			setEnforceNumberOfAnnouncementsLimit(StringUtils.trimToNull(parameters.get(varNameNumberOfAnnouncements)) != null);
 
 			// setNumberOfCharsPerAnnouncement(parameters.getInt(varNameNumberCharsPerAnnouncement, numberOfCharsPerAnnouncement));
-			// setEnforceNumberOfCharsPerAnnouncement(StringUtil.trimToNull(parameters.get(varNameNumberCharsPerAnnouncement)) != null);
+			// setEnforceNumberOfCharsPerAnnouncement(StringUtils.trimToNull(parameters.get(varNameNumberCharsPerAnnouncement)) != null);
 		}
 
 		/**
