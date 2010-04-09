@@ -86,6 +86,7 @@
 		</h:form>
 		<f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
 		<div>
+            <h:panelGroup>
 			    <h:outputLabel for="message" value="#{msgs['control.lab']}" style="clear:both;display:block;" />
                 <div id="errorSubmit" class="alertMessage" style="display:none">
                     <h:outputText value="#{msgs['therewaspro']}" />
@@ -98,9 +99,10 @@
 		          <h:commandButton type="button" id="reset"
 		              value="#{msgs['control.clear']}" />
 		     	</p>
-		     	</div>
-			</f:subview>
-			<p style="clear:both;display:block;"></p>
+            </h:panelGroup>
+	    </div>
+		</f:subview>
+	<p style="clear:both;display:block;"></p>
 			
 	<script type="text/javascript" language="JavaScript">
 		setMainFrameHeight('<h:outputText value="#{ChatTool.framePlacementId}" />');
