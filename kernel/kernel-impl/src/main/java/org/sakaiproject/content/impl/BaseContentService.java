@@ -6250,7 +6250,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				if (Validator.letBrowserInline(contentType))
 				{
 					// if this is an html file we have more checks
-					if ("text/html".equalsIgnoreCase(contentType) && 
+					if (("text/html".equalsIgnoreCase(contentType) || "application/xhtml+xml".equals(contentType) ) && 
 							m_serverConfigurationService.getBoolean(SECURE_INLINE_HTML, true)) {
 						ResourceProperties rp = resource.getProperties();
 

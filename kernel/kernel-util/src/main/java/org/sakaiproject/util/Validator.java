@@ -683,6 +683,8 @@ public class Validator
 
 		// text (plain/html) mime types
 		if (lType.startsWith("text/")) return true;
+		// XHTML mime type
+		if (lType.equals("application/xhtml+xml")) return true;
 		
 		// image mime types
 		if (lType.startsWith("image/")) return true;
