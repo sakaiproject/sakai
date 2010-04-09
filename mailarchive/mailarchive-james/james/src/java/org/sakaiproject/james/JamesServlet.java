@@ -200,8 +200,6 @@ public class JamesServlet extends HttpServlet
 
 		// check for missing values
 		if(host == null) host = "127.0.0.1";
-		if(dns1 == null) dns1 = "127.0.0.1";
-		if(dns2 == null) dns2 = "127.0.0.1";
 		if(smtpPort == null) smtpPort = "25";
     
 		M_log.debug("init(): host: " + host + " enabled: " + enabled + " dns1: " + dns1 + " dns2: "
@@ -266,10 +264,27 @@ public class JamesServlet extends HttpServlet
 			// loop through the hashmap, setting each value, or failing if one can't be found
 			for(String nodePath : nodeValues.keySet()) {
 				if(!(Boolean)xpath.evaluate(nodePath, doc, XPathConstants.BOOLEAN)) {
-					M_log.error("init(): Could not find XPath '" + nodePath + "' in " + configPath + ".");
-					throw new JamesConfigurationException();
+					if(nodePath.startsWith("/config/dnsserver/servers/server")) {
+						// add node (only if we're dealing with DNS server entries)
+						Element element = doc.createElement("server");
+						element.appendChild(doc.createTextNode( nodeValues.get(nodePath) ));
+						Node parentNode = (Node) xpath.evaluate("/config/dnsserver/servers", doc, XPathConstants.NODE);
+						parentNode.appendChild(element);
+						
+					}else{
+						// else, throw an exception
+						throw new JamesConfigurationException();
+					}
+					
+				}else{
+					// change existing node (if value != null else remove it)
+					Node node = (Node) xpath.evaluate(nodePath, doc, XPathConstants.NODE);
+					if(nodeValues.get(nodePath) != null){
+						node.setTextContent(nodeValues.get(nodePath));
+					}else{
+						node.getParentNode().removeChild(node);
+					}
 				}
-				((Node)xpath.evaluate(nodePath, doc, XPathConstants.NODE)).setTextContent(nodeValues.get(nodePath));
 			}
 
 			M_log.debug("init(): writing James configuration to " + configPath);
