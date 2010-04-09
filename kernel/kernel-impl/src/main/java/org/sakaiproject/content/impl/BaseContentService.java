@@ -521,15 +521,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * @param value
 	 *        The short refs value.
 	 */
-	public void setShortRefs(String value)
+	public void setShortRefs(boolean value)
 	{
-		try
-		{
-			m_shortRefs = Boolean.valueOf(value).booleanValue();
-		}
-		catch (Throwable t)
-		{
-		}
+			m_shortRefs = value;
 	}
 
 	/**
