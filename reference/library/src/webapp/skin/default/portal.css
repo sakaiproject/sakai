@@ -940,6 +940,10 @@ below they are contextually defined depending on the column as an example,as you
 	background-image: url(../../image/silk/folder_page.png);
 }
 
+.icon-sakai-emailtemplateservice {
+	background-image: url(../../image/silk/email_edit.png);
+}
+
 .icon-sakai-gmt {
 	background-image: url(../../image/silk/award_star_gold_3.png);
 }
