@@ -1057,11 +1057,7 @@ public class SiteAddParticipantHandler {
 				}
 				count++;
 			}
-			if (count == 1) {
-				targettedMessageList.addMessage(new TargettedMessage("add.duplicatedpart.single",new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
-			} else {
-				targettedMessageList.addMessage(new TargettedMessage("add.duplicatedpart", new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
-			}
+			targettedMessageList.addMessage(new TargettedMessage(count==1?"add.duplicatedpart.single":"add.duplicatedpart",new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
 		}
 
 		return rv;

@@ -8931,47 +8931,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	}// commitSite
 
-	private Vector removeDuplicateParticipants(List pList, SessionState state) {
-		// check the uniqness of list member
-		Set s = new HashSet();
-		Set uniqnameSet = new HashSet();
-		Vector rv = new Vector();
-		for (int i = 0; i < pList.size(); i++) {
-			Participant p = (Participant) pList.get(i);
-			if (!uniqnameSet.contains(p.getUniqname())) {
-				// no entry for the account yet
-				rv.add(p);
-				uniqnameSet.add(p.getUniqname());
-			} else {
-				// found duplicates
-				s.add(p.getUniqname());
-			}
-		}
-
-		if (!s.isEmpty()) {
-			int count = 0;
-			String accounts = "";
-			for (Iterator i = s.iterator(); i.hasNext();) {
-				if (count == 0) {
-					accounts = (String) i.next();
-				} else {
-					accounts = accounts + ", " + (String) i.next();
-				}
-				count++;
-			}
-			if (count == 1) {
-				addAlert(state, rb.getString("add.duplicatedpart.single")
-						+ accounts + ".");
-			} else {
-				addAlert(state, rb.getString("add.duplicatedpart") + accounts
-						+ ".");
-			}
-		}
-
-		return rv;
-	}
-
-
 	private String getSetupRequestEmailAddress() {
 		String from = ServerConfigurationService.getString("setup.request",
 				null);

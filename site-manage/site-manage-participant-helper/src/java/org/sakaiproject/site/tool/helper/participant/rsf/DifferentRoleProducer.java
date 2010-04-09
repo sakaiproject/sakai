@@ -127,19 +127,37 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
     	UICommand.make(differentRoleForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
    
     	//process any messages
-        targettedMessageList = handler.targettedMessageList;
+    	targettedMessageList = handler.targettedMessageList;
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
-			for (int k = 0; k < targettedMessageList.size(); k++ ) {
-				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(k).toString());
-				TargettedMessage msg = targettedMessageList.messageAt(k);
-		    	if (msg.args != null ) 
-		    	{
-		    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), (Object[]) msg.args);
-		    	} 
-		    	else 
-		    	{
-		    		UIMessage.make(errorRow,"error", msg.acquireMessageCode());
-		    	}
+			for (int ii = 0; ii < targettedMessageList.size(); ii++ ) {
+				TargettedMessage msg = targettedMessageList.messageAt(i);
+				if (msg.severity == TargettedMessage.SEVERITY_ERROR)
+				{
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(ii).toString());
+					
+			    	if (msg.args != null ) 
+			    	{
+			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), (Object[]) msg.args);
+			    	} 
+			    	else 
+			    	{
+			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode());
+			    	}
+				}
+				else if (msg.severity == TargettedMessage.SEVERITY_INFO)
+				{
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.valueOf(ii).toString());
+						
+			    	if (msg.args != null ) 
+			    	{
+			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), (Object[]) msg.args);
+			    	} 
+			    	else 
+			    	{
+			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode());
+			    	}
+				}
+		    	
 			}
         }
          

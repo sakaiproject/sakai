@@ -146,16 +146,34 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
         targettedMessageList = handler.targettedMessageList;
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
 			for (int i = 0; i < targettedMessageList.size(); i++ ) {
-				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
 				TargettedMessage msg = targettedMessageList.messageAt(i);
-		    	if (msg.args != null ) 
-		    	{
-		    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), (Object[]) msg.args);
-		    	} 
-		    	else 
-		    	{
-		    		UIMessage.make(errorRow,"error", msg.acquireMessageCode());
-		    	}
+				if (msg.severity == TargettedMessage.SEVERITY_ERROR)
+				{
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
+					
+			    	if (msg.args != null ) 
+			    	{
+			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode(), (Object[]) msg.args);
+			    	} 
+			    	else 
+			    	{
+			    		UIMessage.make(errorRow,"error", msg.acquireMessageCode());
+			    	}
+				}
+				else if (msg.severity == TargettedMessage.SEVERITY_INFO)
+				{
+					UIBranchContainer errorRow = UIBranchContainer.make(tofill,"info-row:", Integer.valueOf(i).toString());
+						
+			    	if (msg.args != null ) 
+			    	{
+			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode(), (Object[]) msg.args);
+			    	} 
+			    	else 
+			    	{
+			    		UIMessage.make(errorRow,"info", msg.acquireMessageCode());
+			    	}
+				}
+		    	
 			}
         }
         //frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
