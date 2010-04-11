@@ -20,7 +20,13 @@
 		#end
 		#if($channel.Title)
 			<h3>
+			#if($channel.Link)
+				<a href="$channel.Link" target="_blank" title="$channel.Title">
+			#end
 				$channel.Title
+			#if($channel.Link)
+				</a>
+			#end
 			</h3>
 		#end
 		#if($channel.Description)
@@ -29,9 +35,7 @@
 			</p>
 		#end
 		<p class="textPanelFooter">
-		#if($channel.Link)
-			<a href="$channel.Link" target="_blank" title="$channel.Title">($graphic_version)</a>
-		#end
+
 		#if($channel.Copyright)
 			- $channel.Copyright
 		#end
