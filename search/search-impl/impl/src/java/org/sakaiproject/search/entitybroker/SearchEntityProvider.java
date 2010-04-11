@@ -77,7 +77,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Coll
 	}
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.JSON, Formats.HTML };
+        return new String[] { Formats.JSON, Formats.XML };
     }
 
 	public List<?> getEntities(EntityReference ref, Search search) {
