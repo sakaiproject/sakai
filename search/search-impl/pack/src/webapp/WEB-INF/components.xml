@@ -31,4 +31,6 @@
    <import resource="contentAdapterComponents.xml" />
    <import resource="siteAdapterComponents.xml" />
   
+  
+  
 </beans>
