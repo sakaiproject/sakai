@@ -910,6 +910,10 @@ table.checkbox label input {
 .sidebyside select{
 	width: 18em;
 }
+.sidebyside select.notsbs{
+	width: auto;
+}
+
 
 /*messagecenter stuff*/
 .msgAdvSearch {
