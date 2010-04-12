@@ -86,20 +86,18 @@
 		</h:form>
 		<f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
 		<div>
-            <h:panelGroup>
-			    <h:outputLabel for="message" value="#{msgs['control.lab']}" style="clear:both;display:block;" />
-                <div id="errorSubmit" class="alertMessage" style="display:none">
-                    <h:outputText value="#{msgs['therewaspro']}" />
-                </div>
-				<h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="60" />
-				<p class="act">
-		          <h:commandButton type="button" id="submit"
-		              value="#{msgs['control.post']}"
-		              styleClass="active" />
-		          <h:commandButton type="button" id="reset"
-		              value="#{msgs['control.clear']}" />
-		     	</p>
-            </h:panelGroup>
+		    <h:outputLabel for="message" value="#{msgs['control.lab']}" style="clear:both;display:block;" />
+            <div id="errorSubmit" class="alertMessage" style="display:none">
+                <h:outputText value="#{msgs['therewaspro']}" />
+            </div>
+			<h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="60" />
+			<p class="act">
+	          <h:commandButton type="button" id="submit"
+	              value="#{msgs['control.post']}"
+	              styleClass="active" />
+	          <h:commandButton type="button" id="reset"
+	              value="#{msgs['control.clear']}" />
+	     	</p>
 	    </div>
 		</f:subview>
 	<p style="clear:both;display:block;"></p>
