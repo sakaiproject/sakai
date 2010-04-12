@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -179,6 +180,9 @@ public class PopulateServiceImpl implements PopulateService
 				rwo.setRealm(group);
 				dao.update(rwo, null);
 				log.debug("Page Created ");
+				//Post an event
+				EventTrackingService.post(EventTrackingService.newEvent("wiki.new","/wiki" + rwo.getName() + ".", true));
+				
 			}
 			else
 			{
