@@ -578,7 +578,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID.equals(ref.getType())) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		Collection rv = new Vector();
 
