@@ -11786,6 +11786,11 @@ public class SiteAction extends PagedResourceActionII {
 			// go back to previous pages
 			doBack(data);
 		}
+		else if ("cancel".equals(option))
+		{
+			// cancel
+			doCancel(data);
+		}
 	}
 	
 }
