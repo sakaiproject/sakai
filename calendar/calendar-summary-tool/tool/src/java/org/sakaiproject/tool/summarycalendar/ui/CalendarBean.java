@@ -798,7 +798,7 @@ public class CalendarBean {
 			url.append(tc.getId());
 			url.append("?eventReference=");
 			url.append(eventRef);
-			url.append("&panel=Main&sakai_action=doDescription");		
+			url.append("&panel=Main&sakai_action=doDescription&sakai.state.reset=true");		
 			return url.toString();
 		}else{
 			// no schedule tool in site
