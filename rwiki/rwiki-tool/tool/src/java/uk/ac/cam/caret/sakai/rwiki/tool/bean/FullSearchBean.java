@@ -203,7 +203,11 @@ public class FullSearchBean
 			} 
 			catch (InvalidSearchQueryException e) {
 				//TODO we need to handle the exception and return a message to the user
-				e.printStackTrace();
+				if (log.isDebugEnabled()) {
+					e.printStackTrace();
+				}
+				return null;
+				 
 			}
 			
 		}
@@ -214,6 +218,10 @@ public class FullSearchBean
 	public List getSearchPages()
 	{
 		SearchList sr = (SearchList) search();
+		//its possible for the searchlist to be null
+		if (sr == null) {
+			return null;
+		}
 		int npages = sr.getFullSize() / pagesize;
 		List pages = new ArrayList();
 		/*
