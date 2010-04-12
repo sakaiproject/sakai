@@ -106,7 +106,7 @@
 						<h:panelGrid cellpadding="0" cellspacing="0">
 						<h:panelGroup>
 							 <h:outputLabel for="numtabs" style="font-weight:bold"  value="#{msgs.tab_count}"/><f:verbatim>&nbsp;&nbsp;</f:verbatim>
-                             <h:selectOneMenu id="numtabs" value="#{UserPrefsTool.tabCount}">
+                             <h:selectOneMenu id="numtabs" value="#{UserPrefsTool.tabCount}" styleClass="notsbs">
                                  <f:selectItems value="#{UserPrefsTool.tabsChoices}" />
                              </h:selectOneMenu>
                              <%--<h:inputText size="2" id="numtabs" value="#{UserPrefsTool.tabCount}" />--%>
