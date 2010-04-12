@@ -101,7 +101,9 @@ public interface MailArchiveChannel extends MessageChannel
 	
 	/** @return <code>true</code> if the channel sets the reply to address back to the channel */
 	public boolean getReplyToList();
-	
+		
+	/** @return <code>true</code> if the channel sets the value to send only to the archive */
+	public boolean getSendToList();
 	/**
 	 * check permissions for addMessage() for the given user.
 	 * 

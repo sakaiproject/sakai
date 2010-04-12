@@ -840,7 +840,12 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 			archiveHeaders.setMailHeaders(mailHeaders);
 
 			// lets make sure that folks who have signed up for email get it
-			commitMessage(edit, NotificationService.NOTI_OPTIONAL);
+			//SAK 12800
+			if (getSendToList()) {
+				commitMessage(edit, NotificationService.NOTI_OPTIONAL);
+			} else {
+				commitMessage(edit, NotificationService.NOTI_NONE);
+			}
 
 			return edit;
 
@@ -959,6 +964,42 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 			try
 			{
 				open = getProperties().getBooleanProperty(PROP_MAIL_CHANNEL_REPLY_LIST);
+			}
+			catch (Exception ignore)
+			{
+			}
+
+			return open;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.mailarchive.api.MailArchiveChannelEdit#setSendToList(boolean)
+		 */
+		public void setSendToList(boolean sendToList)
+		{
+			//If not set it defaults to true
+			if (sendToList==false)
+			{
+				getPropertiesEdit().addProperty(PROP_MAIL_CHANNEL_SENDTO_LIST, "false");
+			}
+			else
+			{
+				getPropertiesEdit().removeProperty(PROP_MAIL_CHANNEL_SENDTO_LIST);
+			}			
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.mailarchive.api.MailArchiveChannel#getSendToList()
+		 */
+		public boolean getSendToList()
+		{
+			boolean open = true;
+			//TODO:This shouldn't try/catch for nothing
+			try
+			{
+				open = getProperties().getBooleanProperty(PROP_MAIL_CHANNEL_SENDTO_LIST);
 			}
 			catch (Exception ignore)
 			{

@@ -62,6 +62,9 @@ public interface MailArchiveService extends MessageService
 	/** Property for a mail channel indicating if the channel has replys going back to the list (user settable) [Boolean] */
 	static final String PROP_MAIL_CHANNEL_REPLY_LIST = "CHEF:mail-channel-reply-list";
 
+	/** Property for a mail channel indicating if the channel only archives (user settable) [Boolean] */
+	static final String PROP_MAIL_CHANNEL_SENDTO_LIST = "CHEF:mail-channel-sendto-list";
+	
 	/** Property for a message channel indicating if the channel is 'enabled' (user settable) [Boolean] */
 	static final String PROP_MAIL_CHANNEL_OPEN = "CHEF:mail-channel-open";
 	

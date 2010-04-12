@@ -53,4 +53,12 @@ public interface MailArchiveChannelEdit extends MailArchiveChannel, MessageChann
 	 *        The new setting.
 	 */
 	public void setReplyToList(boolean replyToList);
+	/**
+	 * Set the send status of the channel. 
+	 * Those that have this set to false will just archive the messages. 
+	 * 
+	 * @param setting
+	 *        The new setting.
+	 */
+	public void setSendToList(boolean sendToList);
 }

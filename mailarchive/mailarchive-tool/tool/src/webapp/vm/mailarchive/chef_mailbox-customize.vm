@@ -7,6 +7,8 @@
 #if($optSize) #set($sizeValue=$optSize) #else #set($sizeValue=$pagesize) #end
 #if($optOpen) #set($openValue=$optOpen) #else #set($openValue=$channel.Open) #end
 #if($optReply) #set($replyValue=$optReply) #else #set($replyValue=$channel.ReplyToList) #end
+#if($optSendto) #set($sendtoValue=$optSendto) #else #set($sendtoValue=$channel.SendToList) #end
+
 #if($optAlias)
 	#set($aliasValue=$optAlias)
 #else
@@ -73,8 +75,35 @@
 				id="${form-reply}-false" 
 				value="false"
 			/> 
-			<label for="${form-open}-false">
+			<label for="${form-reply}-false">
 				$tlang.getString("cus.replysend")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+		</p>
+				<p class="instruction indnt2">
+			$tlang.getString("cus.sendto")
+		</p>
+				<p class="checkbox indnt2">	
+			<input 
+				type="radio" #if ($sendtoValue) checked="checked" #end
+				name="${form-sendto}" 
+				id="${form-sendto}-true" 
+				value="true"
+			/> 
+			<label for="${form-sendto}-true">
+				$tlang.getString("cus.sendon")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+			<input 
+				type="radio" #if (!$sendtoValue) checked="checked" #end
+				name="${form-sendto}" 
+				id="${form-sendto}-false" 
+				value="false"
+			/> 
+			<label for="${form-sendto}-false">
+				$tlang.getString("cus.sendoff")
 			</label>
 		</p>
 		<p class="checkbox indnt2">
