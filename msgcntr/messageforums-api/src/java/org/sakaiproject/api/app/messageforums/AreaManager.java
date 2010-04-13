@@ -102,14 +102,7 @@ public interface AreaManager
 	 * @return
 	 */
 	public Area getDiscussionArea(final String contextId);
-	
-	/**
-	 * Get a new area for a context, if it doesn't exist it will be created and optionaly populated with default topics
-	 * @param contextId
-	 * @param populateDefaults
-	 * @return the area
-	 */
-	public Area getDiscussionArea(final String contextId, boolean populateDefaults);
+
 	/**
 	 * @param key
 	 * @return

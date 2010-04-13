@@ -148,11 +148,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
     
     public Area getDiscussionArea(String contextId) {
-    	return getDiscussionArea(contextId, false);
-    }
-
-
-	public Area getDiscussionArea(String contextId, boolean populateDefaults) {
     	LOG.debug("getDiscussionArea(" + contextId +")");
     	if (contextId == null) {
     		return getDiscusionArea();
@@ -171,7 +166,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 	    area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
             //if set populate the default Forum and topic
-            if  (serverConfigurationService.getBoolean("forums.setDefault.forum", true) && populateDefaults) {
+            if  (serverConfigurationService.getBoolean("forums.setDefault.forum", false)) {
             	setAreaDefaultElements(area);
             }
             
