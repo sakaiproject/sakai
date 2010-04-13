@@ -105,6 +105,10 @@
       <version>1.0.4</version>
     </dependency>
     <dependency>
+    	<groupId>commons-lang</groupId>
+    	<artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
 		<groupId>ant</groupId>
 		<artifactId>ant</artifactId>
 		<version>1.6.5</version>

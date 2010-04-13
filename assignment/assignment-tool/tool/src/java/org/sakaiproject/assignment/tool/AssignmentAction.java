@@ -57,6 +57,7 @@ import java.nio.*;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -1770,26 +1771,15 @@ public class AssignmentAction extends PagedResourceActionII
 		// get all available assignments from Gradebook tool except for those created fromcategoryTable
 		boolean gradebookExists = isGradebookDefined();
 		if (gradebookExists)
-		{
+		{	
 			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 
 			try
 			{
-				// get all assignments in Gradebook
-				List gradebookAssignments = g.getAssignments(gradebookUid);
-				List gradebookAssignmentsExceptSamigo = new Vector();
-	
-				// filtering out those from Samigo
-				for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
-				{
-					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-					if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle()))
-					{
-						gradebookAssignmentsExceptSamigo.add(gAssignment);
-					}
-				}
-				context.put("gradebookAssignments", gradebookAssignmentsExceptSamigo);
+				// how many gradebook assignment have been integrated with Assignment tool already
+				currentAssignmentGradebookIntegrationIntoContext(context, state, g, gradebookUid, a != null ? a.getTitle() : null);
+			
 				if (StringUtil.trimToNull((String) state.getAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)) == null)
 				{
 					state.setAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentService.GRADEBOOK_INTEGRATION_NO);
@@ -1981,7 +1971,85 @@ public class AssignmentAction extends PagedResourceActionII
 		
 	} // setAssignmentFormContext
 
+	/**
+	 * how many gradebook items has been assoicated with assignment
+	 * @param context
+	 * @param state
+	 */
+	private void currentAssignmentGradebookIntegrationIntoContext(Context context, SessionState state, GradebookService g, String gradebookUid, String aTitle)
+	{
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		// get all assignment
+		Iterator iAssignments = AssignmentService.getAssignmentsForContext(contextString);
+		HashMap<String, String> gAssignmentIdTitles = new HashMap<String, String>();
 
+		HashMap<String, String> gradebookAssignmentsSelectedDisabled = new HashMap<String, String>();
+		HashMap<String, String> gradebookAssignmentsLabel = new HashMap<String, String>();
+		
+		while (iAssignments.hasNext())
+		{
+			Assignment a = (Assignment) iAssignments.next();
+			String gradebookItem = StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (gradebookItem != null)
+			{
+				gAssignmentIdTitles.put(gradebookItem, a.getTitle());
+			}
+		}
+		
+		// get all assignments in Gradebook
+		try
+		{
+			List gradebookAssignments = g.getAssignments(gradebookUid);
+			List gradebookAssignmentsExceptSamigo = new Vector();
+	
+			// filtering out those from Samigo
+			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+			{
+				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+				if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle()))
+				{
+					gradebookAssignmentsExceptSamigo.add(gAssignment);
+				
+					// gradebook item has been associated or not
+					String gaId = gAssignment.isExternallyMaintained() ? Validator.escapeHtml(gAssignment.getExternalId()) : Validator.escapeHtml(gAssignment.getName());
+					String status = "";
+					if (gAssignmentIdTitles.containsKey(gaId))
+					{
+						String assignmentTitle = gAssignmentIdTitles.get(gaId);
+						if (aTitle == null || !aTitle.equals(assignmentTitle))
+						{
+							// this gradebook item has been associated with other assignment, not selectable
+							status = "disabled";
+						}
+						else if (aTitle != null && aTitle.equals(assignmentTitle))
+						{
+							// this gradebook item is associated with current assignment, make it selected
+							status = "selected";
+						}
+					}
+					gradebookAssignmentsSelectedDisabled.put(gaId, status);
+					
+					
+					// gradebook assignment label
+					String label = gAssignment.getName();
+					if (gAssignmentIdTitles.containsKey(gaId))
+					{
+						label += " ( " + rb.getFormattedMessage("usedGradebookAssignment", new Object[]{gAssignmentIdTitles.get(gaId)}) + " )";
+					}
+					gradebookAssignmentsLabel.put(gaId, label);
+				}
+			}
+		}
+		catch (GradebookNotFoundException e)
+		{
+			// exception
+			M_log.debug(this + ":currentAssignmentGradebookIntegrationIntoContext " + rb.getFormattedMessage("addtogradebook.alertMessage", new Object[]{e.getMessage()}));
+		}
+		context.put("gradebookAssignmentsSelectedDisabled", gradebookAssignmentsSelectedDisabled);
+		
+		context.put("gradebookAssignmentsLabel", gradebookAssignmentsLabel);
+	}
+	
 	private void putGradebookCategoryInfoIntoContext(SessionState state,
 			Context context) {
 		Hashtable<Long, String> categoryTable = categoryTable();
@@ -2931,7 +2999,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.debug(this + "isGradebookDefined " + rb.getString("addtogradebook.alertMessage") + "\n" + e.getMessage());
+			M_log.debug(this + "isGradebookDefined " + rb.getFormattedMessage("addtogradebook.alertMessage", new Object[]{e.getMessage()}));
 		}
 
 		return rv;
@@ -3010,7 +3078,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
 	 */
    protected void integrateGradebook (SessionState state, String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission, long category)
-   {
+   {   
 		associateGradebookAssignment = StringUtil.trimToNull(associateGradebookAssignment);
 
 		// add or remove external grades to gradebook

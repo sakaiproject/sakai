@@ -556,7 +556,7 @@ $(document).ready(function() {
 						<br/>
 					#end
 					## if there exists properiate assignment entries in Gradebook
-					#if ($!gradebookAssignments.size() > 0) 
+					#if (!$!gradebookAssignmentsLabel.isEmpty()) 
 						## show the assignment list from Gradebook when clicked
 							<input 
 								type="radio" 
@@ -593,7 +593,7 @@ $(document).ready(function() {
 				</div>
 			</div>	
 			## if there exists properiate assignment entries in Gradebook
-			#if ($!gradebookAssignments.size() > 0) 
+			#if (!$!gradebookAssignmentsLabel.isEmpty()) 
 				## show the "Gradebook Assignment list" choices or not
 				#if($!allowGroupAssignmentsInGradebook && $!gradebookChoice.equals("$!gradebookChoice_associate"))
 					#set ($gbListDisplay="block")
@@ -603,14 +603,16 @@ $(document).ready(function() {
 				<p id="gradebookList" class="checkbox  indnt4" style="display:$gbListDisplay">
 					<select name="$!name_AssociateGradebookAssignment" >
 						<option  value="">$tlang.getString("grading.select")</option>
-						#foreach ($aAssignment in $!gradebookAssignments)
-							#if ($aAssignment.isExternallyMaintained())
-								## for external assignment
-								<option  value="$validator.escapeHtml($aAssignment.getExternalId())" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$validator.escapeHtml($aAssignment.Name)</option>
-							#else
-								## for internal assignment
-								<option  value="$validator.escapeHtml($aAssignment.Name)" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$validator.escapeHtml($aAssignment.Name)</option>
-							#end
+						#set($gAssignmentSet = $!gradebookAssignmentsLabel.keySet())
+						#foreach ($gaId in $!gAssignmentSet.iterator())
+							<option  value="$gaId" 
+								#if($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("disabled")) 
+									disabled="disabled"
+								#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected")) 
+									selected="selected"
+								#end>
+									$!gradebookAssignmentsLabel.get($gaId)
+							</option>
 						#end
 					</select>
 				</p>
