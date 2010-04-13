@@ -1,4 +1,7 @@
-
+/*
+ * Commented out the existing css here.  I don't believe any of this is being used in the tool at all currently and didn't want to introduce
+ * a page style change for adding a new css property and properly linking to this css file
+ 
 
 
 
@@ -398,3 +401,7 @@ COLOR:#000000;
   
   BACKGROUND-COLOR:#DDDDDD;
 }
+
+*/
+
+@media print  { .noprint  { display: none; } }
