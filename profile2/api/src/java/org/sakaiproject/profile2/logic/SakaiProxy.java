@@ -122,6 +122,13 @@ public interface SakaiProxy {
 	public String getUserType(String userId);
 	
 	/**
+	 * Get a user
+	 * @param userId internal user id
+	 * @return
+	 */
+	public User getUserById(String userId);
+	
+	/**
 	 * Get the User object for the given userId.
 	 * <p>This will not log errors so that we can quietly use it to check if a User exists for a given profile,
 	 *  ie in a search result, for example.</p>
