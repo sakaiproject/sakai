@@ -166,7 +166,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 	    area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
             //if set populate the default Forum and topic
-            if  (serverConfigurationService.getBoolean("forums.setDefault.forum", false)) {
+            if  (serverConfigurationService.getBoolean("forums.setDefault.forum", true)) {
             	setAreaDefaultElements(area);
             }
             
