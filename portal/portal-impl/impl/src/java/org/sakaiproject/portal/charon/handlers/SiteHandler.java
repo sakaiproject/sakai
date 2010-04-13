@@ -53,7 +53,9 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
 
 /**
@@ -424,6 +426,17 @@ public class SiteHandler extends WorksiteHandler
 			try
 			{
 				String userId = SiteService.getSiteUserId(siteId);
+				
+				// If the passed siteId is the users EID, convert it to the internal ID.
+				// Most lookups should be EID, if most URLs contain internal ID, this results in lots of cache misses.
+				try
+				{
+					userId = UserDirectoryService.getUserId(userId);
+				}
+				catch (UserNotDefinedException unde)
+				{
+					// Ignore
+				}
 				String alternateSiteId = SiteService.getUserSiteId(userId);
 				skin = SiteService.getSiteSkin(alternateSiteId);
 			}
