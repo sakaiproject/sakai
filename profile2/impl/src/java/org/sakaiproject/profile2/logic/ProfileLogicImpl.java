@@ -348,47 +348,9 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 	
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
-		
-		ProfilePrivacy profilePrivacy = dao.addNewPrivacyRecord(getDefaultPrivacyRecord(userId));
-		
-		if(profilePrivacy != null) {
-			log.info("Created default privacy record for user: " + userId); 
-		}
-		
-		return profilePrivacy;
-	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public ProfilePrivacy getDefaultPrivacyRecord(String userId) {
-		
-		//get the overriden privacy settings. they'll be defaults if not specified
-		HashMap<String, Object> props = sakaiProxy.getOverriddenPrivacySettings();	
-		
-		//using the props, set them into the ProfilePrivacy object
-		ProfilePrivacy profilePrivacy = new ProfilePrivacy();
-		profilePrivacy.setUserUuid(userId);
-		profilePrivacy.setProfileImage((Integer)props.get("profileImage"));
-		profilePrivacy.setBasicInfo((Integer)props.get("basicInfo"));
-		profilePrivacy.setContactInfo((Integer)props.get("contactInfo"));
-		profilePrivacy.setStaffInfo((Integer)props.get("staffInfo"));
-		profilePrivacy.setStudentInfo((Integer)props.get("studentInfo"));
-		profilePrivacy.setPersonalInfo((Integer)props.get("personalInfo"));
-		profilePrivacy.setShowBirthYear((Boolean)props.get("birthYear"));
-		profilePrivacy.setSearch((Integer)props.get("search"));
-		profilePrivacy.setMyFriends((Integer)props.get("myFriends"));
-		profilePrivacy.setMyStatus((Integer)props.get("myStatus"));
-		profilePrivacy.setMyPictures((Integer)props.get("myPictures"));
-		profilePrivacy.setMessages((Integer)props.get("messages"));
-		profilePrivacy.setBusinessInfo((Integer)props.get("businessInfo"));
-		
-		return profilePrivacy;
-	}
+	
+	
 	
 	
 	/**
@@ -400,13 +362,18 @@ public class ProfileLogicImpl implements ProfileLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
 	  	}
 		
+		//will stay null if we can't get or create one
 		ProfilePrivacy privacy = null;
 		
 		privacy = dao.getPrivacyRecord(userId);
 		
-		//if none, get a default, non-persisted.
+		//if none, create and persist a default
 		if(privacy == null) {
-			privacy = getDefaultPrivacyRecord(userId);
+			privacy = dao.addNewPrivacyRecord(getDefaultPrivacyRecord(userId));
+			if(privacy != null) {
+				sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/"+userId, true);
+				log.info("Created default privacy record for user: " + userId); 
+			}
 		}
 		
 		return privacy;
@@ -1422,37 +1389,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	}
 	
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
-		
-		ProfilePreferences prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
-		
-		if(prefs != null) {
-			log.info("Created default preferences record for user: " + userId); 
-		}
-		
-		return prefs;
-	}
 	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public ProfilePreferences getDefaultPreferencesRecord(final String userId) {
-		
-		ProfilePreferences prefs = new ProfilePreferences();
-				prefs.setUserUuid(userId);
-				prefs.setRequestEmailEnabled(ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING);
-				prefs.setConfirmEmailEnabled(ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING);
-				prefs.setMessageNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING);
-				prefs.setMessageReplyEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING);
-				prefs.setTwitterEnabled(ProfileConstants.DEFAULT_TWITTER_SETTING);
-				prefs.setUseOfficialImage(ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING);
-				
-			return prefs;
-	}
 	
 	
 	/**
@@ -1464,17 +1401,27 @@ public class ProfileLogicImpl implements ProfileLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPreferencesRecordForUser"); 
 	  	}
 		
-		ProfilePreferences prefs = dao.getPreferencesRecordForUser(userId);
+		//will stay null if we can't get or create a record
+		ProfilePreferences prefs = null;
+		prefs = dao.getPreferencesRecordForUser(userId);
 		
 		if(prefs == null) {
-			return null;
+			prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
+			if(prefs != null) {
+				sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
+				log.info("Created default preferences record for user: " + userId); 
+			}
 		}
 		
-		//decrypt password and set into field
-		prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
+		if(prefs != null) {
+			//decrypt password and set into field
+			prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
+		}
 		
 		return prefs;
 	}
+	
+	
 	
 	/**
  	 * {@inheritDoc}
@@ -2402,9 +2349,54 @@ public class ProfileLogicImpl implements ProfileLogic {
 	}
 	
 	
+	/**
+	 * Create a privacy record according to the defaults. 
+	 *
+	 * @param userId		uuid of the user to create the record for
+	 */
+	private ProfilePrivacy getDefaultPrivacyRecord(String userId) {
+		
+		//get the overriden privacy settings. they'll be defaults if not specified
+		HashMap<String, Object> props = sakaiProxy.getOverriddenPrivacySettings();	
+		
+		//using the props, set them into the ProfilePrivacy object
+		ProfilePrivacy privacy = new ProfilePrivacy();
+		privacy.setUserUuid(userId);
+		privacy.setProfileImage((Integer)props.get("profileImage"));
+		privacy.setBasicInfo((Integer)props.get("basicInfo"));
+		privacy.setContactInfo((Integer)props.get("contactInfo"));
+		privacy.setStaffInfo((Integer)props.get("staffInfo"));
+		privacy.setStudentInfo((Integer)props.get("studentInfo"));
+		privacy.setPersonalInfo((Integer)props.get("personalInfo"));
+		privacy.setShowBirthYear((Boolean)props.get("birthYear"));
+		privacy.setSearch((Integer)props.get("search"));
+		privacy.setMyFriends((Integer)props.get("myFriends"));
+		privacy.setMyStatus((Integer)props.get("myStatus"));
+		privacy.setMyPictures((Integer)props.get("myPictures"));
+		privacy.setMessages((Integer)props.get("messages"));
+		privacy.setBusinessInfo((Integer)props.get("businessInfo"));
+		
+		return privacy;
+	}
 	
-	
-	
+	/**
+	 * Create a preferences record according to the defaults. 
+	 *
+	 * @param userId		uuid of the user to create the record for
+	 */
+	private ProfilePreferences getDefaultPreferencesRecord(final String userId) {
+		
+		ProfilePreferences prefs = new ProfilePreferences();
+		prefs.setUserUuid(userId);
+		prefs.setRequestEmailEnabled(ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING);
+		prefs.setConfirmEmailEnabled(ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING);
+		prefs.setMessageNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING);
+		prefs.setMessageReplyEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING);
+		prefs.setTwitterEnabled(ProfileConstants.DEFAULT_TWITTER_SETTING);
+		prefs.setUseOfficialImage(ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING);
+				
+		return prefs;
+	}
 	
 	
 	

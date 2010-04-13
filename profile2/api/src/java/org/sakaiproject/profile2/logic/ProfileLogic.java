@@ -163,33 +163,13 @@ public interface ProfileLogic {
 	 */
 	public boolean clearUserStatus(String userId);
 		
-	/**
-	 * Create a persistent default privacy record according to the defaults in ProfileConstants.
-	 *
-	 * @param userId		uuid of the user to create the record for
-	 */
-	public ProfilePrivacy createDefaultPrivacyRecord(String userId);
 	
 	/**
-	 * Create a default privacy record according to the defaults in ProfileConstants. Not persisted.
+	 * Retrieve the profile privacy record from the database for this user. If none exists, will
+	 * attempt to create one for the user. If that also fails, will return null.
 	 *
-	 * @param userId		uuid of the user to create the record for
-	 */
-	public ProfilePrivacy getDefaultPrivacyRecord(String userId);
-	
-	/**
-	 * Create a default social networking information record for the specified
-	 * user.
-	 * 
-	 * @param userId
-	 * @return
-	 */
-	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId);
-	
-	/**
-	 * Retrieve the profile privacy record from the database for this user
-	 *
-	 * @param userId	uuid of the user to retrieve the record for or null if they don't have one.
+	 * @param userId	uuid of the user to retrieve the record for
+	 * @return ProfilePrivacy record or null
 	 */
 	public ProfilePrivacy getPrivacyRecordForUser(String userId);
 	
@@ -253,6 +233,16 @@ public interface ProfileLogic {
 	 * @param imageId the ID of the gallery image to remove.
 	 */
 	public boolean removeGalleryImage(String userId, long imageId);
+	
+	/**
+	 * Create a default social networking information record for the specified
+	 * user.
+	 * 
+	 * @param userId
+	 * @return
+	 * @deprecated getSocialNetworkingInfo should return a default if none exists, or null if error TODO
+	 */
+	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId);
 	
 	/**
 	 * Retrieves the social networking information for the specified user from
@@ -720,25 +710,11 @@ public interface ProfileLogic {
 	
 	
 	/**
-	 * Create a persistent default preferences record for the user according to the defaults.
-	 *
-	 * @param userId		uuid of the user to create the record for
-	 */
-	public ProfilePreferences createDefaultPreferencesRecord(final String userId);
-	
-	
-	/**
-	 * Create a default preferences record according to the defaults. Not persisted.
-	 *
-	 * @param userId		uuid of the user to create the record for
-	 */
-	public ProfilePreferences getDefaultPreferencesRecord(final String userId);
-	
-	
-	/**
-	 * Retrieve the preferences record from the database for this user
+	 * Retrieve the preferences record from the database for this user. If none exists, will
+	 * attempt to create one for the user. If that also fails, will return null.
 	 *
 	 * @param userId	uuid of the user to retrieve the record for
+	 * @return ProfilePreferences record or null
 	 */
 	public ProfilePreferences getPreferencesRecordForUser(final String userId);
 	

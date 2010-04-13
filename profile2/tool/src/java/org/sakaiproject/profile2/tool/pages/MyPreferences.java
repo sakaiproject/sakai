@@ -57,20 +57,12 @@ public class MyPreferences extends BasePage{
 		//get current user
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
-		//get the preferences object for this user from the database
+		//get the prefs record for this user from the database, or a default if none exists yet
 		profilePreferences = profileLogic.getPreferencesRecordForUser(userUuid);
 		
-		//if null, create one
+		//if null, throw exception
 		if(profilePreferences == null) {
-			profilePreferences = profileLogic.createDefaultPreferencesRecord(userUuid);
-			//if its still null, throw exception
-			
-			if(profilePreferences == null) {
-				throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
-			}
-			
-			//post create event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userUuid, true);
+			throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
 		}
 		
 		//get email address for this user

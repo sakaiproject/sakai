@@ -57,21 +57,12 @@ public class MyPrivacy extends BasePage {
 		//get current user
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
-		//get the privacy object for this user from the database
+		//get the privacy record for this user from the database, or a default if none exists
 		profilePrivacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		
-		//if null, create one
+		//if null, throw exception
 		if(profilePrivacy == null) {
-			profilePrivacy = profileLogic.createDefaultPrivacyRecord(userUuid);
-			//if its still null, throw exception
-			
-			if(profilePrivacy == null) {
-				throw new ProfilePrivacyNotDefinedException("Couldn't create default privacy record for " + userUuid);
-			}
-			
-			//post create event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/"+userUuid, true);
-			
+			throw new ProfilePrivacyNotDefinedException("Couldn't create default privacy record for " + userUuid);
 		}
 		
 		Label heading = new Label("heading", new ResourceModel("heading.privacy"));

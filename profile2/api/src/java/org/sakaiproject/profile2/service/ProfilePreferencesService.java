@@ -73,11 +73,4 @@ public interface ProfilePreferencesService {
 	 */
 	public boolean checkUserExists(String userId);
 	
-	/**
-	 * Helper method to check whether a user ProfilePreferences object ACTUALLY exists, not just if the user exists.
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @return true if exists, false otherwise
-	 */
-	public boolean checkProfilePreferencesExists(String userId);
 }

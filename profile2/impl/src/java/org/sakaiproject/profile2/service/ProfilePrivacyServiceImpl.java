@@ -16,7 +16,6 @@
 
 package org.sakaiproject.profile2.service;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -56,13 +55,8 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 			return null;
 		}
 		
-		//get record or default if none.
-		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
-		if(privacy == null) {
-			return getPrototype(userUuid);
-		}
-		
-		return privacy;
+		//get record, default, or null
+		return profileLogic.getPrivacyRecordForUser(userUuid);
 	}
 	
 	/**
@@ -90,29 +84,6 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 * {@inheritDoc}
 	 */
 	public boolean create(ProfilePrivacy obj) {
-		
-		//check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(currentUserUuid == null) {
-			throw new SecurityException("Must be logged in.");
-		}
-		
-		//check userUuid assoc with obj
-		String userUuid = obj.getUserUuid();
-		if(StringUtils.isBlank(userUuid)) {
-			return false;
-		}
-		
-		//check currentUser and object uuid match
-		if(!currentUserUuid.equals(userUuid)) {
-			throw new SecurityException("Not allowed to save.");
-		}
-		
-		//does this user already have a persisted privacy record?
-		if(checkProfilePrivacyExists(userUuid)) {
-			log.error("userUuid: " + userUuid + " already has a ProfilePrivacy record. Cannot create another.");
-			return false;
-		}
 		return save(obj);
 	}
 	
@@ -139,17 +110,15 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 			throw new SecurityException("Not allowed to save.");
 		}
 		
-		//does this user already have a persisted profile?
-		if(checkProfilePrivacyExists(userUuid)) {
+		//get the current record, a default will be created if none exists
+		//unless this is null, it worked
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		if(privacy == null) {
 			log.error("userUuid: " + userUuid + " already has a ProfilePrivacy record. Cannot create another.");
 			return false;
 		}
-			
-		//no existing privacy record, setup a prototype
-		ProfilePrivacy privacy = getPrototype(userUuid);
 		
-		//save and return response
-		return persistProfilePrivacy(privacy);
+		return true;
 	}
 	
 	/**
@@ -158,31 +127,6 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	public boolean checkUserExists(String userId) {
 		return sakaiProxy.checkForUser(sakaiProxy.getUuidForUserId(userId));
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean checkProfilePrivacyExists(String userId) {
-		
-		//convert userId into uuid
-		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		if(userUuid == null) {
-			log.error("Invalid userId: " + userId);
-			return false;
-		}
-		
-		//check if we have a persisted object already
-		if(profileLogic.getPrivacyRecordForUser(userUuid) == null) {
-			return false;
-		}
-		return true;
-	}
-	
-	
-	
-	
-	
-	
 	
 	/**
 	 * Helper method to take care of persisting a ProfilePrivacy object to the database.
@@ -192,25 +136,11 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 */
 	private boolean persistProfilePrivacy(ProfilePrivacy obj) {
 
-		//TODO twitter updates if activated.
-		
 		if(profileLogic.savePrivacyRecord(obj)) {
 			return true;
 		} 
 		return false;
 	}
-	
-	/**
-	 * Helper method to create a default ProfilePrivacy object for the given user.
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @return a ProfilePrivacy object filled with the default fields
-	 */
-	private ProfilePrivacy getPrototype(String userId) {
-		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		return profileLogic.getDefaultPrivacyRecord(userUuid);
-	}
-	
 	
 	
 	private SakaiProxy sakaiProxy;

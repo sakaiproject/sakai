@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 
 /**
  * <p>This is the implementation of {@link ProfilePreferencesService}; see that interface for usage details.
@@ -58,10 +59,8 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		}
 		
 		//get record or default if none.
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
-		if(prefs == null) {
-			return getPrototype(userUuid);
-		}
+		ProfilePreferences prefs = null;
+		prefs = profileLogic.getPreferencesRecordForUser(userUuid);
 		
 		//if user requested own
 		if(userUuid.equals(currentUserUuid)) {
@@ -69,9 +68,11 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		}
 		
 		//not own, clean it up
-		prefs.setTwitterUsername(null);
-		prefs.setTwitterPasswordDecrypted(null);
-		prefs.setTwitterPasswordEncrypted(null);
+		if(prefs != null) {
+			prefs.setTwitterUsername(null);
+			prefs.setTwitterPasswordDecrypted(null);
+			prefs.setTwitterPasswordEncrypted(null);
+		}
 		
 		return prefs;
 	}
@@ -115,38 +116,6 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 	 * {@inheritDoc}
 	 */
 	public boolean create(ProfilePreferences obj) {
-		
-		//check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(currentUserUuid == null) {
-			throw new SecurityException("Must be logged in.");
-		}
-		
-		//get uuid
-		String userUuid = obj.getUserUuid();
-		if(StringUtils.isBlank(userUuid)) {
-			return false;
-		}
-		
-		//check currentUser and profile uuid match
-		if(!currentUserUuid.equals(userUuid)) {
-			throw new SecurityException("Not allowed to save.");
-		}
-		
-		//does this user already have a persisted preferences record?
-		if(checkProfilePreferencesExists(userUuid)) {
-			log.error("userUuid: " + userUuid + " already has a ProfilePreferences record. Cannot create another.");
-			return false;
-		}
-		
-		//validate twitter credentials if enabled for user and globally
-		if(profileLogic.isTwitterIntegrationEnabledForUser(userUuid)) {
-			if(!profileLogic.validateTwitterCredentials(obj)) {
-				log.error("Failed to validate Twitter credentials for userUuid: " + userUuid);
-				return false;
-			}
-		}
-		
 		return save(obj);
 	}
 	
@@ -173,17 +142,16 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 			throw new SecurityException("Not allowed to save.");
 		}
 		
-		//does this user already have a persisted profile?
-		if(checkProfilePreferencesExists(userUuid)) {
+		//get the current record, a default will be created if none exists
+		//unless this is null, it worked
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		if(prefs == null) {
 			log.error("userUuid: " + userUuid + " already has a ProfilePreferences record. Cannot create another.");
 			return false;
 		}
-			
-		//no existing privacy record, setup a prototype
-		ProfilePreferences prefs = getPrototype(userUuid);
 		
-		//save and return response
-		return persistProfilePreferences(prefs);
+		return true;
+		
 	}
 	
 	/**
@@ -193,29 +161,6 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		return sakaiProxy.checkForUser(sakaiProxy.getUuidForUserId(userId));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean checkProfilePreferencesExists(String userId) {
-		
-		//convert userId into uuid
-		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		if(userUuid == null) {
-			log.error("Invalid userId: " + userId);
-			return false;
-		}
-		
-		//check if we have a persisted object already
-		if(profileLogic.getPreferencesRecordForUser(userUuid) == null) {
-			return false;
-		}
-		return true;
-	}
-	
-	
-	
-	
-	
 	
 	
 	/**
@@ -230,17 +175,6 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 			return true;
 		} 
 		return false;
-	}
-	
-	/**
-	 * Helper method to create a default ProfilePreferences object for the given user.
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @return a ProfilePreferences object filled with the default fields
-	 */
-	private ProfilePreferences getPrototype(String userId) {
-		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		return profileLogic.getDefaultPreferencesRecord(userUuid);
 	}
 	
 	
