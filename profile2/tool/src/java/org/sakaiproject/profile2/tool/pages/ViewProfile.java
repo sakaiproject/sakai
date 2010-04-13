@@ -163,6 +163,8 @@ public class ViewProfile extends BasePage {
 		
 		//get info
 		String nickname = sakaiPerson.getNickname();
+		String personalSummary = sakaiPerson.getNotes();
+		
 		Date dateOfBirth = sakaiPerson.getDateOfBirth();
 		String birthday = "";
 		int visibleFieldCount_basic = 0;
@@ -198,6 +200,17 @@ public class ViewProfile extends BasePage {
 		basicInfoContainer.add(birthdayContainer);
 		if(StringUtils.isBlank(birthday)) {
 			birthdayContainer.setVisible(false);
+		} else {
+			visibleFieldCount_basic++;
+		}
+		
+		//personal summary
+		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
+		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
+		personalSummaryContainer.add(new Label("personalSummary", ProfileUtils.escapeHtmlForDisplay(personalSummary)).setEscapeModelStrings(false));
+		basicInfoContainer.add(personalSummaryContainer);
+		if(StringUtils.isBlank(personalSummary)) {
+			personalSummaryContainer.setVisible(false);
 		} else {
 			visibleFieldCount_basic++;
 		}
@@ -502,7 +515,6 @@ public class ViewProfile extends BasePage {
 		String favouriteTvShows = sakaiPerson.getFavouriteTvShows();
 		String favouriteMovies = sakaiPerson.getFavouriteMovies();
 		String favouriteQuotes = sakaiPerson.getFavouriteQuotes();
-		String otherInformation = sakaiPerson.getNotes();
 
 		int visibleFieldCount_personal = 0;
 		
@@ -608,19 +620,7 @@ public class ViewProfile extends BasePage {
 			quotesContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;
-		}
-		
-		//favourite quotes
-		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
-		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
-		otherContainer.add(new Label("otherInformation", ProfileUtils.escapeHtmlForDisplay(otherInformation)).setEscapeModelStrings(false));
-		personalInfoContainer.add(otherContainer);
-		if(StringUtils.isBlank(otherInformation)) {
-			otherContainer.setVisible(false);
-		} else {
-			visibleFieldCount_personal++;
-		}
-		
+		}	
 		
 		add(personalInfoContainer);
 		

@@ -156,17 +156,6 @@ public class MyInterestsEdit extends Panel {
 		quotesContainer.add(favouriteQuotes);
 		form.add(quotesContainer);
 		
-		//other information
-		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
-		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
-		TextArea otherInformation = new TextArea("otherInformation", new PropertyModel(userProfile, "otherInformation"));
-		
-		//add TinyMCE control
-		otherInformation.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
-		
-		otherContainer.add(otherInformation);
-		form.add(otherContainer);
-		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			private static final long serialVersionUID = 1L;
@@ -262,7 +251,7 @@ public class MyInterestsEdit extends Panel {
 		sakaiPerson.setFavouriteTvShows(userProfile.getFavouriteTvShows());
 		sakaiPerson.setFavouriteMovies(userProfile.getFavouriteMovies());
 		sakaiPerson.setFavouriteQuotes(userProfile.getFavouriteQuotes());
-		sakaiPerson.setNotes(ProfileUtils.processHtml(userProfile.getOtherInformation()));
+
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );

@@ -178,7 +178,7 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
-		userProfile.setOtherInformation(ProfileUtils.unescapeHtml(sakaiPerson.getNotes()));
+		userProfile.setPersonalSummary(ProfileUtils.unescapeHtml(sakaiPerson.getNotes()));
 		
 		// social networking fields
 		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userProfile.getUserUuid());

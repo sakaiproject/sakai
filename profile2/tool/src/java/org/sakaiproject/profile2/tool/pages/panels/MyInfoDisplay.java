@@ -74,6 +74,8 @@ public class MyInfoDisplay extends Panel {
 		String lastName = userProfile.getLastName();
 		*/
 		String nickname = userProfile.getNickname();
+		String personalSummary = ProfileUtils.unescapeHtml(userProfile.getPersonalSummary());
+		
 		Date dateOfBirth = userProfile.getDateOfBirth();
 		if(dateOfBirth != null) {
 			
@@ -157,7 +159,18 @@ public class MyInfoDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-				
+
+		//personal summary
+		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
+		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
+		personalSummaryContainer.add(new Label("personalSummary", ProfileUtils.escapeHtmlForDisplay(personalSummary)).setEscapeModelStrings(false));
+		add(personalSummaryContainer);
+		if(StringUtils.isBlank(personalSummary)) {
+			personalSummaryContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
 			

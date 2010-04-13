@@ -52,7 +52,7 @@ public class UserProfile implements Serializable {
 	private String favouriteTvShows;
 	private String favouriteMovies;
 	private String favouriteQuotes;
-	private String otherInformation;
+	private String personalSummary;
 	private String course;
 	private String subjects;
 	private String staffProfile;
@@ -251,12 +251,12 @@ public class UserProfile implements Serializable {
 		this.favouriteQuotes = favouriteQuotes;
 	}
 
-	public String getOtherInformation() {
-		return otherInformation;
+	public String getPersonalSummary() {
+		return personalSummary;
 	}
 
-	public void setOtherInformation(String otherInformation) {
-		this.otherInformation = otherInformation;
+	public void setPersonalSummary(String personalSummary) {
+		this.personalSummary = personalSummary;
 	}
 	
 	public String getCourse() {

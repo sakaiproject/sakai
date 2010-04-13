@@ -152,7 +152,7 @@ public class ProfileManagerImpl implements ProfileManager {
 		p.setPosition(up.getPosition());
 		p.setSchool(up.getSchool());
 		p.setRoom(up.getRoom());
-		p.setOtherInformation(up.getOtherInformation());
+		p.setOtherInformation(up.getPersonalSummary());
 		
 		//Set the defaults for public and private info. These are not used, stricter privacy settings from Profile2 are instead.
 		//However these need to be set so Roster doesn't barf.

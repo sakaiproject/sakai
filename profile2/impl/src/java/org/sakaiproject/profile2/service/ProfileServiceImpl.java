@@ -117,6 +117,7 @@ public class ProfileServiceImpl implements ProfileService {
 			log.debug("basic info not allowed");
 			userProfile.setNickname(null);
 			userProfile.setDateOfBirth(null);
+			userProfile.setPersonalSummary(null);
 		}
 		
 		//unset contact info if not allowed
@@ -157,7 +158,6 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setFavouriteTvShows(null);
 			userProfile.setFavouriteMovies(null);
 			userProfile.setFavouriteQuotes(null);
-			userProfile.setOtherInformation(null);
 			
 			// social networking fields
 			userProfile.setFacebookUsername(null);
@@ -314,6 +314,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(!profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			userProfile.setNickname(null);
 			userProfile.setDateOfBirth(null);
+			userProfile.setPersonalSummary(null);
 		}
 		
 		if(!profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
@@ -350,7 +351,6 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setFavouriteTvShows(null);
 			userProfile.setFavouriteMovies(null);
 			userProfile.setFavouriteQuotes(null);
-			userProfile.setOtherInformation(null);
 		}
 
 		//unset info that isn't used by the legacy Profile
@@ -489,7 +489,14 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append(userProfile.getNickname());
 			sb.append("</div>");
 		}
-		
+		if(StringUtils.isNotBlank(userProfile.getPersonalSummary())) {
+			sb.append("<div class=\"profile2-profile-personalSummary\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.personalSummary"));
+			sb.append("</span>");
+			sb.append(userProfile.getPersonalSummary());
+			sb.append("</div>");
+		}
 		
 		
 		//contact info
@@ -640,14 +647,6 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</span>");
 
 			sb.append(userProfile.getFavouriteQuotes());
-			sb.append("</div>");
-		}
-		if(StringUtils.isNotBlank(userProfile.getOtherInformation())) {
-			sb.append("<div class=\"profile2-profile-otherInformation\">");
-			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("Label.otherInformation"));
-			sb.append("</span>");
-			sb.append(userProfile.getOtherInformation());
 			sb.append("</div>");
 		}
 		
@@ -891,6 +890,7 @@ public class ProfileServiceImpl implements ProfileService {
 	private void addBasicInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
 		userProfile.setNickname(sp.getNickname());
 		userProfile.setDateOfBirth(sp.getDateOfBirth());
+		userProfile.setPersonalSummary(sp.getNotes());
 	}
 	
 	/**
@@ -935,7 +935,6 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setFavouriteTvShows(sp.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sp.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sp.getFavouriteQuotes());
-		userProfile.setOtherInformation(sp.getNotes());
 	}
 	
 	
@@ -989,6 +988,7 @@ public class ProfileServiceImpl implements ProfileService {
 		//basic info
 		userProfile.setNickname(sp.getNickname());
 		userProfile.setDateOfBirth(sp.getDateOfBirth());
+		userProfile.setPersonalSummary(sp.getNotes());
 		
 		//contact info
 		userProfile.setEmail(sakaiProxy.getUserEmail(userUuid));
@@ -1017,7 +1017,6 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setFavouriteTvShows(sp.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sp.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sp.getFavouriteQuotes());
-		userProfile.setOtherInformation(sp.getNotes());
 		
 		//business info
 		userProfile.setBusinessBiography(sp.getBusinessBiography());
@@ -1074,7 +1073,7 @@ public class ProfileServiceImpl implements ProfileService {
 		sakaiPerson.setFavouriteTvShows(up.getFavouriteTvShows());
 		sakaiPerson.setFavouriteMovies(up.getFavouriteMovies());
 		sakaiPerson.setFavouriteQuotes(up.getFavouriteQuotes());
-		sakaiPerson.setNotes(up.getOtherInformation());
+		sakaiPerson.setNotes(up.getPersonalSummary());
 
 		return sakaiPerson;
 	}

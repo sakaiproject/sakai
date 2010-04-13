@@ -31,6 +31,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -42,8 +43,12 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+
+import wicket.contrib.tinymce.TinyMceBehavior;
+import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
 
 public class MyInfoEdit extends Panel {
 	
@@ -154,6 +159,16 @@ public class MyInfoEdit extends Panel {
 		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
 		form.add(birthdayContainer);
 
+		//personal summary
+		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
+		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
+		TextArea personalSummary = new TextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
+		
+		//add TinyMCE control
+		personalSummary.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
+		
+		personalSummaryContainer.add(personalSummary);
+		form.add(personalSummaryContainer);
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
@@ -188,6 +203,7 @@ public class MyInfoEdit extends Panel {
 			
 		};
 		submitButton.setModel(new ResourceModel("button.save.changes"));
+		submitButton.add(new TinyMceAjaxSubmitModifier());
 		form.add(submitButton);
 		
         
@@ -253,6 +269,8 @@ public class MyInfoEdit extends Panel {
 			sakaiPerson.setDateOfBirth(null);
 		}
 
+		sakaiPerson.setNotes(ProfileUtils.processHtml(userProfile.getPersonalSummary()));
+		
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId);
 			
