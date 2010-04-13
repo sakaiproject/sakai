@@ -261,6 +261,8 @@ public class ProfileConstants {
 	
 	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
 
+	public static final String EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE = "profile.socialnetworking.update";
+	
 	//custom entity types
 	public static final int ENTITY_PROFILE_FULL = 0;
 	public static final int ENTITY_PROFILE_MINIMAL = 1;

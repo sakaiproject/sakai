@@ -142,6 +142,7 @@ public class ViewProfile extends BasePage {
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isStaffInfoAllowed = profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isStudentInfoAllowed = profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isSocialNetworkingInfoAllowed = profileLogic.isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
@@ -493,13 +494,13 @@ public class ViewProfile extends BasePage {
 			add(businessPanel);
 		}
 		
-		/* PERSONAL INFO */
-		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");
-		personalInfoContainer.setOutputMarkupId(true);
+		/* SOCIAL NETWORKING */
+		WebMarkupContainer socialNetworkingInfoContainer = new WebMarkupContainer("mainSectionContainer_socialNetworking");
+		socialNetworkingInfoContainer.setOutputMarkupId(true);
 		
-		//setup info
+		//heading
+		socialNetworkingInfoContainer.add(new Label("mainSectionHeading_socialNetworking", new ResourceModel("heading.social")));
 		
-		// social networking
 		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userUuid);
 		if (null == socialNetworkingInfo) {
 			socialNetworkingInfo = profileLogic.getDefaultSocialNetworkingInfo(userUuid);
@@ -509,7 +510,79 @@ public class ViewProfile extends BasePage {
 		String myspaceUsername = socialNetworkingInfo.getMyspaceUsername();
 		String skypeUsername = socialNetworkingInfo.getSkypeUsername();
 		String twitterUsername = socialNetworkingInfo.getTwitterUsername();
+				
+		int visibleFieldCount_socialNetworking = 0;
 		
+		//facebook
+		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
+		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
+		facebookContainer.add(new ExternalLink("facebookLink", ProfileUtils.getFacebookURL(facebookUsername), ProfileUtils.getFacebookURL(facebookUsername)));
+		socialNetworkingInfoContainer.add(facebookContainer);
+		if(StringUtils.isBlank(facebookUsername)) {
+			facebookContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
+		
+		//linkedin
+		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
+		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
+		linkedinContainer.add(new ExternalLink("linkedinLink", ProfileUtils.getLinkedinURL(linkedinUsername), ProfileUtils.getLinkedinURL(linkedinUsername)));
+		socialNetworkingInfoContainer.add(linkedinContainer);
+		if(StringUtils.isBlank(linkedinUsername)) {
+			linkedinContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
+		
+		//myspace
+		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
+		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
+		myspaceContainer.add(new ExternalLink("myspaceLink", ProfileUtils.getMyspaceURL(myspaceUsername), ProfileUtils.getMyspaceURL(myspaceUsername)));
+		socialNetworkingInfoContainer.add(myspaceContainer);
+		if(StringUtils.isBlank(myspaceUsername)) {
+			myspaceContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
+		
+		//twitter
+		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
+		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
+		twitterContainer.add(new ExternalLink("twitterLink", ProfileUtils.getTwitterURL(twitterUsername), ProfileUtils.getTwitterURL(twitterUsername)));
+		socialNetworkingInfoContainer.add(twitterContainer);
+		if(StringUtils.isBlank(twitterUsername)) {
+			twitterContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
+		
+		//skypeme
+		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
+		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
+		skypeContainer.add(new ExternalLink("skypeLink", ProfileUtils.getSkypeMeURL(skypeUsername), new ResourceModel("profile.socialnetworking.skype.link").getObject()));
+		socialNetworkingInfoContainer.add(skypeContainer);
+		if(StringUtils.isBlank(skypeUsername)) {
+			skypeContainer.setVisible(false);
+		} else {
+			visibleFieldCount_socialNetworking++;
+		}
+		
+		add(socialNetworkingInfoContainer);
+		
+		//if nothing/not allowed, hide whole panel
+		if(visibleFieldCount_socialNetworking == 0 || !isSocialNetworkingInfoAllowed) {
+			socialNetworkingInfoContainer.setVisible(false);
+		} else {
+			visibleContainerCount++;
+		}
+		
+		/* PERSONAL INFO */
+		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");
+		personalInfoContainer.setOutputMarkupId(true);
+		
+		//setup info
+				
 		// favourites and other
 		String favouriteBooks = sakaiPerson.getFavouriteBooks();
 		String favouriteTvShows = sakaiPerson.getFavouriteTvShows();
@@ -520,63 +593,6 @@ public class ViewProfile extends BasePage {
 		
 		//heading
 		personalInfoContainer.add(new Label("mainSectionHeading_personal", new ResourceModel("heading.interests")));
-		
-		//social networking
-		
-		//facebook
-		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
-		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
-		facebookContainer.add(new ExternalLink("facebookLink", ProfileUtils.getFacebookURL(facebookUsername), ProfileUtils.getFacebookURL(facebookUsername)));
-		personalInfoContainer.add(facebookContainer);
-		if(StringUtils.isBlank(facebookUsername)) {
-			facebookContainer.setVisible(false);
-		} else {
-			visibleFieldCount_personal++;
-		}
-		
-		//linkedin
-		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
-		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
-		linkedinContainer.add(new ExternalLink("linkedinLink", ProfileUtils.getLinkedinURL(linkedinUsername), ProfileUtils.getLinkedinURL(linkedinUsername)));
-		personalInfoContainer.add(linkedinContainer);
-		if(StringUtils.isBlank(linkedinUsername)) {
-			linkedinContainer.setVisible(false);
-		} else {
-			visibleFieldCount_personal++;
-		}
-		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
-		myspaceContainer.add(new ExternalLink("myspaceLink", ProfileUtils.getMyspaceURL(myspaceUsername), ProfileUtils.getMyspaceURL(myspaceUsername)));
-		personalInfoContainer.add(myspaceContainer);
-		if(StringUtils.isBlank(myspaceUsername)) {
-			myspaceContainer.setVisible(false);
-		} else {
-			visibleFieldCount_personal++;
-		}
-		
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
-		twitterContainer.add(new ExternalLink("twitterLink", ProfileUtils.getTwitterURL(twitterUsername), ProfileUtils.getTwitterURL(twitterUsername)));
-		personalInfoContainer.add(twitterContainer);
-		if(StringUtils.isBlank(twitterUsername)) {
-			twitterContainer.setVisible(false);
-		} else {
-			visibleFieldCount_personal++;
-		}
-		
-		//skypeme
-		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
-		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
-		skypeContainer.add(new ExternalLink("skypeLink", ProfileUtils.getSkypeMeURL(skypeUsername), new ResourceModel("profile.socialnetworking.skype.link").getObject()));
-		personalInfoContainer.add(skypeContainer);
-		if(StringUtils.isBlank(skypeUsername)) {
-			skypeContainer.setVisible(false);
-		} else {
-			visibleFieldCount_personal++;
-		}
 		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
@@ -630,8 +646,6 @@ public class ViewProfile extends BasePage {
 		} else {
 			visibleContainerCount++;
 		}
-		
-		
 		
 		/* NO INFO VISIBLE MESSAGE (hide if some visible) */
 		Label noContainersVisible = new Label ("noContainersVisible", new ResourceModel("text.view.profile.nothing"));

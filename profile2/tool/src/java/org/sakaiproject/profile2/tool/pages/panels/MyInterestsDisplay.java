@@ -26,13 +26,11 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInterestsDisplay extends Panel {
 	
@@ -55,13 +53,6 @@ public class MyInterestsDisplay extends Panel {
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
-
-		// social networking
-		String facebookUsername = userProfile.getFacebookUsername();
-		String linkedinUsername = userProfile.getLinkedinUsername();
-		String myspaceUsername = userProfile.getMyspaceUsername();
-		String skypeUsername = userProfile.getSkypeUsername();
-		String twitterUsername = userProfile.getTwitterUsername();
 		
 		// favourites and other
 		String favouriteBooks = userProfile.getFavouriteBooks();
@@ -71,63 +62,8 @@ public class MyInterestsDisplay extends Panel {
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.interests")));
-		
-		//social networking
-		
-		//facebook
-		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
-		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
-		facebookContainer.add(new ExternalLink("facebookLink", ProfileUtils.getFacebookURL(facebookUsername), ProfileUtils.getFacebookURL(facebookUsername)));
-		add(facebookContainer);
-		if(StringUtils.isBlank(facebookUsername)) {
-			facebookContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		
-		//linkedin
-		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
-		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
-		linkedinContainer.add(new ExternalLink("linkedinLink", ProfileUtils.getLinkedinURL(linkedinUsername), ProfileUtils.getLinkedinURL(linkedinUsername)));
-		add(linkedinContainer);
-		if(StringUtils.isBlank(linkedinUsername)) {
-			linkedinContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
-		myspaceContainer.add(new ExternalLink("myspaceLink", ProfileUtils.getMyspaceURL(myspaceUsername), ProfileUtils.getMyspaceURL(myspaceUsername)));
-		add(myspaceContainer);
-		if(StringUtils.isBlank(myspaceUsername)) {
-			myspaceContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
-		twitterContainer.add(new ExternalLink("twitterLink", ProfileUtils.getTwitterURL(twitterUsername), ProfileUtils.getTwitterURL(twitterUsername)));
-		add(twitterContainer);
-		if(StringUtils.isBlank(twitterUsername)) {
-			twitterContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
-		
-		//skypeme (no URL, as we don't want user skyping themselves)
-		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
-		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype")));
-		skypeContainer.add(new Label("skypeLink", skypeUsername));
-		add(skypeContainer);
-		if (StringUtils.isBlank(skypeUsername)) {
-			skypeContainer.setVisible(false);
-		} else {
-			visibleFieldCount++;
-		}
+				
+
 		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");

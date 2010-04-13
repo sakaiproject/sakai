@@ -95,38 +95,6 @@ public class MyInterestsEdit extends Panel {
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
-	   	
-		//social networking
-		
-		//facebook
-		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
-		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
-		facebookContainer.add(new TextField("facebookUsername", new PropertyModel(userProfile, "facebookUsername")));
-		form.add(facebookContainer);
-		
-		//linkedin
-		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
-		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin.edit")));
-		linkedinContainer.add(new TextField("linkedinUsername", new PropertyModel(userProfile, "linkedinUsername")));
-		form.add(linkedinContainer);
-		
-		//myspace
-		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
-		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		myspaceContainer.add(new TextField("myspaceUsername", new PropertyModel(userProfile, "myspaceUsername")));
-		form.add(myspaceContainer);
-		
-		//twitter
-		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
-		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		twitterContainer.add(new TextField("twitterUsername", new PropertyModel(userProfile, "twitterUsername")));
-		form.add(twitterContainer);
-		
-		//skype
-		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
-		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
-		skypeContainer.add(new TextField("skypeUsername", new PropertyModel(userProfile, "skypeUsername")));
-		form.add(skypeContainer);
 		
 		//favourite books
 		WebMarkupContainer booksContainer = new WebMarkupContainer("booksContainer");
@@ -233,18 +201,6 @@ public class MyInterestsEdit extends Panel {
 		//get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
 		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-
-		// save social networking information
-		SocialNetworkingInfo socialNetworkingInfo = new SocialNetworkingInfo(userProfile.getUserUuid());
-		socialNetworkingInfo.setFacebookUsername(userProfile.getFacebookUsername());
-		socialNetworkingInfo.setLinkedinUsername(userProfile.getLinkedinUsername());
-		socialNetworkingInfo.setMyspaceUsername(userProfile.getMyspaceUsername());
-		socialNetworkingInfo.setSkypeUsername(userProfile.getSkypeUsername());
-		socialNetworkingInfo.setTwitterUsername(userProfile.getTwitterUsername());
-		
-		if (!profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo)) {
-			return false;
-		}
 		
 		//get values and set into SakaiPerson
 		sakaiPerson.setFavouriteBooks(userProfile.getFavouriteBooks());

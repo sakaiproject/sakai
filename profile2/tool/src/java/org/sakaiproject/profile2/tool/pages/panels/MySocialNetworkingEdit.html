@@ -1,0 +1,92 @@
+<!--
+
+    Copyright (c) 2008-2010 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+	xml:lang="en" lang="en">
+
+<body>
+
+<wicket:panel>
+
+
+	<div class="mainSection">
+	<div class="mainSectionHeading"><span wicket:id="heading">[Business
+	Information]</span></div>
+
+	<div class="mainSectionContentForm">
+
+	<form wicket:id="form" class="profileForm">
+
+	<div wicket:id="editWarning" class="edit-other-warning">[You are
+	editing {other person}'s profile]</div>
+
+	<div wicket:id="formFeedback">[formFeedback]</div>
+
+	<!-- social networking information -->
+	<table class="profileContent">
+
+		<!-- facebook -->
+		<tr wicket:id="facebookContainer">
+			<td class="label" wicket:id="facebookLabel">[facebookLabel]</td>
+			<td class="content"><input type="text"
+				wicket:id="facebookUsername" class="formInputField" /></td>
+		</tr>
+
+		<!-- linkedin -->
+		<tr wicket:id="linkedinContainer">
+			<td class="label" wicket:id="linkedinLabel">[linkedinLabel]</td>
+			<td class="content"><input type="text"
+				wicket:id="linkedinUsername" class="formInputField" /></td>
+		</tr>
+
+		<!-- myspace -->
+		<tr wicket:id="myspaceContainer">
+			<td class="label" wicket:id="myspaceLabel">[myspaceLabel]</td>
+			<td class="content"><input type="text"
+				wicket:id="myspaceUsername" class="formInputField" /></td>
+		</tr>
+
+		<!-- skype -->
+		<tr wicket:id="skypeContainer">
+			<td class="label" wicket:id="skypeLabel">[facebookLabel]</td>
+			<td class="content"><input type="text" wicket:id="skypeUsername"
+				class="formInputField" /></td>
+		</tr>
+
+		<!-- twitter -->
+		<tr wicket:id="twitterContainer">
+			<td class="label" wicket:id="twitterLabel">[twitterLabel]</td>
+			<td class="content"><input type="text"
+				wicket:id="twitterUsername" class="formInputField" /></td>
+		</tr>
+	</table>
+
+	<div class="profileFormButtons"><input type="submit"
+		wicket:id="submit" value="Save changes" /> <input type="button"
+		wicket:id="cancel" value="Cancel" /></div>
+
+	</form>
+	</div>
+	</div>
+
+</wicket:panel>
+
+</body>
+</html>

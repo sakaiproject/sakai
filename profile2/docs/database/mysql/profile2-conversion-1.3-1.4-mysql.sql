@@ -44,6 +44,9 @@ create table PROFILE_SOCIAL_INFO_T (
 alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW bit not null DEFAULT false;
 alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY bit not null DEFAULT false;
 
+/* add social networking privacy column (PRFL-285) */
+alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO int not null DEFAULT 0;
+
 /* add the new gallery column (PRFL-171) */
 alter table PROFILE_PRIVACY_T add MY_PICTURES int not null DEFAULT 0;
 

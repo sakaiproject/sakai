@@ -52,6 +52,7 @@ import org.sakaiproject.profile2.tool.pages.panels.MyBusinessDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MySocialNetworkingDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStaffDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyStudentDisplay;
@@ -451,6 +452,11 @@ public class MyProfile extends BasePage {
 			myBusinessDisplay = new EmptyPanel("myBusiness");
 		}
 		add(myBusinessDisplay);
+		
+		//social networking panel
+		Panel mySocialNetworkingDisplay = new MySocialNetworkingDisplay("mySocialNetworking", userProfile);
+		mySocialNetworkingDisplay.setOutputMarkupId(true);
+		add(mySocialNetworkingDisplay);
 		
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);

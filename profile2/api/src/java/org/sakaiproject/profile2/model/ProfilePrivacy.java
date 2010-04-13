@@ -47,6 +47,7 @@ public class ProfilePrivacy implements Serializable {
 	private int messages;
 	private int studentInfo;
 	private int staffInfo;
+	private int socialNetworkingInfo;
 	
 	/** 
 	 * Empty constructor
@@ -176,6 +177,14 @@ public class ProfilePrivacy implements Serializable {
 		return studentInfo;
 	}
 
+	public void setSocialNetworkingInfo(int socialNetworkingInfo) {
+		this.socialNetworkingInfo = socialNetworkingInfo;
+	}
+	
+	public int getSocialNetworkingInfo() {
+		return socialNetworkingInfo;
+	}
+	
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);
