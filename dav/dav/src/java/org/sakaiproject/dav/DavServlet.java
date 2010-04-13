@@ -94,6 +94,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -2567,7 +2568,12 @@ public class DavServlet extends HttpServlet
 		if (!isFileNameAllowed(req)) return;
 
 		ResourceProperties oldProps = null;
-
+		Collection oldGroups = null;
+		boolean oldPubView = false;
+		boolean oldHidden = false;
+		Time releaseDate = null;
+		Time retractDate = null;
+		
 		boolean newfile = true;
 
 		if (isLocked(req))
@@ -2619,9 +2625,25 @@ public class DavServlet extends HttpServlet
 			}
 			else
 			{
+			    	String id = adjustId(path);
 				// save original properties; we're just updating the file
-				oldProps = contentHostingService.getProperties(adjustId(path));
+				oldProps = contentHostingService.getProperties(id);
 				newfile = false;
+
+				try {
+				    ContentResource resource = contentHostingService.getResource(id);
+				    oldGroups = resource.getGroups();
+				    oldHidden = resource.isHidden();
+				    releaseDate = resource.getReleaseDate();
+				    retractDate = resource.getRetractDate();
+				} catch (Exception e) {System.out.println("fail 1" + e);} ;
+
+				try {
+				    if (!contentHostingService.isInheritingPubView(id))
+					if (contentHostingService.isPubView(id)) 
+					    oldPubView = true;
+				} catch (Exception e) {System.out.println("fail 2" + e);};
+				
 				contentHostingService.removeResource(adjustId(path));
 			}
 		}
@@ -2702,6 +2724,16 @@ public class DavServlet extends HttpServlet
 			edit.setContent(inputStream);
 			ResourcePropertiesEdit p = edit.getPropertiesEdit();
 
+			try {
+			    if (oldGroups != null && !oldGroups.isEmpty())
+				edit.setGroupAccess(oldGroups);
+			} catch (Exception e) {System.out.println("fail 3 " + e + " " + oldGroups);};
+
+			try {
+			    edit.setAvailability(oldHidden, releaseDate, retractDate);
+			} catch (Exception e) {System.out.println("fail 4 " + e);};
+
+
 			// copy old props, if any
 			if (oldProps != null)
 			{
@@ -2727,6 +2759,8 @@ public class DavServlet extends HttpServlet
 
 			// commit the change
 			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
+			if (oldPubView)
+			    contentHostingService.setPubView(adjustId(path), true);
 
 		}
 		catch (IdUsedException e)
