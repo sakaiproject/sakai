@@ -221,6 +221,23 @@ public class MyPrivacy extends BasePage {
 		
 		businessInfoContainer.setVisible(sakaiProxy.isBusinessProfileEnabled());
 		
+		//socialNetworkingInfo privacy
+		WebMarkupContainer socialNetworkingInfoContainer = new WebMarkupContainer("socialNetworkingInfoContainer");
+		socialNetworkingInfoContainer.add(new Label("socialNetworkingInfoLabel", new ResourceModel("privacy.socialinfo")));
+		DropDownChoice socialNetworkingInfoChoice = new DropDownChoice("socialNetworkingInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		socialNetworkingInfoChoice.setOutputMarkupId(true);
+		socialNetworkingInfoContainer.add(socialNetworkingInfoChoice);
+		//tooltip
+		socialNetworkingInfoContainer.add(new IconWithClueTip("socialNetworkingInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.socialinfo.tooltip")));
+		form.add(socialNetworkingInfoContainer);
+		//updater
+		socialNetworkingInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));

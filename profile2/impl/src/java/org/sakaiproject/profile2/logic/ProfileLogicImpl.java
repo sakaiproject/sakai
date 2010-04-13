@@ -1051,27 +1051,27 @@ public class ProfileLogicImpl implements ProfileLogic {
     	}
     	
     	//if restricted to only self, not allowed
-    	if(profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+    	if(profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
     	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXBusinessInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);  
+    	log.error("ProfileLogic.isUserXSocialNetworkingInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);  
     	
 		return false;
 	}
