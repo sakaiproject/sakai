@@ -225,19 +225,28 @@ public class MyPictures extends BasePage {
 		gridView.setColumns(4);
 
 		galleryForm.add(gridView);
+
+		Label noPicturesLabel;
+
 		if (gridView.getItemCount() == 0) {
 			galleryForm.add(new PagingNavigator("navigator", gridView)
 					.setVisible(false));
+
+			noPicturesLabel = new Label("noPicturesLabel", new ResourceModel(
+					"text.gallery.pictures.num.none"));
 		} else {
 			galleryForm.add(new PagingNavigator("navigator", gridView));
+			
+			noPicturesLabel = new Label("noPicturesLabel");
 		}
 
+		galleryForm.add(noPicturesLabel);
+		
 		// set page to display
 		if (pageToDisplay > 0) {
 			if (pageToDisplay < gridView.getPageCount()) {
 				gridView.setCurrentPage(pageToDisplay);
-			}
-			else {
+			} else {
 				// default to last page for add/remove operations
 				gridView.setCurrentPage(gridView.getPageCount() - 1);
 			}
