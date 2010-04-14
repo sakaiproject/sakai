@@ -1595,7 +1595,11 @@ public class SyllabusTool
   
   public String processRemoveAttach()
   {
-    if(entry.justCreated == true)
+      if (!this.checkAccess())
+      {
+        return "permission_error";
+      }
+      else if(entry.justCreated == true)
     {
       try
       {
