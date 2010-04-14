@@ -4052,7 +4052,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
 		
-		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
+		String currentSiteId = ToolManager.getCurrentPlacement().getContext();
+		boolean inMyWorkspace = SiteService.isUserSite(currentSiteId);
+		//are we in the admin site of !admin or ~admin
+		boolean isSpecialSite = false;
+		if ("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)) {
+			isSpecialSite = true;
+		}
+		
+		
 		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
 
 		boolean atHome = false;
@@ -4113,7 +4121,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
 				String siteId = ref.getContext();
 				Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
-				if(statusMap != null && ! statusMap.isEmpty())
+				if(statusMap != null && ! statusMap.isEmpty() && !isSpecialSite)
 				{
 					context.put("showOptions", Boolean.TRUE.toString());
 				}
