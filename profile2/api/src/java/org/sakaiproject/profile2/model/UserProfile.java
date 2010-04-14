@@ -251,6 +251,20 @@ public class UserProfile implements Serializable {
 		this.favouriteQuotes = favouriteQuotes;
 	}
 
+	/**
+	 * @deprecated
+	 */
+	public String getOtherInformation() {
+		return personalSummary;
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	public void setOtherInformation(String otherInformation) {
+		this.personalSummary = otherInformation;
+	}
+	
 	public String getPersonalSummary() {
 		return personalSummary;
 	}
