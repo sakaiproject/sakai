@@ -41,10 +41,16 @@ public interface SakaiProxy {
 	public String getCurrentSiteId();
 	
 	/**
-	 * Get current user
+	 * Get current user id
 	 * @return
 	 */
 	public String getCurrentUserId();
+	
+	/**
+	 * Get current user
+	 * @return
+	 */
+	public User getCurrentUser();
 	
 	/**
 	 * Convert internal userid to eid (jsmith26)

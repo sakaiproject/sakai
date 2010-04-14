@@ -97,6 +97,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public User getCurrentUser() {
+		return userDirectoryService.getCurrentUser();
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getUserEid(String userId){
 		String eid = null;
 		try {
