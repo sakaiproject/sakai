@@ -252,6 +252,8 @@ public class UserProfile implements Serializable {
 	}
 
 	/**
+	 * Please use <code>getPersonalSummary</code> for this field.
+	 * 
 	 * @deprecated
 	 */
 	public String getOtherInformation() {
@@ -259,6 +261,8 @@ public class UserProfile implements Serializable {
 	}
 	
 	/**
+	 * Please use <code>setPersonalSummary</code> for this field.
+	 * 
 	 * @deprecated
 	 */
 	public void setOtherInformation(String otherInformation) {
