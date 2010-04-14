@@ -48,6 +48,7 @@ import org.sakaiproject.search.journal.impl.MergeUpdateManager;
 import org.sakaiproject.search.journal.impl.MergeUpdateOperation;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockClusterService;
+import org.sakaiproject.search.mock.MockComponentManager;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
 import org.sakaiproject.search.mock.MockSearchService;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
@@ -257,7 +258,6 @@ public class JournalOptimzationOperationTest extends TestCase
 		tiw.setTransactionIndexManager(transactionIndexManager);
 		tiw.setSearchService(searchService);
 		tiw.setThreadLocalManager(threadLocalManager);
-
 		sequence.init();
 		searchBuilderQueueManager.init();
 		transactionIndexManager.init();

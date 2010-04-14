@@ -37,7 +37,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -257,7 +257,11 @@ public class TransactionalIndexWorker implements IndexWorker
 			}
 			for (SearchBuilderItem sbi : finalState.values())
 			{
-
+				//is the component manager shutting down?
+				if (ComponentManager.hasBeenClosed()) {
+					log.warn("component Manager is shuting down won't attempt to index");
+					break;
+				}
 				
 				Reader contentReader = null;
 				String ref = null;
@@ -779,6 +783,7 @@ public class TransactionalIndexWorker implements IndexWorker
 	{
 		this.serverConfigurationService = serverConfigurationService;
 	}
+
 
 	/**
 	 * @return the transactionIndexManager

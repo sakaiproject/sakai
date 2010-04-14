@@ -36,7 +36,6 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.component.service.impl.SearchServiceImpl;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.impl.ConcurrentSearchIndexBuilderWorkerImpl;
