@@ -33,9 +33,11 @@ public interface EmailTemplateService {
 
    /**
     * Field for the current user's diplay Id
+    *  
     */
-   public static final String CURRENT_USER_DISPLAY_ID = "currentUserDispalyId";
+   public static final String CURRENT_USER_DISPLAY_ID = "currentUserDisplayId";
 
+   
    /**
     * Field for the local LMS name (e.g., CamTools, CTools, Vula)
     */
