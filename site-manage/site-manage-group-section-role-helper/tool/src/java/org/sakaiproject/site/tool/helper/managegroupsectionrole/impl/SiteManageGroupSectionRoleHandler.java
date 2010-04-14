@@ -809,10 +809,31 @@ public class SiteManageGroupSectionRoleHandler {
         		{
         			Group group = site.addGroup();
         			// make the provider id as of SITEID_ROLEID
-        			group.setProviderGroupId(site.getId() + "_" + role);
+        			//group.setProviderGroupId(site.getId() + "_" + role);
         			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
         			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
         			group.setTitle(role);
+        			
+        			// get the authz group
+                	String siteReference = siteService.siteReference(site.getId());
+                	try
+                	{
+                		AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
+                		Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
+                		if (usersHasRole != null)
+                		{
+                			for (Iterator<String> uIterator = usersHasRole.iterator(); uIterator.hasNext();)
+                			{
+                				String userId = uIterator.next();
+                				Member member = site.getMember(userId);
+            					group.addMember(userId, role, member.isActive(), member.isProvided());
+                			}
+                		}
+                	}
+                	catch (GroupNotDefinedException e)
+                	{
+                		M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
+                	}
         		}
         	}
         		
