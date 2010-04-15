@@ -84,7 +84,6 @@
 
 	<bean id="pollOptionDeleteProducer"
 		class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">
-		<property name="voteBean" ref="voteBean" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
