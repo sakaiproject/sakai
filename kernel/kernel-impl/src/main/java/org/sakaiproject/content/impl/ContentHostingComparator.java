@@ -22,10 +22,13 @@
 package org.sakaiproject.content.impl;
 
 import java.math.BigInteger;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -39,6 +42,8 @@ import org.sakaiproject.time.api.Time;
  */
 public class ContentHostingComparator implements Comparator
 {
+	
+	private static Log M_log = LogFactory.getLog(ContentHostingComparator.class);
 	/** The property name used for the sort. */
 	String m_property = null;
 
@@ -177,7 +182,22 @@ public class ContentHostingComparator implements Comparator
 		return m_ascending ? rv : -rv;
 	} // compare
 	
+	
+	public int comparerLocalSensitive(String s1, String s2) {
+		M_log.debug("message(comparerLocalSensitive(" + s1 + ", " + s2 + ")");
+		Collator c = Collator.getInstance();
+		c.setStrength(Collator.PRIMARY);
+		return c.compare(s1, s2);
+	}
+	
+	/**  
+	 * this is public to enable testing??
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
 	public int compareLikeMacFinder(String s1, String s2) {
+		M_log.debug("message(comparerLikeMacFinder(" + s1 + ", " + s2 + ")");
 		if (! (containsDigits(s1) || containsDigits(s2))) {
 			return s1.compareTo(s2);
 		}
@@ -200,11 +220,14 @@ public class ContentHostingComparator implements Comparator
 				return 1;
 			}
 			int v = 0;
-			if (c1[i].getClass().equals(c2[i].getClass())) {
+			if (c1[i].getClass().getName().equals("java.lang.String") && c1[i].getClass().getName().equals("java.lang.String")) {
+				v = c1[i].toString().compareToIgnoreCase((c2[i].toString()));
+			} else if (c1[i].getClass().equals(c2[i].getClass())) {
+				M_log.info(c1[i].getClass().getName() +":" + c1[i].getClass().getName() +":");
 				v = c1[i].compareTo(c2[i]);
 			}
 			else {
-				v = c1[i].toString().compareTo(c2[i].toString());
+				v = c1[i].toString().compareToIgnoreCase((c2[i].toString()));
 			}
 			if (v != 0) {
 				return v;
