@@ -170,20 +170,20 @@ public class QuestionPoolBean implements Serializable
 
   public QuestionPoolDataModel getCopyQpools()
   {
-	  if (qpDataModelCopy == null) {
+//	  if (qpDataModelCopy == null) {
 		  buildTreeCopy();
 		  setQpDataModelByLevelCopy();
-	  }
+//	  }
 	  log.debug("getCopyQpools()");
 	  return qpDataModelCopy;
   }
 
   public QuestionPoolDataModel getMoveQpools()
   {
-	  if (qpDataModelCopy == null) {
+//	  if (qpDataModelCopy == null) {
 		  buildTreeCopy();
 		  setQpDataModelByLevelCopy();
-	  }
+//	  }
 	  log.debug("getMoveQpools()");
 	  return qpDataModelCopy;
   }
@@ -1708,6 +1708,12 @@ String poolId = ContextUtil.lookupParam("qpid");
       setQpDataModelByLevel();
 	  return "poolList";
 	}
+  }
+
+  public String cancelPool() {
+	  buildTree();
+	  setQpDataModelByLevel();
+	  return "poolList";
   }
 
   public String importPool(){
