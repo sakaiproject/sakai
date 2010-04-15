@@ -124,6 +124,12 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
      </h:selectOneMenu>
+
+	 <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsA"
+	    required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
+	   <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+	   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+     </h:selectOneMenu>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{histogramScores.randomType =='true'}">

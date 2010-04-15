@@ -539,21 +539,6 @@ public class PublishedAssessmentService extends AssessmentService{
 	    isRandomDrawPart(publishedAssessmentId, publishedSectionId);
   }
 
-  /**
-   * return an array list of the AssessmentGradingFacade that
-* a user has submitted for grade. one per published assessment. 
-* If an assessment allows multiple submissions and its grading option
-*  is to send highest, then return only the highest submission.  If an assessment allows multiple submissions and its grading option
-*  is to send last, then return only the last submission.
-* @param agentId 
-* @return
-*/
-    public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId, String siteId, boolean allAssessments){
-    return PersistenceService.getInstance().
-        getPublishedAssessmentFacadeQueries().
-        getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
-  }
-
    public PublishedAssessmentData getBasicInfoOfPublishedAssessment(String publishedId) {
 	    return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
@@ -698,5 +683,11 @@ public class PublishedAssessmentService extends AssessmentService{
    public HashMap getToGradebookPublishedAssessmentSiteIdMap() {
 	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 	   .getToGradebookPublishedAssessmentSiteIdMap();
+   }
+   
+   public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(String agentId, String siteId,boolean allAssessments ){
+	   return PersistenceService.getInstance().
+	   getPublishedAssessmentFacadeQueries().
+	   getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
    }
 }

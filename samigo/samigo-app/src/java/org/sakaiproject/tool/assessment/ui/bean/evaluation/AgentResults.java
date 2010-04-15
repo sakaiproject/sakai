@@ -90,9 +90,27 @@ public class AgentResults
   private ItemGradingData itemGrading;
   private List itemGradingAttachmentList;
   private Integer timeElapsed;
-
+  private int submissionCount=0;
+  private Float scoreSummation=new Float("0");
+  private Float averageScore= new Float("0");
   
   public AgentResults() {
+  }
+
+  public Float getScoreSummation(){
+	  return scoreSummation;
+  }
+
+  public void setScoreSummation(Float scoreSummation){
+	  this.scoreSummation= scoreSummation;
+  }
+
+  public int getSubmissionCount(){
+	  return submissionCount;
+  }
+
+  public void  setSubmissionCount(int submissionCount){
+	  this.submissionCount=submissionCount;
   }
 
   public Long getAssessmentGradingId() {

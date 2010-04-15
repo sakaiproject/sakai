@@ -671,14 +671,12 @@ public class ExtractionHelper
     {
       evaluationModel.setScoringType(EvaluationModel.HIGHEST_SCORE);
     }
-    /*
-       // not implementing average for now
-    else if ("AVERAGE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    // not implementing average for now
+    else if ("AVERAGE_SCORE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {
       evaluationModel.setScoringType(EvaluationModel.AVERAGE_SCORE);
     }
-    */
     else if ("LAST_SCORE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
         "GRADE_SCORE")))
     {

@@ -847,8 +847,12 @@ function uncheckOther(field){
    <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.recorded_score}" />
    <f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="scoringType"
-            value="#{publishedSettings.scoringType}"  layout="pageDirection">
+        <h:selectOneRadio value="#{publishedSettings.scoringType}"  layout="pageDirection" rendered="#{author.canRecordAverage}">
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
+          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
+          <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.average_score}"/>
+        </h:selectOneRadio>
+        <h:selectOneRadio value="#{publishedSettings.scoringType}"  layout="pageDirection" rendered="#{!author.canRecordAverage}">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
         </h:selectOneRadio>

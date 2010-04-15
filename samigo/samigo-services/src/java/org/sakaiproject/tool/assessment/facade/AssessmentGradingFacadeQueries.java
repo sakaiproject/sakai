@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -184,7 +185,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //    		  objects, types);
       }
 
-      if (which.equals(EvaluationModelIfc.ALL_SCORE.toString())) {
+      if (which.equals(EvaluationModelIfc.ALL_SCORE.toString()) || which.equals(EvaluationModelIfc.AVERAGE_SCORE.toString())) {
         return list;
       }
       else {
@@ -2915,4 +2916,122 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  GradingService gradingService = new GradingService();
 		  gradingService.saveItemGrading(itemGradingData);
 	  }
+	  
+	  /***
+	   * 
+	   *@author Mustansar Mehmood
+	   */
+	  public Float getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId)
+	  {
+		  Float averageScore= new Float(0.0);
+		  AssessmentGradingData ag = null;
+		  final String query ="from AssessmentGradingData a "+
+		  " where a.publishedAssessmentId=? and a.agentId=? and "+
+		  " a.forGrade=?  order by  a.submittedDate desc";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setString(1, agentId);
+				  q.setBoolean(2, true);
+				  return q.list();
+			  };
+		  };
+		  List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+		  if (assessmentGradings.size() != 0){
+			  AssessmentGradingData agd=null;
+			  Float cumulativeScore=new Float(0);
+			  Iterator i = assessmentGradings.iterator();
+
+			  while(i.hasNext()){
+				  agd= (AssessmentGradingData)i.next();
+				  cumulativeScore+=agd.getFinalScore();	
+			  }
+			  averageScore= cumulativeScore/assessmentGradings.size();
+			  averageScore= new Float((new DecimalFormat("0.##").format((float)averageScore)));
+		  }  
+		  return averageScore;
+	  }
+
+	  public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId){
+		  final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.finalScore desc";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setBoolean(1, true);
+				  return q.list();
+			  };
+		  };
+		  List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+		  ArrayList l = new ArrayList();
+		  String currentAgent="";
+		  for (int i=0; i<assessmentGradings.size(); i++){
+			  AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
+			  if (!currentAgent.equals(g.getAgentId())){
+				  l.add(g);
+				  currentAgent = g.getAgentId();
+			  }
+		  }
+		  return l;
+	  }
+
+	  /**
+	   * @author Mustansar Mehmood mustansar@rice.edu
+	   * */
+	  public HashMap getAverageAssessmentGradingByPublishedItem(final Long publishedAssessmentId){
+		  HashMap h = new HashMap();
+		  final String query = "select new AssessmentGradingData("+
+		  " a.assessmentGradingId, p.itemId, "+
+		  " a.agentId, a.finalScore, a.submittedDate) "+
+		  " from ItemGradingData i, AssessmentGradingData a,"+
+		  " PublishedItemData p where "+
+		  " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and "+
+		  " a.publishedAssessmentId=? " +
+		  " order by a.agentId asc, a.submittedDate desc";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setLong(0, publishedAssessmentId.longValue());
+				  return q.list();
+			  };
+		  };
+
+		  List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+		  String currentAgent="";
+		  Date submittedDate = null;
+		  for (int i=0; i<assessmentGradings.size(); i++){
+			  AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
+			  Long itemId = g.getPublishedItemId();
+			  Long gradingId = g.getAssessmentGradingId();
+			  if ( i==0 ){
+				  currentAgent = g.getAgentId();
+				  submittedDate = g.getSubmittedDate();
+			  }
+			  if (currentAgent.equals(g.getAgentId())
+					  && ((submittedDate==null && g.getSubmittedDate()==null)
+							  || (submittedDate!=null && submittedDate.equals(g.getSubmittedDate())))){
+				  Object o = h.get(itemId);
+				  if (o != null)
+					  ((ArrayList) o).add(gradingId);
+				  else{
+					  ArrayList gradingIds = new ArrayList();
+					  gradingIds.add(gradingId);
+					  h.put(itemId, gradingIds);
+				  }
+			  }
+			  if (!currentAgent.equals(g.getAgentId())){
+				  currentAgent = g.getAgentId();
+				  submittedDate = g.getSubmittedDate();
+			  }
+		  }
+		  return h;
+	  }
+	  
 }

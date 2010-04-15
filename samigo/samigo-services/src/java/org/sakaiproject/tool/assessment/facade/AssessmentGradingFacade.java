@@ -63,6 +63,7 @@ private Long assessmentGradingId;
   private int totalSubmitted;
   private Long publishedAssessmentId;
   private String publishedAssessmentTitle;
+  private boolean isRecorded;
 
   public AssessmentGradingFacade() {
   }
@@ -267,8 +268,18 @@ private Long assessmentGradingId;
   public int getTotalSubmitted() {
     return totalSubmitted;
   }
+  
   public void setTotalSubmitted(int totalSubmitted) {
     this.totalSubmitted = totalSubmitted;
   }
 
+  public boolean getIsRecorded() {
+	return isRecorded;
+  }
+	  
+  public void setIsRecorded(boolean isRecorded) {
+	this.isRecorded = isRecorded;
+  }
+  
+  
 }

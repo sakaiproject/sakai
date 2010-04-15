@@ -233,4 +233,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public HashMap getSubmittedCounts(String siteId);
 
   public void completeItemGradingData(AssessmentGradingData assessmentGradingData);	
+  
+  public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId);
+  public Float getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId);
+  public HashMap getAverageAssessmentGradingByPublishedItem(Long publishedAssessmentId);	
 }

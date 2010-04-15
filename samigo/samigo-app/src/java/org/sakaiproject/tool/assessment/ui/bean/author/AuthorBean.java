@@ -694,5 +694,10 @@ public class AuthorBean implements Serializable
 	  return publishedActionList;
   }
    
-  
+  public boolean getCanRecordAverage() {
+	  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.canRecordAverage"))) {
+		  return true;
+	  }
+	  return false;
+  }
 }

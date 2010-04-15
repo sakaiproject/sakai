@@ -230,6 +230,7 @@ public class HistogramListener
 		  }
 		  Iterator iter = scores.iterator();
 		  //log.info("Has this many agents: " + scores.size());
+		  
 		  if (!iter.hasNext()){
 			  log.info("Students who have submitted may have been removed from this site");
 			  return false;
@@ -573,12 +574,10 @@ public class HistogramListener
 
 			  histogramScores.setAssessmentName(assessmentName);
 		  } else {
-	          	log.error("pub is null. publishedId = " + publishedId);
+	        log.error("pub is null. publishedId = " + publishedId);
 			return false;
 		  }
-
 	  return true;
-
   }
 
   private void determineResults(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,

@@ -77,6 +77,8 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private java.util.Date dueDate;
   private boolean pastDue;
   private boolean timeRunning;
+  private String finalScore;
+  private boolean isAssessmentBeanie=false;
 
   // display * and notes for multiple submissions 
   private boolean multipleSubmissions;
@@ -480,5 +482,20 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 	 */
 	public void setRecordedAssessment(boolean recordedAssessment) {
 		this.recordedAssessment = recordedAssessment;
+	}
+	
+	public String getFinalScore() {
+		return finalScore;
+	}
+
+	public void setFinalScore(String finalScore) {
+		this.finalScore = finalScore;
+	}
+	public boolean getIsAssessmentBeanie() {
+		return isAssessmentBeanie;
+	}
+
+	public void setIsAssessmentBeanie(boolean isAssessmentBeanie) {
+		this.isAssessmentBeanie = isAssessmentBeanie;
 	}
 }

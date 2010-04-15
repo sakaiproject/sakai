@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -597,6 +598,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   /* Dump the grading and agent information into AgentResults */
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
 	GradingService gradingService = new GradingService();
+	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
@@ -624,8 +626,11 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       else
         results.setTotalOverrideScore("0.0");
 
-      if(gdata.getFinalScore() != null)
+      if(gdata.getFinalScore() != null) {
         results.setFinalScore(gdata.getFinalScore().toString());
+        results.setScoreSummation(gdata.getFinalScore());
+        results.setSubmissionCount(1);
+      }
       else
         results.setFinalScore("0.0");      
       
@@ -675,20 +680,55 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       results.setFirstName(agent.getFirstName());
       results.setEmail(agent.getEmail());
       if (results.getLastName() != null &&
-        results.getLastName().length() > 0)
-        results.setLastInitial(results.getLastName().substring(0,1));
+    		  results.getLastName().length() > 0)
+    	  results.setLastInitial(results.getLastName().substring(0,1));
       else if (results.getFirstName() != null &&
-               results.getFirstName().length() > 0)
-             results.setLastInitial(results.getFirstName().substring(0,1));
+    		  results.getFirstName().length() > 0)
+    	  results.setLastInitial(results.getFirstName().substring(0,1));
       else
-        results.setLastInitial("Anonymous");
-        results.setIdString(agent.getIdString());
-        results.setAgentEid(agent.getEidString());
-log.debug("testing agent getEid agent.getFirstname= " + agent.getFirstName());
-log.debug("testing agent getEid agent.getid= " + agent.getIdString());
-log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
+    	  results.setLastInitial("Anonymous");
+      results.setIdString(agent.getIdString());
+      results.setAgentEid(agent.getEidString());
+      log.debug("testing agent getEid agent.getFirstname= " + agent.getFirstName());
+      log.debug("testing agent getEid agent.getid= " + agent.getIdString());
+      log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
       results.setRole((String)userRoles.get(gdata.getAgentId()));
-      agents.add(results);
+
+
+      if(bean.getAllSubmissions().equals("4")&& bean.getScoringOption().equals("4")&&agents.size()>0){
+    	  ListIterator<AgentResults> it= agents.listIterator();
+    	  boolean updated=false;
+    	  while ( it.hasNext() ){
+    		  AgentResults ar=(AgentResults)it.next();
+    		  if(ar.getAgentId().equals(results.getAgentId())){
+    			  agents.remove(it.previousIndex());
+    			  ar.setSubmissionCount((ar.getSubmissionCount())+1);
+    			  ar.setScoreSummation(ar.getScoreSummation()+ gdata.getFinalScore());
+    			  ar.setAssessmentGradingId(results.getAssessmentGradingId());
+    			  agents.add(ar);
+    			  updated=true;
+    		  }
+    	  }//end of while loop
+    	  if(!updated)
+    		  agents.add(results);
+      }
+      else {
+    	  agents.add(results);
+      }
+    }
+
+    if(bean.getAllSubmissions().equals("4")&& bean.getScoringOption().equals("4")&&agents.size()>0){
+    	Iterator it=agents.iterator();
+    	while(it.hasNext()){
+    		AgentResults ar=(AgentResults)it.next();
+    		Float averageScore=ar.getScoreSummation()/ar.getSubmissionCount();
+    		ar.setFinalScore(averageScore.toString());
+    		ar.setComments(null);
+    		ar.setSubmittedDate(new Date());
+    		ar.setStatus(null);
+    		ar.setItemGradingSet(null);
+
+    	}
     }
   }
 
@@ -826,6 +866,11 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
             getAssessmentGradingFacadeQueries().
             getHighestAssessmentGradingByPublishedItem(
             pub.getPublishedAssessmentId());
+    }
+    else if ((scoringType).equals(EvaluationModelIfc.AVERAGE_SCORE)){
+
+    	publishedItemIdHash = PersistenceService.getInstance().
+    	getAssessmentGradingFacadeQueries().getAverageAssessmentGradingByPublishedItem( pub.getPublishedAssessmentId());
     }
     else{
 	publishedItemIdHash = PersistenceService.getInstance().

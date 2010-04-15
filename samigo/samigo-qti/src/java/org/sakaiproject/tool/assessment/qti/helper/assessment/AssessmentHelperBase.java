@@ -237,14 +237,12 @@ public abstract class AssessmentHelperBase
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "HIGHEST_SCORE");
     }
-    /*
     // not implementing average for now
     else if (EvaluationModelIfc.AVERAGE_SCORE.equals(evaluationModel.
       getScoringType()))
     {
       assessmentXml.setFieldentry("GRADE_SCORE", "AVERAGE_SCORE");
     }
-    */
     else if (EvaluationModelIfc.LAST_SCORE.equals(evaluationModel.
       getScoringType()))
     {

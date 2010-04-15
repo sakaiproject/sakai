@@ -46,7 +46,7 @@ public interface EvaluationModelIfc
   //public static Integer AVERAGE_SCORE = new Integer(2);
   public static final Integer LAST_SCORE= Integer.valueOf(2);
   public static final Integer ALL_SCORE= Integer.valueOf(3);
-
+  public static final Integer AVERAGE_SCORE= Integer.valueOf(4);
 
   Long getId();
 

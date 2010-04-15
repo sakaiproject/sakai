@@ -605,7 +605,13 @@
        <h:outputText value=" "/>
       <h:panelGroup>
     <h:selectOneRadio layout="pageDirection" value="#{template.recordedScore}"
-      required="true">
+      required="true" rendered="#{author.canRecordAverage}">
+      <f:selectItem itemValue="1" itemLabel="#{templateMessages.record_highest}"/>
+      <f:selectItem itemValue="2" itemLabel="#{templateMessages.record_last}"/>
+      <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.average_score}"/>
+    </h:selectOneRadio>
+    <h:selectOneRadio layout="pageDirection" value="#{template.recordedScore}"
+      required="true" rendered="#{!author.canRecordAverage}">
       <f:selectItem itemValue="1" itemLabel="#{templateMessages.record_highest}"/>
       <f:selectItem itemValue="2" itemLabel="#{templateMessages.record_last}"/>
     </h:selectOneRadio>

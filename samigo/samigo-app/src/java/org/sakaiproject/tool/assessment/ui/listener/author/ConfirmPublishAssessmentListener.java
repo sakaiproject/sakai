@@ -221,6 +221,22 @@ public class ConfirmPublishAssessmentListener
 		}
 	}
 	
+	String scoringType=assessmentSettings.getScoringType();
+	if ((scoringType).equals(EvaluationModelIfc.AVERAGE_SCORE.toString()) && "0".equals(assessmentSettings.getUnlimitedSubmissions())) {
+		try {
+			String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
+			int submissionAllowed = Integer.parseInt(submissionsAllowed);
+			if (submissionAllowed < 2) {
+				throw new RuntimeException();
+			}
+		}
+		catch (RuntimeException e){
+			error=true;
+			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","averag_grading_single_submission");
+			context.addMessage(null,new FacesMessage(submission_err));
+		}
+	}
+	
     //check feedback - if at specific time then time should be defined.
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
 	error=true;

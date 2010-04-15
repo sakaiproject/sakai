@@ -227,7 +227,6 @@ public class GradingService
       ArrayList l = getListForGradebookNotification(newList, oldList);
       
       notifyGradebook(l, pub);
-      //}
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
       throw ge;
@@ -273,8 +272,11 @@ public class GradingService
       l = getHighestSubmittedOrGradedAssessmentGradingList(publishedAssessmentId);
     }
     // get the list of last score
-    else {
+    else  if ((scoringType).equals(EvaluationModelIfc.LAST_SCORE)) {
       l = getLastSubmittedOrGradedAssessmentGradingList(publishedAssessmentId);
+    }
+    else {
+      l = getTotalScores(publishedAssessmentId.toString(), "3", false);
     }
     return new ArrayList(l);
   }
