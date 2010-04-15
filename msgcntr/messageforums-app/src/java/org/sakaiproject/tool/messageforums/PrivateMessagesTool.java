@@ -2394,13 +2394,14 @@ private   int   getNum(char letter,   String   a)
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
-    	rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
+    	StringBuilder alertMsg = new StringBuilder();
+    	rrepMsg.setTitle(FormattedText.processFormattedText(getReplyToSubject(), alertMsg));
+    	rrepMsg.setBody(FormattedText.processFormattedText(getReplyToBody(), alertMsg));
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
 
     	rrepMsg.setAuthor(getAuthorString());
     	rrepMsg.setApproved(Boolean.FALSE);
-    	rrepMsg.setBody(getReplyToBody()) ;
 
     	rrepMsg.setLabel(getSelectedLabel());
 
@@ -2501,13 +2502,14 @@ private   int   getNum(char letter,   String   a)
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
-    	rrepMsg.setTitle(getForwardSubject()) ; 
+    	StringBuilder alertMsg = new StringBuilder();
+    	rrepMsg.setTitle(FormattedText.processFormattedText(getForwardSubject(), alertMsg));
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
 
     	rrepMsg.setAuthor(getAuthorString());
     	rrepMsg.setApproved(Boolean.FALSE);
-    	rrepMsg.setBody(getForwardBody()) ;
+    	rrepMsg.setBody(FormattedText.processFormattedText(getForwardBody(), alertMsg));
 
     	rrepMsg.setLabel(getSelectedLabel());
 
@@ -2609,7 +2611,8 @@ private   int   getNum(char letter,   String   a)
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
 
-    	rrepMsg.setTitle(getForwardSubject()) ; 
+    	StringBuilder alertMsg = new StringBuilder();
+    	rrepMsg.setTitle(FormattedText.processFormattedText(getForwardSubject(), alertMsg));
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
 
@@ -2620,7 +2623,7 @@ private   int   getNum(char letter,   String   a)
     	replyAllbody=getForwardBody();
 
 
-    	rrepMsg.setBody(replyAllbody);//getForwardBody()) ;// ad some blank;
+    	rrepMsg.setBody(FormattedText.processFormattedText(replyAllbody, alertMsg));
     	rrepMsg.setLabel(getSelectedLabel());
     	rrepMsg.setInReplyTo(currentMessage) ;
 
