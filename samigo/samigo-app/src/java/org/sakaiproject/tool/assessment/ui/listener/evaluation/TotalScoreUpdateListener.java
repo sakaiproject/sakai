@@ -41,6 +41,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
@@ -65,7 +66,7 @@ public class TotalScoreUpdateListener
   implements ActionListener
 {
   private static Log log = LogFactory.getLog(TotalScoreUpdateListener.class);
-
+  
   /**
    * Standard process action method.
    * @param ae ActionEvent
@@ -102,89 +103,145 @@ public class TotalScoreUpdateListener
    */
   public boolean saveTotalScores(TotalScoresBean bean)
   {
-    try
-    {
+
       ArrayList assessmentGradingList = bean.getAssessmentGradingList();
       HashMap map = prepareAssessmentGradingHash(assessmentGradingList);
       Collection agents = bean.getAgents();
       Iterator iter = agents.iterator();
       ArrayList grading = new ArrayList();
-      while (iter.hasNext())
-      {
-        AgentResults agentResults = (AgentResults) iter.next();
-        float newScore = Float.valueOf(agentResults.getTotalAutoScore()).floatValue() +
-                     Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
+      boolean hasNumberFormatException = false;
+      StringBuffer idList = new StringBuffer(" ");
+  	  String err = "";
+  	  boolean isAnonymousGrading = false;
 
-        boolean update = needUpdate(agentResults, map);
+  	  if (bean.getPublishedAssessment() != null 
+  			  && bean.getPublishedAssessment().getEvaluationModel() != null
+  			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading() != null
+  			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING)) {
+  		  isAnonymousGrading = true;
+  		  err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_submission_id");
+  	  }
+  	  else {
+  		  err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_user_id");
+  	  }
+  	  ArrayList badAdjList = new ArrayList();
+  	  
+  	  while (iter.hasNext())
+  	  {
+  		  AgentResults agentResults = (AgentResults) iter.next();
+  		  StringBuilder newScoreString = new StringBuilder();
+  		  boolean update = false;
+  		  try {
+  			  update = needUpdate(agentResults, map, newScoreString);     
+  		  }
+  		  catch (NumberFormatException e) {
+  			  hasNumberFormatException = true;
+  			  update = false;
+
+  			  if (isAnonymousGrading) {
+  				  badAdjList.add(agentResults.getAssessmentGradingId());
+  			  }
+  			  else {
+  				  badAdjList.add(agentResults.getAgentEid());
+  			  }
+  		  }
+  		  
         if (update){
         	log.debug("update is true");
-            AssessmentGradingData data = new AssessmentGradingData();
-          if (!agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) ) {
-	        // these are students who have submitted for grades.
-            // Add up new score
-            agentResults.setFinalScore(newScore+"");
-            BeanUtils.copyProperties(data, agentResults);
-    	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
-            data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
-            data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
-            data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
-            data.setIsLate(agentResults.getIsLate());
-            data.setComments(agentResults.getComments());
-            data.setGradedBy(AgentFacade.getAgentString());
-            data.setGradedDate(new Date());
-            grading.add(data);
-          }
-          else {
-            // these are students who have not submitted for grades and instructor made adjustment to their scores
-            // Add up new score
-            agentResults.setFinalScore(newScore+"");
-            BeanUtils.copyProperties(data, agentResults);
+        	Float newScore = new Float(0f);
+        	AssessmentGradingData data = new AssessmentGradingData();
+        	try {
+        		if (!agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) ) {
+        			// these are students who have submitted for grades.
+        			// Add up new score
+        			newScore = Float.valueOf(newScoreString.toString());
+        			agentResults.setFinalScore(newScore+"");
+        			BeanUtils.copyProperties(data, agentResults);
+        			data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
+        			data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+        			data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
+        			data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
+        			data.setIsLate(agentResults.getIsLate());
+        			data.setComments(agentResults.getComments());
+        			data.setGradedBy(AgentFacade.getAgentString());
+        			data.setGradedDate(new Date());
+        			grading.add(data);
+        		}
+        		else {
+        			// these are students who have not submitted for grades and instructor made adjustment to their scores
+        			// Add up new score
+        			newScore = Float.valueOf(newScoreString.toString());
+        			agentResults.setFinalScore(newScore+"");
 
-            data.setAgentId(agentResults.getIdString());
-  	        data.setForGrade(Boolean.FALSE);
-	        //data.setStatus(Integer.valueOf(1));
-            data.setIsLate(Boolean.FALSE);
-   	        data.setItemGradingSet(new HashSet());
-    	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
-	        // tell hibernate this is a new record
-    	    data.setAssessmentGradingId(Long.valueOf(0));
-            data.setSubmittedDate(null);
-            data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
-            data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
-            data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
-            data.setComments(agentResults.getComments());
-            data.setGradedBy(AgentFacade.getAgentString());
-            data.setGradedDate(new Date());
-            // note that I am not sure if we should set this people as late or what?
-            grading.add(data);
-          }
+        			BeanUtils.copyProperties(data, agentResults);
+        			data.setAgentId(agentResults.getIdString());
+        			data.setForGrade(Boolean.FALSE);
+        			//data.setStatus(Integer.valueOf(1));
+        			data.setIsLate(Boolean.FALSE);
+        			data.setItemGradingSet(new HashSet());
+        			data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
+        			// tell hibernate this is a new record
+        			data.setAssessmentGradingId(Long.valueOf(0));
+        			data.setSubmittedDate(null);
+        			data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+        			data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
+        			data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
+        			data.setComments(agentResults.getComments());
+        			data.setGradedBy(AgentFacade.getAgentString());
+        			data.setGradedDate(new Date());
+        			// note that I am not sure if we should set this people as late or what?
+        			grading.add(data);
+        		}
+
+        	}
+        	catch (IllegalAccessException e) {
+        		log.error("IllegalAccessException: " + e);
+        		return false;
+        	} catch (InvocationTargetException e) {
+        		log.error("InvocationTargetException: " + e);
+        		return false;
+        	}
         }
       }
 
-      GradingService delegate = new GradingService();
+      if (hasNumberFormatException) {
+    	  if (bean.getPublishedAssessment() != null 
+    			  && bean.getPublishedAssessment().getEvaluationModel() != null
+    			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading() != null
+    			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING)) {
+    		  err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_submission_id");
+    	  }
+    	  else {
+    		  err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_user_id");
+    	  }
+    	  for (int i = 0; i < badAdjList.size(); i++) {
+    		  idList.append(badAdjList.get(i));
+    		  if (i != badAdjList.size() - 1) {
+    			  idList.append(", ");
+    		  }
+    	  }
+    	  idList.append(".");
 
-      delegate.saveTotalScores(grading, bean.getPublishedAssessment());
-      log.debug("Saved total scores.");
+    	  FacesContext context = FacesContext.getCurrentInstance();
+    	  context.addMessage(null, new FacesMessage(err + idList.toString()));
+      }
+      
+      GradingService delegate = new GradingService();
+      try {
+    	  delegate.saveTotalScores(grading, bean.getPublishedAssessment());
+    	  log.debug("Saved total scores.");
       } catch (GradebookServiceException ge) {
-       FacesContext context = FacesContext.getCurrentInstance();
-       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
-       context.addMessage(null, new FacesMessage(err));
-       // scores are saved in Samigo, still return true, but display error to user.
-       return true;
+    	  FacesContext context = FacesContext.getCurrentInstance();
+    	  String error=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+    	  context.addMessage(null, new FacesMessage(error));
+    	  // scores are saved in Samigo, still return true, but display error to user.
+    	  return true;
       }
 
-
-    catch (IllegalAccessException e) {
-		e.printStackTrace();
-		return false;
-	} catch (InvocationTargetException e) {
-		e.printStackTrace();
-		return false;
-	}
     return true;
   }
 
-  private boolean needUpdate(AgentResults agentResults, HashMap map){
+  private boolean needUpdate(AgentResults agentResults, HashMap map, StringBuilder newScoreString) throws NumberFormatException{
     boolean update = true;
     String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, agentResults.getComments());
     agentResults.setComments(newComments);
@@ -201,23 +258,24 @@ public class TotalScoreUpdateListener
     }
 
     float totalOverrideScore = 0; 
-    if (agentResults.getTotalOverrideScore()!=null && !("").equals(agentResults.getTotalOverrideScore())){
-      try{
-        totalOverrideScore = Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
-      }
-      catch (NumberFormatException e){
-        totalOverrideScore = 0;
-      }
-    }
-
-
-    float newScore = totalAutoScore + totalOverrideScore;
     Boolean newIsLate = agentResults.getIsLate(); // if the duedate were postpond, we need to adjust this
     // we will check if there is change of grade. if so, add up new score
     // else skip
     AssessmentGradingIfc old = (AssessmentGradingIfc)map.get(agentResults.getAssessmentGradingId());
     if (old != null){
-	float oldScore = 0;
+        if (agentResults.getTotalOverrideScore()!=null && !("").equals(agentResults.getTotalOverrideScore())){
+        	try{
+        		totalOverrideScore = Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
+        	}
+        	catch (NumberFormatException e){
+        		log.warn("Adj has wrong input type" + e);
+        		throw e;
+        	}
+        }
+
+      float newScore = totalAutoScore + totalOverrideScore;
+      newScoreString.append(Float.valueOf(newScore));
+	  float oldScore = 0;
       if (old.getFinalScore()!=null){
         oldScore = old.getFinalScore().floatValue();
       }
@@ -241,16 +299,38 @@ public class TotalScoreUpdateListener
         update = false;
       }
     }
-    else{ //students hasn't submitted the assessment  
-      boolean noOverrideScore =  false;
-      boolean noComment =  false;
-      if ((Float.valueOf(0)).equals(Float.valueOf(agentResults.getTotalOverrideScore().trim())))
-        noOverrideScore = true;
-      if ("".equals(agentResults.getComments().trim()))
-        noComment = true;
+    else{ // no assessmentGradingData exists
+    	boolean noOverrideScore =  false;
+    	boolean noComment =  false;
+    	String score = agentResults.getTotalOverrideScore();
+    	if (score != null) {
+    		if (!("").equals(score.trim()) && !("-").equals(score.trim())) {
+    			try{
+    				totalOverrideScore = Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
+    				noOverrideScore = false;
+    			}
+    			catch (NumberFormatException e){
+    				log.warn("Adj has wrong input type" + e);
+    				throw e;
+    			}
+    		}
+    		else {
+    			noOverrideScore = true;
+    			totalAutoScore = 0;
+    		}
+    	}
+    	else {
+    		noOverrideScore = true;
+    		totalAutoScore = 0;
+    	}
+		float newScore = totalAutoScore + totalOverrideScore;
+		newScoreString.append(Float.valueOf(newScore));
+	    
+    	if ("".equals(agentResults.getComments().trim()))
+    		noComment = true;
 
-      if (noOverrideScore && noComment) 
-	update = false;
+    	if (noOverrideScore && noComment) 
+    		update = false;
     }
     return update;
   }
