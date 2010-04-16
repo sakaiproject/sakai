@@ -22,6 +22,7 @@
 package org.sakaiproject.content.tool;
 
 import java.io.InputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -5000,10 +5001,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if ((locale == null) || locale.equalsIgnoreCase("en") || (locale.trim().length()==0)){
 			webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
 		}else{
-			webdav_instructions = webdav_doc + "_" + locale + ".html";
+			String locale_webdav_instructions = webdav_doc + "_" + locale + ".html";
+			String filePath = getServletConfig().getServletContext().getRealPath( ".."+locale_webdav_instructions );
+			File localeFile = new File( filePath );
+			if ( localeFile.exists() )
+				webdav_instructions = locale_webdav_instructions;
 		}
-
-
 
 		context.put("webdav_instructions" ,webdav_instructions);
 
