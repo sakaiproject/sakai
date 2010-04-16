@@ -42,6 +42,12 @@ import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanIncompleteException;
 import org.sakaiproject.antivirus.api.VirusScanner;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 
 
 /**
@@ -245,6 +251,31 @@ public class ClamAVScanner implements VirusScanner {
 		return socket;
 	}
 
+	public void scanContent(String resourceReference) throws VirusFoundException, VirusScanIncompleteException {
+		logger.debug("scanContent(" + resourceReference + ")");
+		if (contentHostingService.isCollection(resourceReference)) {
+			logger.debug("this is a folder no need to scan");
+			return;
+		}
+
+		try {
+			ContentResource resource = contentHostingService.getResource(resourceReference);
+			scan(resource.streamContent());
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	protected int getStreamPortFromAnswer(String answer) throws ConnectException {
 		int port = -1;
 		if(answer != null && answer.startsWith(STREAM_PORT_STRING)) {
@@ -284,4 +315,11 @@ public class ClamAVScanner implements VirusScanner {
 		this.enabled = enabled;
 	}
 
+	private ContentHostingService contentHostingService;
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+	
+
+	
 }

@@ -3,6 +3,7 @@
 <beans>
    <bean id="org.sakaiproject.antivirus.api.VirusScanner" class="org.sakaiproject.antivirus.impl.ClamAVScanner" init-method="init" singleton="true">
    	<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+   	<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
    </bean>
    
 </beans>

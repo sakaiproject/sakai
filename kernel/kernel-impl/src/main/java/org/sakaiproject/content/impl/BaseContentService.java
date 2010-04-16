@@ -5530,10 +5530,37 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			throw new OverQuotaException(edit.getReference());
 		}
 		
-		virusScanner.scan(edit.getContent());
+		
 		
 		commitResourceEdit(edit, priority);
 
+		if (virusScanner.getEnabled()) {
+			try {
+				virusScanner.scanContent(edit.getId());
+			}
+			catch (VirusFoundException e) {
+				//this file is infected we need to remove if
+				try {
+					//the edit is closed so we need to refetch it
+					ContentResourceEdit edit2 = editResource(edit.getId());
+					removeResource(edit2);
+				} catch (PermissionException e1) {
+					// we're unlikely to see this at this point
+					e1.printStackTrace();
+				} catch (IdUnusedException e1) {
+					// we're unlikely to see this at this point
+					e.printStackTrace();
+				} catch (TypeException e1) {
+					// we're unlikely to see this at this point
+					e.printStackTrace();
+				} catch (InUseException e1) {
+					// we're unlikely to see this at this point
+					e.printStackTrace();
+				}
+				throw e;
+			}
+		}
+		
 		if(! readyToUseFilesizeColumn())
 		{
 			addSizeCache(edit);

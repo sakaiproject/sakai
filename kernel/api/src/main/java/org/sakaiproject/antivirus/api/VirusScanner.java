@@ -55,4 +55,12 @@ public interface VirusScanner {
     * @throws VirusScanIncompleteException
     */
    public void scan(InputStream inputStream) throws VirusFoundException, VirusScanIncompleteException;
+   
+   /**
+    * Scan a item from content hosting service
+    * @param resourceid a resource if for an item in contenthosting e.g /content/a434234sdfghsdf
+    * @throws VirusFoundException
+    * @throws VirusScanIncompleteException
+    */
+   public void scanContent(String resourceId) throws VirusFoundException, VirusScanIncompleteException;
 }
