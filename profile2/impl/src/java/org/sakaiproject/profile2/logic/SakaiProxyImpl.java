@@ -1162,6 +1162,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean isOfficialImageSelectionEnabled() {
+		
+		if(isOfficialImageEnabledGlobally() && 
+			getProfilePictureType() != ProfileConstants.PICTURE_SETTING_OFFICIAL &&
+			isProfilePictureChangeEnabled()) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getOfficialImageSource() {
 		return serverConfigurationService.getString("profile2.official.image.source", ProfileConstants.OFFICIAL_IMAGE_SETTING_DEFAULT);
 	}

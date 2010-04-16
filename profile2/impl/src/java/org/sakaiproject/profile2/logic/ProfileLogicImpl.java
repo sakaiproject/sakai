@@ -1395,9 +1395,8 @@ public class ProfileLogicImpl implements ProfileLogic {
 			prefs = getPreferencesRecordForUser(userUuid);
 		}
 		
-		
-		//if not already set globally as official, and it is enabled, check if we have a preference for an official image, this can override the global for url or upload only.
-		if(imageType != ProfileConstants.PICTURE_SETTING_OFFICIAL && prefs != null && sakaiProxy.isOfficialImageEnabledGlobally()) {
+		//if we have prefs and the conditions are set for a user to be able to make a choice, get the pref.
+		if(prefs != null && sakaiProxy.isOfficialImageSelectionEnabled()) {
 			if(prefs.isUseOfficialImage()){
 				imageType = ProfileConstants.PICTURE_SETTING_OFFICIAL;
 			}

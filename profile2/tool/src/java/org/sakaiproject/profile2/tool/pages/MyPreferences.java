@@ -296,8 +296,8 @@ public class MyPreferences extends BasePage{
         });
 		is.add(officialImageContainer);
 		
-		//check if we can even show the official image section by checking the sakai properties
-		if(!sakaiProxy.isOfficialImageEnabledGlobally() || !sakaiProxy.isProfilePictureChangeEnabled()) {
+		//if not using official images and not
+		if(!sakaiProxy.isOfficialImageSelectionEnabled()) {
 			profilePreferences.setUseOfficialImage(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
 			is.setVisible(false);
 		}

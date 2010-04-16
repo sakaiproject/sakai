@@ -39,10 +39,11 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.NotifyingAjaxLazyLoadPanel;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
@@ -107,6 +108,14 @@ public class MyProfile extends BasePage {
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
 		add(feedbackPanel);
 		feedbackPanel.setVisible(false); //hide by default
+		
+		//get the prefs record, or a default if none exists yet
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		
+		//if null, throw exception
+		if(prefs == null) {
+			throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
+		}
 		
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
@@ -222,7 +231,10 @@ public class MyProfile extends BasePage {
 			} else {
 				changePicture = new ChangeProfilePictureUrl("changePicture");
 			}
-		} else {
+		} else if (profilePictureType == ProfileConstants.PICTURE_SETTING_OFFICIAL) {
+			//cannot edit anything if using official images
+			changePicture = new EmptyPanel("changePicture");
+		} else {	
 			//no valid option for changing picture was returned from the Profile2 API.
 			log.error("Invalid picture type returned: " + profilePictureType);
 			changePicture = new EmptyPanel("changePicture");
@@ -232,7 +244,7 @@ public class MyProfile extends BasePage {
 		add(changePicture);
 		
 		//add the current picture
-		add(new ProfileImageRenderer("photo", userUuid));
+		add(new ProfileImageRenderer("photo", userUuid, prefs));
 		
 		//change profile image button
 		AjaxLink<Void> changePictureLink = new AjaxLink<Void>("changePictureLink") {
@@ -256,11 +268,20 @@ public class MyProfile extends BasePage {
 		};
 		changePictureLink.add(new Label("changePictureLabel", new ResourceModel("link.change.profile.picture")));
 		
-		//is picture changing disabled?
+		//is picture changing disabled? (property, or locked)
 		if((!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) && !sakaiProxy.isSuperUser()) {
 			changePictureLink.setEnabled(false);
 			changePictureLink.setVisible(false);
 		}
+		
+		
+		
+		//if official images are enabled and the conditions are right to disallow edits or our pref is to use the official image, also hide this section
+		if(!sakaiProxy.isOfficialImageSelectionEnabled() || prefs.isUseOfficialImage()){
+			changePictureLink.setEnabled(false);
+			changePictureLink.setVisible(false);
+		}
+		
 		add(changePictureLink);
 		
 		

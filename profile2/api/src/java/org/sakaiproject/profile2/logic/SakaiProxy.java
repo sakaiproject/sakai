@@ -577,6 +577,13 @@ public interface SakaiProxy {
 	public boolean isOfficialImageEnabledGlobally();
 	
 	/**
+	 * Checks if the conditions are appropriate for a user to be able to select whether to use an official
+	 * image or one of their own choosing
+	 * @return
+	 */
+	public boolean isOfficialImageSelectionEnabled();
+	
+	/**
 	 * Gets the value of the profile2.official.image.source attribute from sakai.properties.
 	 * If not set, defaults to ProfileConstants.OFFICIAL_SETTING_DEFAULT
 	 * 
