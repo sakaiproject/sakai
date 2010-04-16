@@ -4,15 +4,15 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.genericdao.api.GeneralGenericDao;
+import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
+import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
+import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.ProfileFriend;
-import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.model.ProfileImageExternal;
-import org.sakaiproject.profile2.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -74,7 +74,7 @@ public interface ProfileDao {
 	 *
 	 * @param userId		userId of the user
 	 */
-	public List<ProfileImage> getCurrentProfileImageRecords(final String userId);
+	public List<ProfileImageUploaded> getCurrentProfileImageRecords(final String userId);
 	
 	/**
 	 * Get the current ProfileImage record from the database.
@@ -84,7 +84,7 @@ public interface ProfileDao {
 	 *
 	 * @param userId		userId of the user
 	 */
-	public ProfileImage getCurrentProfileImageRecord(final String userId);
+	public ProfileImageUploaded getCurrentProfileImageRecord(final String userId);
 	
 	/**
 	 * Get old ProfileImage records from the database. 
@@ -92,7 +92,7 @@ public interface ProfileDao {
 	 *
 	 * @param userId		userId of the user
 	 */
-	public List<ProfileImage> getOtherProfileImageRecords(final String userId);
+	public List<ProfileImageUploaded> getOtherProfileImageRecords(final String userId);
 
 	
 	
@@ -164,7 +164,7 @@ public interface ProfileDao {
 	
 	public boolean saveSocialNetworkingInfo(final SocialNetworkingInfo socialNetworkingInfo);
 	
-	public boolean addNewProfileImage(final ProfileImage profileImage);
+	public boolean addNewProfileImage(final ProfileImageUploaded profileImage);
 		
 	
 	public List<String> getAllSakaiPersonIds();

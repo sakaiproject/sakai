@@ -273,7 +273,7 @@ public class MyPreferences extends BasePage{
 		
 		
 		
-		// TWITTER SECTION
+		// OFFICIAL IMAGE SECTION
 		WebMarkupContainer is = new WebMarkupContainer("imageSettingsContainer");
 		is.setOutputMarkupId(true);
 				
@@ -295,6 +295,13 @@ public class MyPreferences extends BasePage{
             }
         });
 		is.add(officialImageContainer);
+		
+		//check if we can even show the official image section by checking the sakai properties
+		if(!sakaiProxy.isOfficialImageEnabledGlobally() || !sakaiProxy.isProfilePictureChangeEnabled()) {
+			profilePreferences.setUseOfficialImage(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
+			is.setVisible(false);
+		}
+		
 		form.add(is);
 
 		

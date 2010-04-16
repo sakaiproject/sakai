@@ -55,6 +55,9 @@ public class ProfileConstants {
 	public static final int PROFILE_IMAGE_MAIN = 1;		
 	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
 	
+	//should images be marked up in a way that a browser can cache them?
+	public static final boolean PROFILE_IMAGE_CACHE = true;
+	
 	//gallery-related constants
 	public static final String GALLERY_IMAGE_MAIN = "images";
 	public static final String GALLERY_IMAGE_THUMBNAILS = "thumbnails";
@@ -86,9 +89,18 @@ public class ProfileConstants {
 	public static final String PICTURE_SETTING_UPLOAD_PROP = "upload";
 	public static final int PICTURE_SETTING_URL = 2;
 	public static final String PICTURE_SETTING_URL_PROP = "url";
+	public static final int PICTURE_SETTING_OFFICIAL = 3;
+	public static final String PICTURE_SETTING_OFFICIAL_PROP = "official";
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 	
+	// if using official photo, where does that image come from?
+	// can be either a url or from a provider. 
+	public static final String OFFICIAL_IMAGE_SETTING_URL = "url";
+	public static final String OFFICIAL_IMAGE_SETTING_PROVIDER = "provider";
+	
+	public static final String OFFICIAL_IMAGE_SETTING_DEFAULT = OFFICIAL_IMAGE_SETTING_URL;
+
 	//the property that an external provider may set into the user properties for the jpegPhoto field.
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 	
@@ -176,6 +188,7 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED = true; //profile2.privacy.change.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_GALLERY_ENABLED = true; //profile2.gallery.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED = false; //profile2.profile.business.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED = false; //profile2.official.image.enabled
 	
 	/*
 	 * MESSAGING

@@ -540,7 +540,7 @@ h2 {
 	text-align: center;
 }
 	
-.friends-feed-item-photo img {
+.friends-feed-item-photo {
 	max-width: 55px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
 	/* centre the image inside this cell */
@@ -600,7 +600,7 @@ h2 {
 }
 
 
-.friendsListPhoto img{
+.friendsListPhoto {
 	position: absolute;
 	top: 5px;
 	left: 5px;
@@ -805,7 +805,7 @@ h2 {
 	width: 450px; /* must be smaller than the actual modal window */
 	height: 120px;
 }
-.modalWindowImage img {
+.modalWindowImage {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -932,11 +932,8 @@ div.wicket-aa ul li.selected {
 	vertical-align:top;	
 }
 
-.message-thread-photo {
+.message-thread-photo{
 	float:left;
-}
-
-.message-thread-photo img{
 	max-width: 50px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 50 ) + "px"); /* ie6 max-width hack */
 }
@@ -1024,11 +1021,8 @@ div.wicket-aa ul li.selected {
 	vertical-align:top;	
 }
 
-.message-photo {
-	float:left;
-}
-
 .message-photo img{
+	float:left;
 	max-width: 55px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
 }

@@ -155,6 +155,7 @@
     	<sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>
     	<quartz.version>1.5.2</quartz.version>
     	<genericdao.version>0.9.18</genericdao.version>
+    	<commons.codec.version>1.4</commons.codec.version>
     	<legacy.profile.api.version>2.8-SNAPSHOT</legacy.profile.api.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -240,6 +241,11 @@
 	            <artifactId>generic-dao</artifactId>
 	            <version>${genericdao.version}</version>
 	        </dependency>
+	        	<dependency>
+      			<groupId>commons-codec</groupId>
+      			<artifactId>commons-codec</artifactId>
+      			<version>${commons.codec.version}</version>
+   			</dependency> 
 			
 			<!-- StAX is bundled with JDK1.6, need this for 1.5 though (impl/pom.xml as well) -->
 			<dependency>

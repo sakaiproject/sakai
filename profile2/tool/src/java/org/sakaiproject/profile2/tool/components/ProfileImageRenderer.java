@@ -1,119 +1,299 @@
-/**
- * Copyright (c) 2008-2010 The Sakai Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://www.osedu.org/licenses/ECL-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.sakaiproject.profile2.tool.components;
 
-import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.IResourceListener;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.markup.html.image.resource.LocalizedImageResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-/** 
- * This is a helper panel for displaying a user's profile image.
- * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+/**
+ * Profile2 ProfileImageRenderer component.
+ * 
+ * <p>This component should be used whenever you want to render a user's profile image. 
+ * Choose the most appropriate constructor for your needs and situation.</p>
+ * 
+ * <p>Note that in order to request another user's image you should supply either a full Person object
+ * containing the Privacy settings, or the ProfilePrivacy settings directly. If you do not have this information
+ * you can pass null as the ProfilePrivacy attribute and it will be consulted for you.</p>
+ * 
+ * <p>If you do not provide a ProfilePreferences object (or Person object containing this info), it will be looked up.</p>
+ * 
+ * <p>If you do not provide the size or cache settings, they will be defaults (size=main, cache=true).
+ * 
+ * <p>In short, always provide all information (and preferably a full Person object)</p>
+ * 
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class ProfileImageRenderer extends Panel {
+public class ProfileImageRenderer extends Image implements IResourceListener {
 	
 	private static final long serialVersionUID = 1L;
-	
-	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
-	private SakaiProxy sakaiProxy;
+
+	private String userUuid;
+	private boolean cache;
+	private int size;
+	private ProfilePreferences prefs;
+	private ProfilePrivacy privacy;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
 	
+	private final LocalizedImageResource localizedImageResource = new LocalizedImageResource(this);
+
 	/**
-	 * Render a profile image for a user, based on the settings supplied
-	 * @param id		- wicket:id
-	 * @param userX		- user whose image we are showing
-	 * @param allowed	- if this image is allowed to be viewed by the person requesting it. If false, a default image will be used.
-	 * @param size		- ProfileImageManager.PROFILE_IMAGE_MAIN, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL
-	 * @param cacheable	- if this image is allowed to be cached or not. If having issues with sticky images from AJAX updates, set this to false to ensure the image is updated every request
+	 * Minimal constructor. Use this for when requesting your own image and only if you don't have access to the ProfilePreferences object. 
+	 * Will lookup ProfilePreferences and uses defaults for size(main) and cache(true). 
+	 *
+	 * @param id		markup ID
+	 * @param userUuid	uuid of the user to retrieve the image for
 	 */
-	public ProfileImageRenderer(String id, String userX, boolean allowed, int size, boolean cacheable) {
+	public ProfileImageRenderer(String id, String userUuid) {
 		super(id);
 		
-		//if we aren't allowed to view it, no use processing, just show default
-		if(!allowed) {
-			add(new ContextImage("img",new Model<String>(getDefaultImage())));
-			return;
-		}
-		      
-		//what type of image are we to show?
-		int type = sakaiProxy.getProfilePictureType();
+		//set incoming
+		this.userUuid = userUuid;
 		
-		//UPLOAD
-		if(type == ProfileConstants.PICTURE_SETTING_UPLOAD) {
-
-			final byte[] bytes = profileLogic.getCurrentProfileImageForUser(userX, size);
-			
-			//use profile bytes or add default image if none
-			if(bytes != null && bytes.length > 0){
-			
-				BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-					private static final long serialVersionUID = 1L;
-
-					protected byte[] getImageData() {
-						return bytes;
-					}
-				};
-				if(cacheable) {
-					add(new Image("img",photoResource));
-				} else {
-					add(new NonCachingImage("img",photoResource));
-				}
-			} else {
-				add(new ContextImage("img",new Model<String>(getDefaultImage())));
-			}
+		//set defaults
+		this.prefs = null;
+		this.privacy = null;
+		this.size = getDefaultSize();
+		this.cache = getDefaultCache();
+	}
+	
+	/**
+	 * Minimal constructor. Use this for when requesting your own image. Uses defaults for size(main) and cache(true). 
+	 *
+	 * @param id		markup ID
+	 * @param userUuid	uuid of the user to retrieve the image for
+	 * @param prefs		ProfilePreferences object for the user
+	 */
+	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs) {
+		super(id);
 		
-		//EXTERNAL IMAGE
-		} else if (type == ProfileConstants.PICTURE_SETTING_URL) {
-			
-			String url = profileLogic.getExternalImageUrl(userX, size);
-			
-			//add uploaded image or default
-			if(url != null) {
-				add(new ExternalImage("img",url));
-			} else {
-				add(new ContextImage("img",new Model<String>(getDefaultImage())));
-			}
-			
-		//INVALID TYPE, SHOW DEFAULT
-		} else {
-			add(new ContextImage("img",new Model<String>(getDefaultImage())));
-		}
+		//set incoming
+		this.userUuid = userUuid;
+		this.prefs = prefs;
+		
+		//set defaults
+		this.privacy = null;
+		this.size = getDefaultSize();
+		this.cache = getDefaultCache();
+	}
+	
+	/**
+	 * Minimal constructor. Use this for when requesting your own image and want to control the size and cache setting.
+	 *
+	 * @param id		markup ID
+	 * @param userUuid	uuid of the user to retrieve the image for.
+	 * @param prefs		ProfilePreferences object for the user.
+	 * @param size		image size: 1 for main, 2 for thumbnail.
+	 * @param cache		if this image is allowed to be cached by the browser or not. If having issues with
+	 * 					dynamic images sticking from AJAX updates, set this to false to ensure the image is updated every request.
+	 */
+	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs, int size, boolean cache) {
+		super(id);
+		
+		//set incoming
+		this.userUuid = userUuid;
+		this.prefs = prefs;
+		this.size = size;
+		this.cache = cache;
+		
+		//set defaults
+		this.privacy = null;
+	}
+	
+	/**
+	 * Minimal constructor. Use this when requesting someone else's image. Uses defaults for size and cache.
+	 * @param id		markup ID
+	 * @param userUuid	uuid of the user to retrieve the image for
+	 * @param prefs		ProfilePreferences object for the user
+	 * @param privacy	ProfilePrivacy object for the user
+	 */
+	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy) {
+		super(id);
+		
+		//set incoming
+		this.userUuid = userUuid;
+		this.privacy = privacy;
+		this.prefs = prefs;
+		
+		//set defaults
+		this.size = getDefaultSize();
+		this.cache = getDefaultCache();
+	}
+	
+	/**
+	 * Full constructor where each item is explicitly provided.
+	 * @param id		markup ID
+	 * @param userUuid	uuid of the user to retrieve the image for
+	 * @param prefs		ProfilePreferences object for the user
+	 * @param privacy	ProfilePrivacy object for the user
+	 * @param size		image size: 1 for main, 2 for thumbnail.
+	 * @param cache		if this image is allowed to be cached by the browser or not. If having issues with
+	 * 					dynamic images sticking from AJAX updates, set this to false to ensure the image is updated every request.
+	 */
+	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, boolean cache) {
+		super(id);
+		
+		//set incoming
+		this.userUuid = userUuid;
+		this.privacy = privacy;
+		this.prefs = prefs;
+		this.size = size;
+		this.cache = cache;
+	}
+	
+	
+
+	/**
+	 * Full constructor that takes a Person object instead of split data. Defaults will be used for size(main) and cache(true).
+	 * @param id		markup ID
+	 * @param person	Person object for the user containing all data
+	 */
+	public ProfileImageRenderer(String id, Person person) {
+		super(id);
+		
+		//extract data
+		this.userUuid = person.getUuid();
+		this.prefs = person.getPreferences();
+		this.privacy = person.getPrivacy();
+		
+		//set defaults
+		this.size = getDefaultSize();
+		this.cache = getDefaultCache();
 		
 	}
 	
 	
 	/**
-	 * Get the default image to be used if not allowed or none available.
+	 * Full constructor that takes a Person object and allows control over the size and cache settings.
+	 *
+	 * @param id		markup ID
+	 * @param person	Person object for the user containing all data
+	 * @param size		image size: 1 for main, 2 for thumbnail.
+	 * @param cache		if this image is allowed to be cached by the browser or not. If having issues with
+	 * 					dynamic images sticking from AJAX updates, set this to false to ensure the image is updated every request.
+	 */
+	public ProfileImageRenderer(String id, Person person, int size, boolean cache) {
+		super(id);
+				
+		//extract data
+		this.userUuid = person.getUuid();
+		this.prefs = person.getPreferences();
+		this.privacy = person.getPrivacy();
+		
+		//set incoming
+		this.size = size;
+		this.cache = cache;
+	}
+	
+	/**
+	 * @see org.apache.wicket.IResourceListener#onResourceRequested()
+	 */
+	public void onResourceRequested(){
+		localizedImageResource.onResourceRequested();
+	}
+	
+	/**
+	 * Render the tag
+	 */
+	@Override
+	public void onComponentTag(final ComponentTag tag) {
+		super.onComponentTag(tag);
+		
+		//get the image
+		ProfileImage image = profileLogic.getProfileImage(userUuid, prefs, privacy, size);
+		
+		//do binary
+		final byte[] bytes = image.getBinary();
+		if(bytes != null && bytes.length > 0) {
+			
+			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+				private static final long serialVersionUID = 1L;
+
+				protected byte[] getImageData() {
+					return bytes;
+				}
+			};
+			
+			localizedImageResource.setResource(photoResource);
+			localizedImageResource.setSrcAttribute(tag);
+			
+			if(!cache){
+				addNoCacheNoise(tag);
+			}
+			
+			return;
+		}
+		
+		//do url
+		String url = image.getUrl();
+		if(StringUtils.isNotBlank(url)) {
+			tag.put("src", url);
+			/* DO NOT add cache noise to URL based images as they won't stick, it's only the dynamic ones that can sometimes.
+			if(!cache){
+				addNoCacheNoise(tag);
+			}
+			*/
+			return;
+		}
+		
+		//do default
+		tag.put("src", getDefaultImage());
+	}
+	
+	
+	
+	
+	
+	/**
+	 * Get the default image URL
 	 * @return
 	 */
 	private String getDefaultImage() {
-		return ProfileConstants.UNAVAILABLE_IMAGE;
+		return getRequest().getRelativePathPrefixToContextRoot() + ProfileConstants.UNAVAILABLE_IMAGE;
+	}
+	
+	/**
+	 * Get the default image size
+	 * @return
+	 */
+	private int getDefaultSize() {
+		return ProfileConstants.PROFILE_IMAGE_MAIN;
+	}
+	
+	/**
+	 * Get the default cache setting
+	 * @return
+	 */
+	private boolean getDefaultCache() {
+		return ProfileConstants.PROFILE_IMAGE_CACHE;
 	}
 	
 	
 	
+	
+	/**
+	 * Add noise to the image URL, similar to Wicket's NonCachingImage.
+	 * 
+	 * @param tag
+	 * @param url
+	 * @return
+	 */
+	private void addNoCacheNoise(ComponentTag tag) {
+		String url = tag.getAttributes().getString("src");
+		url = url + ((url.indexOf("?") >= 0) ? "&" : "?");
+		url = url + "wicket:antiCache=" + System.currentTimeMillis();
+		
+		tag.put("src", url);
+	}
 }

@@ -102,7 +102,8 @@ public class ChangeProfilePictureUrl extends Panel{
 		StringModel stringModel = new StringModel();
 		
 		//do they already have a URL that should be loaded in here?
-		String externalUrl = profileLogic.getExternalImageUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+		//String externalUrl = profileLogic.getExternalImageUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+		String externalUrl = null;
 		
 		if(externalUrl != null) {
 			stringModel.setString(externalUrl);

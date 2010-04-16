@@ -36,6 +36,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
 import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
@@ -115,8 +117,9 @@ public class MyMessageThreads extends BasePage {
 					participant = profileLogic.getMessageParticipant(message.getId(), currentUserUuid);
 				}
 				
-				//friend?
-				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, currentUserUuid);
+				//prefs and privacy
+				ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(messageFromUuid);
+				ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(messageFromUuid);
 				
 				//photo link
 				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
@@ -128,7 +131,7 @@ public class MyMessageThreads extends BasePage {
 				};
 				
 				//photo
-				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, profileLogic.isUserXProfileImageVisibleByUserY(messageFromUuid, currentUserUuid, friend), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(photoLink);
 				
 				

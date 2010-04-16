@@ -481,12 +481,12 @@ public interface SakaiProxy {
 	
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
-	 * <p>Possible values for the sakai property are 'upload' and 'url'.
+	 * <p>Possible values for the sakai property are 'upload', 'url', and 'official'.
 	 * If not set, defaults to 'upload'.</p>
-	 * <p>This returns an int which matches ProfileConstants.PICTURE_SETTING_UPLOAD or ProfileConstants.PICTURE_SETTING_URL</p>
+	 * <p>This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD, ProfileConstants.PICTURE_SETTING_URL, ProfileConstants.PICTURE_SETTING_OFFICIAL</p>
 	 * 
 	 * <p>Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which
-	 * users can cadd their own image. ie by uploading their own image or providing a URL.</p>
+	 * users can add their own image. ie by uploading their own image, providing a URL, or not at all (for official).</p>
 	 * 
 	 * @return
 	 */
@@ -571,14 +571,30 @@ public interface SakaiProxy {
 	public boolean toggleProfileLocked(String userId, boolean locked);
 	
 	/**
-	 * Gets the jpegPhoto property from the set of properties attached to a User object. 
-	 * 
-	 * This was added to the JLDAP Provider at SAK-17816.
-	 * 
-	 * @param user	User object to get the value from.
-	 * @return the value, or null if the property does not exist.
+	 * Is profile2.official.image.enabled true? If so, allow use of this image and preference.
+	 * @return
 	 */
-	public String getProvidedImageUrl(User user);
+	public boolean isOfficialImageEnabledGlobally();
+	
+	/**
+	 * Gets the value of the profile2.official.image.source attribute from sakai.properties.
+	 * If not set, defaults to ProfileConstants.OFFICIAL_SETTING_DEFAULT
+	 * 
+	 * This should be specified if profile2.picture.type=official
+	 * 
+	 * @return
+	 */
+	public String getOfficialImageSource();
+	
+	/**
+	 * Gets the value of the profile2.official.image.attribute from sakai.properties
+	 * If not set, defaults to ProfileConstants.USER_PROPERTY_JPEG_PHOTO
+	 * 
+	 * This should be specified if profile2.official.image.source=provided
+	 *
+	 * @return
+	 */
+	public String getOfficialImageAttribute();
 	
 	/**
 	 * Wrapper for ServerConfigurationService.getString("skin.repo")

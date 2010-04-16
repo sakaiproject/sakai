@@ -24,7 +24,7 @@ import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfileImageExternal;
+import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -681,16 +681,40 @@ public interface ProfileLogic {
 	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy);
 	
 	/**
-	 * Get the profile image for the given user, allowing fallback if no thumbnail exists.
+	 * Get the profile image for a user. Takes into account all global settings, user preferences and privacy.
+	 * If making a request for your own image
+	 * <ul>
+	 * 	<li>'privacy' can be null as it won't be considered.</li>
+	 *  <li>You should provide 'prefs' (if available) otherwise it will be looked up.</li>
+	 * </ul>
 	 * 
-	 * @param userId 		the uuid of the user we are querying
-	 * @param imageType		comes from ProfileConstants and maps to a directory in ContentHosting
-	 * @return image as bytes
+	 * If making a request for someone else's image
+	 * <ul>
+	 * 	<li>You should provide the privacy settings for that user (if available), otherwise it will be looked up.</li>
+	 *  <li>You should provide the preferences object for that user (if available), otherwise it will be looked up.</li>
+	 *  <li>If privacy is null, a default image will be returned</li>
+	 *  <li>If preferences is still null, the global preference will be used, which may not exist and therefore be default.</li>
+	 * </ul>
 	 * 
-	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
-	 *
+	 * <p>The returned ProfileImage object is a wrapper around all of the types of image that can be set. use the getBinarty and getUrl() methods on this object to get the data.
+	 * See the docs on ProfileImage for how to use this.
+	 *  
+	 * @param userUuid
+	 * @param prefs
+	 * @param privacy
+	 * @param size
+	 * @return
 	 */
-	public byte[] getCurrentProfileImageForUser(String userId, int imageType);
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size);
+	
+	/**
+	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
+	 * @param person	Person object that contains all info about a user
+	 * @param size		size of image to return.
+	 * @return
+	 */
+	public ProfileImage getProfileImage(Person person, int size);
+	
 	
 	/**
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists and wrapping it in a ResourceWrapper
@@ -701,28 +725,9 @@ public interface ProfileLogic {
 	 * 
 	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
 	 * 
+	 * @deprecated see public ImageResource getProfileImage(String userUuid, int imageType);
 	 */
 	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType);
-	
-	
-	/**
-	 * Does this user have an uplaoded profile image?
-	 * Calls getCurrentProfileImageRecord to see if a record exists.
-	 * 
-	 * This is mainly used by the convertProfile() method, but could have another use.
-	 * 
-	 * @param userId 		the uuid of the user we are querying
-	 * @return boolean		true if it exists/false if not
-	 */
-	public boolean hasUploadedProfileImage(String userId);
-	
-	/**
-	 * Does this user have an external profile image?
-	 * 
-	 * @param userId 		the uuid of the user we are querying
-	 * @return boolean		true if it exists/false if not
-	 */
-	public boolean hasExternalProfileImage(String userId);
 	
 	
 	/**
@@ -797,18 +802,6 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
-	
-		
-	/**
-	 * Get the URL to an image that a user has specified as their profile image
-	 * @param userId		uuid of user
-	 * @param imageType		comes from ProfileConstants. main or thumbnail.
-	 *
-	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
-	 * 
-	 * @return
-	 */
-	public String getExternalImageUrl(final String userId, final int imageType);
 	
 	
 	/**
@@ -1013,27 +1006,12 @@ public interface ProfileLogic {
 	public List<Person> getListOfFullPersons(int start, int count);
 	
 	/**
-	 * Get the URL to a user's official profile image
-	 * @param userUuid		uuid of user
-	 * 
-	 * @return url or null if none
-	 */
-	public String getOfficialImageUrl(final String userUuid);
-	
-	/**
-	 * Save the official image url that users can set.
+	 * Save the official image url that institutions can set.
 	 * @param userUuid		uuid of the user
 	 * @param url			url to image
 	 * @return
 	 */
 	public boolean saveOfficialImageUrl(final String userUuid, final String url);
 	
-	/**
-	 * Has this user set the official image as their preferred image?
-	 * @param userUuid		uuid of the user
-	 * @return
-	 */
-	public boolean isOfficialImagePreferred(final String userUuid);
-
 	
 }

@@ -33,6 +33,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.FriendsFeedDataProvider;
@@ -98,7 +99,7 @@ public class FriendsFeed extends Panel {
 					public void onClick() {}
 				};
 				
-				friendItem.add(new ProfileImageRenderer("friendPhoto", null, false, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("friendPhoto", null, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 
 				friendItem.add(new Label("friendName","empty"));
 				item.add(friendItem);
@@ -136,14 +137,21 @@ public class FriendsFeed extends Panel {
 					}
 				};
 				
-				//get privacy
-				ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(friendId);
+				//REMOVE THIS WHEN WE FLESH OUT THE PERSON OBJECT RETURNED
+				//ensure privacy
+				ProfilePrivacy privacy = person.getPrivacy();
+				if(privacy == null){
+					 privacy = profileLogic.getPrivacyRecordForUser(friendId);
+				}
 				
-				//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, privacy, viewingUserId,friend);
+				//ensure preferences
+				ProfilePreferences prefs = person.getPreferences();
+				if(prefs == null){
+					prefs = profileLogic.getPreferencesRecordForUser(friendId);
+				}
 				
 				/* IMAGE */
-				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				
 				//name (will be linked also)
 		    	Label friendLinkLabel = new Label("friendName", displayName);

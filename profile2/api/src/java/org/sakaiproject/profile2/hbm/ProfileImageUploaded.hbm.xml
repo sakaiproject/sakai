@@ -3,9 +3,9 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.sakaiproject.profile2.model">
+<hibernate-mapping package="org.sakaiproject.profile2.hbm.model">
 
-	<class name="ProfileImage" table="PROFILE_IMAGES_T">
+	<class name="ProfileImageUploaded" table="PROFILE_IMAGES_T">
 
 		<id name="id">
 			<column name="ID" not-null="true" length="19" />
@@ -23,12 +23,12 @@
   	
   	<!-- get the current profileImage record. if there are multiple current records, only get the latest -->
 	<query name="getCurrentProfileImageRecord">
-    	<![CDATA[from ProfileImage image WHERE image.userUuid = :userUuid AND image.current = true ORDER BY image.id desc]]>
+    	<![CDATA[from ProfileImageUploaded image WHERE image.userUuid = :userUuid AND image.current = true ORDER BY image.id desc]]>
 	</query>
 	 
 	<!-- get any other profile image records. used where the user can choose their profile image -->
 	<query name="getOtherProfileImageRecords">
-    	<![CDATA[from ProfileImage image WHERE image.userUuid = :userUuid AND image.current = false]]>
+    	<![CDATA[from ProfileImageUploaded image WHERE image.userUuid = :userUuid AND image.current = false]]>
 	</query>
 	
   	<database-object> 

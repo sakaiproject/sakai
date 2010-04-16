@@ -1013,6 +1013,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		else if(pictureType.equals(ProfileConstants.PICTURE_SETTING_URL_PROP)) {
 			return ProfileConstants.PICTURE_SETTING_URL;
 		}
+		//if 'official'
+		else if(pictureType.equals(ProfileConstants.PICTURE_SETTING_OFFICIAL_PROP)) {
+			return ProfileConstants.PICTURE_SETTING_OFFICIAL;
+		}
 		//otherwise return default
 		else {
 			return ProfileConstants.PICTURE_SETTING_DEFAULT;
@@ -1151,8 +1155,22 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public String getProvidedImageUrl(User user) {
-		return user.getProperties().getProperty(ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
+	public boolean isOfficialImageEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.official.image.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getOfficialImageSource() {
+		return serverConfigurationService.getString("profile2.official.image.source", ProfileConstants.OFFICIAL_IMAGE_SETTING_DEFAULT);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getOfficialImageAttribute() {
+		return serverConfigurationService.getString("profile2.official.image.attribute", ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
 	}
 	
 	/**

@@ -41,6 +41,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -146,8 +147,11 @@ public class ViewProfile extends BasePage {
 		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+
+		
 		/* IMAGE */
-		add(new ProfileImageRenderer("photo", userUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_MAIN, true));
+		add(new ProfileImageRenderer("photo", userUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
 		/* NAME */
 		Label profileName = new Label("profileName", userDisplayName);

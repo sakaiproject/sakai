@@ -41,6 +41,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -159,7 +161,11 @@ public class MySearch extends BasePage {
 		    	//get basic values
 		    	final String userUuid = searchResult.getUserUuid();
 		    	final String displayName = searchResult.getDisplayName();
-				
+
+		    	//REMOVE THIS WHEN WE CONVERT THE SearchResult to Person
+		    	ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		    	
 		    	//image wrapper, links to profile
 		    	Link friendItem = new Link("friendPhotoWrap") {
 					private static final long serialVersionUID = 1L;
@@ -169,7 +175,7 @@ public class MySearch extends BasePage {
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", userUuid, searchResult.isProfileImageAllowed(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				friendItem.add(new ProfileImageRenderer("result-photo", userUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(friendItem);
 		    	
 		    	//name and link to profile (if allowed or no link)

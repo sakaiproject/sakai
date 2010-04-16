@@ -39,7 +39,7 @@ public class MyStaffDisplay extends Panel {
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
 	public MyStaffDisplay(final String id, final UserProfile userProfile) {

@@ -42,6 +42,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessagesDataProvider;
 import org.sakaiproject.profile2.tool.models.StringModel;
@@ -151,9 +153,9 @@ public class MyMessageView extends BasePage {
 					participant = profileLogic.getMessageParticipant(message.getId(), currentUserUuid);
 				}
 				
-				
-				//friend?
-				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, currentUserUuid);
+				//prefs and privacy
+				ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(messageFromUuid);
+				ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(messageFromUuid);
 				
 				//photo link
 				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
@@ -165,7 +167,7 @@ public class MyMessageView extends BasePage {
 				};
 				
 				//photo
-				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, profileLogic.isUserXProfileImageVisibleByUserY(messageFromUuid, currentUserUuid, friend), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(photoLink);
 				
 				
@@ -287,6 +289,8 @@ public class MyMessageView extends BasePage {
         item.setOutputMarkupId(true);
         messageList.add(item);
        
+        ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(message.getFrom());
+        
         //photo and link
 		item.add(new AjaxLink<String>("photoLink", new Model<String>(message.getFrom())) {
 			private static final long serialVersionUID = 1L;
@@ -294,7 +298,7 @@ public class MyMessageView extends BasePage {
 				setResponsePage(new ViewProfile(getModelObject()));
 			}
 			
-		}.add(new ProfileImageRenderer("messagePhoto", message.getFrom(), true, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false)));
+		}.add(new ProfileImageRenderer("messagePhoto", message.getFrom(), prefs, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false)));
 		
 		//name link
 		item.add(new AjaxLink<String>("messageFromLink", new Model<String>(message.getFrom())) {

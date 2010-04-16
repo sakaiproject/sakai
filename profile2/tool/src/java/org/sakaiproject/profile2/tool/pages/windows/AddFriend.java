@@ -29,6 +29,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -63,12 +64,12 @@ public class AddFriend extends Panel {
 		window.setInitialWidth(500);
 		window.setResizable(false);
 		
-		//privacy
+		//prefs and privacy
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userY);
 		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userY);
-		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userY, privacy, userX, false);
 		
 		//image
-		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+		add(new ProfileImageRenderer("image", userY, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		
         //text
 		final Label text = new Label("text", new StringResourceModel("text.friend.add", null, new Object[]{ friendName } ));

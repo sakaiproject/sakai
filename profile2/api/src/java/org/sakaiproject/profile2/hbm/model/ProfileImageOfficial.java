@@ -14,47 +14,37 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.model;
+package org.sakaiproject.profile2.hbm.model;
 
 import java.io.Serializable;
 
 
 /**
- * Hibernate model
+ * Hibernate model for an officially provided external image
  * 
- * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class ProfileImageExternal implements Serializable {
+public class ProfileImageOfficial implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private String userUuid;
-	private String mainUrl;
-	private String thumbnailUrl; 
+	private String url;
 
 	
 	/** 
 	 * Empty constructor
 	 */
-	public ProfileImageExternal(){
+	public ProfileImageOfficial(){
 	}
 	
 	/**
 	 * Full constructor
 	 */
-	public ProfileImageExternal(String userUuid, String mainUrl, String thumbnailUrl){
+	public ProfileImageOfficial(String userUuid, String url){
 		this.userUuid=userUuid;
-		this.mainUrl=mainUrl;
-		this.thumbnailUrl=thumbnailUrl;
-	}
-	
-	/**
-	 * Minimal constructor for when only one URL
-	 */
-	public ProfileImageExternal(String userUuid, String mainUrl){
-		this.userUuid=userUuid;
-		this.mainUrl=mainUrl;
+		this.url=url;
 	}
 	
 	
@@ -67,20 +57,12 @@ public class ProfileImageExternal implements Serializable {
 		this.userUuid = userUuid;
 	}
 
-	public String getMainUrl() {
-		return mainUrl;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setMainUrl(String mainUrl) {
-		this.mainUrl = mainUrl;
-	}
-
-	public String getThumbnailUrl() {
-		return thumbnailUrl;
-	}
-
-	public void setThumbnailUrl(String thumbnailUrl) {
-		this.thumbnailUrl = thumbnailUrl;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	

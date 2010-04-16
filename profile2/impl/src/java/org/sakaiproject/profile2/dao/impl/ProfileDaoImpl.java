@@ -14,15 +14,15 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 import org.sakaiproject.profile2.dao.ProfileDao;
+import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
+import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
+import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.ProfileFriend;
-import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.model.ProfileImageExternal;
-import org.sakaiproject.profile2.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -135,9 +135,9 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<ProfileImage> getCurrentProfileImageRecords(final String userId) {
+	public List<ProfileImageUploaded> getCurrentProfileImageRecords(final String userId) {
 		
-		List<ProfileImage> images = new ArrayList<ProfileImage>();
+		List<ProfileImageUploaded> images = new ArrayList<ProfileImageUploaded>();
 		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
@@ -149,14 +149,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	images = (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
 	  	return images;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public ProfileImage getCurrentProfileImageRecord(final String userId) {
+	public ProfileImageUploaded getCurrentProfileImageRecord(final String userId) {
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -167,15 +167,15 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			}
 		};
 	
-		return (ProfileImage) getHibernateTemplate().execute(hcb);
+		return (ProfileImageUploaded) getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<ProfileImage> getOtherProfileImageRecords(final String userId) {
+	public List<ProfileImageUploaded> getOtherProfileImageRecords(final String userId) {
 		
-		List<ProfileImage> images = new ArrayList<ProfileImage>();
+		List<ProfileImageUploaded> images = new ArrayList<ProfileImageUploaded>();
 		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
@@ -187,7 +187,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	images = (List<ProfileImage>) getHibernateTemplate().executeFind(hcb);
+	  	images = (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
 	  	return images;
 	}
 	
@@ -591,16 +591,16 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean addNewProfileImage(final ProfileImage profileImage) {
+	public boolean addNewProfileImage(final ProfileImageUploaded profileImage) {
 		
 		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					try {
 						//first get the current ProfileImage records for this user
-						List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(profileImage.getUserUuid()));
+						List<ProfileImageUploaded> currentImages = new ArrayList<ProfileImageUploaded>(getCurrentProfileImageRecords(profileImage.getUserUuid()));
             
-						for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
-							ProfileImage currentImage = (ProfileImage)i.next();
+						for(Iterator<ProfileImageUploaded> i = currentImages.iterator(); i.hasNext();){
+							ProfileImageUploaded currentImage = (ProfileImageUploaded)i.next();
               
 							//invalidate each
 							currentImage.setCurrent(false);

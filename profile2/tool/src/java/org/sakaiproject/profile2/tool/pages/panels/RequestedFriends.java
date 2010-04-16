@@ -38,6 +38,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -110,12 +111,20 @@ public class RequestedFriends extends Panel {
 		    	//get name
 		    	String displayName = person.getDisplayName();
 		    	
-		    	//get privacy record for the friend
-		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(personUuid);
 		    	
-		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(personUuid, privacy, userUuid, false);
+		    	//REMOVE THIS WHEN WE FLESH OUT THE PERSON OBJECT RETURNED
+				//ensure privacy
+				ProfilePrivacy privacy = person.getPrivacy();
+				if(privacy == null){
+					 privacy = profileLogic.getPrivacyRecordForUser(personUuid);
+				}
 				
+				//ensure preferences
+				ProfilePreferences prefs = person.getPreferences();
+				if(prefs == null){
+					prefs = profileLogic.getPreferencesRecordForUser(personUuid);
+				}
+		    	
 				//image wrapper, links to profile
 		    	Link<String> friendItem = new Link<String>("friendPhotoWrap", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
@@ -125,7 +134,7 @@ public class RequestedFriends extends Panel {
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", personUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("result-photo", personUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				item.add(friendItem);
 		    			    	
 		    	//name and link to profile
