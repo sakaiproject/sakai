@@ -220,7 +220,7 @@ public class ContentHostingComparator implements Comparator
 				return 1;
 			}
 			int v = 0;
-			if (c1[i].getClass().getName().equals("java.lang.String") && c1[i].getClass().getName().equals("java.lang.String")) {
+			if (c1[i].getClass().getName().equals("java.lang.String") && c2[i].getClass().getName().equals("java.lang.String")) {
 				v = c1[i].toString().compareToIgnoreCase((c2[i].toString()));
 			} else if (c1[i].getClass().equals(c2[i].getClass())) {
 				M_log.info(c1[i].getClass().getName() +":" + c1[i].getClass().getName() +":");
