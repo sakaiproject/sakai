@@ -44,6 +44,7 @@ import org.sakaiproject.antivirus.api.VirusScanner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -273,6 +274,10 @@ public class ClamAVScanner implements VirusScanner {
 		} catch (ServerOverloadException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (VirusFoundException e) {
+			//we should log an event for this is we likely have CHS events before and after this
+			eventTrackingService.post(eventTrackingService.newEvent("antivirus.virusfound", contentHostingService.getReference(resourceReference), false));
+			throw e;
 		}
 	}
 
@@ -320,6 +325,10 @@ public class ClamAVScanner implements VirusScanner {
 		this.contentHostingService = contentHostingService;
 	}
 	
+	private EventTrackingService eventTrackingService;
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
 
 	
 }
