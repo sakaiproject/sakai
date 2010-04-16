@@ -390,7 +390,8 @@ public class SiteManageGroupSectionRoleHandler {
             
             try {    
                 site = siteService.getSite(siteId);
-                update = siteService.allowUpdateSite(site.getId());
+                // allow update site or group membership
+                update = siteService.allowUpdateSite(site.getId()) || siteService.allowUpdateGroupMembership(site.getId());
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
