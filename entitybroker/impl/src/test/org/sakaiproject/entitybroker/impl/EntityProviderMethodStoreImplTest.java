@@ -105,7 +105,7 @@ public class EntityProviderMethodStoreImplTest {
     public void testGetCustomActions() {
        List<CustomAction> actions = entityProviderMethodStore.getCustomActions(TestData.PREFIXA1);
        assertNotNull(actions);
-       assertEquals(3, actions.size());
+       assertEquals(4, actions.size());
 
        actions = entityProviderMethodStore.getCustomActions(TestData.PREFIX3);
        assertNotNull(actions);

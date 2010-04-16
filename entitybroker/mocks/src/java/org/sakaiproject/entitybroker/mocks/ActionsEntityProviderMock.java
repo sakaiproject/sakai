@@ -74,6 +74,11 @@ public class ActionsEntityProviderMock extends CRUDableEntityProviderMock implem
       myEntities.put(me.getId(), me);
    }
 
+   @EntityCustomAction(action="yyyy",viewKey="")
+   public ActionReturn xxxAction(EntityView view) {
+      return new ActionReturn(view.getOriginalEntityUrl());
+   }
+
    public String[] getHandledOutputFormats() {
       return new String[] {Formats.JSON, Formats.XML};
    }

@@ -384,8 +384,9 @@ public class EntityBrokerImpl implements EntityBroker, PropertiesProvider {
         if (entityBrokerManager.getEntityRESTProvider() != null) {
             try {
                 requestStorage.setRequestValues(params);
-                if (params == null) { params = new HashMap<String, Object>(); }
-                ar = entityBrokerManager.getEntityRESTProvider().handleCustomActionExecution(actionProvider, ref, action, params, outputStream, null, null);
+                if (params == null) { params = new HashMap<String, Object>(0); }
+                EntityView view = entityBrokerManager.parseEntityURL(reference);
+                ar = entityBrokerManager.getEntityRESTProvider().handleCustomActionExecution(actionProvider, ref, action, params, outputStream, view, null);
                 // populate the entity data
                 if (ar != null) {
                     if (ar.entitiesList != null) {

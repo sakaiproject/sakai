@@ -673,5 +673,5 @@ public class EntityBrokerTransactionalTest extends AbstractTransactionalSpringCo
         assertNotNull(refs);
         assertEquals(3, refs.size());
     }
-
+    
 }

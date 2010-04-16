@@ -419,6 +419,11 @@ public class EntityBrokerImplTest {
             assertNotNull(e.getMessage());
         }
 
+        String ref = TestData.SPACEA1+"/yyyy/zzzzz/123456";
+        actionReturn = entityBroker.executeCustomAction(ref, "yyyy", null, null);
+        assertNotNull(actionReturn);
+        assertEquals(ref, actionReturn.getOutputString());
+
     }
 
 }
