@@ -5523,14 +5523,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			return;
 		}
 
-		// check for over quota.
-		if (overQuota(edit))
-		{
-			cancelResource(edit);
-			throw new OverQuotaException(edit.getReference());
-		}
-		
-		
 		
 		commitResourceEdit(edit, priority);
 
@@ -5549,17 +5541,44 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					e1.printStackTrace();
 				} catch (IdUnusedException e1) {
 					// we're unlikely to see this at this point
-					e.printStackTrace();
+					e1.printStackTrace();
 				} catch (TypeException e1) {
 					// we're unlikely to see this at this point
-					e.printStackTrace();
+					e1.printStackTrace();
 				} catch (InUseException e1) {
 					// we're unlikely to see this at this point
-					e.printStackTrace();
+					e1.printStackTrace();
 				}
 				throw e;
 			}
 		}
+
+		/**
+		 *  check for over quota.
+		 *  We do this after the commit so we can actual tell its size
+		 */
+		if (overQuota(edit))
+		{
+			try {
+				//the edit is closed so we need to refetch it
+				ContentResourceEdit edit2 = editResource(edit.getId());
+				removeResource(edit2);
+			} catch (PermissionException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (IdUnusedException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (TypeException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (InUseException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			}
+			throw new OverQuotaException(edit.getReference());
+		}
+		
 		
 		if(! readyToUseFilesizeColumn())
 		{
