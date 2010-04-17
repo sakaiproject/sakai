@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -189,10 +190,20 @@ public class ClamAVScanner implements VirusScanner {
 			}
 			long finish = System.currentTimeMillis();
 			logger.info("Content scanned in " + (finish - start));
-		} catch (Exception ex) {
-			logger.error("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + ex.getMessage(), ex);
-			throw new VirusScanIncompleteException(SCAN_INCOMPLETE_MSG);
-		} finally {
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + e.getMessage());
+			throw new VirusScanIncompleteException(SCAN_INCOMPLETE_MSG, e);
+		} catch (IOException e) {
+			//we expect a connection reset if we tried to send too much data to clamd
+			if ("Connection reset".equals(e.getMessage())) {
+				logger.warn("Clamd reset the connection maybe due to the file being too large");
+				return;
+			}
+			logger.error("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + e.getMessage());
+			throw new VirusScanIncompleteException(SCAN_INCOMPLETE_MSG, e);
+			
+		} 
+		finally {
 			
 			if(reader != null) {
 				try {

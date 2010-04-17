@@ -29,7 +29,17 @@ package org.sakaiproject.antivirus.api;
  * To change this template use File | Settings | File Templates.
  */
 public class VirusScanIncompleteException extends RuntimeException {
-   public VirusScanIncompleteException(String message) {
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public VirusScanIncompleteException(String message) {
       super(message);
+   }
+   
+   public VirusScanIncompleteException(String message, Throwable cause) {
+	   super(message);
+	   super.initCause(cause);
    }
 }
