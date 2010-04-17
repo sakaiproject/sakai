@@ -10898,136 +10898,112 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	public void doUpload_all(RunData data)
-	{
+	{ 
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
-		
-		String contextString = ToolManager.getCurrentPlacement().getContext();
-		String toolTitle = ToolManager.getTool(ASSIGNMENT_TOOL_ID).getTitle();
-		String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-		String associateGradebookAssignment = null;
-		
-		List<String> choices = params.getStrings("choices") != null?new ArrayList(Arrays.asList(params.getStrings("choices"))):null;
-		
-		if (choices == null || choices.size() == 0)
+		// see if the user uploaded a file
+	    FileItem fileFromUpload = null;
+	    String fileName = null;
+	    fileFromUpload = params.getFileItem("file");
+	    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
+	    int max_bytes = 1024 * 1024;
+	    try
+	    {
+	    	max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+	    }
+		catch(Exception e)
 		{
-			// has to choose one upload feature
-			addAlert(state, rb.getString("uploadall.alert.choose.element"));
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024 * 1024;
+			M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
 		}
-		else
+		
+		if(fileFromUpload == null)
 		{
-			boolean hasSubmissionText = false;
-			boolean hasSubmissionAttachment = false;
-			boolean hasGradeFile = false;
-			boolean hasFeedbackText = false;
-			boolean hasComment = false;
-			boolean hasFeedbackAttachment = false;
-			boolean releaseGrades = false;
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
+		}
+		else 
+		{	
+			String contentType = fileFromUpload.getContentType();
 			
-			// check against the content elements selection
-			if (choices.contains("studentSubmissionText"))
+			if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0 
+					|| (!"application/zip".equals(contentType) &&  !"application/x-zip-compressed".equals(contentType))) 
 			{
-				// should contain student submission text information
-				hasSubmissionText = true;
+				// no file
+				addAlert(state, rb.getString("uploadall.alert.zipFile"));
 			}
-			if (choices.contains("studentSubmissionAttachment"))
+			else
 			{
-				// should contain student submission attachment information
-				hasSubmissionAttachment = true;
-			}
-			if (choices.contains("gradeFile"))
-			{
-				// should contain grade file
-				hasGradeFile = true;	
-			}
-			if (choices.contains("feedbackTexts"))
-			{
-				// inline text
-				hasFeedbackText = true;
-			}
-			if (choices.contains("feedbackComments"))
-			{
-				// comments.txt should be available
-				hasComment = true;
-			}
-			if (choices.contains("feedbackAttachments"))
-			{
-				// feedback attachment
-				hasFeedbackAttachment = true;
-			}
-			if (params.getString("release") != null)
-			{
-				// comments.xml should be available
-				releaseGrades = params.getBoolean("release");
-			}
-			state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT, Boolean.valueOf(hasSubmissionText));
-			state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, Boolean.valueOf(hasSubmissionAttachment));
-			state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
-			state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
-			state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
-			state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
-			state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
-			
-			// constructor the hashtable for all submission objects
-			Hashtable submissionTable = new Hashtable();
-			List submissions = null;
-			Assignment assignment = getAssignment(aReference, "doUpload_all", state);
-			if (assignment != null)
-			{
-				associateGradebookAssignment = StringUtil.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-				submissions =  AssignmentService.getSubmissions(assignment);
-				if (submissions != null)
-				{
-					Iterator sIterator = submissions.iterator();
-					while (sIterator.hasNext())
-					{
-						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
-						User[] users = s.getSubmitters();
-						if (users != null && users.length > 0 && users[0] != null)
-						{
-							submissionTable.put(users[0].getEid(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new Vector():s.getSubmittedAttachments(), hasFeedbackAttachment?new Vector():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
-						}
-					}
-				}
-			}
-			
-			// see if the user uploaded a file
-		    FileItem fileFromUpload = null;
-		    String fileName = null;
-		    fileFromUpload = params.getFileItem("file");
-			    
-		    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-		    int max_bytes = 1024 * 1024;
-		    try
-		    {
-		    		max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-		    	}
-			catch(Exception e)
-			{
-				// if unable to parse an integer from the value
-				// in the properties file, use 1 MB as a default
-				max_file_size_mb = "1";
-				max_bytes = 1024 * 1024;
-				M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
-			}
-			
-			if(fileFromUpload == null)
-			{
-				// "The user submitted a file to upload but it was too big!"
-				addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
-			}
-			else 
-			{
-				String contentType = fileFromUpload.getContentType();
+				String contextString = ToolManager.getCurrentPlacement().getContext();
+				String toolTitle = ToolManager.getTool(ASSIGNMENT_TOOL_ID).getTitle();
+				String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+				String associateGradebookAssignment = null;
 				
-				if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0 
-						|| (!"application/zip".equals(contentType) &&  !"application/x-zip-compressed".equals(contentType))) 
+				List<String> choices = params.getStrings("choices") != null?new ArrayList(Arrays.asList(params.getStrings("choices"))):null;
+				
+				if (choices == null || choices.size() == 0)
 				{
-					// no file
-					addAlert(state, rb.getString("uploadall.alert.zipFile"));
+					// has to choose one upload feature
+					addAlert(state, rb.getString("uploadall.alert.choose.element"));
+					state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT);
+					state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT);
+					state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
+					state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
+					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
+					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
+					state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
 				}
 				else
 				{
+					// should contain student submission text information
+					boolean hasSubmissionText = uploadAll_readChoice(choices, "studentSubmissionText");
+					// should contain student submission attachment information
+					boolean hasSubmissionAttachment = uploadAll_readChoice(choices, "studentSubmissionAttachment");
+					// should contain grade file
+					boolean hasGradeFile = uploadAll_readChoice(choices, "gradeFile");	
+					// inline text
+					boolean hasFeedbackText = uploadAll_readChoice(choices, "feedbackTexts");
+					// comments.txt should be available
+					boolean hasComment = uploadAll_readChoice(choices, "feedbackComments");
+					// feedback attachment
+					boolean hasFeedbackAttachment = uploadAll_readChoice(choices, "feedbackAttachments");
+					// release
+					boolean	releaseGrades = params.getString("release") != null ? params.getBoolean("release") : false;
+					
+					state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT, Boolean.valueOf(hasSubmissionText));
+					state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, Boolean.valueOf(hasSubmissionAttachment));
+					state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
+					state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
+					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
+					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
+					state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
+					
+					// constructor the hashtable for all submission objects
+					Hashtable submissionTable = new Hashtable();
+					List submissions = null;
+					Assignment assignment = getAssignment(aReference, "doUpload_all", state);
+					if (assignment != null)
+					{
+						associateGradebookAssignment = StringUtil.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+						submissions =  AssignmentService.getSubmissions(assignment);
+						if (submissions != null)
+						{
+							Iterator sIterator = submissions.iterator();
+							while (sIterator.hasNext())
+							{
+								AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
+								User[] users = s.getSubmitters();
+								if (users != null && users.length > 0 && users[0] != null)
+								{
+									submissionTable.put(users[0].getEid(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new Vector():s.getSubmittedAttachments(), hasFeedbackAttachment?new Vector():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
+								}
+							}
+						}
+					}
+						
 					InputStream fileContentStream = fileFromUpload.getInputStream();
 					int contentLength = data.getRequest().getContentLength();
 					
@@ -11037,347 +11013,22 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					else if(fileContentStream != null)
 					{	
-						// a flag value for checking whether the zip file is of proper format: 
-						// should have a grades.csv file if there is no user folders
-						boolean zipHasGradeFile = false;
-						// and if have any folder structures, those folders should be named after at least one site user (zip file could contain user names who is no longer inside the site)
-						boolean zipHasFolder = false;
-						boolean zipHasFolderValidUserId = false;
-						
-						FileOutputStream tmpFileOut = null;
-						try
-						{
-							File f = File.createTempFile(String.valueOf(System.currentTimeMillis()),"");
-							
-							tmpFileOut = new FileOutputStream(f);
-							writeToStream(fileContentStream, tmpFileOut);
-							tmpFileOut.flush();
-							tmpFileOut.close();
-
-							ZipFile zipFile = new ZipFile(f, "UTF-8");
-							Enumeration<ZipEntry> zipEntries = zipFile.getEntries();
-							ZipEntry entry;
-							while (zipEntries.hasMoreElements())
-							{
-								entry = zipEntries.nextElement();
-								String entryName = entry.getName();
-								if (!entry.isDirectory() && entryName.indexOf("/.") == -1)
-								{
-									if (entryName.endsWith("grades.csv"))
-									{
-										// at least the zip file has a grade.csv
-										zipHasGradeFile = true;
-										
-										if (hasGradeFile)
-										{
-											// read grades.cvs from zip
-											String result = StringUtil.trimToZero(readIntoString(zipFile.getInputStream(entry)));
-									        String[] lines=null;
-									        if (result.indexOf("\r\n") != -1)
-									        	lines = result.split("\r\n");
-									        else if (result.indexOf("\r") != -1)
-									        		lines = result.split("\r");
-									        else if (result.indexOf("\n") != -1)
-								        			lines = result.split("\n");
-									        if (lines != null )
-									        {
-										        for (int i = 3; i<lines.length; i++)
-										        {
-									        		// escape the first three header lines
-									        		String[] items = lines[i].split(",");
-									        		if (items.length > 4)
-									        		{
-									        			// has grade information
-										        		try
-										        		{
-										        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
-										        			if (u != null)
-										        			{
-											        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getEid());
-											        			if (w != null)
-											        			{
-											        				String itemString = items[4];
-											        				int gradeType = assignment.getContent().getTypeOfGrade();
-											        				if (gradeType == Assignment.SCORE_GRADE_TYPE)
-											        				{
-											        					validPointGrade(state, itemString);
-											        				}
-											        				else
-											        				{
-											        					validLetterGrade(state, itemString);
-											        				}
-											        				if (state.getAttribute(STATE_MESSAGE) == null)
-											        				{
-												        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
-												        				submissionTable.put(u.getEid(), w);
-											        				}
-											        			}
-										        			}
-										        		}
-										        		catch (Exception e )
-										        		{
-										        			M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
-										        		}
-									        		}
-										        }
-											}
-										}
-									}
-									else 
-									{
-										// get user eid part
-										String userEid = "";
-										if (entryName.indexOf("/") != -1)
-										{
-											// there is folder structure inside zip
-											if (!zipHasFolder) zipHasFolder = true;
-											
-											// remove the part of zip name
-											userEid = entryName.substring(entryName.indexOf("/")+1);
-											// get out the user name part
-											if (userEid.indexOf("/") != -1)
-											{
-												userEid = userEid.substring(0, userEid.indexOf("/"));
-											}
-											// get the eid part
-											if (userEid.indexOf("(") != -1)
-											{
-												userEid = userEid.substring(userEid.indexOf("(")+1, userEid.indexOf(")"));
-											}
-											userEid=StringUtil.trimToNull(userEid);
-										}
-										if (submissionTable.containsKey(userEid))
-										{
-											if (!zipHasFolderValidUserId) zipHasFolderValidUserId = true;
-											
-											if (hasComment && entryName.indexOf("comments") != -1)
-											{
-												// read the comments file
-												String comment = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
-										        if (comment != null)
-										        {
-										        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-										        		r.setComment(comment);
-										        		submissionTable.put(userEid, r);
-										        }
-											}
-											if (hasFeedbackText && entryName.indexOf("feedbackText") != -1)
-											{
-												// upload the feedback text
-												String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
-												if (text != null)
-										        {
-										        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-										        		r.setFeedbackText(text);
-										        		submissionTable.put(userEid, r);
-										        }
-											}
-											if (hasSubmissionText && entryName.indexOf("_submissionText") != -1)
-											{
-												// upload the student submission text
-												String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
-												if (text != null)
-										        {
-										        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-										        		r.setText(text);
-										        		submissionTable.put(userEid, r);
-										        }
-											}
-											if (hasSubmissionAttachment)
-											{
-												// upload the submission attachment
-												String submissionFolder = "/" + rb.getString("download.submission.attachment") + "/";
-												if ( entryName.indexOf(submissionFolder) != -1)
-												{
-													// clear the submission attachment first
-													UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-													submissionTable.put(userEid, r);
-													submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userEid, "submission");
-												}
-											}
-											if (hasFeedbackAttachment)
-											{
-												// upload the feedback attachment
-												String submissionFolder = "/" + rb.getString("download.feedback.attachment") + "/";
-												if ( entryName.indexOf(submissionFolder) != -1)
-												{
-													// clear the feedback attachment first
-													UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-													submissionTable.put(userEid, r);
-													submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userEid, "feedback");
-												}
-											}
-											
-											// if this is a timestamp file
-											if (entryName.indexOf("timestamp") != -1)
-											{
-												byte[] timeStamp = readIntoBytes(zipFile.getInputStream(entry), entryName, entry.getSize());
-												UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-								        		r.setSubmissionTimestamp(new String(timeStamp));
-								        		submissionTable.put(userEid, r);
-											}
-										}
-									}
-								}
-							}
-						}
-						catch (IOException e) 
-						{
-							// uploaded file is not a valid archive
-							addAlert(state, rb.getString("uploadall.alert.zipFile"));
-							M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
-						}
-						finally
-						{
-							if (tmpFileOut != null) {
-								try {
-									tmpFileOut.close();
-								} catch (IOException e) {
-									M_log.warn(this + "doUpload_all: Error closing temp file output stream: " + e.toString());
-								}
-							}
-							
-							if (fileContentStream != null) {
-								try {
-									fileContentStream.close();
-								} catch (IOException e) {
-									M_log.warn(this + "doUpload_all: Error closing file upload stream: " + e.toString());
-								}
-							}
-						}
-						
-						if ((!zipHasGradeFile && !zipHasFolder)					// generate error when there is no grade file and no folder structure
-								|| (zipHasFolder && !zipHasFolderValidUserId))	// generate error when there is folder structure but not matching one user id
-						{
-							// alert if the zip is of wrong format
-							addAlert(state, rb.getString("uploadall.alert.wrongZipFormat"));
-						}
+						submissionTable = uploadAll_parseZipFile(state,
+								hasSubmissionText, hasSubmissionAttachment,
+								hasGradeFile, hasFeedbackText, hasComment,
+								hasFeedbackAttachment, submissionTable,
+								assignment, fileContentStream);
 					}
-				}
-			}
 			
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				// update related submissions
-				if (assignment != null && submissions != null)
-				{
-					Iterator sIterator = submissions.iterator();
-					while (sIterator.hasNext())
+					if (state.getAttribute(STATE_MESSAGE) == null)
 					{
-						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
-						User[] users = s.getSubmitters();
-						if (users != null && users.length > 0 && users[0] != null)
-						{
-							String uName = users[0].getEid();
-							if (submissionTable.containsKey(uName))
-							{
-								// update the AssignmetnSubmission record
-								AssignmentSubmissionEdit sEdit = editSubmission(s.getReference(), "doUpload_all", state);
-								if (sEdit != null)	
-								{
-									UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(uName);
-									
-									// the submission text
-									if (hasSubmissionText)
-									{
-										sEdit.setSubmittedText(w.getText());
-									}
-									
-									// the feedback text
-									if (hasFeedbackText)
-									{
-										sEdit.setFeedbackText(w.getFeedbackText());
-									}
-									
-									// the submission attachment
-									if (hasSubmissionAttachment)
-									{
-										// update the submission attachments with newly added ones from zip file
-										List submittedAttachments = sEdit.getSubmittedAttachments();
-										for (Iterator attachments = w.getSubmissionAttachments().iterator(); attachments.hasNext();)
-										{
-											Reference a = (Reference) attachments.next();
-											if (!submittedAttachments.contains(a))
-											{
-												sEdit.addSubmittedAttachment(a);
-											}
-										}
-									}
-									
-									// the feedback attachment
-									if (hasFeedbackAttachment)
-									{
-										List feedbackAttachments = sEdit.getFeedbackAttachments();
-										for (Iterator attachments = w.getFeedbackAttachments().iterator(); attachments.hasNext();)
-										{
-											// update the feedback attachments with newly added ones from zip file
-											Reference a = (Reference) attachments.next();
-											if (!feedbackAttachments.contains(a))
-											{
-												sEdit.addFeedbackAttachment(a);
-											}
-										}
-									}
-									
-									// the feedback comment
-									if (hasComment)
-									{
-										sEdit.setFeedbackComment(w.getComment());
-									}
-									
-									// the grade file
-									if (hasGradeFile)
-									{
-										// set grade
-										String grade = StringUtil.trimToNull(w.getGrade());
-										sEdit.setGrade(grade);
-										if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !"ungraded".equals(grade))
-											sEdit.setGraded(true);
-									}
-									
-									// release or not
-									if (sEdit.getGraded())
-									{
-										sEdit.setGradeReleased(releaseGrades);
-										sEdit.setReturned(releaseGrades);
-									}
-									else
-									{
-										sEdit.setGradeReleased(false);
-										sEdit.setReturned(false);
-									}
-									
-									if (releaseGrades && sEdit.getGraded())
-									{
-										sEdit.setTimeReturned(TimeService.newTime());
-									}
-									
-									// if the current submission lacks timestamp while the timestamp exists inside the zip file
-									if (StringUtil.trimToNull(w.getSubmissionTimeStamp()) != null && sEdit.getTimeSubmitted() == null)
-									{
-										sEdit.setTimeSubmitted(TimeService.newTimeGmt(w.getSubmissionTimeStamp()));
-										sEdit.setSubmitted(true);
-									}
-									
-									// for further information
-									boolean graded = sEdit.getGraded();
-									String sReference = sEdit.getReference();
-									
-									// commit
-									AssignmentService.commitEdit(sEdit);
-									
-									if (releaseGrades && graded)
-									{
-										// update grade in gradebook
-										if (associateGradebookAssignment != null)
-										{
-											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1);
-										}
-									}
-									
-								}
-							}
-						}	
+						// update related submissions
+						uploadAll_updateSubmissions(state, aReference,
+								associateGradebookAssignment,
+								hasSubmissionText, hasSubmissionAttachment,
+								hasGradeFile, hasFeedbackText, hasComment,
+								hasFeedbackAttachment, releaseGrades,
+								submissionTable, submissions, assignment);
 					}
 				}
 			}
@@ -11388,6 +11039,392 @@ public class AssignmentAction extends PagedResourceActionII
 			// go back to the list of submissions view
 			cleanUploadAllContext(state);
 			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		}
+	}
+
+	private boolean uploadAll_readChoice(List<String> choices, String text) {
+		return choices != null && text != null && choices.contains(text) ? true:false;
+	}
+
+	/**
+	 * parse content inside uploaded zip file
+	 * @param state
+	 * @param hasSubmissionText
+	 * @param hasSubmissionAttachment
+	 * @param hasGradeFile
+	 * @param hasFeedbackText
+	 * @param hasComment
+	 * @param hasFeedbackAttachment
+	 * @param submissionTable
+	 * @param assignment
+	 * @param fileContentStream
+	 * @return
+	 */
+	private Hashtable uploadAll_parseZipFile(SessionState state,
+			boolean hasSubmissionText, boolean hasSubmissionAttachment,
+			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
+			boolean hasFeedbackAttachment, Hashtable submissionTable,
+			Assignment assignment, InputStream fileContentStream) {
+		// a flag value for checking whether the zip file is of proper format: 
+		// should have a grades.csv file if there is no user folders
+		boolean zipHasGradeFile = false;
+		// and if have any folder structures, those folders should be named after at least one site user (zip file could contain user names who is no longer inside the site)
+		boolean zipHasFolder = false;
+		boolean zipHasFolderValidUserId = false;
+		
+		FileOutputStream tmpFileOut = null;
+		try
+		{
+			File f = File.createTempFile(String.valueOf(System.currentTimeMillis()),"");
+			
+			tmpFileOut = new FileOutputStream(f);
+			writeToStream(fileContentStream, tmpFileOut);
+			tmpFileOut.flush();
+			tmpFileOut.close();
+
+			ZipFile zipFile = new ZipFile(f, "UTF-8");
+			Enumeration<ZipEntry> zipEntries = zipFile.getEntries();
+			ZipEntry entry;
+			while (zipEntries.hasMoreElements())
+			{
+				entry = zipEntries.nextElement();
+				String entryName = entry.getName();
+				if (!entry.isDirectory() && entryName.indexOf("/.") == -1)
+				{
+					if (entryName.endsWith("grades.csv"))
+					{
+						// at least the zip file has a grade.csv
+						zipHasGradeFile = true;
+						
+						if (hasGradeFile)
+						{
+							// read grades.cvs from zip
+							String result = StringUtil.trimToZero(readIntoString(zipFile.getInputStream(entry)));
+					        String[] lines=null;
+					        if (result.indexOf("\r\n") != -1)
+					        	lines = result.split("\r\n");
+					        else if (result.indexOf("\r") != -1)
+					        		lines = result.split("\r");
+					        else if (result.indexOf("\n") != -1)
+				        			lines = result.split("\n");
+					        if (lines != null )
+					        {
+						        for (int i = 3; i<lines.length; i++)
+						        {
+					        		// escape the first three header lines
+					        		String[] items = lines[i].split(",");
+					        		if (items.length > 4)
+					        		{
+					        			// has grade information
+						        		try
+						        		{
+						        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
+						        			if (u != null)
+						        			{
+							        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getEid());
+							        			if (w != null)
+							        			{
+							        				String itemString = items[4];
+							        				int gradeType = assignment.getContent().getTypeOfGrade();
+							        				if (gradeType == Assignment.SCORE_GRADE_TYPE)
+							        				{
+							        					validPointGrade(state, itemString);
+							        				}
+							        				else
+							        				{
+							        					validLetterGrade(state, itemString);
+							        				}
+							        				if (state.getAttribute(STATE_MESSAGE) == null)
+							        				{
+								        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
+								        				submissionTable.put(u.getEid(), w);
+							        				}
+							        			}
+						        			}
+						        		}
+						        		catch (Exception e )
+						        		{
+						        			M_log.warn(this + ":uploadAll_parseZipFile " + e.getMessage());
+						        		}
+					        		}
+						        }
+							}
+						}
+					}
+					else 
+					{
+						// get user eid part
+						String userEid = "";
+						if (entryName.indexOf("/") != -1)
+						{
+							// there is folder structure inside zip
+							if (!zipHasFolder) zipHasFolder = true;
+							
+							// remove the part of zip name
+							userEid = entryName.substring(entryName.indexOf("/")+1);
+							// get out the user name part
+							if (userEid.indexOf("/") != -1)
+							{
+								userEid = userEid.substring(0, userEid.indexOf("/"));
+							}
+							// get the eid part
+							if (userEid.indexOf("(") != -1)
+							{
+								userEid = userEid.substring(userEid.indexOf("(")+1, userEid.indexOf(")"));
+							}
+							userEid=StringUtil.trimToNull(userEid);
+						}
+						if (submissionTable.containsKey(userEid))
+						{
+							if (!zipHasFolderValidUserId) zipHasFolderValidUserId = true;
+							
+							if (hasComment && entryName.indexOf("comments") != -1)
+							{
+								// read the comments file
+								String comment = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
+						        if (comment != null)
+						        {
+						        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+						        		r.setComment(comment);
+						        		submissionTable.put(userEid, r);
+						        }
+							}
+							if (hasFeedbackText && entryName.indexOf("feedbackText") != -1)
+							{
+								// upload the feedback text
+								String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
+								if (text != null)
+						        {
+						        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+						        		r.setFeedbackText(text);
+						        		submissionTable.put(userEid, r);
+						        }
+							}
+							if (hasSubmissionText && entryName.indexOf("_submissionText") != -1)
+							{
+								// upload the student submission text
+								String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
+								if (text != null)
+						        {
+						        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+						        		r.setText(text);
+						        		submissionTable.put(userEid, r);
+						        }
+							}
+							if (hasSubmissionAttachment)
+							{
+								// upload the submission attachment
+								String submissionFolder = "/" + rb.getString("download.submission.attachment") + "/";
+								if ( entryName.indexOf(submissionFolder) != -1)
+								{
+									// clear the submission attachment first
+									UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+									submissionTable.put(userEid, r);
+									submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userEid, "submission");
+								}
+							}
+							if (hasFeedbackAttachment)
+							{
+								// upload the feedback attachment
+								String submissionFolder = "/" + rb.getString("download.feedback.attachment") + "/";
+								if ( entryName.indexOf(submissionFolder) != -1)
+								{
+									// clear the feedback attachment first
+									UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+									submissionTable.put(userEid, r);
+									submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userEid, "feedback");
+								}
+							}
+							
+							// if this is a timestamp file
+							if (entryName.indexOf("timestamp") != -1)
+							{
+								byte[] timeStamp = readIntoBytes(zipFile.getInputStream(entry), entryName, entry.getSize());
+								UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+				        		r.setSubmissionTimestamp(new String(timeStamp));
+				        		submissionTable.put(userEid, r);
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (IOException e) 
+		{
+			// uploaded file is not a valid archive
+			addAlert(state, rb.getString("uploadall.alert.zipFile"));
+			M_log.warn(this + ":uploadAll_parseZipFile " + e.getMessage());
+		}
+		finally
+		{
+			if (tmpFileOut != null) {
+				try {
+					tmpFileOut.close();
+				} catch (IOException e) {
+					M_log.warn(this + ":uploadAll_parseZipFile: Error closing temp file output stream: " + e.toString());
+				}
+			}
+			
+			if (fileContentStream != null) {
+				try {
+					fileContentStream.close();
+				} catch (IOException e) {
+					M_log.warn(this + ":uploadAll_parseZipFile: Error closing file upload stream: " + e.toString());
+				}
+			}
+		}
+		
+		if ((!zipHasGradeFile && !zipHasFolder)					// generate error when there is no grade file and no folder structure
+				|| (zipHasFolder && !zipHasFolderValidUserId))	// generate error when there is folder structure but not matching one user id
+		{
+			// alert if the zip is of wrong format
+			addAlert(state, rb.getString("uploadall.alert.wrongZipFormat"));
+		}
+		return submissionTable;
+	}
+	
+	/**
+	 * Update all submission objects based on uploaded zip file
+	 * @param state
+	 * @param aReference
+	 * @param associateGradebookAssignment
+	 * @param hasSubmissionText
+	 * @param hasSubmissionAttachment
+	 * @param hasGradeFile
+	 * @param hasFeedbackText
+	 * @param hasComment
+	 * @param hasFeedbackAttachment
+	 * @param releaseGrades
+	 * @param submissionTable
+	 * @param submissions
+	 * @param assignment
+	 */
+	private void uploadAll_updateSubmissions(SessionState state,
+			String aReference, String associateGradebookAssignment,
+			boolean hasSubmissionText, boolean hasSubmissionAttachment,
+			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
+			boolean hasFeedbackAttachment, boolean releaseGrades,
+			Hashtable submissionTable, List submissions, Assignment assignment) {
+		if (assignment != null && submissions != null)
+		{
+			Iterator sIterator = submissions.iterator();
+			while (sIterator.hasNext())
+			{
+				AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
+				User[] users = s.getSubmitters();
+				if (users != null && users.length > 0 && users[0] != null)
+				{
+					String uName = users[0].getEid();
+					if (submissionTable.containsKey(uName))
+					{
+						// update the AssignmetnSubmission record
+						AssignmentSubmissionEdit sEdit = editSubmission(s.getReference(), "doUpload_all", state);
+						if (sEdit != null)	
+						{
+							UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(uName);
+							
+							// the submission text
+							if (hasSubmissionText)
+							{
+								sEdit.setSubmittedText(w.getText());
+							}
+							
+							// the feedback text
+							if (hasFeedbackText)
+							{
+								sEdit.setFeedbackText(w.getFeedbackText());
+							}
+							
+							// the submission attachment
+							if (hasSubmissionAttachment)
+							{
+								// update the submission attachments with newly added ones from zip file
+								List submittedAttachments = sEdit.getSubmittedAttachments();
+								for (Iterator attachments = w.getSubmissionAttachments().iterator(); attachments.hasNext();)
+								{
+									Reference a = (Reference) attachments.next();
+									if (!submittedAttachments.contains(a))
+									{
+										sEdit.addSubmittedAttachment(a);
+									}
+								}
+							}
+							
+							// the feedback attachment
+							if (hasFeedbackAttachment)
+							{
+								List feedbackAttachments = sEdit.getFeedbackAttachments();
+								for (Iterator attachments = w.getFeedbackAttachments().iterator(); attachments.hasNext();)
+								{
+									// update the feedback attachments with newly added ones from zip file
+									Reference a = (Reference) attachments.next();
+									if (!feedbackAttachments.contains(a))
+									{
+										sEdit.addFeedbackAttachment(a);
+									}
+								}
+							}
+							
+							// the feedback comment
+							if (hasComment)
+							{
+								sEdit.setFeedbackComment(w.getComment());
+							}
+							
+							// the grade file
+							if (hasGradeFile)
+							{
+								// set grade
+								String grade = StringUtil.trimToNull(w.getGrade());
+								sEdit.setGrade(grade);
+								if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !"ungraded".equals(grade))
+									sEdit.setGraded(true);
+							}
+							
+							// release or not
+							if (sEdit.getGraded())
+							{
+								sEdit.setGradeReleased(releaseGrades);
+								sEdit.setReturned(releaseGrades);
+							}
+							else
+							{
+								sEdit.setGradeReleased(false);
+								sEdit.setReturned(false);
+							}
+							
+							if (releaseGrades && sEdit.getGraded())
+							{
+								sEdit.setTimeReturned(TimeService.newTime());
+							}
+							
+							// if the current submission lacks timestamp while the timestamp exists inside the zip file
+							if (StringUtil.trimToNull(w.getSubmissionTimeStamp()) != null && sEdit.getTimeSubmitted() == null)
+							{
+								sEdit.setTimeSubmitted(TimeService.newTimeGmt(w.getSubmissionTimeStamp()));
+								sEdit.setSubmitted(true);
+							}
+							
+							// for further information
+							boolean graded = sEdit.getGraded();
+							String sReference = sEdit.getReference();
+							
+							// commit
+							AssignmentService.commitEdit(sEdit);
+							
+							if (releaseGrades && graded)
+							{
+								// update grade in gradebook
+								if (associateGradebookAssignment != null)
+								{
+									integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1);
+								}
+							}
+							
+						}
+					}
+				}	
+			}
 		}
 	}
 
