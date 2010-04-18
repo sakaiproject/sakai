@@ -840,3 +840,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Reviewer'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewofficialphoto'));
 
 -- end SAK-18370
+
+
+-- KNL-479 only needed for mysql
+
+alter table CONTENT_RESOURCE_DELETE CHANGE DELETE_DATE DELETE_DATE DATETIME;
