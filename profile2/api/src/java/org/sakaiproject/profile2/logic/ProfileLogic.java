@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
@@ -31,6 +32,7 @@ import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
+import org.sakaiproject.user.api.User;
 
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
@@ -1012,6 +1014,48 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public boolean saveOfficialImageUrl(final String userUuid, final String url);
+	
+	/**
+	 * Get a BasicPerson
+	 * @param userUuid
+	 * @return
+	 */
+	public BasicPerson getBasicPerson(String userUuid);
+	
+	/**
+	 * Get a BasicPerson
+	 * @param user
+	 * @return
+	 */
+	public BasicPerson getBasicPerson(User user);
+	
+	/**
+	 * Get a List of BasicPersons for the given Users.
+	 * @param users
+	 * @return
+	 */
+	public List<BasicPerson> getBasicPersons(List<User> users);
+	
+	/**
+	 * Get a Person
+	 * @param userUuid
+	 * @return
+	 */
+	public Person getPerson(String userUuid);
+	
+	/**
+	 * Get a Person
+	 * @param user
+	 * @return
+	 */
+	public Person getPerson(User user);
+		
+	/**
+	 * Get a List of Persons for the given Users.
+	 * @param users
+	 * @return
+	 */
+	public List<Person> getPersons(List<User> users);
 	
 	
 }

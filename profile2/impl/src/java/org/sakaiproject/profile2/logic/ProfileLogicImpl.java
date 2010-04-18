@@ -35,6 +35,7 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
+import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
@@ -2231,7 +2232,70 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return false;
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public BasicPerson getBasicPerson(String userUuid) {
+		return getBasicPerson(sakaiProxy.getUserById(userUuid));
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public BasicPerson getBasicPerson(User user) {
+		BasicPerson p = new BasicPerson();
+		p.setUuid(user.getId());
+		p.setDisplayName(user.getDisplayName());
+		p.setEmail(user.getEmail());
+		p.setType(user.getType());
+		return p;
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<BasicPerson> getBasicPersons(List<User> users) {
+		List<BasicPerson> list = new ArrayList<BasicPerson>();
+		for(User u:users){
+			list.add(getBasicPerson(u));
+		}
+		return list;
+	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public Person getPerson(String userUuid) {
+		return getPerson(sakaiProxy.getUserById(userUuid));
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public Person getPerson(User user) {
+		Person p = new Person();
+		String userUuid = user.getId();
+		p.setUuid(userUuid);
+		p.setDisplayName(user.getDisplayName());
+		p.setEmail(user.getEmail());
+		p.setType(user.getType());
+		p.setPreferences(getPreferencesRecordForUser(userUuid));
+		p.setPrivacy(getPrivacyRecordForUser(userUuid));
+		p.setProfile(null); //TODO
+		
+		return p;
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Person> getPersons(List<User> users) {
+		List<Person> list = new ArrayList<Person>();
+		for(User u:users){
+			list.add(getPerson(u));
+		}
+		return list;
+	}
 	
 	
 	
@@ -2709,6 +2773,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
 	}
+
+
+	
+
+
+
 
 	
 	//setup TinyUrlService API
