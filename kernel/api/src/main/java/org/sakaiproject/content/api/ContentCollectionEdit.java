@@ -35,7 +35,7 @@ public interface ContentCollectionEdit
 	/**
 	 * @param priorities
 	 */
-	void setPriorityMap(Map priorities);
+	void setPriorityMap(Map<String, Integer> priorities);
 	
 }	// ContentCollectionEdit
 

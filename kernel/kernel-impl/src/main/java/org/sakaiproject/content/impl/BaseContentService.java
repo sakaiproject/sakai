@@ -10880,7 +10880,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			return true;
 		}
 
-		public void setPriorityMap(Map priorities) 
+		public void setPriorityMap(Map<String, Integer> priorities) 
 		{
 			if(m_prioritySortEnabled)
 			{
