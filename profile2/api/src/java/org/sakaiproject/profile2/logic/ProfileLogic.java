@@ -58,7 +58,7 @@ public interface ProfileLogic {
 	 * @param userId		uuid of the user to retrieve the count for
 	 * @return
 	 */
-	public int getCountConnectionsForUser(final String userId);
+	public int getConnectionsForUserCount(final String userId);
 	
 	/**
 	 * Gets a list of Persons's that have unconfirmed connection requests to this person

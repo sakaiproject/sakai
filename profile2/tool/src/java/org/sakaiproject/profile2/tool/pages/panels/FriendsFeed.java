@@ -166,7 +166,7 @@ public class FriendsFeed extends Panel {
 		add(dataView);
 		
 		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns the number in the grid */
-		final int numFriends = profileLogic.getCountConnectionsForUser(ownerUserId);
+		final int numFriends = profileLogic.getConnectionsForUserCount(ownerUserId);
 		Label numFriendsLabel = new Label("numFriendsLabel");
 		add(numFriendsLabel);
 		

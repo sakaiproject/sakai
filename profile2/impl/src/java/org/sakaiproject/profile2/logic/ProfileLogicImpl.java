@@ -97,7 +97,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */	
-	public int getCountConnectionsForUser(final String userId) {
+	public int getConnectionsForUserCount(final String userId) {
 		return getConnectionsForUser(userId).size();
 	}
 	
