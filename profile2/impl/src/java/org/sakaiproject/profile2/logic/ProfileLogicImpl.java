@@ -646,74 +646,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return false;
 	}
 	
-		
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend) {
-				
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for userX
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXVisibleInSearchesByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXVisibleInSearchesByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.SELF_SEARCH_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
-    	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	*/
-		
-    	//if friend and set to friends only
-    	if(friend && profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXVisibleInSearchesByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	
-	
 	
 	/**
  	 * {@inheritDoc}
@@ -2368,11 +2300,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 			//get privacy record
 			ProfilePrivacy privacy = getPrivacyRecordForUser(userUuid);
 			
-			//is this user visible in searches by this user? if not, skip unless admin user
-			if(!sakaiProxy.isSuperUser() && !isUserXVisibleInSearchesByUserY(userUuid, privacy, userId, friend)) {
-				continue; 
-			}
-			
 			//is profile photo visible to this user?
 			//is status visible to this user?
 			//is friends list visible to this user?
@@ -2448,7 +2375,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		privacy.setStudentInfo((Integer)props.get("studentInfo"));
 		privacy.setPersonalInfo((Integer)props.get("personalInfo"));
 		privacy.setShowBirthYear((Boolean)props.get("birthYear"));
-		privacy.setSearch((Integer)props.get("search"));
 		privacy.setMyFriends((Integer)props.get("myFriends"));
 		privacy.setMyStatus((Integer)props.get("myStatus"));
 		privacy.setMyPictures((Integer)props.get("myPictures"));

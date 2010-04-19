@@ -40,7 +40,6 @@ public class ProfilePrivacy implements Serializable {
 	private int businessInfo;
 	private int personalInfo;
 	private boolean showBirthYear;
-	private int search;
 	private int myFriends;
 	private int myStatus;
 	private int myPictures;
@@ -121,13 +120,6 @@ public class ProfilePrivacy implements Serializable {
 		return showBirthYear;
 	}
 
-	public int getSearch() {
-		return search;
-	}
-
-	public void setSearch(int search) {
-		this.search = search;
-	}
 
 	public void setMyFriends(int myFriends) {
 		this.myFriends = myFriends;

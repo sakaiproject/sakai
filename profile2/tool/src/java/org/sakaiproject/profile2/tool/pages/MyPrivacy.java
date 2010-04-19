@@ -270,23 +270,6 @@ public class MyPrivacy extends BasePage {
             }
         });
 				
-		//search privacy
-		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
-		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
-		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
-		searchChoice.setOutputMarkupId(true);
-		searchContainer.add(searchChoice);
-		//tooltip
-		searchContainer.add(new IconWithClueTip("searchToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
-		form.add(searchContainer);
-		//updater
-		searchChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-            protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		
-		
 		//myFriends privacy
 		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
 		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
@@ -393,7 +376,6 @@ public class MyPrivacy extends BasePage {
 			businessInfoChoice.setEnabled(false);
 			personalInfoChoice.setEnabled(false);
 			birthYearCheckbox.setEnabled(false);
-			searchChoice.setEnabled(false);
 			myFriendsChoice.setEnabled(false);
 			myStatusChoice.setEnabled(false);
 			myPicturesChoice.setEnabled(false);

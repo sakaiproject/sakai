@@ -1095,7 +1095,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		props.put("studentInfo", serverConfigurationService.getInt("profile2.privacy.default.studentInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_STUDENTINFO));
 		props.put("personalInfo", serverConfigurationService.getInt("profile2.privacy.default.personalInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO));
 		props.put("birthYear", serverConfigurationService.getBoolean("profile2.privacy.default.birthYear", ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY));
-		props.put("search", serverConfigurationService.getInt("profile2.privacy.default.search", ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH));
 		props.put("myFriends", serverConfigurationService.getInt("profile2.privacy.default.myFriends", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS));
 		props.put("myStatus", serverConfigurationService.getInt("profile2.privacy.default.myStatus", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS));
 		props.put("myPictures", serverConfigurationService.getInt("profile2.privacy.default.myPictures", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYPICTURES));

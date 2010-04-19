@@ -66,3 +66,5 @@ alter table PROFILE_PRIVACY_T drop ACADEMIC_INFO;
 /* add the new useOfficialImage column (PRFL-90) */
 alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null DEFAULT false;
 
+/* remove search privacy setting (PRFL-293) */
+alter table PROFILE_PRIVACY_T drop SEARCH;
