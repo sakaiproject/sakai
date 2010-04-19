@@ -34,8 +34,8 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.conditions.api.Condition;
 import org.sakaiproject.conditions.api.Rule;
@@ -75,6 +75,17 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 		this.chs = chs;
 	}
 		
+	private SecurityService securityService;
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	
+	private AuthzGroupService authzGroupService;
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
 	// we need a no-arg constructor so BaseNotificationService can instantiate these things with Class.forName(className).newInstance();
 	public ResourceReleaseRule() {
 		
@@ -117,7 +128,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	 * @see org.sakaiproject.event.api.NotificationAction#notify(org.sakaiproject.event.api.Notification, org.sakaiproject.event.api.Event)
 	 */
 	public void notify(Notification notification, Event event) {
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				return SecurityAdvice.ALLOWED;
@@ -151,7 +162,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					} else {
 						chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 					}
-					SecurityService.popAdvisor();
+					securityService.popAdvisor();
 					return;
 				}
 				if (!shouldBeAvailable && acl.contains(grading.getUserId())) {
@@ -192,7 +203,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				SecurityService.popAdvisor();
+				securityService.popAdvisor();
 			}
 		} else if ("gradebook.updateAssignment".equals(event.getEvent()) || ("cond+gradebook.updateAssignment").equals(event.getEvent())) {
 			// this availability applies to the whole Resource, not on a per-user basis
@@ -232,7 +243,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				SecurityService.popAdvisor();
+				securityService.popAdvisor();
 			}
 			
 		} else if (("cond+gradebook.updateItemScore").equals(event.getEvent())) {
@@ -242,7 +253,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				String[] assignmentRefParts = event.getResource().split("/");
 				String[] resourceRefParts = this.resourceId.split("/");
 				String authzRef = "/site/" + resourceRefParts[2];
-				AuthzGroup group = AuthzGroupService.getAuthzGroup(authzRef);
+				AuthzGroup group = authzGroupService.getAuthzGroup(authzRef);
 				Set<Member> members = group.getMembers();
 				
 				// build access control list up from scratch using site members
@@ -302,7 +313,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				SecurityService.popAdvisor();
+				securityService.popAdvisor();
 			}
 			
 			
@@ -311,7 +322,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	}
 
 	public boolean isObsolete() {
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				return SecurityAdvice.ALLOWED;
@@ -325,7 +336,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 		} catch (IdUnusedException e1) {
 			return true;
 		} finally {
-			SecurityService.popAdvisor();
+			securityService.popAdvisor();
 		}
 	}
 	
