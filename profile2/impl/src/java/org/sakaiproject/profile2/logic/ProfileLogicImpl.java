@@ -32,9 +32,9 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
-import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
+import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
@@ -48,7 +48,6 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
-import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -147,6 +146,36 @@ public class ProfileLogicImpl implements ProfileLogic {
 			}
 		}
 		return subList;
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getConnectionStatus(String userA, String userB) {
+		ProfileFriend record = dao.getConnectionRecord(userA, userB);
+		
+		//no connection
+		if(record == null) {
+			return ProfileConstants.CONNECTION_NONE;
+		}
+		
+		//confirmed
+		if(record.isConfirmed()) {
+			return ProfileConstants.CONNECTION_CONFIRMED;
+		}
+		
+		//requested
+		if(StringUtils.equals(userA, record.getUserUuid()) && !record.isConfirmed()) {
+			return ProfileConstants.CONNECTION_REQUESTED;
+		}
+		
+		//incoming
+		if(StringUtils.equals(userA, record.getFriendUuid()) && !record.isConfirmed()) {
+			return ProfileConstants.CONNECTION_INCOMING;
+		}
+		
+		return ProfileConstants.CONNECTION_NONE;
 	}
 	
 	
@@ -549,12 +578,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<SearchResult> findUsersByNameOrEmail(String search, String userId) {
+	public List<Person> findUsersByNameOrEmail(String search) {
 		
 		List<User> users = new ArrayList<User>();
 		List<String> sakaiPersonUuids = new ArrayList<String>();
 		
-		//add users from SakaiPerson
+		//add users from SakaiPerson (clean list)
 		sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);
 		users.addAll(sakaiProxy.getUsers(sakaiPersonUuids));
 
@@ -575,11 +604,10 @@ public class ProfileLogicImpl implements ProfileLogic {
 			users = users.subList(0, maxResults);
 		}
 		
-		//format into SearchResult records (based on friend status, privacy status etc)
-		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(users, userId));
+		//remove invisible
+		users = removeInvisibleUsers(users);
 		
-		return results;
-		
+		return getPersons(users);
 	}
 	
 	
@@ -587,7 +615,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<SearchResult> findUsersByInterest(String search, String userId) {
+	public List<Person> findUsersByInterest(String search) {
 		
 		List<User> users = new ArrayList<User>();
 		List<String> sakaiPersonUuids = new ArrayList<String>();
@@ -602,11 +630,10 @@ public class ProfileLogicImpl implements ProfileLogic {
 			users = users.subList(0, maxResults);
 		}
 		
-		//format into SearchResult records (based on friend status, privacy status etc)
-		List<SearchResult> results = new ArrayList<SearchResult>(createSearchResultRecordsFromSearch(users, userId));
+		//remove invisible
+		users = removeInvisibleUsers(users);
 		
-		return results;
-		
+		return getPersons(users);
 	}
 	
 	
@@ -2254,95 +2281,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	
 	
-	
-	//private utility method used by findUsersByNameOrEmail() and findUsersByInterest() to format results from
-	//the supplied users to SearchResult records based on friend or friendRequest status and the privacy settings for each user
-	//that was in the initial search results
-	private List<SearchResult> createSearchResultRecordsFromSearch(List<User> users, String userId) {
-
-		List<SearchResult> results = new ArrayList<SearchResult>();
-			
-		//get type of requesting user so we can check if they are allowed to connect to the users found
-		String searchingUserType = sakaiProxy.getUserType(userId);
-		
-		//for each user, is userId a friend?
-		//also, get privacy record for the user. if searches not allowed for this user pair, skip to next
-		//otherwise create SearchResult record and add to list
-		for(User u : users){
-			String userUuid = u.getId();
-			
-			//if user is in the list of invisible users, skip unless current user is admin
-			if(!sakaiProxy.isSuperUser() && sakaiProxy.getInvisibleUsers().contains(userUuid)){
-				continue;
-			}
-			
-			//get User details
-			String displayName = u.getDisplayName();
-			String userType = u.getType();
-			
-			//friend?
-			boolean friend = isUserXFriendOfUserY(userUuid, userId);
-			
-			//init request flags
-			boolean friendRequestToThisPerson = false;
-			boolean friendRequestFromThisPerson = false;
-			
-			//if not friend, has a friend request already been made to this person?
-			if(!friend) {
-				friendRequestToThisPerson = isFriendRequestPending(userId, userUuid);
-			}
-			
-			//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
-			if(!friend && !friendRequestToThisPerson) {
-				friendRequestFromThisPerson = isFriendRequestPending(userUuid, userId);
-			}
-			
-			//get privacy record
-			ProfilePrivacy privacy = getPrivacyRecordForUser(userUuid);
-			
-			//is profile photo visible to this user?
-			//is status visible to this user?
-			//is friends list visible to this user?
-			//is connection allowed between these user types?
-			//all true if super user, otherwise run the check.
-			boolean profileImageAllowed;
-			boolean statusVisible;
-			boolean friendsListVisible;
-			boolean connectionAllowed;
-			
-			if (sakaiProxy.isSuperUser()) {
-				profileImageAllowed = true;
-				statusVisible = true;
-				friendsListVisible = true;
-				connectionAllowed = true;
-			} else {
-				profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, privacy, userId, friend);
-				statusVisible = isUserXStatusVisibleByUserY(userUuid, privacy, userId, friend);
-				friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, privacy, userId, friend);
-				connectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(searchingUserType, userType);
-			}	
-		
-			
-			//make object
-			SearchResult searchResult = new SearchResult(
-					userUuid,
-					displayName,
-					userType,
-					friend,
-					profileImageAllowed,
-					statusVisible,
-					friendsListVisible,
-					friendRequestToThisPerson,
-					friendRequestFromThisPerson,
-					connectionAllowed
-					);
-			
-			results.add(searchResult);
-		}
-		
-		return results;
-	}
-	
 	/*
 	 * helper method to save a message once all parts have been created. takes care of rollbacks incase of failure (TODO)
 	 */
@@ -2566,6 +2504,30 @@ public class ProfileLogicImpl implements ProfileLogic {
 	private String getOfficialImageEncoded(final String userUuid) {
 		User u = sakaiProxy.getUserById(userUuid);
 		return u.getProperties().getProperty(sakaiProxy.getOfficialImageAttribute());
+	}
+	
+	/**
+	 * Remove invisible users from the list
+	 * @param users
+	 * @return cleaned list
+	 */
+	private List<User> removeInvisibleUsers(List<User> users){
+		
+		//if superuser return list unchanged.
+		if(sakaiProxy.isSuperUser()){
+			return users;
+		}
+		
+		//get list of invisible users as Users
+		List<User> invisibleUsers = sakaiProxy.getUsers(sakaiProxy.getInvisibleUsers());
+		if(invisibleUsers.isEmpty()) {
+			return users;
+		}
+		
+		//remove
+		users.removeAll(invisibleUsers);
+		
+		return users;
 	}
 	
 	

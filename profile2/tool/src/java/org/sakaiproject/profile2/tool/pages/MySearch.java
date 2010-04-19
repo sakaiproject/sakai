@@ -41,9 +41,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -56,7 +56,7 @@ import org.sakaiproject.util.FormattedText;
 
 public class MySearch extends BasePage {
 
-	private List<SearchResult> results = new ArrayList<SearchResult>();
+	private List<Person> results = new ArrayList<Person>();
 	private static final Logger log = Logger.getLogger(MySearch.class); 
 	
 	
@@ -68,8 +68,9 @@ public class MySearch extends BasePage {
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
 		
-		//get current user
+		//get current user info
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
+		final String currentUserType = sakaiProxy.getUserType(currentUserUuid);
 		
 		/* 
 		 * 
@@ -149,22 +150,25 @@ public class MySearch extends BasePage {
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
 		
 		//search results
-		ListView<SearchResult> resultsListView = new ListView<SearchResult>("results-list", resultsModel) {
+		ListView<Person> resultsListView = new ListView<Person>("results-list", resultsModel) {
 			private static final long serialVersionUID = 1L;
 
-			protected void populateItem(final ListItem<SearchResult> item) {
+			protected void populateItem(final ListItem<Person> item) {
 		        
-		    	//get SearchResult object
-		    	//this contains info like if they are a friend and if their profile is visible etc
-		    	SearchResult searchResult = (SearchResult)item.getModelObject();
+		    	Person person = (Person)item.getModelObject();
 		    	
 		    	//get basic values
-		    	final String userUuid = searchResult.getUserUuid();
-		    	final String displayName = searchResult.getDisplayName();
+		    	final String userUuid = person.getUuid();
+		    	final String displayName = person.getDisplayName();
+		    	final String userType = person.getType();
 
-		    	//REMOVE THIS WHEN WE CONVERT THE SearchResult to Person
-		    	ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
-		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		    	//get extended values
+		    	ProfilePreferences prefs = person.getPreferences();
+		    	ProfilePrivacy privacy = person.getPrivacy();
+		    	
+		    	//get connection status
+		    	int connectionStatus = profileLogic.getConnectionStatus(currentUserUuid, userUuid);
+		    	boolean friend = (connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) ? true : false;
 		    	
 		    	//image wrapper, links to profile
 		    	Link friendItem = new Link("friendPhotoWrap") {
@@ -175,11 +179,11 @@ public class MySearch extends BasePage {
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", userUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				friendItem.add(new ProfileImageRenderer("result-photo", person, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(friendItem);
 		    	
 		    	//name and link to profile (if allowed or no link)
-		    	Link profileLink = new Link("result-profileLink") {
+		    	Link<String> profileLink = new Link<String>("result-profileLink", new Model<String>(userUuid)) {
 					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
@@ -192,33 +196,19 @@ public class MySearch extends BasePage {
 						}
 					}
 				};
-				profileLink.setModel(new Model(userUuid));
 				
-				/* DEPRECATED, we always link now because of PRFL-24 
-				if(isProfileAllowed) {
-					profileLink.setModel(new Model(userUuid));
-				} else {
-					profileLink.setEnabled(false);
-				}
-				*/
-
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
 		    	
 		    	//status component
-		    	ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, currentUserUuid, searchResult.isStatusAllowed(), "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+		    	ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, privacy, currentUserUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	
 		    	
 		    	/* ACTIONS */
-		    	
-		    	//setup state of this User-result pair
-		    	boolean friend = searchResult.isFriend();
-		    	boolean friendRequestToThisPerson = searchResult.isFriendRequestToThisPerson();
-				boolean friendRequestFromThisPerson = searchResult.isFriendRequestFromThisPerson();
-				boolean isFriendsListVisible = searchResult.isFriendsListVisible();
-				boolean isConnectionAllowed = searchResult.isConnectionAllowed();
+				boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
+				boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(userType, currentUserType);
 		    	
 
 		    	//ADD CONNECTION LINK
@@ -227,7 +217,7 @@ public class MySearch extends BasePage {
 
 				if(!isConnectionAllowed){
 					//add blank components - TODO turn this into an EmptyLink component
-					AjaxLink emptyLink = new AjaxLink("connectionLink"){
+					AjaxLink<Void> emptyLink = new AjaxLink<Void>("connectionLink"){
 						public void onClick(AjaxRequestTarget target) {
 						}
 					};
@@ -239,7 +229,7 @@ public class MySearch extends BasePage {
 			    	final Label connectionLabel = new Label("connectionLabel");
 					connectionLabel.setOutputMarkupId(true);
 					
-			    	final AjaxLink connectionLink = new AjaxLink("connectionLink", new Model(searchResult.getUserUuid())) {
+			    	final AjaxLink<String> connectionLink = new AjaxLink<String>("connectionLink", new Model<String>(userUuid)) {
 						private static final long serialVersionUID = 1L;
 						public void onClick(AjaxRequestTarget target) {
 							
@@ -283,11 +273,11 @@ public class MySearch extends BasePage {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);
-					} else if (friendRequestToThisPerson) {
+					} else if (connectionStatus == ProfileConstants.CONNECTION_REQUESTED) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);					
-					} else if (friendRequestFromThisPerson) {
+					} else if (connectionStatus == ProfileConstants.CONNECTION_INCOMING) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);
@@ -305,7 +295,7 @@ public class MySearch extends BasePage {
 				WebMarkupContainer c2 = new WebMarkupContainer("viewFriendsContainer");
 		    	c2.setOutputMarkupId(true);
 		    	
-		    	final AjaxLink viewFriendsLink = new AjaxLink("viewFriendsLink") {
+		    	final AjaxLink<String> viewFriendsLink = new AjaxLink<String>("viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						//if user found themself, go to MyFriends, else, ViewFriends
@@ -373,7 +363,7 @@ public class MySearch extends BasePage {
 					sbiInterestField.clearInput();
 					
 					//search both UDP and SakaiPerson for matches.
-					results = new ArrayList<SearchResult>(profileLogic.findUsersByNameOrEmail(searchText, currentUserUuid));
+					results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
 	
 					int numResults = results.size();
 					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
@@ -437,7 +427,7 @@ public class MySearch extends BasePage {
 					sbnNameField.clearInput();
 					
 					//search SakaiPerson for matches
-					results = new ArrayList<SearchResult>(profileLogic.findUsersByInterest(searchText, currentUserUuid));
+					results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
 										
 					int numResults = results.size();
 					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;

@@ -35,7 +35,12 @@ public class ProfileConstants {
 	public static final int RELATIONSHIP_FRIEND = 1;
 	//public static final int RELATIONSHIP_COLLEAGUE = 2;
 	
-	
+	//connection status
+	public static final int CONNECTION_NONE = 0;
+	public static final int CONNECTION_REQUESTED = 1;
+	public static final int CONNECTION_INCOMING = 2;
+	public static final int CONNECTION_CONFIRMED = 3;
+
 	
 	/*
 	 * IMAGE

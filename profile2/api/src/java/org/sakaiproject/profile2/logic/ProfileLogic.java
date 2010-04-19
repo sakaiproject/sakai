@@ -30,7 +30,6 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
-import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.user.api.User;
 
@@ -84,6 +83,13 @@ public interface ProfileLogic {
 	 */
 	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search);
 	
+	/**
+	 * Get the connection status between two users. The user making the query must be userA.
+	 * @param userA		user making the query	
+	 * @param userB		any other user
+	 * @return			int signaling the connection status. See ProfileConstants.
+	 */
+	public int getConnectionStatus(String userA, String userB);
 	
 	/**
 	 * Make a request for friendId to be a friend of userId
@@ -275,39 +281,26 @@ public interface ProfileLogic {
 	
 	/**
 	 * Find all users that match the search string in either name or email. 
-	 * This first queries Sakai's UserDirectoryProvider for matches, then queries SakaiPerson and combines the lists
-	 * This approach is so that we can get attempt to get all users, with or without profiles.
-	 * <p>
-	 * We then check to see if the returned user is a friend of the person performing the search
-	 * We then check to see if this person has their privacy settings restricted such that this user should not be
-	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
-	 * <p>
-	 * Once this list is returned, can lookup more info based on SearchResult.getUserUuid()
-	 * <p>
-	 * This list is automatically cleaned for non-existent users by way of the UserDirectoryService.getUsers call.
+	 * 
+	 * <p>Searches SakaiPerson, UserDirectorySerice internal users as well as external users if your
+	 * provider supports SearchExternalUsersUDP.</p>
+	 * 
+	 * <p>This list is automatically cleaned for non-existent users by way of UserDirectoryService.getUsers.</p>
 	 * 
 	 * @param search 	string to search for
-	 * @param userId 	uuid of user performing the search
-	 * @return List 	of SearchResult objects containing a few other pieces of information.
+	 * @return List 	Persons
 	 */
-	public List<SearchResult> findUsersByNameOrEmail(String search, String userId);
+	public List<Person> findUsersByNameOrEmail(String search);
 
 	/**
 	 * Find all users that match the search string in any of the relevant SakaiPerson fields
-	 * <p>
-	 * We then check to see if the returned user is a friend of the person performing the search
-	 * We then check to see if this person has their privacy settings restricted such that this user should not be
-	 * able to see them. We gather some other privacy information, create a SearchResult item and return the List of these
-	 * <p>
-	 * Once this list is returned, can lookup more info based on SearchResult.getUserUuid()
-	 * <p>
-	 * This list is automatically cleaned for non-existent users by way of the UserDirectoryService.getUsers call.
+	 *
+	 * <p>This list is automatically cleaned for non-existent users by way of UserDirectoryService.getUsers.</p>
 	 * 
 	 * @param search 	string to search for
-	 * @param userId 	uuid of user performing the search
-	 * @return List 	of SearchResult objects containing a few other pieces of information.
+	 * @return List 	Persons
 	 */
-	public List<SearchResult> findUsersByInterest(String search, String userId);
+	public List<Person> findUsersByInterest(String search);
 	
 	
 	/**
