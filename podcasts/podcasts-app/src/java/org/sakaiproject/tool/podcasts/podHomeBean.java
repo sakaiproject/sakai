@@ -91,7 +91,8 @@ public class podHomeBean {
 	private static final String ID_INVALID_ALERT = "id_invalid_alert";
 	private static final String IO_ALERT = "io_alert";
 	private static final String ID_USED_ALERT = "id_used_alert";
-
+	private static final String PERMISSION_FOR_PODCAST_FOLDER = "permission_directions";
+	
 	// Patterns for Date and Number formatting
 	private static final String PUBLISH_DATE_FORMAT = "publish_date_format";
 	private static final String DATE_PICKER_FORMAT = "date_picker_format";
@@ -524,7 +525,8 @@ public class podHomeBean {
 	 * Returns String to be passed to permissions page.
 	 */
 	private String getPermissionsMessage() {
-		return Validator.escapeUrl("Set permissions for Podcasts folder in worksite " +
+		String permissionMsg = getErrorMessageString(PERMISSION_FOR_PODCAST_FOLDER);
+		return Validator.escapeUrl(permissionMsg + " " +
 		   		 SiteService.getSiteDisplay(podcastService.getSiteId()));
 	}
 
