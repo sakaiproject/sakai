@@ -287,58 +287,63 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 		
-		String siteId = realmId.replaceAll(SiteService.REFERENCE_ROOT + "/", "");
-		context.put("siteRef", realmId);
-		try
+		AuthzGroup viewEdit = null;
+		// check wither the current realm id is of site group type
+		if (realmId.indexOf(SiteService.REFERENCE_ROOT) != -1)
 		{
-			Site site = SiteService.getSite(siteId);
-			Collection groups = site.getGroups();
-			if (groups != null && !groups.isEmpty())
+			String siteId = realmId.replaceAll(SiteService.REFERENCE_ROOT + "/", "");
+			context.put("siteRef", realmId);
+			try
 			{
-				Iterator iGroups = groups.iterator();
-				for(; iGroups.hasNext();)
+				Site site = SiteService.getSite(siteId);
+				Collection groups = site.getGroups();
+				if (groups != null && !groups.isEmpty())
 				{
-					Group group = (Group) iGroups.next();
-					// need to either have realm update permission on the group level or better at the site level
-					if (!AuthzGroupService.allowUpdate(group.getReference()))
+					Iterator iGroups = groups.iterator();
+					for(; iGroups.hasNext();)
 					{
-						iGroups.remove();
+						Group group = (Group) iGroups.next();
+						// need to either have realm update permission on the group level or better at the site level
+						if (!AuthzGroupService.allowUpdate(group.getReference()))
+						{
+							iGroups.remove();
+						}
+					}
+					context.put("groups", groups);
+				}
+					
+			}
+			catch (Exception siteException)
+			{
+				M_log.warn("PermissionsAction.buildHelperContext: getsite of realm id =  " + realmId + siteException);
+			}
+			
+			// get the realm locked for editing
+			viewEdit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
+			if (viewEdit == null)
+			{
+				if (AuthzGroupService.allowUpdate(realmRolesId) || AuthzGroupService.allowUpdate(SiteService.siteReference(siteId)))
+				{
+					try
+					{
+						viewEdit = AuthzGroupService.getAuthzGroup(realmRolesId);
+						state.setAttribute(STATE_VIEW_REALM_EDIT, viewEdit);
+					}
+					catch (GroupNotDefinedException e)
+					{
+						M_log.warn("PermissionsAction.buildHelperContext: getRealm with id= " + realmRolesId + " : " + e);
+						cleanupState(state);
+						return null;
 					}
 				}
-				context.put("groups", groups);
-			}
-				
-		}
-		catch (Exception siteException)
-		{
-			M_log.warn("PermissionsAction.buildHelperContext: getsite of realm id =  " + realmId + siteException);
-		}
-		
-		// get the realm locked for editing
-		AuthzGroup viewEdit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
-		if (viewEdit == null)
-		{
-			if (AuthzGroupService.allowUpdate(realmRolesId) || AuthzGroupService.allowUpdate(SiteService.siteReference(siteId)))
-			{
-				try
+	
+				// no permission
+				else
 				{
-					viewEdit = AuthzGroupService.getAuthzGroup(realmRolesId);
-					state.setAttribute(STATE_VIEW_REALM_EDIT, viewEdit);
-				}
-				catch (GroupNotDefinedException e)
-				{
-					M_log.warn("PermissionsAction.buildHelperContext: getRealm with id= " + realmRolesId + " : " + e);
+					M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
 					cleanupState(state);
 					return null;
 				}
-			}
-
-			// no permission
-			else
-			{
-				M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
-				cleanupState(state);
-				return null;
 			}
 		}
 
@@ -406,7 +411,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		if (roles == null)
 		{
 			// get the roles from the edit, unless another is specified
-			AuthzGroup roleRealm = viewEdit;
+			AuthzGroup roleRealm = viewEdit != null ? viewEdit : edit;
 			if (realmRolesId != null)
 			{
 				try
@@ -432,7 +437,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_ROLE_ABILITIES, rolesAbilities);
 
 			// get this resource's role Realms,those that refine the role definitions, but not it's own
-			Reference ref = EntityManager.newReference(viewEdit.getId());
+			Reference ref = EntityManager.newReference(viewEdit != null ? viewEdit.getId() : edit.getId());
 			Collection realms = ref.getAuthzGroups();
 			realms.remove(ref.getReference());
 
