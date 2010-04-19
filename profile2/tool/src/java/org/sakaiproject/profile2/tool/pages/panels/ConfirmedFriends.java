@@ -224,7 +224,7 @@ public class ConfirmedFriends extends Panel {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", personUuid, privacy, currentUserUuid, friend, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", person, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	

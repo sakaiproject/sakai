@@ -158,7 +158,7 @@ public class ViewProfile extends BasePage {
 		add(profileName);
 		
 		/*STATUS PANEL */
-		ProfileStatusRenderer status = new ProfileStatusRenderer("status", userUuid, privacy, currentUserId, friend, null, "tiny");
+		ProfileStatusRenderer status = new ProfileStatusRenderer("status", userUuid, privacy, null, "tiny");
 		status.setOutputMarkupId(true);
 		add(status);
 		

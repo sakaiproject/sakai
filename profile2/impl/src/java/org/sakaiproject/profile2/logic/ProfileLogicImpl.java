@@ -304,24 +304,43 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return false;
 	}
 	
-	
-
-	
 	/**
  	 * {@inheritDoc}
  	 */
-	public ProfileStatus getUserStatus(final String userId) {
+	public ProfileStatus getUserStatus(final String userUuid, ProfilePrivacy privacy) {
 		
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getUserStatus"); 
-	  	}
+		//check privacy
+		if(privacy == null){
+			return null;
+		}
+		
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+
+		//if not same, check privacy
+        if(!StringUtils.equals(userUuid, currentUserUuid)) {
+		
+        	//friend?
+        	boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
+		
+        	//check allowed
+        	if(!isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend)){
+        		return null;
+        	}
+        }
 		
 		// compute oldest date for status 
 		Calendar cal = Calendar.getInstance(); 
 		cal.add(Calendar.DAY_OF_YEAR, -7); 
 		final Date oldestStatusDate = cal.getTime(); 
 		
-		return dao.getUserStatus(userId, oldestStatusDate);
+		return dao.getUserStatus(userUuid, oldestStatusDate);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileStatus getUserStatus(final String userUuid) {
+		return getUserStatus(userUuid, getPrivacyRecordForUser(userUuid));
 	}
 	
 	

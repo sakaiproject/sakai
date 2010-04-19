@@ -24,150 +24,124 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 /** 
  * This is a helper panel for displaying a user's status.
- * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ * 
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 public class ProfileStatusRenderer extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ProfileStatusRenderer.class);
+	
+	private String userUuid;
+	private ProfilePrivacy privacy;
 	private String msgClass;
 	private String dateClass;
-	private boolean allowed;
-	private boolean friend;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
 	
 	/**
-	 * Render the status panel for the user. Privacy checks according to the requesting user.
+	 * Render the status panel for the user.
+	 * <p>Where possible, use a fuller constructor.</p>
 	 * @param id		- wicket:id
-	 * @param userX		- user whose status we are showing, must be a uuid.
-	 * @param userY		- user who is looking at the status, used for checking if they are allowed to see it
+	 * @param userUuid	- uuid for user whose status we are showing
 	 * @param msgClass	- class for the message text
 	 * @param dateClass - class for the date text
 	 */
-	public ProfileStatusRenderer(String id, String userX, String userY, String msgClass, String dateClass) {
+	public ProfileStatusRenderer(String id, String userUuid, String msgClass, String dateClass) {
 		super(id);
 		
-		//set classes
+		//set incoming
+		this.userUuid = userUuid;
 		this.msgClass = msgClass;
 		this.dateClass = dateClass;
 		
-		//check allowed
-		this.allowed = checkAllowed(userX, userY);
+		//get data
+		this.privacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		
-		//do it
-		renderStatus(id, userX);
+		//render
+		renderStatus();
 	}
 	
 	/**
-	 * Render the status panel for the user. Privacy checks according to the requesting user and taken from the supplied object
+	 * Render the status panel for the user.
 	 * @param id		- wicket:id
-	 * @param userX		- user whose status we are showing, must be a uuid.
-	 * @param privacy	- privacy record for userX
-	 * @param userY		- user who is looking at the status, used for checking if they are allowed to see it
+	 * @param userUuid	- uuid for user whose status we are showing
+	 * @param privacy	- ProfilePrivacy object for user
 	 * @param msgClass	- class for the message text
 	 * @param dateClass - class for the date text
 	 */
-	public ProfileStatusRenderer(String id, String userX, ProfilePrivacy privacy, String userY, String msgClass, String dateClass) {
+	public ProfileStatusRenderer(String id, String userUuid, ProfilePrivacy privacy, String msgClass, String dateClass) {
 		super(id);
 		
-		//set classes
+		//set incoming
+		this.userUuid = userUuid;
+		this.privacy = privacy;
 		this.msgClass = msgClass;
 		this.dateClass = dateClass;
 		
-		//check allowed
-		this.allowed = checkAllowed(userX, userY, privacy);
-		
-		//do it
-		renderStatus(id, userX);
+		//render
+		renderStatus();
 	}
 	
+	
 	/**
-	 * Render the status panel for the user. Privacy checks according to the requesting user, ProfilePrivacy and friend status supplied
+	 * Render the status panel for the user. 
 	 * @param id		- wicket:id
-	 * @param userX		- user whose status we are showing, must be a uuid.
-	 * @param privacy	- privacy record for userX
-	 * @param userY		- user who is looking at the status, used for checking if they are allowed to see it
-	 * @param friend	- if userX and userY are friends
+	 * @param person	- Person object for user whose status we are showing
 	 * @param msgClass	- class for the message text
 	 * @param dateClass - class for the date text
 	 */
-	public ProfileStatusRenderer(String id, String userX, ProfilePrivacy privacy, String userY, boolean friend, String msgClass, String dateClass) {
+	public ProfileStatusRenderer(String id, Person person, String msgClass, String dateClass) {
 		super(id);
 		
-		//set classes
-		this.msgClass = msgClass;
-		this.dateClass = dateClass;
-		this.friend = friend;
-		
-		//check allowed
-		this.allowed = checkAllowed(userX, userY, privacy, friend);
-		
-		//do it
-		renderStatus(id, userX);
-	}
-	
-	/**
-	 * Render the status panel for the user. No privacy checks, already know if it is allowed.
-	 * @param id		- wicket:id
-	 * @param userX		- user whose status we are showing, must be a uuid.
-	 * @param userY		- user who is looking at the status, used for checking if they are allowed to see it
-	 * @param allowed	- if you already know if they are allowed
-	 * @param msgClass	- class for the message text
-	 * @param dateClass - class for the date text
-	 */
-	public ProfileStatusRenderer(String id, String userX, String userY, boolean allowed, String msgClass, String dateClass) {
-		super(id);
-		
-		//set classes
+		//set incoming
 		this.msgClass = msgClass;
 		this.dateClass = dateClass;
 		
-		//already know if allowed so just set
-		this.allowed = allowed;
+		//extract data
+		this.userUuid = person.getUuid();
+		this.privacy = person.getPrivacy();
 		
-		//do it
-		renderStatus(id, userX);
+		//render
+		renderStatus();
 	}
 	
+	
+	
+	
+	
 	/**
-	 * Actual rendering method
-	 * @param id		wicket:id
-	 * @param userX		userUuid 
+	 * Render method
 	 */
-	private void renderStatus(String id, String userX) {
+	private void renderStatus() {
 	
 		log.debug("ProfileStatusRenderer has been added.");
-		this.setOutputMarkupPlaceholderTag(true);
+		setOutputMarkupPlaceholderTag(true);
 		
-		if(!allowed) {
-			log.debug("not allowed to view status");
-			this.setVisible(false);
-			setupBlankFields();
-			return;
-		}
+		//get status
+		ProfileStatus status = profileLogic.getUserStatus(userUuid, privacy);
 
 		//get status
-		ProfileStatus status = profileLogic.getUserStatus(userX);
 		if(status == null) {
-			log.debug("status null");
-			this.setVisible(false);
+			log.debug("ProfileStatus null");
+			setVisible(false);
 			setupBlankFields();
 			return;
 		}
 		
 		//check message
 		if(StringUtils.isBlank(status.getMessage())) {
-			log.debug("status message blank");
-			this.setVisible(false);
+			log.debug("ProfileStatus message blank");
+			setVisible(false);
 			setupBlankFields();
 			return;
 		}
@@ -176,92 +150,19 @@ public class ProfileStatusRenderer extends Panel {
 		status.setDateFormatted(ProfileUtils.convertDateForStatus(status.getDateAdded()));
 		
 		//output
-		this.add(new Label("message", status.getMessage())
-			.add(new AttributeModifier("class", true, new Model(this.msgClass)))
+		add(new Label("message", status.getMessage())
+			.add(new AttributeModifier("class", true, new Model<String>(msgClass)))
 		);
-		this.add(new Label("date", status.getDateFormatted())
-			.add(new AttributeModifier("class", true, new Model(this.dateClass)))
+		add(new Label("date", status.getDateFormatted())
+			.add(new AttributeModifier("class", true, new Model<String>(dateClass)))
 		);
-		
+	
 	}	
 		
-		
-	
 	//helper to render blank fields
 	private void setupBlankFields() {
-		this.add(new Label("message"));
-		this.add(new Label("date"));
+		add(new Label("message"));
+		add(new Label("date"));
 	}
-	
-	//helper to check if allowed
-	private boolean checkAllowed(String userX, String userY) {
-		
-		
-        //if bad userUuids
-        if(blankUuids(userX, userY)) {
-        	return false;
-        }
-        
-        //if same
-        if(equalUuids(userX, userY)) {
-			return true;
-        }
-        
-        //do privacy check
-        return checkAllowed(userX, userY, profileLogic.getPrivacyRecordForUser(userX));
-	}
-	
-	//helper to check if allowed, given ProfilePrivacy as well
-	private boolean checkAllowed(String userX, String userY, ProfilePrivacy privacy) {
-		
-        //if bad userUuids
-        if(blankUuids(userX, userY)) {
-        	return false;
-        }
-        
-        //if same
-        if(equalUuids(userX, userY)) {
-			return true;
-        }
-        
-        //do privacy check
-    	return checkAllowed(userX, userY, profileLogic.getPrivacyRecordForUser(userX), profileLogic.isUserXFriendOfUserY(userX, userY));
-	}
-	
-	/**
-	 * Actual privacy check method
-	 * @param userX
-	 * @param userY
-	 * @param privacy
-	 * @param friend
-	 * @return
-	 */
-	private boolean checkAllowed(String userX, String userY, ProfilePrivacy privacy, boolean friend) {
-		
-        //if bad userUuids
-        if(blankUuids(userX, userY)) {
-        	return false;
-        }
-        
-        //if same
-        if(equalUuids(userX, userY)) {
-			return true;
-        }
-        
-        //do privacy check
-		return profileLogic.isUserXStatusVisibleByUserY(userX, privacy, userY, friend);
-	}
-	
-	//helper
-	private boolean blankUuids(String userX, String userY) {
-		return (StringUtils.isBlank(userX) || StringUtils.isBlank(userY));
-	}
-	
-	//helper
-	private boolean equalUuids(String userX, String userY) {
-		return (StringUtils.equals(userX, userY));
-	}
-
-
 	
 }

@@ -80,7 +80,7 @@ public class MyStatusPanel extends Panel {
 		add(profileName);
 		
 		//status component
-		status = new ProfileStatusRenderer("status", userId, currentUserId, null, "tiny");
+		status = new ProfileStatusRenderer("status", userId, null, "tiny");
 		status.setOutputMarkupId(true);
 		add(status);
 		
@@ -171,7 +171,7 @@ public class MyStatusPanel extends Panel {
 					updateTwitter(userId, statusMessage);
 					
 					//repaint status component
-					ProfileStatusRenderer newStatus = new ProfileStatusRenderer("status", userId, currentUserId, null, "tiny");
+					ProfileStatusRenderer newStatus = new ProfileStatusRenderer("status", userId, null, "tiny");
 					newStatus.setOutputMarkupId(true);
 					status.replaceWith(newStatus);
 					newStatus.setVisible(true);

@@ -140,13 +140,33 @@ public interface ProfileLogic {
 	public boolean removeFriend(String userId, String friendId);
 	
 	/**
-	 * Get the status (message and date) of a user
+	 * Get the status (message and date) for a user
 	 * 
-	 * Only returns a status object for those that are up to and including one week old. This could be configurable
+	 * <p>Only returns a status object for those that are up to and including one week old.
+	 * This could be configurable.</p>
+	 * 
+	 * <p>The privacy settings will be retrieved, and checked against the
+	 *  current requesting user to see if the status is allowed to be shown.</p>
 	 *
-	 * @param userId		uuid of the user to get their status for
+	 * @param userUuid		uuid of the user to get their status for
+	 * @return ProfileStatus or null if not allowed/none
 	 */
-	public ProfileStatus getUserStatus(String userId);
+	public ProfileStatus getUserStatus(String userUuid);
+	
+	/**
+	 * Get the status (message and date) for a user
+	 * 
+	 * <p>Only returns a status object for those that are up to and including one week old.
+	 * This could be configurable.</p>
+	 * 
+	 * <p>The supplied privacy settings will be checked against the
+	 *  current requesting user to see if the status is allowed to be shown.</p>
+	 *
+	 * @param userUuid		uuid of the user to get their status for
+	 * @param privacy		ProfilePrivacy object for the user. 
+	 * @return ProfileStatus or null if not allowed/none
+	 */
+	public ProfileStatus getUserStatus(String userUuid, ProfilePrivacy privacy);
 	
 	/**
 	 * Set user status

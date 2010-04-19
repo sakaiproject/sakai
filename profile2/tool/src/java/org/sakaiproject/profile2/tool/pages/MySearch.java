@@ -201,7 +201,7 @@ public class MySearch extends BasePage {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-		    	ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, privacy, currentUserUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+		    	ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", person, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	
