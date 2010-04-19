@@ -6242,7 +6242,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch (InUseException e)
 				{
-					addAlert(state, rb.getFormattedMessage("deleteresLoked", new Object[]{item.getName()}));
+					addAlert(state, rb.getFormattedMessage("deleteresLocked", new Object[]{item.getName()}));
 				}// try - catch
 				catch(RuntimeException e)
 				{
