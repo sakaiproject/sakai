@@ -42,8 +42,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -84,12 +82,12 @@ public class MySearch extends BasePage {
 		
 		//setup form	
 		StringModel sbnStringModel = new StringModel();
-		Form sbnForm = new Form("sbnForm", new Model(sbnStringModel));
+		Form<StringModel> sbnForm = new Form<StringModel>("sbnForm", new Model<StringModel>(sbnStringModel));
 		sbnForm.setOutputMarkupId(true);
 		
 		//search field
         sbnForm.add(new Label("sbnNameLabel", new ResourceModel("text.search.byname")));
-		final TextField sbnNameField = new TextField("searchName", new PropertyModel(sbnStringModel, "string"));
+		final TextField<String> sbnNameField = new TextField<String>("searchName", new PropertyModel<String>(sbnStringModel, "string"));
 		sbnNameField.setRequired(true);
 		sbnNameField.setOutputMarkupId(true);
 		sbnForm.add(sbnNameField);
@@ -108,12 +106,12 @@ public class MySearch extends BasePage {
 		
 		//setup form
 		StringModel sbiStringModel = new StringModel();
-		Form sbiForm = new Form("sbiForm", new Model(sbiStringModel));
+		Form<StringModel> sbiForm = new Form<StringModel>("sbiForm", new Model<StringModel>(sbiStringModel));
 		sbiForm.setOutputMarkupId(true);
 		
 		//search field
         sbiForm.add(new Label("sbiInterestLabel", new ResourceModel("text.search.byinterest")));
-		final TextField sbiInterestField = new TextField("searchInterest", new PropertyModel(sbiStringModel, "string"));
+		final TextField<String> sbiInterestField = new TextField<String>("searchInterest", new PropertyModel<String>(sbiStringModel, "string"));
 		sbiInterestField.setRequired(true);
 		sbiInterestField.setOutputMarkupId(true);
 		sbiForm.add(sbiInterestField);
@@ -133,8 +131,10 @@ public class MySearch extends BasePage {
 		add(numSearchResults);
 		
 		// model to wrap search results
-		LoadableDetachableModel resultsModel = new LoadableDetachableModel(){
-			protected Object load() {
+		LoadableDetachableModel<List<Person>> resultsModel = new LoadableDetachableModel<List<Person>>(){
+			private static final long serialVersionUID = 1L;
+
+			protected List<Person> load() {
 				return results;
 			}
 		};
@@ -150,7 +150,7 @@ public class MySearch extends BasePage {
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
 		
 		//search results
-		ListView<Person> resultsListView = new ListView<Person>("results-list", resultsModel) {
+		ListView<Person> resultsListView = new ListView<Person>("searchResults", resultsModel) {
 			private static final long serialVersionUID = 1L;
 
 			protected void populateItem(final ListItem<Person> item) {
@@ -162,16 +162,12 @@ public class MySearch extends BasePage {
 		    	final String displayName = person.getDisplayName();
 		    	final String userType = person.getType();
 
-		    	//get extended values
-		    	ProfilePreferences prefs = person.getPreferences();
-		    	ProfilePrivacy privacy = person.getPrivacy();
-		    	
 		    	//get connection status
 		    	int connectionStatus = profileLogic.getConnectionStatus(currentUserUuid, userUuid);
 		    	boolean friend = (connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) ? true : false;
 		    	
 		    	//image wrapper, links to profile
-		    	Link friendItem = new Link("friendPhotoWrap") {
+		    	Link<String> friendItem = new Link<String>("searchResultPhotoWrap") {
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
 						setResponsePage(new ViewProfile(userUuid));
@@ -179,11 +175,11 @@ public class MySearch extends BasePage {
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", person, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				friendItem.add(new ProfileImageRenderer("searchResultPhoto", person, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(friendItem);
 		    	
 		    	//name and link to profile (if allowed or no link)
-		    	Link<String> profileLink = new Link<String>("result-profileLink", new Model<String>(userUuid)) {
+		    	Link<String> profileLink = new Link<String>("searchResultProfileLink", new Model<String>(userUuid)) {
 					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
@@ -197,11 +193,11 @@ public class MySearch extends BasePage {
 					}
 				};
 				
-				profileLink.add(new Label("result-name", displayName));
+				profileLink.add(new Label("searchResultName", displayName));
 		    	item.add(profileLink);
 		    	
 		    	//status component
-		    	ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", person, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+		    	ProfileStatusRenderer status = new ProfileStatusRenderer("searchResultStatus", person, "search-result-status-msg", "search-result-status-date");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	
@@ -218,8 +214,8 @@ public class MySearch extends BasePage {
 				if(!isConnectionAllowed){
 					//add blank components - TODO turn this into an EmptyLink component
 					AjaxLink<Void> emptyLink = new AjaxLink<Void>("connectionLink"){
-						public void onClick(AjaxRequestTarget target) {
-						}
+						private static final long serialVersionUID = 1L;
+						public void onClick(AjaxRequestTarget target) {}
 					};
 					emptyLink.add(new Label("connectionLabel"));
 					c1.add(emptyLink);
@@ -243,7 +239,7 @@ public class MySearch extends BasePage {
 								public void onClose(AjaxRequestTarget target){
 					            	if(friendActionModel.isRequested()) { 
 					            		connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-					            		add(new AttributeModifier("class", true, new Model("instruction")));
+					            		add(new AttributeModifier("class", true, new Model<String>("instruction")));
 					            		setEnabled(false);
 					            		target.addComponent(c1);
 					            	}
@@ -267,19 +263,19 @@ public class MySearch extends BasePage {
 					//setup 'add connection' link
 					if(StringUtils.equals(userUuid, currentUserUuid)) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.self"));
-						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 						connectionLink.setEnabled(false);
 					} else if(friend) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 						connectionLink.setEnabled(false);
 					} else if (connectionStatus == ProfileConstants.CONNECTION_REQUESTED) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 						connectionLink.setEnabled(false);					
 					} else if (connectionStatus == ProfileConstants.CONNECTION_INCOMING) {
 						connectionLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 						connectionLink.setEnabled(false);
 					} else {
 						connectionLabel.setDefaultModel(new ResourceModel("link.friend.add"));
@@ -349,7 +345,7 @@ public class MySearch extends BasePage {
 			
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
 				if(target != null) {
 					
@@ -413,7 +409,7 @@ public class MySearch extends BasePage {
 			
 			private static final long serialVersionUID = 1L;
         	
-        	protected void onSubmit(AjaxRequestTarget target, Form form) {
+        	protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
 				if(target != null) {
 					

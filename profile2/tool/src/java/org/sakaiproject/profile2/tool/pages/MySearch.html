@@ -87,20 +87,20 @@
 			
 			
 			<!--  results -->
-			<div wicket:id="numSearchResults" class="resultsHeader">No results or 1-5 of 20 results</div>
+			<div wicket:id="numSearchResults" class="search-results-header">No results or 1-5 of 20 results</div>
 			
-			<div class="friendsList" wicket:id="searchResultsContainer">
-				<div wicket:id="results-list" class="friendsListItem">
-					<a wicket:id="friendPhotoWrap">
-						<img class="friendsListPhoto" wicket:id="result-photo"/>
+			<div class="search-results-wrap" wicket:id="searchResultsContainer">
+				<div class="search-result" wicket:id="searchResults" >
+					<a wicket:id="searchResultPhotoWrap">
+						<img class="search-result-img" wicket:id="searchResultPhoto"/>
 					</a>
 			    	
-			    	<div class="friendsListInfo">
-			    		<a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>
-			    		<span wicket:id="result-status">status</span>
+			    	<div class="search-result-info-wrap">
+			    		<a href="#" wicket:id="searchResultProfileLink"><span wicket:id="searchResultName" class="search-result-info-name">[name]</span></a>
+			    		<span wicket:id="searchResultStatus">status</span>
 			    	</div>
-			    	<div class="searchResultActions">
-			    		<ul class="searchResultItems">
+			    	<div class="search-result-actions-wrap">
+			    		<ul class="search-result-actions">
 			    			<li wicket:id="connectionContainer"><a wicket:id="connectionLink"><span wicket:id="connectionLabel">add as a friend</span></a></li>
 			    			<li wicket:id="viewFriendsContainer"><a wicket:id="viewFriendsLink"><span wicket:id="viewFriendsLabel">view friends</span></a></li>
 			    		</ul>

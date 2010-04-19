@@ -565,8 +565,8 @@ h2 {
 }
 
 
-/* friends list styles */
-.friendsList {
+/* people list styles */
+.friendsList, .search-results-wrap {
 	/*border: 1px solid red;*/
 	margin-bottom: 12px;
 	border-left: 1px solid #d0d0df;
@@ -576,7 +576,7 @@ h2 {
 }
 
 
-.friendsListItem {
+.friendsListItem, .search-result {
 	display:block;
 	position: relative;
 	left: 0;
@@ -592,7 +592,7 @@ h2 {
 }
 
 
-.friendsListItem:hover {
+.friendsListItem:hover, .search-result:hover {
 	/*background-color: #ffc;*/
 	/*background-color: #FFFFE6;*/
 	/*background-color: #fafdff; */
@@ -600,7 +600,7 @@ h2 {
 }
 
 
-.friendsListPhoto {
+.friendsListPhoto, .search-result-img {
 	position: absolute;
 	top: 5px;
 	left: 5px;
@@ -611,7 +611,7 @@ h2 {
 }
 
 
-.friendsListInfo {
+.friendsListInfo, .search-result-info-wrap {
 	position: absolute;
 	top: 5px;
 	left: 115px;
@@ -619,17 +619,17 @@ h2 {
 }
 
 
-.friendsListInfoName {
+.friendsListInfoName, .search-result-info-name {
 	display: inline;
 	font-weight: bold;
 }
 
-.friendsListInfoStatusMessage {
+.search-result-status-msg {
 	display: block;
 	font-size: 90%;
 }
 
-.friendsListInfoStatusDate {
+.search-result-status-date {
 	display: block;
 	font-size: 70%;
 	color: #5D5D5D;
@@ -641,7 +641,7 @@ h2 {
 
 
 /* search result styles */
-.searchResultActions {
+.search-result-actions-wrap {
 	position: absolute;
 	top: 5px;
 	left: 345px;
@@ -651,12 +651,7 @@ h2 {
 	
 }
 
-.searchResultActionIcon {
-	float:right;
-	margin-left: 2px;
-}
-
-.searchResultItems ul {
+.search-result-actions {
 	margin-bottom: 0;
 	margin-top: 0;
 	margin-left: 0;
@@ -664,7 +659,7 @@ h2 {
 	list-style-type:none !important;
 }
 
-.searchResultItems li {
+.search-result-actions li {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
@@ -675,18 +670,26 @@ h2 {
 	vertical-align: top;
 }
 
-.searchResultItems li a {
+.search-result-actions li a {
 	text-decoration: none !important;
 	display:block; /* makes whole li clickable */
 }
 
-.searchResultItems li:hover {
+.search-result-actions li:hover {
 	background-color: #D1ECF6;
 }
 
-.searchResultItems li#selected {
+.search-result-actions li#selected {
 	background-color: #D1ECF6;
 }
+
+.searchResultActionIcon {
+	float:right;
+	margin-left: 2px;
+}
+
+
+
 
 
 
