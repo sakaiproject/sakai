@@ -9775,7 +9775,7 @@ public class SiteAction extends PagedResourceActionII {
 			else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
 			{
 				// newly added mutliple instances
-				String title = StringUtil.trimToNull(Validator.escapeHtml(params.getString("title_" + id)));
+				String title = StringUtil.trimToNull(params.getString("title_" + id));
 				if (title != null) 
 				{
 					// save the titles entered
@@ -9796,7 +9796,7 @@ public class SiteAction extends PagedResourceActionII {
 					for(Iterator<String> e = attributes.keySet().iterator(); e.hasNext();)
 					{
 						String attribute = e.next();
-						String attributeInput = StringUtil.trimToNull(Validator.escapeHtml(params.getString(attribute + "_" + id)));
+						String attributeInput = StringUtil.trimToNull(params.getString(attribute + "_" + id));
 						if (attributeInput != null)
 						{
 							// save the attribute input

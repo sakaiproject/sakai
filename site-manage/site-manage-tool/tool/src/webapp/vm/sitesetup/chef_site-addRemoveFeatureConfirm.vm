@@ -28,7 +28,7 @@
 		#foreach ($oldTool in $oldSelectedTools)
 			#foreach($t in $toolRegistrationList)
 				#if ($t.getId() == $oldTool)
-					#set($oldToolTitle = $t.getTitle())
+					#set($oldToolTitle = $validator.escapeHtml($t.getTitle()))
 				#end
 			#end
 			#set($found=false)
@@ -50,7 +50,7 @@
 					#set($attributeHashtable=false)
 					#set($attributeHashtable=$!multipleToolConfiguration.get($oldTool))
 					(#foreach ($attribute in $!attributeHashtable.keySet())
-						$attribute = $!attributeHashtable.get($attribute) 
+						$attribute = $validator.escapeHtml($!attributeHashtable.get($attribute))
 					#end)
 				#else
 					$!oldToolTitle
@@ -82,7 +82,7 @@
 			#set($newToolTitle = "")
 			#foreach($t in $toolRegistrationList)
 				#if ($t.getId() == $newTool)
-					#set($newToolTitle = $t.getTitle())
+					#set($newToolTitle = $validator.escapeHtml($t.getTitle()))
 				#end
 			#end
 			#set($found=false)
@@ -119,7 +119,7 @@
 					#set($attributeHashtable=false)
 					#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
 					(#foreach ($attribute in $!attributeHashtable.keySet())
-						$attribute = $!attributeHashtable.get($attribute) 
+						$validator.escapeHtml($!attributeHashtable.get($attribute))
 					#end)
 			#else
 				$!newToolTitle
