@@ -6225,7 +6225,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch (PermissionException e)
 				{
-					addAlert(state, rb.getString("notpermis6") + " " + item.getName() + ". ");
+					addAlert(state, rb.getFormattedMessage("notpermis6", new Object[]{item.getName()}));
 				}
 				catch (IdUnusedException e)
 				{
@@ -6234,7 +6234,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch (TypeException e)
 				{
-					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("wrongtype"));
+					addAlert(state, rb.getFormattedMessage("deleteresType", new Object[]{item.getName()}));
 				}
 				catch (ServerOverloadException e)
 				{
@@ -6242,7 +6242,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch (InUseException e)
 				{
-					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("locked"));
+					addAlert(state, rb.getFormattedMessage("deleteresLoked", new Object[]{item.getName()}));
 				}// try - catch
 				catch(RuntimeException e)
 				{
