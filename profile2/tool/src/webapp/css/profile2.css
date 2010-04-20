@@ -566,7 +566,7 @@ h2 {
 
 
 /* people list styles */
-.friendsList, .search-results-wrap {
+.connections-wrap, .search-results-wrap {
 	/*border: 1px solid red;*/
 	margin-bottom: 12px;
 	border-left: 1px solid #d0d0df;
@@ -576,7 +576,7 @@ h2 {
 }
 
 
-.friendsListItem, .search-result {
+.connection, .search-result {
 	display:block;
 	position: relative;
 	left: 0;
@@ -592,7 +592,7 @@ h2 {
 }
 
 
-.friendsListItem:hover, .search-result:hover {
+.connection:hover, .search-result:hover {
 	/*background-color: #ffc;*/
 	/*background-color: #FFFFE6;*/
 	/*background-color: #fafdff; */
@@ -600,7 +600,7 @@ h2 {
 }
 
 
-.friendsListPhoto, .search-result-img {
+.connection-img, .search-result-img {
 	position: absolute;
 	top: 5px;
 	left: 5px;
@@ -611,7 +611,7 @@ h2 {
 }
 
 
-.friendsListInfo, .search-result-info-wrap {
+.connection-info-wrap, .search-result-info-wrap {
 	position: absolute;
 	top: 5px;
 	left: 115px;
@@ -619,17 +619,17 @@ h2 {
 }
 
 
-.friendsListInfoName, .search-result-info-name {
+.connection-info-name, .search-result-info-name {
 	display: inline;
 	font-weight: bold;
 }
 
-.search-result-status-msg {
+.connection-status-msg, .search-result-status-msg {
 	display: block;
 	font-size: 90%;
 }
 
-.search-result-status-date {
+.connection-status-date, .search-result-status-date {
 	display: block;
 	font-size: 70%;
 	color: #5D5D5D;
@@ -640,8 +640,8 @@ h2 {
 }
 
 
-/* search result styles */
-.search-result-actions-wrap {
+/* action styles */
+.connection-actions-wrap, .search-result-actions-wrap {
 	position: absolute;
 	top: 5px;
 	left: 345px;
@@ -683,7 +683,7 @@ h2 {
 	background-color: #D1ECF6;
 }
 
-.searchResultActionIcon {
+.connection-action-icon {
 	float:right;
 	margin-left: 2px;
 }

@@ -37,21 +37,22 @@
 		wicket:id="searchFriendsLabel">[search friends] </span> </a></div>
 
 	<span wicket:id="navigator">[dataview navigator]</span>
-	<div class="friendsList" wicket:id="confirmedFriendsContainer">
+	<div class="connections-wrap" wicket:id="confirmedFriendsContainer">
 		
-		<div wicket:id="results-list" class="friendsListItem">
-			<a wicket:id="friendPhotoWrap">
-				<img class="friendsListPhoto" wicket:id="result-photo"/>
+		<div class="connection" wicket:id="connections">
+			<a wicket:id="connectionPhotoWrap">
+				<img class="connection-img" wicket:id="connectionPhoto"/>
 			</a>
 	    	
-	    	<div class="friendsListInfo">
-	    		<a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>
-	    		<span wicket:id="result-status">[status]</span>
+	    	<div class="connection-info-wrap">
+	    		<a href="#" wicket:id="connectionLink"><span wicket:id="connectionName" class="connection-info-name">[name]</span></a>
+	    		<span wicket:id="connectionStatus">[status]</span>
 	    	</div>
-	    	<div class="searchResultActions">
-	    		<a wicket:id="removeFriendLink" class="searchResultActionIcon"><img wicket:id="removeFriendIcon" /></a>
+	    	<div class="connection-actions-wrap">
+	    		<a wicket:id="removeConnectionLink" class="connection-action-icon"><img wicket:id="removeConnectionIcon" /></a>
 	    	</div>
 	  	</div>
+	  	
 	</div>
 	<div wicket:id="connectionWindow"></div>	
 	

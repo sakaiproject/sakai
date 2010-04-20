@@ -158,7 +158,7 @@ public class ConfirmedFriends extends Panel {
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
 
 		//results
-		DataView<Person> confirmedFriendsDataView = new DataView<Person>("results-list", provider) {
+		DataView<Person> confirmedFriendsDataView = new DataView<Person>("connections", provider) {
 			private static final long serialVersionUID = 1L;
 
 			protected void populateItem(final Item<Person> item) {
@@ -192,27 +192,19 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	
 				//image wrapper, links to profile
-		    	Link<String> friendItem = new Link<String>("friendPhotoWrap", new Model<String>(personUuid)) {
+		    	Link<String> friendItem = new Link<String>("connectionPhotoWrap", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
 						setResponsePage(new ViewProfile(getModelObject()));
 					}
 				};
 				
-				
-				if(prefs == null){
-					System.out.println("prefs is null");
-				}
-				if(privacy == null){
-					System.out.println("privacy is null");
-				}
-				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", personUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("connectionPhoto", personUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				item.add(friendItem);
 				
 		    	//name and link to profile
-		    	Link<String> profileLink = new Link<String>("result-profileLink", new Model<String>(personUuid)) {
+		    	Link<String> profileLink = new Link<String>("connectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
@@ -220,11 +212,11 @@ public class ConfirmedFriends extends Panel {
 					}
 					
 				};
-				profileLink.add(new Label("result-name", displayName));
+				profileLink.add(new Label("connectionName", displayName));
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", person, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("connectionStatus", person, "connection-status-msg", "connection-status-date");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	
@@ -232,7 +224,7 @@ public class ConfirmedFriends extends Panel {
 		    	/* ACTIONS */
 		    	
 				//REMOVE FRIEND LINK AND WINDOW
-		    	final AjaxLink<String> removeFriendLink = new AjaxLink<String>("removeFriendLink", new Model<String>(personUuid)) {
+		    	final AjaxLink<String> removeConnectionLink = new AjaxLink<String>("removeConnectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
@@ -267,15 +259,15 @@ public class ConfirmedFriends extends Panel {
 						target.appendJavascript("fixWindowVertical();"); 
 					}
 				};
-				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model<String>(ProfileConstants.DELETE_IMG));
-				removeFriendLink.add(removeFriendIcon);
-				removeFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
-				item.add(removeFriendLink);
+				ContextImage removeConnectionIcon = new ContextImage("removeConnectionIcon",new Model<String>(ProfileConstants.DELETE_IMG));
+				removeConnectionLink.add(removeConnectionIcon);
+				removeConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
+				item.add(removeConnectionLink);
 				
-				//can only delete if own friends
+				//can only delete if own connections
 				if(!ownList) {
-					removeFriendLink.setEnabled(false);
-					removeFriendLink.setVisible(false);
+					removeConnectionLink.setEnabled(false);
+					removeConnectionLink.setVisible(false);
 				}
 				
 				item.setOutputMarkupId(true);
