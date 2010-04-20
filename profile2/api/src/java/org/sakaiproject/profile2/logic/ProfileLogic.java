@@ -666,13 +666,14 @@ public interface ProfileLogic {
 	
 	/**
 	 * Get the profile image for a user. Takes into account all global settings, user preferences and privacy.
-	 * If making a request for your own image
+	 * 
+	 * <p>If making a request for your own image</p>
 	 * <ul>
 	 * 	<li>'privacy' can be null as it won't be considered.</li>
 	 *  <li>You should provide 'prefs' (if available) otherwise it will be looked up.</li>
 	 * </ul>
 	 * 
-	 * If making a request for someone else's image
+	 * <p>If making a request for someone else's image</p>
 	 * <ul>
 	 * 	<li>You should provide the privacy settings for that user (if available), otherwise it will be looked up.</li>
 	 *  <li>You should provide the preferences object for that user (if available), otherwise it will be looked up.</li>
