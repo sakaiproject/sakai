@@ -74,7 +74,7 @@
 							</td>
 						#set($roleCount=0)
 							#foreach($role in $roles)
-						#set($myRole = $viewRealm.getRole($role.Id))
+						#set($myRole = $realm.getRole($role.Id))
 						#set($roleAbilities = $rolesAbilities.get($role.Id))
 						#set($roleCount=$roleCount + 1)		
 							<td headers="$lock.substring($prefix.length())" class="$roleCount checkboxCell">

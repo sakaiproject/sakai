@@ -230,12 +230,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String realmId = (String) state.getAttribute(STATE_REALM_ID);
 
 		// in state is the realm to use for roles - if not, use realmId
-		String realmRolesId = null;
-		if ( state.getAttribute(STATE_REALM_ROLES_ID) == null)
-		{
-			state.setAttribute(STATE_REALM_ROLES_ID, realmId);
-		}
-		realmRolesId = (String) state.getAttribute(STATE_REALM_ROLES_ID);
+		String realmRolesId = (String) state.getAttribute(STATE_REALM_ROLES_ID);
 		context.put("viewRealmId", realmRolesId);
 		
 		// get the realm locked for editing
@@ -449,8 +444,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
-		context.put("realm", edit);
-		context.put("viewRealm", viewEdit);
+		context.put("realm", viewEdit != null ? viewEdit : edit);
 		context.put("prefix", prefix);
 		context.put("description", description);
 		if (roles.size() > 0)
@@ -511,22 +505,29 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		// only save the view realm's roles
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
-
-		// read the form, updating the edit
-		readForm(data, edit, state);
-
-		// commit the change
-		try
+		if (edit == null)
 		{
-			AuthzGroupService.save(edit);
+			edit = (AuthzGroup) state.getAttribute(STATE_REALM_EDIT);
 		}
-		catch (GroupNotDefinedException e)
+		
+		if (edit != null)
 		{
-			addAlert(state, rb.getFormattedMessage("alert_sitegroupnotdefined", new Object[]{edit.getReference()}));
-		}
-		catch (AuthzPermissionException e)
-		{
-			addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{edit.getReference()}));
+			// read the form, updating the edit
+			readForm(data, edit, state);
+	
+			// commit the change
+			try
+			{
+				AuthzGroupService.save(edit);
+			}
+			catch (GroupNotDefinedException e)
+			{
+				addAlert(state, rb.getFormattedMessage("alert_sitegroupnotdefined", new Object[]{edit.getReference()}));
+			}
+			catch (AuthzPermissionException e)
+			{
+				addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{edit.getReference()}));
+			}
 		}
 
 		// clean up state
