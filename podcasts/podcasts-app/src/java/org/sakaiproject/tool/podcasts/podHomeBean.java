@@ -342,8 +342,6 @@ public class podHomeBean {
 // ====================== End of DecoratedPodcastBean ====================== // 
 	
 	// podHomeBean constants
-	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
-	private static final String NO_RESOURCES_ERR_MSG2 = "no_resource_alert2";
 	private static final String RESOURCEID = "resourceId";
 	private static final String FEED_URL_MIDDLE = "podcasts/site/";
 	private static final String MB = "MB";
@@ -417,7 +415,14 @@ public class podHomeBean {
 	 */
 	public boolean getResourceToolExists() {
 		boolean resourceToolExists = false;
-
+		
+		if (rb == null) {
+	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	          rb = new ResourceLoader(bundle);
+		}
+		
+		String toolId = ToolManager.getTool(RESOURCE_TOOL_ID).getTitle();
+		
 		try {
 			//
 			// Get a list of tool ids and see if RESOURCE_TOOL_ID is in the returned Collection			
@@ -434,24 +439,20 @@ public class podHomeBean {
 			LOG.error("No Site found while trying to check if site has Resources tool.", e);
 			
 			// Only want to display this message if they are instructors or administrators
-			// so if student say it exists
+			// so if student say it exists		
 			if (getCanUpdateSite()) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage("Alert: " + getErrorMessageString(NO_RESOURCES_ERR_MSG) 
-												   + ToolManager.getTool(RESOURCE_TOOL_ID).getTitle()
-												   + " " + getErrorMessageString(NO_RESOURCES_ERR_MSG2)));
+						new FacesMessage("Alert: " + rb.getFormattedMessage("no_resource_alert", new String [] { toolId })));	
 			}
 		}
 
 		// Since multiple checks for this, only want to set the message the first time
 		if (!resourceToolExists
 				&& (!FacesContext.getCurrentInstance().getMessages().hasNext())) {
-			
+				
 			if (getCanUpdateSite()) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage("Alert: " + getErrorMessageString(NO_RESOURCES_ERR_MSG) 
-												   + ToolManager.getTool(RESOURCE_TOOL_ID).getTitle()
-												   + " " + getErrorMessageString(NO_RESOURCES_ERR_MSG2)));
+						new FacesMessage("Alert: " + rb.getFormattedMessage("no_resource_alert", new String [] { toolId })));	
 			}
 		}
 
