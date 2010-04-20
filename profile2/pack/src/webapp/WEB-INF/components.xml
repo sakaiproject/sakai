@@ -64,6 +64,12 @@
     	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl">
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
+    
+    <!-- ProfilePreferencesLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
+    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl">
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
 	
 	
 	<!--  service beans, REMOVE -->
@@ -74,10 +80,6 @@
 	
 	<bean id="org.sakaiproject.profile2.service.ProfileService" 
 		class="org.sakaiproject.profile2.service.ProfileServiceImpl"
-		parent="org.sakaiproject.profile2.service.BaseProfileService" />
-	
-	<bean id="org.sakaiproject.profile2.service.ProfilePreferencesService" 
-		class="org.sakaiproject.profile2.service.ProfilePreferencesServiceImpl"
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
 	
 	<bean id="org.sakaiproject.profile2.service.ProfileStatusService" 
@@ -98,6 +100,10 @@
 		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	</bean>
+	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider">
+		<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />	</bean>
 	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
     
     
@@ -106,9 +112,7 @@
 		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
 	</bean>
 	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider">
-		<property name="preferencesService" ref="org.sakaiproject.profile2.service.ProfilePreferencesService" />
-	</bean>
+	
 	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider">
 		<property name="statusService" ref="org.sakaiproject.profile2.service.ProfileStatusService" />
 	</bean>

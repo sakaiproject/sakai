@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -29,9 +28,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.service.ProfilePreferencesService;
-import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * This is the entity provider for a user's profile preferences.
@@ -48,20 +47,16 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 	}
 		
 	public boolean entityExists(String eid) {
-		//check the user is valid. if it is then return true as everyone has a preferences record, even if its a default one.
-		//note that we DO NOT check if they have an actual preferences record, just if they exist.
-		return preferencesService.checkUserExists(eid);
+		return true;
 	}
 
 	public Object getSampleEntity() {
-		
-		ProfilePreferences prefs = preferencesService.getPrototype();
-		return prefs;
+		return new ProfilePreferences();
 	}
 	
 	public Object getEntity(EntityReference ref) {
 	
-		ProfilePreferences prefs = preferencesService.getProfilePreferencesRecord(ref.getId());
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(ref.getId());
 		if(prefs == null) {
 			throw new EntityNotFoundException("ProfilePreferences could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -80,11 +75,11 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		
 		if (entity.getClass().isAssignableFrom(ProfilePreferences.class)) {
 			ProfilePreferences prefs = (ProfilePreferences) entity;
-			preferencesService.save(prefs);
+			profileLogic.savePreferencesRecord(prefs);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePreferences object");
 		}
-	
+		
 	}
 	
 	
@@ -96,7 +91,7 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		if (entity.getClass().isAssignableFrom(ProfilePreferences.class)) {
 			ProfilePreferences prefs = (ProfilePreferences) entity;
 			
-			if(preferencesService.create(prefs)) {
+			if(profileLogic.savePreferencesRecord(prefs)) {
 				userUuid = prefs.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -107,8 +102,6 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		}
 		return userUuid;
 	}
-
-	
 
 	
 	
@@ -130,20 +123,14 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 	}
 	
 		
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
+	private ProfilePreferencesLogic preferencesLogic;
+	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
+		this.preferencesLogic = preferencesLogic;
 	}
-	
-	private ProfilePreferencesService preferencesService;
-	public void setPreferencesService(ProfilePreferencesService preferencesService) {
-		this.preferencesService = preferencesService;
+
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
-	
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}	
-	
 
 }
