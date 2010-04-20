@@ -115,40 +115,20 @@ public class ConfirmedFriends extends Panel {
 		confirmedFriendsHeading.setOutputMarkupId(true);
 		add(confirmedFriendsHeading);
 		
-		//search for friends
-		WebMarkupContainer searchFriends = new WebMarkupContainer("searchFriends");
-    	AjaxLink searchFriendsLink = new AjaxLink("searchFriendsLink") {
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
-				setResponsePage(new MySearch());
-			}
-    	};
-		Label searchFriendsLabel = new Label("searchFriendsLabel",
-				new ResourceModel("link.my.friends.search"));
-		searchFriendsLink.add(searchFriendsLabel);
-    	searchFriends.add(searchFriendsLink);
-    	add(searchFriends);
-    	
-		//no friends message (only show if viewing own list)
-		/*
-		final WebMarkupContainer noFriendsContainer = new WebMarkupContainer("noFriendsContainer");
-		noFriendsContainer.setOutputMarkupId(true);
-		
-		final Link noFriendsLink = new Link("noFriendsLink", new ResourceModel("link.friend.search")) {
+		//search for connections
+		WebMarkupContainer searchConnections = new WebMarkupContainer("searchConnections");
+    	Link<String> searchConnectionsLink = new Link<String>("searchConnectionsLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick() {
 				setResponsePage(new MySearch());
 			}
-
-		};
-		noFriendsContainer.add(noFriendsLink);
-		noFriendsContainer.setVisible(false);
-		add(noFriendsContainer);
-		*/
-		
-	
+    	};
+		Label searchConnectionsLabel = new Label("searchConnectionsLabel", new ResourceModel("link.my.friends.search"));
+		searchConnectionsLink.add(searchConnectionsLabel);
+		searchConnections.add(searchConnectionsLink);
+    	add(searchConnections);
+    	
 		
 		//container which wraps list
 		final WebMarkupContainer confirmedFriendsContainer = new WebMarkupContainer("confirmedFriendsContainer");

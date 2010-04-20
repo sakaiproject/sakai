@@ -30,7 +30,7 @@
 	<div class="mainSection editable">
 		<div class="mainSectionHeading"><span wicket:id="heading">[Basic Information]</span></div>
 		
-		<a href="#" wicket:id="editButton" class="editButton"><span wicket:id="editButtonLabel">edit</span></a>
+		<a href="#" wicket:id="editButton" class="edit-button"><span wicket:id="editButtonLabel">edit</span></a>
 		
 		<div class="mainSectionContent">
 		
@@ -91,10 +91,10 @@
 		$(document).ready(function(){ 
 			$(".editable").hover(
 				function () {
-					$(this).children(".editButton").show();
+					$(this).children(".edit-button").show();
 				}, 
 				function () {
-					$(this).children(".editButton").hide();
+					$(this).children(".edit-button").hide();
 				}
 			);
 		});

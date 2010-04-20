@@ -91,10 +91,7 @@ div#footer {
 	text-align:center;
 }
 
-
-
-
-.editImageButton {
+.edit-image-button {
 	position:absolute;
 	right:0;
 	top:0;
@@ -117,12 +114,12 @@ div#footer {
 	border-left: thin solid #09c;
 }
 
-.editImageButton:hover {
+.edit-image-button:hover {
 	background-color: #ffff77;
 }
 
 
-.editButton {
+.edit-button {
 	float:right;
 	clear: none;
 	display:block;
@@ -142,20 +139,15 @@ div#footer {
 	border-bottom: thin solid #09c;
 }
 
-.editButton:hover {
+.edit-button:hover {
 	background-color: #ffff77;
 }
-
-
 
 
 .new-items-count {
 	padding-left: 4px;
 	font-weight: bold;
 }
-
-
-
 
 
 /* profile heading styles */
@@ -635,7 +627,7 @@ h2 {
 	color: #5D5D5D;
 }
 
-.searchFriends {
+.search-connections {
 	margin-bottom: 10px;
 }
 
@@ -793,7 +785,7 @@ h2 {
 
 
 
-.results-header {
+.results-header, .search-results-header {
 	margin-top: 12px;
 	font-weight: normal;
 }
