@@ -1,7 +1,7 @@
 package org.sakaiproject.profile2.logic;
 
 /**
- * Implementation of ProfileLinkLogic API
+ * Implementation of ProfilePrivacyLogic API
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
