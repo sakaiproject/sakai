@@ -1,7 +1,7 @@
 package org.sakaiproject.profile2.logic;
 
 /**
- * An interface to create and resolve links to pages and views into Profile2
+ * An interface for dealing with ProfilePreferences in Profile2
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
