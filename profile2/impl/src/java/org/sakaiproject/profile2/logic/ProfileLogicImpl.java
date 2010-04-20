@@ -2037,7 +2037,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("messageSubject", subject);
 			replacementValues.put("messageBody", messageStr);
-			replacementValues.put("messageLink", getEntityLinkToProfileMessages(directId));
+			replacementValues.put("messageLink", linkLogic.getEntityLinkToProfileMessages(directId));
 			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
 
@@ -2056,7 +2056,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("messageSubject", subject);
 			replacementValues.put("messageBody", messageStr);
-			replacementValues.put("messageLink", getEntityLinkToProfileMessages(directId));
+			replacementValues.put("messageLink", linkLogic.getEntityLinkToProfileMessages(directId));
 			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
 
@@ -2083,7 +2083,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 			Map<String,String> replacementValues = new HashMap<String,String>();
 			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
-			replacementValues.put("connectionLink", getEntityLinkToProfileConnections());
+			replacementValues.put("connectionLink", linkLogic.getEntityLinkToProfileConnections());
 			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
 
@@ -2100,7 +2100,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 			Map<String,String> replacementValues = new HashMap<String,String>();
 			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
-			replacementValues.put("connectionLink", getEntityLinkToProfileHome(fromUuid));
+			replacementValues.put("connectionLink", linkLogic.getEntityLinkToProfileHome(fromUuid));
 			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
 
@@ -2112,44 +2112,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String getEntityLinkToProfileHome(final String userUuid) {
-		StringBuilder url = new StringBuilder();
-		url.append(getEntityLinkBase());
-		url.append(ProfileConstants.LINK_ENTITY_PROFILE);
-		if(StringUtils.isNotBlank(userUuid)) {
-			url.append("/");
-			url.append(userUuid);
-		}
-		return url.toString();
-	}
 	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String getEntityLinkToProfileMessages(final String threadId) {
-		StringBuilder url = new StringBuilder();
-		url.append(getEntityLinkBase());
-		url.append(ProfileConstants.LINK_ENTITY_MESSAGES);
-		if(StringUtils.isNotBlank(threadId)) {
-			url.append("/");
-			url.append(threadId);
-		}
-		return url.toString();
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String getEntityLinkToProfileConnections() {
-		StringBuilder url = new StringBuilder();
-		url.append(getEntityLinkBase());
-		url.append(ProfileConstants.LINK_ENTITY_CONNECTIONS);
-		return url.toString();
-	}
 	
 	
 	/**
@@ -2277,18 +2240,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	
 	
-	/**
-	 * Helper method to create the link base. We then append more onto it to get the full link.
-	 * @return
-	 */
-	private String getEntityLinkBase() {
-		StringBuilder base = new StringBuilder();
-		base.append(sakaiProxy.getServerUrl());
-		base.append(ProfileConstants.ENTITY_BROKER_PREFIX);
-		base.append(ProfileConstants.LINK_ENTITY_PREFIX);
-		return base.toString();
-	}
-		
+	
 	
 	
 	// helper method to check if all required twitter fields are set properly
@@ -2679,6 +2631,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 	private ProfileDao dao;
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
+	}
+	
+	//setup LinkLogic API
+	private ProfileLinkLogic linkLogic;
+	public void setLinkLogic(ProfileLinkLogic linkLogic) {
+		this.linkLogic = linkLogic;
 	}
 
 

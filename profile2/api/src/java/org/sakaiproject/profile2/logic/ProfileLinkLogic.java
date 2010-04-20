@@ -1,29 +1,13 @@
-/**
- * Copyright (c) 2008-2010 The Sakai Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *             http://www.osedu.org/licenses/ECL-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package org.sakaiproject.profile2.logic;
 
-package org.sakaiproject.profile2.service;
 
 /**
- * This is the outward facing service API that should be used to
- * create and resolve links to pages and views into Profile2
+ * An interface to create and resolve links to pages and views into Profile2
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
-public interface ProfileLinkService {
+public interface ProfileLinkLogic {
 
 	/**
 	 * Creates a full URL to the front page of the currently logged in user's
@@ -78,29 +62,32 @@ public interface ProfileLinkService {
 	 */
 	public String getInternalDirectUrlToUserConnections();
 	
-	
 	/**
 	 * Creates a RESTful link to the Profile2 home page for either the currently logged in user (if null param) or the given user.
 	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
 	 * 
+	 * <p>This is used for url shortening and also to avoid generating the personalised link for each user for when sending out multiple emails.</p>
+	 * 	
 	 * <p>The URL is of the form: http://server.com/direct/my/profile/{userUuid}</p>
-	 * 
+	 *
 	 * @param userUuid	optional if you want to link to the profile view of another person
 	 * @return
 	 */
-	public String getUrlToUserProfile(final String userUuid);
-	
+	public String getEntityLinkToProfileHome(final String userUuid);
+
 	/**
-	 * Creates a RESTful link to the Profile2 message page for any currently logged in user.
+	 * Creates a RESTful link to the Profile2 message page (and optionally directly to a thread) for any currently logged in user.
 	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link.
+	 * 
+	 * <p>Note: If that person is not a thread participant, this will be handled in the tool and just put to their message list page.</p>
 	 * 
 	 * <p>The URL is of the form: http://server.com/direct/my/messages or http://server.com/direct/my/messages/12345</p>
 	 * 
 	 * @param threadId	optionally, add the threadId to the URL
 	 * @return
 	 */
-	public String getUrlToUserMessages(final String threadId);
-
+	public String getEntityLinkToProfileMessages(final String threadId);
+	
 	/**
 	 * Creates a RESTful link to the Profile2 conenctions page for any currently logged in user.
 	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link.
@@ -109,6 +96,7 @@ public interface ProfileLinkService {
 	 * 
 	 * @return
 	 */
-	public String getUrlToUserConnections();
-
+	public String getEntityLinkToProfileConnections();
+	
+	
 }

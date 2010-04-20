@@ -1,15 +1,19 @@
-package org.sakaiproject.profile2.service;
+package org.sakaiproject.profile2.logic;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
-public class ProfileLinkServiceImpl implements ProfileLinkService {
-
+/**
+ * Implementation of ProfileLinkLogic API
+ * 
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+ *
+ */
+public class ProfileLinkLogicImpl implements ProfileLinkLogic {
+	
 	/**
  	* {@inheritDoc}
  	*/
@@ -20,7 +24,6 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		}
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, null);
 	}
-
 	
 	
 	/**
@@ -86,43 +89,58 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
 	}
 
-
-	
-
-	
-
 	/**
- 	* {@inheritDoc}
- 	*/
-	public String getUrlToUserProfile(final String userUuid) {
-		return profileLogic.getEntityLinkToProfileHome(userUuid);
+ 	 * {@inheritDoc}
+ 	 */
+	public String getEntityLinkToProfileHome(final String userUuid) {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_PROFILE);
+		if(StringUtils.isNotBlank(userUuid)) {
+			url.append("/");
+			url.append(userUuid);
+		}
+		return url.toString();
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getEntityLinkToProfileMessages(final String threadId) {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_MESSAGES);
+		if(StringUtils.isNotBlank(threadId)) {
+			url.append("/");
+			url.append(threadId);
+		}
+		return url.toString();
 	}
 	
 	/**
- 	* {@inheritDoc}
- 	*/
-	public String getUrlToUserMessages(final String threadId) {
-		return profileLogic.getEntityLinkToProfileMessages(threadId);
+ 	 * {@inheritDoc}
+ 	 */
+	public String getEntityLinkToProfileConnections() {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_CONNECTIONS);
+		return url.toString();
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getUrlToUserConnections() {
-		return profileLogic.getEntityLinkToProfileConnections();
-	}
+	
 
-/**
- * Special method that mimics the urlFor method from Wicket for a class.
- * Since we can't use that outside of Wicket, we need to copy it's behaviour here. This must be tested in Wicket upgrades 
- * but should be stable since the idea is that they are bookmarkable links and shouldn't change.
- * 
- * <p>The return is not URL encoded as it is encoded in SakaiProxy</p>
- * 
- * @param pageClass	page class to be used, see ProfileConstants.WICKET_PAGE_PROFILE for example
- * @param params	key,value pair of any additional params required for the URL
- * @return
- */
+	/**
+	 * Special method that mimics the urlFor method from Wicket for a class.
+	 * Since we can't use that outside of Wicket, we need to copy it's behaviour here. This must be tested in Wicket upgrades 
+	 * but should be stable since the idea is that they are bookmarkable links and shouldn't change.
+	 * 
+	 * <p>The return is not URL encoded as it is encoded in SakaiProxy</p>
+	 * 
+	 * @param pageClass	page class to be used, see ProfileConstants.WICKET_PAGE_PROFILE for example
+	 * @param params	key,value pair of any additional params required for the URL
+	 * @return
+	 */
 	private String getFormattedStateParamForWicketTool(final String pageClass, final Map<String,String> vars) {
 		
 
@@ -147,20 +165,21 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		return params.toString();
 	}
 	
-	
+	/**
+	 * Helper method to create the link base. We then append more onto it to get the full link.
+	 * @return
+	 */
+	private String getEntityLinkBase() {
+		StringBuilder base = new StringBuilder();
+		base.append(sakaiProxy.getServerUrl());
+		base.append(ProfileConstants.ENTITY_BROKER_PREFIX);
+		base.append(ProfileConstants.LINK_ENTITY_PREFIX);
+		return base.toString();
+	}
 	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
-	
-	private ProfileLogic profileLogic;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
-
-
-	
-
 	
 }

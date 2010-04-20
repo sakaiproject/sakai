@@ -949,35 +949,7 @@ public interface ProfileLogic {
 	public void sendConnectionEmailNotification(String toUuid, final String fromUuid, final int messageType);
 	
 	
-	/**
-	 * Creates a RESTful link to the Profile2 home page for either the currently logged in user (if null param) or the given user.
-	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
-	 * 
-	 * <p>This is used for url shortening and also to avoid generating the personalised link for each user for when sending out multiple emails.
-
-	 * @param userUuid	optional if you want to link to the profile view of another person
-	 * @return
-	 */
-	public String getEntityLinkToProfileHome(final String userUuid);
-
-	/**
-	 * Creates a RESTful link to the Profile2 message page (and optionally directly to a thread) for any currently logged in user.
-	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link.
-	 * 
-	 * Note: If that person is not a thread participant, this will be handled in the tool and just put to their message list page.
-	 * 
-	 * @param threadId	optionally, add the threadId to the URL
-	 * @return
-	 */
-	public String getEntityLinkToProfileMessages(final String threadId);
 	
-	/**
-	 * Creates a RESTful link to the Profile2 conenctions page for any currently logged in user.
-	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link.
-	 * 
-	 * @return
-	 */
-	public String getEntityLinkToProfileConnections();
 	
 	/**
 	 * Gets a list of all Person records. It will attempt to set all optional fields, ie Privacy and Preference records as well.

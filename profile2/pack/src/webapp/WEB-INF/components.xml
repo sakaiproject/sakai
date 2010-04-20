@@ -48,14 +48,22 @@
 	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
     	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
     	init-method="init">
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 	</bean>
 	
-	<!--  API Service beans -->
+	<!-- ProfileLinkLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfileLinkLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileLinkLogicImpl">
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
+	
+	
+	<!--  service beans, REMOVE -->
 	<bean id="org.sakaiproject.profile2.service.BaseProfileService" abstract="true">
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 	</bean>
 	
 	<bean id="org.sakaiproject.profile2.service.ProfileService" 
@@ -77,12 +85,16 @@
 	<bean id="org.sakaiproject.profile2.service.ProfileImageService" 
 		class="org.sakaiproject.profile2.service.ProfileImageServiceImpl"
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
-		
-	<bean id="org.sakaiproject.profile2.service.ProfileLinkService" 
-		class="org.sakaiproject.profile2.service.ProfileLinkServiceImpl"
-		parent="org.sakaiproject.profile2.service.BaseProfileService" />
+	
+	
+    <!-- EntityProvider beans, UPDATE -->
+    <bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
+		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+	</bean>
+	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
     
-    <!-- EntityBroker beans -->
+    
+    
 	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProvider">
 		<property name="profileService" ref="org.sakaiproject.profile2.service.ProfileService" />
 		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
@@ -96,10 +108,7 @@
 	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider">
 		<property name="statusService" ref="org.sakaiproject.profile2.service.ProfileStatusService" />
 	</bean>
-	<bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
-		<property name="linkService" ref="org.sakaiproject.profile2.service.ProfileLinkService" />
-	</bean>
-	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
+	
 	
 
 	<!-- Add our HBM files to the Sakai global session factory -->

@@ -26,7 +26,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.profile2.service.ProfileLinkService;
+import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 
 /**
  * This is an entity provider that resolves links. Each has a special use case.
@@ -57,27 +57,27 @@ public class ProfileLinkEntityProvider implements CoreEntityProvider, AutoRegist
 	
 	@EntityURLRedirect("/{prefix}/profile/{userUuid}")
 	public String redirectToUserProfile(Map<String,String> vars) {
-		return linkService.getInternalDirectUrlToUserProfile(vars.get("userUuid"));
+		return linkLogic.getInternalDirectUrlToUserProfile(vars.get("userUuid"));
 	}
 	
 	@EntityURLRedirect("/{prefix}/profile")
 	public String redirectToMyProfile() {
-		return linkService.getInternalDirectUrlToUserProfile();
+		return linkLogic.getInternalDirectUrlToUserProfile();
 	}
 	
 	@EntityURLRedirect("/{prefix}/messages/{thread}")
 	public String redirectToMyMessageThread(Map<String,String> vars) {
-		return linkService.getInternalDirectUrlToUserMessages(vars.get("thread"));
+		return linkLogic.getInternalDirectUrlToUserMessages(vars.get("thread"));
 	}
 	
 	@EntityURLRedirect("/{prefix}/messages")
 	public String redirectToMyMessages() {
-		return linkService.getInternalDirectUrlToUserMessages(null);
+		return linkLogic.getInternalDirectUrlToUserMessages(null);
 	}	
 	
 	@EntityURLRedirect("/{prefix}/connections")
 	public String redirectToMyConnections() {
-		return linkService.getInternalDirectUrlToUserConnections();
+		return linkLogic.getInternalDirectUrlToUserConnections();
 	}
 	
 	
@@ -103,9 +103,9 @@ public class ProfileLinkEntityProvider implements CoreEntityProvider, AutoRegist
 		return null;
 	}
 	
-	private ProfileLinkService linkService;
-	public void setLinkService(ProfileLinkService linkService) {
-		this.linkService = linkService;
+	private ProfileLinkLogic linkLogic;
+	public void setLinkLogic(ProfileLinkLogic linkLogic) {
+		this.linkLogic = linkLogic;
 	}
 	
 	
