@@ -1671,8 +1671,8 @@ public class DavServlet extends HttpServlet
 
 				if (xss.endsWith("/"))
 				{
-					ContentCollection nextres = contentHostingService.getCollection(adjustId(xs));
-					nextres.getProperties();
+				    // we don't want to show the trailing /, and escapeUrl blows if it's there
+				        xss = xss.substring(0, xss.length()-1);
 					if (doProtected
 							&& xs.toLowerCase().indexOf("/protected") >= 0)
 					{
@@ -1734,8 +1734,21 @@ public class DavServlet extends HttpServlet
 		boolean isCollection = false;
 		try
 		{
-			ResourceProperties props = contentHostingService.getProperties(adjustId(id));
-			isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+		    ResourceProperties props = null;
+		    try {
+			props = contentHostingService.getProperties(adjustId(id));
+		    } catch (IdUnusedException x) {
+			if (!id.endsWith(Entity.SEPARATOR)) {
+			    String tempid = id + Entity.SEPARATOR;
+			    props = contentHostingService.getProperties(adjustId(tempid));
+			    id = tempid;
+			} else {
+			    res.sendError(HttpServletResponse.SC_NOT_FOUND);
+			    return "This resource does not exist";
+			}
+		    }
+
+		    isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 		}
 		catch (PermissionException e)
 		{
