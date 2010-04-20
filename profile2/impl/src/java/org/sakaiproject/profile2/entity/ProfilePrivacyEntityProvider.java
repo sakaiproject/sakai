@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -29,9 +28,10 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.service.ProfilePrivacyService;
-import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * This is the entity provider for a user's profile privacy.
@@ -48,20 +48,17 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 	}
 		
 	public boolean entityExists(String eid) {
-		//check the user is valid. if it is then return true as everyone has a privacy record, even if its a default one.
-		//note that we DO NOT check if they have an actual privacy record, just if they exist.
-		return privacyService.checkUserExists(eid);
+		return true;
 	}
 
 	public Object getSampleEntity() {
-		
-		ProfilePrivacy privacy = privacyService.getPrototype();
-		return privacy;
+		return new ProfilePrivacy();
 	}
 	
-	public Object getEntity(EntityReference ref) {
 	
-		ProfilePrivacy privacy = privacyService.getProfilePrivacyRecord(ref.getId());
+	public Object getEntity(EntityReference ref) {
+		
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(ref.getId());
 		if(privacy == null) {
 			throw new EntityNotFoundException("ProfilePrivacy could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -80,7 +77,7 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 		
 		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
 			ProfilePrivacy privacy = (ProfilePrivacy) entity;
-			privacyService.save(privacy);
+			profileLogic.savePrivacyRecord(privacy);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePrivacy object");
 		}
@@ -96,7 +93,7 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
 			ProfilePrivacy privacy = (ProfilePrivacy) entity;
 			
-			if(privacyService.create(privacy)) {
+			if(profileLogic.savePrivacyRecord(privacy)) {
 				userUuid = privacy.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -129,21 +126,16 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
-		
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
+	
+	private ProfilePrivacyLogic privacyLogic;
+	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
+		this.privacyLogic = privacyLogic;
 	}
-	
-	private ProfilePrivacyService privacyService;
-	public void setPrivacyService(ProfilePrivacyService privacyService) {
-		this.privacyService = privacyService;
-	}
-	
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}	
-	
 
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
+	}
+	
+	
 }
