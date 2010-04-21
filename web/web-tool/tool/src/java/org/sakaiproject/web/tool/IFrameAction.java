@@ -882,40 +882,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// get the site toolConfiguration, if this is part of a site.
 		ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
 
-		// read source if we are not special
-		if (state.getAttribute(SPECIAL) == null)
-		{
-			String source = StringUtil.trimToZero(data.getParameters().getString(SOURCE));
-			if ((source != null) && (source.length() > 0) && (!source.startsWith("/")) && (source.indexOf("://") == -1))
-			{
-				source = "http://" + source;
-			}
-
-			// update state
-			placement.getPlacementConfig().setProperty(SOURCE, source);
-		}
-
-		else if (SPECIAL_WORKSITE.equals(state.getAttribute(SPECIAL)))
-		{
-			String infoUrl = StringUtil.trimToNull(data.getParameters().getString("infourl"));
-			if ((infoUrl != null) && (infoUrl.length() > 0) && (!infoUrl.startsWith("/")) && (infoUrl.indexOf("://") == -1))
-			{
-				infoUrl = "http://" + infoUrl;
-			}
-			String description = StringUtil.trimToNull(data.getParameters().getString("description"));
-			description = FormattedText.escapeHtmlFormattedTextarea(description);
-
-			// update the site info
-			try
-			{
-				SiteService.saveSiteInfo(ToolManager.getCurrentPlacement().getContext(), description, infoUrl);
-			}
-			catch (Throwable e)
-			{
-				M_log.warn("doConfigure_update: " + e);
-			}
-		}
-
 		// height
 		String height = data.getParameters().getString(HEIGHT);
 		if (height.equals(rb.getString("gen.heisomelse")))
@@ -990,6 +956,40 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		catch (Exception ignore)
 		{
 			M_log.warn("doConfigure_update: " + ignore);
+		}
+
+		// read source if we are not special
+		if (state.getAttribute(SPECIAL) == null)
+		{
+			String source = StringUtil.trimToZero(data.getParameters().getString(SOURCE));
+			if ((source != null) && (source.length() > 0) && (!source.startsWith("/")) && (source.indexOf("://") == -1))
+			{
+				source = "http://" + source;
+			}
+
+			// update state
+			placement.getPlacementConfig().setProperty(SOURCE, source);
+		}
+
+		else if (SPECIAL_WORKSITE.equals(state.getAttribute(SPECIAL)))
+		{
+			String infoUrl = StringUtil.trimToNull(data.getParameters().getString("infourl"));
+			if ((infoUrl != null) && (infoUrl.length() > 0) && (!infoUrl.startsWith("/")) && (infoUrl.indexOf("://") == -1))
+			{
+				infoUrl = "http://" + infoUrl;
+			}
+			String description = StringUtil.trimToNull(data.getParameters().getString("description"));
+			description = FormattedText.escapeHtmlFormattedTextarea(description);
+
+			// update the site info
+			try
+			{
+				SiteService.saveSiteInfo(ToolManager.getCurrentPlacement().getContext(), description, infoUrl);
+			}
+			catch (Throwable e)
+			{
+				M_log.warn("doConfigure_update: " + e);
+			}
 		}
 
 		// save
