@@ -22,6 +22,9 @@
 package org.sakaiproject.alias.tool;
 
 // imports
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.alias.api.AliasEdit;
@@ -161,10 +164,8 @@ public class AliasesAction extends PagedResourceActionII
 		catch (java.lang.NumberFormatException ignore) {}
 
 		if (totalNumber < endNumber) endNumber = totalNumber;
-
-		context.put("startNumber", Integer.valueOf(startNumber));
-		context.put("endNumber", Integer.valueOf(endNumber));
 		context.put("totalNumber", Integer.valueOf(totalNumber));
+		context.put("numbers", new Integer[]{Integer.valueOf(startNumber), Integer.valueOf(endNumber), Integer.valueOf(totalNumber)});
 		pagingInfoToContext(state, context);
 		
 		// add the search commands
@@ -178,6 +179,15 @@ public class AliasesAction extends PagedResourceActionII
 			context.put(Menu.CONTEXT_MENU, bar);
 		}
 
+		// for page size drop-down list
+		ArrayList<Integer[]> list = new ArrayList<Integer[]>();
+		String[] sizeArray = {"5", "10", "20", "50", "100", "200"};
+		for (Iterator<String> iSize = (new ArrayList<String>(Arrays.asList(sizeArray))).iterator(); iSize.hasNext();)
+		{
+			list.add(new Integer[]{Integer.valueOf(iSize.next())});
+		}
+		context.put("sizeList", list);
+		
 		return "_list";
 
 	} // buildListContext
@@ -276,7 +286,7 @@ public class AliasesAction extends PagedResourceActionII
 		{
 			Log.warn("chef", "AliasesAction.doEdit: alias not found: " + id);
 
-			addAlert(state, rb.getString("alias.alias") + " " + id + " " + rb.getString("alias.notfound"));
+			addAlert(state, rb.getFormattedMessage("alias.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -285,7 +295,7 @@ public class AliasesAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("alias.notpermis") + " " + id);
+			addAlert(state, rb.getFormattedMessage("alias.notpermis", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -294,7 +304,7 @@ public class AliasesAction extends PagedResourceActionII
 		}
 		catch (InUseException e)
 		{
-			addAlert(state, rb.getString("alias.someone") + " " + id);
+			addAlert(state, rb.getFormattedMessage("alias.someone", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -355,7 +365,7 @@ public class AliasesAction extends PagedResourceActionII
 				}
 				catch (PermissionException e)
 				{
-					addAlert(state, rb.getString("alias.notpermis1") + " " + alias.getId());
+					addAlert(state, rb.getFormattedMessage("alias.notpermis1", new Object[]{alias.getId()}));
 				}
 			}
 			else
@@ -409,7 +419,7 @@ public class AliasesAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("alias.notpermis1") + " " + alias.getId());
+			addAlert(state, rb.getFormattedMessage("alias.notpermis1", new Object[]{alias.getId()}));
 		}
 
 		// cleanup
@@ -464,17 +474,17 @@ public class AliasesAction extends PagedResourceActionII
 			}
 			catch (IdUsedException e)
 			{
-				addAlert(state, rb.getString("alias.use"));
+				addAlert(state, rb.getFormattedMessage("alias.use", new Object[]{id}));
 				return false;
 			}
 			catch (IdInvalidException e)
 			{
-				addAlert(state, rb.getString("alias.invalid"));
+				addAlert(state, rb.getFormattedMessage("alias.invalid", new Object[]{id}));;
 				return false;
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, rb.getString("alias.notpermis2"));
+				addAlert(state, rb.getFormattedMessage("alias.notpermis2", new Object[]{id}));
 				return false;
 			}
 		}

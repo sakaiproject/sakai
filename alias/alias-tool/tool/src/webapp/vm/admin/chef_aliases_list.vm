@@ -14,8 +14,8 @@
 	## paging widget
 			<div class="listNav">
 						#if($totalNumber>0)
-						<div class="instruction">	
-						$tlang.getString("alias.list.youare") $startNumber - $endNumber $tlang.getString("alias.list.of") $totalNumber $tlang.getString("alias.list.results")
+						<div class="instruction">
+						$tlang.getFormattedMessage("alias.list.youare", $numbers)
 						</div>
 						#end
 						#if ($pagesize != 0)
@@ -42,12 +42,14 @@
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("alias.list.listnavselect")</span>
 							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
-								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("alias.list.show5")</option>
-								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("alias.list.show10")</option>
-								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("alias.list.show20")</option>
-								<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("alias.list.show50")</option>
-								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("alias.list.show100")</option>
-								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("alias.list.show200")</option>
+								#foreach ($value in $sizeList)
+									## $value is an Integer array of length one
+									#foreach($intValue in $value)
+										## this is to get the first and only Integer element and its int value
+										#set($ivalue=$intValue.intValue())
+									#end
+									<option value="$ivalue" #if($pagesize == $ivalue) selected="selected" #end>$tlang.getFormattedMessage("alias.list.show", $value)</option>
+								#end
 							</select>
 						</form>
 						#if ($pagesize != 0)
