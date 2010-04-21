@@ -32,6 +32,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyStaffDisplay extends Panel {
 	
@@ -141,7 +142,7 @@ public class MyStaffDisplay extends Panel {
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
-		publicationsContainer.add(new Label("publications", publications));
+		publicationsContainer.add(new Label("publications", ProfileUtils.escapeHtmlForDisplay(publications)).setEscapeModelStrings(false));
 		add(publicationsContainer);
 		if(StringUtils.isBlank(publications)) {
 			publicationsContainer.setVisible(false);

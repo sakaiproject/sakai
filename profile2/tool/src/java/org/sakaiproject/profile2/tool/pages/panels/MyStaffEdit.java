@@ -42,7 +42,12 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
+import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
+
+import wicket.contrib.tinymce.TinyMceBehavior;
+import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
 
 public class MyStaffEdit extends Panel {
 	
@@ -55,7 +60,7 @@ public class MyStaffEdit extends Panel {
     public MyStaffEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
-		log.debug("MyInterestsEdit()");
+		log.debug("MyStaffEdit()");
 		
 		//this panel
 		final Component thisPanel = this;
@@ -190,7 +195,11 @@ public class MyStaffEdit extends Panel {
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
-		publicationsContainer.add(new TextArea("publications", new PropertyModel(userProfile, "publications")));
+		TextArea publications = new TextArea("publications", new PropertyModel(userProfile, "publications"));
+		
+		publications.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
+		publicationsContainer.add(publications);
+		
 		form.add(publicationsContainer);
 		
 		//submit button
@@ -224,6 +233,7 @@ public class MyStaffEdit extends Panel {
 				}
             }
 		};
+		submitButton.add(new TinyMceAjaxSubmitModifier());
 		form.add(submitButton);
 		
         
@@ -271,7 +281,7 @@ public class MyStaffEdit extends Panel {
 		sakaiPerson.setStaffProfile(userProfile.getStaffProfile());
 		sakaiPerson.setUniversityProfileUrl(userProfile.getUniversityProfileUrl());
 		sakaiPerson.setAcademicProfileUrl(userProfile.getAcademicProfileUrl());
-		sakaiPerson.setPublications(userProfile.getPublications());
+		sakaiPerson.setPublications(ProfileUtils.processHtml(userProfile.getPublications()));
 		
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
