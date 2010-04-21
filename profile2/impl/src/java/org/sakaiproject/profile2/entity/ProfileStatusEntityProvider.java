@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -29,9 +28,10 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileStatusLogic;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.service.ProfileStatusService;
-import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * This is the entity provider for a user's profile status.
@@ -48,19 +48,16 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 	}
 		
 	public boolean entityExists(String eid) {
-		//check if user has set their status recently
-		return statusService.checkProfileStatusExists(eid);
+		return true;
 	}
 
 	public Object getSampleEntity() {
-		
-		ProfileStatus status = statusService.getPrototype();
-		return status;
+		return new ProfileStatus();
 	}
 	
 	public Object getEntity(EntityReference ref) {
 	
-		ProfileStatus status = statusService.getProfileStatusRecord(ref.getId());
+		ProfileStatus status = profileLogic.getUserStatus(ref.getId());
 		if(status == null) {
 			throw new EntityNotFoundException("ProfileStatus could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -77,7 +74,7 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		
 		if (entity.getClass().isAssignableFrom(ProfileStatus.class)) {
 			ProfileStatus status = (ProfileStatus) entity;
-			statusService.save(status);
+			profileLogic.setUserStatus(status);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be ProfileStatus object");
 		}
@@ -93,7 +90,7 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		if (entity.getClass().isAssignableFrom(ProfileStatus.class)) {
 			ProfileStatus status = (ProfileStatus) entity;
 			
-			if(statusService.save(status)) {
+			if(profileLogic.setUserStatus(status)) {
 				userUuid = status.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -104,9 +101,6 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		}
 		return userUuid;
 	}
-
-	
-
 	
 	
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
@@ -126,21 +120,18 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
-		
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
+	
+	private ProfileStatusLogic statusLogic;
+	public void setStatusLogic(ProfileStatusLogic statusLogic) {
+		this.statusLogic = statusLogic;
 	}
 	
-	private ProfileStatusService statusService;
-	public void setStatusService(ProfileStatusService statusService) {
-		this.statusService = statusService;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 	
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}	
+	
 	
 
 }
