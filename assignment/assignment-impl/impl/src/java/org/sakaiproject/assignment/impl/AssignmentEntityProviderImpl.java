@@ -93,49 +93,87 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         Map<String, Object> assignData = new HashMap<String, Object>();
 
         String context = view.getPathSegment(2);
-        String messageId = view.getPathSegment(3);
-        if (context == null || messageId == null) {
-            throw new IllegalArgumentException("Must include context and messageId in the path ("+view+"): e.g. /assignment/annc/{context}/{messageId}");
+        String assignmentId = view.getPathSegment(3);
+        if (context == null || assignmentId == null)
+        {
+            // format of the view should be in a standard assignment reference
+            throw new IllegalArgumentException("Must include context and assignmentId in the path ("+view+"): e.g. /assignment/a/{context}/{assignmentId}");
         }
-        assignData.put("context", context);
-        assignData.put("messageId", messageId);
-        Iterator i = assignmentService.getAssignmentsForContext(context);
-        while (i.hasNext()) { // if i is empty, none of this code is run
-            Assignment a = (Assignment) i.next();
+        try
+        {
+            Assignment a = assignmentService.getAssignment(assignmentId);
             
-            // This is the only link we have to know if the announcement is associated with an assignment
+            assignData.put("assignment", a);
+            assignData.put("context", context);
+            assignData.put("assignmentId", assignmentId);
+            
+            // This is for checking to see if there is a link to announcements in the assignment
             String announcementCheck = a.getProperties().getProperty("CHEF:assignment_opendate_announcement_message_id");
             
+            // the message id passed in through parameters
+            String messageId = (String) params.get("messageId");
+            
             // Lots of checks to make absolutely sure this is the assignment we are looking for
-            if (announcementCheck != null && ! "".equals(announcementCheck) && announcementCheck.equals(messageId)) {
-                String assignmentId = a.getId();
-                assignData.put("assignment", a);
-                assignData.put("id", assignmentId);
-                assignData.put("title", a.getTitle());
-                if (assignmentId != null && assignmentId.length() > 0) {
-                    String assignmentContext = a.getContext(); // assignment context
-                    boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
-                    if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) {
-                        // this checks if we want to display an assignment link
-                        try {
-                            Site site = siteService.getSite(assignmentContext); // site id
-                            ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
-                            boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
-                            
-                            // Two different urls to be rendered depending on the user's permission
-                            if (allowAddAssignment) {
-                                assignData.put("url", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
-                            } else {
-                                assignData.put("url", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
-                            }
-                        } catch (IdUnusedException e) {
-                            // NO site found - skipping this one for now
-                            assignData.remove("assignment");
+            if (announcementCheck != null && ! "".equals(announcementCheck) && messageId!=null && ! "".equals(messageId) && announcementCheck.equals(messageId))
+            {
+                assignData.put("assignmentTitle", a.getTitle());
+                String assignmentContext = a.getContext(); // assignment context
+                boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
+                if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime()))
+                {
+                    // this checks if we want to display an assignment link
+                    try
+                    {
+                        Site site = siteService.getSite(assignmentContext); // site id
+                        ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+                        boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
+                        boolean allowSubmitAssignment = assignmentService.allowAddSubmission(assignmentContext); // this checks for the asn.submit permission and determines the url we present the user
+
+                        // Three different urls to be rendered depending on the user's permission
+                        if (allowAddAssignment)
+                        {
+                            assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
+                        }
+                        else if (allowSubmitAssignment)
+                        {
+                            assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+                        }
+                        else
+                        {
+                            // user can read the assignment, but not submit, so render the appropriate url
+                            assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment_as_student");
                         }
                     }
+                    catch (IdUnusedException e)
+                    {
+                        // No site found
+                        assignData.remove("assignment");
+                        assignData.remove("context");
+                        assignData.remove("assignmentId");
+                        assignData.remove("assignmentTitle");
+                        assignData.remove("assignmentUrl");
+                        throw new IdUnusedException("No site found while creating assignment url");
+                    }
                 }
-                break; // no need to keep iterating if we find the match
             }
+        }
+        catch (IdUnusedException e)
+        {
+            assignData.remove("assignment");
+            assignData.remove("context");
+            assignData.remove("assignmentId");
+            assignData.remove("assignmentTitle");
+            assignData.remove("assignmentUrl");
+            throw new EntityNotFoundException("No assignment found", assignmentId, e);
+        }
+        catch (PermissionException e)
+        {
+            assignData.remove("assignment");
+            assignData.remove("context");
+            assignData.remove("assignmentId");
+            assignData.remove("assignmentTitle");
+            assignData.remove("assignmentUrl");
+            throw new SecurityException(e);
         }
         return assignData;
     }
