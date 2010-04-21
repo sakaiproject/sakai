@@ -100,6 +100,9 @@ public interface AnnouncementService extends MessageService
 	/** retract date property names for announcements	 */
 	public static final String RETRACT_DATE = "retractDate";
 	
+	/** assignment reference property for announcements       */
+        public static final String ASSIGNMENT_REFERENCE = "assignmentReference";
+	
 	/**
 	 * A (AnnouncementChannel) cover for getChannel() to return a specific announcement channel.
 	 * 

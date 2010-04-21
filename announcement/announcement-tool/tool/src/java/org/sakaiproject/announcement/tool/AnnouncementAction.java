@@ -48,8 +48,6 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -73,6 +71,8 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -222,7 +222,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
    private ContentHostingService contentHostingService = null;
    
-   private AssignmentService assignmentService = null;
+   private EntityBroker entityBroker;
 
 	/**
 	 * Used by callback to convert channel references to channels.
@@ -2187,55 +2187,22 @@ public class AnnouncementAction extends PagedResourceActionII
 				menu_new = menu_delete = menu_revise = false;
 			}
 			
-			try // Check to see if this is an announcement associated with an assignment
+			// this block of code is to check to see if we display a direct link back to an assignment
+			String assignmentReference = message.getProperties().getProperty(AnnouncementService.ASSIGNMENT_REFERENCE);
+			boolean assignmentCheck = assignmentReference != null && ! "".equals(assignmentReference);
+			if (assignmentCheck)
 			{
-				Iterator i = assignmentService.getAssignmentsForContext(channel.getContext());
-				String assignmentId = "";
-				
-				while (i.hasNext()) // if i is empty, none of this code is ran
-				{
-					Assignment a = (Assignment) i.next();
-					
-					// This is the only link we have to know if the announcement is associated with an assignment
-					String announcementCheck = a.getProperties().getProperty("CHEF:assignment_opendate_announcement_message_id");
-					
-					// Get the titles of both for comparison
-					String title = a.getTitle();
-					String title2 = message.getAnnouncementHeader().getSubject();
-					
-					// Lots of checks to make absolutely sure this is the assignment we are looking for
-					if (announcementCheck!="" && announcementCheck!=null && announcementCheck.equals(message.getId()) && title2.endsWith(title))
-					{
-						assignmentId = a.getId();
-						context.put("assignment", a);
-						if (assignmentId != null && assignmentId.length() > 0)
-						{
-							String assignmentContext = a.getContext(); // assignment context
-							boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
-							if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link
-							{
-								Site site = SiteService.getSite(assignmentContext); // site id
-								ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
-								boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
-								
-								// Two different urls to be rendered depending on the user's permission
-								if (allowAddAssignment)
-								{
-									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
-								}
-								else
-								{
-									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
-								}
-							}
-						}
-						break; // no need to keep iterating if we find the match
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				// no assignment associated
+			    Map<String, Object> assignData = new HashMap<String, Object>();
+			    Map<String, Object> params = new HashMap<String, Object>();
+		            params.put("messageId", message.getId());
+	                    // pass in the assignment reference to get the assignment data we need
+                            ActionReturn ret = entityBroker.executeCustomAction(assignmentReference, "annc", params, null);
+                            if (ret != null && ret.getEntityData() != null) {
+                                Object returnData = ret.getEntityData().getData();
+                                assignData = (Map<String, Object>)returnData;
+                            }
+                            context.put("assignmenturl", assignData.get("assignmentUrl"));
+                            context.put("assignmenttitle", assignData.get("assignmentTitle"));
 			}
 
 			// check the state status to decide which vm to render
@@ -4030,9 +3997,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		}
 		
-		if (assignmentService == null)
+		if (entityBroker == null)
 		{
-			assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
+			entityBroker = (EntityBroker) ComponentManager.get("org.sakaiproject.entitybroker.EntityBroker");
 		}
 
 		// retrieve the state from state object
