@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.feedback.FeedbackMessage;
@@ -91,7 +92,9 @@ public class MyPictures extends BasePage {
 	 * This constructor enables an admin user to edit another user's gallery.
 	 */
 	public MyPictures(String userUuid) {
-		renderMyPictures(0, userUuid);
+		
+		this(0, userUuid);
+
 	}
 	
 	/**
@@ -100,6 +103,13 @@ public class MyPictures extends BasePage {
 	 * @param userUuid
 	 */
 	public MyPictures(int pageToDisplay, String userUuid) {
+		
+		//double check only super users
+		if(!sakaiProxy.isSuperUser()) {
+			log.error("MyPictures: user " + sakaiProxy.getCurrentUserId() + " attempted to access MyPictures for " + userUuid + ". Redirecting...");
+			throw new RestartResponseException(new MyProfile());
+		}
+		
 		renderMyPictures(pageToDisplay, userUuid);
 	}
 
