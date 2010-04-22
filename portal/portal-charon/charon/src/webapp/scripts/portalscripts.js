@@ -75,7 +75,6 @@ var timeoutDialogEnabled = false;
 var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
 jQuery(document).ready(function(){
-	//TODO - find a better method for detecting logged in
 	// note a session exists whether the user is logged in or no
 	if (portal.loggedIn) {  //if Logged in
 		setup_timeout_config();
