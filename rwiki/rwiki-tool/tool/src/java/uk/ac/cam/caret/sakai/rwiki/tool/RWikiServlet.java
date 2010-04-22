@@ -150,14 +150,8 @@ public class RWikiServlet extends HttpServlet
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		
 		String targetURL = persistState(request);
-		String queryString= request.getQueryString();
-		String[] query=null;
-		if (queryString!=null)
-		{
-			query= queryString.split("&");
-		}
 				
-		if (targetURL != null && targetURL.trim().length() > 0 && !(targetURL.contains("action=comment") || query[0].equals("action=search")||query[0].equals("action=full_search")))
+		if (targetURL != null && targetURL.trim().length() > 0)
 		{
 			response.sendRedirect(targetURL);
 			return;
@@ -276,6 +270,11 @@ public class RWikiServlet extends HttpServlet
 			if ( request.getPathInfo() != null && request.getPathInfo().startsWith("/helper/") ) {
 				return false;
 			}
+		}
+		
+		String action = request.getParameter(RequestHelper.ACTION);
+		if (action != null && action.length() > 0) {
+			return false;
 		}
 
 		String pageName = request.getParameter(ViewBean.PAGE_NAME_PARAM);
