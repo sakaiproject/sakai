@@ -6270,9 +6270,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			long len = resource.getContentLength();
 			String contentType = resource.getContentType();
+			String resourceType = resource.getResourceType();
 
-			// for url content type, encode a redirect to the body URL
-			if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
+			// for url resource type, encode a redirect to the body URL
+			if (resourceType.equalsIgnoreCase(ResourceType.TYPE_URL))
 			{
 				byte[] content = resource.getContent();
 				if ((content == null) || (content.length == 0))
