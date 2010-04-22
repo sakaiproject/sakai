@@ -3009,7 +3009,7 @@ public class CharonPortal extends HttpServlet
 		for (int i = 0; i < siteList.size(); i++)
 		{
 			Site site = (Site) siteList.get(i);
-			if (site.equals(value))
+			if (value.equals(site.getId()))
 			{
 				return i;
 			}
