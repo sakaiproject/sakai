@@ -18,8 +18,9 @@
 		##paging widget
 		<div class="listNav">
 						#if($totalNumber>0)
-						<div class="instruction">	
-						$tlang.getFormattedMessage("uselis.list.youare_of_results", $params)
+						<div class="instruction">
+						#	
+						$tlang.getFormattedMessage("uselis.list.youare_of_results", $startNumber, $endNumber, $totalNumber)
 						</div>
 						#end
 						#if ($pagesize != 0)
