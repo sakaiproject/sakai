@@ -46,6 +46,15 @@ ${tool.toolRenderResult.getTitle()}
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
 #end
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+<script type="text/javascript" language="JavaScript">
+	var portal = { // SAK-16484 Allow Javascript to easily get at user details.
+		"loggedIn": $!{loggedIn},
+		"user": {
+			"id": "$!{userId}",
+			"eid": "$!{userEid}"
+		}
+	};
+</script>
 
 #if ( ${styleable} )
 <script type="text/javascript" 
