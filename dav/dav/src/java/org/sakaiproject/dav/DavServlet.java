@@ -2578,7 +2578,11 @@ public class DavServlet extends HttpServlet
 	{
 
 		// Do not allow files which match patterns specified in properties
-		if (!isFileNameAllowed(req)) return;
+		if (!isFileNameAllowed(req))
+		{
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+			return;
+		}
 
 		ResourceProperties oldProps = null;
 		Collection oldGroups = null;
@@ -2649,13 +2653,13 @@ public class DavServlet extends HttpServlet
 				    oldHidden = resource.isHidden();
 				    releaseDate = resource.getReleaseDate();
 				    retractDate = resource.getRetractDate();
-				} catch (Exception e) {System.out.println("fail 1" + e);} ;
+				} catch (Exception e) {M_log.info("doPut fail 1" + e);} ;
 
 				try {
 				    if (!contentHostingService.isInheritingPubView(id))
 					if (contentHostingService.isPubView(id)) 
 					    oldPubView = true;
-				} catch (Exception e) {System.out.println("fail 2" + e);};
+				} catch (Exception e) {M_log.info("doPut fail 2" + e);};
 				
 				contentHostingService.removeResource(adjustId(path));
 			}
@@ -2740,11 +2744,11 @@ public class DavServlet extends HttpServlet
 			try {
 			    if (oldGroups != null && !oldGroups.isEmpty())
 				edit.setGroupAccess(oldGroups);
-			} catch (Exception e) {System.out.println("fail 3 " + e + " " + oldGroups);};
+			} catch (Exception e) {M_log.info("doPut fail 3 " + e + " " + oldGroups);};
 
 			try {
 			    edit.setAvailability(oldHidden, releaseDate, retractDate);
-			} catch (Exception e) {System.out.println("fail 4 " + e);};
+			} catch (Exception e) {M_log.info("doPut fail 4 " + e);};
 
 
 			// copy old props, if any
@@ -3941,6 +3945,26 @@ public class DavServlet extends HttpServlet
 			return false;
 
 		}
+
+		// kernel's copyResource copies the resource name. That's inappropriate.
+		// pick a new one based on filename.
+		try {
+		    String filename = null;
+
+		    if (destinationPath.indexOf('/') >= 0)
+			filename = destinationPath.substring(destinationPath.lastIndexOf('/') + 1);
+		    else 
+			filename = destinationPath;
+
+		    // hopefully this can't happen.
+		    if (filename.length() == 0)
+			filename = "null";
+
+		    ContentResourceEdit edit = contentHostingService.editResource(adjustId(fixDirPathSAKAI(destinationPath)));
+		    ResourcePropertiesEdit newProps = edit.getPropertiesEdit();
+		    newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, Validator.escapeResourceName(filename));
+		    contentHostingService.commitResource(edit,NotificationService.NOTI_NONE);
+		} catch (Exception e) {M_log.info("copyResource unable to set new displayname " + e);};
 
 		// Removing any lock-null resource which would be present at
 		// the destination path
