@@ -151,7 +151,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		}
 
 		// remove all in exclude from mySites
-		mySites.removeAll(prefExclude);
+		for (Site site: mySites) {
+			if (prefExclude.contains(site.getId())) {
+				mySites.remove(site);
+			}
+		}
 
 		// Prepare to put sites in the right order
 		Vector<Site> ordered = new Vector<Site>();
@@ -381,7 +385,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		for (int i = 0; i < siteList.size(); i++)
 		{
 			Site site = (Site) siteList.get(i);
-			if (site.equals(value))
+			if (site.getId().equals(value))
 			{
 				return i;
 			}
