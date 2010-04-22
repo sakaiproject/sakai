@@ -29,8 +29,10 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
@@ -38,7 +40,6 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -49,7 +50,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
 	
@@ -150,16 +151,22 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		if(bytes != null && bytes.length > 0) {
 			try {
 				out.write(bytes);
-				ActionReturn actionReturn = new ActionReturn("BASE64", "blah", out);
+				ActionReturn actionReturn = new ActionReturn("BASE64", null, out);
 				return actionReturn;
 			} catch (IOException e) {
 				throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 			}
 		}
 		
+		
 		String url = image.getUrl();
 		if(StringUtils.isNotBlank(url)) {
-			return url;
+			try {
+				requestGetter.getResponse().sendRedirect(url);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return null;
@@ -256,7 +263,11 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	
 	
 	
-	
+	private RequestGetter requestGetter;
+	public void setRequestGetter(RequestGetter requestGetter) {
+		this.requestGetter = requestGetter;
+	}
+
 	
 	
 	
@@ -288,6 +299,7 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		this.imageLogic = imageLogic;
 	}
 
+	
 	
 	
 
