@@ -1016,7 +1016,7 @@ div.wicket-aa ul li.selected {
 	vertical-align:top;	
 }
 
-.message-photo img{
+.message-photo{
 	float:left;
 	max-width: 55px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
