@@ -54,6 +54,7 @@ import org.sakaiproject.util.ResourceLoader;
  * <p>
  * ErrorReporter helps with end-user formatted error reporting, user feedback
  * collection, logging and emailing for uncaught throwable based errors.
+ * This is a util class as it's used by both the CharronPortal and the SkinnableCharronPortal.
  * </p>
  */
 public class ErrorReporter
@@ -722,14 +723,12 @@ public class ErrorReporter
 			}
 			out.println("<body" + bodyOnload + ">");
 			out.println("<div class=\"portletBody\">");
-			out.println("<h3>" + rb.getString("bugreport.error") + "</h3>");
-			out.println("<p>" + rb.getString("bugreport.statement") + "<br /><br /></p>");
 
 			out.println("<h4>" + rb.getString("bugreport.senttitle") + "</h4>");
 			out.println("<p>" + rb.getString("bugreport.sentnote") + "<br /><br /></p>");
 
 			out.println("<h4>" + rb.getString("bugreport.recoverytitle") + "</h4>");
-			out.println("<p>" + rb.getString("bugreport.recoveryinstructions") + "");
+			out.println("<p>" + rb.getString("bugreport.recoveryinstructions.reported") + "");
 			out.println("<ul><li>" + rb.getString("bugreport.recoveryinstructions1")
 					+ "</li>");
 			out.println("<li>" + rb.getString("bugreport.recoveryinstructions2")
