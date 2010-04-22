@@ -1990,7 +1990,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
 				{
 					boolean active = true;
-					if (providedInactive.get(userId) != null) {
+					if (providedInactive.get(realmId) != null) {
 						active = false;
 					}
 				
