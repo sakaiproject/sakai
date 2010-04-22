@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -36,10 +35,11 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -130,30 +130,39 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getProfileImage(OutputStream out, EntityView view, EntityReference ref) {
 		
-		ResourceWrapper resource = new ResourceWrapper();
+		ProfileImage image = new ProfileImage();
 		
 		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
 		
 		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			resource = profileImageService.getProfileImage(ref.getId(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+			image = imageLogic.getProfileImage(ref.getId(), null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 		} else {
-			resource = profileImageService.getProfileImage(ref.getId(),ProfileConstants.PROFILE_IMAGE_MAIN);
+			image = imageLogic.getProfileImage(ref.getId(), null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
 		}
 		
-		if(resource == null || resource.getBytes() == null) {
+		if(image == null) {
 			throw new EntityNotFoundException("No profile image for " + ref.getId(), ref.getReference());
 		}
 		
-		try {
-			out.write(resource.getBytes());
-			
-			ActionReturn actionReturn = new ActionReturn("BASE64", resource.getMimeType(), out);
-		
-			return actionReturn;
-		} catch (IOException e) {
-			throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
+		//check for binary
+		final byte[] bytes = image.getBinary();
+		if(bytes != null && bytes.length > 0) {
+			try {
+				out.write(bytes);
+				ActionReturn actionReturn = new ActionReturn("BASE64", "blah", out);
+				return actionReturn;
+			} catch (IOException e) {
+				throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
+			}
 		}
+		
+		String url = image.getUrl();
+		if(StringUtils.isNotBlank(url)) {
+			return url;
+		}
+		
+		return null;
 	}
 	
 	
@@ -267,19 +276,16 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	
 	
 		
-	private DeveloperHelperService developerHelperService;
-	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-		this.developerHelperService = developerHelperService;
-	}
+	
 	
 	private ProfileService profileService;
 	public void setProfileService(ProfileService profileService) {
 		this.profileService = profileService;
 	}
 	
-	private ProfileImageService profileImageService;
-	public void setProfileImageService(ProfileImageService profileImageService) {
-		this.profileImageService = profileImageService;
+	private ProfileImageLogic imageLogic;
+	public void setImageLogic(ProfileImageLogic imageLogic) {
+		this.imageLogic = imageLogic;
 	}
 
 	

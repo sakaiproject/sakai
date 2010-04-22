@@ -28,9 +28,9 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import wicket.contrib.tinymce.settings.TinyMCESettings;
@@ -46,8 +46,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	protected ProfileLogic profileLogic;
 	
-	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
-	protected ProfileImageService profileImageService;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
+	protected ProfileImageLogic imageLogic;
 	
 	public BasePage() {
 		//super();

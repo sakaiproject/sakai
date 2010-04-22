@@ -28,10 +28,9 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
@@ -53,11 +52,8 @@ public class GalleryImageEdit extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
-	
-	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
-	private ProfileImageService profileImageService;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
+	private ProfileImageLogic imageLogic;
 
 	public GalleryImageEdit(String id, final ModalWindow mainImageWindow,
 			final String userId, final GalleryImage image,
@@ -164,7 +160,7 @@ public class GalleryImageEdit extends Panel {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				if (profileImageService.removeProfileGalleryImage(
+				if (imageLogic.removeGalleryImage(
 						userId, image)) {
 
 					// close modal window
@@ -226,7 +222,7 @@ public class GalleryImageEdit extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-				if (profileImageService.setProfileImage(
+				if (imageLogic.setUploadedProfileImage(
 						userId,
 						sakaiProxy.getResource(
 								image.getMainResource()), "", "")) {

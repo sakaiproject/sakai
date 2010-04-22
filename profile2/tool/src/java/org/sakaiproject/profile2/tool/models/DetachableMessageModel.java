@@ -20,9 +20,7 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.service.ProfileImageService;
 
 /**
  * Detachable model for an instance of Message

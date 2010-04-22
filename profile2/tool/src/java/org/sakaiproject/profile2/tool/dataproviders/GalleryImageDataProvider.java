@@ -22,20 +22,20 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.model.GalleryImage;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.models.DetachableGalleryImageModel;
 
 /**
  * IDataProvider implementation for retrieving gallery images.
  */
-public class GalleryImageDataProvider implements IDataProvider {
+public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 
 	private static final long serialVersionUID = 1L;
 	private String userId;
 	
-	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
-	private ProfileImageService profileImageService;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
+	private ProfileImageLogic imageLogic;
 
 	public GalleryImageDataProvider(String userId) {
 		
@@ -46,22 +46,19 @@ public class GalleryImageDataProvider implements IDataProvider {
 	}
 
 	public Iterator<GalleryImage> iterator(int first, int count) {	
-		return profileImageService.getProfileGalleryImages(userId)
-				.subList(first, first + count).iterator();
+		return imageLogic.getGalleryImages(userId).subList(first, first + count).iterator();
 	}
 
-	public IModel model(Object object) {
+	public IModel<GalleryImage> model(GalleryImage object) {
 		if (!(object instanceof GalleryImage)) {
-			throw new IllegalArgumentException(
-					"object not an instance of GalleryImage");
+			throw new IllegalArgumentException("object not an instance of GalleryImage");
 		}
 
-		return new DetachableGalleryImageModel((GalleryImage) object);
+		return new DetachableGalleryImageModel(object);
 	}
 
 	public int size() {
-		return profileImageService.getProfileGalleryImages(userId)
-				.size();
+		return imageLogic.getGalleryImages(userId).size();
 	}
 
 	public void detach() {

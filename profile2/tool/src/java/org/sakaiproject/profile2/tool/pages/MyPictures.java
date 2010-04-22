@@ -355,7 +355,7 @@ public class MyPictures extends BasePage {
 
 				byte[] imageBytes = upload.getBytes();
 
-				if (!profileImageService.addProfileGalleryImage(
+				if (!imageLogic.addGalleryImage(
 						userUuid, imageBytes, upload.getContentType(),
 						upload.getClientFileName())) {
 

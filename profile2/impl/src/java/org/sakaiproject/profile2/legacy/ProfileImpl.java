@@ -31,7 +31,7 @@ public class ProfileImpl implements Profile
 	private String homePhone;
 	private String homepage;
 	private String otherInformation;
-	private String pictureUrl; //maybe set this from ResourceWrapper?
+	private String pictureUrl; //this needs to be populated with the ProfileImage.url field, if set
 	private String position;
 	private String room;
 	private String school;

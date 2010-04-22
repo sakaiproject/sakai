@@ -46,8 +46,7 @@
 	
 	<!-- ProfileLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
-    	init-method="init">
+    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl">
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
@@ -76,7 +75,15 @@
     	class="org.sakaiproject.profile2.logic.ProfileStatusLogicImpl">
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
-	
+    
+    <!-- ProfileImageLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileImageLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl"
+    	init-method="init">
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+    </bean>
 	
 	<!--  service beans, REMOVE -->
 	<bean id="org.sakaiproject.profile2.service.BaseProfileService" abstract="true">
@@ -87,11 +94,6 @@
 	<bean id="org.sakaiproject.profile2.service.ProfileService" 
 		class="org.sakaiproject.profile2.service.ProfileServiceImpl"
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
-	
-	<bean id="org.sakaiproject.profile2.service.ProfileImageService" 
-		class="org.sakaiproject.profile2.service.ProfileImageServiceImpl"
-		parent="org.sakaiproject.profile2.service.BaseProfileService" />
-	
 	
     <!-- EntityProvider beans, UPDATE -->
     <bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
@@ -115,11 +117,12 @@
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />	</bean>
 		
 	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
-    
+
+
     
 	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProvider">
 		<property name="profileService" ref="org.sakaiproject.profile2.service.ProfileService" />
-		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
+		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 	</bean>
 	
 	
@@ -157,8 +160,8 @@
         <property name="profileService">
         	<ref bean="org.sakaiproject.profile2.service.ProfileService"/>
         </property>
-        <property name="profileImageService">
-        	<ref bean="org.sakaiproject.profile2.service.ProfileImageService"/>
+        <property name="imageLogic">
+        	<ref bean="org.sakaiproject.profile2.logic.ProfileImageLogic"/>
         </property>
         <property name="sakaiProxy">
         	<ref bean="org.sakaiproject.profile2.logic.SakaiProxy"/>

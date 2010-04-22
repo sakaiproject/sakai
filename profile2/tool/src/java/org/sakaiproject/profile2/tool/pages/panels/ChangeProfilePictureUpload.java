@@ -33,8 +33,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
@@ -50,8 +50,8 @@ public class ChangeProfilePictureUpload extends Panel{
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
-	private ProfileImageService profileImageService;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
+	private ProfileImageLogic imageLogic;
 
     private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
@@ -124,7 +124,7 @@ public class ChangeProfilePictureUpload extends Panel{
 					//note that this has changed so it uses the service. if needs to be changed back so there is no dependency on the PIS,
 					//just grab the bits from the methods in PIS that do what is required, remove from applicationContext.xml, Locator.java and ProfileApplication.java
 					//likewise for ChangeProfilePictureUrl.java
-					if(profileImageService.setProfileImage(userUuid, imageBytes, mimeType, null)) {
+					if(imageLogic.setUploadedProfileImage(userUuid, imageBytes, mimeType, null)) {
 						
 						//log it
 						log.info("User " + userUuid + " successfully changed profile picture by upload.");

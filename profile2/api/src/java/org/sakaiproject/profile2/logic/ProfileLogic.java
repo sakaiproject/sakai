@@ -240,27 +240,6 @@ public interface ProfileLogic {
 	 */
 	public boolean updateCompanyProfile(CompanyProfile companyProfile);
 	
-	/**
-	 * Adds a new gallery image to the database.
-	 * 
-	 * @param galleryImage the gallery image to add.
-	 */
-	public boolean addNewGalleryImage(GalleryImage galleryImage);
-	
-	/**
-	 * Retrieves the gallery images from the database for the specified user.
-	 * 
-	 * @param userId the ID of the user to query by.
-	 */
-	public List<GalleryImage> getGalleryImages(String userId);
-	
-	/**
-	 * Removes the specified gallery image for the specified user.
-	 * 
-	 * @param userId the ID of the user to query by.
-	 * @param imageId the ID of the gallery image to remove.
-	 */
-	public boolean removeGalleryImage(String userId, long imageId);
 	
 	/**
 	 * Create a default social networking information record for the specified
@@ -289,15 +268,6 @@ public interface ProfileLogic {
 	 */
 	public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo);
 	
-	/**
-	 * Add a new profile image record to the database. Invalidates others before it adds itself.
-	 *
-	 * @param userId		userId of the user
-	 * @param mainResource	the resourceId of the main profile image
-	 * @param resourceId	the ContentHosting resource id
-	 */
-	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource);
-	
 	
 	/**
 	 * Find all users that match the search string in either name or email. 
@@ -323,12 +293,6 @@ public interface ProfileLogic {
 	public List<Person> findUsersByInterest(String search);
 	
 	
-	/**
-	 * Get a list of all SakaiPerson's userIds (ie list of all people with profile records)
-	 *
-	 * @return	List of Sakai userId's 
-	 */
-	public List<String> getAllSakaiPersonIds();
 	
 	
 	/**
@@ -664,41 +628,9 @@ public interface ProfileLogic {
 	 */
 	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy);
 	
-	/**
-	 * Get the profile image for a user. Takes into account all global settings, user preferences and privacy.
-	 * 
-	 * <p>If making a request for your own image</p>
-	 * <ul>
-	 * 	<li>'privacy' can be null as it won't be considered.</li>
-	 *  <li>You should provide 'prefs' (if available) otherwise it will be looked up.</li>
-	 * </ul>
-	 * 
-	 * <p>If making a request for someone else's image</p>
-	 * <ul>
-	 * 	<li>You should provide the privacy settings for that user (if available), otherwise it will be looked up.</li>
-	 *  <li>You should provide the preferences object for that user (if available), otherwise it will be looked up.</li>
-	 *  <li>If privacy is null, a default image will be returned</li>
-	 *  <li>If preferences is still null, the global preference will be used, which may not exist and therefore be default.</li>
-	 * </ul>
-	 * 
-	 * <p>The returned ProfileImage object is a wrapper around all of the types of image that can be set. use the getBinarty and getUrl() methods on this object to get the data.
-	 * See the docs on ProfileImage for how to use this.
-	 *  
-	 * @param userUuid
-	 * @param prefs
-	 * @param privacy
-	 * @param size
-	 * @return
-	 */
-	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size);
 	
-	/**
-	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
-	 * @param person	Person object that contains all info about a user
-	 * @param size		size of image to return.
-	 * @return
-	 */
-	public ProfileImage getProfileImage(Person person, int size);
+	
+	
 	
 	
 	/**
@@ -789,14 +721,7 @@ public interface ProfileLogic {
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
 	
 	
-	/**
-	 * Save the external image url that users can set.
-	 * @param userId		uuid of the user
-	 * @param mainUrl		url to main profile pic
-	 * @param thumbnailUrl	optional url to a thumbnail. If not set the main will be used and will be scaled in the markup
-	 * @return
-	 */
-	public boolean saveExternalImage(final String userId, final String mainUrl, final String thumbnailUrl);
+	
 	
 	/**
 	 * Gets a URL resource, reads it and returns the byte[] wrapped in ResourceWrapper along with metadata. 
@@ -807,11 +732,7 @@ public interface ProfileLogic {
 	 */
 	public ResourceWrapper getURLResourceAsBytes(final String url);
 	
-	/**
-	 * Get the full URL to the default unavailable image defined in ProfileConstants
-	 * @return
-	 */
-	public String getUnavailableImageURL();
+	
 	
 	
 	/**

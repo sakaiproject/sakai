@@ -27,10 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.profile.Profile;
 import org.sakaiproject.api.app.profile.ProfileManager;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -58,6 +58,11 @@ public class ProfileManagerImpl implements ProfileManager {
 		//transform the profile
 		Profile profile = transformUserProfiletoLegacyProfile(userProfile);
 		
+		//get the image record. If we have a url, add it in to the Profile.pictureUrl field
+		ProfileImage image = getProfileImage(userId);
+		if(StringUtils.isNotBlank(image.getUrl())){
+			profile.setPictureUrl(image.getUrl());
+		}
 		
 		//return
 		return profile;
@@ -89,10 +94,8 @@ public class ProfileManagerImpl implements ProfileManager {
 			throw new IllegalArgumentException("Illegal userId argument passed!");
 		}
 
-		ResourceWrapper resource = new ResourceWrapper();
-		resource = profileImageService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
-		return resource.getBytes();
-		
+		ProfileImage image = getProfileImage(userId);
+		return image.getBinary();
 	}
 
 
@@ -102,9 +105,7 @@ public class ProfileManagerImpl implements ProfileManager {
  	* {@inheritDoc}
  	*/
 	public byte[] getInstitutionalPhotoByUserId(String userId, boolean viewerHasPermission) {
-		
 		return getInstitutionalPhotoByUserId(userId);
-		
 	}
 
 	
@@ -126,6 +127,14 @@ public class ProfileManagerImpl implements ProfileManager {
 		return profiles;
 	}
 	
+	/**
+	 * Convenience method to get the ProfileImage record for us.
+	 * @param userUuid	uuid of the user.
+	 * @return
+	 */
+	private ProfileImage getProfileImage(String userUuid) {
+		return imageLogic.getProfileImage(userUuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
+	}
 	
 	/**
 	 * Convenience method to map a UserProfile object onto a legacy Profile object
@@ -159,8 +168,9 @@ public class ProfileManagerImpl implements ProfileManager {
 		p.setHidePrivateInfo(Boolean.valueOf(false));
 		p.setHidePublicInfo(Boolean.valueOf(false));
 		
-		//set this to true so we only ever use the byte[] version of the image. profileImageService always puts the correct image
-		//in here, it doesn't matter if image type is set to upload or url.
+		//set to true so we can get the uploaded image from Profile2
+		//this won't work too well if an institution uses official image urls or allows a user to specify a url.
+		//This inter-tool dependency really needs to be replaced with EB, which will fix this.
 		p.setInstitutionalPictureIdPreferred(Boolean.valueOf(true));
 		
 		return p;
@@ -193,11 +203,12 @@ public class ProfileManagerImpl implements ProfileManager {
 		this.profileService = profileService;
 	}
 	
-	private ProfileImageService profileImageService;
-	public void setProfileImageService(ProfileImageService profileImageService) {
-		this.profileImageService = profileImageService;
+	private ProfileImageLogic imageLogic;
+	public void setImageLogic(ProfileImageLogic imageLogic) {
+		this.imageLogic = imageLogic;
 	}
-	
+
+
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;

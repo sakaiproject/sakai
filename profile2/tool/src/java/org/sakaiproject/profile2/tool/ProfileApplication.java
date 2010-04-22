@@ -25,17 +25,10 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 
 public class ProfileApplication extends WebApplication {    
     	
-	private transient SakaiProxy sakaiProxy;
-	private transient ProfileLogic profileLogic;
-	private transient ProfileImageService profileImageService;
-
 	protected void init(){
 		super.init();
 		
@@ -71,33 +64,5 @@ public class ProfileApplication extends WebApplication {
 	public Class<Dispatcher> getHomePage() {
 		return Dispatcher.class;
 	}
-	
-	//expose SakaiProxy API
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
-
-	public SakaiProxy getSakaiProxy() {
-		return sakaiProxy;
-	}
-	
-	//expose Profile API
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
-
-	public ProfileLogic getProfileLogic() {
-		return profileLogic;
-	}
-		
-	//expose Profile API
-	public void setProfileImageService(ProfileImageService profileImageService) {
-		this.profileImageService = profileImageService;
-	}
-
-	public ProfileImageService getProfileImageService() {
-		return profileImageService;
-	}
-	
 
 }

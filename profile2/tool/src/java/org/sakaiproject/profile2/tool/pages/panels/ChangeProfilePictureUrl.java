@@ -34,9 +34,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -53,8 +53,8 @@ public class ChangeProfilePictureUrl extends Panel{
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
 	
-	@SpringBean(name="org.sakaiproject.profile2.service.ProfileImageService")
-	private ProfileImageService profileImageService;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
+	private ProfileImageLogic imageLogic;
     
 
 	/**
@@ -156,7 +156,7 @@ public class ChangeProfilePictureUrl extends Panel{
         		String url = stringModel.getString();
         		
         		//save via ProfileImageService
-				if(profileImageService.setProfileImage(userUuid, url, null)) {
+				if(imageLogic.setExternalProfileImage(userUuid, url, null)) {
 					//log it
 					log.info("User " + userUuid + " successfully changed profile picture by url.");
 					

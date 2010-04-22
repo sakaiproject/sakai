@@ -7,7 +7,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.image.resource.LocalizedImageResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -43,8 +43,8 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	private ProfilePreferences prefs;
 	private ProfilePrivacy privacy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
+	private ProfileImageLogic imageLogic;
 	
 	private final LocalizedImageResource localizedImageResource = new LocalizedImageResource(this);
 
@@ -211,7 +211,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 		super.onComponentTag(tag);
 		
 		//get the image
-		ProfileImage image = profileLogic.getProfileImage(userUuid, prefs, privacy, size);
+		ProfileImage image = imageLogic.getProfileImage(userUuid, prefs, privacy, size);
 		
 		//do binary
 		final byte[] bytes = image.getBinary();

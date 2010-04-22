@@ -22,7 +22,7 @@ import org.sakaiproject.profile2.model.GalleryImage;
 /**
  * IModel implementation for GalleryImage.
  */
-public class DetachableGalleryImageModel extends LoadableDetachableModel {
+public class DetachableGalleryImageModel extends LoadableDetachableModel<GalleryImage> {
 
 	private static final long serialVersionUID = 1L;
 

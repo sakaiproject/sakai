@@ -164,6 +164,11 @@ public interface ProfileDao {
 	
 	public boolean saveSocialNetworkingInfo(final SocialNetworkingInfo socialNetworkingInfo);
 	
+	/**
+	 * Add a new profile image record to the database. Invalidates others before it adds itself.
+	 *
+	 * @param profileImage	ProfileImageUploaded obj	
+	 */
 	public boolean addNewProfileImage(final ProfileImageUploaded profileImage);
 		
 	
