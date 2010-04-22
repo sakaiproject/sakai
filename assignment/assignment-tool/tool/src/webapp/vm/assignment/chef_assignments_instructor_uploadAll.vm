@@ -14,7 +14,7 @@
 			}
 		}
 		
-		function invokeDownloadUrl(accessPointUrl, actionString, alertMessage)
+		function invokeDownloadUrl(accessPointUrl, actionString, alertMessage, param0, param1)
 	{
 			var extraInfoArray = [];
 			if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
@@ -54,6 +54,8 @@
 				}
 				// cut the & in the end
 				accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
+				// attach the assignment reference
+				accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + param1;
    	window.location.href=accessPointUrl;
    	document.getElementById('uploadAllForm').action=actionString; 
    	setTimeout("submitform('uploadAllForm')", 1500);
@@ -82,6 +84,8 @@
 	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="doUpload_all" />
 			<input type="hidden" name="flow" id="flow" value="upload" />
+			<input type="hidden" name="assignmentReference" id="assignmentReference" value="$aRef" />
+			<input type="hidden" name="view" id="view" value="$view" />
 			<div class="highlightPanel">
 				#if (!$!download)
 					<div class="shorttext">
@@ -137,7 +141,7 @@
 				#set($alertMessage = $tlang.getString('downloadall.alert.choose.element'))
 				#set($actionString="#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')")
 				<input type="button" name="downloadButton" id="downloadButton"  accesskey="d" class="active"
-						onclick="javascript:invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage');" value="$tlang.getString('downloadall.button.download')" />
+						onclick="javascript:invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString');" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
 						onclick="javascript:showNotif('submitnotif','uploadButton','uploadAllForm');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doDownload_upload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />

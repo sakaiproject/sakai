@@ -815,4 +815,12 @@ public interface AssignmentService extends EntityProducer
 	 */
 	public boolean canSubmit(String context, Assignment a);
 	
+	/**
+	 * get appropriate submitter id list with group choice and site id
+	 * @param allOrOneGroup "all" or specific group reference
+	 * @param aRef Assignment Reference
+	 * @param contextString Site id
+	 * @return
+	 */
+	public List<String> getSubmitterIdList(String allOrOneGroup, String aRef, String contextString);	
 }

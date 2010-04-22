@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.cover;
 
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -766,4 +767,12 @@ public class AssignmentService {
 
 		return service.canSubmit(param0, param1);
 	}
+	
+	public static List<String> getSubmitterIdList(String param0, String param1, String param2) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getSubmitterIdList(param0, param1, param2);
+	}	
 }

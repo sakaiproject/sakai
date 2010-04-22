@@ -96,4 +96,6 @@ public class AssignmentConstants {
 	/** Calendar event field for assignment due dates */
 	public static final String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 
+	/** the String for all choice in dropdown menu */
+	public static final String ALL = "all";
 }

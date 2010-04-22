@@ -44,6 +44,7 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -4115,6 +4116,160 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	} // getGradesSpreadsheet
 	
 	/**
+	 * {@inheritDoc}}
+	 */
+	public List<String> getSubmitterIdList(String allOrOneGroup, String aRef, String contextString) {
+		
+		List<String> rv = new ArrayList<String>();
+		// range
+		Collection groups = new Vector();
+		try
+		{
+			Assignment a = getAssignment(aRef);
+			
+			if (a != null)
+			{	
+				// all submissions
+				List submissions = getSubmissions(a);
+				
+				// now are we view all sections/groups or just specific one?
+				if (allOrOneGroup.equals(AssignmentConstants.ALL))
+				{
+					if (allowAllGroups(contextString))
+					{
+						// site range
+						try {
+							groups.add(SiteService.getSite(contextString));
+						} catch (IdUnusedException e) {
+							M_log.warn(this + ":getSubmitterIdList cannot find site " + " " + contextString + e.getMessage());
+						}
+					}
+					else
+					{
+						// get all groups user can grade
+						groups = getGroupsAllowGradeAssignment(contextString, aRef);
+					}
+				}
+				else
+				{
+					// filter out only those submissions from the selected-group members
+					try
+					{
+						Group group = SiteService.getSite(contextString).getGroup(allOrOneGroup);
+						groups.add(group);
+					}
+					catch (Exception e)
+					{
+						M_log.warn(this + ":getSubmitterIdList " + e.getMessage() + " groupId=" + allOrOneGroup);
+					}
+				}
+	
+				// all users that can submit
+				List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
+	
+				HashSet userIdSet = new HashSet();
+				for (Iterator iGroup=groups.iterator(); iGroup.hasNext();)
+				{
+					Object nGroup = iGroup.next();
+					String authzGroupRef = (nGroup instanceof Group)? ((Group) nGroup).getReference():((nGroup instanceof Site))?((Site) nGroup).getReference():null;
+					if (authzGroupRef != null)
+					{
+						try
+						{
+							AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupRef);
+							Set grants = group.getUsers();
+							for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+							{
+								String userId = (String) iUserIds.next();
+								
+								// don't show user multiple times
+								if (!userIdSet.contains(userId))
+								{
+									try
+									{
+										User u = UserDirectoryService.getUser(userId);
+										if (u != null)
+										{
+											boolean found = false;
+											for (int i = 0; !found && i<submissions.size();i++)
+											{
+												AssignmentSubmission s = (AssignmentSubmission) submissions.get(i);
+												if (s.getSubmitterIds().contains(userId))
+												{
+													rv.add(userId);
+													found = true;
+												}
+											}
+											
+	
+											// add those users who haven't made any submissions and with submission rights
+											if (!found && allowAddSubmissionUsers.contains(u))
+											{
+												// construct fake submissions for grading purpose if the user has right for grading
+												if (allowGradeSubmission(a.getReference()))
+												{
+												
+													// temporarily allow the user to read and write from assignments (asn.revise permission)
+											        enableSecurityAdvisor();
+											        
+													AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), userId);
+													s.setSubmitted(true);
+													s.setAssignment(a);
+													
+													// set the resubmission properties
+													// get the assignment setting for resubmitting
+													ResourceProperties assignmentProperties = a.getProperties();
+													String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+													if (assignmentAllowResubmitNumber != null)
+													{
+														s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+														
+														String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+														// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
+														s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+													}
+													
+													commitEdit(s);
+													rv.add(u.getId());
+			
+											        // clear the permission
+													disableSecurityAdvisor();
+												}
+											}
+										}
+									}
+									catch (Exception e)
+									{
+										M_log.warn(this + ":getSubmitterIdList " + e.getMessage() + " userId = " + userId);
+									}
+									
+									// add userId into set to prevent showing user multiple times
+									userIdSet.add(userId);
+								}
+							}
+							
+						}
+						catch (Exception eee)
+						{
+							M_log.warn(this + ":getSubmitterIdList " + eee.getMessage() + " authGroupId=" + authzGroupRef);
+						}
+					}
+				}
+			}
+		}
+		catch (IdUnusedException aIdException)
+		{
+			M_log.warn(this + ":getSubmitterIdList: Assignme id not used: " + aRef + " " + aIdException.getMessage());
+		}
+
+		catch (PermissionException aPerException)
+		{
+			M_log.warn(this + ":getSubmitterIdList: Not allowed to get assignment " + aRef + " " + aPerException.getMessage());
+		}
+		
+		return rv;
+	}
+	/**
 	 * {@inheritDoc}
 	 */
 	public void getSubmissionsZip(OutputStream outputStream, String ref) throws IdUnusedException, PermissionException
@@ -4142,133 +4297,104 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		boolean withFeedbackText = false;
 		boolean withFeedbackComment = false;
 		boolean withFeedbackAttachment = false;
+
+		String viewString = "";
+		String contextString = "";
 		
 		if (queryString != null)
 		{
-				
-			// check against the content elements selection
-			if (queryString.contains("studentSubmissionText"))
-			{
-				// should contain student submission text information
-				withStudentSubmissionText = true;
-			}
-			if (queryString.contains("studentSubmissionAttachment"))
-			{
-				// should contain student submission attachment information
-				withStudentSubmissionAttachment = true;
-			}
-			if (queryString.contains("gradeFile"))
-			{
-				// should contain grade file
-				withGradeFile = true;	
-			}
-			if (queryString.contains("feedbackTexts"))
-			{
-				// inline text
-				withFeedbackText = true;
-			}
-			if (queryString.contains("feedbackComments"))
-			{
-				// comments  should be available
-				withFeedbackComment = true;
-			}
-			if (queryString.contains("feedbackAttachments"))
-			{
-				// feedback attachment
-				withFeedbackAttachment = true;
-			}
+			StringTokenizer queryTokens = new StringTokenizer(queryString, "&");
+
+	        // Parsing the range list
+	        while (queryTokens.hasMoreTokens()) {
+	            String token = queryTokens.nextToken().trim();
+	            
+				// check against the content elements selection
+				if (token.contains("studentSubmissionText"))
+				{
+					// should contain student submission text information
+					withStudentSubmissionText = true;
+				}
+				else if (token.contains("studentSubmissionAttachment"))
+				{
+					// should contain student submission attachment information
+					withStudentSubmissionAttachment = true;
+				}
+				else if (token.contains("gradeFile"))
+				{
+					// should contain grade file
+					withGradeFile = true;	
+				}
+				else if (token.contains("feedbackTexts"))
+				{
+					// inline text
+					withFeedbackText = true;
+				}
+				else if (token.contains("feedbackComments"))
+				{
+					// comments  should be available
+					withFeedbackComment = true;
+				}
+				else if (token.contains("feedbackAttachments"))
+				{
+					// feedback attachment
+					withFeedbackAttachment = true;
+				}
+				else if (token.contains("contextString"))
+				{
+					// context
+					contextString = token.indexOf("=") != -1 ? token.substring(token.indexOf("=") + 1) : "";
+				}
+				else if (token.contains("viewString"))
+				{
+					// view
+					viewString = token.indexOf("=") != -1 ? token.substring(token.indexOf("=") + 1) : "";
+				}
+	        }
 		}
 
 		byte[] rv = null;
-
+		
 		try
 		{
-			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
-			String contextString = a.getContext();
-			String groupReference = groupReferenceFromSubmissionsZipReference(ref);
-			List allSubmissions = getSubmissions(a);
-			List submissions = new Vector();
+			String aRef = assignmentReferenceFromSubmissionsZipReference(ref);
+			Assignment a = getAssignment(aRef);
 			
-			// group or site
-			String authzGroupId = "";
-			if (groupReference == null)
+			List<String> submitterIds = getSubmitterIdList(viewString == ""? AssignmentConstants.ALL:viewString, aRef, contextString == null? a.getContext():contextString);
+	
+			if (submitterIds != null && !submitterIds.isEmpty())
 			{
-				// view all groups
-				if (allowAllGroups(contextString))
+				List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>();
+				for (Iterator<String> iSubmitterIdsIterator = submitterIds.iterator(); iSubmitterIdsIterator.hasNext();)
 				{
-					// if have site level control
-					submissions = allSubmissions;
-				}
-				else
-				{
-					// iterate through all allowed-grade-group
-					Collection gCollection = getGroupsAllowGradeAssignment(contextString, a.getReference());
-					// prevent multiple entries
-					HashSet userIdSet = new HashSet();
-					for (Iterator iGCollection = gCollection.iterator(); iGCollection.hasNext();)
+					String uId = iSubmitterIdsIterator.next();
+					try
 					{
-						Group g = (Group) iGCollection.next();
-						String gReference = g.getReference();
-						try
-						{
-							AuthzGroup group = AuthzGroupService.getAuthzGroup(gReference);
-							Set grants = group.getUsers();
-							for (int i = 0; i<allSubmissions.size();i++)
-							{
-								// see if the submitters is in the group
-								AssignmentSubmission s = (AssignmentSubmission) allSubmissions.get(i);
-								String submitterId = s.getSubmitterIdString();
-								if (!userIdSet.contains(submitterId) && grants.contains(submitterId))
-								{
-									submissions.add(s);
-									userIdSet.add(submitterId);
-								}
-							}
-						}
-						catch (Exception ee)
-						{
-							M_log.info(this + " getSubmissionsZip " + ee.getMessage() + " group reference=" + gReference);
-						}
+						User u = UserDirectoryService.getUser(uId);
+	
+						AssignmentSubmission sub = getSubmission(aRef, u);
+						if (sub != null)
+							submissions.add(sub);
 					}
-					
-				}
-			}
-			else
-			{
-				// just one group
-				try
-				{
-					AuthzGroup group = AuthzGroupService.getAuthzGroup(groupReference);
-					Set grants = group.getUsers();
-					for (int i = 0; i<allSubmissions.size();i++)
+					catch (UserNotDefinedException e)
 					{
-						// see if the submitters is in the group
-						AssignmentSubmission s = (AssignmentSubmission) allSubmissions.get(i);
-						if (grants.contains(s.getSubmitterIdString()))
-						{
-							submissions.add(s);
-						}
+						M_log.warn(this + ":getSubmissionsZip cannot find user id=" + uId + e.getMessage() + "");
 					}
 				}
-				catch (Exception ee)
+	
+				StringBuilder exceptionMessage = new StringBuilder();
+	
+				if (allowGradeSubmission(aRef))
 				{
-					M_log.info(this +  " getSubmissionsZip " + ee.getMessage() + " group reference=" + groupReference);
-				}
-				
-			}
-
-			StringBuilder exceptionMessage = new StringBuilder();
-
-			if (allowGradeSubmission(a.getReference()))
-			{
-				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), 
-								new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment);
-
-				if (exceptionMessage.length() > 0)
-				{
-					// log any error messages
-					
-						M_log.warn(this + " getSubmissionsZip ref=" + ref + exceptionMessage.toString());
+					zipSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), 
+									new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment);
+	
+					if (exceptionMessage.length() > 0)
+					{
+						// log any error messages
+						
+							M_log.warn(this + " getSubmissionsZip ref=" + ref + exceptionMessage.toString());
+					}
 				}
 			}
 		}

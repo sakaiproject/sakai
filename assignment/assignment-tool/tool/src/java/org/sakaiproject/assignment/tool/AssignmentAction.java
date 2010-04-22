@@ -147,6 +147,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
@@ -2648,7 +2649,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 			String accessPointUrl = ServerConfigurationService.getAccessUrl().concat(AssignmentService.submissionsZipReference(
 					contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF)));
-			if (!view.equals(rb.getString("gen.viewallgroupssections")))
+			if (!view.equals(AssignmentConstants.ALL))
 			{
 				// append the group info to the end
 				accessPointUrl = accessPointUrl.concat(view);
@@ -2730,7 +2731,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private void initViewSubmissionListOption(SessionState state) {
 		if (state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) == null)
 		{
-			state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, rb.getString("gen.viewallgroupssections"));
+			state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, AssignmentConstants.ALL);
 		}
 	}
 
@@ -3011,6 +3012,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	protected String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		String view = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 		boolean download = (((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_DOWNLOAD_ALL));
 		
 		context.put("download", Boolean.valueOf(download));
@@ -3022,6 +3024,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
 		context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		context.put("contextString", contextString);
 		context.put("accessPointUrl", (ServerConfigurationService.getAccessUrl()).concat(AssignmentService.submissionsZipReference(
 				contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
 
@@ -3039,6 +3042,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
 			context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
+		
+			context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+
 		}
 
 		String template = (String) getContext(data).get("template");
@@ -3389,12 +3395,42 @@ public class AssignmentAction extends PagedResourceActionII
 	} // doView_submission
 	
 	/**
-	 * Action is to view the content of one specific assignment submission
+	 * Dispatcher for view submission list options
 	 */
 	public void doView_submission_list_option(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		
+		ParameterParser params = data.getParameters();
+		String option = params.getString("option");
+		if ("changeView".equals(option))
+		{
+			doChange_submission_list_option(data);
+		}
+		else if ("download".equals(option))
+		{
+			// go to download all page
+			doPrep_download_all(data);
+		}
+		else if ("upload".equals(option))
+		{
+			// go to upload all page
+			doPrep_upload_all(data);
+		}
+		else if ("releaseGrades".equals(option))
+		{
+			// release all grades
+			doRelease_grades(data);
+		}
+
+	} // doView_submission_list_option
+	
+	/**
+	 * Action is to view the content of one specific assignment submission
+	 */
+	public void doChange_submission_list_option(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 		String view = params.getString("view");
 		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
@@ -8062,7 +8098,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		} // if
 
-		if (state.getAttribute(STATE_CONTEXT_STRING) == null)
+		if (state.getAttribute(STATE_CONTEXT_STRING) == null || ((String) state.getAttribute(STATE_CONTEXT_STRING)).length() == 0)
 		{
 			state.setAttribute(STATE_CONTEXT_STRING, siteId);
 		} // if context string is null
@@ -9849,136 +9885,42 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode))
 		{
-			// range
-			Collection groups = new Vector();
+			initViewSubmissionListOption(state);
+			String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 			String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-			Assignment a = getAssignment(aRef, "sizeResources", state);
-			if (a != null)
-			{	
-				// all submissions
-				List submissions = AssignmentService.getSubmissions(a);
-				
-				// now are we view all sections/groups or just specific one?
-				initViewSubmissionListOption(state);
-				String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-				if (allOrOneGroup.equals(rb.getString("gen.viewallgroupssections")))
+			
+			List<String> submitterIds = AssignmentService.getSubmitterIdList(allOrOneGroup, aRef, contextString);
+
+			// construct the user-submission list
+			if (submitterIds != null && !submitterIds.isEmpty())
+			{
+				for (Iterator<String> iSubmitterIdsIterator = submitterIds.iterator(); iSubmitterIdsIterator.hasNext();)
 				{
-					if (AssignmentService.allowAllGroups(contextString))
-					{
-						// site range
-						try {
-							groups.add(SiteService.getSite(contextString));
-						} catch (IdUnusedException e) {
-							addAlert(state, rb.getFormattedMessage("cannotfin_site", new Object[]{contextString}));
-							M_log.warn(this + ":sizeResources " + mode + " " + e.getMessage() + " " + contextString);
-						}
-					}
-					else
-					{
-						// get all groups user can grade
-						groups = AssignmentService.getGroupsAllowGradeAssignment(contextString, a.getReference());
-					}
-				}
-				else
-				{
-					// filter out only those submissions from the selected-group members
+					String uId = iSubmitterIdsIterator.next();
 					try
 					{
-						Group group = SiteService.getSite(contextString).getGroup(allOrOneGroup);
-						groups.add(group);
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + "sizeResources " + e.getMessage() + " groupId=" + allOrOneGroup);
-					}
-				}
-
-				// all users that can submit
-				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-
-				HashSet userIdSet = new HashSet();
-				for (Iterator iGroup=groups.iterator(); iGroup.hasNext();)
-				{
-					Object nGroup = iGroup.next();
-					String authzGroupRef = (nGroup instanceof Group)? ((Group) nGroup).getReference():((nGroup instanceof Site))?((Site) nGroup).getReference():null;
-					if (authzGroupRef != null)
-					{
+						User u = UserDirectoryService.getUser(uId);
+	
 						try
 						{
-							AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupRef);
-							Set grants = group.getUsers();
-							for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
-							{
-								String userId = (String) iUserIds.next();
-								
-								// don't show user multiple times
-								if (!userIdSet.contains(userId))
-								{
-									try
-									{
-										User u = UserDirectoryService.getUser(userId);
-										if (u != null)
-										{
-											boolean found = false;
-											for (int i = 0; !found && i<submissions.size();i++)
-											{
-												AssignmentSubmission s = (AssignmentSubmission) submissions.get(i);
-												if (s.getSubmitterIds().contains(userId))
-												{
-													returnResources.add(new UserSubmission(u, s));
-													found = true;
-												}
-											}
-											
-		
-											// add those users who haven't made any submissions and with submission rights
-											if (!found && allowAddSubmissionUsers.contains(u))
-											{
-												// construct fake submissions for grading purpose if the user has right for grading
-												if (AssignmentService.allowGradeSubmission(a.getReference()))
-												{
-												
-													// temporarily allow the user to read and write from assignments (asn.revise permission)
-											        enableSecurityAdvisor();
-											        
-													AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId(), userId);
-													s.setSubmitted(true);
-													s.setAssignment(a);
-													
-													// set the resubmission properties
-													setResubmissionProperties(a, s);
-													
-													AssignmentService.commitEdit(s);
-													
-													// update the UserSubmission list by adding newly created Submission object
-													AssignmentSubmission sub = getSubmission(s.getReference(), "sizeResources", state);
-													returnResources.add(new UserSubmission(u, sub));
-			
-											        // clear the permission
-													disableSecurityAdvisor();
-												}
-											}
-										}
-									}
-									catch (Exception e)
-									{
-										M_log.warn(this + ":sizeResources " + e.getMessage() + " userId = " + userId);
-									}
-									
-									// add userId into set to prevent showing user multiple times
-									userIdSet.add(userId);
-								}
-							}
-							
+							AssignmentSubmission sub = AssignmentService.getSubmission(aRef, u);
+							returnResources.add(new UserSubmission(u, sub));
 						}
-						catch (Exception eee)
+						catch (IdUnusedException subIdException)
 						{
-							M_log.warn(this + ":sizeResources " + eee.getMessage() + " authGroupId=" + authzGroupRef);
+							M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
 						}
+						catch (PermissionException subPerException)
+						{
+							M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of user " + u.getId());
+						}
+					}
+					catch (UserNotDefinedException e)
+					{
+						M_log.warn(this + ":sizeResources cannot find user id=" + uId + e.getMessage() + "");
 					}
 				}
 			}
-
 		}
 
 		// sort them all
@@ -10020,6 +9962,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		return returnResources.size();
 	}
+
+	
 
 	public void doView(RunData data)
 	{
@@ -11637,6 +11581,8 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
+		String view = params.getString("view");
+		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DOWNLOAD_ALL);
 
 	} // doPrep_download_all
