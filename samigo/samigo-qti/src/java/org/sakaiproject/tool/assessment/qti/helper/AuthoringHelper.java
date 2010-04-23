@@ -730,17 +730,13 @@ public class AuthoringHelper
       // process each section and each item within assessment each section
       List sectionList = exHelper.getSectionXmlList(assessmentXml);
       int sectionListSize = sectionList.size();
-      int sec = sectionListSize-1;
       log.debug("sections=" + sectionListSize);
              
       // initialize setQuestionPoolItems so items can be added
       Set itemSet = new HashSet();
       questionpool.setQuestionPoolItems(itemSet);
        
-      // use case for single section
-      // most common for Respondus & BB migrations
-      if (sectionListSize == 1)      
-      {
+      for (int sec = 0; sec < sectionListSize; sec++) {
            Section sectionXml = (Section) sectionList.get(sec);
            Map sectionMap = exHelper.mapSection(sectionXml);
            // for single section, do not create subpool
@@ -768,7 +764,6 @@ public class AuthoringHelper
                questionpool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
                
              } // ... end for each item
-   
       }
       // need error message if more than one section, for now
        
