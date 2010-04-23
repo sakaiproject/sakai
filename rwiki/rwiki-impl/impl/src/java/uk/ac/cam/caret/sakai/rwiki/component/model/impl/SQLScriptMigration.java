@@ -35,6 +35,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.cover.SqlService;
@@ -86,8 +87,8 @@ public class SQLScriptMigration implements DataMigrationAgent
 		BufferedReader br = null;
 		
 		try {
-			stream = new InputStreamReader(inStream);
-			br = new BufferedReader(stream);
+			stream = new InputStreamReader(inStream); // validated as closing
+			br = new BufferedReader(stream); // validated as closing
 			String line = br.readLine();
 			StringBuffer currentLine = new StringBuffer();
 			List<String> lines = new ArrayList<String>();
@@ -128,12 +129,8 @@ public class SQLScriptMigration implements DataMigrationAgent
 			return to;
 		}
 		finally {
-			if (stream != null) {
-				stream.close();
-			}
-			if (br != null) {
-				br.close();
-			}
+            IOUtils.closeQuietly(stream);
+            IOUtils.closeQuietly(br);
 		}
 		
 	}
@@ -157,7 +154,7 @@ public class SQLScriptMigration implements DataMigrationAgent
 			}
 			try
 			{
-				Statement stmt = con.createStatement();
+				Statement stmt = con.createStatement(); // validated as closing
 				try
 				{
 					for (int i = 0; i < sql.length; i++)
