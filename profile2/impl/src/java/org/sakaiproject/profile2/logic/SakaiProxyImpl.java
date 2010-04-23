@@ -1003,7 +1003,9 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public int getProfilePictureType() {
-		String pictureType = serverConfigurationService.getString("profile2.picture.type");
+		String pictureType = serverConfigurationService.getString("profile2.picture.type", ProfileConstants.PICTURE_SETTING_UPLOAD_PROP);
+		
+		System.out.println("profile2.picture.type=" + pictureType);
 		
 		//if 'upload'
 		if(pictureType.equals(ProfileConstants.PICTURE_SETTING_UPLOAD_PROP)) {
@@ -1161,7 +1163,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public boolean isOfficialImageSelectionEnabled() {
+	public boolean isUsingOfficialImageButAlternateSelectionEnabled() {
 		
 		if(isOfficialImageEnabledGlobally() && 
 			getProfilePictureType() != ProfileConstants.PICTURE_SETTING_OFFICIAL &&

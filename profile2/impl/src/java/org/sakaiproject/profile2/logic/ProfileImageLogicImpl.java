@@ -94,7 +94,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 		
 		//if we have prefs and the conditions are set for a user to be able to make a choice, get the pref.
-		if(prefs != null && sakaiProxy.isOfficialImageSelectionEnabled()) {
+		if(prefs != null && sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled()) {
 			if(prefs.isUseOfficialImage()){
 				imageType = ProfileConstants.PICTURE_SETTING_OFFICIAL;
 			}

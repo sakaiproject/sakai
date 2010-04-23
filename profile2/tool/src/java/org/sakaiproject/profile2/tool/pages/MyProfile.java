@@ -274,13 +274,13 @@ public class MyProfile extends BasePage {
 			changePictureLink.setVisible(false);
 		}
 		
-		
-		
-		//if official images are enabled and the conditions are right to disallow edits or our pref is to use the official image, also hide this section
-		if(!sakaiProxy.isOfficialImageSelectionEnabled() || prefs.isUseOfficialImage()){
+		//if using official images, is the user allowed to select an alternate?
+		//or have they specified the official image in their preferences.
+		if(sakaiProxy.isOfficialImageEnabledGlobally() && (!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled() || prefs.isUseOfficialImage())) {
 			changePictureLink.setEnabled(false);
 			changePictureLink.setVisible(false);
 		}
+		
 		
 		add(changePictureLink);
 		
