@@ -2275,7 +2275,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				multiSubmissionAllowed = true;
 			}
 			
-			if ((multiSubmissionAllowed) && (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption) || EvaluationModelIfc.AVERAGE_SCORE.equals(scoringOption))) {
+			if (multiSubmissionAllowed && (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption))) {
 				if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
 					AssessmentGradingFacade f = new AssessmentGradingFacade(a);
 					if (!a.getPublishedAssessmentId().equals(currentid)) {
@@ -2284,6 +2284,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					assessmentList.add(f);
 					currentid = a.getPublishedAssessmentId();
 				}	
+			}
+
+			if (EvaluationModelIfc.AVERAGE_SCORE.equals(scoringOption)) {
+				AssessmentGradingFacade f = new AssessmentGradingFacade(a);
+				assessmentList.add(f);
 			}
 
 		}

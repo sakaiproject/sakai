@@ -94,7 +94,7 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   
   //Allow students to view all submissions of the same assessment
   private Long assessmentGradingId;
-  private boolean recordedAssessment;
+  private boolean isRecordedAssessment;
   
   /**
    * Creates a new DeliveryBean object.
@@ -473,15 +473,15 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 	/**
 	 * @return the recordedAssessment
 	 */
-	public boolean isRecordedAssessment() {
-		return recordedAssessment;
+	public boolean getIsRecordedAssessment() {
+		return isRecordedAssessment;
 	}
 
 	/**
 	 * @param recordedAssessment the recordedAssessment to set
 	 */
-	public void setRecordedAssessment(boolean recordedAssessment) {
-		this.recordedAssessment = recordedAssessment;
+	public void setIsRecordedAssessment(boolean isRecordedAssessment) {
+		this.isRecordedAssessment = isRecordedAssessment;
 	}
 	
 	public String getFinalScore() {
