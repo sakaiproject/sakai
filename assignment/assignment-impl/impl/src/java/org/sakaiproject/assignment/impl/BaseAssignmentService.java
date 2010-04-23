@@ -4135,7 +4135,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// now are we view all sections/groups or just specific one?
 				if (allOrOneGroup.equals(AssignmentConstants.ALL))
 				{
-					if (allowAllGroups(contextString))
+					if (a.getAccess() ==  Assignment.AssignmentAccess.SITE)
 					{
 						// site range
 						try {
@@ -4146,7 +4146,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					}
 					else
 					{
-						// get all groups user can grade
+						// get all those groups that user is allowed to grade
 						groups = getGroupsAllowGradeAssignment(contextString, aRef);
 					}
 				}
