@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Sakai SiteStats DB DDL generator</name>
+  <groupId>org.sakaiproject.sitestats</groupId>
+  <artifactId>sitestats-ddl-generator</artifactId>
+  <organization>
+    <name>Universidade Fernando Pessoa</name>
+    <url>http://www.ufp.pt</url>
+  </organization>
+  <inceptionYear>2006</inceptionYear>
+
+  <!-- Parent: Sakai SiteStats base -->
+  <parent>
+    <groupId>org.sakaiproject.sitestats</groupId>
+    <artifactId>sitestats</artifactId>
+    <version>2.2-SNAPSHOT</version><!-- sitestats.version --> 
+  </parent>
+  
+  <!-- Packaging -->
+  <packaging>pom</packaging>
+  
+  <!-- Properties -->
+  <properties>
+    <project.ddl.name>sitestats</project.ddl.name>
+  </properties>
+
+  <!-- Dependencies: hibernate persistent objects and HBM files -->
+  <dependencies>
+    <!-- SiteStats -->
+    <dependency>
+      <groupId>org.sakaiproject.sitestats</groupId>
+      <artifactId>sitestats-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.sitestats</groupId>
+      <artifactId>sitestats-impl-hib</artifactId>
+    </dependency>
+  </dependencies>
+  
+  <!-- Build -->
+  <build>
+    <plugins>
+      <plugin>
+        <!-- hibernate ddl generation -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>hibernate3-maven-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
+          <components>
+            <component>
+              <name>hbm2ddl</name>
+              <outputDirectory>./../../../schema/db-tables</outputDirectory>
+            </component>
+          </components>
+          <componentProperties>
+            <configurationfile>hibernate.cfg.xml</configurationfile>
+            <propertyfile>hibernate-hsqldb.properties</propertyfile>
+            <outputfilename>hsqldb/${project.ddl.name}.sql</outputfilename>
+            <drop>false</drop>
+            <create>true</create>
+            <export>false</export>
+            <jdk5>true</jdk5>
+            <format>false</format>
+          </componentProperties>
+        </configuration>
+        
+        <executions>
+        	
+          <execution>
+            <id>export-hsqldb</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+          </execution>
+          
+          <execution>
+            <id>export-mysql</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+            <configuration>
+              <componentProperties>
+                <propertyfile>hibernate-mysql.properties</propertyfile>
+                <outputfilename>mysql/${project.ddl.name}.sql</outputfilename>
+              </componentProperties>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>export-oracle</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+            <configuration>
+              <componentProperties>
+                <propertyfile>hibernate-oracle.properties</propertyfile>
+                <outputfilename>oracle/${project.ddl.name}.sql</outputfilename>
+              </componentProperties>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>export-db2</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+            <configuration>
+              <componentProperties>
+                <propertyfile>hibernate-db2.properties</propertyfile>
+                <outputfilename>db2/${project.ddl.name}.sql</outputfilename>
+              </componentProperties>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>export-mssql</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+            <configuration>
+              <componentProperties>
+                <propertyfile>hibernate-mssql.properties</propertyfile>
+                <outputfilename>mssql/${project.ddl.name}.sql</outputfilename>
+              </componentProperties>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>export-derby</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+            <configuration>
+              <componentProperties>
+                <propertyfile>hibernate-derby.properties</propertyfile>
+                <outputfilename>derby/${project.ddl.name}.sql</outputfilename>
+              </componentProperties>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>export-postgres</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>hbm2ddl</goal>
+            </goals>
+            <configuration>
+              <componentProperties>
+                <propertyfile>hibernate-postgres.properties</propertyfile>
+                <outputfilename>postgres/${project.ddl.name}.sql</outputfilename>
+              </componentProperties>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
