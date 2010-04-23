@@ -21,7 +21,7 @@ iframeId = '$iframeId';
 	#set ($firstFlag = true)
 	#foreach ($provider in $providers)
 		#if ($provider.getProvider().allowViewTags($activity.getContext()))
-			#if ($firstFlag = true)
+			#if ($firstFlag)
 				<br>
 				<br>
 				#set ($firstFlag = false)
