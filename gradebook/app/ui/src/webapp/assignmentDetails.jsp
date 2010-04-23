@@ -222,6 +222,8 @@
 							<f:validateDoubleRange minimum="0"/>
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 						</h:inputText>
+            <h:outputText value="#{msgs.assignment_details_percent_input}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}"
+              style="margin-left: 5px;" />
 						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
@@ -233,6 +235,7 @@
 						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 						</h:outputText>
+            <h:outputText value="#{msgs.assignment_details_percent_input}" rendered="#{assignmentDetailsBean.gradeEntryByPercent && scoreRow.score != null}" />
 						<h:outputText value="#{scoreRow.letterScore}" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />

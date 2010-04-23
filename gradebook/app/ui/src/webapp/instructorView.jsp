@@ -209,8 +209,7 @@
 				<h:column>
 					<f:facet name="header">
 						<t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{instructorViewBean.gradeEntryByPoints}" />
-							<h:outputText value="#{msgs.inst_view_grade_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}" />
+							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent}" />
 							<h:outputText value="#{msgs.inst_view_grade_letter}" rendered="#{instructorViewBean.gradeEntryByLetter}" />
 							<h:outputText value="#{msgs.inst_view_footnote_symbol2}" />
 						</t:commandSortHeader>
@@ -227,6 +226,9 @@
 									<f:validateDoubleRange minimum="0"/>
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
+                                
+                <h:outputText value="#{msgs.inst_view_input_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}"
+                  style="margin-left: 5px;" />
 								
 								<h:inputText id="LetterScore" value="#{row.letterScore}" size="4" 
 									 rendered="#{instructorViewBean.gradeEntryByLetter}"
@@ -235,9 +237,12 @@
 								</h:inputText>
 							</h:panelGroup>
 							
-							<h:outputText value="#{row.score}" rendered="#{row.associatedAssignment.externallyMaintained || !row.userCanGrade}">
-								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
-							</h:outputText>
+              <h:panelGroup rendered="#{row.associatedAssignment.externallyMaintained || !row.userCanGrade}">
+    							<h:outputText value="#{row.score}">
+    								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+    							</h:outputText>
+                  <h:outputText value="#{msgs.inst_view_input_percent}" rendered="#{instructorViewBean.gradeEntryByPercent && row.score != null}" />
+              </h:panelGroup>
 							
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
 						</h:panelGroup>
