@@ -78,7 +78,7 @@ public class SakaiBLTIUtil {
                 // System.out.println("Sakai.home "+propName+"="+propValue);
                 return propValue;
         }
-        return config.getProperty(propName, null);
+        return config.getProperty("imsti."+propName, null);
     }
     // Look at a Placement and come up with the launch urls, and
     // other launch parameters to drive the launch.
@@ -86,22 +86,22 @@ public class SakaiBLTIUtil {
     {
 	Properties config = placement.getConfig();
 	dPrint("Sakai properties=" + config);
-        String launch_url = toNull(getCorrectProperty(config,"imsti.launch", placement));
+        String launch_url = toNull(getCorrectProperty(config,"launch", placement));
         setProperty(info, "launch_url", launch_url);
         if ( launch_url == null ) {
-            String xml = toNull(getCorrectProperty(config,"imsti.xml", placement));
+            String xml = toNull(getCorrectProperty(config,"xml", placement));
             if ( xml == null ) return false;
 	    BasicLTIUtil.parseDescriptor(info, launch, xml);
         }
-        setProperty(info, "secret", getCorrectProperty(config,"imsti.secret", placement) );
-        setProperty(info, "key", getCorrectProperty(config,"imsti.key", placement) );
-        setProperty(info, "debug", getCorrectProperty(config,"imsti.debug", placement) );
-        setProperty(info, "frameheight", getCorrectProperty(config,"imsti.frameheight", placement) );
-        setProperty(info, "newwindow", getCorrectProperty(config,"imsti.newwindow", placement) );
-        setProperty(info, "title", getCorrectProperty(config,"imsti.tooltitle", placement) );
+        setProperty(info, "secret", getCorrectProperty(config,"secret", placement) );
+        setProperty(info, "key", getCorrectProperty(config,"key", placement) );
+        setProperty(info, "debug", getCorrectProperty(config,"debug", placement) );
+        setProperty(info, "frameheight", getCorrectProperty(config,"frameheight", placement) );
+        setProperty(info, "newwindow", getCorrectProperty(config,"newwindow", placement) );
+        setProperty(info, "title", getCorrectProperty(config,"tooltitle", placement) );
 
 	// Pull in and parse the custom parameters
-	String customstr = toNull(getCorrectProperty(config,"imsti.custom", placement) );
+	String customstr = toNull(getCorrectProperty(config,"custom", placement) );
 	if ( customstr != null ) {
 		String [] params = customstr.split("[\n;]");
 		for (int i = 0 ; i < params.length; i++ ) {
@@ -158,13 +158,13 @@ public class SakaiBLTIUtil {
 
 	// Start setting the Basici LTI parameters
 	setProperty(props,"resource_link_id",placementId);
-        String pagetitle = toNull(getCorrectProperty(config,"imsti.pagetitle", placement));
+        String pagetitle = toNull(getCorrectProperty(config,"pagetitle", placement));
 	if ( pagetitle != null ) setProperty(props,"resource_link_title",pagetitle);
-        String tooltitle = toNull(getCorrectProperty(config,"imsti.tooltitle", placement));
+        String tooltitle = toNull(getCorrectProperty(config,"tooltitle", placement));
 	if ( tooltitle != null ) setProperty(props,"resource_link_description",tooltitle);
 
-        String releasename = toNull(getCorrectProperty(config,"imsti.releasename", placement));
-        String releaseemail = toNull(getCorrectProperty(config,"imsti.releaseemail", placement));
+        String releasename = toNull(getCorrectProperty(config,"releasename", placement));
+        String releaseemail = toNull(getCorrectProperty(config,"releaseemail", placement));
 
 	// TODO: Think about anonymus
 	if ( user != null )

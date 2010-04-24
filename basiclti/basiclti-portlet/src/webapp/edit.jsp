@@ -80,7 +80,8 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
         allow(sp,"resource") || allow(sp,"preferwidget") || allow(sp,"height") || allow(sp,"width") || 
         allow(sp,"frameheight") || allow(sp,"custom") || allow(sp, "releasename") || allow(sp,"releaseemail") ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
-<% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || allow(sp,"xml") ) { %>
+<!-- If key and secret are final, then either xml or launch final means no launch change by the user -->
+<% if ( ( allow(sp,"launch") && allow(sp,"xml") ) || allow(sp,"key") || allow(sp,"secret") ) { %>
 <fieldset>
 <legend><%=rb.getString("required.information") %></legend>
 <% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>

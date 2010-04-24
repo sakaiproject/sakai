@@ -219,7 +219,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
         // Hand up the old values
        	Properties oldValues = new Properties();
-	addProperty(oldValues, request, "launch", "http://developers.imsglobal.org/BLTI/tool.php");
+	addProperty(oldValues, request, "launch", "");
 	for (String element : fieldList) {
 		if ( "launch".equals(element) ) continue;
 		// addProperty(oldValues, request, element, null);
