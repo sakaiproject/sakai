@@ -67,28 +67,41 @@ public class SakaiBLTIUtil {
         if ( verbosePrint ) System.out.println(str);
     }
 
+    // Retrieve the property from the configuration unless it
+    // is overridden by the server configurtation (i.e. sakai.properties)
+    public static String getCorrectProperty(Properties config,
+                   String propName, Placement placement)
+    {
+        String propertyName = placement.getToolId() + "." + propName;
+        String propValue = ServerConfigurationService.getString(propertyName,null);
+        if ( propValue != null && propValue.trim().length() > 0 ) {
+                // System.out.println("Sakai.home "+propName+"="+propValue);
+                return propValue;
+        }
+        return config.getProperty(propName, null);
+    }
     // Look at a Placement and come up with the launch urls, and
     // other launch parameters to drive the launch.
     public static boolean loadFromPlacement(Properties info, Properties launch, Placement placement)
     {
 	Properties config = placement.getConfig();
 	dPrint("Sakai properties=" + config);
-        String launch_url = toNull(config.getProperty("imsti.launch", null));
+        String launch_url = toNull(getCorrectProperty(config,"imsti.launch", placement));
         setProperty(info, "launch_url", launch_url);
         if ( launch_url == null ) {
-            String xml = toNull(config.getProperty("imsti.xml", null));
+            String xml = toNull(getCorrectProperty(config,"imsti.xml", placement));
             if ( xml == null ) return false;
 	    BasicLTIUtil.parseDescriptor(info, launch, xml);
         }
-        setProperty(info, "secret", config.getProperty("imsti.secret", null) );
-        setProperty(info, "key", config.getProperty("imsti.key", null) );
-        setProperty(info, "debug", config.getProperty("imsti.debug", null) );
-        setProperty(info, "frameheight", config.getProperty("imsti.frameheight", null) );
-        setProperty(info, "newwindow", config.getProperty("imsti.newwindow", null) );
-        setProperty(info, "title", config.getProperty("imsti.tooltitle", null) );
+        setProperty(info, "secret", getCorrectProperty(config,"imsti.secret", placement) );
+        setProperty(info, "key", getCorrectProperty(config,"imsti.key", placement) );
+        setProperty(info, "debug", getCorrectProperty(config,"imsti.debug", placement) );
+        setProperty(info, "frameheight", getCorrectProperty(config,"imsti.frameheight", placement) );
+        setProperty(info, "newwindow", getCorrectProperty(config,"imsti.newwindow", placement) );
+        setProperty(info, "title", getCorrectProperty(config,"imsti.tooltitle", placement) );
 
 	// Pull in and parse the custom parameters
-	String customstr = toNull(config.getProperty("imsti.custom", null) );
+	String customstr = toNull(getCorrectProperty(config,"imsti.custom", placement) );
 	if ( customstr != null ) {
 		String [] params = customstr.split("[\n;]");
 		for (int i = 0 ; i < params.length; i++ ) {
@@ -145,13 +158,13 @@ public class SakaiBLTIUtil {
 
 	// Start setting the Basici LTI parameters
 	setProperty(props,"resource_link_id",placementId);
-        String pagetitle = toNull(config.getProperty("imsti.pagetitle", null));
+        String pagetitle = toNull(getCorrectProperty(config,"imsti.pagetitle", placement));
 	if ( pagetitle != null ) setProperty(props,"resource_link_title",pagetitle);
-        String tooltitle = toNull(config.getProperty("imsti.tooltitle", null));
+        String tooltitle = toNull(getCorrectProperty(config,"imsti.tooltitle", placement));
 	if ( tooltitle != null ) setProperty(props,"resource_link_description",tooltitle);
 
-        String releasename = toNull(config.getProperty("imsti.releasename", null));
-        String releaseemail = toNull(config.getProperty("imsti.releaseemail", null));
+        String releasename = toNull(getCorrectProperty(config,"imsti.releasename", placement));
+        String releaseemail = toNull(getCorrectProperty(config,"imsti.releaseemail", placement));
 
 	// TODO: Think about anonymus
 	if ( user != null )
