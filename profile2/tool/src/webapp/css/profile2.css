@@ -185,6 +185,52 @@ h2 {
 	margin-top: 0;
 }
 
+/* page navigation links */
+#page-links a:link,
+#page-links a:visited {
+}
+
+.icon {
+	background-position: center left;
+    background-repeat: no-repeat;
+    padding-left: 18px;
+}
+
+/* icons */
+.lock-true {
+	background-image: url(/library/image/silk/lock.png);
+}
+
+.lock-false {
+	background-image: url(/library/image/silk/lock_open.png);
+}
+
+.profile {
+	background-image: url(/library/image/silk/vcard.png);
+}
+.pictures {
+	background-image: url(/library/image/silk/pictures.png);
+}
+.connections {
+	background-image: url(/library/image/silk/group.png);
+}
+.connection-requests {
+	background-image: url(/library/image/silk/user_add.png);
+}
+.search {
+	background-image: url(/library/image/silk/magnifier.png);
+}
+.privacy {
+	background-image: url(/library/image/silk/lock.png);
+}
+.preferences {
+	background-image: url(/library/image/silk/cog.png);
+}
+.messages {
+	background-image: url(/library/image/silk/comments.png);
+}
+
+
 
 /* sideLink styles */
 #sideLink ul {
@@ -199,6 +245,8 @@ h2 {
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
 	padding-top: 2px;
+	padding-bottom: 2px;
+	line-height: 1.3em;
 	margin-left: -40px;
 	padding-left: 5px;
 	list-style-type: none !important;
@@ -727,38 +775,6 @@ h2 {
 }
 
 
-/* page navigation links */
-.profile_pageLinks a:link,
-.profile_pageLinks a:visited {
-    background-position: center left;
-    background-repeat: no-repeat;
-    padding-left: 18px;
-}
-
-.profileIcon {
-	background-image: url(/library/image/silk/vcard.png);
-}
-.pictures-icon {
-	background-image: url(/library/image/silk/pictures.png);
-}
-.friendsIcon {
-	background-image: url(/library/image/silk/group.png);
-}
-.requestsIcon {
-	background-image: url(/library/image/silk/user_add.png);
-}
-.searchIcon {
-	background-image: url(/library/image/silk/magnifier.png);
-}
-.privacyIcon {
-	background-image: url(/library/image/silk/lock.png);
-}
-.preferencesIcon {
-	background-image: url(/library/image/silk/cog.png);
-}
-.messagesIcon {
-	background-image: url(/library/image/silk/comments.png);
-}
 
 
 

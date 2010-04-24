@@ -27,6 +27,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -389,17 +390,21 @@ public class MyProfile extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
-				//toggle it to be opposite of what it currently is, update labels
+				//toggle it to be opposite of what it currently is, update labels and icons
 				boolean locked = isLocked();
     			if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
     				setLocked(!locked);
     				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
     				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
     				this.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+    				this.add(new AttributeModifier("class", true, new Model<String>("icon lock-" + isLocked())));
     				target.addComponent(this);
     			}
 			}
 		};
+		
+		//set init icon for locked
+		lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon lock-"+isLocked())));
 		
 		lockProfileLink.add(lockProfileLabel);
 				
