@@ -501,6 +501,25 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				}
 			}
 		}
+		else
+		{ 
+			// SAK-18148 look for first non empty action
+			if ("".equals(action))
+			{
+				String[] actions = params.getStrings(PARAM_ACTION);
+				if (actions != null) 
+				{
+					for (int i = 0; i < actions.length; i++)
+					{
+						if (!"".equals(actions[i]))
+						{
+							action = actions[i];
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		// process the action if present
 		if (action != null)
