@@ -991,7 +991,14 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		Placement placement = ToolManager.getCurrentPlacement();
 		if (placement != null)
 		{
-			setVmReference("courier", Web.serverUrl(request) + "/courier/" + placement.getId(), request);
+			String sessionId = SessionManager.getCurrentSession().getId();
+			StringBuilder url = new StringBuilder(Web.serverUrl(request));
+			url.append("/courier/");
+			url.append(placement.getId());
+			url.append("?sessionId=");
+			url.append(sessionId);
+			
+			setVmReference("courier", url.toString(), request);
 			setVmReference("courierTimeout", Integer.toString(refresh), request);
 		}
 	}
