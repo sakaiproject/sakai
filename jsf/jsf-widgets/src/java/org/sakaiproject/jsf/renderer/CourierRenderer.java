@@ -32,6 +32,7 @@ import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.jsf.util.RendererUtil;
+import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class CourierRenderer extends Renderer
@@ -73,9 +74,18 @@ public class CourierRenderer extends Renderer
 			// FIXME:
 			// TODO: Report an error
 		}
+		
+		// the current session's ID
+		String sessionId = SessionManager.getCurrentSession().getId();
+		if (sessionId == null)
+		{
+			//TODO: Report an error?
+		}
+		
 		writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
 		writer.write("updateTime = " + updateTime + "000;\n");
-		writer.write("updateUrl = \"" + serverUrl(req) + "/courier/" + placementId + "\";\n");
+		writer.write("updateUrl = \"" + serverUrl(req) + "/courier/" + placementId);
+		writer.write("?sessionId="+sessionId+"\";\n");
 		writer.write("scheduleUpdate();\n");
 		writer.write("</script>\n");
 	}
