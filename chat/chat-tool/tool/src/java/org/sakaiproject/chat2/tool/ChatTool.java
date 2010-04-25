@@ -873,9 +873,29 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return String
     */
    public String getCourierString() {
-      return "/courier/" + getCurrentChatChannelId() + "/" + CHAT_CONTEXT_PRESENCE_PREFIX + getContext();
+	   StringBuilder courierString = new StringBuilder("/courier/");
+	   courierString.append(getCurrentChatChannelId());
+	   courierString.append("/");
+	   courierString.append(getToolString());
+	   courierString.append("?sessionId=");
+	   courierString.append(SessionManager.getCurrentSession().getId());
+	   
+	   return courierString.toString();
    }
-
+   
+   /**
+    * Get a string that includes the courier-presence sessionId
+    * @return String
+    */
+   public String getCourierPresenceString() {
+		StringBuilder courierString = new StringBuilder("/courier/");
+		courierString.append(getToolString());
+		courierString.append("-presence?sessionId=");
+		courierString.append(SessionManager.getCurrentSession().getId());
+		  
+		return courierString.toString();
+   }
+   
    /**
     * Check for add/edit/del perms on the channel
     * @return
