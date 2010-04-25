@@ -36,14 +36,19 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.apache.myfaces.webapp.filter.MultipartRequestWrapper;
+
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -1180,10 +1185,38 @@ public class FilePickerAction extends PagedResourceHelperAction
 		try
 		{
 			fileitem = params.getFileItem("upload");
+			
+			// SAK-18148 we still don't have a handle to the file
+			// this might be a myfaces-tomahawk MultipartRequestWrapper implementation
+			// (e.g. GradebookFilePickerServlet on WebSphere, implemented as MultipartRequestWrapper)
+			if (fileitem == null)
+			{
+				// MultipartRequestWrapper.getAttribute(UPLOADED_FILES_ATTRIBUTE) will return the file(s)
+				// note MultipartRequestWrapper may appear as a Sakai wrapped request, in one or more layers
+				HttpServletRequestWrapper requestWrapper = (HttpServletRequestWrapper) data.getRequest();
+				Map fileItems = (Map) requestWrapper.getAttribute(MultipartRequestWrapper.UPLOADED_FILES_ATTRIBUTE);
+				if (fileItems != null && fileItems.size() > 0)
+				{
+					// make Apache FileItem compatible with Sakai FileItem
+					Entry entry = (Entry) fileItems.entrySet().iterator().next();
+					if (entry != null && entry.getValue() instanceof org.apache.commons.fileupload.FileItem)
+					{
+						org.apache.commons.fileupload.FileItem afi = (org.apache.commons.fileupload.FileItem) entry.getValue();
+						try
+			            {
+							fileitem = new FileItem(afi.getName(), afi.getContentType(), afi.getInputStream());
+			            }
+			            catch (IOException e)
+			            {
+			            	fileitem = new FileItem(afi.getName(), afi.getContentType(), afi.get());
+			            }
+					}	
+				}			
+			}
 		}
 		catch(Exception e)
 		{
-
+			logger.warn("Failed to get file upload: " + e);
 		}
 		if(fileitem == null)
 		{
@@ -3210,5 +3243,5 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		return true;
 	}
-
+	
 }	// class FilePickerAction 
