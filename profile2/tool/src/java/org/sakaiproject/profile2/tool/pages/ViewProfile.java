@@ -438,6 +438,23 @@ public class ViewProfile extends BasePage {
 			visibleContainerCount++;
 		}
 		
+		/* BUSINESS INFO (OPTIONAL) */
+		if (sakaiProxy.isBusinessProfileEnabled()) {
+			ViewBusiness businessPanel = new ViewBusiness("viewBusiness",
+					userUuid, sakaiPerson, isBusinessInfoAllowed);
+
+			if (0 == businessPanel.getVisibleFieldCount() || !isBusinessInfoAllowed) {
+				businessPanel.setVisible(false);
+			} else {
+				visibleContainerCount++;
+			}
+			add(businessPanel);
+			
+		} else {
+			Panel businessPanel = new EmptyPanel("viewBusiness");
+			add(businessPanel);
+		}
+		
 		/* STUDENT INFO*/
 		WebMarkupContainer studentInfoContainer = new WebMarkupContainer("mainSectionContainer_student");
 		studentInfoContainer.setOutputMarkupId(true);
@@ -479,23 +496,6 @@ public class ViewProfile extends BasePage {
 			studentInfoContainer.setVisible(false);
 		} else {
 			visibleContainerCount++;
-		}
-		
-		/* BUSINESS INFO (OPTIONAL) */
-		if (sakaiProxy.isBusinessProfileEnabled()) {
-			ViewBusiness businessPanel = new ViewBusiness("viewBusiness",
-					userUuid, sakaiPerson, isBusinessInfoAllowed);
-
-			if (0 == businessPanel.getVisibleFieldCount() || !isBusinessInfoAllowed) {
-				businessPanel.setVisible(false);
-			} else {
-				visibleContainerCount++;
-			}
-			add(businessPanel);
-			
-		} else {
-			Panel businessPanel = new EmptyPanel("viewBusiness");
-			add(businessPanel);
 		}
 		
 		/* SOCIAL NETWORKING */

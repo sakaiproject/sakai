@@ -465,11 +465,6 @@ public class MyProfile extends BasePage {
 		myStaffDisplay.setOutputMarkupId(true);
 		add(myStaffDisplay);
 		
-		//student panel
-		Panel myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
-		myStudentDisplay.setOutputMarkupId(true);
-		add(myStudentDisplay);
-		
 		//business panel - load the display version by default
 		Panel myBusinessDisplay;
 		if (sakaiProxy.isBusinessProfileEnabled()) {
@@ -479,6 +474,11 @@ public class MyProfile extends BasePage {
 			myBusinessDisplay = new EmptyPanel("myBusiness");
 		}
 		add(myBusinessDisplay);
+		
+		//student panel
+		Panel myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
+		myStudentDisplay.setOutputMarkupId(true);
+		add(myStudentDisplay);
 		
 		//social networking panel
 		Panel mySocialNetworkingDisplay = new MySocialNetworkingDisplay("mySocialNetworking", userProfile);
