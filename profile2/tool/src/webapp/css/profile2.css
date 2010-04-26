@@ -1091,6 +1091,10 @@ div.wicket-aa ul li.selected {
 
 /* gallery-related */
 
+.pictures-icon {
+	background-image: url(/library/image/silk/pictures.png);
+}
+
 .add-picture-icon {
 	background-image: url(/library/image/silk/picture_add.png);
 }
