@@ -304,43 +304,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return dao.getGalleryImages(userUuid);
 	}
 	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean removeGalleryImage(String userUuid, GalleryImage image) {
-
-		// check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if (currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to remove a gallery image.");
-		}
-
-		// check admin, or the currentUser and given uuid match
-		if (!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userUuid)) {
-			throw new SecurityException("You are not allowed to remove this gallery image.");
-		}
-
-		//delete main image
-		if (!sakaiProxy.removeResource(image.getMainResource())) {
-			log.error("Gallery image not removed: " + image.getMainResource());
-		}
-		
-		//delete thumbnail
-		if (!sakaiProxy.removeResource(image.getThumbnailResource())) {
-			log.error("Gallery thumbnail not removed: " + image.getThumbnailResource());
-		}
-		
-		//remove record
-		if(dao.removeGalleryImage(image)){
-			log.info("User: " + userUuid + " removed gallery image: " + image.getId());
-			return true;
-		} 
-		
-		return false;
-	}
-	
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -349,11 +312,32 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
 	  	}
 		
+		// check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if (currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to remove a gallery image.");
+		}
+		
+		// check admin, or the currentUser and given uuid match
+		if (!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userId)) {
+			throw new SecurityException("You are not allowed to remove this gallery image.");
+		}
+		
 		GalleryImage galleryImage = dao.getGalleryImageRecord(userId, imageId);
 		
 		if(galleryImage == null){
 			log.error("GalleryImage record does not exist for userId: " + userId + ", imageId: " + imageId);
 			return false;
+		}
+		
+		//delete main image
+		if (!sakaiProxy.removeResource(galleryImage.getMainResource())) {
+			log.error("Gallery image not removed: " + galleryImage.getMainResource());
+		}
+		
+		//delete thumbnail
+		if (!sakaiProxy.removeResource(galleryImage.getThumbnailResource())) {
+			log.error("Gallery thumbnail not removed: " + galleryImage.getThumbnailResource());
 		}
 		
 		if(dao.removeGalleryImage(galleryImage)){

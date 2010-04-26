@@ -102,11 +102,11 @@ public interface ProfileImageLogic {
 	/**
 	 * Remove the specified gallery image.
 	 * 
-	 * @param userUuid the ID of the user.
-	 * @param image the image to remove.
+	 * @param userUuid the user ID.
+	 * @param imageUuid the image ID.
 	 * @return <code>true</code> if the gallery image is successfully removed,
 	 *         <code>false</code> if the gallery image is not removed.
 	 */
-	public boolean removeGalleryImage(String userUuid, GalleryImage image);
+	public boolean removeGalleryImage(String userId, long imageId);
 	
 }

@@ -161,7 +161,7 @@ public class GalleryImageEdit extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				if (imageLogic.removeGalleryImage(
-						userId, image)) {
+						userId, image.getId())) {
 
 					// close modal window
 					mainImageWindow.close(target);
