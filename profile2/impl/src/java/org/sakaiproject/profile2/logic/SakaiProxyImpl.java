@@ -1004,9 +1004,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public int getProfilePictureType() {
 		String pictureType = serverConfigurationService.getString("profile2.picture.type", ProfileConstants.PICTURE_SETTING_UPLOAD_PROP);
-		
-		System.out.println("profile2.picture.type=" + pictureType);
-		
+				
 		//if 'upload'
 		if(pictureType.equals(ProfileConstants.PICTURE_SETTING_UPLOAD_PROP)) {
 			return ProfileConstants.PICTURE_SETTING_UPLOAD;
