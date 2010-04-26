@@ -7838,10 +7838,18 @@ public class SiteAction extends PagedResourceActionII {
 	private void setSiteSectionProperty(List courseSectionList, Site site, String propertyName) {
 		if ((courseSectionList != null) && (courseSectionList.size() != 0)) {
 			// store the requested sections in one site property
-			StringBuffer sections = new StringBuffer(); 
-			sections.append("");
+			StringBuffer sections = new StringBuffer();
 			for (int j = 0; j < courseSectionList.size();) {
 				sections = sections.append(courseSectionList.get(j));
+				if (courseSectionList.get(j) instanceof SectionObject)
+				{	 
+					SectionObject so = (SectionObject) courseSectionList.get(j);	 
+					sections = sections.append(so.getEid());	 
+				}	 
+				else if (courseSectionList.get(j) instanceof String)	 
+				{	 
+					sections = sections.append((String) courseSectionList.get(j));	 
+				}
 				j++;
 				if (j < courseSectionList.size()) {
 					sections = sections.append("+");
