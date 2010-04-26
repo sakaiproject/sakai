@@ -108,6 +108,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
     public static String EVENT_BASICLTI_CONFIG = "basiclti.config";
 
+    private static String LEAVE_SECRET_ALONE = "__dont_change_secret__";
+
     /** To turn on really verbose debugging */
     private static boolean verbosePrint = false;
 
@@ -227,6 +229,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		if ( propValue != null ) {
                         if ( "xml".equals(element)) {
 				propValue = propValue.replace("&amp;","&amp;amp;");
+			}
+                        if ( "secret".equals(element)) {
+				propValue = LEAVE_SECRET_ALONE;
 			}
 			oldValues.setProperty("imsti."+element,propValue);
 		}
@@ -465,6 +470,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
         if ( imsTIUrl != null && imsTIUrl.trim().length() < 1 ) imsTIUrl = null;
 	String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
         if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
+	String imsTISecret  = getFormParameter(request,sakaiProperties,"secret");
+        if ( imsTISecret != null && imsTISecret.trim().length() < 1 ) imsTISecret = null;
 
         // imsType will be null if launch or xml is coming from final properties
         if ( imsType != null ) {
@@ -532,6 +539,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         boolean changed = false;
         for (String element : fieldList) {
                 String formParm  = getFormParameter(request,sakaiProperties,element);
+                if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
                 try {
                         prefs.setValue("sakai:imsti."+element, formParm);
                         changed = true;

@@ -133,7 +133,7 @@ function switchui()
 <% if ( allow(sp,"secret") ) { %>
 <p>
 <%=rb.getString("tool.secret") %>
-<input type="password" name="imsti.secret"> 
+<input type="password" name="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
 <%=rb.getString("tool.secret.detail") %>
 </p>
 <% } %>
