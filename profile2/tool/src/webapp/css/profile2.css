@@ -197,25 +197,32 @@ h2 {
 }
 
 /* icons */
-.lock-true {
+.locked {
 	background-image: url(/library/image/silk/lock.png);
 }
-
-.lock-false {
+.unlocked {
 	background-image: url(/library/image/silk/lock_open.png);
 }
-
 .profile {
 	background-image: url(/library/image/silk/vcard.png);
 }
 .pictures {
 	background-image: url(/library/image/silk/pictures.png);
 }
+.picture-add {
+	background-image: url(/library/image/silk/picture_add.png);
+}
 .connections {
 	background-image: url(/library/image/silk/group.png);
 }
-.connection-requests {
+.connection-add {
 	background-image: url(/library/image/silk/user_add.png);
+}
+.connection-request {
+	background-image: url(/library/image/silk/group_gear.png);
+}
+.connection-confirmed {
+	background-image: url(/library/image/silk/group_link.png);
 }
 .search {
 	background-image: url(/library/image/silk/magnifier.png);
@@ -234,9 +241,6 @@ h2 {
 
 /* sideLink styles */
 #sideLink ul {
-	margin-bottom: 0px;
-	margin-top: 0px;
-	margin-left: 0px;
 	list-style-type:none !important;
 }
 
@@ -244,9 +248,6 @@ h2 {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	line-height: 1.3em;
 	margin-left: -40px;
 	padding-left: 5px;
 	list-style-type: none !important;
@@ -255,7 +256,22 @@ h2 {
 #sideLink li a {
 	text-decoration: none !important;
 	display:block; /* makes whole li clickable */
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
+#sideLink li span {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	display:block;
+	margin: 0;
+}
+
+/** workaround for disabled link and extra markup */
+#sideLink li span>span {
+	margin: 0;
+	padding: 0;
+}
+
 
 #sideLink li:hover {
 	background-color: #D1ECF6;
@@ -688,7 +704,6 @@ h2 {
 	width: 150px;
 	font-size: 90%;
 	padding: 0;
-	
 }
 
 .search-result-actions {
@@ -703,7 +718,6 @@ h2 {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
-	padding-top: 2px;
 	margin-left: -40px;
 	padding-left: 5px;
 	list-style-type: none !important;
@@ -713,6 +727,21 @@ h2 {
 .search-result-actions li a {
 	text-decoration: none !important;
 	display:block; /* makes whole li clickable */
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.search-result-actions li span {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	display:block;
+	margin: 0;
+}
+
+/** workaround for disabled link and extra markup */
+.search-result-actions li span>span {
+	margin: 0;
+	padding: 0;
 }
 
 .search-result-actions li:hover {
@@ -722,6 +751,7 @@ h2 {
 .search-result-actions li#selected {
 	background-color: #D1ECF6;
 }
+
 
 .connection-action-icon {
 	float:right;
@@ -787,9 +817,7 @@ h2 {
 
 
 /* heading for pages and items */
-.itemHeader {
-	background-position: center left;
-    background-repeat: no-repeat;
+.header {
 	font-size: 1.1em;
 	font-weight: bold;
 	border-bottom: thin solid #5D5D5D;
@@ -1091,13 +1119,7 @@ div.wicket-aa ul li.selected {
 
 /* gallery-related */
 
-.pictures-icon {
-	background-image: url(/library/image/silk/pictures.png);
-}
 
-.add-picture-icon {
-	background-image: url(/library/image/silk/picture_add.png);
-}
 
 .add-form-item {
 	vertical-align: top;

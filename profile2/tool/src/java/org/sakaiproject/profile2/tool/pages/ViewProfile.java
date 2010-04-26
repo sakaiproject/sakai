@@ -688,18 +688,18 @@ public class ViewProfile extends BasePage {
 		//setup link/label and windows
 		if(friend) {
 			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-confirmed")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestToThisPerson) {
 			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestFromThisPerson) {
 			//TODO (confirm pending friend request link)
 			//could be done by setting the content off the addFriendWindow.
 			//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
 			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
 			addFriendLink.setEnabled(false);
 		}  else {
 			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
@@ -716,7 +716,7 @@ public class ViewProfile extends BasePage {
             	if(friendActionModel.isRequested()) { 
             		//friend was successfully requested, update label and link
             		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
+            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
             		addFriendLink.setEnabled(false);
             		target.addComponent(addFriendLink);
             	}
