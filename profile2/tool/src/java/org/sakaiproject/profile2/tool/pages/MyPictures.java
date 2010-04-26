@@ -50,6 +50,7 @@ import org.apache.wicket.util.file.Folder;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryImagePanel;
@@ -66,7 +67,6 @@ public class MyPictures extends BasePage {
 	private List<File> addPictureFiles = new ArrayList<File>();
 	private FileListView addPictureListView;
 	private Folder addPictureUploadFolder;
-	private Label uploadWarningLabel;
 	private GridView gridView;
 
 	
@@ -135,6 +135,12 @@ public class MyPictures extends BasePage {
 
 		addPictureForm.setOutputMarkupId(true);
 		add(addPictureForm);
+		
+		//file feedback will be redirected here
+        final FeedbackLabel fileFeedback = new FeedbackLabel("fileFeedback", addPictureForm);
+        fileFeedback.setOutputMarkupId(true);
+        addPictureForm.add(fileFeedback);
+        
 
 		WebMarkupContainer addPictureContainer = new WebMarkupContainer(
 				"addPictureContainer");
@@ -153,11 +159,6 @@ public class MyPictures extends BasePage {
 				ProfileConstants.INFO_IMAGE, new ResourceModel("text.gallery.upload.tooltip")));
 		
 		addPictureForm.add(addPictureContainer);
-		
-		uploadWarningLabel = new Label("uploadWarningLabel", new ResourceModel("error.gallery.upload.warning"));
-		uploadWarningLabel.setOutputMarkupPlaceholderTag(true);
-		uploadWarningLabel.setVisible(false);
-		addPictureForm.add(uploadWarningLabel);
 		
 		addPictureFiles.addAll(Arrays
 				.asList(addPictureUploadFolder.listFiles()));
@@ -326,7 +327,8 @@ public class MyPictures extends BasePage {
 		protected void onSubmit() {
 			
 			if (uploads.size() == 0) {
-				uploadWarningLabel.setVisible(true);
+				error(new StringResourceModel("error.gallery.upload.warning",
+						this, null).getString());
 				return;
 			}
 			
