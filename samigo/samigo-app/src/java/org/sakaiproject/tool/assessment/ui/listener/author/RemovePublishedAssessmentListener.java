@@ -32,6 +32,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
@@ -72,7 +73,9 @@ public class RemovePublishedAssessmentListener
       PublishedAssessmentService assessmentService = new PublishedAssessmentService();
       assessmentService.removeAssessment(assessmentId, "remove");
       removeFromGradebook(assessmentId);
+      EventTrackingService.post(EventTrackingService.newEvent("sam.pubAssessment.remove", "publisedAssessmentId=" + assessmentId, true));
           
+      
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
       ArrayList publishedAssessmentList = author.getPublishedAssessments();
       ArrayList list = new ArrayList();
