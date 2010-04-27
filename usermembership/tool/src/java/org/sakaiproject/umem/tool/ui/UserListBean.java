@@ -84,7 +84,7 @@ public class UserListBean {
 	private transient ResourceLoader		msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 
 	/** Controller fields */
-	private List							userRows;
+	private List<UserRow>					userRows;
 
 	/** Getter vars */
 	private boolean							allowed				= false;
@@ -202,11 +202,10 @@ public class UserListBean {
 		}
 	}
 
-	public static final Comparator getUserRowComparator(final String fieldName, final boolean sortAscending, final Collator collator) {
-		return new Comparator() {
+	public static final Comparator<UserRow> getUserRowComparator(final String fieldName, final boolean sortAscending, final Collator collator) {
+		return new Comparator<UserRow>() {
 
-			public int compare(Object o1, Object o2) {
-				if(o1 instanceof UserRow && o2 instanceof UserRow){
+			public int compare(UserRow o1, UserRow o2) {
 					UserRow r1 = (UserRow) o1;
 					UserRow r2 = (UserRow) o2;
 					try{
@@ -262,7 +261,6 @@ public class UserListBean {
 					}catch(Exception e){
 						LOG.warn("Error occurred while sorting by: "+fieldName, e);
 					}
-				}
 				return 0;
 			}
 		};
@@ -292,6 +290,79 @@ public class UserListBean {
 	}
 
 	private void doSearch() {
+		LOG.debug("Refreshing query...");
+		selectedUserType = newUserType;
+		selectedAuthority = newAuthority;
+		searchKeyword = searchKeyword.trim();
+		userRows = new ArrayList<UserRow>();
+			
+		// 1. Search internal users (Sakai DB)
+		try{
+			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_INTERNAL)){
+				List<User> users = M_uds.searchUsers(searchKeyword, -1, -1);
+				for(User u : users) {
+					// filter user type
+					if(userTypeMatches(u.getType())) {
+						userRows.add(new UserRow(
+								u.getId(), u.getEid(), u.getDisplayId(), 
+								u.getDisplayName(), 
+								u.getEmail(), 
+								u.getType(), 
+								USER_AUTH_INTERNAL, 
+								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
+								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
+								)
+						);
+					}
+				}
+			}
+		}catch(Exception e){
+			LOG.warn("Exception occurred while searching internal users: " + e.getMessage());
+			e.printStackTrace();
+		}
+			
+		// 2. Search users on external user providers
+		try{
+			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_EXTERNAL)){
+				List<User> users = M_uds.searchExternalUsers(searchKeyword, -1, -1);
+				for(User u : users) {
+					// filter user type
+					if(userTypeMatches(u.getType())) {
+						userRows.add(new UserRow(
+								u.getId(), u.getEid(), u.getDisplayId(), 
+								u.getDisplayName(), 
+								u.getEmail(), 
+								u.getType(), 
+								USER_AUTH_EXTERNAL, 
+								(u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate(), 
+								(u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate()
+								)
+						);
+					}
+				}
+			}
+		}catch(RuntimeException e){
+			LOG.warn("Exception occurred while searching external users: " + e.getMessage(), e);
+		}
+
+		// 4. Update pager
+		this.totalItems = userRows.size();
+		if(totalItems > 0) 
+			renderPager = true;
+		else
+			renderPager = false;
+		firstItem = 0;
+	}
+	
+	private boolean userTypeMatches(String userType) {
+		return 
+			USER_TYPE_ALL.equals(selectedUserType)
+			|| (!USER_TYPE_NONE.equals(selectedUserType) && userType.equals(selectedUserType))
+			|| (USER_TYPE_NONE.equals(selectedUserType) && "".equals(userType) );
+	}
+
+	@Deprecated
+	private void doSearch_OLD() {
 		/**
 		 * 1. Query internal users from SAKAI_USER (filter by type and search)
 		 * 2. Query external users from SAKAI_REALM_RL_GR
