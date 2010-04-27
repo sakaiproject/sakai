@@ -1671,7 +1671,7 @@ public class DavServlet extends HttpServlet
 
 				if (xss.endsWith("/"))
 				{
-				    // we don't want to show the trailing /, and escapeUrl blows if it's there
+				    // we need to show show the trailing /, but escapeUrl blows if it's there
 				        xss = xss.substring(0, xss.length()-1);
 					if (doProtected
 							&& xs.toLowerCase().indexOf("/protected") >= 0)
@@ -1681,7 +1681,8 @@ public class DavServlet extends HttpServlet
 							continue;
 						}
 					}
-					out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "\">" + Validator.escapeHtml(xss)
+					// note that we put back the trailing /
+					out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "/\">" + Validator.escapeHtml(xss)
 							+ "</a></td><td><b>Folder</b>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>");
 				}
 				else
