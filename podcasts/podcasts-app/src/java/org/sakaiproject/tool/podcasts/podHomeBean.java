@@ -23,6 +23,7 @@ package org.sakaiproject.tool.podcasts;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -91,7 +92,6 @@ public class podHomeBean {
 	private static final String ID_INVALID_ALERT = "id_invalid_alert";
 	private static final String IO_ALERT = "io_alert";
 	private static final String ID_USED_ALERT = "id_used_alert";
-	private static final String PERMISSION_FOR_PODCAST_FOLDER = "permission_directions";
 	
 	// Patterns for Date and Number formatting
 	private static final String PUBLISH_DATE_FORMAT = "publish_date_format";
@@ -416,11 +416,6 @@ public class podHomeBean {
 	public boolean getResourceToolExists() {
 		boolean resourceToolExists = false;
 		
-		if (rb == null) {
-	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-	          rb = new ResourceLoader(bundle);
-		}
-		
 		String toolId = ToolManager.getTool(RESOURCE_TOOL_ID).getTitle();
 		
 		try {
@@ -442,7 +437,7 @@ public class podHomeBean {
 			// so if student say it exists		
 			if (getCanUpdateSite()) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage("Alert: " + rb.getFormattedMessage("no_resource_alert", new String [] { toolId })));	
+						new FacesMessage("Alert: " + getMessageFromBundle("no_resource_alert", new String [] { toolId })));	
 			}
 		}
 
@@ -452,7 +447,7 @@ public class podHomeBean {
 				
 			if (getCanUpdateSite()) {
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage("Alert: " + rb.getFormattedMessage("no_resource_alert", new String [] { toolId })));	
+						new FacesMessage("Alert: " + getMessageFromBundle("no_resource_alert", new String [] { toolId })));	
 			}
 		}
 
@@ -526,9 +521,9 @@ public class podHomeBean {
 	 * Returns String to be passed to permissions page.
 	 */
 	private String getPermissionsMessage() {
-		String permissionMsg = getErrorMessageString(PERMISSION_FOR_PODCAST_FOLDER);
-		return Validator.escapeUrl(permissionMsg + " " +
-		   		 SiteService.getSiteDisplay(podcastService.getSiteId()));
+		String podcastsSiteId = Validator.escapeUrl(SiteService.getSiteDisplay(podcastService.getSiteId()));
+		String permissionMsg = getMessageFromBundle("permission_directions", new String [] { podcastsSiteId });
+		return permissionMsg;
 	}
 
 	 /**
@@ -1812,11 +1807,7 @@ public class podHomeBean {
 	 * 			The string that is the value of the message
 	 */
 	private String getErrorMessageString(String key) {
-		if (rb == null) {
-	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-	          rb = new ResourceLoader(bundle);
-		}
-		return rb.getString(key);
+		return getMessageFromBundle(key);
 	}
 
 	/**
@@ -1966,10 +1957,6 @@ public class podHomeBean {
 	 * Returns the message that a file too large tried to be uploaded. (SAK-9822) 
 	 */
 	public String getMaxSizeExceededAlert() {
-		if (rb == null) {
-	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-	          rb = new ResourceLoader(bundle);
-		}
 
 		// TODO: pull this from the ServerConfigurationService? RequestFilter?
 		FacesContext context = FacesContext.getCurrentInstance();
@@ -1981,6 +1968,19 @@ public class podHomeBean {
 			uploadMaxSize = override.toString();
 		}
 
-		return rb.getFormattedMessage("max_size_exceeded_alert", new String [] { uploadMaxSize });
+		return getMessageFromBundle("max_size_exceeded_alert", new String [] { uploadMaxSize });
 	}
+	
+	public String getMessageFromBundle(String key, Object[] args) {
+	    return MessageFormat.format(getMessageFromBundle(key), args);
+	}
+	
+	public String getMessageFromBundle(String key) {
+	    if (rb == null) {
+	        String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	         rb = new ResourceLoader(bundle);
+	    }
+	    return rb.getString(key);
+	}
+
 }
