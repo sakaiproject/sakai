@@ -348,7 +348,7 @@ function mySetMainFrameHeightViewCell(id)
   ValueBinding binding = app.createValueBinding("#{mfSynopticBeanLite}");
   MessageForumSynopticBeanLite mfsb = (MessageForumSynopticBeanLite) binding.getValue(context);
   
-  if (mfsb.isMyWorkspace() && mfsb.isDisableMyWorkspace()){
+  if (mfsb.isMyWorkspace() && mfsb.isDisableMyWorkspace().booleanValue()){
 	  if(mfsb.getDisableMyWorkspaceDisabledMessage() != null && !"".equals(mfsb.getDisableMyWorkspaceDisabledMessage())){
 %>	  
 		<h:outputText value="#{mfSynopticBeanLite.disableMyWorkspaceDisabledMessage}"/>
@@ -358,7 +358,7 @@ function mySetMainFrameHeightViewCell(id)
 		<h:outputText value="#{msgs.synopticToolDisabled}"/>		  
 <%
 	  }
-  }else if (mfsb.isMyWorkspace() && mfsb.isUserRequestSynoptic()){
+  }else if (mfsb.isMyWorkspace() && mfsb.isUserRequestSynoptic().booleanValue()){
 %>
 <div>
 <br>
