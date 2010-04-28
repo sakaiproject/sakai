@@ -1686,7 +1686,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    if(permissions.contains(ContentPermissions.REVISE))
 	    {
 		    List<ResourceToolAction> contentModifyActions = typeDef.getActions(CONTENT_MODIFY_ACTIONS);
-		    if(contentModifyActions != null)
+		    if(contentModifyActions != null && !"/".equals(selectedItem.getId()))
 		    {
 		    	actions.addAll(contentModifyActions);
 		    }
