@@ -693,6 +693,28 @@ public class ListItem
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
 			}
+			if (SecurityService.isSuperUser())
+			{
+				setIsAdmin(true);
+			}
+			
+			
+			//does this object or its parent collection allow inlineHTML?
+			try {
+				setAllowHtmlInline(resource.getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE));
+			} catch (EntityPropertyNotDefinedException e) {
+				//try the parent
+				try {
+					setAllowHtmlInline(resource.getContainingCollection().getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE));
+				} catch (EntityPropertyNotDefinedException e1) {
+					setAllowHtmlInline(false);
+				} catch (EntityPropertyTypeException e1) {
+					setAllowHtmlInline(false);
+				}
+				
+			} catch (EntityPropertyTypeException e) {
+				setAllowHtmlInline(false);
+			}
 			
 			String size = null;
 			String sizzle = null;

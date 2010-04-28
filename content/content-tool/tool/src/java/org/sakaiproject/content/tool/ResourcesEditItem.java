@@ -96,7 +96,7 @@ public class ResourcesEditItem
 	protected boolean m_useReleaseDate;
 	protected boolean m_useRetractDate;
 	private boolean m_isInUserSite;
-	protected boolean m_isAdmin;;
+	protected boolean m_isAdmin;
 
 	/**
 	 * @param id
