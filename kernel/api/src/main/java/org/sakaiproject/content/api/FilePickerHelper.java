@@ -98,6 +98,14 @@ public interface FilePickerHelper
 	public static final String FILE_PICKER_SHOW_WORKSPACE = FilePickerHelper.PREFIX + "show_workspace";
 
 	/**
+	 * The name of the state or tool-session attribute indicating that there
+	 * should be a widget to enable a URL to be specified as a place from which
+	 * to select attachments. The value corresponding should be of type
+	 * {@link Boolean}.
+	 */
+	public static final String FILE_PICKER_SHOW_URL = FilePickerHelper.PREFIX + "show_url";
+
+	/**
 	 * The name of the state or tool-session attribute indicating the id of the collection that should be shown
 	 * as the default location to look for attachments for a particular invocation of the filepicker.
 	 */
