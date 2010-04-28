@@ -1639,6 +1639,13 @@ public class DbContentService extends BaseContentService
                 fields[4] = isolateContainingId(individualDropboxId);
                 fields[5] = Long.toString(timeService.newTime().getTime());
             }
+            else if("hsqldb".equalsIgnoreCase(m_sqlService.getVendor()))
+            {
+                fields = new Object[3];
+                fields[0] = individualDropboxId;
+                fields[1] = isolateContainingId(individualDropboxId);
+                fields[2] = Long.toString(timeService.newTime().getTime());
+            }
             else
             {
                 fields = new Object[5];

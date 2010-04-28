@@ -66,5 +66,15 @@ public class ContentServiceSqlHSql extends ContentServiceSqlDefault
 	{
 		return "show columns from CONTENT_RESOURCE like 'FILE_SIZE'";
 	}
+	
+	/**
+	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.
+	 */
+	public String getInsertIndividualDropboxChangeSql() 
+	{
+		return "insert into CONTENT_DROPBOX_CHANGES (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (? , ? , ?)";
+		// To use the line below instead (preferable), HSQLDB must be >= 1.9
+		//return "merge into CONTENT_DROPBOX_CHANGES using dual on (dual.dummy is not null and CONTENT_DROPBOX_CHANGES.DROPBOX_ID = ?) when not matched then insert (DROPBOX_ID, IN_COLLECTION, LAST_UPDATE) values (?, ?, ?) when matched then update set CONTENT_DROPBOX_CHANGES.IN_COLLECTION = ?, LAST_UPDATE = ?";
+	}
 
 }
