@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -144,6 +145,12 @@ public class XMLImportBean implements Serializable
     try
     {
       processFile(filename, isRespondus);
+    }
+    catch (FileNotFoundException fnfex)
+    {
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      FacesMessage message = new FacesMessage( rb.getString("import_qti_not_found") );
+      FacesContext.getCurrentInstance().addMessage(null, message);
     }
     catch (Exception ex)
     {

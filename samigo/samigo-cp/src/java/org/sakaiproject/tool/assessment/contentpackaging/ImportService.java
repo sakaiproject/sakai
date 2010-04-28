@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -69,98 +70,115 @@ public class ImportService {
 	    unzipLocation.append("/unzip_files/");
 	    unzipLocation.append(Long.toString(new java.util.Date().getTime()));
 	    
-		try {
-			fileInputStream = new FileInputStream(new File(filename));
-			byte[] data = new byte[fileInputStream.available()];
-			fileInputStream.read(data, 0, fileInputStream.available());
+	    try {
+	    	fileInputStream = new FileInputStream(new File(filename));
+	    	byte[] data = new byte[fileInputStream.available()];
+	    	fileInputStream.read(data, 0, fileInputStream.available());
 
-			File dir = new File(unzipLocation.toString()); // directory where file would be saved
-			if (!dir.exists()) {
-				if (dir.mkdirs()) {
-					log.error("unable to mkdir " + dir.getPath());
-				}
-			}
+	    	File dir = new File(unzipLocation.toString()); // directory where file would be saved
+	    	if (!dir.exists()) {
+	    		if (dir.mkdirs()) {
+	    			log.error("unable to mkdir " + dir.getPath());
+	    		}
+	    	}
 
-			Set dirsMade = new TreeSet();
-			zipStream = new ZipInputStream(new ByteArrayInputStream(data));
-			entry = (ZipEntry) zipStream.getNextEntry();
-			// Get the name of the imported zip file name. The value of "filename" has timestamp append to it.
-			String tmpName = filename.substring(filename.lastIndexOf("/") + 1);
-			qtiFilename = tmpName.substring(0, tmpName.lastIndexOf("_")) + ".xml";
-			while (entry != null) {
-				String zipName = entry.getName();
-				int ix = zipName.lastIndexOf('/');
-				if (ix > 0) {
-					String dirName = zipName.substring(0, ix);
-					if (!dirsMade.contains(dirName)) {
-						File d = new File(dir.getPath() + "/" + dirName);
-						// If it already exists as a dir, don't do anything
-						if (!(d.exists() && d.isDirectory())) {
-							// Try to create the directory, warn if it fails
-							if (!d.mkdirs()) {
-								log.error("unable to mkdir " + dir.getPath() + "/" + dirName);
-							}
-							dirsMade.add(dirName);
-						}
-					}
-				}
-				
-				File zipEntryFile = new File(dir.getPath() + "/" + entry.getName());
-				if (!zipEntryFile.isDirectory()) {
-					ofile = new FileOutputStream(zipEntryFile);
-					byte[] buffer = new byte[1024 * 10];
-					int bytesRead;
-					while ((bytesRead = zipStream.read(buffer)) != -1) {
-						ofile.write(buffer, 0, bytesRead);
-					}
-				}
-				if ("imsmanifest.xml".equals(entry.getName())) {
-					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-					try {
-					  DocumentBuilder db = dbf.newDocumentBuilder();
-					  Document doc = db.parse(zipEntryFile);
-					  doc.getDocumentElement().normalize();
-					  NodeList nodeLst = doc.getElementsByTagName("resource");
-					  Node fstNode = nodeLst.item(0);
-					  NamedNodeMap namedNodeMap= fstNode.getAttributes();
-					  qtiFilename = namedNodeMap.getNamedItem("href").getNodeValue();
-					}
-					catch (Exception e) {
-						log.error("error parsing imsmanifest.xml");
-					}
-				}
-				zipStream.closeEntry();
-				entry = zipStream.getNextEntry();
-			}
-		} catch (FileNotFoundException e) {
-			log.error(e.getMessage());
-		} catch (IOException e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
-		} finally {
-			if (ofile != null) {
-				try {
-					ofile.close();
-				} catch (IOException e) {
-					log.error(e.getMessage());
-				}
-			}
-			if (fileInputStream != null) {
-				try {
-					fileInputStream.close();
-				} catch (IOException e) {
-					log.error(e.getMessage());
-				}
-			}
-			if (zipStream != null) {
-				try {
-					zipStream.close();
-				} catch (IOException e) {
-					log.error(e.getMessage());
-				}
-			}
-		}
-		return unzipLocation.toString();
+	    	Set dirsMade = new TreeSet();
+	    	zipStream = new ZipInputStream(new ByteArrayInputStream(data));
+	    	entry = (ZipEntry) zipStream.getNextEntry();
+	    	// Get the name of the imported zip file name. The value of "filename" has timestamp append to it.
+	    	String tmpName = filename.substring(filename.lastIndexOf("/") + 1);
+	    	qtiFilename = "exportAssessment.xml";
+	    	ArrayList xmlFilenames = new ArrayList();
+	    	while (entry != null) {
+	    		String zipName = entry.getName();
+	    		int ix = zipName.lastIndexOf('/');
+	    		if (ix > 0) {
+	    			String dirName = zipName.substring(0, ix);
+	    			if (!dirsMade.contains(dirName)) {
+	    				File d = new File(dir.getPath() + "/" + dirName);
+	    				// If it already exists as a dir, don't do anything
+	    				if (!(d.exists() && d.isDirectory())) {
+	    					// Try to create the directory, warn if it fails
+	    					if (!d.mkdirs()) {
+	    						log.error("unable to mkdir " + dir.getPath() + "/" + dirName);
+	    					}
+	    					dirsMade.add(dirName);
+	    				}
+	    			}
+	    		}
+
+	    		File zipEntryFile = new File(dir.getPath() + "/" + entry.getName());
+	    		if (!zipEntryFile.isDirectory()) {
+	    			ofile = new FileOutputStream(zipEntryFile);
+	    			byte[] buffer = new byte[1024 * 10];
+	    			int bytesRead;
+	    			while ((bytesRead = zipStream.read(buffer)) != -1) {
+	    				ofile.write(buffer, 0, bytesRead);
+	    			}
+	    		}
+
+	    		// Now try to get the QTI xml file name from the imsmanifest.xml
+	    		if ("imsmanifest.xml".equals(entry.getName())) {
+	    			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	    			try {
+	    				DocumentBuilder db = dbf.newDocumentBuilder();
+	    				Document doc = db.parse(zipEntryFile);
+	    				doc.getDocumentElement().normalize();
+	    				NodeList nodeLst = doc.getElementsByTagName("resource");
+	    				Node fstNode = nodeLst.item(0);
+	    				NamedNodeMap namedNodeMap= fstNode.getAttributes();
+	    				qtiFilename = namedNodeMap.getNamedItem("href").getNodeValue();
+	    			}
+	    			catch (Exception e) {
+	    				log.error("error parsing imsmanifest.xml");
+	    			}
+	    		}
+	    		else if (entry.getName() != null && entry.getName().trim().endsWith(".xml")) {
+	    			xmlFilenames.add(entry.getName().trim());
+	    		}
+	    	
+	    		zipStream.closeEntry();
+	    		entry = zipStream.getNextEntry();
+	    	}
+	    	// If the QTI file doesn't exist in the zip, 
+	    	// we guess the name might be either exportAssessment.xml or the same as the zip file name
+	    	if (!xmlFilenames.contains(qtiFilename.trim())) {
+	    		if (xmlFilenames.contains("exportAssessment.xml")) {
+	    			qtiFilename = "exportAssessment.xml";
+	    		}
+	    		else {
+	    			qtiFilename = tmpName.substring(0, tmpName.lastIndexOf("_")) + ".xml";
+	    		}
+	    	}
+	    } catch (FileNotFoundException e) {
+	    	log.error(e.getMessage());
+	    } catch (IOException e) {
+	    	log.error(e.getMessage());
+	    	e.printStackTrace();
+	    } finally {
+	    	if (ofile != null) {
+	    		try {
+	    			ofile.close();
+	    		} catch (IOException e) {
+	    			log.error(e.getMessage());
+	    		}
+	    	}
+	    	if (fileInputStream != null) {
+	    		try {
+	    			fileInputStream.close();
+	    		} catch (IOException e) {
+	    			log.error(e.getMessage());
+	    		}
+	    	}
+	    	if (zipStream != null) {
+	    		try {
+	    			zipStream.close();
+	    		} catch (IOException e) {
+	    			log.error(e.getMessage());
+	    		}
+	    	}
+	    }
+	    return unzipLocation.toString();
 	}
 
 	public String setQTIFilename() {
