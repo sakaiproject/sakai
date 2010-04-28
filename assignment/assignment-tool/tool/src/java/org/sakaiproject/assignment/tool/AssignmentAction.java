@@ -3976,9 +3976,8 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else
 			{
-				// do nothing, if the user is only saving grades
-				// was: remove grade from gradebook
-				//integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1);
+				//remove grade from gradebook
+				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1);
 			}
 		}
 
