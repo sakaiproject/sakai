@@ -375,7 +375,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		
 
 		// if it's not special, and we have no value yet, set it to the webcontent instruction page, as configured
-		if (rv == null)
+		if (rv == null || rv.equals("http://") || rv.equals("https://"))
 		{
 			rv = StringUtil.trimToNull(ServerConfigurationService.getString("webcontent.instructions.url"));
 		}
