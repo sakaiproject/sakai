@@ -144,6 +144,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.Blob;
@@ -4118,140 +4119,94 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * {@inheritDoc}}
 	 */
-	public List<String> getSubmitterIdList(String allOrOneGroup, String aRef, String contextString) {
+	public List<String> getSubmitterIdList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
 		
 		List<String> rv = new ArrayList<String>();
-		// range
-		Collection groups = new Vector();
 		try
 		{
 			Assignment a = getAssignment(aRef);
 			
 			if (a != null)
 			{	
-				// all submissions
-				List submissions = getSubmissions(a);
+				// Step 1: get all student that meets the search criteria. If search is null or empty string, return all users that can submit
+				List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
+				List searchedUsers = getSearchedUsers(searchString, allowAddSubmissionUsers);
 				
-				// now are we view all sections/groups or just specific one?
-				if (allOrOneGroup.equals(AssignmentConstants.ALL))
+				// Step 2: get group if any that is selected
+				List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
+	
+				// Step 3: retain the intersection of search result and group filter result
+				if (searchedUsers.isEmpty() && selectedGroupUsers.isEmpty())
 				{
-					if (a.getAccess() ==  Assignment.AssignmentAccess.SITE)
+					// both search and group filter return nothing, no user is selected
+					if ("true".equalsIgnoreCase(searchFilterOnly))
 					{
-						// site range
-						try {
-							groups.add(SiteService.getSite(contextString));
-						} catch (IdUnusedException e) {
-							M_log.warn(this + ":getSubmitterIdList cannot find site " + " " + contextString + e.getMessage());
-						}
+						return rv;
 					}
-					else
-					{
-						// get all those groups that user is allowed to grade
-						groups = getGroupsAllowGradeAssignment(contextString, aRef);
-					}
+				}
+				else if (searchedUsers.isEmpty() && !selectedGroupUsers.isEmpty())
+				{
+					// according to the group filter result
+					allowAddSubmissionUsers.retainAll(selectedGroupUsers);
+				}
+				else if (!searchedUsers.isEmpty() && selectedGroupUsers.isEmpty())
+				{
+					// according to the group filter result
+					allowAddSubmissionUsers.retainAll(searchedUsers);
 				}
 				else
 				{
-					// filter out only those submissions from the selected-group members
-					try
-					{
-						Group group = SiteService.getSite(contextString).getGroup(allOrOneGroup);
-						groups.add(group);
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + ":getSubmitterIdList " + e.getMessage() + " groupId=" + allOrOneGroup);
-					}
+					// both are non-empty
+					allowAddSubmissionUsers.retainAll(selectedGroupUsers);
+					allowAddSubmissionUsers.retainAll(searchedUsers);
 				}
-	
-				// all users that can submit
-				List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
-	
-				HashSet userIdSet = new HashSet();
-				for (Iterator iGroup=groups.iterator(); iGroup.hasNext();)
+				
+				
+				if (allowAddSubmissionUsers != null && allowAddSubmissionUsers.size() > 0)
 				{
-					Object nGroup = iGroup.next();
-					String authzGroupRef = (nGroup instanceof Group)? ((Group) nGroup).getReference():((nGroup instanceof Site))?((Site) nGroup).getReference():null;
-					if (authzGroupRef != null)
+					for (Iterator uIterator = allowAddSubmissionUsers.iterator(); uIterator.hasNext();)
 					{
-						try
-						{
-							AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupRef);
-							Set grants = group.getUsers();
-							for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
-							{
-								String userId = (String) iUserIds.next();
-								
-								// don't show user multiple times
-								if (!userIdSet.contains(userId))
-								{
-									try
-									{
-										User u = UserDirectoryService.getUser(userId);
-										if (u != null)
-										{
-											boolean found = false;
-											for (int i = 0; !found && i<submissions.size();i++)
-											{
-												AssignmentSubmission s = (AssignmentSubmission) submissions.get(i);
-												if (s.getSubmitterIds().contains(userId))
-												{
-													rv.add(userId);
-													found = true;
-												}
-											}
+						User u = (User) uIterator.next();
+						
+						AssignmentSubmission uSubmission = getSubmission(aRef, u);
 											
-	
-											// add those users who haven't made any submissions and with submission rights
-											if (!found && allowAddSubmissionUsers.contains(u))
-											{
-												// construct fake submissions for grading purpose if the user has right for grading
-												if (allowGradeSubmission(a.getReference()))
-												{
-												
-													// temporarily allow the user to read and write from assignments (asn.revise permission)
-											        enableSecurityAdvisor();
-											        
-													AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), userId);
-													s.setSubmitted(true);
-													s.setAssignment(a);
-													
-													// set the resubmission properties
-													// get the assignment setting for resubmitting
-													ResourceProperties assignmentProperties = a.getProperties();
-													String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-													if (assignmentAllowResubmitNumber != null)
-													{
-														s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
-														
-														String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-														// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-														s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
-													}
-													
-													commitEdit(s);
-													rv.add(u.getId());
-			
-											        // clear the permission
-													disableSecurityAdvisor();
-												}
-											}
-										}
-									}
-									catch (Exception e)
-									{
-										M_log.warn(this + ":getSubmitterIdList " + e.getMessage() + " userId = " + userId);
-									}
-									
-									// add userId into set to prevent showing user multiple times
-									userIdSet.add(userId);
-								}
-							}
-							
-						}
-						catch (Exception eee)
+						if (uSubmission != null)
 						{
-							M_log.warn(this + ":getSubmitterIdList " + eee.getMessage() + " authGroupId=" + authzGroupRef);
+							rv.add(u.getId());
+						}
+						// add those users who haven't made any submissions and with submission rights
+						else
+						{
+							// construct fake submissions for grading purpose if the user has right for grading
+							if (allowGradeSubmission(a.getReference()))
+							{
+							
+								// temporarily allow the user to read and write from assignments (asn.revise permission)
+						        enableSecurityAdvisor();
+						        
+								AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), u.getId());
+								s.setSubmitted(true);
+								s.setAssignment(a);
+								
+								// set the resubmission properties
+								// get the assignment setting for resubmitting
+								ResourceProperties assignmentProperties = a.getProperties();
+								String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+								if (assignmentAllowResubmitNumber != null)
+								{
+									s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+									
+									String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+									// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
+									s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+								}
+								
+								commitEdit(s);
+								rv.add(u.getId());
+	
+						        // clear the permission
+								disableSecurityAdvisor();
+							}
 						}
 					}
 				}
@@ -4269,6 +4224,120 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		return rv;
 	}
+
+
+
+	private List<User> getSelectedGroupUsers(String allOrOneGroup, String contextString, Assignment a, List allowAddSubmissionUsers) {
+		Collection groups = new ArrayList();
+		
+		List<User> selectedGroupUsers = new ArrayList<User>();
+		if (allOrOneGroup != null && allOrOneGroup.length() > 0)
+		{
+			// now are we view all sections/groups or just specific one?
+			if (allOrOneGroup.equals(AssignmentConstants.ALL))
+			{
+				if (a.getAccess() ==  Assignment.AssignmentAccess.SITE)
+				{
+					// site range
+					try {
+						groups.add(SiteService.getSite(contextString));
+					} catch (IdUnusedException e) {
+						M_log.warn(this + ":getSelectedGroupUsers cannot find site " + " " + contextString + e.getMessage());
+					}
+				}
+				else
+				{
+					// get all those groups that user is allowed to grade
+					groups = getGroupsAllowGradeAssignment(contextString, a.getReference());
+				}
+			}
+			else
+			{
+				// filter out only those submissions from the selected-group members
+				try
+				{
+					Group group = SiteService.getSite(contextString).getGroup(allOrOneGroup);
+					groups.add(group);
+				}
+				catch (Exception e)
+				{
+					M_log.warn(this + ":getSelectedGroupUsers " + e.getMessage() + " groupId=" + allOrOneGroup);
+				}
+			}
+			
+			for (Iterator iGroup=groups.iterator(); iGroup.hasNext();)
+			{
+				Object nGroup = iGroup.next();
+				String authzGroupRef = (nGroup instanceof Group)? ((Group) nGroup).getReference():((nGroup instanceof Site))?((Site) nGroup).getReference():null;
+				if (authzGroupRef != null)
+				{
+					try
+					{
+						AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupRef);
+						Set grants = group.getUsers();
+						for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+						{
+							String userId = (String) iUserIds.next();
+							
+							// don't show user multiple times
+							try
+							{
+								User u = UserDirectoryService.getUser(userId);
+								if (u != null && allowAddSubmissionUsers.contains(u))
+								{
+									if (!selectedGroupUsers.contains(u))
+									{
+										selectedGroupUsers.add(u);
+									}
+								}
+							}
+							catch (UserNotDefinedException uException)
+							{
+								M_log.warn(this + ":getSelectedGroupUsers " + uException.getMessage() + " userId =" + userId);
+							}
+						}	
+					}
+					catch (GroupNotDefinedException gException)
+					{
+						M_log.warn(this + ":getSelectedGroupUsers " + gException.getMessage() + " authGroupId=" + authzGroupRef);
+					}
+				}
+			}
+		}
+		return selectedGroupUsers;
+	}
+
+	/**
+	 * keep the users that match search string in sortname, eid, email field
+	 * @param searchString
+	 * @param userList
+	 * @return
+	 */
+	private List getSearchedUsers(String searchString, List userList) {
+		List rv = new ArrayList();
+		if (searchString != null && searchString.length() > 0)
+		{
+			searchString = searchString.toLowerCase();
+			for(Iterator iUserList = userList.iterator(); iUserList.hasNext();)
+			{
+				User u = (User) iUserList.next();
+				// search on user sortname, eid, email
+				String[] fields = {u.getSortName(), u.getEid(), u.getEmail()};
+				List<String> l = new ArrayList(Arrays.asList(fields));
+				for (String s : l)
+				{
+					s = s.toLowerCase();
+					if (s != null && s.indexOf(searchString) != -1)
+					{
+						rv.add(u);
+						break;
+					}
+				}
+			}
+		}
+		return rv;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -4300,6 +4369,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		String viewString = "";
 		String contextString = "";
+		String searchString = "";
+		String searchFilterOnly = "";
 		
 		if (queryString != null)
 		{
@@ -4350,6 +4421,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// view
 					viewString = token.indexOf("=") != -1 ? token.substring(token.indexOf("=") + 1) : "";
 				}
+				else if (token.contains("searchString"))
+				{
+					// search
+					searchString = token.indexOf("=") != -1 ? token.substring(token.indexOf("=") + 1) : "";
+				}
+				else if (token.contains("searchFilterOnly"))
+				{
+					// search and group filter only
+					searchFilterOnly = token.indexOf("=") != -1 ? token.substring(token.indexOf("=") + 1) : "";
+				}
 	        }
 		}
 
@@ -4360,7 +4441,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String aRef = assignmentReferenceFromSubmissionsZipReference(ref);
 			Assignment a = getAssignment(aRef);
 			
-			List<String> submitterIds = getSubmitterIdList(viewString == ""? AssignmentConstants.ALL:viewString, aRef, contextString == null? a.getContext():contextString);
+			List<String> submitterIds = getSubmitterIdList(searchFilterOnly, viewString == ""? AssignmentConstants.ALL:viewString, searchString, aRef, contextString == null? a.getContext():contextString);
 	
 			if (submitterIds != null && !submitterIds.isEmpty())
 			{

@@ -71,7 +71,12 @@
 		#if ($allowUpdateSite)
 			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
 				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
-			</li>	
+			</li>
+			#if ($enableViewOption)	
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
+				</li>
+			#end	
 		#end
 	</ul>
 	<h3>
@@ -83,28 +88,49 @@
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
-			#if ($!groups.hasNext())
-				<div class="navPanel">
-					<div class="viewNav">
+			<div class="navPanel">
+				<div class="viewNav">
+					<div class="instruction">
+						$tlang.getString("view_instruction") 
+					</div>
+					#if ($!groups.hasNext())
 						<label for="view">
 							$tlang.getString("gen.view2")
 						</label>
 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 						<select id="view" name="view" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
-							<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+							#if (!$showSubmissionByFilterSearchOnly)
+								<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+							#else
+								<option value="" >$tlang.getString('please_select_group')</option>
+							#end
 							#foreach($aGroup in $groups)
 								<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 							#end
 						</select>
+					#end
+					<div class="instruction">
+						$searchPrompt
 					</div>
+					<input type="hidden" name="eventSubmit_doSubmission_search_option" value="null" />
+					<input type="hidden" name="option" id="option" value="" />
+					<label for="$form_search" class="skip">$tlang.getString("search")</label>
+					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="30" />
+					<input type="button" value="$tlang.getString('search')" 
+						onclick="blur();document.getElementById('option').value='search';document.viewForm.submit();return false;" />
+					#if (($!searchString) && (!$searchString.equals("")))
+						<input type="button" class="button" value="$tlang.getString("search_clear")" 
+							onclick="blur();document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
+					#end
 				</div>
-			#end		
-			#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+			</div>
+		#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
 			#if (!$!showMsg || $showMsg ==0)
 				<div class="allPurpose">
-					$tlang.getString("theisnostudent")
+					<br/>
+					$tlang.getString("nostudent_searchview")
 				</div>
 			#else
 				#if ($submissionType != 4)
@@ -613,13 +639,16 @@
 							<td headers="gradereleased">
 								&nbsp;
 							</td>
+						</tr>
 					#end
 				#end
 			</table>
 		</form>
 	#end
-	<hr class="itemSeparator" />
-	<h3>$tlang.getString("gen.assdet")</h3>
+	
+	## assignment details
+	<h3  id="toggleModel" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />$tlang.getString("gen.assdet")</h3>
+	<div class="toggledContent">
 	<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString("gen.theassinf")">
 		<tr> 
 			<th>
@@ -706,11 +735,7 @@
 			</td>
 		</tr>
 	</table>	
-
-
-
-
-
+	
 	#if ($assignment.getContent().getInstructions().length()==0)
 	#else
 		<h4>$tlang.getString("gen.assinf")</h4>
@@ -750,5 +775,6 @@
 	#end
 	#if ($taggable)
 	   	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
-	#end	
+	#end
+	</div>	
 </div>

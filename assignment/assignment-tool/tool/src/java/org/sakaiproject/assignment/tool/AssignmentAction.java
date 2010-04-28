@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -137,6 +137,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -588,6 +589,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/** The student view of assignment submission report */
 	private static final String MODE_STUDENT_VIEW = "stuvie"; // set in velocity template
 
+	/** The option view */
+	private static final String MODE_OPTIONS= "options"; // set in velocity template
+
 	/** ************************* vm names ************************** */
 	/** The list view of assignments */
 	private static final String TEMPLATE_LIST_ASSIGNMENTS = "_list_assignments";
@@ -639,6 +643,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The instructor view to upload all information from archive file */
 	private static final String TEMPLATE_INSTRUCTOR_UPLOAD_ALL = "_instructor_uploadAll";
+
+	/** The options page */
+	private static final String TEMPLATE_OPTIONS = "_options";
 
 	/** The opening mark comment */
 	private static final String COMMENT_OPEN = "{{";
@@ -707,6 +714,9 @@ public class AssignmentAction extends PagedResourceActionII
 	// view all or grouped submission list
 	private static final String VIEW_SUBMISSION_LIST_OPTION = "view_submission_list_option";
 	
+	// search string for submission list
+	private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
+	
 	private ContentHostingService m_contentHostingService = null;
 	
 	private EventTrackingService m_eventTrackingService = null;
@@ -756,12 +766,21 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private static final int INPUT_BUFFER_SIZE = 102400;
 	
+	private static final String SUBMISSIONS_SEARCH_ONLY = "submissions_search_only";
+	
+	/*************** search related *******************/
+	private static final String STATE_SEARCH = "state_search";
+	private static final String FORM_SEARCH = "form_search";
+	
+	private static final String SEARCHABLE_USER_FIELDS = "searchable_user_fields";
+	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		String template = null;
+		context.put("action", "AssignmentAction");
 
 		context.put("tlang", rb);
 		context.put("dateFormat", getDateFormatString());
@@ -776,8 +795,8 @@ public class AssignmentAction extends PagedResourceActionII
 		Object allowGradeSubmission = state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION);
 
 		// allow update site?
-		context.put("allowUpdateSite", Boolean
-						.valueOf(SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING))));
+		boolean allowUpdateSite = SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+		context.put("allowUpdateSite", Boolean.valueOf(allowUpdateSite));
 		
 		// allow all.groups?
 		boolean allowAllGroups = AssignmentService.allowAllGroups(contextString);
@@ -811,6 +830,9 @@ public class AssignmentAction extends PagedResourceActionII
 		// the grade type table
 		context.put("gradeTypeTable", gradeTypeTable());
 
+		// get the system setting for whether to show the Option tool link or not
+		context.put("enableViewOption", ServerConfigurationService.getBoolean("assignment.enableViewOption", true));
+		
 		String mode = (String) state.getAttribute(STATE_MODE);
 
 		if (!MODE_LIST_ASSIGNMENTS.equals(mode))
@@ -965,6 +987,15 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for the instructor's create new assignment view
 			template = build_instructor_reorder_assignment_context(portlet, context, data, state);
 		}
+		else if (mode.equals(MODE_OPTIONS))
+		{
+			if (allowUpdateSite)
+			{
+				// build the options page
+				template = build_options_context(portlet, context, data, state);
+			}
+		}
+
 
 		if (template == null)
 		{
@@ -1935,7 +1966,7 @@ public class AssignmentAction extends PagedResourceActionII
 		putSupplementItemAttachmentStateIntoContext(state, context, ALLPURPOSE_ATTACHMENTS);
 		
 		// put role information into context
-		Hashtable<String, List> roleUsers = new Hashtable<String, List>();
+		HashMap<String, List> roleUsers = new HashMap<String, List>();
 		try
 		{
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
@@ -1946,7 +1977,7 @@ public class AssignmentAction extends PagedResourceActionII
 				Set<String> users = realm.getUsersHasRole(r.getId());
 				if (users!=null && users.size() > 0)
 				{
-					List<User> usersList = new Vector();
+					List<User> usersList = new ArrayList();
 					for (Iterator<String> iUsers = users.iterator(); iUsers.hasNext();)
 					{
 						String userId = iUsers.next();
@@ -2053,7 +2084,7 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private void putGradebookCategoryInfoIntoContext(SessionState state,
 			Context context) {
-		Hashtable<Long, String> categoryTable = categoryTable();
+		HashMap<Long, String> categoryTable = categoryTable();
 		if (categoryTable != null)
 		{
 			context.put("value_totalCategories", Integer.valueOf(categoryTable.size()));
@@ -2061,11 +2092,11 @@ public class AssignmentAction extends PagedResourceActionII
 			// selected category
 			context.put("value_Category", state.getAttribute(NEW_ASSIGNMENT_CATEGORY));
 			
-			Enumeration<Long> categories = categoryTable.keys();
-			List<Long> categoryList = new Vector<Long>();
-			while(categories.hasMoreElements())
+			Iterator categories = categoryTable.keySet() != null?categoryTable.keySet().iterator():null;
+			List<Long> categoryList = new ArrayList<Long>();
+			while(categories.hasNext())
 			{
-				categoryList.add(categories.nextElement());
+				categoryList.add((Long) categories.next());
 			}
 			Collections.sort(categoryList);
 			context.put("categoryKeys", categoryList);
@@ -2188,9 +2219,9 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_delete_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		Vector assignments = new Vector();
-		Vector assignmentIds = (Vector) state.getAttribute(DELETE_ASSIGNMENT_IDS);
-		Hashtable<String, Integer> submissionCountTable = new Hashtable<String, Integer>();
+		ArrayList assignments = new ArrayList();
+		ArrayList assignmentIds = (ArrayList) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+		HashMap<String, Integer> submissionCountTable = new HashMap<String, Integer>();
 		for (int i = 0; i < assignmentIds.size(); i++)
 		{
 			String assignmentId = (String) assignmentIds.get(i);
@@ -2645,11 +2676,12 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 			context.put("view", view);
+			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH));
 			// access point url for zip file download
 			String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 			String accessPointUrl = ServerConfigurationService.getAccessUrl().concat(AssignmentService.submissionsZipReference(
 					contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF)));
-			if (!view.equals(AssignmentConstants.ALL))
+			if (view != null && !AssignmentConstants.ALL.equals(view))
 			{
 				// append the group info to the end
 				accessPointUrl = accessPointUrl.concat(view);
@@ -2718,6 +2750,13 @@ public class AssignmentAction extends PagedResourceActionII
 		// put supplement item into context
 		supplementItemIntoContext(state, context, assignment, null);
 		
+		// search context
+		context.put("searchString", state.getAttribute(STATE_SEARCH));
+		context.put("searchPrompt", getSearchPrompt(state));
+		
+		context.put("form_search", FORM_SEARCH);
+		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+		
 		String template = (String) getContext(data).get("template");
 		
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
@@ -2725,11 +2764,48 @@ public class AssignmentAction extends PagedResourceActionII
 	} // build_instructor_grade_assignment_context
 
 	/**
+	 * construct the search field prompt
+	 * @param state
+	 * @return
+	 */
+	private String getSearchPrompt(SessionState state) {
+		StringBuilder sBuilder = new StringBuilder();
+		String rv = "";
+		sBuilder.append(rb.getString("search_student_instruction"));
+		List<String> searchFields = (List<String>) state.getAttribute(SEARCHABLE_USER_FIELDS);
+		if (searchFields != null)
+		{
+			if (searchFields.contains("sortname"))
+			{
+				sBuilder.append(" ").append(rb.getString("search_student_instruction_name")).append(",");
+			}
+			if (searchFields.contains("eid"))
+			{
+				sBuilder.append(" ").append(rb.getString("search_student_instruction_eid")).append(",");
+			}
+			if (searchFields.contains("email"))
+			{
+				sBuilder.append(" ").append(rb.getString("search_student_instruction_email")).append(",");
+			}
+			if (searchFields.contains("id"))
+			{
+				sBuilder.append(" ").append(rb.getString("search_student_instruction_id")).append(",");
+			}
+			rv = sBuilder.toString();
+			if (rv.endsWith(","))
+				rv = rv.substring(0, rv.length()-1);
+		}
+		return rv;
+	}
+
+	/**
 	 * make sure the state variable VIEW_SUBMISSION_LIST_OPTION is not null
 	 * @param state
 	 */
 	private void initViewSubmissionListOption(SessionState state) {
-		if (state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) == null)
+		if (state.getAttribute(VIEW_SUBMISSION_LIST_OPTION) == null
+				&& (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) == null
+				|| !((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)).booleanValue()))
 		{
 			state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, AssignmentConstants.ALL);
 		}
@@ -2888,7 +2964,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
 		// get the realm and its member
-		List studentMembers = new Vector();
+		List studentMembers = new ArrayList();
 		List allowSubmitMembers = AssignmentService.allowAddAnySubmissionUsers(contextString);
 		for (Iterator allowSubmitMembersIterator=allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext();)
 		{
@@ -2908,7 +2984,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("studentMembers", new SortedIterator(studentMembers.iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
 		context.put("assignmentService", AssignmentService.getInstance());
 		
-		Hashtable showStudentAssignments = new Hashtable();
+		HashMap showStudentAssignments = new HashMap();
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null)
 		{
 			Set showStudentListSet = (Set) state.getAttribute(STUDENT_LIST_SHOW_TABLE);
@@ -2924,7 +3000,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// sort the assignments into the default order before adding
 					Iterator assignmentSorter = AssignmentService.getAssignmentsForContext(contextString, userId);
 					// filter to obtain only grade-able assignments
-					List rv = new Vector();
+					List rv = new ArrayList();
 					while (assignmentSorter.hasNext())
 					{
 						Assignment a = (Assignment) assignmentSorter.next();
@@ -3044,7 +3120,10 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
 		
 			context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
-
+			
+			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH));
+			
+			context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 		}
 
 		String template = (String) getContext(data).get("template");
@@ -3405,7 +3484,15 @@ public class AssignmentAction extends PagedResourceActionII
 		String option = params.getString("option");
 		if ("changeView".equals(option))
 		{
-			doChange_submission_list_option(data);
+			state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, params.getString("view"));
+		}
+		else if ("search".equals(option))
+		{
+			state.setAttribute(VIEW_SUBMISSION_SEARCH, params.getString("search"));
+		}
+		else if ("clearSearch".equals(option))
+		{
+			state.setAttribute(VIEW_SUBMISSION_SEARCH, "");
 		}
 		else if ("download".equals(option))
 		{
@@ -3422,18 +3509,6 @@ public class AssignmentAction extends PagedResourceActionII
 			// release all grades
 			doRelease_grades(data);
 		}
-
-	} // doView_submission_list_option
-	
-	/**
-	 * Action is to view the content of one specific assignment submission
-	 */
-	public void doChange_submission_list_option(RunData data)
-	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-		String view = params.getString("view");
-		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
 
 	} // doView_submission_list_option
 
@@ -3566,7 +3641,7 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// reset the show assignment object
-		state.setAttribute(DELETE_ASSIGNMENT_IDS, new Vector());
+		state.setAttribute(DELETE_ASSIGNMENT_IDS, new ArrayList());
 
 		// back to the instructor list view of assignments
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
@@ -4239,7 +4314,7 @@ public class AssignmentAction extends PagedResourceActionII
 				doAttachUpload(data, false);
 				
 				// for the attachment only submission
-				Vector v = (Vector) state.getAttribute(ATTACHMENTS);
+				ArrayList v = (ArrayList) state.getAttribute(ATTACHMENTS);
 				if ((v == null) || (v.size() == 0))
 				{
 					addAlert(state, rb.getString("youmust1"));
@@ -4251,7 +4326,7 @@ public class AssignmentAction extends PagedResourceActionII
 				doAttachUpload(data, false);
 				
 				// for the inline and attachment submission
-				Vector v = (Vector) state.getAttribute(ATTACHMENTS);
+				ArrayList v = (ArrayList) state.getAttribute(ATTACHMENTS);
 				if ((text.length() == 0 || "<br/>".equals(text)) && ((v == null) || (v.size() == 0)))
 				{
 					addAlert(state, rb.getString("youmust2"));
@@ -4521,7 +4596,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String[] attachmentIds = data.getParameters().getStrings("attachments");
 			if (attachmentIds != null && attachmentIds.length != 0)
 			{
-				attachments = new Vector();
+				attachments = new ArrayList();
 				for (int i= 0; i<attachmentIds.length;i++)
 				{
 					attachments.add(EntityManager.newReference(attachmentIds[i]));
@@ -4766,7 +4841,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		String siteId = (String)state.getAttribute(STATE_CONTEXT_STRING);
-		List<String> accessList = new Vector<String>();
+		List<String> accessList = new ArrayList<String>();
 		try
 		{
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
@@ -5184,7 +5259,7 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// set group property
 			String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
-			Collection groups = new Vector();
+			Collection groups = new ArrayList();
 			try
 			{
 				Site site = SiteService.getSite(siteId);
@@ -5853,7 +5928,7 @@ public class AssignmentAction extends PagedResourceActionII
 									Collection groupRefs = a.getGroups();
 		
 									// make a collection of Group objects
-									Collection groups = new Vector();
+									Collection groups = new ArrayList();
 		
 									//make a collection of Group objects from the collection of group ref strings
 									Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
@@ -5992,7 +6067,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						e = null;
 						CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
-						Collection eGroups = new Vector();
+						Collection eGroups = new ArrayList();
 
 						if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
 						{
@@ -6660,7 +6735,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (state.getAttribute(ALLPURPOSE_ACCESS) == null)
 			{
 				Set<AssignmentAllPurposeItemAccess> aSet = aItem.getAccessSet();
-				List<String> aList = new Vector<String>();
+				List<String> aList = new ArrayList<String>();
 				for(Iterator<AssignmentAllPurposeItemAccess> aIterator = aSet.iterator(); aIterator.hasNext();)
 				{
 					AssignmentAllPurposeItemAccess access = aIterator.next();
@@ -6711,7 +6786,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (assignmentIds != null)
 		{
-			Vector ids = new Vector();
+			List ids = new ArrayList();
 			for (int i = 0; i < assignmentIds.length; i++)
 			{
 				String id = (String) assignmentIds[i];
@@ -6775,7 +6850,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			state.setAttribute(DELETE_ASSIGNMENT_IDS, new Vector());
+			state.setAttribute(DELETE_ASSIGNMENT_IDS, new ArrayList());
 
 			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 			
@@ -7010,7 +7085,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			state.setAttribute(DELETE_ASSIGNMENT_IDS, new Vector());
+			state.setAttribute(DELETE_ASSIGNMENT_IDS, new ArrayList());
 			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 		}
 
@@ -7541,7 +7616,11 @@ public class AssignmentAction extends PagedResourceActionII
 				// save and do reorder
 				doReorder(data);
 			}
-
+			else if ("options".equals(option))
+			{
+				// go to the options view
+				doOptions(data);
+			}
 
 		}
 	}
@@ -7592,7 +7671,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void putSupplementItemAttachmentInfoIntoState(SessionState state, AssignmentSupplementItemWithAttachment item, String attachmentsKind)
 	{
-		List refs = new Vector();
+		List refs = new ArrayList();
 		
 		if (item != null)
 		{
@@ -7619,7 +7698,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void putSupplementItemAttachmentStateIntoContext(SessionState state, Context context, String attachmentsKind)
 	{
-		List refs = new Vector();
+		List refs = new ArrayList();
 		
 		String attachmentsFor = (String) state.getAttribute(ATTACHMENTS_FOR);
 		if (attachmentsFor != null && attachmentsFor.equals(attachmentsKind))
@@ -8003,6 +8082,22 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE, iService);
 		} // if
 
+		if (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) == null)
+		{
+			String propValue = null;
+			// save the option into tool configuration
+			try {
+				Site site = SiteService.getSite(siteId);
+				ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
+				propValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+			}
+			catch (IdUnusedException e)
+			{
+				M_log.warn(this + ":init()  Cannot find site with id " + siteId);
+			}
+			state.setAttribute(SUBMISSIONS_SEARCH_ONLY, propValue == null ? Boolean.FALSE:Boolean.valueOf(propValue));
+		}
+
 		/** The calendar tool  */
 		if (state.getAttribute(CALENDAR_TOOL_EXIST) == null)
 		{
@@ -8202,6 +8297,17 @@ public class AssignmentAction extends PagedResourceActionII
 		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO) == null)
 		{
 			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, Integer.valueOf(2012));
+		}
+		
+		if (state.getAttribute(SEARCHABLE_USER_FIELDS) == null)
+		{
+			String[] fields = ServerConfigurationService.getStrings("assignment.searchable_user_fields");
+			if (fields == null || fields.length == 0)
+			{
+				// if missing from the configuration, defaults to eid, sortname, and email
+				fields = new String[]{"eid", "sortname","email"};
+			}
+			state.setAttribute(SEARCHABLE_USER_FIELDS, new ArrayList(Arrays.asList(fields)));
 		}
 	} // initState
 
@@ -8464,11 +8570,11 @@ public class AssignmentAction extends PagedResourceActionII
 	} // resetNewAssignment
 
 	/**
-	 * construct a Hashtable using integer as the key and three character string of the month as the value
+	 * construct a HashMap using integer as the key and three character string of the month as the value
 	 */
-	private Hashtable monthTable()
+	private HashMap monthTable()
 	{
-		Hashtable n = new Hashtable();
+		HashMap n = new HashMap();
 		n.put(Integer.valueOf(1), rb.getString("jan"));
 		n.put(Integer.valueOf(2), rb.getString("feb"));
 		n.put(Integer.valueOf(3), rb.getString("mar"));
@@ -8486,11 +8592,11 @@ public class AssignmentAction extends PagedResourceActionII
 	} // monthTable
 
 	/**
-	 * construct a Hashtable using the integer as the key and grade type String as the value
+	 * construct a HashMap using the integer as the key and grade type String as the value
 	 */
-	private Hashtable gradeTypeTable()
+	private HashMap gradeTypeTable()
 	{
-		Hashtable n = new Hashtable();
+		HashMap n = new HashMap();
 		n.put(Integer.valueOf(2), rb.getString("letter"));
 		n.put(Integer.valueOf(3), rb.getString("points"));
 		n.put(Integer.valueOf(4), rb.getString("pass"));
@@ -8501,11 +8607,11 @@ public class AssignmentAction extends PagedResourceActionII
 	} // gradeTypeTable
 
 	/**
-	 * construct a Hashtable using the integer as the key and submission type String as the value
+	 * construct a HashMap using the integer as the key and submission type String as the value
 	 */
-	private Hashtable submissionTypeTable()
+	private HashMap submissionTypeTable()
 	{
-		Hashtable n = new Hashtable();
+		HashMap n = new HashMap();
 		n.put(Integer.valueOf(1), rb.getString("inlin"));
 		n.put(Integer.valueOf(2), rb.getString("attaonly"));
 		n.put(Integer.valueOf(3), rb.getString("inlinatt"));
@@ -8517,13 +8623,13 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/**
 	* Add the list of categories from the gradebook tool
-	* construct a Hashtable using the integer as the key and category String as the value
+	* construct a HashMap using the integer as the key and category String as the value
 	* @return
 	*/
-	private Hashtable<Long, String> categoryTable()
+	private HashMap<Long, String> categoryTable()
 	{
 		boolean gradebookExists = isGradebookDefined();
-		Hashtable<Long, String> catTable = new Hashtable<Long, String>();
+		HashMap<Long, String> catTable = new HashMap<Long, String>();
 		if (gradebookExists) {
 			
 			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -9726,9 +9832,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * transforms the Iterator to Vector
 	 */
-	private Vector iterator_to_vector(Iterator l)
+	private List iterator_to_vector(Iterator l)
 	{
-		Vector v = new Vector();
+		List v = new ArrayList();
 		while (l.hasNext())
 		{
 			v.add(l.next());
@@ -9762,7 +9868,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute(STATE_MODE);
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		// all the resources for paging
-		List returnResources = new Vector();
+		List returnResources = new ArrayList();
 
 		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
 		if (MODE_LIST_ASSIGNMENTS.equals(mode))
@@ -9824,9 +9930,9 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode))
 		{
-			Vector submissions = new Vector();
+			List submissions = new ArrayList();
 			
-			Vector assignments = iterator_to_vector(AssignmentService.getAssignmentsForContext(contextString));
+			List assignments = iterator_to_vector(AssignmentService.getAssignmentsForContext(contextString));
 			if (assignments.size() > 0)
 			{
 				// users = AssignmentService.allowAddSubmissionUsers (((Assignment)assignments.get(0)).getReference ());
@@ -9887,9 +9993,11 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			initViewSubmissionListOption(state);
 			String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+			String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
 			String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+			Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 			
-			List<String> submitterIds = AssignmentService.getSubmitterIdList(allOrOneGroup, aRef, contextString);
+			List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
 
 			// construct the user-submission list
 			if (submitterIds != null && !submitterIds.isEmpty())
@@ -10926,8 +11034,8 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
 					state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
 					
-					// constructor the hashtable for all submission objects
-					Hashtable submissionTable = new Hashtable();
+					// constructor the hashmap for all submission objects
+					HashMap submissionTable = new HashMap();
 					List submissions = null;
 					Assignment assignment = getAssignment(aReference, "doUpload_all", state);
 					if (assignment != null)
@@ -11005,10 +11113,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param fileContentStream
 	 * @return
 	 */
-	private Hashtable uploadAll_parseZipFile(SessionState state,
+	private HashMap uploadAll_parseZipFile(SessionState state,
 			boolean hasSubmissionText, boolean hasSubmissionAttachment,
 			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
-			boolean hasFeedbackAttachment, Hashtable submissionTable,
+			boolean hasFeedbackAttachment, HashMap submissionTable,
 			Assignment assignment, InputStream fileContentStream) {
 		// a flag value for checking whether the zip file is of proper format: 
 		// should have a grades.csv file if there is no user folders
@@ -11249,7 +11357,7 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean hasSubmissionText, boolean hasSubmissionAttachment,
 			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
 			boolean hasFeedbackAttachment, boolean releaseGrades,
-			Hashtable submissionTable, List submissions, Assignment assignment) {
+			HashMap submissionTable, List submissions, Assignment assignment) {
 		if (assignment != null && submissions != null)
 		{
 			Iterator sIterator = submissions.iterator();
@@ -11384,7 +11492,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param userEid
 	 * @param submissionOrFeedback
 	 */
-	private Hashtable uploadZipAttachments(SessionState state, Hashtable submissionTable, InputStream zin, ZipEntry entry, String entryName, String userEid, String submissionOrFeedback) {
+	private HashMap uploadZipAttachments(SessionState state, HashMap submissionTable, InputStream zin, ZipEntry entry, String entryName, String userEid, String submissionOrFeedback) {
 		// upload all the files as instructor attachments to the submission for grading purpose
 		String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
 		ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
@@ -11583,6 +11691,8 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 		String view = params.getString("view");
 		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
+		String search = params.getString("search");
+		state.setAttribute(VIEW_SUBMISSION_SEARCH, search);
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DOWNLOAD_ALL);
 
 	} // doPrep_download_all
@@ -12222,4 +12332,162 @@ public class AssignmentAction extends PagedResourceActionII
     	
     	return categoryAsInt;
     }
+    
+    /*
+	 * (non-Javadoc) 
+	 */
+	public void doOptions(RunData data, Context context)
+	{
+		doOptions(data);
+	} // doOptions
+	
+	protected void doOptions(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		try {
+			Site site = SiteService.getSite(siteId);
+			ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
+			String optionValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+			state.setAttribute(SUBMISSIONS_SEARCH_ONLY, optionValue == null ? Boolean.FALSE:Boolean.valueOf(optionValue));
+}	
+		catch (IdUnusedException e)
+		{
+			M_log.warn(this + ":doOptions  Cannot find site with id " + siteId);
+		}
+		
+		if (!alertGlobalNavigation(state, data))
+		{
+			if (SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING)))
+			{
+				state.setAttribute(STATE_MODE, MODE_OPTIONS);
+			}
+			else
+			{
+				addAlert(state, rb.getString("youarenot_options"));
+			}
+			
+			// reset the global navigaion alert flag
+			if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null)
+			{
+				state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
+			}
+		}
+	}
+	
+	/**
+	 * build the options
+	 */
+	protected String build_options_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
+
+		context.put(SUBMISSIONS_SEARCH_ONLY, (Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY));
+		
+		String template = (String) getContext(data).get("template");
+		return template + TEMPLATE_OPTIONS;
+
+	} // build_options_context
+	
+    /**
+     * save the option edits
+     * @param data
+     * @param context
+     */
+	public void doUpdate_options(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		ParameterParser params = data.getParameters();
+		
+		// only show those submissions matching search criteria
+		boolean submissionsSearchOnly = params.getBoolean(SUBMISSIONS_SEARCH_ONLY);
+		state.setAttribute(SUBMISSIONS_SEARCH_ONLY, Boolean.valueOf(submissionsSearchOnly));
+		
+		// save the option into tool configuration
+		try {
+			Site site = SiteService.getSite(siteId);
+			ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
+			tc.getPlacementConfig().setProperty(SUBMISSIONS_SEARCH_ONLY, Boolean.toString(submissionsSearchOnly));
+			SiteService.save(site);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn(this + ":doUpdate_options  Cannot find site with id " + siteId);
+			addAlert(state, rb.getFormattedMessage("options_cannotFindSite", new Object[]{siteId}));
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn(this + ":doUpdate_options Do not have permission to edit site with id " + siteId);
+			addAlert(state, rb.getFormattedMessage("options_cannotEditSite", new Object[]{siteId}));
+		}
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// back to list view
+			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		}
+	} // doUpdate_options
+	
+	
+    /**
+     * cancel the option edits
+     * @param data
+     * @param context
+     */
+	public void doCancel_options(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+	} // doCancel_options
+	
+	/**
+	 * handle submission options
+	 */
+	public void doSubmission_search_option(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the search form field into the state object
+		String searchOption = StringUtil.trimToNull(data.getParameters().getString("option"));
+
+		// set the flag to go to the prev page on the next list
+		if (searchOption != null && "submit".equals(searchOption)) {
+			doSubmission_search(data, context);
+		} else if (searchOption != null && "clear".equals(searchOption)) {
+			doSubmission_search_clear(data, context);
+		}
+
+	} // doSubmission_search_option
+	
+	/**
+	 * Handle the submission search request.
+	 */
+	public void doSubmission_search(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the search form field into the state object
+		String search = StringUtil.trimToNull(data.getParameters().getString(
+				FORM_SEARCH));
+
+		// set the flag to go to the prev page on the next list
+		if (search == null) {
+			state.removeAttribute(STATE_SEARCH);
+		} else {
+			state.setAttribute(STATE_SEARCH, search);
+		}
+
+	} // doSubmission_search
+
+	/**
+	 * Handle a Search Clear request.
+	 */
+	public void doSubmission_search_clear(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// clear the search
+		state.removeAttribute(STATE_SEARCH);
+
+	} // doSubmission_search_clear
 }	

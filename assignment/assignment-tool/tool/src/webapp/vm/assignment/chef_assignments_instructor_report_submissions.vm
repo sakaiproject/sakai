@@ -28,7 +28,12 @@
 		#if ($allowUpdateSite)
 			<li role="menuitem">
 				<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
-			</li>	
+			</li>
+			#if ($enableViewOption)		
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end  role="menuitem">
+					<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
+				</li>
+			#end	
 		#end
 	</ul>
 		<h3>

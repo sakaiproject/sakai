@@ -48,7 +48,12 @@ function handleEnterKeyPress(ev)
 		#if ($allowUpdateSite)
 			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
 				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a></span>
-			</li>	
+			</li>
+			#if ($enableViewOption)	
+				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
+					<span><a href="#" title="$tlang.getString('options')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='options';document.gradeForm.submit();return false;">$tlang.getString('options')</a></span>
+				</li>
+			#end	
 		#end
 	</ul>
 	## confirmation

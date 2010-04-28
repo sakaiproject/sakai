@@ -768,11 +768,11 @@ public class AssignmentService {
 		return service.canSubmit(param0, param1);
 	}
 	
-	public static List<String> getSubmitterIdList(String param0, String param1, String param2) {
+	public static List<String> getSubmitterIdList(String param0, String param1, String param2, String param3, String param4) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return null;
 
-		return service.getSubmitterIdList(param0, param1, param2);
+		return service.getSubmitterIdList(param0, param1, param2, param3, param4);
 	}	
 }
