@@ -491,10 +491,7 @@ public abstract class DbSiteService extends BaseSiteService
 			return super.countAllResources();
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
-		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page)
+		private String getSitesWhere(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort)
 		{
 			// Note: super users are not treated any differently - they get only those sites they have permission for,
 			// not based on super user status
@@ -562,27 +559,6 @@ public abstract class DbSiteService extends BaseSiteService
 			// joinable requires NOT access permission
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere12Sql());
 
-			// do we need a join?
-			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
-			{
-				// join with the SITE_USER table
-				join = siteServiceSql.getSitesJoin1Sql();
-			}
-			if (sort == SortType.CREATED_BY_ASC || sort == SortType.CREATED_BY_DESC || sort == SortType.MODIFIED_BY_ASC
-					|| sort == SortType.MODIFIED_BY_DESC)
-			{
-				// join with SITE_USER_ID_MAP table
-				if (join != null)
-				{
-					join += siteServiceSql.getSitesJoin2Sql();
-				}
-				else
-				{
-					join = siteServiceSql.getSitesJoin3Sql();
-				}
-			}
-
 			// add propertyCriteria if specified
 			if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 			{
@@ -604,6 +580,17 @@ public abstract class DbSiteService extends BaseSiteService
 				where.append(siteServiceSql.getSitesWhere15Sql());
 			}
 
+			// where has a trailing 'and ' to remove
+			if ((where.length() > 5) && (where.substring(where.length() - 5).equals(" and ")))
+			{
+				where.setLength(where.length() - 5);
+			}
+
+			return where.toString();
+		}
+
+		private String getSitesOrder( SortType sort )
+		{
 			// add order by if needed
 			String order = null;
 			if (sort == SortType.ID_ASC)
@@ -670,7 +657,12 @@ public abstract class DbSiteService extends BaseSiteService
 			{
 				order = siteServiceSql.getSitesOrder16Sql();
 			}
-
+			
+			return order;
+		}
+		
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
+		{
 			int fieldCount = 0;
 			if (ofType != null)
 			{
@@ -739,8 +731,7 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 				if (criteria != null)
 				{
-					criteria = "%" + criteria + "%";
-					fields[pos++] = criteria;
+					fields[pos++] =  "%" + criteria + "%";
 				}
 				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 				{
@@ -759,24 +750,57 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 
-			List rv = null;
-
-			// where has a trailing 'and ' to remove
-			if ((where.length() > 5) && (where.substring(where.length() - 5).equals(" and ")))
+			return fields;
+		}
+		
+		private String getSitesJoin(SelectionType type, SortType sort )
+		{
+			// do we need a join?
+			String join = null;
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
 			{
-				where.setLength(where.length() - 5);
+				// join with the SITE_USER table
+				join = siteServiceSql.getSitesJoin1Sql();
+			}
+			if (sort == SortType.CREATED_BY_ASC || sort == SortType.CREATED_BY_DESC || sort == SortType.MODIFIED_BY_ASC
+					|| sort == SortType.MODIFIED_BY_DESC)
+			{
+				// join with SITE_USER_ID_MAP table
+				if (join != null)
+				{
+					join += siteServiceSql.getSitesJoin2Sql();
+				}
+				else
+				{
+					join = siteServiceSql.getSitesJoin3Sql();
+				}
 			}
 
+			return join;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page)
+		{
+			List rv = null;
+
+			String join = getSitesJoin( type, sort );
+			String order = getSitesOrder( sort );
+			Object[] fields = getSitesFields( type, ofType, criteria, propertyCriteria );
+			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, sort);
+			
 			// paging
 			if (page != null)
 			{
 				// adjust to the size of the set found
 				// page.validate(rv.size());
-				rv = getSelectedResources(where.toString(), order, fields, page.getFirst(), page.getLast(), join);
+				rv = getSelectedResources(where, order, fields, page.getFirst(), page.getLast(), join);
 			}
 			else
 			{
-				rv = getSelectedResources(where.toString(), order, fields, join);
+				rv = getSelectedResources(where, order, fields, join);
 			}
 
 			if ( m_siteCache == null ) return rv;
@@ -785,22 +809,20 @@ public abstract class DbSiteService extends BaseSiteService
 			// of the sites
 			List newrv = new ArrayList();
 
-			int count = 0;
 			for ( Site s : (List<Site>) rv) { 
 				Site news = getCachedSite(s.getId()); 
 				if ( news != null )
 				{
 					newrv.add(news);
-					count++;
 				}
 				else
 				{
 					newrv.add(s);
 				}
-               		} 
+			} 
 			return newrv;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
