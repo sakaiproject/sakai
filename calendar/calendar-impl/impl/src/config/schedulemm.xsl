@@ -142,8 +142,7 @@
 <!-- print each day activities -->
 <xsl:template match="list">
 <xsl:param name="evcnt"/> 
-   <xsl:variable name="dtPt" select="substring-before(substring-after(@dt, '/'), '/')"/>
-   <xsl:if test="$dtPt = 1 and $initday &gt; 0">
+   <xsl:if test="@dayofmonth = 1 and $initday &gt; 0">
    		<xsl:call-template name="emptyday">
  				<xsl:with-param name="cnt" select="1"/>
  		</xsl:call-template> 
@@ -154,7 +153,7 @@
  	<xsl:choose>
  	<xsl:when test="not(event)">
  		<fo:block font-size="10pt" text-align="center">
-			<xsl:value-of select="substring-before(substring-after(@dt, '/'), '/')"/>
+			<xsl:value-of select="@dayofmonth"/>
 		</fo:block>
 	</xsl:when>
 	
@@ -168,7 +167,7 @@
 		 	<fo:table-row line-height="4mm" >
 	   		<fo:table-cell>   
 	   			<fo:block font-size="8pt" text-align="right">
-				<xsl:value-of select="substring-before(substring-after(@dt, '/'), '/')"/>
+				<xsl:value-of select="@dayofmonth"/>
 			</fo:block>
 			</fo:table-cell>
 			</fo:table-row>			

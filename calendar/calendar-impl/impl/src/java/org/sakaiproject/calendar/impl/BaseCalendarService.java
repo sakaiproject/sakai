@@ -27,11 +27,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -5299,6 +5301,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	protected static final String LIST_DATE_ATTRIBUTE_NAME = "dt";
 
+	protected static final String LIST_DAY_OF_MONTH_ATTRIBUTE_NAME = "dayofmonth";
+
 	protected static final String LIST_DAY_OF_WEEK_ATTRIBUTE_NAME = "dayofweek";
 
 	protected static final String LIST_NODE_NAME = "list";
@@ -6267,6 +6271,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 				// Set the current date
 				eventList.setAttribute(LIST_DATE_ATTRIBUTE_NAME, getDateFromTime(currentTimeRange.firstTime()));
+				
+				eventList.setAttribute(LIST_DAY_OF_MONTH_ATTRIBUTE_NAME, getDayOfMonthFromTime(currentTimeRange.firstTime()));
 
 				// Set the maximum number of events per timeslot
 				// Assume 1 as a starting point. This may be changed
@@ -6589,13 +6595,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	/**
 	 * Gets the standard date string from the time parameter
-	 * Note: This format is required by XSL template and should _not_ be localized.
 	 */
 	protected String getDateFromTime(Time time)
 	{
 		TimeBreakdown timeBreakdown = time.breakdownLocal();
-
-		return timeBreakdown.getMonth() + "/" + timeBreakdown.getDay() + "/" + timeBreakdown.getYear();
+		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT,rb.getLocale());
+		return dateFormat.format(new Date(time.getTime()));
+		
+	}
+	
+	protected String getDayOfMonthFromTime(Time time)
+	{
+		TimeBreakdown timeBreakdown = time.breakdownLocal();
+		return Integer.toString(timeBreakdown.getDay());
 	}
 
 	/**
