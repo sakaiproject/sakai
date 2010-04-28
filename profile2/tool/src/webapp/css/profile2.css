@@ -300,6 +300,7 @@ h2 {
 	display:block;
 	font-weight: bold;
 	background-color: #B8D5F8;
+	word-wrap: break-word;
 }
 	
 .sideBoxContent {
@@ -578,6 +579,7 @@ h2 {
 #friends-feed-wrapper table{
 	border: none;
 	margin: 0 auto;
+	table-layout: fixed;
 }
 #friends-feed-wrapper table td {
 	padding-left: 2px;
@@ -591,9 +593,10 @@ h2 {
 	vertical-align: top;
 	width: 55px;
 	max-width: 55px;
-	overflow: hidden;
 	margin: 1px;
 	text-align: center;
+	word-wrap: break-word;
+	white-space: normal;
 }
 	
 .friends-feed-item-photo {
@@ -608,12 +611,11 @@ h2 {
 
 
 .friends-feed-item-caption {
+	max-width: 55px;
 	margin-top: 0;
-	font-size: 60%;
-	overflow: hidden;
+	font-size: 70%;
 	color: #3355BB;
 	cursor: pointer;
-	/*border: 1px solid green;*/
 }
 
 .friends-feed-item-caption:hover {
