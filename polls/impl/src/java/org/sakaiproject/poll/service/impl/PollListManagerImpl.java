@@ -282,6 +282,20 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return optionList;
     }
 
+	public List<Option> getVisibleOptionsForPoll(Long pollId) {
+		List<Option> options = getOptionsForPoll(pollId);
+		
+		//iterate and remove deleted options
+		for (Iterator<Option> i = options.listIterator(); i.hasNext();) {
+			Option o = i.next();
+			if (o == null || o.getDeleted()) {
+				i.remove();
+			}
+		}
+		
+		return options;
+	}
+
     public Poll getPollWithVotes(Long pollId) {
     	Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
@@ -311,6 +325,22 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         log.info("Option id " + option.getId() + " deleted");
     }
+
+	public void deleteOption(Option option, boolean soft) {
+		if (!soft) {
+			deleteOption(option);
+			return;
+		} else {
+			try {
+				option.setDeleted(Boolean.TRUE);
+				dao.save(option);
+				log.info("Option id " + option.getId() + " soft deleted.");
+			} catch (DataAccessException e) {
+				log.error("Hibernate could not soft delete delete!", e);
+	            return;
+			}
+		}
+	}
 
     public boolean saveOption(Option t) {
         if (t.getUUId() == null 
@@ -391,8 +421,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 // archive this assignment
                 Element el = poll.toXml(doc, stack);
 
-                // get the options
-                List options = getOptionsForPoll(poll);
+                // since we aren't archiving votes too, don't worry about archiving the
+                // soft-deleted options -- only "visible".
+                List options = getVisibleOptionsForPoll(poll.getPollId());
 
                 for (int q = 0; options.size() > q; q++) {
                     Option opt = (Option) options.get(q);
@@ -528,6 +559,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 				        	toOption.setOptionText(fromOption.getOptionText());
 				        	toOption.setStatus(fromOption.getStatus());
 				        	toOption.setPollId(toPoll.getPollId());
+				        	toOption.setDeleted(fromOption.getDeleted());
 				        	saveOption(toOption);
 				        	
 				        	toPoll.addOption(toOption);
@@ -622,6 +654,4 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
 		return false;
 	}
-    
-
 }

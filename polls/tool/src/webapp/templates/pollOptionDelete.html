@@ -8,22 +8,35 @@
 </head>
 
 <body rsf:id="scr=sakai-body">
-<div class="portletBody">
-<p>
-<strong rsf:id="confirm_delete">Delete confirmation</strong></p>
-<div>
-  <div class="alertMessage" rsf:id="error">We Have Errors!</div>
-</div>
-
-<p><span rsf:id="poll_text">poll_text</span></p>
-
-<form rsf:id="opt-form">
-<span rsf:id="option"></span>
-<p class="act">
-<input type="submit" value="Post" rsf:id="submit-option-add" class="active"/>
-<input name="_cancel" type="submit" value="Cancel" rsf:id="cancel" />
-</p>
-</form>
-</div>
+	<div class="portletBody">
+		<p>
+			<strong rsf:id="confirm_delete">Delete confirmation</strong>
+		</p>
+		<div>
+			<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+		</div>
+		
+		<p><span rsf:id="poll_text">poll_text</span></p>
+		
+		<form rsf:id="opt-form">
+			<span rsf:id="option"></span>
+			
+			<div rsf:id="has-votes:">
+				<p rsf:id="has-votes-text" class="instructions">
+					The current option has already been voted for 7 time(s). How would you like to handle these votes?
+				</p>
+				
+				<span rsf:id="handle-votes"></span>
+				<input rsf:id="do-nothing" type="radio" name="handle_votes" checked="checked" /> <span rsf:id="do-nothing-label">Do nothing</span><br />
+				<input rsf:id="return-votes" type="radio" name="handle_votes" /> <span rsf:id="return-votes-label">Notify the users and allow them to re-vote</span>				
+				
+			</div>
+			
+			<p class="act">
+				<input type="submit" value="Post" rsf:id="submit-option-add" class="active"/>
+				<input name="_cancel" type="submit" value="Cancel" rsf:id="cancel" />
+			</p>
+		</form>
+	</div>
 </body>
 </html>

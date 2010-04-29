@@ -188,8 +188,8 @@ public class PollVoteManagerImpl implements PollVoteManager {
 	{
 		//poll must have options to be votable
 
-		poll.setOptions(pollListManager.getOptionsForPoll(poll));
-		if (poll.getPollOptions()== null || poll.getPollOptions().size() == 0) {
+		List<Option> votableOptions = pollListManager.getVisibleOptionsForPoll(poll.getPollId());
+		if (votableOptions == null || votableOptions.size() == 0) {
 			log.debug("poll has no options");
 			return false;
 		}
@@ -230,5 +230,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 	}
 
 
-
+	public void deleteVote(Vote vote) {
+		dao.delete(vote);
+	}
 }

@@ -97,7 +97,7 @@ public class Option {
     }
     
     public Boolean getDeleted() {
-		return deleted;
+		return (deleted == null) ? Boolean.FALSE : deleted;
 	}
 
 	public void setDeleted(Boolean deleted) {

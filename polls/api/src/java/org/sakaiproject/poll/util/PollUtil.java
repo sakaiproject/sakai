@@ -46,6 +46,7 @@ public class PollUtil {
         element.setAttribute("id", option.getUUId());
         element.setAttribute("optionid", option.getOptionId().toString());
         element.setAttribute("title", option.getOptionText());
+        element.setAttribute("deleted", option.getDeleted().toString());
         stack.pop();
 
         return element;

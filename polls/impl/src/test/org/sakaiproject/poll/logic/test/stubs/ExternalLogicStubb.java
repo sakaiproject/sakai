@@ -164,4 +164,14 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return false;
 	}
 
+	public void notifyDeletedOption(List<String> userEids, String siteTitle,
+			String pollQuestion) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getUserEidFromId(String userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
