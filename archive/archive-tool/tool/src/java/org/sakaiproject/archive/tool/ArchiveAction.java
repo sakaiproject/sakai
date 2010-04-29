@@ -161,7 +161,7 @@ public class ArchiveAction
 		if ((id != null) && (id.trim().length() > 0))
 		{
 			String msg = ArchiveService.archive(id.trim());
-			addAlert(state, rb.getString("archive.site") + " " + id + " " + rb.getString("archive.complete") + " " + msg);
+			addAlert(state, rb.getFormattedMessage("archive", new Object[]{id}) + " \n " + msg);
 		}
 		else
 		{
@@ -190,8 +190,7 @@ public class ArchiveAction
 			&&	(file != null) && (file.trim().length() > 0))
 		{
 			String msg = ArchiveService.merge(file.trim(), id.trim(), null);
-			addAlert(state, rb.getString("archive.import1")  + " " + file + " " + rb.getString("archive.site") + " "
-					+ id + " " + rb.getString("archive.complete") + " " + msg);
+			addAlert(state, rb.getFormattedMessage("archive.import2", new Object[]{file, id}) + msg);
 		}
 		else
 		{
