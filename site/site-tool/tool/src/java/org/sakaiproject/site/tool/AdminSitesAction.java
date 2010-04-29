@@ -2194,7 +2194,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		if ((t == null) || (!feature.equals(t.getId())))
 		{
 			tool.setTool(feature, ToolManager.getTool(feature));
-			tool.setTitle(null);
+			tool.setTitle(ToolManager.getTool(feature).getTitle());
 			tool.getPlacementConfig().clear();
 		}
 
