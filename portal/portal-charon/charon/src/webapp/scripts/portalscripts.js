@@ -9,9 +9,9 @@
 
 var dhtml_more_tabs = function() {
 	// first time through set up the DOM
-	jQuery('div#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
-	jQuery('div#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
-	jQuery('div#selectNav').width(jQuery('#linkNav').width()*0.75);           // set its width to fix an IE6 bug
+	jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
+	jQuery('#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
+	jQuery('#selectNav').width(jQuery('#linkNav').width()*0.75);           // set its width to fix an IE6 bug
 	jQuery('#selectNav').css('z-index',9900);                                 // explicitely set the z-index
 	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
 	
@@ -24,7 +24,7 @@ var dhtml_more_tabs = function() {
 			// dim the current tab
 			jQuery('.selectedTab').addClass('tab-dim');
 			// mask the rest of the page
-			createDHTMLMask() ;
+			createDHTMLMask(dhtml_more_tabs) ;
 			// bind this function to the More Tabs tab to close More Tabs on click
 			jQuery('.selectedTab').bind('click',function(){dhtml_more_tabs();return false;});
 		} else {
@@ -42,10 +42,10 @@ var dhtml_more_tabs = function() {
 	dhtml_more_tabs();
 }
 
-function createDHTMLMask() {
+function createDHTMLMask(callback) {
 	jQuery('body').append('<div id="portalMask">&nbsp;</div>');
 	jQuery('#portalMask').css('height',browserSafeDocHeight()).css('width','100%').css('z-index',1000).bind("click",function(event){
-		dhtml_more_tabs();
+		callback();
 		return false;
 	});
 	jQuery('#portalMask').bgiframe();
@@ -147,9 +147,13 @@ var poll_session_data = function() {
 }
 
 function keep_session_alive(){
+	dismiss_session_alert();
+	jQuery.get(timeoutLoggedoutUrl);
+}
+
+var dismiss_session_alert = function(){
 	removeDHTMLMask();
 	jQuery("#timeout_alert_body").remove();
-	jQuery.get(timeoutLoggedoutUrl);
 }
 
 var timeoutDialogFragment;
@@ -173,7 +177,7 @@ function show_timeout_alert(min) {
 	}
 
 	if (!jQuery("#portalMask").get(0)){
-		createDHTMLMask();
+		createDHTMLMask(dismiss_session_alert);
 		jQuery("#portalMask").css("z-index", 10000);
 	}
 	if (jQuery("#timeout_alert_body").get(0)) {
