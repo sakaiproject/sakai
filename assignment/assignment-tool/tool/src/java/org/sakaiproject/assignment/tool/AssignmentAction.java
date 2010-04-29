@@ -10958,19 +10958,6 @@ public class AssignmentAction extends PagedResourceActionII
 	    String fileName = null;
 	    fileFromUpload = params.getFileItem("file");
 	    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-	    int max_bytes = 1024 * 1024;
-	    try
-	    {
-	    	max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-	    }
-		catch(Exception e)
-		{
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
-			M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
-		}
 		
 		if(fileFromUpload == null)
 		{
@@ -11057,13 +11044,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 						
 					InputStream fileContentStream = fileFromUpload.getInputStream();
-					int contentLength = data.getRequest().getContentLength();
-					
-					if(contentLength >= max_bytes)
-					{
-						addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
-					}
-					else if(fileContentStream != null)
+					if(fileContentStream != null)
 					{	
 						submissionTable = uploadAll_parseZipFile(state,
 								hasSubmissionText, hasSubmissionAttachment,
@@ -12147,18 +12128,6 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters ();
 
 		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-		long max_bytes = 1024L * 1024L;
-		try
-		{
-			max_bytes = Long.parseLong(max_file_size_mb) * 1024L * 1024L;
-		}
-		catch(Exception e)
-		{
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024L * 1024L;
-		}
 
 		int submissionFileCount = 0;
 		String submissionFileCountString = params.getString("submissionFileCount");
@@ -12204,15 +12173,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				String filename = Validator.getFileName(fileitem.getFileName());
 				InputStream fileContentStream = fileitem.getInputStream();
-				int contentLength = data.getRequest().getContentLength();
 				String contentType = fileitem.getContentType();
 	
-				if(contentLength >= max_bytes)
-				{
-					addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-					// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
-				}
-				else if(fileContentStream != null)
+				if(fileContentStream != null)
 				{
 					// we just want the file name part - strip off any drive and path stuff
 					String name = Validator.getFileName(filename);
