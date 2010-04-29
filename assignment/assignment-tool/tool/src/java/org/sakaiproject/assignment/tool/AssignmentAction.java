@@ -11125,16 +11125,17 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean zipHasFolderValidUserId = false;
 		
 		FileOutputStream tmpFileOut = null;
+		File tempFile = null;
 		try
 		{
-			File f = File.createTempFile(String.valueOf(System.currentTimeMillis()),"");
+			tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()),"");
 			
-			tmpFileOut = new FileOutputStream(f);
+			tmpFileOut = new FileOutputStream(tempFile);
 			writeToStream(fileContentStream, tmpFileOut);
 			tmpFileOut.flush();
 			tmpFileOut.close();
 
-			ZipFile zipFile = new ZipFile(f, "UTF-8");
+			ZipFile zipFile = new ZipFile(tempFile, "UTF-8");
 			Enumeration<ZipEntry> zipEntries = zipFile.getEntries();
 			ZipEntry entry;
 			while (zipEntries.hasMoreElements())
@@ -11324,6 +11325,12 @@ public class AssignmentAction extends PagedResourceActionII
 					M_log.warn(this + ":uploadAll_parseZipFile: Error closing file upload stream: " + e.toString());
 				}
 			}
+			
+			//clean up the zip file
+			if (tempFile != null && tempFile.exists()) {
+				tempFile.delete();
+			}
+			
 		}
 		
 		if ((!zipHasGradeFile && !zipHasFolder)					// generate error when there is no grade file and no folder structure
