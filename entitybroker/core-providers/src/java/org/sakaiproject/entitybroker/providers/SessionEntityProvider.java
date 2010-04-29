@@ -149,6 +149,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
          }
          currentSession = sessionManager.startSession(es.getUserId());
          currentSession.setUserEid(u.getEid());
+         currentSession.setUserId(u.getId());
       } else {
          // when creating a new session we need some data from the request
          HttpServletRequest req = requestGetter.getRequest();
