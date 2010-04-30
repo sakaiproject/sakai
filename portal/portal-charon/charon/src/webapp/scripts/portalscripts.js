@@ -115,7 +115,7 @@ var poll_session_data = function() {
 		success: function(data){
 		//get the maxInactiveInterval in the same ms
 		data.maxInactiveInterval = data.maxInactiveInterval * 1000;
-		if(data.active && data.lastAccessedTime + data.maxInactiveInterval
+		if(data.active && data.userId != null && data.lastAccessedTime + data.maxInactiveInterval
 				> data.currentTime) {
 			//User is logged in, so now determine how much time is left
 			var remaining = data.lastAccessedTime + data.maxInactiveInterval - data.currentTime;
@@ -131,17 +131,17 @@ var poll_session_data = function() {
 				clearTimeout(sessionTimeOut);
 				sessionTimeOut = setTimeout("poll_session_data()", (remaining - timeoutDialogWarningTime*1000));
 			}
-
+		} else if (data.userId == null) {
+			// if data.userId is null, the session is done; redirect the user to logoutUrl
+			location.href=timeoutLoggedoutUrl;
+		
 		} else {
-			//the timeout length has occurred, but there is a slight delay, do this until you get a 404
+			//the timeout length has occurred, but there is a slight delay, do this until there isn't a user.
 			sessionTimeOut = setTimeout("poll_session_data()", 1000 * 10);
 		}
 	},
 	error: function(XMLHttpRequest, status, error){
-		if (XMLHttpRequest.status == 404){
-			//user is not logged in
-			location.href=timeoutLoggedoutUrl;
-		}
+		// We used to to 404 handling here but now we should always get good session data.
 	}
 	});
 }
