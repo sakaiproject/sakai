@@ -25,8 +25,6 @@
 		<property name="poll" ref="poll" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="messages" ref="targettedMessageList" />
-		<property name="messageLocator" ref="messageLocator" />
-		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 
@@ -89,8 +87,6 @@
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
-		<property name="pollVoteManager"
-			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 	</bean>
 
 	<bean id="addPollProducer"

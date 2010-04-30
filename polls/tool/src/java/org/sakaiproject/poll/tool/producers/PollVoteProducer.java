@@ -142,8 +142,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 		UIForm voteForm = UIForm.make(tofill,"options-form",""); 
 
-		List<Option> pollOptions = pollListManager.getVisibleOptionsForPoll(poll.getPollId());
-		
+		List<Option> pollOptions = poll.getPollOptions();
 		//build the options + label lists
 		String[] values= new String[pollOptions.size()];
 		for (int i = 0;i <pollOptions.size(); i++ ) {

@@ -47,29 +47,15 @@ public interface PollListManager extends EntityProducer {
     public static final String PERMISSION_EDIT_OWN = "poll.editOwn";
 
     public static final String REF_POLL_TYPE ="poll";
-    
-    /**
-     * Delete an option from the database.
-     * 
-     * @param option - The option to delete
-     */
     public void deleteOption(Option option);
 
-    /**
-     * Delete a poll option, either "hard" or "soft".
-     * 
-     * @param option - The option to delete
-     * @param soft - <b>true</b> if you want to "soft" delete (flag the 'deleted' field) or <b>false</b> to "hard" delete (remove from database) 
-     */
-    public void deleteOption(Option option, boolean soft);
-    
     /**
      * Delete a poll
      * @param t - the poll object to remove
      * @return - true for success, false if failure
      */
     public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException;
-    
+
     /**
      * Gets all the task objects for the site
      * @param siteId - the siteId of the site
@@ -101,17 +87,7 @@ public interface PollListManager extends EntityProducer {
      * @throws IllegalArgumentException if the pollId is invalid
      */
     public List<Option> getOptionsForPoll(Long pollId);
-    
-    /**
-     * Get options for the given poll that are not flagged as deleted.
-     * @param pollId the id of the poll
-     * @return
-     * 	the options for the given poll that are not deleted OR empt if there are
-     * 	no "visible" options for this poll
-     * @throws IllegalArgumentException if the pollId is invalid
-     */
-    public List<Option> getVisibleOptionsForPoll(Long pollId);
-    
+
     /**
      * Get all options for a specific poll
      * @param the poll
@@ -119,7 +95,7 @@ public interface PollListManager extends EntityProducer {
      * @throws IllegalArgumentException if the pollId is invalid
      */
     public List<Option> getOptionsForPoll(Poll poll);
-    
+
     /**
      *  get a poll by its Entity  Reference  
      */

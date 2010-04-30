@@ -93,11 +93,5 @@ public interface PollVoteManager {
      * @return
      */
     public boolean pollIsVotable(Poll poll);
-    
-    /**
-     * Delete the given vote
-     * @param vote The vote to delete
-     */
-    public void deleteVote(Vote vote);
 
 }

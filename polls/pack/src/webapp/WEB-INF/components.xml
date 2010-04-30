@@ -31,12 +31,9 @@
 		<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
 	</bean>
 
-	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl"
-			init-method="init">
+	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl">
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService"
 			ref="org.sakaiproject.event.api.EventTrackingService" />
@@ -46,9 +43,7 @@
 			ref="org.sakaiproject.time.api.TimeService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		
 	</bean>
 
 </beans>

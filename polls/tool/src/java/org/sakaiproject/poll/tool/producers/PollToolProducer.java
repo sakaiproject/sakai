@@ -213,7 +213,7 @@ DefaultView,NavigationCaseReporter {
 		
 		for (int i = 0 ; i < polls.size(); i++) {
 			Poll poll = (Poll)polls.get(i);
-			boolean canVote = pollVoteManager.pollIsVotable(poll);
+			boolean canVote = pollIsVotable(poll);
 			UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
 					canVote ? "poll-row:votable"
 							: "poll-row:nonvotable", poll.getPollId().toString());
@@ -309,6 +309,54 @@ DefaultView,NavigationCaseReporter {
 		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		return togo;
 	}
+
+	private boolean pollIsVotable(Poll poll)
+	{
+		//poll must have options to be votable
+
+		poll.setOptions(pollListManager.getOptionsForPoll(poll));
+		if (poll.getPollOptions()== null || poll.getPollOptions().size() == 0) {
+			LOG.debug("poll has no options");
+			return false;
+		}
+
+		boolean pollAfterOpen = true;
+		boolean pollBeforeClose = true;
+
+		if (poll.getVoteClose()!=null) {
+			if (poll.getVoteClose().before(new Date())) {
+				LOG.debug("Poll is closed for voting");
+				pollBeforeClose=false;
+			}
+
+		} 
+
+		if (poll.getVoteOpen()!=null) {
+			if(new Date().before(poll.getVoteOpen())) {
+				LOG.debug("Poll is not open yet");
+				pollAfterOpen=false;
+			}
+		} 
+
+		if (pollAfterOpen && pollBeforeClose)
+		{
+			if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
+				return false;
+			}
+			//the user hasn't voted do they have permission to vote?'
+			LOG.debug("about to check if this user can vote in " + externalLogic.getCurrentLocationReference());
+			if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference())
+					|| externalLogic.isUserAdmin())
+			{
+				LOG.debug("this poll is votable  " + poll.getText());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
 
 	private boolean pollCanEdit(Poll poll) {
 		if (externalLogic.isUserAdmin())

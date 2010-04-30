@@ -21,22 +21,14 @@
 
 package org.sakaiproject.poll.logic.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Map.Entry;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,11 +39,6 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -63,30 +50,12 @@ import org.sakaiproject.poll.model.PollRolePerms;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import org.sakaiproject.tool.cover.ToolManager;
 
 public class ExternalLogicImpl implements ExternalLogic {
 
 	 private static Log log = LogFactory.getLog(ExternalLogicImpl.class);
 	
-	 private static final String
-	 	/* Email template constants */
-	 	EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION = "polls.notifyDeletedOption",
-	 	FILE_NOTIFY_DELETED_OPTION_TEMPLATE = "notifyDeletedOption.xml",
-	 	
-	 	/* Other constants */
-	 	USER_ADMIN_ID = "admin",
-	 	USER_ADMIN_EID = "admin";
-	 
 	private static final String USER_ENTITY_PREFIX = "/user/";
 	
 	/**
@@ -109,16 +78,6 @@ public class ExternalLogicImpl implements ExternalLogic {
         entityManager = em;
     }
 
-    private EmailService emailService;
-    public void setEmailService(EmailService emailService) {
-    	this.emailService = emailService;
-    }
-    
-    private EmailTemplateService emailTemplateService;
-    public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
-    	this.emailTemplateService = emailTemplateService;
-    }
-    
     private EventTrackingService eventTrackingService;
     public void setEventTrackingService(EventTrackingService ets) {
         eventTrackingService = ets;
@@ -144,33 +103,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
 	}
-	
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-	
-	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
 
-	private String fromEmailAddress;
-	public void setFromEmailAddress(String fromEmailAddress) {
-		this.fromEmailAddress = fromEmailAddress;
-	}
-	
-	private String replyToEmailAddress;
-	public void setReplyToEmailAddress(String replyToEmailAddress) {
-		this.replyToEmailAddress = replyToEmailAddress;
-	}
-	
 	/**
      * Methods
      */
@@ -193,16 +126,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public String getCurrentuserReference() {
 		return developerHelperService.getCurrentUserReference();
 	} 
-
-	public String getUserEidFromId(String userId) {
-		try {
-			return userDirectoryService.getUserEid(userId);
-		} catch (UserNotDefinedException e) {
-			log.debug("Looked up non-existant user id: "+userId, e);
-		}
-		
-		return null;
-	}
 	
 	public String getCurrentLocationReference() {
 		log.debug("getCurrentLocationReference");
@@ -222,21 +145,6 @@ public class ExternalLogicImpl implements ExternalLogic {
 
     private static final String SAKAI_SITE_TYPE = SiteService.SITE_SUBTYPE;
    
-    public void init() {
-    	log.info("init()");
-    	
-    	try {
-    		//Load the "notify deleted option" template
-			loadMailTemplate(EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION, FILE_NOTIFY_DELETED_OPTION_TEMPLATE);
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException("Could not load an XML parser.", e);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not read from XML template.");
-		} catch (InvalidEmailTemplateException e) {
-			throw new RuntimeException("Could not parse email template: "+e.getKey()+" from "+e.getFileName(), e);
-		}
-    }
-    
     public List<String> getSitesForUser(String userId, String permission) {
         log.debug("userId: " + userId + ", permission: " + permission);
 
@@ -319,11 +227,11 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
 
-	public String getSiteTile(String siteId) {
+	public String getSiteTile(String locationReference) {
 		Site site;
 		
 		try {
-			site = siteService.getSite(siteId);
+			site = siteService.getSite(locationReference);
 			return site.getTitle();
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block
@@ -444,184 +352,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 		return false;
 	}
 
-	public void notifyDeletedOption(List<String> userEids, String siteTitle, String pollQuestion) {
-		if (siteTitle == null)
-			throw new IllegalArgumentException("Site title cannot be null");
-		else if (pollQuestion == null)
-			throw new IllegalArgumentException("Poll Question cannot be null");
-		
-		Map<String, String> replacementValues = new HashMap<String, String>();
 
-		String from = (fromEmailAddress == null || fromEmailAddress.equals("")) ?
-					"no-reply@"+serverConfigurationService.getServerUrl() : fromEmailAddress;
-					
-		for (String userEid : userEids) {
-			User user = null;
-			try {
-				user = userDirectoryService.getUserByEid(userEid);
-				replacementValues.put("localSakaiName",
-						developerHelperService.getConfigurationSetting("ui.service", "Sakai"));
-				replacementValues.put("recipientFirstName",user.getFirstName());
-				replacementValues.put("pollQuestion", pollQuestion);
-				replacementValues.put("siteTitle", siteTitle); 
 
-				RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(EMAIL_TEMPLATE_NOTIFY_DELETED_OPTION,
-						user.getReference(), replacementValues);
-				
-				if (template == null)
-					return;
-					
-				String
-					content = template.getRenderedMessage(),
-					subject = template.getRenderedSubject();
-				
-				emailService.send(from, user.getEmail(), subject, content, user.getEmail(), from,
-						null);
-			} catch (UserNotDefinedException e) {
-				log.warn("Attempted to send email to unknown user (eid): '"+userEid+"'", e);
-			}
-		}
-	}
 	
-	/**
-	 * Load the mail template described by the XML in file 'fileName' into the emailTemplateService,
-	 * identified by 'key'
-	 * 
-	 * @param key
-	 * 	The key that identifies the template
-	 * @param fileName
-	 * 	The filename that holds the template information
-	 * @throws ParserConfigurationException
-	 * @throws IOException
-	 * @throws InvalidEmailTemplateException
-	 * 	Thrown if the email template is not a valid format.
-	 */
-	private void loadMailTemplate(String key, String fileName) throws ParserConfigurationException,
-			IOException, InvalidEmailTemplateException {
-		Session session = null;
-		try {
-			session = sessionManager.getCurrentSession();
-			session.setUserId(USER_ADMIN_ID);
-			session.setUserEid(USER_ADMIN_EID);
-			
-			try {
-				NodeList templates = getEmailTemplates(FILE_NOTIFY_DELETED_OPTION_TEMPLATE);
-				int n = templates.getLength();
-				for (int i = 0; i < n; i++) {
-					xmlToTemplate((Element)templates.item(i), key);
-				}
-			} catch (SAXException e) {
-				throw new InvalidEmailTemplateException(key, fileName, e);
-			} catch (InvalidEmailTemplateException e) {
-				//'e' doesn't have all the information to throw here.
-				throw new InvalidEmailTemplateException(key, fileName);
-			}
-		} finally {
-			if (session != null) {
-				session.setUserId(null);
-				session.setUserEid(null);
-			}
-		}
-	}
-	
-	/**
-	 * Given the XML template node, load it into the Email Template Service as a template
-	 * identified by 'key'
-	 * 
-	 * @param xmlTemplate
-	 * 	The valid XML template to load
-	 * @param key
-	 * 	The key that should identify the template
-	 */
-	private void xmlToTemplate(Element xmlTemplate, String key) {
-		String
-			subject = getTagValue(xmlTemplate, "subject", ""),
-			body = getTagValue(xmlTemplate, "message", ""),
-			locale = getTagValue(xmlTemplate, "locale", ""),
-			versionString = getTagValue(xmlTemplate, "version", "");
-	
-		EmailTemplate existingTemplate = this.emailTemplateService.getEmailTemplate(key, new Locale(locale));
-		if (existingTemplate == null)
-		{
-			EmailTemplate template = new EmailTemplate();
-			template.setSubject(subject);
-			template.setMessage(body);
-			template.setLocale(locale);
-			template.setKey(key);
-			template.setVersion(Integer.valueOf(1));
-			template.setOwner(USER_ADMIN_ID);
-			template.setLastModified(new Date());
-			this.emailTemplateService.saveTemplate(template);
-			log.debug("Added email template: '"+key+"'");
-		}
-		else
-		{
-			String oVersionString = existingTemplate.getVersion() != null ? existingTemplate.getVersion().toString():null;
-			if ((oVersionString == null && versionString != null) || (oVersionString != null && versionString != null && !oVersionString.equals(versionString)))
-			{
-				Integer version = (versionString != null && !versionString.equals("")) ? Integer.valueOf(versionString) : Integer.valueOf(0);
-				existingTemplate.setSubject(subject);
-				existingTemplate.setMessage(body);
-				existingTemplate.setLocale(locale);
-				existingTemplate.setKey(key);
-				existingTemplate.setVersion(version);
-				existingTemplate.setOwner(USER_ADMIN_ID);
-				existingTemplate.setLastModified(new Date());
-				this.emailTemplateService.updateTemplate(existingTemplate);
-				log.debug("Updated email template: '"+key+"' to version "+version);
-			}
-		}
-			
-	}
-
-	/**
-	 * Load a list of all the XML DOM elements that represent 'emailTemplate's.
-	 * 
-	 * @param file
-	 * 	The file to parse
-	 * @return
-	 * 	A list of nodes (NodeList) that represent all the email templates within the file
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
-	 * @throws InvalidEmailTemplateException
-	 * 	Thrown if the XML template is not a valid email template definition
-	 * 
-	 * TODO: Validate the XML email templates against a DTD to validate correctness
-	 */
-	private NodeList getEmailTemplates(String file) throws SAXException, IOException,
-			ParserConfigurationException, InvalidEmailTemplateException {
-		InputStream in = getClass().getClassLoader().getResourceAsStream(file);
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(in);
-		
-		Element emailTemplates = doc.getDocumentElement();
-		if ("emailTemplates".equals(emailTemplates.getNodeName())) {
-			return emailTemplates.getElementsByTagName("emailTemplate");
-		} else {
-			throw new InvalidEmailTemplateException(null, file);
-		}
-	}
-	
-	/**
-	 * Convenience method to get the value of a particular tag within an XML element.
-	 * @param e
-	 * @param tagName
-	 * @return
-	 */
-	private String getTagValue(Element e, String tagName, String failover) {
-		String value = failover;
-		NodeList l = e.getElementsByTagName(tagName);
-		if (l != null && l.getLength() > 0) {
-			Element tag = (Element) l.item(0);
-			if (tag != null) {
-				Node n = tag.getFirstChild();
-				if (n != null) {
-					value = n.getNodeValue();
-				}		
-			}
-		}
-		return value;
-	}
 }

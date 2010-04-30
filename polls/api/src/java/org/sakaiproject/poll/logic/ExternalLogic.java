@@ -73,14 +73,6 @@ public interface ExternalLogic {
 	public String getCurrentuserReference();
 	
 	/**
-	 * Given a userId, return the associated userEid
-	 * @param userId The userId
-	 * @return
-	 * 	The userEid
-	 */
-	public String getUserEidFromId(String userId);
-	
-	/**
 	 * is the current user allowed to perform the action in the current location?
 	 * @param permission
 	 * @param locationReference
@@ -142,10 +134,10 @@ public interface ExternalLogic {
 	
 	/**
 	 * 
-	 * @param siteId
+	 * @param locationReference
 	 * @return
 	 */
-	public String getSiteTile(String siteId);
+	public String getSiteTile(String locationReference);
 	
 	/**
 	 * Get a site reference "/site/ABCD from its id (ABCD)
@@ -174,17 +166,5 @@ public interface ExternalLogic {
 	 * @return
 	 */
 	public boolean userIsViewingAsRole();
-	
-	/**
-	 * Notify a list of users that an option they voted for in a poll has been deleted.
-	 * 
-	 * @param userEids
-	 * 	A List of user EID's that identify the users to be notified
-	 * @param pollQuestion
-	 * 	The text of the poll whose option was deleted
-	 * @param siteTitle
-	 * 	The title of the site that owns the option's poll
-	 */
-	public void notifyDeletedOption(List<String> userEids, String siteTitle, String pollQuestion);
 	
 }

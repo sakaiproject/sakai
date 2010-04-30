@@ -23,15 +23,11 @@ package org.sakaiproject.poll.tool.params;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -42,7 +38,6 @@ import org.sakaiproject.poll.util.PollUtils;
 import org.sakaiproject.util.FormattedText;
 
 import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
@@ -51,10 +46,6 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class PollToolBean {
 
 	private static final Log LOG = LogFactory.getLog(PollToolBean.class);
-	
-	public static final String
-		HANDLE_DELETE_OPTION_DO_NOTHING = "do-nothing",
-		HANDLE_DELETE_OPTION_RETURN_VOTES = "return-votes";
 	
 	//public Poll newPoll = new Poll();
 	public String siteID;
@@ -82,9 +73,7 @@ public class PollToolBean {
 	public Long[] deleteids;
 	public String submissionStatus;
 	private PollVoteManager pollVoteManager;
-	
-	//how to handle orphaned votes when deleting an option
-	private String handleOrphanVotes;
+
 
 	public Map perms = null;
 	public void setRoleperms(Map perms)
@@ -109,11 +98,6 @@ public class PollToolBean {
 		this.voteCollection = vc;
 	}
 
-	private ExternalLogic externalLogic;
-	public void setExternalLogic(ExternalLogic externalLogic) {
-		this.externalLogic = externalLogic;
-	}
-	
 	public void setOption (Option o) {
 		this.option = o;
 	}
@@ -133,10 +117,6 @@ public class PollToolBean {
 		this.messages = messages;
 	}
 
-	private MessageLocator messageLocator;
-	public void setMessageLocator(MessageLocator messageLocator) {
-		this.messageLocator = messageLocator;
-	}
 
 	public Poll processActionAdd() {
 		boolean isNew = true;
@@ -291,77 +271,21 @@ public class PollToolBean {
 		
 	}
 
-	@SuppressWarnings("unchecked")
 	public Poll proccessActionDeleteOption() {
 		LOG.info("about to delete option " + option.getId());
 		Long pollId = option.getPollId();
-		
-		List<Vote> votes = (List<Vote>) pollVoteManager.getAllVotesForOption(option);
-		
-		if (votes != null && votes.size() > 0) {
-			//if the option had votes, we need some special handling
-			
-			if (HANDLE_DELETE_OPTION_RETURN_VOTES.equals(getHandleOrphanVotes())) {
-				Set<String> userEids = new HashSet<String>();
-				
-				//hard-delete the option. It will no longer have any votes
-				manager.deleteOption(option);
-				
-				for (Vote vote : votes) {
-					String userId = vote.getUserId();
-					
-					if (userId != null) {
-						String userEid = externalLogic.getUserEidFromId(userId);
-						userEids.add(userEid);
-					}
-					
-					pollVoteManager.deleteVote(vote);
-				}
-				
-				//send the notification to affected users
-				sendOptionDeletedNotification(userEids.toArray(new String[0]));
-				
-			} else {
-				//soft delete the option. we still want it to show up in the results
-				
-				/*
-				 * The option in this bean is mapped by parameters
-				 * given to the form by the producer. This seems a bit
-				 * shakey. 'persistentOption' will be a fresh and full
-				 * copy of the option from the DB. This should be a safer
-				 * "save" operation. -bv
-				 */
-				Option persistentOption = manager.getOptionById(option.getOptionId());
-				manager.deleteOption(persistentOption, true);
-			}
-		} else {
-			//if the option didn't have any votes, just blow it away
-			manager.deleteOption(option);
-		}
-		
-		//we now need to update the poll object in memory
-		Poll poll = manager.getPollById(pollId);
-		voteBean.setPoll(poll);
-		return poll;
-		
-	}
+		manager.deleteOption(option);
 
+		//we now need to update the poll object in memory
+		voteBean.setPoll(manager.getPollById(pollId));
+
+		return manager.getPollById(pollId);
+
+	}
 	public String cancel() {
 		return "cancel";
 	}
-	
-	public void setHandleOrphanVotes(String handleOrphanVotes) {
-		this.handleOrphanVotes = handleOrphanVotes;
-	}
-  
-	public String getHandleOrphanVotes() {
-		return this.handleOrphanVotes;
-	}
 
-	private void sendOptionDeletedNotification(String[] userEids) {
-		Poll poll = manager.getPollById(option.getPollId());
-		String siteTitle = externalLogic.getSiteTile(poll.getSiteId());
-		externalLogic.notifyDeletedOption(Arrays.asList(userEids), siteTitle, poll.getPollText());
-	}
+
 
 }

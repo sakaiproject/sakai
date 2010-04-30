@@ -160,7 +160,6 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			LOG.debug("collating option " + option.getOptionId());
 			collatedVote.setoptionId(option.getOptionId());
 			collatedVote.setOptionText(option.getOptionText());
-			collatedVote.setDeleted(option.getDeleted());
 			for (int q=0; q <votes.size(); q++ ) {
 				Vote vote = (Vote)votes.get(q);
 				if (vote.getPollOption().equals(option.getOptionId())){
@@ -190,13 +189,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		for (int i=0; i <collation.size(); i++ ) {
 			CollatedVote cv = (CollatedVote)collation.get(i);
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
-			
-			String optionText = cv.getOptionText();
-			if (cv.getDeleted()) {
-				optionText += messageLocator.getMessage("deleted_option_tag_html");
-			}
-
-			UIVerbatim.make(resultRow,"answer-option",optionText);
+			UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
 			UIOutput.make(resultRow,"answer-count", Integer.valueOf(i+1).toString());
 			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
 			LOG.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
@@ -246,8 +239,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		private Long optionId ;
 		private String optionText;
 		private int votes;
-		private Boolean deleted;
-		
+
 		public CollatedVote() {
 			this.votes=0;
 		}
@@ -274,12 +266,6 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		}
 		public void incrementVotes(){
 			this.votes++;
-		}
-		public void setDeleted(Boolean deleted) {
-			this.deleted = deleted;
-		}
-		public Boolean getDeleted() {
-			return deleted;
 		}
 
 	}
