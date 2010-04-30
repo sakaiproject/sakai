@@ -1380,7 +1380,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * init
 	 */
 	public void init() {
-		log.error("Profile2 SakaiProxy init()");
+		log.info("Profile2 SakaiProxy init()");
 		
 		//process the email templates
 		for(String emailTemplate: emailTemplates){
