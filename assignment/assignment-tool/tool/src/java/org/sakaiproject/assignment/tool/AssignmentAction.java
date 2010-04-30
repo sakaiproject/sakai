@@ -4437,7 +4437,12 @@ public class AssignmentAction extends PagedResourceActionII
 			// empty assignment title
 			addAlert(state, rb.getString("plespethe1"));
 		}
-
+		else if (sameAssignmentTitleInContext(title, (String) state.getAttribute(STATE_CONTEXT_STRING)))
+		{
+			// assignment title already exist
+			addAlert(state, rb.getFormattedMessage("same_assignment_title", new Object[]{title}));
+		}
+		
 		// open time
 		Time openTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, NEW_ASSIGNMENT_OPENAMPM, "date.opendate");
 
@@ -4708,6 +4713,33 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 	} // setNewAssignmentParameters
+
+	/**
+	 * check to see whether there is already an assignment with the same title in the site
+	 * @param title
+	 * @param contextString
+	 * @return
+	 */
+	private boolean sameAssignmentTitleInContext(String title, String contextString) {
+		boolean rv = false;
+		// in the student list view of assignments
+		Iterator assignments = AssignmentService.getAssignmentsForContext(contextString);
+		while (assignments.hasNext())
+		{
+			Assignment a = (Assignment) assignments.next();
+			String aTitle = a.getTitle();
+			if (aTitle != null && aTitle.length() > 0 && title.equals(aTitle))
+			{
+				//further check whether the assignment is marked as deleted or not
+				String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+				if (deleted == null || deleted != null && !Boolean.TRUE.toString().equalsIgnoreCase(deleted))
+				{
+					rv = true;
+				}
+			}
+		}
+		return rv;
+	}
 
 	/**
 	 * read inputs for supplement items
