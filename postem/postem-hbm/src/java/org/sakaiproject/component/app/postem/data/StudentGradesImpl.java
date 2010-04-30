@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
@@ -167,28 +168,28 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			gradeBuffer.append("<table class=\"itemSummary\">");
 
 			if (h2.size() != 0) {
-				gradeBuffer.append("<tr><th scope=\"row\">" + h2.get(0).toString() + "</th><td>");
+				gradeBuffer.append("<tr><th scope=\"row\">" + StringEscapeUtils.escapeHtml(h2.get(0).toString()) + "</th><td>");
 				h2.remove(0);
-				gradeBuffer.append(getUsername());
+				gradeBuffer.append(StringEscapeUtils.escapeHtml(getUsername()));
 				gradeBuffer.append("</td></tr>");
 				Iterator ii = h2.iterator();
 				Iterator jj = grades.iterator();
 
 				while (ii.hasNext()) {
 					gradeBuffer.append("<tr><th scope=\"row\">");
-					gradeBuffer.append((String) ii.next());
+					gradeBuffer.append(StringEscapeUtils.escapeHtml((String) ii.next()));
 					gradeBuffer.append("</th><td>");
-					gradeBuffer.append((String) jj.next());
+					gradeBuffer.append(StringEscapeUtils.escapeHtml((String) jj.next()));
 					gradeBuffer.append("</td></tr>");
 				}
 			} else {
 				gradeBuffer.append("<tr><td>");
-				gradeBuffer.append(getUsername());
+				gradeBuffer.append(StringEscapeUtils.escapeHtml(getUsername()));
 				gradeBuffer.append("</td></tr>");
 				Iterator jj = grades.iterator();
 				while (jj.hasNext()) {
 					gradeBuffer.append("<tr><td>");
-					gradeBuffer.append((String) jj.next());
+					gradeBuffer.append(StringEscapeUtils.escapeHtml((String) jj.next()));
 					gradeBuffer.append("</td></tr>");
 				}
 			}
@@ -219,7 +220,7 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			gradeBuffer.append(width);
 			gradeBuffer.append(";' >");*/
 			gradeBuffer.append("<td style=\"padding:0.6em;\">");
-			gradeBuffer.append(current);
+			gradeBuffer.append(StringEscapeUtils.escapeHtml(current));
 			gradeBuffer.append("</td>");
 			ii++;
 		}
