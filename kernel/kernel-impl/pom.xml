@@ -31,13 +31,8 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
           <testFailureIgnore>false</testFailureIgnore> 
-<!--
-						<includes>
-						<include>**/AllTests*</include>
-						</includes>
-					-->
           <forkMode>pertest</forkMode>
           <systemProperties>
             <property>
