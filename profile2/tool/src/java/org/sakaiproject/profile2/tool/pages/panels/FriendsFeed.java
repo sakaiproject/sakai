@@ -124,9 +124,9 @@ public class FriendsFeed extends Panel {
 		    	}
 	    		
 		    	//link to their profile
-		    	AjaxLink friendItem = new AjaxLink("friendsFeedItem") {
+		    	Link friendItem = new Link("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
-					public void onClick(AjaxRequestTarget target) {
+					public void onClick() {
 						//link to own profile if link will point to self
 		    			if(viewingUserId.equals(friendId)) {
 							setResponsePage(new MyProfile());
@@ -172,10 +172,10 @@ public class FriendsFeed extends Panel {
 		
 		
 		/* VIEW ALL FRIENDS LINK */
-    	AjaxLink viewFriendsLink = new AjaxLink("viewFriendsLink") {
+    	Link viewFriendsLink = new Link("viewFriendsLink") {
 			private static final long serialVersionUID = 1L;
 
-			public void onClick(AjaxRequestTarget target) {
+			public void onClick() {
 				//this could come from a bookmarkablelink, but this works for now
 				if(numFriends == 0) {
 					setResponsePage(new MySearch());
