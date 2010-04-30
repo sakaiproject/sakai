@@ -115,7 +115,7 @@
 							$tlang.getString("review.report")
 						</th>
 							<td>
-							#if ($submission.getReviewReport().equals("Error"))
+							#if (!$submission || $submission.getReviewReport().equals("Error"))
 								$tlang.getString("review.notavail")
 							#else
 								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
