@@ -200,21 +200,24 @@ sorting actions for table:
 	  <p class="tier2">
 	   	<h:commandLink
 			id="all"
-			value="#{selectIndexMessages.review_assessment_all}"
-			action="#{select.getDisplayAllAssessments}"
-			rendered="#{select.isThereAssessmentToReview eq 'true'}" onmouseup="submit();">
+			value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 1}" onmouseup="disableLinks(this);submit();">
 			<f:param name="selectSubmissions" value="2" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
+		<h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" />
+		
 		<h:outputText value="|"  />
+		
 		<h:commandLink 
 			id="some"
-			value="#{selectIndexMessages.review_assessment_recorded}"action="#{select.getDisplayAllAssessments}"
-			rendered="#{select.isThereAssessmentToReview eq 'true'}"
-			onmouseup="submit();">
+			value="#{selectIndexMessages.review_assessment_recorded}"
+			rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 2}"
+			onmouseup="disableLinks(this);submit();">
 			<f:param name="selectSubmissions" value="1" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
+		<h:outputText value="#{selectIndexMessages.review_assessment_recorded}" rendered="#{select.displayAllAssessments == 1}" />
+		
       </p>
 
 <%-- pager controls NOT required by mockups, not implemented
@@ -267,7 +270,7 @@ sorting actions for table:
 	  </f:facet> 
 	  <h:panelGroup>
 	    <h:commandLink title="#{selectIndexMessages.t_histogram}" id="histogram"  action="#{delivery.getOutcome}" immediate="true"  
-	        rendered="#{reviewable.feedback ne 'false' && reviewable.feedbackComponentOption == '2' && reviewable.statistics && !reviewable.hasRandomDrawPart && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}" onmouseup="disableLinks(this);">
+	        rendered="#{reviewable.feedback eq 'show' && reviewable.feedbackComponentOption == '2' && reviewable.statistics && !reviewable.hasRandomDrawPart && !reviewable.isAssessmentRetractForEdit && reviewable.isRecordedAssessment}" onmouseup="disableLinks(this);">
           <f:param name="publishedAssessmentId" value="#{reviewable.assessmentId}" />
           <f:param name="hasNav" value="false"/>
           <f:param name="allSubmissions" value="true" />
@@ -277,7 +280,7 @@ sorting actions for table:
           <h:outputText value="#{selectIndexMessages.stats} "/>
         </h:commandLink>
 	  </h:panelGroup>
-	   <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.feedback eq 'false' ||  reviewable.feedbackComponentOption == '1' || reviewable.isAssessmentRetractForEdit || !reviewable.statistics) && reviewable.isRecordedAssessment}" />
+	   <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.feedback eq 'na' ||  reviewable.feedbackComponentOption == '1' || reviewable.isAssessmentRetractForEdit || !reviewable.statistics) && reviewable.isRecordedAssessment}" />
 	</h:column>
 	<!-- created separate column for statistics  -->
    	
@@ -289,12 +292,12 @@ sorting actions for table:
 	    </h:panelGroup>
 	  </f:facet>
 	  
-	  <h:outputText value="#{reviewable.roundedRawScore} " styleClass="currentSort" rendered="#{reviewable.showScore eq 'true'   && reviewable.isRecordedAssessment && !reviewable.isAssessmentRetractForEdit}" />
-	  <h:outputText value="" rendered="#{!reviewable.isRecordedAssessment && reviewable.showScore eq 'true' && !reviewable.isAssessmentRetractForEdit}"/>   
-	  <h:outputText value="#{selectIndexMessages.highest_score}" rendered="#{(reviewable.multipleSubmissions eq 'true' && reviewable.isRecordedAssessment && reviewable.scoringOption eq '1' && reviewable.showScore eq 'true') && !reviewable.isAssessmentRetractForEdit}"/> 
-	  <h:outputText value="#{selectIndexMessages.last_score}" rendered="#{(reviewable.multipleSubmissions eq 'true' && reviewable.isRecordedAssessment && reviewable.scoringOption eq '2' && reviewable.showScore eq 'true') && !reviewable.isAssessmentRetractForEdit}"/>
-	  <h:outputText value="#{selectIndexMessages.average_score}" rendered="#{(reviewable.multipleSubmissions eq 'true' && reviewable.isRecordedAssessment && reviewable.scoringOption eq '4' && reviewable.showScore eq 'true') && !reviewable.isAssessmentRetractForEdit}"/>
-	  <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit) && reviewable.isRecordedAssessment}" />
+	  <h:outputText value="#{reviewable.roundedRawScore} " styleClass="currentSort" rendered="#{reviewable.showScore eq 'show' && reviewable.isRecordedAssessment && !reviewable.isAssessmentRetractForEdit}" />
+	  <h:outputText value="" rendered="#{!reviewable.isRecordedAssessment && reviewable.showScore eq 'show' && !reviewable.isAssessmentRetractForEdit}"/>   
+	  <h:outputText value="#{selectIndexMessages.highest_score}" rendered="#{(reviewable.multipleSubmissions eq 'true' && reviewable.isRecordedAssessment && reviewable.scoringOption eq '1' && (reviewable.showScore eq 'show' || reviewable.showScore eq 'blank')) && !reviewable.isAssessmentRetractForEdit}"/> 
+	  <h:outputText value="#{selectIndexMessages.last_score}" rendered="#{(reviewable.multipleSubmissions eq 'true' && reviewable.isRecordedAssessment && reviewable.scoringOption eq '2' && (reviewable.showScore eq 'show' || reviewable.showScore eq 'blank')) && !reviewable.isAssessmentRetractForEdit}"/>
+	  <h:outputText value="#{selectIndexMessages.average_score}" rendered="#{(reviewable.multipleSubmissions eq 'true' && reviewable.isRecordedAssessment && reviewable.scoringOption eq '4' && (reviewable.showScore eq 'show' || reviewable.showScore eq 'blank')) && !reviewable.isAssessmentRetractForEdit}"/>
+	  <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.showScore eq 'na' || reviewable.isAssessmentRetractForEdit) && reviewable.isRecordedAssessment}" />
     </h:column>
 
 <%-- FEEDBACK DATE --%>
@@ -311,7 +314,7 @@ sorting actions for table:
 	  
 	   <!-- mustansar -->
 	  <h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" immediate="true"  
-	        rendered="#{reviewable.feedback == 'true' && reviewable.feedbackComponentOption == '2' && !reviewable.isAssessmentRetractForEdit && select.displayAllAssessments != '1' && !reviewable.isRecordedAssessment }" onmouseup="disableLinks(this);">
+	        rendered="#{reviewable.feedback == 'show' && reviewable.feedbackComponentOption == '2' && !reviewable.isAssessmentRetractForEdit && select.displayAllAssessments != '1' && !reviewable.isRecordedAssessment }" onmouseup="disableLinks(this);">
 	    <f:param name="publishedId" value="#{reviewable.assessmentId}" />
 	    <f:param name="assessmentGradingId" value="#{reviewable.assessmentGradingId}" />
 	    <f:param name="nofeedback" value="false"/>
@@ -332,8 +335,8 @@ sorting actions for table:
         </h:panelGroup>
       </f:facet>
 
-	  <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{(reviewable.showScore eq 'true' && !reviewable.isAssessmentRetractForEdit) && !reviewable.isRecordedAssessment}" />             
-      <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{(reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit) && !reviewable.isRecordedAssessment}" />
+	  <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{(reviewable.showScore eq 'show' && !reviewable.isAssessmentRetractForEdit) && !reviewable.isRecordedAssessment}" />             
+      <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{(reviewable.showScore eq 'na' || reviewable.isAssessmentRetractForEdit) && !reviewable.isRecordedAssessment}" />
     </h:column>
 
 <%-- TIME --%>

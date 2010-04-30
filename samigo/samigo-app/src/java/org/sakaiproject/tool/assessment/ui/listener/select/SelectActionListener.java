@@ -647,7 +647,7 @@ public class SelectActionListener
    * contains AssessmentGradingData with the PublishedAssessment Id and title.
    */
   private String hasFeedback(PublishedAssessmentFacade p){
-    String hasFeedback = "false";
+    String hasFeedback = "na";
     Date currentDate = new Date();
     
     if (p==null) {// published assessment may have been deleted
@@ -659,8 +659,14 @@ public class SelectActionListener
     	|| (AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION).equals(p.getFeedbackDelivery())	
         || ((AssessmentFeedbackIfc.FEEDBACK_BY_DATE).equals(p.getFeedbackDelivery()) && p.getFeedbackDate()!= null && currentDate.after(p.getFeedbackDate())))
     {
-      hasFeedback="true";
+      hasFeedback="show";
     }
+    
+    if ((AssessmentFeedbackIfc.FEEDBACK_BY_DATE).equals(p.getFeedbackDelivery()) && (p.getFeedbackDate()!= null && currentDate.before((p.getFeedbackDate()))))
+    {
+      hasFeedback="blank";
+    }
+    
     return hasFeedback;
   }
 
@@ -693,13 +699,15 @@ public class SelectActionListener
 
   private String showScore(AssessmentGradingFacade a,
                            String hasFeedback, HashMap feedbackHash){
-    String showScore = "false";
+    String showScore = "na";
     // must meet 2 conditions: hasFeedback==true && feedback.getShowStudentScore()==true
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
     if (f!=null){
-      if ( ((Boolean.TRUE).equals(f.getShowStudentScore()) || f.getFeedbackComponentOption().equals(new Integer(1)) ) &&
-    		  "true".equals(hasFeedback))
-        showScore = "true";
+      boolean showScorecore = (Boolean.TRUE).equals(f.getShowStudentScore()) || f.getFeedbackComponentOption().equals(new Integer(1));
+      if (showScorecore && "show".equals(hasFeedback))
+        showScore = "show";
+      if (showScorecore && "blank".equals(hasFeedback))
+        showScore = "blank";
     }
     return showScore;
   }
