@@ -193,6 +193,8 @@ public class MyPictures extends BasePage {
 
 		IDataProvider dataProvider = new GalleryImageDataProvider(userUuid);
 
+		int numImages = dataProvider.size();
+
 		gridView = new GridView("rows", dataProvider) {
 
 			private static final long serialVersionUID = 1L;
@@ -239,17 +241,21 @@ public class MyPictures extends BasePage {
 
 		Label noPicturesLabel;
 
-		if (gridView.getItemCount() == 0) {
-			galleryForm.add(new PagingNavigator("navigator", gridView)
-					.setVisible(false));
-
-			noPicturesLabel = new Label("noPicturesLabel", new ResourceModel(
-					"text.gallery.pictures.num.none"));
+		//pager
+		if (numImages == 0) {
+			galleryForm.add(new PagingNavigator("navigator", gridView).setVisible(false));
+			noPicturesLabel = new Label("noPicturesLabel", new ResourceModel("text.gallery.pictures.num.none"));
+		} else if (numImages <= ProfileConstants.MAX_GALLERY_IMAGES_PER_PAGE) {
+			galleryForm.add(new PagingNavigator("navigator", gridView).setVisible(false));
+			noPicturesLabel = new Label("noPicturesLabel");
 		} else {
 			galleryForm.add(new PagingNavigator("navigator", gridView));
-			
 			noPicturesLabel = new Label("noPicturesLabel");
 		}
+		
+		
+		
+		
 
 		galleryForm.add(noPicturesLabel);
 		

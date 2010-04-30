@@ -72,6 +72,8 @@ public class ProfileConstants {
 	public static final int MAX_GALLERY_THUMBNAIL_IMAGE_XY = 125;
 	public static final int MAX_GALLERY_IMAGE_UPLOAD_SIZE = 2048; // 2MB
 	public static final int MAX_GALLERY_FILE_UPLOADS = 10;
+	public static final int MAX_GALLERY_IMAGES_PER_PAGE = 12; //max before pager kicks in
+
 	
 	//default images for certain things
 	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";

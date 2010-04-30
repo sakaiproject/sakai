@@ -33,6 +33,7 @@ import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryImagePanel;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
  * Gallery component for viewing another user's pictures.
@@ -73,6 +74,8 @@ public class ViewPictures extends BasePage {
 
 		IDataProvider dataProvider = new GalleryImageDataProvider(userUuid);
 
+		int numImages = dataProvider.size();
+		
 		gridView = new GridView("rows", dataProvider) {
 
 			private static final long serialVersionUID = 1L;
@@ -115,11 +118,14 @@ public class ViewPictures extends BasePage {
 
 		gridView.setRows(3);
 		gridView.setColumns(4);
-
+		
 		galleryForm.add(gridView);
-		if (gridView.getItemCount() == 0) {
-			galleryForm.add(new PagingNavigator("navigator", gridView)
-					.setVisible(false));
+		
+		//pager
+		if (numImages == 0) {
+			galleryForm.add(new PagingNavigator("navigator", gridView).setVisible(false));
+		} else if (numImages <= ProfileConstants.MAX_GALLERY_IMAGES_PER_PAGE) {
+			galleryForm.add(new PagingNavigator("navigator", gridView).setVisible(false));
 		} else {
 			galleryForm.add(new PagingNavigator("navigator", gridView));
 		}
