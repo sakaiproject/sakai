@@ -193,14 +193,11 @@ public class MyProfile extends BasePage {
 		userProfile.setPersonalSummary(ProfileUtils.unescapeHtml(sakaiPerson.getNotes()));
 		
 		// social networking fields
-		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userProfile.getUserUuid());
-		if (null != socialNetworkingInfo) {
-			userProfile.setFacebookUsername(socialNetworkingInfo.getFacebookUsername());
-			userProfile.setLinkedinUsername(socialNetworkingInfo.getLinkedinUsername());
-			userProfile.setMyspaceUsername(socialNetworkingInfo.getMyspaceUsername());
-			userProfile.setSkypeUsername(socialNetworkingInfo.getSkypeUsername());
-			userProfile.setTwitterUsername(socialNetworkingInfo.getTwitterUsername());
+		SocialNetworkingInfo socialInfo = profileLogic.getSocialNetworkingInfo(userProfile.getUserUuid());
+		if(socialInfo == null){
+			socialInfo = new SocialNetworkingInfo();
 		}
+		userProfile.setSocialInfo(socialInfo);
 		
 		//PRFL-97 workaround. SakaiPerson table needs to be upgraded so locked is not null, but this handles it if not upgraded.
 		if(sakaiPerson.getLocked() == null) {

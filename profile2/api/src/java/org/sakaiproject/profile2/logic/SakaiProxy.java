@@ -22,12 +22,9 @@ import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.ResourceWrapper;
-import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.user.api.User;
 /**
- * This is an internal helper API used by the Profile2 tool and entities only.
- * 
- * DO NOT IMPLEMENT THIS YOURSELF, use the {@link ProfileService} instead
+ * An interface for abstracting Sakai specific parts away from the main logic.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *

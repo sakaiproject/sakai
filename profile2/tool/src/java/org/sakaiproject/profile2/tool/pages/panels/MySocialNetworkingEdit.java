@@ -53,7 +53,7 @@ public class MySocialNetworkingEdit extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
 	
-	public MySocialNetworkingEdit(String id, UserProfile userProfile) {
+	public MySocialNetworkingEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
 		log.debug("MySocialNetworkingEdit()");
@@ -86,48 +86,65 @@ public class MySocialNetworkingEdit extends Panel {
 		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
-		facebookContainer.add(new TextField("facebookUsername", new PropertyModel(userProfile, "facebookUsername")));
+		facebookContainer.add(new TextField("facebookUsername", new PropertyModel(userProfile, "socialInfo.facebookUsername")));
 		form.add(facebookContainer);
 		
 		//linkedin
 		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
 		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin.edit")));
-		linkedinContainer.add(new TextField("linkedinUsername", new PropertyModel(userProfile, "linkedinUsername")));
+		linkedinContainer.add(new TextField("linkedinUsername", new PropertyModel(userProfile, "socialInfo.linkedinUsername")));
 		form.add(linkedinContainer);
 		
 		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		myspaceContainer.add(new TextField("myspaceUsername", new PropertyModel(userProfile, "myspaceUsername")));
+		myspaceContainer.add(new TextField("myspaceUsername", new PropertyModel(userProfile, "socialInfo.myspaceUsername")));
 		form.add(myspaceContainer);
 		
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		twitterContainer.add(new TextField("twitterUsername", new PropertyModel(userProfile, "twitterUsername")));
+		twitterContainer.add(new TextField("twitterUsername", new PropertyModel(userProfile, "socialInfo.twitterUsername")));
 		form.add(twitterContainer);
 		
 		//skype
 		WebMarkupContainer skypeContainer = new WebMarkupContainer("skypeContainer");
 		skypeContainer.add(new Label("skypeLabel", new ResourceModel("profile.socialnetworking.skype.edit")));
-		skypeContainer.add(new TextField("skypeUsername", new PropertyModel(userProfile, "skypeUsername")));
+		skypeContainer.add(new TextField("skypeUsername", new PropertyModel(userProfile, "socialInfo.skypeUsername")));
 		form.add(skypeContainer);
 			
-		AjaxFallbackButton submitButton = createSaveChangesButton(id,
-				userProfile, form, formFeedback);
+		//submit button
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+
+				if (save(form)) {
+
+					// post update event
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE,"/profile/" + userProfile.getUserUuid(), true);
+
+					// repaint panel
+					Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
+					newPanel.setOutputMarkupId(true);
+					MySocialNetworkingEdit.this.replaceWith(newPanel);
+					if (target != null) {
+						target.addComponent(newPanel);
+						// resize iframe
+						target.appendJavascript("setMainFrameHeight(window.name);");
+					}
+
+				} else {
+					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.business.failed"));
+					formFeedback.add(new AttributeModifier("class", true,new Model<String>("save-failed-error")));
+					target.addComponent(formFeedback);
+				}
+			}
+		};
 		form.add(submitButton);
 
-		AjaxFallbackButton cancelButton = createCancelChangesButton(id,
-				userProfile, form);
-		form.add(cancelButton);
-		
-		add(form);
-	}
-
-	private AjaxFallbackButton createCancelChangesButton(final String id,
-			final UserProfile userProfile, Form form) {
-		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel",
-				new ResourceModel("button.cancel"), form) {
+		//cancel button
+		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel",new ResourceModel("button.cancel"), form) {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -144,46 +161,12 @@ public class MySocialNetworkingEdit extends Panel {
 			}
 		};
 		cancelButton.setDefaultFormProcessing(false);
-		return cancelButton;
+		form.add(cancelButton);
+		
+		add(form);
 	}
 
-	private AjaxFallbackButton createSaveChangesButton(final String id,
-			final UserProfile userProfile, Form form, final Label formFeedback) {
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit",
-				new ResourceModel("button.save.changes"), form) {
-			private static final long serialVersionUID = 1L;
-
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-
-				if (save(form)) {
-
-					// post update event
-					sakaiProxy.postEvent(
-							ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE,
-							"/profile/" + userProfile.getUserUuid(), true);
-
-					// repaint panel
-					Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
-					newPanel.setOutputMarkupId(true);
-					MySocialNetworkingEdit.this.replaceWith(newPanel);
-					if (target != null) {
-						target.addComponent(newPanel);
-						// resize iframe
-						target
-								.appendJavascript("setMainFrameHeight(window.name);");
-					}
-
-				} else {
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.profile.save.business.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
-							new Model<String>("save-failed-error")));
-					target.addComponent(formFeedback);
-				}
-			}
-		};
-		return submitButton;
-	}
+	
 	
 	// called when the form is to be saved
 	private boolean save(Form form) {
@@ -193,11 +176,11 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		// save social networking information
 		SocialNetworkingInfo socialNetworkingInfo = new SocialNetworkingInfo(userProfile.getUserUuid());
-		socialNetworkingInfo.setFacebookUsername(userProfile.getFacebookUsername());
-		socialNetworkingInfo.setLinkedinUsername(userProfile.getLinkedinUsername());
-		socialNetworkingInfo.setMyspaceUsername(userProfile.getMyspaceUsername());
-		socialNetworkingInfo.setSkypeUsername(userProfile.getSkypeUsername());
-		socialNetworkingInfo.setTwitterUsername(userProfile.getTwitterUsername());
+		socialNetworkingInfo.setFacebookUsername(userProfile.getSocialInfo().getFacebookUsername());
+		socialNetworkingInfo.setLinkedinUsername(userProfile.getSocialInfo().getLinkedinUsername());
+		socialNetworkingInfo.setMyspaceUsername(userProfile.getSocialInfo().getMyspaceUsername());
+		socialNetworkingInfo.setSkypeUsername(userProfile.getSocialInfo().getSkypeUsername());
+		socialNetworkingInfo.setTwitterUsername(userProfile.getSocialInfo().getTwitterUsername());
 		
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
 		

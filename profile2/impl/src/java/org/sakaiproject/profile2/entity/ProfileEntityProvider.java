@@ -38,10 +38,11 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.service.ProfileService;
+import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -59,70 +60,21 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	}
 		
 	public boolean entityExists(String eid) {
-		//check the user is valid. if it is then return true as everyone has a 'profile'.
-		//note that we DO NOT check if they have an actual profile, just if they exist.
-		return profileService.checkUserExists(eid);
+		return true;
 	}
 
 	public Object getSampleEntity() {
-		UserProfile userProfile = profileService.getPrototype();
-		return userProfile;
+		return new UserProfile();
 	}
 	
 	public Object getEntity(EntityReference ref) {
 	
-		//get the full profile for the user. takes care of privacy checks against the current user
-		UserProfile userProfile = profileService.getFullUserProfile(ref.getId());
+		//get the full profile for the user, takes care of privacy checks against the current user
+		UserProfile userProfile = profileLogic.getUserProfile(ref.getId());
 		if(userProfile == null) {
 			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
 		return userProfile;
-	}
-	
-	
-	
-	
-	@EntityCustomAction(action="minimal",viewKey=EntityView.VIEW_SHOW)
-	public Object getMinimalProfile(EntityReference ref, EntityView view) {
-			
-		boolean wantsFormatted = "formatted".equals(view.getPathSegment(3)) ? true : false;
-		
-		//get the minimal profile, with privacy checks against the requesting user
-		UserProfile userProfile = profileService.getMinimalUserProfile(ref.getId());
-		if(userProfile == null) {
-			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
-		}
-		
-		//if want formatted, convert and return as HTML, otherwise return the entity.
-		if(wantsFormatted) {
-			String formattedProfile = profileService.getUserProfileAsHTML(userProfile);
-			ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, formattedProfile);
-			return actionReturn;
-		} else {
-			return userProfile;
-		}
-	}
-	
-	
-	@EntityCustomAction(action="academic",viewKey=EntityView.VIEW_SHOW)
-	public Object getAcademicProfile(EntityReference ref, EntityView view) {
-			
-		boolean wantsFormatted = "formatted".equals(view.getPathSegment(3)) ? true : false;
-		
-		//get the academic profile, with privacy checks against the requesting user
-		UserProfile userProfile = profileService.getAcademicUserProfile(ref.getId());
-		if(userProfile == null) {
-			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
-		}
-		
-		//if want formatted, convert and return as HTML, otherwise return the entity.
-		if(wantsFormatted) {
-			String formattedProfile = profileService.getUserProfileAsHTML(userProfile);
-			ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, formattedProfile);
-			return actionReturn;
-		} else {
-			return userProfile;
-		}
 	}
 	
 	
@@ -179,7 +131,7 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	public Object getConnections(EntityView view, EntityReference ref) {
 				
 		//get list of connections
-		List<Person> connections = profileService.getConnectionsForUser(ref.getId());
+		List<Person> connections = profileLogic.getConnectionsForUser(ref.getId());
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}
@@ -198,7 +150,7 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		UserProfile userProfile = (UserProfile) getEntity(ref);
 		
 		//convert UserProfile to HTML object
-		String entity = profileService.getUserProfileAsHTML(userProfile);
+		String entity = getUserProfileAsHTML(userProfile);
 		
 		ActionReturn actionReturn = new ActionReturn("UTF-8", "text/html", entity);
 		return actionReturn;
@@ -220,10 +172,10 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		
 		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
 			UserProfile userProfile = (UserProfile) entity;
-			profileService.save(userProfile);
+			profileLogic.saveUserProfile(userProfile);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be UserProfile object");
-		}
+		}	
 	}
 	
 	
@@ -231,12 +183,11 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		
 		//reference will be the userUuid, which comes from the UserProfile
 		String userUuid = null;
-
 		
 		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
 			UserProfile userProfile = (UserProfile) entity;
 			
-			if(profileService.create(userProfile)) {
+			if(profileLogic.saveUserProfile(userProfile)) {
 				userUuid = userProfile.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -247,6 +198,245 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		}
 		return userUuid;
 	}
+	
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	private String getUserProfileAsHTML(UserProfile userProfile) {
+		
+		//note there is no birthday in this field. we need a good way to get the birthday without the year. 
+		//maybe it needs to be stored in a separate field and treated differently. Or returned as a localised string.
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"profile2-profile\">");
+		
+		
+			sb.append("<div class=\"profile2-profile-image\">");
+			sb.append("<img src=\"");
+			sb.append(userProfile.getImageUrl());
+			sb.append("\" />");
+			sb.append("</div>");
+		
+		
+		sb.append("<div class=\"profile2-profile-content\">");
+		
+		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
+			sb.append("<div class=\"profile2-profile-userUuid\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.userUuid"));
+			sb.append("</span>");
+			sb.append(userProfile.getUserUuid());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getDisplayName())) {
+			sb.append("<div class=\"profile2-profile-displayName\">");
+			sb.append(userProfile.getDisplayName());
+			sb.append("</div>");
+		}
+		
+		//status
+		if(StringUtils.isNotBlank(userProfile.getStatus().getMessage())) {
+			sb.append("<div class=\"profile2-profile-statusMessage\">");
+			sb.append(userProfile.getStatus().getMessage());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getStatus().getDateFormatted())) {
+			sb.append("<div class=\"profile2-profile-statusDate\">");
+			sb.append(userProfile.getStatus().getDateFormatted());
+			sb.append("</div>");
+		}
+		
+		//basic info
+		if(StringUtils.isNotBlank(userProfile.getNickname())) {
+			sb.append("<div class=\"profile2-profile-nickname\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.nickname"));
+			sb.append("</span>");
+			sb.append(userProfile.getNickname());
+			sb.append("</div>");
+		}
+		if(StringUtils.isNotBlank(userProfile.getPersonalSummary())) {
+			sb.append("<div class=\"profile2-profile-personalSummary\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.personalSummary"));
+			sb.append("</span>");
+			sb.append(userProfile.getPersonalSummary());
+			sb.append("</div>");
+		}
+		
+		
+		//contact info
+		if(StringUtils.isNotBlank(userProfile.getEmail())) {
+			sb.append("<div class=\"profile2-profile-email\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.email"));
+			sb.append("</span>");
+			sb.append(userProfile.getEmail());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getHomepage())) {
+			sb.append("<div class=\"profile2-profile-homepage\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.homepage"));
+			sb.append("</span>");
+			sb.append(userProfile.getHomepage());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getHomephone())) {
+			sb.append("<div class=\"profile2-profile-homephone\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.homephone"));
+			sb.append("</span>");
+			sb.append(userProfile.getHomephone());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getWorkphone())) {
+			sb.append("<div class=\"profile2-profile-workphone\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.workphone"));
+			sb.append("</span>");
+			sb.append(userProfile.getWorkphone());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getMobilephone())) {
+			sb.append("<div class=\"profile2-profile-mobilephone\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.mobilephone"));
+			sb.append("</span>");
+			sb.append(userProfile.getMobilephone());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFacsimile())) {
+			sb.append("<div class=\"profile2-profile-facsimile\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.facsimile"));
+			sb.append("</span>");
+			sb.append(userProfile.getFacsimile());
+			sb.append("</div>");
+		}
+		
+		
+		
+		//academic info
+		if(StringUtils.isNotBlank(userProfile.getPosition())) {
+			sb.append("<div class=\"profile2-profile-position\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.position"));
+			sb.append("</span>");
+			sb.append(userProfile.getPosition());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getDepartment())) {
+			sb.append("<div class=\"profile2-profile-department\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.department"));
+			sb.append("</span>");
+			sb.append(userProfile.getDepartment());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getSchool())) {
+			sb.append("<div class=\"profile2-profile-school\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.school"));
+			sb.append("</span>");
+			sb.append(userProfile.getSchool());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getRoom())) {
+			sb.append("<div class=\"profile2-profile-room\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.room"));
+			sb.append("</span>");
+			sb.append(userProfile.getRoom());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getCourse())) {
+			sb.append("<div class=\"profile2-profile-course\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.course"));
+			sb.append("</span>");
+			sb.append(userProfile.getCourse());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getSubjects())) {
+			sb.append("<div class=\"profile2-profile-subjects\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.subjects"));
+			sb.append("</span>");
+			sb.append(userProfile.getSubjects());
+			sb.append("</div>");
+		}
+		
+		
+		//personal info
+		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
+			sb.append("<div class=\"profile2-profile-favouriteBooks\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.favouriteBooks"));
+			sb.append("</span>");
+			sb.append(userProfile.getFavouriteBooks());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteTvShows())) {
+			sb.append("<div class=\"profile2-profile-favouriteTvShows\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.favouriteTvShows"));
+			sb.append("</span>");
+			sb.append(userProfile.getFavouriteTvShows());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteMovies())) {
+			sb.append("<div class=\"profile2-profile-favouriteMovies\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.favouriteMovies"));
+			sb.append("</span>");
+			sb.append(userProfile.getFavouriteMovies());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteQuotes())) {
+			sb.append("<div class=\"profile2-profile-favouriteQuotes\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("Label.favouriteQuotes"));
+			sb.append("</span>");
+
+			sb.append(userProfile.getFavouriteQuotes());
+			sb.append("</div>");
+		}
+		
+		sb.append("</div>");
+		sb.append("</div>");
+		
+		//add the stylesheet
+		sb.append("<link href=\"");
+		sb.append(ProfileConstants.ENTITY_CSS_PROFILE);
+		sb.append("\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+		
+		return sb.toString();
+	}
+	
+	
+	
+	
+	
+	
+	
 
 	
 
@@ -270,9 +460,6 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 
 	
 	
-	
-	
-	
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.XML, Formats.JSON};
 	}
@@ -289,9 +476,9 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		
 	
 	
-	private ProfileService profileService;
-	public void setProfileService(ProfileService profileService) {
-		this.profileService = profileService;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 	
 	private ProfileImageLogic imageLogic;

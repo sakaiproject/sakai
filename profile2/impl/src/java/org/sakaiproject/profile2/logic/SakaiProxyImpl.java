@@ -69,9 +69,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Validator;
 
 /**
- * This is the Implementation of the helper API used by the Profile2 tool only. 
- * 
- * DO NOT USE THIS YOURSELF
+ * Implementation of SakaiProxy for Profile2.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *

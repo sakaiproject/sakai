@@ -84,18 +84,9 @@
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
     </bean>
+
 	
-	<!--  service beans, REMOVE -->
-	<bean id="org.sakaiproject.profile2.service.BaseProfileService" abstract="true">
-		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-	</bean>
-	
-	<bean id="org.sakaiproject.profile2.service.ProfileService" 
-		class="org.sakaiproject.profile2.service.ProfileServiceImpl"
-		parent="org.sakaiproject.profile2.service.BaseProfileService" />
-	
-    <!-- EntityProvider beans, UPDATE -->
+    <!-- EntityProvider beans -->
     <bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
 		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 	</bean>
@@ -118,10 +109,8 @@
 		
 	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
 
-
-    
 	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProvider">
-		<property name="profileService" ref="org.sakaiproject.profile2.service.ProfileService" />
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 	</bean>
 	
@@ -157,8 +146,8 @@
 	<!-- Legacy bean that implements the original ProfileManager interface -->
 	<bean id="org.sakaiproject.profile2.legacy.ProfileManager" class="org.sakaiproject.profile2.legacy.ProfileManagerImpl" init-method="init" destroy-method="destroy">
        
-        <property name="profileService">
-        	<ref bean="org.sakaiproject.profile2.service.ProfileService"/>
+        <property name="profileLogic">
+        	<ref bean="org.sakaiproject.profile2.logic.ProfileLogic"/>
         </property>
         <property name="imageLogic">
         	<ref bean="org.sakaiproject.profile2.logic.ProfileImageLogic"/>

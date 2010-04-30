@@ -60,20 +60,12 @@ public class UserProfile implements Serializable {
 	private String academicProfileUrl; 
 	private String publications;
 	private String businessBiography;
-	private List<CompanyProfile> companyProfiles;
-	private String facebookUsername;
-	private String linkedinUsername;
-	private String myspaceUsername;
-	private String skypeUsername;
-	private String twitterUsername;
+	
 	private boolean locked;
 	
-	
-	
-	
-	private String statusMessage;
-	private Date statusDate;
-	private String statusDateFormatted;
+	private ProfileStatus status;
+	private List<CompanyProfile> companyProfiles;
+	private SocialNetworkingInfo socialInfo;
 	
 	/* 
 	 * This is an EntityBroker URL that can be used to get directly to a user's profile image. URL is open, but privacy is still checked.
@@ -349,45 +341,15 @@ public class UserProfile implements Serializable {
 		this.companyProfiles = companyProfiles;
 	}
 	
-	public String getFacebookUsername() {
-		return facebookUsername;
+	public void setSocialInfo(SocialNetworkingInfo socialInfo) {
+		this.socialInfo = socialInfo;
 	}
 
-	public void setFacebookUsername(String facebookUsername) {
-		this.facebookUsername = facebookUsername;
+	public SocialNetworkingInfo getSocialInfo() {
+		return socialInfo;
 	}
 
-	public String getLinkedinUsername() {
-		return linkedinUsername;
-	}
-
-	public void setLinkedinUsername(String linkedinUsername) {
-		this.linkedinUsername = linkedinUsername;
-	}
-
-	public String getMyspaceUsername() {
-		return myspaceUsername;
-	}
-
-	public void setMyspaceUsername(String myspaceUsername) {
-		this.myspaceUsername = myspaceUsername;
-	}
-
-	public String getSkypeUsername() {
-		return skypeUsername;
-	}
-
-	public void setSkypeUsername(String skypeUsername) {
-		this.skypeUsername = skypeUsername;
-	}
-
-	public String getTwitterUsername() {
-		return twitterUsername;
-	}
-
-	public void setTwitterUsername(String twitterUsername) {
-		this.twitterUsername = twitterUsername;
-	}
+	
 
 	public void setLocked(boolean locked) {
 		this.locked = locked;
@@ -397,22 +359,13 @@ public class UserProfile implements Serializable {
 		return locked;
 	}
 
-	public String getStatusMessage() {
-		return statusMessage;
+	public void setStatus(ProfileStatus status) {
+		this.status = status;
 	}
 
-	public void setStatusMessage(String statusMessage) {
-		this.statusMessage = statusMessage;
+	public ProfileStatus getStatus() {
+		return status;
 	}
-
-	public Date getStatusDate() {
-		return statusDate;
-	}
-
-	public void setStatusDate(Date statusDate) {
-		this.statusDate = statusDate;
-	}
-
 	
 	public String getImageUrl() {
 		return imageUrl;
@@ -428,14 +381,6 @@ public class UserProfile implements Serializable {
 
 	public String getImageThumbUrl() {
 		return imageThumbUrl;
-	}
-
-	public void setStatusDateFormatted(String statusDateFormatted) {
-		this.statusDateFormatted = statusDateFormatted;
-	}
-
-	public String getStatusDateFormatted() {
-		return statusDateFormatted;
 	}
 
 	public void setProps(Map<String, String> props) {

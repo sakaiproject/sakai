@@ -146,9 +146,6 @@ public class ProfileStatusRenderer extends Panel {
 			return;
 		}
 		
-		//format date
-		status.setDateFormatted(ProfileUtils.convertDateForStatus(status.getDateAdded()));
-		
 		//output
 		add(new Label("message", status.getMessage())
 			.add(new AttributeModifier("class", true, new Model<String>(msgClass)))

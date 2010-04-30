@@ -31,19 +31,19 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.dao.ProfileDao;
+import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
-import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
-import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -57,11 +57,7 @@ import org.sakaiproject.user.api.User;
 import twitter4j.Twitter;
 
 /**
- * This is an internal Profile2 API Implementation to be used by the Profile2 tool only. 
- * 
- * <p>DO NOT USE THIS YOURSELF, use the ProfileServices instead.</p>
- * 
- * <p>If there are methods here that do not have an appropriate exposure in the service APIs, please file a JIRA at <a href="http://jira.sakaiproject.org/browse/PRFL">http://jira.sakaiproject.org/browse/PRFL</a></p>
+ * Implementation of ProfileLogic for Profile2.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
@@ -70,15 +66,172 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public UserProfile getUserProfile(final String userUuid) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in to get a UserProfile.");
+		}
+		
+		//get User
+		User u = sakaiProxy.getUserById(userUuid);
+		if(u == null) {
+			log.error("User " + userUuid + " does not exist.");
+			return null;
+		}
+		
+		//setup obj
+		UserProfile p = new UserProfile();
+		p.setUserUuid(userUuid);
+		p.setDisplayName(u.getDisplayName());
+		p.setImageUrl(getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN));
+		p.setImageThumbUrl(getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL));
+			
+		//get SakaiPerson
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		if(sakaiPerson == null) {
+			//no profile, return basic info only.
+			return p;
+		}
+		
+		//transform
+		p = transformSakaiPersonToUserProfile(p, sakaiPerson);
+				
+		//if person requested own profile, no need for privacy checks
+		//add the additional information and return
+		if(userUuid.equals(currentUserUuid)) {
+			p.setStatus(getUserStatus(userUuid));
+			p.setSocialInfo(getSocialNetworkingInfo(userUuid));
+			p.setCompanyProfiles(getCompanyProfiles(userUuid));
+			
+			return p;
+		}
+		
+		//get privacy record
+		ProfilePrivacy privacy = getPrivacyRecordForUser(userUuid);
+		
+		//check friend status
+		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
+		
+		//REMOVE basic info if not allowed
+		if(!isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("basic info not allowed");
+			p.setNickname(null);
+			p.setDateOfBirth(null);
+			p.setPersonalSummary(null);
+		}
+		
+		//REMOVE contact info if not allowed
+		if(!isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("contact info not allowed");
+			p.setEmail(null);
+			p.setHomepage(null);
+			p.setHomephone(null);
+			p.setWorkphone(null);
+			p.setMobilephone(null);
+			p.setFacsimile(null);
+		}
+		
+		//REMOVE staff info if not allowed
+		if(!isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("staff info not allowed");
+			p.setDepartment(null);
+			p.setPosition(null);
+			p.setSchool(null);
+			p.setRoom(null);
+			p.setStaffProfile(null);
+			p.setAcademicProfileUrl(null);
+			p.setUniversityProfileUrl(null);
+			p.setPublications(null);
+		}
+		
+		//REMOVE student info if not allowed
+		if(!isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("student info not allowed");
+			p.setCourse(null);
+			p.setSubjects(null);
+		}
+		
+		//REMOVE personal info if not allowed
+		if(!isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("personal info not allowed");
+			p.setFavouriteBooks(null);
+			p.setFavouriteTvShows(null);
+			p.setFavouriteMovies(null);
+			p.setFavouriteQuotes(null);
+		}
+		
+		//ADD social networking info if allowed
+		if(isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			p.setSocialInfo(getSocialNetworkingInfo(userUuid));
+		}
+		
+		//ADD company info if activated and allowed, REMOVE business bio if not
+		if(sakaiProxy.isBusinessProfileEnabled()) {
+			if(isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+				p.setCompanyProfiles(getCompanyProfiles(userUuid));
+			} else {
+				p.setBusinessBiography(null);
+			}
+		} else {
+			p.setBusinessBiography(null);
+		}
+		
+		//ADD profile status if allowed
+		if(isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			p.setStatus(getUserStatus(userUuid));
+		}
+		
+		return p;
+	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> getConnectionsForUser(String userId) {
+	public boolean saveUserProfile(UserProfile p) {
+		
+		/*
+		
+		SakaiPerson sp = transformUserProfileToSakaiPerson(p);
+		
+		//update SakaiPerson obj
+		
+		if(sakaiProxy.updateSakaiPerson(sp)) {
+			
+			//TODO the fields that can update the Account need to be done as well, if allowed.
+			//TODO if profile is locked,should not update, but will need to get the existing record if exists, then check that.
+			
+			return true;
+		} 
+		*/
+		return false;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Person> getConnectionsForUser(final String userUuid) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to get a connection list.");
+		}
 		
 		List<User> users = new ArrayList<User>();
 		List<Person> connections = new ArrayList<Person>();
-		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userId));
+		
+		//check privacy
+		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
+		if(!isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+			return connections;
+		}
+		
+		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
 		
 		for(User u: users) {
 			Person p = new Person();
@@ -333,7 +486,18 @@ public class ProfileLogicImpl implements ProfileLogic {
 		cal.add(Calendar.DAY_OF_YEAR, -7); 
 		final Date oldestStatusDate = cal.getTime(); 
 		
-		return dao.getUserStatus(userUuid, oldestStatusDate);
+		//get data
+		ProfileStatus status = dao.getUserStatus(userUuid, oldestStatusDate);
+		if(status == null){
+			return null;
+		}
+		
+		//format the date field
+		if(status.getDateAdded() != null){
+			status.setDateFormatted(ProfileUtils.convertDateForStatus(status.getDateAdded()));
+		}
+		
+		return status;
 	}
 	
 	/**
@@ -2180,7 +2344,129 @@ public class ProfileLogicImpl implements ProfileLogic {
 	}
 	
 	
+	/**
+	 * Convenience method to map a SakaiPerson object onto a UserProfile object
+	 * 
+	 * @param sp 		input SakaiPerson
+	 * @return			returns a UserProfile representation of the SakaiPerson object
+	 */
+	private UserProfile transformSakaiPersonToUserProfile(UserProfile p, SakaiPerson sp) {
+		
+		//map fields from SakaiPerson to UserProfile
+
+		//basic info
+		p.setNickname(sp.getNickname());
+		p.setDateOfBirth(sp.getDateOfBirth());
+		p.setPersonalSummary(sp.getNotes());
+		
+		//contact info
+		p.setHomepage(sp.getLabeledURI());
+		p.setWorkphone(sp.getTelephoneNumber());
+		p.setHomephone(sp.getHomePhone());
+		p.setMobilephone(sp.getMobile());
+		p.setFacsimile(sp.getFacsimileTelephoneNumber());
+		
+		//staff info
+		p.setDepartment(sp.getOrganizationalUnit());
+		p.setPosition(sp.getTitle());
+		p.setSchool(sp.getCampus());
+		p.setRoom(sp.getRoomNumber());
+		p.setStaffProfile(sp.getStaffProfile());
+		p.setAcademicProfileUrl(sp.getAcademicProfileUrl());
+		p.setUniversityProfileUrl(sp.getUniversityProfileUrl());
+		p.setPublications(sp.getPublications());
+		
+		//student info
+		p.setCourse(sp.getEducationCourse());
+		p.setSubjects(sp.getEducationSubjects());
+		
+		//personal info
+		p.setFavouriteBooks(sp.getFavouriteBooks());
+		p.setFavouriteTvShows(sp.getFavouriteTvShows());
+		p.setFavouriteMovies(sp.getFavouriteMovies());
+		p.setFavouriteQuotes(sp.getFavouriteQuotes());
+		
+		//business info
+		p.setBusinessBiography(sp.getBusinessBiography());
+		
+		return p;
+	}
 	
+	/**
+	 * Convenience method to map a UserProfile object onto a SakaiPerson object for persisting
+	 * 
+	 * @param up 		input SakaiPerson
+	 * @return			returns a SakaiPerson representation of the UserProfile object
+	 */
+	private SakaiPerson transformUserProfileToSakaiPerson(UserProfile up) {
+	
+		String userUuid = up.getUserUuid();
+		
+		//get SakaiPerson
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		
+		//if null, create one 
+		if(sakaiPerson == null) {
+			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
+			//if its still null, throw exception
+			if(sakaiPerson == null) {
+				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userUuid);
+			}
+		} 
+		
+		//map fields from UserProfile to SakaiPerson
+		
+		//basic info
+		sakaiPerson.setNickname(up.getNickname());
+		sakaiPerson.setDateOfBirth(up.getDateOfBirth());
+		
+		//contact info
+		sakaiPerson.setLabeledURI(up.getHomepage());
+		sakaiPerson.setTelephoneNumber(up.getWorkphone());
+		sakaiPerson.setHomePhone(up.getHomephone());
+		sakaiPerson.setMobile(up.getMobilephone());
+		sakaiPerson.setFacsimileTelephoneNumber(up.getFacsimile());
+		
+		//academic info
+		sakaiPerson.setOrganizationalUnit(up.getDepartment());
+		sakaiPerson.setTitle(up.getPosition());
+		sakaiPerson.setCampus(up.getSchool());
+		sakaiPerson.setRoomNumber(up.getRoom());
+		sakaiPerson.setEducationCourse(up.getCourse());
+		sakaiPerson.setEducationSubjects(up.getSubjects());
+		
+		//personal info
+		sakaiPerson.setFavouriteBooks(up.getFavouriteBooks());
+		sakaiPerson.setFavouriteTvShows(up.getFavouriteTvShows());
+		sakaiPerson.setFavouriteMovies(up.getFavouriteMovies());
+		sakaiPerson.setFavouriteQuotes(up.getFavouriteQuotes());
+		sakaiPerson.setNotes(up.getPersonalSummary());
+
+		return sakaiPerson;
+	}
+	
+
+	/**
+	 * Get the entity url to a profile image for a user.
+	 *  
+	 * It can be added to any profile without checks as the retrieval of the image does the checks, and a default image
+	 * is used if not allowed or none available.
+	 * 
+	 * @param userUuid	uuid for the user
+	 * @param size		size of image, from ProfileConstants
+	 */
+	private String getProfileImageEntityUrl(String userUuid, int size) {
+	
+		StringBuilder sb = new StringBuilder();
+		sb.append(sakaiProxy.getServerUrl());
+		sb.append("/direct/profile/");
+		sb.append(userUuid);
+		sb.append("/image/");
+		if(size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL){
+			sb.append("thumb/");
+		}
+		return sb.toString();
+	}
 	
 	
 	//setup SakaiProxy API
@@ -2200,10 +2486,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	public void setLinkLogic(ProfileLinkLogic linkLogic) {
 		this.linkLogic = linkLogic;
 	}
-
-
 	
-
 
 
 

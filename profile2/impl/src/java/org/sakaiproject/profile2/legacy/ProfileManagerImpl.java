@@ -28,10 +28,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.profile.Profile;
 import org.sakaiproject.api.app.profile.ProfileManager;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -53,7 +53,7 @@ public class ProfileManagerImpl implements ProfileManager {
  	*/
 	public Profile getUserProfileById(String userId){
 		
-		UserProfile userProfile = profileService.getFullUserProfile(userId);
+		UserProfile userProfile = profileLogic.getUserProfile(userId);
 		
 		//transform the profile
 		Profile profile = transformUserProfiletoLegacyProfile(userProfile);
@@ -198,9 +198,9 @@ public class ProfileManagerImpl implements ProfileManager {
 	}
 	
 	
-	private ProfileService profileService;
-	public void setProfileService(ProfileService profileService) {
-		this.profileService = profileService;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 	
 	private ProfileImageLogic imageLogic;

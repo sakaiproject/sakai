@@ -109,4 +109,8 @@ public interface ProfileImageLogic {
 	 */
 	public boolean removeGalleryImage(String userId, long imageId);
 	
+	
+	
+	
+	
 }

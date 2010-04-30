@@ -25,7 +25,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -48,16 +47,14 @@ public class MySocialNetworkingDisplay extends Panel {
 
 		log.debug("MySocialNetworkingDisplay()");
 
-		setDefaultModel(new Model<String>("socialNetworkingDisplayModel"));
-
 		add(new Label("heading", new ResourceModel("heading.social")));
 			
 		// social networking
-		String facebookUsername = userProfile.getFacebookUsername();
-		String linkedinUsername = userProfile.getLinkedinUsername();
-		String myspaceUsername = userProfile.getMyspaceUsername();
-		String skypeUsername = userProfile.getSkypeUsername();
-		String twitterUsername = userProfile.getTwitterUsername();
+		String facebookUsername = userProfile.getSocialInfo().getFacebookUsername();
+		String linkedinUsername = userProfile.getSocialInfo().getLinkedinUsername();
+		String myspaceUsername = userProfile.getSocialInfo().getMyspaceUsername();
+		String skypeUsername = userProfile.getSocialInfo().getSkypeUsername();
+		String twitterUsername = userProfile.getSocialInfo().getTwitterUsername();
 		
 		int visibleFieldCount = 0;
 		
@@ -116,20 +113,8 @@ public class MySocialNetworkingDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		
-		addEditButton(id, userProfile);
-		
-		// no fields message
-		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel(
-				"text.no.fields"));
-		add(noFieldsMessage);
-		if (visibleFieldCount > 0) {
-			noFieldsMessage.setVisible(false);
-		}
-	}
-	
-	private void addEditButton(final String id, final UserProfile userProfile) {
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton",
-				new ResourceModel("button.edit")) {
+		//edit button
+		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton",new ResourceModel("button.edit")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -146,8 +131,7 @@ public class MySocialNetworkingDisplay extends Panel {
 			}
 
 		};
-		editButton.add(new Label("editButtonLabel", new ResourceModel(
-				"button.edit")));
+		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.setOutputMarkupId(true);
 
 		if (userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
@@ -155,5 +139,14 @@ public class MySocialNetworkingDisplay extends Panel {
 		}
 
 		add(editButton);
+		
+		// no fields message
+		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
+		add(noFieldsMessage);
+		if (visibleFieldCount > 0) {
+			noFieldsMessage.setVisible(false);
+		}
 	}
+	
+	
 }

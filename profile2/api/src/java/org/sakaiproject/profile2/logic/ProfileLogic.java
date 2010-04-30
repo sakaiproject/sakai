@@ -20,23 +20,20 @@ import java.util.List;
 
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
-import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.user.api.User;
 
 /**
- * This is the internal API to be used by the Profile2 tool and entities only. 
- * 
- * DO NOT IMPLEMENT THIS YOURSELF, use the {@link org.sakaiproject.profile2.service.ProfileService} instead
+ * An interface for working with profiles in Profile2.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
@@ -45,12 +42,37 @@ import org.sakaiproject.user.api.User;
 public interface ProfileLogic {
 
 	/**
+	 * Get a UserProfile for the given userUuid
+	 * 
+	 * <p>All users have profiles, even if they haven't filled it in yet. 
+	 * At a very minimum it will contain their name. Privacy checks will determine visibility of other fields</p>
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user.</p>
+	 * 
+	 * 
+	 * @param userUuid		uuid of the user to retrieve the profile for
+	 * @return UserProfile 	for the user, that is visible to the requesting user, or null if the user does not exist.
+	 */
+	public UserProfile getUserProfile(String userUuid);
+	
+	/**
+	 * Persist a UserProfile
+	 * 
+	 * <p>Not yet implemented, will return false.</p>
+	 * 
+	 * @param userProfile	UserProfile obj, can only save own.
+	 * @return	
+	 */
+	public boolean saveUserProfile(UserProfile userProfile);
+	
+	/**
 	 * Gets a list of Persons's that are connected to this user
 	 * 
-	 * @param userId		uuid of the user to retrieve the list of connections for
+	 * @param userUuid		uuid of the user to retrieve the list of connections for
 	 * @return
 	 */
-	public List<Person> getConnectionsForUser(final String userId);
+	public List<Person> getConnectionsForUser(final String userUuid);
 	
 	/**
 	 * Gets a count of the number of connections a user has.
