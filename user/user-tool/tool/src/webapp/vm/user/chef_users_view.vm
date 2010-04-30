@@ -10,7 +10,7 @@
 		</h3>
 		#if ($alertMessage)
 				<div class="alertMessage">
-					$tlang.getString("usevie.alert") $validator.escapeHtml($alertMessage)
+					$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)
 				</div>
 		#end
 
@@ -22,7 +22,7 @@
 				<table class="itemSummary" summary="$tlang.getString("usevie.revandmod2")">
 					<tr>
 						<th>
-							$tlang.getString("usevie.use2")
+							$tlang.getString("useconrem.useid")
 						</th>
 						<td>
 							$validator.escapeHtml($user.Eid)
@@ -30,7 +30,7 @@
 					</tr>
 					<tr>
 						<th>
-							$tlang.getString("usevie.firnam")
+							$tlang.getString("usecre.firnam")
 						</th>
 						<td>
 							$validator.escapeHtml($user.FirstName)
@@ -38,7 +38,7 @@
 					</tr>
 					<tr>
 						<th>
-							$tlang.getString("usevie.lasnam")
+							$tlang.getString("usecre.lasnam")
 						</th>
 						<td>
 							$validator.escapeHtml($user.LastName)
@@ -54,7 +54,7 @@
 					</tr>
 					<tr>
 						<th>
-							$tlang.getString("usevie.typ")
+							$tlang.getString("usecre.typ")
 						</th>
 						<td>
 							$validator.escapeHtml($user.Type)
@@ -64,25 +64,25 @@
 
 			<table class="itemSummary" summary="$tlang.getString("usevie.revuseinf")">
 				<tr>
-					<th>$tlang.getString("usevie.creby")</th>
+					<th>$tlang.getString("useedi.creby")</th>
 					<td>
 						$validator.escapeHtml($user.CreatedBy.DisplayName)
 					</td>
 				</tr>
 				<tr>
-					<th>$tlang.getString("usevie.cre")</th>
+					<th>$tlang.getString("useedi.cre")</th>
 					<td >
 						$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
 					</td>
 				</tr>
 				<tr>
-					<th>$tlang.getString("usevie.modby")</th>
+					<th>$tlang.getString("useedi.modby")</th>
 					<td>
 						$validator.escapeHtml($user.ModifiedBy.DisplayName)
 					</td>
 				</tr>
 				<tr>
-					<th>$tlang.getString("usevie.mod")</th>
+					<th>$tlang.getString("useedi.mod")</th>
 					<td>
 						$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
 					</td>

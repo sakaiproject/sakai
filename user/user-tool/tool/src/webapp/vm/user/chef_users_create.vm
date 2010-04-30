@@ -12,13 +12,13 @@
 	<h3>
 		$tlang.getString("usecre.entthe")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end	
 
 	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post">
 		<p class="shorttext required">
 			#if(!$user)<span class="reqStar">*</span>#end
 			<label #if(!$user) for="eid" #end>
-				 $tlang.getString("usecre.useid")
+				 $tlang.getString("useconrem.useid")
 			</label>
 			#if(!$user)<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>#else$validator.escapeHtml($user.Eid)#end
 		</p>
@@ -63,7 +63,7 @@
 		</p>
 		<div class="act">
 			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")"  accesskey="s" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("usecre.can")"  accesskey="x" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")"  accesskey="x" />
 		</div>
 	</form>
 </div>

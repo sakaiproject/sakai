@@ -10,7 +10,7 @@
 		Users
 	</h3>
 
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("uselis.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("uselis.theare")
 		</div>
@@ -84,11 +84,11 @@
 #if ($users.size() > 0)
 			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
 				<tr>
-					<th id="Eid">$tlang.getString("uselis.useid")</th>
-					<th id="Name">$tlang.getString("uselis.nam")</th>
+					<th id="Eid">$tlang.getString("useconrem.useid")</th>
+					<th id="Name">$tlang.getString("useconrem.nam")</th>
 					<th id="Email">$tlang.getString("uselis.ema")</th>
-					<th id="Type">$tlang.getString("uselis.typ")</th>
-					<th id="Id">$tlang.getString("uselis.useuid")</th>
+					<th id="Type">$tlang.getString("usecre.typ")</th>
+					<th id="Id">$tlang.getString("useconrem.useuid")</th>
 				</tr>
 	#foreach ($user in $users)
 				<tr>

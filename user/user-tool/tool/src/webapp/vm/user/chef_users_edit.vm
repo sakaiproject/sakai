@@ -13,12 +13,12 @@
 		<h3>
 			$tlang.getString("useedi.revandmod")
 		</h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post">
 			<p class="shorttext  required">
 				#if(!$user)<span class="reqStar">*</span>#end 
 				<label #if(!$user) for="eid" #end>
-					$tlang.getString("useedi.useid")
+					$tlang.getString("useconrem.useid")
 				</label>
 				#if($!user && !$valueEid)
 					#set($valueEid=$user.Eid)
@@ -38,7 +38,7 @@
 			</p>	
 			<p class="shorttext">
 				<label for="first-name">
-					$tlang.getString("useedi.firnam")
+					$tlang.getString("usecre.firnam")
 				</label>	
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
 				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end />
@@ -48,7 +48,7 @@
 			</p>
 			<p class="shorttext">
 				<label for="last-name">
-					$tlang.getString("useedi.lasnam")
+					$tlang.getString("usecre.lasnam")
 				</label>
 			#if ($service.allowUpdateUserName($user.Id) || !$user)
 				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end />
@@ -69,7 +69,7 @@
 #if ($incPw)
 			<p class="shorttext">
 				<label for="pw">
-					$tlang.getString("useedi.crenewpass")
+					$tlang.getString("usecre.crenewpass")
 				</label>
 			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
 				<input type="password" name="pw" id="pw" />
@@ -79,7 +79,7 @@
 			</p>
 			<p class="shorttext">
 				<label for="pw0">
-					$tlang.getString("useedi.vernewpass")
+					$tlang.getString("usecre.vernewpass")
 				</label>
 			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
 				<input type="password" name="pw0" id="pw0" />
@@ -91,7 +91,7 @@
 #if ($incType)
 			<p class="shorttext">
 				<label for="type">
-					$tlang.getString("useedi.typ")
+					$tlang.getString("usecre.typ")
 				</label>
 			#if ($service.allowUpdateUserType($user.Id) || !$user)
 				<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#elseif($valueType)value="$validator.escapeHtml($valueType)"#end />
@@ -118,7 +118,7 @@
 				$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
 			</p>	
 			<p class="shorttext">
-				<label>$tlang.getString("useedi.useuid")</label>
+				<label>$tlang.getString("useconrem.useuid")</label>
 				$validator.escapeHtml($user.Id)
 			</p>
 #end
