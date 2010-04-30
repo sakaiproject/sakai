@@ -46,7 +46,8 @@ public class FormattedTextTest extends TestCase {
                 .processAnchor("<a href=\"#anchor\">"));
     }
 
-    public void testProcessFormattedText() {
+    // DISABLED TEST
+    public void donottestAntisamyProcessFormattedText() {
         // TESTS using the antiSamy library
         String strFromBrowser = null;
         String result = null;

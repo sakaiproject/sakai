@@ -67,12 +67,13 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- added deps for OWASP html cleaner -->
+    <!-- added deps for OWASP html cleaner 
     <dependency>
       <groupId>org.owasp</groupId>
       <artifactId>antisamy</artifactId>
       <version>1.4</version>
     </dependency>
+    -->
 
 <!-- UNUSED
     <dependency>

@@ -21,7 +21,6 @@
 
 package org.sakaiproject.util;
 
-import java.io.InputStream;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
-import org.owasp.validator.html.AntiSamy;
-import org.owasp.validator.html.CleanResults;
-import org.owasp.validator.html.Policy;
-import org.owasp.validator.html.PolicyException;
-import org.owasp.validator.html.ScanException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -65,20 +59,21 @@ public class FormattedText
 	/** An array of regular expression pattern-matchers, that will match the attributes given in M_evilValues */
 	private static Pattern[] M_evilValuePatterns;
 
-	/**
-	 * This is the html cleaner object
-	 */
-	private static AntiSamy antiSamy = null;
-	static {
-        // added in support for antisamy html cleaner
-        try {
-            InputStream is = FormattedText.class.getClassLoader().getResourceAsStream("antisamy/policy.xml");
-            Policy policy = Policy.getInstance(is);
-            antiSamy = new AntiSamy(policy);
-        } catch (Exception e) {
-            M_log.warn("Unable to startup the antisamy html code cleanup handler: " + e, e);
-        }
-	}
+// Commented out the antisamy stuff for now -AZ
+//	/**
+//	 * This is the html cleaner object
+//	 */
+//	private static AntiSamy antiSamy = null;
+//	static {
+//        // added in support for antisamy html cleaner
+//        try {
+//            InputStream is = FormattedText.class.getClassLoader().getResourceAsStream("antisamy/policy.xml");
+//            Policy policy = Policy.getInstance(is);
+//            antiSamy = new AntiSamy(policy);
+//        } catch (Exception e) {
+//            M_log.warn("Unable to startup the antisamy html code cleanup handler: " + e, e);
+//        }
+//	}
 
 	/**
 	 * If true then the legacy HTML cleaner is used, if false use the antiSamy html cleaner
@@ -139,14 +134,15 @@ public class FormattedText
 		String pads = "(\\s)*?(?:/\\*.*\\*/|<!--.*-->|\0|)*?(\\s)*?";
 		for (int i = 0; i < M_evilValues.length; i++)
 		{
-			String complexPattern = "\\s*";
+            StringBuilder complexPattern = new StringBuilder();
+            complexPattern.append("\\s*");
 			String value = M_evilValues[i];
 			for (int j = 0; j < value.length(); j++)
 			{
-				complexPattern += value.charAt(j) + pads;
+			    complexPattern.append(value.charAt(j));
+			    complexPattern.append(pads);
 			}
-
-			M_evilValuePatterns[i] = Pattern.compile(complexPattern, Pattern.CASE_INSENSITIVE | 
+			M_evilValuePatterns[i] = Pattern.compile(complexPattern.toString(), Pattern.CASE_INSENSITIVE | 
 					Pattern.UNICODE_CASE | Pattern.DOTALL);
 		}
 
@@ -301,30 +297,30 @@ public class FormattedText
         }
 
         if (checkForEvilTags) {
-            if (useLegacySakaiCleaner || antiSamy == null) {
+//            if (useLegacySakaiCleaner || antiSamy == null) {
                 val = processHtml(strFromBrowser, errorMessages);
-            } else {
-                // use the owasp processor
-                if (antiSamy != null) {
-                    try {
-                        CleanResults cr = antiSamy.scan(strFromBrowser);
-                        if (cr.getNumberOfErrors() > 0) {
-                            for (Object errorMsg : cr.getErrorMessages()) {
-                                errorMessages.append("<div class=\"error\">");
-                                errorMessages.append(errorMsg.toString());
-                                errorMessages.append("</div>");
-                            }
-                        }
-                        val = cr.getCleanHTML();
-                    } catch (ScanException e) {
-                        // this will match the current behavior
-                        val = "";
-                        M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
-                    } catch (PolicyException e) {
-                        throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
-                    }
-                }
-            }
+//            } else {
+//                // use the owasp processor
+//                if (antiSamy != null) {
+//                    try {
+//                        CleanResults cr = antiSamy.scan(strFromBrowser);
+//                        if (cr.getNumberOfErrors() > 0) {
+//                            for (Object errorMsg : cr.getErrorMessages()) {
+//                                errorMessages.append("<div class=\"error\">");
+//                                errorMessages.append(errorMsg.toString());
+//                                errorMessages.append("</div>");
+//                            }
+//                        }
+//                        val = cr.getCleanHTML();
+//                    } catch (ScanException e) {
+//                        // this will match the current behavior
+//                        val = "";
+//                        M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
+//                    } catch (PolicyException e) {
+//                        throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
+//                    }
+//                }
+//            }
         }
 
         // deal with hardcoded empty space character from Firefox 1.5
@@ -332,12 +328,12 @@ public class FormattedText
             val = "";
         }
 
-        if (useLegacySakaiCleaner || antiSamy == null) {
+//        if (useLegacySakaiCleaner || antiSamy == null) {
             // close any open HTML tags (that the user may have accidentally left open)
             StringBuilder buf = new StringBuilder();
             trimFormattedText(val, Integer.MAX_VALUE, buf);
             val = buf.toString();
-        }
+//        }
 
         // TODO: Fully parse and validate the formatted text against
         // the formatted text specification. Perhaps this could be
