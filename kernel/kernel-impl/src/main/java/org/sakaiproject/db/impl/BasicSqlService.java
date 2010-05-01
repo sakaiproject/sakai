@@ -2187,7 +2187,7 @@ public abstract class BasicSqlService implements SqlService
 
 			LOG.info(buf.toString());
 		}
-		catch (Throwable ignore)
+		catch (Exception ignore)
 		{
 			if (LOG.isDebugEnabled())
 			{

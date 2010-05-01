@@ -289,7 +289,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(); ", t);
 		}

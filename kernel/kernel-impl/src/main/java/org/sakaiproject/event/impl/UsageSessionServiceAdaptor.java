@@ -216,7 +216,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -724,7 +724,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				{
 					((SessionStateBindingListener) attribute).valueUnbound(null, attributeName);
 				}
-				catch (Throwable e)
+				catch (Exception e)
 				{
 					M_log.warn("unBindAttributeValue: unbinding exception: ", e);
 				}
@@ -748,7 +748,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 				{
 					((SessionStateBindingListener) attribute).valueBound(null, attributeName);
 				}
-				catch (Throwable e)
+				catch (Exception e)
 				{
 					M_log.warn("bindAttributeValue: unbinding exception: ", e);
 				}

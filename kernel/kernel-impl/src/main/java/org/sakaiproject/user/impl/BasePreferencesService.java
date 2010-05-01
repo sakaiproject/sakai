@@ -241,7 +241,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}

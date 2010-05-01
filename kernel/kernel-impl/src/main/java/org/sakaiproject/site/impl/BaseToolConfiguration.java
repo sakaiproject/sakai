@@ -384,7 +384,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 			rv[1] = Integer.parseInt(parts[1]);
 			return rv;
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			return null;
 		}

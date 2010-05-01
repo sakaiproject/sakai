@@ -130,7 +130,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		{
 			m_defaultInactiveInterval = Integer.parseInt(value);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			System.out.println(t);
 		}
@@ -172,7 +172,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		{
 			m_checkEvery = Integer.parseInt(value);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			System.out.println(t);
 		}
@@ -529,7 +529,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 						}
 					}
 				}
-				catch (Throwable e)
+				catch (Exception e)
 				{
 					M_log.warn("run(): exception: " + e);
 				}

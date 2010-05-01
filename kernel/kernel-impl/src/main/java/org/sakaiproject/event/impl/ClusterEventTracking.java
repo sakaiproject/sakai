@@ -213,7 +213,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			this.post(this.newEvent("server.start", serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown"), false));
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn(this + ".init(): ", t);
 		}
@@ -251,7 +251,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		{
 			notifyObservers(event, true);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("postEvent, notifyObservers(), event: " + event.toString(), t);
 		}
@@ -341,7 +341,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			// commit
 			conn.commit();
 		}
-		catch (Throwable e)
+		catch (Exception e)
 		{
 			if (conn != null)
 			{
@@ -581,7 +581,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 					notifyObservers(event, false);
 				}
 			}
-			catch (Throwable e)
+			catch (Exception e)
 			{
 				M_log.warn("run: will continue: ", e);
 			}

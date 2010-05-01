@@ -245,7 +245,7 @@ public class SakaiClusterService implements ClusterService
 
 			M_log.info("init: refresh: " + m_refresh + " expired: " + m_expired + " ghostingPercent: " + m_ghostingPercent);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -451,7 +451,7 @@ public class SakaiClusterService implements ClusterService
 						}
 					}
 				}
-				catch (Throwable e)
+				catch (Exception e)
 				{
 					M_log.warn("exception: ", e);
 				}

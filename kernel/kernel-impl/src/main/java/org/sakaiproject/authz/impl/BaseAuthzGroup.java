@@ -504,7 +504,7 @@ public class BaseAuthzGroup implements AuthzGroup
 			Reference ref = baseAuthzGroupService.entityManager().newReference(getId());
 			return ref.getDescription();
 		}
-		catch (Throwable ignore)
+		catch (Exception ignore)
 		{
 		}
 

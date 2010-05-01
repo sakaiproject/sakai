@@ -193,7 +193,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}

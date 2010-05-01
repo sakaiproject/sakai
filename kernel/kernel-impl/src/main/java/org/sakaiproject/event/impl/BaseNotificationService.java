@@ -228,7 +228,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 			M_log.info(this + ".init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn(this + ".init(): ", t);
 		}

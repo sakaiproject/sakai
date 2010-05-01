@@ -1523,7 +1523,7 @@ public class BaseSite implements Site
 							userId);
 					m_azgChanged = true;
 				}
-				catch (Throwable t)
+				catch (Exception t)
 				{
 					M_log.warn("getAzg: " + t);
 				}

@@ -388,7 +388,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
  					"postmaster").trim().toLowerCase().split("\\s*,\\s*"));
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -1507,7 +1507,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 				Reference ref = entityManager().newReference(getTarget());
 				return ref.getDescription();
 			}
-			catch (Throwable any)
+			catch (Exception any)
 			{
 				return "unknown";
 			}

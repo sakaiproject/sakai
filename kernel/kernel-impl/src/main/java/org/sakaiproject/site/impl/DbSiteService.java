@@ -173,7 +173,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			M_log.info("init(): site table: " + m_siteTableName + " external locks: " + m_useExternalLocks);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -1325,7 +1325,7 @@ public abstract class DbSiteService extends BaseSiteService
 							M_log.warn("setSiteSecurity: invalid permission " + permission + " site: " + siteId + " user: " + userId);
 						}
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 						return null;
 					}
@@ -1502,7 +1502,7 @@ public abstract class DbSiteService extends BaseSiteService
 							M_log.warn("setUserSecurity: invalid permission " + permission + " site: " + siteId + " user: " + userId);
 						}
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 						return null;
 					}

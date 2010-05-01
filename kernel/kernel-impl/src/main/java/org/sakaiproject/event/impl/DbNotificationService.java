@@ -119,7 +119,7 @@ public abstract class DbNotificationService extends BaseNotificationService
 
 			M_log.info(".init(): table: " + m_tableName + " locks-in-db: " + m_locksInDb);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}

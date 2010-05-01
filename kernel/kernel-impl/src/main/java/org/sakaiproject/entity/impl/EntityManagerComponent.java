@@ -183,7 +183,7 @@ public class EntityManagerComponent implements EntityManager
 			m_rejectRef = new HashMap<String, String>(m_rejectRefIn);
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}

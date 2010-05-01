@@ -163,7 +163,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				
 			});
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -484,7 +484,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		// try to locate a named cache in the bean factory
 		try {
 			cache = (Ehcache) ComponentManager.get(name);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			cache = null;
 			M_log.error("Error occurred when trying to load cache from bean factory!", e);
 		}

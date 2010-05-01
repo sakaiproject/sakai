@@ -197,7 +197,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	//				// check for a digest mailing time
 	//				sendDigests();
 	//			}
-	//			catch (Throwable e)
+	//			catch (Exception e)
 	//			{
 	//				M_log.warn(": exception: ", e);
 	//			}
@@ -207,7 +207,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	//			{
 	//				Thread.sleep(PERIOD);
 	//			}
-	//			catch (Throwable ignore)
+	//			catch (Exception ignore)
 	//			{
 	//			}
 	//		}
@@ -367,7 +367,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 				}
 			}
 			// if in use, missing, whatever, skip on
-			catch (Throwable any)
+			catch (Exception any)
 			{
 			}
 			finally

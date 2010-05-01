@@ -136,7 +136,7 @@ public class ThreadLocalComponent implements ThreadLocalManager
 			bound.unbind();
 			M_log.debug("Unbound from ThreadLocal " + bound);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.error("Failed to unbind Object " + bound, t);
 		}

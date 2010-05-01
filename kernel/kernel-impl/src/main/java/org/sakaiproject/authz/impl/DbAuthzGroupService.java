@@ -192,7 +192,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			M_log.info("init(): table: " + m_realmTableName + " external locks: " + m_useExternalLocks);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -835,7 +835,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							int realm_key = result.getInt(1);
 							return Integer.valueOf(realm_key);
 						}
-						catch (Throwable e)
+						catch (Exception e)
 						{
 							M_log.warn("addNewUserTx: " + e.toString());
 							return null;
@@ -867,7 +867,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							int count = result.getInt(1);
 							return Integer.valueOf(count);
 						}
-						catch (Throwable e)
+						catch (Exception e)
 						{
 							M_log.warn("addNewUserTx: " + e.toString());
 							return null;
@@ -1041,7 +1041,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							toDelete.add(raf);
 						}
 					}
-					catch (Throwable e)
+					catch (Exception e)
 					{
 						M_log.warn("save_REALM_RL_FN: " + e.toString());
 					}
@@ -1116,7 +1116,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							toDelete.add(uar);
 						}
 					}
-					catch (Throwable e)
+					catch (Exception e)
 					{
 						M_log.warn("save_REALM_RL_GR: " + e.toString());
 					}
@@ -1202,7 +1202,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							toDelete.add(provider);
 						}
 					}
-					catch (Throwable e)
+					catch (Exception e)
 					{
 						M_log.warn("save_REALM_PROVIDER: " + e.toString());
 					}
@@ -1271,7 +1271,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							toDelete.add(rad);
 						}
 					}
-					catch (Throwable e)
+					catch (Exception e)
 					{
 						M_log.warn("save_REALM_ROLE_DESC: " + e.toString());
 					}
@@ -1858,7 +1858,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						String provided = result.getString(4);
 						return new RealmAndRole(Integer.valueOf(realmKey), roleName, "1".equals(active), "1".equals(provided));
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 						return null;
 					}
@@ -1936,7 +1936,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							String provider = result.getString(2);
 							return new RealmAndProvider(Integer.valueOf(id), provider);
 						}
-						catch (Throwable ignore)
+						catch (Exception ignore)
 						{
 							return null;
 						}
@@ -2060,7 +2060,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						String provided = result.getString(4);
 						return new UserAndRole(userId, roleName, "1".equals(active), "1".equals(provided));
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 						return null;
 					}
@@ -2443,7 +2443,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 							rv.put(userId, role);
 						}
 					}
-					catch (Throwable t)
+					catch (Exception t)
 					{
 					}
 

@@ -361,7 +361,7 @@ public class BaseGroup implements Group, Identifiable
 					m_azg = AuthzGroupService.newAuthzGroup(getReference(), template, null);
 					m_azgChanged = true;
 				}
-				catch (Throwable t)
+				catch (Exception t)
 				{
 					M_log.warn("getAzg: " + t);
 				}
