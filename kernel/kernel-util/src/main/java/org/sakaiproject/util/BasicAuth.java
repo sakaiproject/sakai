@@ -225,7 +225,7 @@ public class BasicAuth {
 						}
 					}
 				}
-			} catch (Throwable ex) {
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 

@@ -108,7 +108,7 @@ public class MapUtil
 	    	if ( s == null ) return false;
 	    	destMap.put(destKey,Web.escapeHtml(s));
 	    	return true;
-	    } catch (Throwable t) { // Not a string
+	    } catch (Exception t) { // Not a string
 		return false;
 	    }
 	}

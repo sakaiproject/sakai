@@ -48,7 +48,7 @@ public class ArrayUtil
 				if (search.equals(target[i])) return true;
 			}
 		}
-		catch (Throwable e)
+		catch (Exception e)
 		{
 			return false;
 		}

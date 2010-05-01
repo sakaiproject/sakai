@@ -578,7 +578,7 @@ public class EmailNotification implements NotificationAction
 			int option = (int) props.getLongProperty(priStr);
 			if (option != NotificationService.PREF_NONE) return option;
 		}
-		catch (Throwable ignore)
+		catch (Exception ignore)
 		{
 		}
 
@@ -593,7 +593,7 @@ public class EmailNotification implements NotificationAction
 				int option = (int) props.getLongProperty(priStr);
 				if (option != NotificationService.PREF_NONE) return option;
 			}
-			catch (Throwable ignore)
+			catch (Exception ignore)
 			{
 			}
 		}
@@ -605,7 +605,7 @@ public class EmailNotification implements NotificationAction
 			int option = (int) props.getLongProperty(priStr);
 			if (option != NotificationService.PREF_NONE) return option;
 		}
-		catch (Throwable ignore)
+		catch (Exception ignore)
 		{
 		}
 
@@ -623,7 +623,7 @@ public class EmailNotification implements NotificationAction
 			{
 				return NotificationService.PREF_IMMEDIATE;
 			}
-			catch (Throwable ignore)
+			catch (Exception ignore)
 			{
 			}
 		}
