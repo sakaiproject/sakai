@@ -6564,7 +6564,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 		catch (Exception t)
 		{
-			throw new EntityNotDefinedException(ref.getReference());
+			throw new EntityNotDefinedException(ref.getReference(), t);
 		}
 	}
 

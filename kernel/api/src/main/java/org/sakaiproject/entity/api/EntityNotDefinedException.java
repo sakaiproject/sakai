@@ -28,6 +28,10 @@ package org.sakaiproject.entity.api;
  */
 public class EntityNotDefinedException extends Exception
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String m_id = null;
 
 	public EntityNotDefinedException(String id)
@@ -36,6 +40,13 @@ public class EntityNotDefinedException extends Exception
 
 	}
 
+	public EntityNotDefinedException(String id, Throwable cause)
+	{
+		m_id = id;
+		super.initCause(cause);
+
+	}
+	
 	public String getId()
 	{
 		return m_id;
