@@ -439,7 +439,7 @@ public class BasicEmailService implements EmailService
 
 		if (m_smtp == null)
 		{
-			M_log.warn("sendMail: smtp not set");
+			M_log.error("Unable to send mail as no smtp server is defined. Please set smtp@org.sakaiproject.email.api.EmailService value in sakai.properties");
 			return;
 		}
 
