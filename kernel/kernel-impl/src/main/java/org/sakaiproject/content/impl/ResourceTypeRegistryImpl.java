@@ -77,7 +77,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		{
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}

@@ -387,7 +387,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			m_siteQuota = Long.parseLong(quota);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}
@@ -428,7 +428,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			m_caching = Boolean.valueOf(value).booleanValue();
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}
@@ -451,7 +451,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			m_siteAttachments = Boolean.valueOf(value).booleanValue();
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}
@@ -507,7 +507,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				this.m_bodyVolumes[i] = list.get(i);
 			}
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}
@@ -549,7 +549,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			m_siteAlias = Boolean.valueOf(value).booleanValue();
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 		}
 	}
@@ -805,7 +805,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "
 					+ buf.toString());
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -6398,7 +6398,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					{
 						throw e;
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 					}
 					finally
@@ -6415,7 +6415,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							{
 								out.close();
 							}
-							catch (Throwable ignore)
+							catch (Exception ignore)
 							{
 							}
 						}
@@ -6485,7 +6485,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						{
 							throw e;
 						}
-						catch (Throwable ignore)
+						catch (Exception ignore)
 						{
 						}
 						finally
@@ -6535,7 +6535,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			            	copyRanges(resource, out, ranges.iterator(), contentType);
 
 						}
-						catch (Throwable ignore)
+						catch (Exception ignore)
 						{
 							M_log.error("Swallowing exception", ignore);
 						}
@@ -6562,7 +6562,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			} // output resource
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			throw new EntityNotDefinedException(ref.getReference());
 		}
@@ -6631,7 +6631,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			// track event
 			// eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			throw new EntityNotDefinedException(ref.getReference());
 		}
@@ -6904,7 +6904,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 			}
 		}
-		catch (Throwable e)
+		catch (Exception e)
 		{
 		}
 
