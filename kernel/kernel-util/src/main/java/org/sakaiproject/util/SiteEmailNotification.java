@@ -21,12 +21,17 @@
 
 package org.sakaiproject.util;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -116,6 +121,9 @@ public class SiteEmailNotification extends EmailNotification
 				// find intersection of users and user2
 				users.retainAll(users2);
 			}
+
+			//only use direct site members for the base list of users
+			refineToSiteMembers(users, site);
 
 			// add any other users
 			addSpecialRecipients(users, ref);
@@ -239,5 +247,43 @@ public class SiteEmailNotification extends EmailNotification
 		String rv = "\"" + title + "\" <" + email + "@" + ServerConfigurationService.getServerName() + ">";
 
 		return rv;
+	}
+
+	/**
+	 * Refine the recipients list to only users that are actually members
+	 * of the given site.
+	 *
+	 * @param users
+	 * 		The list of users to refine
+	 * @param site
+	 * 		The site whose membership the users will be refined to
+	 */
+	protected void refineToSiteMembers(List<User> users, Site site) {
+		Set<Member> members = site.getMembers();
+		Set<String> memberUserIds = getUserIds(members);
+
+		for (Iterator<User> i = users.listIterator(); i.hasNext();) {
+			User user = i.next();
+
+			if (!memberUserIds.contains(user.getId())) {
+				i.remove();
+			}
+		}
+	}
+
+	/**
+	 * Extract a 'Set' of user ids from the given set of members.
+	 *
+	 * @param members	The Set of members from which to extract the userIds
+	 * @return
+	 * 		The set of user ids that belong to the users in the member set.
+	 */
+	private Set<String> getUserIds(Collection<Member> members) {
+		Set<String> userIds = new HashSet<String>();
+
+		for (Member member : members)
+			userIds.add(member.getUserId());
+
+		return userIds;
 	}
 }
