@@ -93,17 +93,20 @@
 	
 	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider">
 		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	</bean>
 	
 	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider">
 		<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />	</bean>
 		
 	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider">
 		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />	</bean>
 		
@@ -111,6 +114,7 @@
 
 	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProvider">
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 	</bean>
 	

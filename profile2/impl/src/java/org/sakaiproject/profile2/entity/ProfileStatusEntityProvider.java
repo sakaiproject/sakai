@@ -30,7 +30,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 
 /**
@@ -57,7 +57,13 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 	
 	public Object getEntity(EntityReference ref) {
 	
-		ProfileStatus status = profileLogic.getUserStatus(ref.getId());
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		ProfileStatus status = profileLogic.getUserStatus(uuid);
 		if(status == null) {
 			throw new EntityNotFoundException("ProfileStatus could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -120,6 +126,10 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
+	private SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
+	}
 	
 	private ProfileStatusLogic statusLogic;
 	public void setStatusLogic(ProfileStatusLogic statusLogic) {

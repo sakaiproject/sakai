@@ -30,6 +30,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 
 /**
@@ -56,7 +57,13 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 	
 	public Object getEntity(EntityReference ref) {
 	
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(ref.getId());
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(uuid);
 		if(prefs == null) {
 			throw new EntityNotFoundException("ProfilePreferences could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -122,6 +129,10 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
+	private SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
+	}
 		
 	private ProfilePreferencesLogic preferencesLogic;
 	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {

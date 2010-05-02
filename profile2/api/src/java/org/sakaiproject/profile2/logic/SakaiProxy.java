@@ -506,17 +506,15 @@ public interface SakaiProxy {
 	public List<String> getMinimalEntityConfigurationSet();
 
 	/**
-	 * Convenience method to convert the given userId input (internal id or eid) to a uuid. 
+	 * Convenience method to ensure the given userId(eid or internal id) is returned as a valid uuid.
 	 * 
-	 * There is a small risk that an eid could be created that matches the uuid of another user.
-	 * 
-	 * Since 99% of the time requests will be made with uuid as the param, to speed things up this checks for that first.
-	 * If the above risk manifests itself, we will need to swap the order so usernames are checked first.
+	 * <p>External integrations must pass input through this method, where the input can be either form,
+	 * since all data is keyed on the internal user id.
 	 * 
 	 * @param userId
 	 * @return uuid or null
 	 */
-	public String getUuidForUserId(String userId);
+	public String ensureUuid(String userId);
 	
 	/**
 	 * Is the profile2.privacy.change.enabled flag set in sakai.properties?

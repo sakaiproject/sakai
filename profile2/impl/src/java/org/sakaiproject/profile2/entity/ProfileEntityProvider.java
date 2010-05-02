@@ -39,6 +39,7 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -69,8 +70,14 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	
 	public Object getEntity(EntityReference ref) {
 	
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
 		//get the full profile for the user, takes care of privacy checks against the current user
-		UserProfile userProfile = profileLogic.getUserProfile(ref.getId());
+		UserProfile userProfile = profileLogic.getUserProfile(uuid);
 		if(userProfile == null) {
 			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -83,15 +90,20 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getProfileImage(OutputStream out, EntityView view, EntityReference ref) {
 		
-		ProfileImage image = new ProfileImage();
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
 		
+		ProfileImage image = new ProfileImage();
 		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
 		
 		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			image = imageLogic.getProfileImage(ref.getId(), null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 		} else {
-			image = imageLogic.getProfileImage(ref.getId(), null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
+			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
 		}
 		
 		if(image == null) {
@@ -129,9 +141,15 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	
 	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
 	public Object getConnections(EntityView view, EntityReference ref) {
-				
+		
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
 		//get list of connections
-		List<Person> connections = profileLogic.getConnectionsForUser(ref.getId());
+		List<Person> connections = profileLogic.getConnectionsForUser(uuid);
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}
@@ -238,16 +256,18 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		}
 		
 		//status
-		if(StringUtils.isNotBlank(userProfile.getStatus().getMessage())) {
-			sb.append("<div class=\"profile2-profile-statusMessage\">");
-			sb.append(userProfile.getStatus().getMessage());
-			sb.append("</div>");
-		}
-		
-		if(StringUtils.isNotBlank(userProfile.getStatus().getDateFormatted())) {
-			sb.append("<div class=\"profile2-profile-statusDate\">");
-			sb.append(userProfile.getStatus().getDateFormatted());
-			sb.append("</div>");
+		if(userProfile.getStatus() != null) {
+			if(StringUtils.isNotBlank(userProfile.getStatus().getMessage())) {
+				sb.append("<div class=\"profile2-profile-statusMessage\">");
+				sb.append(userProfile.getStatus().getMessage());
+				sb.append("</div>");
+			}
+			
+			if(StringUtils.isNotBlank(userProfile.getStatus().getDateFormatted())) {
+				sb.append("<div class=\"profile2-profile-statusDate\">");
+				sb.append(userProfile.getStatus().getDateFormatted());
+				sb.append("</div>");
+			}
 		}
 		
 		//basic info
@@ -474,7 +494,10 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	
 	
 		
-	
+	private SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
+	}
 	
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {
