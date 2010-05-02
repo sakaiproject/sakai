@@ -4884,7 +4884,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 
-		if(ContentHostingService.isContentHostingHandlersEnabled())
+		if(ContentHostingService.isContentHostingHandlersEnabled() && SecurityService.isSuperUser())
 		{
 			context.put("showMountPointProperty", Boolean.TRUE.toString());
 		}
