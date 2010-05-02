@@ -352,7 +352,7 @@ public class DbContentService extends BaseContentService
         try
         {
             // system property to manually set conversion completion status.
-            filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", false);				
+            filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", true);				
 
             setContentServiceSql(m_sqlService.getVendor());
 
@@ -601,7 +601,7 @@ public class DbContentService extends BaseContentService
     {
         if (filesizeColumnExists && !filesizeColumnReady)
         {
-            long now = timeService.newTime().getTime();
+            long now = System.currentTimeMillis();
             if(now > filesizeColumnCheckExpires)
             {
                 // cached value has expired -- time to renew
