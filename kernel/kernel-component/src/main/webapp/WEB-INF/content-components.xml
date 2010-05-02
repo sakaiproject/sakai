@@ -36,10 +36,8 @@
         <property name="sessionManager">			<ref bean="org.sakaiproject.tool.api.SessionManager"/>					</property>
         <property name="toolManager">				<ref bean="org.sakaiproject.tool.api.ToolManager"/>						</property>
         <property name="userDirectoryService"> 		<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>			</property>	
-        <!--
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
-		-->
-        <property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
+		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
         <!--
         If you want to use the new serializers you have to let them migrate the data, set to true
