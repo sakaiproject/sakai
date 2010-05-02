@@ -81,6 +81,8 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader loader = new Resource().getLoader(resourceClass, resourceBundle);
+        public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
+
 	// private ResourceLoader toolProps = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -124,11 +126,23 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 
 		at.setServletContext(context);
 
+		// KNL-409 - JSR-168 Portlets do not dispatch the same as normal
+		// Sakai tools - so the warning below is not necessary for JSR-168
+		// tools
+
+                String portletContext = null;
+                Properties toolProps = at.getFinalConfig();
+                if (toolProps != null) {
+                	portletContext = toolProps
+                                .getProperty(TOOL_PORTLET_CONTEXT_PATH);
+		}
+
 		// KNL-352 - in Websphere ServletContext.getNamedDispatcher(...) will initialize the given Servlet.
 		// However Websphere's normal Servlet initialization happens later at com.ibm.ws.wswebcontainer.webapp.WebApp.initialize(WebApp.java:293).
 		// As a result, Websphere ends up trying to initialize the Servlet twice, causing the observed mapping clash exceptions.
 
-		if (!"websphere".equals(ServerConfigurationService.getString("servlet.container")))
+		if (!"websphere".equals(ServerConfigurationService.getString("servlet.container")) &&
+		    portletContext == null )
 		{
 			// try getting the RequestDispatcher, just to test - but DON'T SAVE IT!
 			// Tomcat's RequestDispatcher is NOT thread safe and must be gotten from the context
