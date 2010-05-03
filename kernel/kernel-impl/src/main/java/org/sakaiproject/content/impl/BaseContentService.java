@@ -2561,7 +2561,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		
 		String currentUser = sessionManager.getCurrentSessionUserId();
 		String owner = "";
-
+		
+		//Supper users always have the permission
+		if (m_securityService.isSuperUser()) {
+			return true;
+		}
+		
 		try
 		{
 			ResourceProperties props = getProperties(id);

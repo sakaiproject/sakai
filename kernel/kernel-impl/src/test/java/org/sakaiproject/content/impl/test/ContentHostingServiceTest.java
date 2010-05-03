@@ -21,6 +21,7 @@ import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
@@ -235,6 +236,31 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			e.printStackTrace();
 			fail();
 		}
+	}
+	
+	
+	public void testDeleteResource() {
+		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
+		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		Session session = sm.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+		try {
+			ch.removeResource("noSuchResource");
+			fail();
+		} catch (PermissionException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+		} catch (TypeException e) {
+			e.printStackTrace();
+			fail();
+		} catch (InUseException e) {
+			e.printStackTrace();
+			fail();
+		}
+		
 	}
 	
 }
