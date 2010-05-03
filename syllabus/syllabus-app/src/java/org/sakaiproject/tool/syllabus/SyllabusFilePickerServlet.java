@@ -195,7 +195,7 @@ public class SyllabusFilePickerServlet extends JsfTool
     String helperId = target.substring(1, posEnd + 1);
     ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
-    if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null) {
+    if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null && !target.equals("/sakai.filepicker.helper")) {
        toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL,
              req.getContextPath() + req.getServletPath() + computeDefaultTarget(true));
     }
