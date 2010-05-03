@@ -67,7 +67,15 @@ public interface ProfileLogic {
 	public boolean saveUserProfile(UserProfile userProfile);
 	
 	/**
-	 * Gets a list of Persons's that are connected to this user
+	 * Gets a list of BasicPersons that are connected to this user
+	 * 
+	 * @param userUuid		uuid of the user to retrieve the list of connections for
+	 * @return
+	 */
+	public List<BasicPerson> getBasicConnectionsForUser(final String userUuid);
+	
+	/**
+	 * Gets a list of Persons that are connected to this user. incl prefs and privacy
 	 * 
 	 * @param userUuid		uuid of the user to retrieve the list of connections for
 	 * @return

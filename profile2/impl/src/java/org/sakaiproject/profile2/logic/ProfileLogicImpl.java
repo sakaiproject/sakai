@@ -214,6 +214,41 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	public List<BasicPerson> getBasicConnectionsForUser(final String userUuid) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to get a connection list.");
+		}
+		
+		List<User> users = new ArrayList<User>();
+		List<BasicPerson> connections = new ArrayList<BasicPerson>();
+		
+		//check privacy
+		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
+		if(!isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+			return connections;
+		}
+		
+		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
+		
+		for(User u: users) {
+			BasicPerson p = new BasicPerson();
+			p.setUuid(u.getId());
+			p.setDisplayName(u.getDisplayName());
+			p.setEmail(u.getEmail());
+			p.setType(u.getType());
+				
+			connections.add(p);
+		}
+		
+		return connections;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public List<Person> getConnectionsForUser(final String userUuid) {
 		
 		//check auth and get currentUserUuid
@@ -237,8 +272,11 @@ public class ProfileLogicImpl implements ProfileLogic {
 			Person p = new Person();
 			p.setUuid(u.getId());
 			p.setDisplayName(u.getDisplayName());
+			p.setEmail(u.getEmail());
 			p.setType(u.getType());
 				
+			//TODO flesh this out to add the rest of the objects
+			
 			connections.add(p);
 		}
 		
