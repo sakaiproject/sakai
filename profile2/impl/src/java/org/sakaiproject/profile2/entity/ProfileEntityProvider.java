@@ -40,7 +40,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
@@ -149,7 +149,7 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		}
 		
 		//get list of connections
-		List<Person> connections = profileLogic.getConnectionsForUser(uuid);
+		List<BasicPerson> connections = profileLogic.getBasicConnectionsForUser(uuid);
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}
