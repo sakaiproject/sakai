@@ -1717,10 +1717,14 @@ public abstract class DbSiteService extends BaseSiteService
 						String pageId = result.getString(1);
 						String name = result.getString(2);
 						String value = result.getString(3);
-
+						if (pageId == null) {
+							M_log.warn("query returned a null pageid for site: " + site.getId() + " probably a orphaned DB record");
+							return null;
+						}
+						
 						// get the page
 						BaseSitePage page = (BaseSitePage) site.getPage(pageId);
-						if (page != null)
+						if (page != null && value != null && name != null)
 						{
 							page.m_properties.addProperty(name, value);
 						}
@@ -1763,7 +1767,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 						// get the page
 						BaseToolConfiguration tool = (BaseToolConfiguration) site.getTool(toolId);
-						if (tool != null)
+						if (tool != null && value != null && name != null)
 						{
 							tool.getMyConfig().setProperty(name, value);
 						}
