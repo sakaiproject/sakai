@@ -647,6 +647,22 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
+	public int getAllSakaiPersonIdsCount() {
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public List<UserProfile> getUserProfiles(final int start, final int count) {
 		
 		List<UserProfile> profiles = new ArrayList<UserProfile>();

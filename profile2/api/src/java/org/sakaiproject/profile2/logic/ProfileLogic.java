@@ -911,7 +911,7 @@ public interface ProfileLogic {
 	 * @param count
 	 * @return
 	 */
-	public List<Person> getListOfFullPersons(int start, int count);
+	public List<Person> getAllPersons(int start, int count);
 	
 	/**
 	 * Save the official image url that institutions can set.
@@ -963,5 +963,18 @@ public interface ProfileLogic {
 	 */
 	public List<Person> getPersons(List<User> users);
 	
+	/**
+	 * Get a list of all SakaiPerson's userIds (ie list of all people with profile records)
+	 *
+	 * @return	List of Sakai userId's 
+	 */
+	public List<String> getAllSakaiPersonIds();
+	
+	/**
+	 * Get a count of all users with SakaiPerson records
+	 *
+	 * @return count
+	 */
+	public int getAllSakaiPersonIdsCount();
 	
 }

@@ -171,8 +171,17 @@ public interface ProfileDao {
 	 */
 	public boolean addNewProfileImage(final ProfileImageUploaded profileImage);
 		
-	
+	/**
+	 * Get a list of uuids for all users that have a SakaiPerson record
+	 * @return list of uuids
+	 */
 	public List<String> getAllSakaiPersonIds();
+	
+	/**
+	 * Get a total count of all users with SakaiPerson records
+	 * @return count
+	 */
+	public int getAllSakaiPersonIdsCount();
 	
 	/**
 	 * Get a ProfileImageExternal record for a user
@@ -251,13 +260,18 @@ public interface ProfileDao {
 	final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord"; 
 	final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord"; 
 	final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; 
-	final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
-	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
-	final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
+	
 	final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
 	final String QUERY_GET_SOCIAL_NETWORKING_INFO = "getSocialNetworkingInfo";
-	final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; 
+	final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord";
+
+	//SakaiPersonMeta
+	final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
+	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
 	final String QUERY_GET_ALL_SAKAI_PERSONS = "getAllSakaiPersons";
+	final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
+	final String QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT = "getAllSakaiPersonIdsCount";
+
 	
 	//ProfileImageOfficial
 	final String QUERY_GET_OFFICIAL_IMAGE_RECORD = "getProfileImageOfficialRecord"; 

@@ -2129,7 +2129,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> getListOfFullPersons(final int start, final int count) {
+	public List<Person> getAllPersons(final int start, final int count) {
 		
 		List<Person> persons = new ArrayList<Person>();
 		
@@ -2150,9 +2150,14 @@ public class ProfileLogicImpl implements ProfileLogic {
 	  		}
 	  		
 	  		Person p = new Person();
+	  		
+	  		//set basic info
 	  		p.setUuid(profile.getUserUuid());
 	  		p.setDisplayName(u.getDisplayName());
+	  		p.setEmail(u.getEmail());
 	  		p.setType(u.getType());
+	  		
+	  		//set the profile
 	  		p.setProfile(profile);
 	  		
 	  		//add privacy record
@@ -2161,6 +2166,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	  		//add preferences record
 	  		p.setPreferences(getPreferencesRecordForUser(profile.getUserUuid()));
 	  		
+	  		//add to list
 	  		persons.add(p);
 	  	}
 	  	
@@ -2249,7 +2255,21 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return list;
 	}
 	
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> getAllSakaiPersonIds() {
+		return dao.getAllSakaiPersonIds();
+	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getAllSakaiPersonIdsCount() {
+		return dao.getAllSakaiPersonIdsCount();
+	}
+
 	
 	
 	

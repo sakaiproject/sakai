@@ -14,7 +14,6 @@ import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -115,13 +114,13 @@ public class KudosJob implements StatefulJob {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		
 		//abort if already running on THIS server node (cannot check other nodes)
-		try{
+		try {
 			while(isJobCurrentlyRunning(context)) {
 				String beanId = context.getJobDetail().getJobDataMap().getString(BEAN_ID);
 				log.warn("Another instance of "+beanId+" is currently running - Execution aborted.");
 				return;
 			}
-		}catch(SchedulerException e){
+		} catch(SchedulerException e){
 			log.error("Aborting job execution due to " +e.toString(), e);
 			return;
 		}
@@ -130,20 +129,28 @@ public class KudosJob implements StatefulJob {
 		
 		//start a session and set it to admin
 		
-		
 		log.error("result:" + RULES.get("email"));
 		log.error("result:" + RULES.get("nickname"));
 		log.error("result:" + RULES.get("birthday"));
 		
-		BigDecimal score = getTotal();
-		
 		BigDecimal total = getTotal();
 		log.error("total:" + total);
-		log.error("percent:" + getTotalAsPercentage(score, total));
+		
+		//get total number of records
+		int totalPersons = profileLogic.getAllSakaiPersonIdsCount();
+		
+		//chunk the results
+		
+		//get a set of profiles, this will check the
+		
 
-		List<Person> persons = profileLogic.getListOfFullPersons(0, 20);
+		List<Person> persons = profileLogic.getAllPersons(0, 20);
 		for(Person person: persons) {
 			log.error("out: " + person.getDisplayName());
+			
+			BigDecimal score = getScore(person);
+			
+			log.error("percent:" + getTotalAsPercentage(score, total));
 		}
 		
 	}
@@ -174,7 +181,7 @@ public class KudosJob implements StatefulJob {
 	 * @param person	Person object
 	 * @return
 	 */
-	public BigDecimal getScore(Person person) {
+	private BigDecimal getScore(Person person) {
 		return new BigDecimal(25);
 
 	}
@@ -184,7 +191,7 @@ public class KudosJob implements StatefulJob {
 	 * @param map
 	 * @return
 	 */
-	public BigDecimal getTotal() {
+	private BigDecimal getTotal() {
 		
 		BigDecimal total = new BigDecimal(0);
 		
@@ -201,8 +208,8 @@ public class KudosJob implements StatefulJob {
 	 * @param map
 	 * @return
 	 */
-	public BigDecimal getTotalAsPercentage(BigDecimal score, BigDecimal total) {
-		return score.divide(total).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+	private BigDecimal getTotalAsPercentage(BigDecimal score, BigDecimal total) {
+		return score.divide(total, 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).stripTrailingZeros();
 	}
 	
 	

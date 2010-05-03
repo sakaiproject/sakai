@@ -483,14 +483,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return u.getProperties().getProperty(sakaiProxy.getOfficialImageAttribute());
 	}
 	
-	/**
-	 * Get a list of all SakaiPerson's userIds (ie list of all people with profile records)
-	 *
-	 * @return	List of Sakai userId's 
-	 */
-	private List<String> getAllSakaiPersonIds() {
-		return dao.getAllSakaiPersonIds();
-	}
+	
 	
 	//service init
 	public void init() {
@@ -510,7 +503,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		log.info("Profile2: ==============================="); 
 
 		//get list of users
-		List<String> allUsers = new ArrayList<String>(getAllSakaiPersonIds());
+		List<String> allUsers = new ArrayList<String>(profileLogic.getAllSakaiPersonIds());
 		
 		if(allUsers.isEmpty()){
 			log.info("Profile2 conversion util: No SakaiPersons to process.");

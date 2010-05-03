@@ -38,6 +38,10 @@
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
   	</query>
   	
+  	<query name="getAllSakaiPersonIdsCount">
+    	<![CDATA[select count(distinct sp.agentUuid) from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
+  	</query>
+  	
   	<!--  this is a native query to get only the fields that Profile2 currently uses, it is then transformed into a UserProfile object.
   	This should be chunked in the Hibernate call so as to only get a set of records at a time, say 100 -->
   	<sql-query name="getAllSakaiPersons">
