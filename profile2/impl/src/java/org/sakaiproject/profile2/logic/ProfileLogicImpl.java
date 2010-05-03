@@ -1475,6 +1475,15 @@ public class ProfileLogicImpl implements ProfileLogic {
 		if(prefs != null) {
 			//decrypt password and set into field
 			prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
+
+			//if owner, decrypt the password, otherwise, remove it entirely
+			String currentUserUuid = sakaiProxy.getCurrentUserId();
+			if(StringUtils.equals(userId, currentUserUuid)){
+				prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
+			} else {
+				prefs.setTwitterPasswordEncrypted(null);
+				prefs.setTwitterPasswordDecrypted(null);
+			}
 		}
 		
 		return prefs;
