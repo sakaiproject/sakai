@@ -7780,6 +7780,26 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
 			}
 			
+			// Restrict file picker configuration if using content-review (Turnitin):
+			String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+			try
+			{
+				Assignment assignment = AssignmentService.getAssignment(assignmentRef);
+				if (assignment.getContent().getAllowReviewService())
+				{
+					state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+					state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
+				}
+			}
+			catch ( IdUnusedException e )
+			{
+				addAlert(state, rb.getFormattedMessage("cannotfin_assignment", new Object[]{assignmentRef}));
+			}
+			catch ( PermissionException e )
+			{
+				addAlert(state, rb.getFormattedMessage("youarenot_viewAssignment", new Object[]{assignmentRef}));
+			}
+			
 			// need also to upload local file if any
 			doAttachUpload(data, false);
 			
