@@ -25,6 +25,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
@@ -785,7 +787,19 @@ public class FormattedText
 			if (M_log.isDebugEnabled()) M_log.debug("Could not parse " + tag);
 			return "";
 		}
-
+		String tagName = tag;
+		if (tag != null && tag.length() > 2) {
+		    int pos = tag.indexOf(' ');
+		    if (pos <= 0) {
+                pos = tag.indexOf('/');
+		    }
+            if (pos <= 0) {
+                pos = tag.indexOf('>');
+            }
+		    if (pos > 0) {
+                tagName = tag.substring(1, pos);
+		    }
+		}
 		Matcher matcher;
 		for (int i = 0; i < M_goodAttributePatterns.length; i++)
 		{
@@ -794,7 +808,7 @@ public class FormattedText
 			{
 				for (int j = 0; j < matcher.groupCount(); j++)
 				{
-					if (checkValue(matcher.group(j) + " ", errorMessages))
+				    if (checkValue(tagName, matcher.group(j) + " ", errorMessages))
 					{
 						buf.append(matcher.group(j) + " ");
 					
@@ -820,11 +834,11 @@ public class FormattedText
 		return buf.toString();
 	}
 
-	private static boolean checkValue(final String value, StringBuilder errorMessages)
+	private static boolean checkValue(final String tag, final String value, StringBuilder errorMessages)
 	{
 		if ( M_evilValues == null )
 			init();
-			
+
 		boolean pass = true;
 		Matcher matcher;
 		for (int i = 0; i < M_evilValuePatterns.length; i++)
@@ -836,6 +850,37 @@ public class FormattedText
 				pass = false;
 				//errorMessages.append("The attribute value '" + value + "' is not allowed\n");
 			}
+		}
+		if (pass) {
+		    // Special check for src="data:image/svg+xml;base64,.... : http://jira.sakaiproject.org/browse/SAK-18269
+		    if ("embed".equals(tag) 
+		            && value != null 
+		            && value.indexOf("src") >= 0
+		            && value.indexOf("data:image/svg") > 0
+		            ) {
+		        int pos = value.indexOf(";base64,");
+		        if (pos > 0) {
+		            pos = pos + 8;
+		            String b64text = value.substring(pos);
+		            if (! StringUtils.isBlank(b64text)) {
+	                    String content = new String(Base64.decodeBase64(b64text));
+	                    if (! StringUtils.isBlank(content)) {
+	                        boolean foundEvil = false;
+	                        for (int i = 0; i < M_evilTags.length; i++) {
+	                            if (M_evilTagsPatterns[i].matcher(content).matches()) {
+	                                foundEvil = true;
+	                                break;
+	                            }
+	                        }
+	                        if (foundEvil) {
+                                //System.err.println("AZ: tag="+tag+",content="+content);
+                                errorMessages.append("This embed tag src attribute value contains dangerous content ("+content+"), src attribute will be removed\n");
+                                pass = false;
+	                        }
+	                    }
+		            }
+		        }
+		    }
 		}
 		return pass;
 	}

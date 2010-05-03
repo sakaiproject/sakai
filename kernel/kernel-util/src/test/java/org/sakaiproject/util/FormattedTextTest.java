@@ -10,7 +10,6 @@ public class FormattedTextTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         ComponentManager.testingMode = true;
-        
     }
 
     @Override
@@ -20,7 +19,6 @@ public class FormattedTextTest extends TestCase {
 
     public static String TEST1 = "<a href=\"blah.html\" style=\"font-weight:bold;\">blah</a><div>hello there</div>";
     public static String TEST2 = "<span>this is my span</span><script>alert('oh noes, a XSS attack!');</script><div>hello there from a div</div>";
-    public static String TEST3 = "<embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></embed>";
 
     // TESTS
 
@@ -69,7 +67,8 @@ public class FormattedTextTest extends TestCase {
         assertNotNull(result);
         assertEquals("<span>this is my span</span>\n<div>hello there from a div</div>", result);
 
-        strFromBrowser = TEST3;
+        String SVG_BAD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></embed>";
+        strFromBrowser = SVG_BAD;
         errorMessages = new StringBuilder();
         result = FormattedText.processFormattedText(strFromBrowser, errorMessages, false);
         assertNotNull(result);
@@ -98,12 +97,37 @@ public class FormattedTextTest extends TestCase {
         result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
         assertNotNull(result);
         assertEquals("<span>this is my span</span>&lt;script&gt;alert('oh noes, a XSS attack!');&lt;/script&gt;<div>hello there from a div</div>", result);
+    }
 
-        strFromBrowser = TEST3;
+    public void testSAK_18269() {
+        // http://jira.sakaiproject.org/browse/SAK-18269
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+
+        String SVG_GOOD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAwIiBpZD0ieHNzIj5pbWFnZTwvc3ZnPg==\"></embed>";
+        String SVG_BAD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></embed>";
+
+        strFromBrowser = SVG_GOOD;
         errorMessages = new StringBuilder();
         result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
         assertNotNull(result);
-        assertEquals("<embed src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"  type=\"image/svg+xml\"  allowscriptaccess=\"always\" ></embed>", result);
-    }
+        assertTrue( errorMessages.length() == 0 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<embed"));
+        assertTrue( result.contains("src="));
+        assertTrue( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
 
+        strFromBrowser = SVG_BAD;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<embed"));
+        assertFalse( result.contains("src="));
+        assertFalse( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+    }
 }
