@@ -6266,14 +6266,32 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_SITE_ACCESS_PUBLISH, Boolean.valueOf(site.isPublished()));
 			boolean joinable = site.isJoinable();
 			state.setAttribute(STATE_JOINABLE, Boolean.valueOf(joinable));
-			if (joinable)
+			String joinerRole = site.getJoinerRole();
+			if (joinerRole == null || joinerRole.length() == 0)
 			{
-				state.setAttribute(STATE_JOINERROLE, site.getJoinerRole());
+				String[] joinerRoles = ServerConfigurationService.getStrings("siteinfo.default_joiner_role");
+				Set<Role> roles = site.getRoles();
+				if (roles != null && joinerRoles.length > 0)
+				{
+					// find the role match
+					for (Role r : roles)
+					{
+						for(int i = 0; i < joinerRoles.length; i++)
+						{
+							if (r.getId().equalsIgnoreCase(joinerRoles[i]))
+							{
+								joinerRole = r.getId();
+								break;
+							}
+						}
+						if (joinerRole != null)
+						{
+							break;
+						}
+					}
+				}
 			}
-			else
-			{
-				state.removeAttribute(STATE_JOINERROLE);
-			}
+			state.setAttribute(STATE_JOINERROLE, joinerRole);
 		}
 		catch (Exception e)
 		{
