@@ -27,10 +27,6 @@
 <xsl:text>
 </xsl:text>
 				<title>
-					<xsl:call-template name="makeTitlePrefix">
-						<xsl:with-param name="refnode"
-							select="/document/metadata" />
-					</xsl:call-template>
 					<xsl:value-of select="/document/kbml/kbq" />
 				</title>
 <xsl:text>
@@ -58,10 +54,6 @@
 <xsl:text>
 </xsl:text>
 				<h2>
-					<xsl:call-template name="makeTitlePrefix">
-						<xsl:with-param name="refnode"
-							select="/document/metadata" />
-					</xsl:call-template>
 					<xsl:value-of select="/document/kbml/kbq" />
 				</h2>
 				<xsl:apply-templates select="/document/kbml/body" />
@@ -249,9 +241,6 @@
 	<xsl:template match="kba">
 		<xsl:call-template name="kbDocLink">
 			<xsl:with-param name="titleText">
-				<xsl:call-template name="makeTitlePrefix">
-					<xsl:with-param name="refnode" select="." />
-				</xsl:call-template>
 				<xsl:value-of select="./title" />
 			</xsl:with-param>
 		</xsl:call-template>
