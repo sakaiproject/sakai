@@ -2216,8 +2216,8 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_delete_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		ArrayList assignments = new ArrayList();
-		ArrayList assignmentIds = (ArrayList) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+		List assignments = new ArrayList();
+		List assignmentIds = (List) state.getAttribute(DELETE_ASSIGNMENT_IDS);
 		HashMap<String, Integer> submissionCountTable = new HashMap<String, Integer>();
 		for (int i = 0; i < assignmentIds.size(); i++)
 		{
@@ -4310,7 +4310,7 @@ public class AssignmentAction extends PagedResourceActionII
 				doAttachUpload(data, false);
 				
 				// for the attachment only submission
-				ArrayList v = (ArrayList) state.getAttribute(ATTACHMENTS);
+				List v = (List) state.getAttribute(ATTACHMENTS);
 				if ((v == null) || (v.size() == 0))
 				{
 					addAlert(state, rb.getString("youmust1"));
@@ -4322,7 +4322,7 @@ public class AssignmentAction extends PagedResourceActionII
 				doAttachUpload(data, false);
 				
 				// for the inline and attachment submission
-				ArrayList v = (ArrayList) state.getAttribute(ATTACHMENTS);
+				List v = (List) state.getAttribute(ATTACHMENTS);
 				if ((text.length() == 0 || "<br/>".equals(text)) && ((v == null) || (v.size() == 0)))
 				{
 					addAlert(state, rb.getString("youmust2"));
