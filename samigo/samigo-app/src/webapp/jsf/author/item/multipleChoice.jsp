@@ -80,7 +80,7 @@
 <div class="tier2">
 
      <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}"required="true" size="6" >
+    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}"required="true" size="6"  onchange="toPoint(this.id);">
 <f:validateDoubleRange /></h:inputText>
 
 <h:message for="answerptr" styleClass="validate"/>
@@ -134,7 +134,7 @@
         rendered="#{itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false)}">
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
-  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" >
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);">
     <f:validateDoubleRange />
   </h:inputText>
   <f:verbatim> <script type="text/javascript" defer='defer'>
@@ -238,7 +238,7 @@
 	
 	<!-- Begin changes made for Partial Credit --> 
 	<h:outputText value="#{authorMessages.percentange_vaue}" />
-	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}">
+	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}" onchange="toPoint(this.id);">
 	    <f:validateDoubleRange  minimum="0.00" maximum="100.00"/> </h:inputText>
 	    <h:outputText id="partialCreditReminder" value="#{authorMessages.enter_new_pc_value}" style="visibility:hidden;" />
 	    <h:message for="partialCredit" styleClass="validate"/>

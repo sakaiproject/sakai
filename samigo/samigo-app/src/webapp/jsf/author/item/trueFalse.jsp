@@ -77,7 +77,7 @@
 
 <div class="shorttext">
     <h:outputLabel value="#{authorMessages.answer_point_value}"/>
-    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
+    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" onchange="toPoint(this.id);">
 <f:validateDoubleRange />
 </h:inputText>
  <h:message for="answerptr" styleClass="validate"/>

@@ -133,14 +133,14 @@
 
   <h:outputText value="#{authorMessages.point_value_of_questons}"  />
   <h:panelGrid>
-    <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" />
+    <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" onchange="toPoint(this.id);"/>
     <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
   </h:panelGrid>
    
   <h:outputText value="#{authorMessages.negative_point_value}"  />
   
   <h:panelGrid>
-    <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" />
+    <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" onchange="toPoint(this.id);"/>
     <h:outputText value="#{authorMessages.note_negative_point_value_part}" rendered="#{!sectionBean.discountValueHasOverrided}"/>
   </h:panelGrid>
 
