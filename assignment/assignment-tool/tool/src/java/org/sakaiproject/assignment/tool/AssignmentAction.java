@@ -4421,6 +4421,8 @@ public class AssignmentAction extends PagedResourceActionII
 		// read the form inputs
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
+		
+		String assignmentRef = params.getString("assignmentId");
 
 		// put the input value into the state attributes
 		String title = params.getString(NEW_ASSIGNMENT_TITLE);
@@ -4434,7 +4436,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// empty assignment title
 			addAlert(state, rb.getString("plespethe1"));
 		}
-		else if (sameAssignmentTitleInContext(title, (String) state.getAttribute(STATE_CONTEXT_STRING)))
+		else if (sameAssignmentTitleInContext(assignmentRef, title, (String) state.getAttribute(STATE_CONTEXT_STRING)))
 		{
 			// assignment title already exist
 			addAlert(state, rb.getFormattedMessage("same_assignment_title", new Object[]{title}));
@@ -4713,25 +4715,30 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/**
 	 * check to see whether there is already an assignment with the same title in the site
+	 * @param assignmentRef
 	 * @param title
 	 * @param contextString
 	 * @return
 	 */
-	private boolean sameAssignmentTitleInContext(String title, String contextString) {
+	private boolean sameAssignmentTitleInContext(String assignmentRef, String title, String contextString) {
 		boolean rv = false;
 		// in the student list view of assignments
 		Iterator assignments = AssignmentService.getAssignmentsForContext(contextString);
 		while (assignments.hasNext())
 		{
 			Assignment a = (Assignment) assignments.next();
-			String aTitle = a.getTitle();
-			if (aTitle != null && aTitle.length() > 0 && title.equals(aTitle))
+			if (assignmentRef == null || !assignmentRef.equals(a.getReference()))
 			{
-				//further check whether the assignment is marked as deleted or not
-				String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-				if (deleted == null || deleted != null && !Boolean.TRUE.toString().equalsIgnoreCase(deleted))
+				// don't do self-compare
+				String aTitle = a.getTitle();
+				if (aTitle != null && aTitle.length() > 0 && title.equals(aTitle))
 				{
-					rv = true;
+					//further check whether the assignment is marked as deleted or not
+					String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+					if (deleted == null || deleted != null && !Boolean.TRUE.toString().equalsIgnoreCase(deleted))
+					{
+						rv = true;
+					}
 				}
 			}
 		}
