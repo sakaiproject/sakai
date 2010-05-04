@@ -24,9 +24,8 @@ package org.sakaiproject.assignment.cover;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
 
-import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -164,7 +163,7 @@ public class AssignmentService {
 			java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
-			return new Vector();
+			return new ArrayList();
 
 		return service.getGroupsAllowAddAssignment(param0);
 	}
@@ -173,7 +172,7 @@ public class AssignmentService {
 			java.lang.String param0, java.lang.String param1) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
-			return new Vector();
+			return new ArrayList();
 
 		return service.getGroupsAllowGradeAssignment(param0, param1);
 	}

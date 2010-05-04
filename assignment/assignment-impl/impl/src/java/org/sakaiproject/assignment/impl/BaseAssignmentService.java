@@ -34,14 +34,12 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.StringTokenizer;
@@ -57,6 +55,7 @@ import org.sakaiproject.contentreview.model.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -992,7 +991,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			userId = SessionManager.getCurrentSessionUserId();
 		}
-		List assignments = new Vector();
+		List assignments = new ArrayList();
 
 		if ((m_caching) && (m_assignmentCache != null) && (!m_assignmentCache.disabled()))
 		{
@@ -1055,7 +1054,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// }
 		}
 
-		List rv = new Vector();
+		List rv = new ArrayList();
 		
 		// check for the allowed groups of the current end use if we need it, and only once
 		Collection allowedGroups = null;
@@ -1602,8 +1601,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 	    if (channel != null)
 	    {
-	        String openDateAnnounced = StringUtil.trimToNull(pEdit.getProperty("new_assignment_open_date_announced"));
-	        String openDateAnnouncementId = StringUtil.trimToNull(pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+	        String openDateAnnounced = StringUtils.trimToNull(pEdit.getProperty("new_assignment_open_date_announced"));
+	        String openDateAnnouncementId = StringUtils.trimToNull(pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
 	        if (openDateAnnounced != null && openDateAnnouncementId != null)
 	        {
 	            try
@@ -1863,7 +1862,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected List getAssignmentContents(String context)
 	{
-		List contents = new Vector();
+		List contents = new ArrayList();
 
 		if ((m_caching) && (m_contentCache != null) && (!m_contentCache.disabled()))
 		{
@@ -2298,8 +2297,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else if (returnedTime == null && !s.getReturned() && (submittedTime == null /*grading non-submissions*/
 																|| (submittedTime != null && (s.getTimeLastModified().getTime() - submittedTime.getTime()) > 1000*60 /*make sure the last modified time is at least one minute after the submit time*/)))
 			{
-				if (StringUtil.trimToNull(s.getSubmittedText()) == null && s.getSubmittedAttachments().isEmpty()
-					&& StringUtil.trimToNull(s.getGrade()) == null && StringUtil.trimToNull(s.getFeedbackText()) == null && StringUtil.trimToNull(s.getFeedbackComment()) == null && s.getFeedbackAttachments().isEmpty() )
+				if (StringUtils.trimToNull(s.getSubmittedText()) == null && s.getSubmittedAttachments().isEmpty()
+					&& StringUtils.trimToNull(s.getGrade()) == null && StringUtils.trimToNull(s.getFeedbackText()) == null && StringUtils.trimToNull(s.getFeedbackComment()) == null && s.getFeedbackAttachments().isEmpty() )
 				{
 					// auto add submission for those not submitted
 					//EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionRef, true));
@@ -2431,9 +2430,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			//send notification
 			User u = UserDirectoryService.getCurrentUser();
 			
-			if (StringUtil.trimToNull(u.getEmail()) != null)
+			if (StringUtils.trimToNull(u.getEmail()) != null)
 			{
-				List receivers = new Vector();
+				List receivers = new ArrayList();
 				receivers.add(u);
 				
 				EmailService.sendToUsers(receivers, getHeaders(u.getEmail(), "submission"), getNotificationMessage(s, "submission"));
@@ -2443,7 +2442,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 	protected List<String> getHeaders(String receiverEmail, String submissionOrReleaseGrade)
 	{
-		List<String> rv = new Vector<String>();
+		List<String> rv = new ArrayList<String>();
 		
 		rv.add("MIME-Version: 1.0");
 		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
@@ -2454,7 +2453,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		rv.add(getFrom());
 		
 		// to
-		if (StringUtil.trimToNull(receiverEmail) != null)
+		if (StringUtils.trimToNull(receiverEmail) != null)
 		{
 			rv.add("To: " + receiverEmail);
 		}
@@ -2464,7 +2463,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 	protected List<String> getReleaseGradeHeaders(String receiverEmail)
 	{
-		List<String> rv = new Vector<String>();
+		List<String> rv = new ArrayList<String>();
 		
 		rv.add("MIME-Version: 1.0");
 		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
@@ -2475,7 +2474,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		rv.add(getFrom());
 		
 		// to
-		if (StringUtil.trimToNull(receiverEmail) != null)
+		if (StringUtils.trimToNull(receiverEmail) != null)
 		{
 			rv.add("To: " + receiverEmail);
 		}
@@ -2607,7 +2606,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.submit.time") + " " + s.getTimeSubmitted().toStringLocalFull() + newline + newline);
 		
 		// submit text
-		String text = StringUtil.trimToNull(s.getSubmittedText());
+		String text = StringUtils.trimToNull(s.getSubmittedText());
 		if ( text != null)
 		{
 			buffer.append(rb.getString("gen.submittedtext") + newline + newline + Validator.escapeHtmlFormattedText(text) + newline + newline);
@@ -2765,7 +2764,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected List getSubmissions(String context)
 	{
-		List<AssignmentSubmission> submissions = new Vector<AssignmentSubmission>();
+		List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>();
 
 		if ((m_caching) && (m_submissionCache != null) && (!m_submissionCache.disabled()))
 		{
@@ -2897,7 +2896,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Iterator getAssignmentContents(User owner)
 	{
-		Vector retVal = new Vector();
+		List retVal = new ArrayList();
 		AssignmentContent aContent = null;
 		List allContents = getAssignmentContents(owner.getId());
 
@@ -2926,7 +2925,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Iterator getAssignments(AssignmentContent content)
 	{
-		Vector retVal = new Vector();
+		List retVal = new ArrayList();
 		String contentReference = null;
 		String tempContentReference = null;
 
@@ -2995,7 +2994,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private Iterator assignmentsForContextAndUser(String context, String userId) 
 	{
 		Assignment tempAssignment = null;
-		Vector retVal = new Vector();
+		List retVal = new ArrayList();
 		List allAssignments = null;
 
 		if (context != null)
@@ -3027,8 +3026,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		M_log.debug(this + " getListAssignmetsForContext : CONTEXT : " + context);
 		Assignment tempAssignment = null;
-		Vector retVal = new Vector();
-		List allAssignments = new Vector();
+		List retVal = new ArrayList();
+		List allAssignments = new ArrayList();
 
 		if (context != null)
 		{
@@ -3158,7 +3157,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List getSubmissions(Assignment assignment)
 	{
-		List retVal = new Vector();
+		List retVal = new ArrayList();
 
 		if (assignment != null)
 		{
@@ -3436,7 +3435,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Collection getGroupsAllowGradeAssignment(String context, String assignmentReference)
 	{
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
 		if (allowGradeSubmission(assignmentReference))
 		{
 			// only if the user is allowed to group at all
@@ -3544,7 +3543,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected Collection getGroupsAllowFunction(String function, String context, String userId)
 	{	
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
 		try
 		{
 			// get the site groups
@@ -3571,7 +3570,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// otherwise, check the groups for function
 
 			// get a list of the group refs, which are authzGroup ids
-			Collection groupRefs = new Vector();
+			Collection groupRefs = new ArrayList();
 			for (Iterator i = groups.iterator(); i.hasNext();)
 			{
 				Group group = (Group) i.next();
@@ -3715,7 +3714,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		List users = SecurityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
 		if (users == null)
 		{
-			users = new Vector();
+			users = new ArrayList();
 		}
 		
 		try
@@ -3777,7 +3776,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowAddAnySubmissionUsers(String context)
 	{
-		List rv = new Vector();
+		List rv = new ArrayList();
 		
 		try
 		{
@@ -3978,9 +3977,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator("duedate", "true"));
 	
 			// site members excluding those who can add assignments
-			List members = new Vector();
-			// hashtable which stores the Excel row number for particular user
-			Hashtable user_row = new Hashtable();
+			List members = new ArrayList();
+			// hashmap which stores the Excel row number for particular user
+			HashMap user_row = new HashMap();
 			
 			List allowAddAnySubmissionUsers = allowAddAnySubmissionUsers(context);
 			for (Iterator iUserIds = new SortedIterator(allowAddAnySubmissionUsers.iterator(), new AssignmentComparator("sortname", "true")); iUserIds.hasNext();)
@@ -4555,9 +4554,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								gradesBuffer.append(submitters[i].getDisplayId() + "," + submitters[i].getEid() + "," + fullName + "," + s.getGradeDisplay() + "\n");
 							}
 							
-							if (StringUtil.trimToNull(submittersString) != null)
+							if (StringUtils.trimToNull(submittersString) != null)
 							{
-								submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
+								submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
 								submittedText = s.getSubmittedText();
 		
 								submittersName = submittersName.concat("/");
@@ -5009,7 +5008,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String container = null;
 			String context = null;
 
-			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+			String[] parts = StringUtils.split(reference, Entity.SEPARATOR);
 			// we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
 
 			if (parts.length > 2)
@@ -5098,7 +5097,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
-		Collection rv = new Vector();
+		Collection rv = new ArrayList();
 
 		// for AssignmentService assignments:
 		// if access set to SITE, use the assignment and site authzGroups.
@@ -5717,7 +5716,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							p.addAll(oAssignment.getProperties());
 							
 							// one more touch on the gradebook-integration link
-							if (StringUtil.trimToNull(p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null)
+							if (StringUtils.trimToNull(p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null)
 							{
 								// assignments are imported as drafts;
 								// mark the integration with "add" for now, later when user posts the assignment, the corresponding assignment will be created in gradebook.
@@ -6080,7 +6079,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected int m_position_order;
 
 		/** The Collection of groups (authorization group id strings). */
-		protected Collection m_groups = new Vector();
+		protected Collection m_groups = new ArrayList();
 
 		/** The assignment access. */
 		protected AssignmentAccess m_access = AssignmentAccess.SITE;
@@ -6113,9 +6112,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_title = "";
 			m_context = context;
 			m_section = "";
-			m_authors = new Vector();
+			m_authors = new ArrayList();
 			m_draft = true;
-			m_groups = new Vector();
+			m_groups = new ArrayList();
 			m_position_order = 0;
 		}
 
@@ -6166,7 +6165,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// READ THE AUTHORS
-			m_authors = new Vector();
+			m_authors = new ArrayList();
 			intString = el.getAttribute("numberofauthors");
 			
 				M_log.debug(" BASE ASSIGNMENT : STORAGE CONSTRUCTOR : number of authors : " + intString);
@@ -6288,7 +6287,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 
 							// READ THE AUTHORS
-							m_authors = new Vector();
+							m_authors = new ArrayList();
 							intString = attributes.getValue("numberofauthors");
 							try
 							{
@@ -6803,7 +6802,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public Collection getGroups()
 		{
-			return new Vector(m_groups);
+			return new ArrayList(m_groups);
 		}
 
 		/**
@@ -7159,8 +7158,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// isolate any groups that would be removed or added
-			Collection addedGroups = new Vector();
-			Collection removedGroups = new Vector();
+			Collection addedGroups = new ArrayList();
+			Collection removedGroups = new ArrayList();
 			EntityCollections.computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(addedGroups, removedGroups, groups, m_groups);
 
 			// verify that the user has permission to remove
@@ -7330,7 +7329,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_context = context;
 			m_properties = new BaseResourcePropertiesEdit();
 			addLiveProperties(m_properties);
-			m_authors = new Vector();
+			m_authors = new ArrayList();
 			m_attachments = m_entityManager.newReferenceList();
 			m_title = "";
 			m_instructions = "";
@@ -7403,10 +7402,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// %%%zqian
 				// read the scaled max grade point first; if there is none, get the old max grade value and multiple by 10
-				String maxGradePoint = StringUtil.trimToNull(el.getAttribute("scaled_maxgradepoint"));
+				String maxGradePoint = StringUtils.trimToNull(el.getAttribute("scaled_maxgradepoint"));
 				if (maxGradePoint == null)
 				{
-					maxGradePoint = StringUtil.trimToNull(el.getAttribute("maxgradepoint"));
+					maxGradePoint = StringUtils.trimToNull(el.getAttribute("maxgradepoint"));
 					if (maxGradePoint != null)
 					{
 						maxGradePoint = maxGradePoint + "0";
@@ -7420,7 +7419,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// READ THE AUTHORS
-			m_authors = new Vector();
+			m_authors = new ArrayList();
 			intString = el.getAttribute("numberofauthors");
 			try
 			{
@@ -7580,10 +7579,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							{
 								// %%%zqian
 								// read the scaled max grade point first; if there is none, get the old max grade value and multiple by 10
-								String maxGradePoint = StringUtil.trimToNull(attributes.getValue("scaled_maxgradepoint"));
+								String maxGradePoint = StringUtils.trimToNull(attributes.getValue("scaled_maxgradepoint"));
 								if (maxGradePoint == null)
 								{
-									maxGradePoint = StringUtil.trimToNull(attributes.getValue("maxgradepoint"));
+									maxGradePoint = StringUtils.trimToNull(attributes.getValue("maxgradepoint"));
 									if (maxGradePoint != null)
 									{
 										maxGradePoint = maxGradePoint + "0";
@@ -7597,7 +7596,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 
 							// READ THE AUTHORS
-							m_authors = new Vector();
+							m_authors = new ArrayList();
 							intString = attributes.getValue("numberofauthors");
 							try
 							{
@@ -8766,7 +8765,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_assignment = assignId;
 			m_properties = new BaseResourcePropertiesEdit();
 			addLiveProperties(m_properties);
-			m_submitters = new Vector();
+			m_submitters = new ArrayList();
 			m_feedbackAttachments = m_entityManager.newReferenceList();
 			m_submittedAttachments = m_entityManager.newReferenceList();
 			m_submitted = false;
@@ -8824,10 +8823,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			// %%%zqian
 			// read the scaled grade point first; if there is none, get the old grade value
-			String grade = StringUtil.trimToNull(el.getAttribute("scaled_grade"));
+			String grade = StringUtils.trimToNull(el.getAttribute("scaled_grade"));
 			if (grade == null)
 			{
-				grade = StringUtil.trimToNull(el.getAttribute("grade"));
+				grade = StringUtils.trimToNull(el.getAttribute("grade"));
 				if (grade != null)
 				{
 					try
@@ -8862,7 +8861,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_feedbackText = FormattedText.decodeFormattedTextAttribute(el, "feedbacktext");
 
 			// READ THE SUBMITTERS
-			m_submitters = new Vector();
+			m_submitters = new ArrayList();
 			M_log.debug(" BaseAssignmentSubmission : CONSTRUCTOR : Reading submitters : ");
 			intString = el.getAttribute("numberofsubmitters");
 			try
@@ -9063,7 +9062,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						if ("submission".equals(qName) && entity == null)
 						{
 							try {
-								if (StringUtil.trimToNull(attributes.getValue("reviewScore"))!=null)
+								if (StringUtils.trimToNull(attributes.getValue("reviewScore"))!=null)
 									m_reviewScore = Integer.parseInt(attributes.getValue("reviewScore"));
 								else
 									m_reviewScore = -1;
@@ -9103,10 +9102,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 							// %%%zqian
 							// read the scaled grade point first; if there is none, get the old grade value
-							String grade = StringUtil.trimToNull(attributes.getValue("scaled_grade"));
+							String grade = StringUtils.trimToNull(attributes.getValue("scaled_grade"));
 							if (grade == null)
 							{
-								grade = StringUtil.trimToNull(attributes.getValue("grade"));
+								grade = StringUtils.trimToNull(attributes.getValue("grade"));
 								if (grade != null)
 								{
 									try
@@ -9142,7 +9141,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							 
 
 							// READ THE SUBMITTERS
-							m_submitters = new Vector();
+							m_submitters = new ArrayList();
 							intString = attributes.getValue("numberofsubmitters");
 							try
 							{
@@ -9473,7 +9472,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public User[] getSubmitters()
 		{
-			List retVal = new Vector();
+			List retVal = new ArrayList();
 			for (int x = 0; x < m_submitters.size(); x++)
 			{
 				String userId = (String) m_submitters.get(x);
@@ -9579,7 +9578,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// use grade from associated Gradebook
 				Assignment m = getAssignment();
-				String gAssignmentName = StringUtil.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+				String gAssignmentName = StringUtils.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 				if (gAssignmentName != null)
 				{
 					enableSecurityAdvisor();
@@ -9592,7 +9591,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						String userId = (String) m_submitters.get(0);
 						try
 						{
-							String gString = StringUtil.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
+							String gString = StringUtils.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
 							if (gString != null)
 							{
 								return gString;
@@ -9665,7 +9664,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				else
 				{
-					return StringUtil.trimToZero(grade);
+					return StringUtils.trimToEmpty(grade);
 				}
 			}
 			else if (m.getContent().getTypeOfGrade() == Assignment.UNGRADED_GRADE_TYPE) {
@@ -9687,7 +9686,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				if (grade != null && grade.length() > 0)
 				{
-					return StringUtil.trimToZero(grade);
+					return StringUtils.trimToEmpty(grade);
 				}
 				else
 				{
@@ -10047,7 +10046,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public int getResubmissionNum()
 		{
-			String numString = StringUtil.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+			String numString = StringUtils.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 			return numString != null?Integer.valueOf(numString).intValue():0;
 		}
 		
@@ -10056,7 +10055,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public Time getCloseTime()
 		{
-			String closeTimeString = StringUtil.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
+			String closeTimeString = StringUtils.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
 			if (closeTimeString != null && getResubmissionNum() != 0)
 			{
 				// return the close time if it is set
@@ -10900,7 +10899,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected Time getTimeObject(String timeString)
 	{
 		Time aTime = null;
-		timeString = StringUtil.trimToNull(timeString);
+		timeString = StringUtils.trimToNull(timeString);
 		if (timeString != null)
 		{
 			try
@@ -12119,11 +12118,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String ret;
 
 		// first check if an HTML-encoded attribute exists, for example "foo-html", and use it if available
-		ret = StringUtil.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-html"));
+		ret = StringUtils.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-html"));
 		if (ret != null) return ret;
 
 		// next try the older kind of formatted text like "foo-formatted", and convert it if found
-		ret = StringUtil.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-formatted"));
+		ret = StringUtils.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-formatted"));
 		ret = FormattedText.convertOldFormattedText(ret);
 		if (ret != null) return ret;
 
@@ -12142,10 +12141,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected String XmlDecodeAttribute(Attributes attributes, String tag)
 	{
-		String charset = StringUtil.trimToNull(attributes.getValue("charset"));
+		String charset = StringUtils.trimToNull(attributes.getValue("charset"));
 		if (charset == null) charset = "UTF-8";
 
-		String body = StringUtil.trimToNull(attributes.getValue(tag));
+		String body = StringUtils.trimToNull(attributes.getValue(tag));
 		if (body != null)
 		{
 			try
