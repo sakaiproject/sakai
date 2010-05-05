@@ -6,16 +6,16 @@ All of the legacy Sakai tools and many of the JSF based tools have been
 localized and internationalized. Translations are underway in many
 languages, as follows:
 
-1) Chinese (China)
-   Status: released
+1) Chinese/Simplified (China)
+   Status: released  (last update Sakai 2.5)
    Translated by: Tianhua Ding, Kun Lv (and others)
-   Contact: Beth Kirschner    beth.kirschner@umich.edu
+   Contact: n/a (unmaintained)
    Local ID: zh_CN
    
 2) Korean
-   Status: released
+   Status: released (last update Sakai 2.5)
    Translated by: Il-hwan Kim
-   Contact: Beth Kirschner    beth.kirschner@umich.edu
+   Contact: n/a (unmaintained)
    Local ID: ko_KR
    
 3) Japanese
@@ -68,8 +68,8 @@ languages, as follows:
     Contact: Alex Ballesté 
     Local ID: ca_ES
     
-11) Chinese (Taiwan)
-    Status: 2.6 release pending
+11) Chinese/Traditional (Taiwan)
+    Status: 2.6 release
     Translated by: Ivan Ho
     Contact: Ivan Ho (ivan@huric.org)
     Local ID: zh_TW
