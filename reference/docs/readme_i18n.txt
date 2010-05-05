@@ -20,8 +20,8 @@ languages, as follows:
    
 3) Japanese
    Status: released
-   Translated by: Tatsuki Sugura (and others)
-   Contact: Shoji Kajita   kajita@nagoya-u.jp
+   Translated by: Shoji Kajita (and others)
+   Contact: Shoji Kajita kajita@nagoya-u.jp
    Local ID: ja_JP
    
 4) Dutch
@@ -160,6 +160,12 @@ languages, as follows:
    Translated by: (see files comments)
    Contact: Jean-Francois Leveque (jean-francois.leveque@upmc.fr)
    Local ID: fr_FR
+
+26) Basque
+    Status: released
+    Translated by: Daniel Merino, Pablo San Roman 
+    Contact: Daniel Merino (daniel.merino@unavarra.es), Pablo San Roman (pablo.sanroman@unavarra.es)
+    Local ID: eu
 
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
