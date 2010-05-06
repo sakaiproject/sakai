@@ -9,6 +9,7 @@ use strict;
 use XML::Simple;
 use Data::Dumper;
 use File::Copy;
+use Getopt::Long;
 
 require '/usr/local/sakaiconfig/kbauth.pl';
 require '/usr/local/sakaihelp/helputil.pl';
@@ -21,20 +22,30 @@ my $KbMediaUrl = "https://media.kb.iu.edu/";
 
 my $xsl = "/usr/local/sakaihelp/util/kb-to-help.xsl";
 
-my $docrepo = $ARGV[0];
-my $svnrepo = $ARGV[1];
-my $preview = $ARGV[2];
+#my $docrepo = $ARGV[0];
+#my $svnrepo = $ARGV[1];
+#my $preview = $ARGV[2];
+
+my $docrepo;
+my $svnrepo;
+my $preview;
+my $offline = '';
+
+my $result = GetOptions ("docs=s" => \$docrepo,
+   "svn=s" => \$svnrepo,
+   "preview=s" => \$preview, 
+   "offline" => \$offline);  
 
 #my $docrepo = "/usr/local/sakaihelp/docs";
 #my $svnrepo = "/usr/local/sakaihelp/help_trunk";
 #my $preview = "sakai25";
 
-my $update_from_kb = 1;
+my $update_from_kb = !$offline;
 
-print "\nUsing documents in [$docrepo], svn repo [$svnrepo], preview [$preview]\n";
+print "\nUsing documents in [$docrepo], svn repo [$svnrepo], preview [$preview], offline [$offline]\n";
 
-die "Please specify document path." if $docrepo eq "";
-die "Please specify svn path." if $svnrepo eq "";
+die "Please specify document path." if !defined($docrepo) || $docrepo eq "";
+die "Please specify svn path." if !defined($svnrepo) || $svnrepo eq "";
 
 my $svn_comment = "NOJIRA Update help docs (synchronize with IU KB)";
 (my $svn_user, my $svn_pass) = getSvnAuth();
@@ -48,8 +59,8 @@ if ($update_from_kb) {
 my $xml = new XML::Simple (KeyAttr=>'id');
 
 # Current documents and new documents
-print "Fetching indexes\n";
 
+print "Fetching indexes\n";
 getfile($username, $password, "$KbBaseUrl/sakaiht/documents", "$docrepo/docs_kb.xml") || die "Cannot get docs index\n";
 getfile($username, $password, "$KbBaseUrl/sakainew/documents", "$docrepo/newdocs_kb.xml") || die "Cannot get newdocs index\n";
 
@@ -145,11 +156,14 @@ checkimages($docrepo, $svnrepo . "/help-images", $KbMediaUrl);
 
 #### ----- Commit changes to svn
 
-commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
+if (!$offline) {
+    commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
+}
 
 #### ----- Consistency checks on the document collections
 
 print "Consistency check\n";
 
 getdoclist($svnrepo);
+checkmanifest($svnrepo);
 

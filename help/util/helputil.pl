@@ -1,6 +1,8 @@
 use strict;
 use XML::Parser::PerlSAX;
 use LWP::Simple qw ($ua get);
+use XML::Simple;
+use Data::Dumper;
 
 my %imglist;
 my %doclist;
@@ -121,6 +123,8 @@ sub addimage ($$$)
   system("$svn add $imgdir/$imgbasename");
 }
 
+### Check for referenced but not included files
+
 sub getdoclist($)
 {
  my $svnrepo = shift;
@@ -154,6 +158,96 @@ sub getdoclist($)
  }
 
  print "Have: " . keys(%havedocs) . " referenced: " . keys(%doclist) . "\n";
+
+}
+
+### Check that the files present match the help.xml index manifest
+
+sub checkmanifest($)
+{
+ my $svnrepo = shift;
+
+ # Check for English-language help index files
+ my @files = glob("$svnrepo/*/src/*/help.xml");
+
+ # Parse HTML files, but ignore i18n versions in other languages
+
+ foreach my $file (@files) {
+
+    if ($file =~ /([a-z0-9\/._-]+)\/src\/([a-z_]+)\/help.xml$/) {
+       my $prefix= $1;
+       my $tool = $2;
+
+       # print "checking manifest: tool $tool\n";
+
+       # Read in the help xml file
+       
+       my $xml = new XML::Simple(KeyAttr=>'id');;
+
+       # read XML files
+       my $helpindex = $xml->XMLin($file);
+
+       my $reflist = $helpindex->{bean}->{'org.sakaiproject.api.app.help.TableOfContents'}->{property}[1]->{list}->{bean}->{property}[1]->{list}->{ref};
+
+       my %manifest;
+
+       if (ref($reflist) eq 'ARRAY') {
+		foreach my $refs (@{$helpindex->{bean}->{'org.sakaiproject.api.app.help.TableOfContents'}->{property}[1]->{list}->{bean}->{property}[1]->{list}->{ref}}) {
+                        my $bean = $refs->{bean};
+			foreach my $property (@{$helpindex->{bean}->{$bean}->{property}}) {
+				if ($property->{name} eq "location") {
+	 				#print "bean: ". $refs->{bean} . " " . $property->{name} . " " . $property->{value} . "\n";
+					$manifest{$bean} = $property->{value};
+ 				}
+ 			}
+                }
+       }  else { 
+#		print "single bean: " . $reflist->{bean} . "\n";
+                        my $bean = $reflist->{bean};
+			foreach my $property (@{$helpindex->{bean}->{$bean}->{property}}) {
+				if ($property->{name} eq "location") {
+	 				#print "bean: ". $refs->{bean} . " " . $property->{name} . " " . $property->{value} . "\n";
+					$manifest{$bean} = $property->{value};
+ 				}
+ 			}
+       }
+
+	# Forward check - each location referenced in the table of contents exists
+
+       	foreach my $bean (keys %manifest) {
+		# Check that the file exists
+		my $beanpath = "$prefix/src" . $manifest{$bean};
+                # print "checking for [$beanpath]\n";
+		if (! -s "$beanpath") {
+			print "Missing file for $tool : $bean : $beanpath\n";
+		}
+	}
+
+	# Reverse check - each file is referenced in the help.xml
+
+ 	my @helpfiles = glob("$prefix/src/$tool/*.html");
+
+ 	foreach my $helpfile (@helpfiles) {
+
+    		if (! ($helpfile =~ /_[a-z]{2}\.html$/) && !($helpfile =~ /_[a-z]{2}_[A-Z]{2}\.html$/)) {
+			
+			# print "checking that $helpfile is referenced\n";
+			my $found = 0;
+			foreach my $bean (keys %manifest) {
+                		my $beanpath = "$prefix/src" . $manifest{$bean};
+				if ($helpfile eq $beanpath) {
+					$found = 1;
+				}
+			}
+			if (!$found) {
+				print "Help file $helpfile is not referenced in help.xml manifest\n";
+			}
+
+		}
+    	}
+
+    } 
+ }
 
 }
 
@@ -198,6 +292,7 @@ sub start_element {
 	}
     }
 }
+
 
 1;
 
