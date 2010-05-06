@@ -36,8 +36,6 @@ public class ExternalTrustedEvidence implements org.sakaiproject.user.api.Extern
 	 * 
 	 * @param identifier
 	 *        The user identifier string.
-	 * @param password
-	 *        The password string.
 	 */
 	public ExternalTrustedEvidence(String identifier)
 	{
