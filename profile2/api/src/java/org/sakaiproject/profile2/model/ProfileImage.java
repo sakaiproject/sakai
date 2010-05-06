@@ -51,7 +51,7 @@ public class ProfileImage {
 			return externalImageUrl;
 		}
 		if(StringUtils.isNotBlank(officialImageUrl)){
-			return externalImageUrl;
+			return officialImageUrl;
 		}
 		return null;
 	}
