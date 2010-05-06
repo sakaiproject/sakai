@@ -2407,6 +2407,61 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		/**
 		 * {@inheritDoc}
 		 */
+		public Map<String, String> getUserRoles(String userId, Collection<String> azGroupIds)
+		{
+			final HashMap<String, String> rv = new HashMap<String, String>();
+			if (userId == null || "".equals(userId))
+				return rv;
+
+			String inClause;
+			int azgCount = azGroupIds == null ? 0 : azGroupIds.size();
+			if (azgCount == 0) {
+				inClause = " 1=1 ";
+			}
+			else {
+				inClause = orInClause(azgCount, "REALM_ID");
+			}
+
+			String sql = dbAuthzGroupSql.getSelectRealmRolesSql(inClause);
+			Object[] fields = new Object[1 + azgCount];
+			fields[0] = userId;
+			if (azgCount > 0) {
+				int pos = 1;
+				for (String s : azGroupIds) {
+					fields[pos++] = s;
+				}
+			}
+
+			m_sql.dbRead(sql, fields, new SqlReader()
+			{
+				public Object readSqlResultRecord(ResultSet result)
+				{
+					try
+					{
+						String realmId = result.getString(1);
+						String roleName = result.getString(2);
+
+						// ignore if we get an unexpected null -- it's useless to us
+						if ((realmId != null) && (roleName != null))
+						{
+							rv.put(realmId, roleName);
+						}
+					}
+					catch (Throwable t)
+					{
+						M_log.warn("Serious database error occurred reading result set", t);
+					}
+
+					return null;
+				}
+			});
+
+			return rv;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
 		public Map getUsersRole(Collection userIds, String azGroupId)
 		{
 			if ((userIds == null) || (userIds.isEmpty()) || (azGroupId == null))

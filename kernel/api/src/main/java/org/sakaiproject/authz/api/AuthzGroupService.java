@@ -374,6 +374,18 @@ public interface AuthzGroupService extends EntityProducer
 	 * @return the role name for this user in this AuthzGroup, if the user has active membership, or null if not.
 	 */
 	String getUserRole(String userId, String azGroupId);
+	
+	/**
+	 * Get all role names for a given user in a set of AuthzGroups.
+	 *
+	 * @param userId
+	 *        The user ID of the person to search for.
+	 * @param azGroupIds
+	 *        A collection of AuthzGroup IDs to narrow the search (may be empty or null to search all).
+	 * @return A Map<String, String> (AuthzGroup ID -> role name) for every AuthzGroup where the user is a member, filtered to the set of AuthzGroups in azGroupIds (if non-null and non-empty).
+	 *
+	 */
+	Map<String, String> getUserRoles(String userId, Collection<String> azGroupIds);
 
 	/**
 	 * Get the role name for each user in the userIds Collection in this AuthzGroup, for each of these users who have membership (membership gives the user a single role).

@@ -330,6 +330,14 @@ public class AuthzGroupService
 		return service.getUserRole(param0, param1);
 	}
 
+	public static java.util.Map<java.lang.String, java.lang.String> getUserRoles(java.lang.String param0, java.util.Collection<java.lang.String> param1)
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserRoles(param0, param1);
+	}
+
 	public static java.util.Map getUsersRole(java.util.Collection param0, java.lang.String param1)
 	{
 		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();

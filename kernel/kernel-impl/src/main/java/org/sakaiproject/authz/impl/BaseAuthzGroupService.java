@@ -905,6 +905,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	/**
 	 * {@inheritDoc}
 	 */
+	public Map<String, String> getUserRoles(String userId, Collection<String> azGroupIds)
+	{
+		return m_storage.getUserRoles(userId, azGroupIds);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Map getUsersRole(Collection userIds, String azGroupId)
 	{
 		return m_storage.getUsersRole(userIds, azGroupId);
@@ -1377,6 +1385,18 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 */
 		String getUserRole(String userId, String azGroupId);
 
+		/**
+		 * Get all role names for a given user in a set of AuthzGroups.
+		 *
+		 * @param userId
+		 *        The user ID of the person to search for.
+		 * @param azGroupIds
+		 *        A collection of AuthzGroup IDs to narrow the search (may be empty or null to search all).
+		 * @return A Map<String, String> (AuthzGroup ID -> role name) for every AuthzGroup where the user is a member, filtered to the set of AuthzGroups in azGroupIds (if non-null and non-empty).
+		 *
+		 */
+		Map<String, String> getUserRoles(String userId, Collection<String> azGroupIds);
+		
 		/**
 		 * Get the role name for each user in the userIds Collection in this AuthzGroup.
 		 * 
