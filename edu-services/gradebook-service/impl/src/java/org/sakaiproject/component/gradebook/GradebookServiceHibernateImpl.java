@@ -1428,6 +1428,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                   " gradebookUid: " + gradebookUid + " gradableObjectId:" + 
                   gradableObjectId + " userId: " + userUid);
       }
+      
+      if (!authz.isUserAbleToGrade(gradebookUid, userUid)) {
+          return new HashMap();
+      }
 
       Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
           public Object doInHibernate(Session session) throws HibernateException {

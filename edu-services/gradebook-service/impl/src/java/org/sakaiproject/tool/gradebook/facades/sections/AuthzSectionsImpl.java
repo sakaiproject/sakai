@@ -52,11 +52,11 @@ public class AuthzSectionsImpl implements Authz {
 
 	public boolean isUserAbleToGrade(String gradebookUid) {
 		String userUid = authn.getUserUid();
-		return isUserAbleToGrade(userUid, gradebookUid);
+		return isUserAbleToGrade(gradebookUid, userUid);
 	}
 	
-	public boolean isUserAbleToGrade(String userUid, String gradebookUid) {
-        return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
+	public boolean isUserAbleToGrade(String gradebookUid, String userUid) {
+	    return (getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.TA));
     }
 
 	public boolean isUserAbleToGradeAll(String gradebookUid) {
