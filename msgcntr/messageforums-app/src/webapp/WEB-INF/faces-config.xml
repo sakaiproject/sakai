@@ -436,6 +436,12 @@
          	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
         </managed-property>
         
+        <managed-property>
+         	<description>User Preferences Manager</description>
+         	<property-name>userPreferencesManager</property-name>
+         	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
+        </managed-property>
+        
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>
@@ -476,6 +482,11 @@
         	<description>Synoptic Msgcntr Manager</description>
         	<property-name>synopticMsgcntrManager</property-name>
         	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>
+        <managed-property>
+         	<description>User Preferences Manager</description>
+         	<property-name>userPreferencesManager</property-name>
+         	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
         </managed-property>
     </managed-bean>
     

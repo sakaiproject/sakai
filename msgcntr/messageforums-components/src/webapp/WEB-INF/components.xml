@@ -437,6 +437,11 @@
         </property> 
     </bean>
     
+    <bean id="org.sakaiproject.api.app.messageforums.UserPreferencesManager"
+   	   	class="org.sakaiproject.component.app.messageforums.SakaiUserPreferencesManagerImpl">
+   	   	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+   	</bean>
+    
     <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
     </bean>

@@ -102,7 +102,7 @@
 					<h:outputText value="#{message.message.author}" styleClass="textPanelFooter"/>
 					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
 					<h:outputText value="#{message.message.created}" styleClass="textPanelFooter">
-			  	<f:convertDateTime pattern="#{msgs.date_format}" />
+			  	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
 			  </h:outputText>
 				<h:outputText value="#{msgs.cdfm_closeb}" />
 					<%--designNote: need to i18N --%>

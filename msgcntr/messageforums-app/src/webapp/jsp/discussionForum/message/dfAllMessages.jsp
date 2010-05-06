@@ -297,16 +297,16 @@
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
 			 	<h:outputText value="#{message.message.dateThreadlastUpdated}" rendered="#{message.read && message.childUnread == 0 && message.message.threadId == message.message.id}">
-					 	<f:convertDateTime pattern="#{msgs.date_format}" />
+					 	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
 					</h:outputText>
 					<h:outputText value="#{message.message.created}" rendered="#{message.read && message.childUnread == 0 && message.message.threadId != message.message.id}">
-					 	<f:convertDateTime pattern="#{msgs.date_format}" />
+					 	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
 					</h:outputText>
     	        	<h:outputText styleClass="unreadMsg" value="#{message.message.dateThreadlastUpdated}" rendered="#{(!message.read || message.childUnread > 0) && (message.message.threadId == message.message.id || message.message.threadId == null)}">
-					 	<f:convertDateTime pattern="#{msgs.date_format}" />
+					 	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
 				    </h:outputText> 
 					<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{(!message.read || message.childUnread > 0) && (message.message.threadId != message.message.id && message.message.threadId != null)}">
-					 	<f:convertDateTime pattern="#{msgs.date_format}" />
+					 	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
 				    </h:outputText>     	        	
 						
 				</h:panelGroup>

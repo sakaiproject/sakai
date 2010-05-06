@@ -46,7 +46,7 @@
 						<h:outputText value="#{msgDecorateBean.message.title}" />
 						<h:outputText  value= " - #{msgDecorateBean.message.author} " />		
 						<h:outputText value="#{msgDecorateBean.message.created}">
-							<f:convertDateTime pattern="#{msgs.date_format_paren}" />
+							<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
 						</h:outputText>
 					</h:panelGroup>
 				<f:verbatim></p></f:verbatim>				
@@ -79,7 +79,7 @@
 							<h:outputText value="#{msgDecorateBean.message.title}" />
 							<h:outputText  value= " - #{msgDecorateBean.message.author} " />			
 							<h:outputText value="#{msgDecorateBean.message.created}">
-								<f:convertDateTime pattern="#{msgs.date_format_paren}" />
+								<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
 							</h:outputText>
 						</h:panelGroup>
 					<f:verbatim></p></f:verbatim>								

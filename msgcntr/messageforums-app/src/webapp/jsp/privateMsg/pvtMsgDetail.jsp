@@ -108,7 +108,7 @@
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />  
             	<h:outputText value="#{msgs.pvt_openb}" />  
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
-                	<f:convertDateTime pattern="#{msgs.date_format}" />  
+                	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" />  
                 </h:outputText>
             	<h:outputText value=" #{msgs.pvt_closeb}" /> 
             </td>

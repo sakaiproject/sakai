@@ -55,7 +55,7 @@
 				<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter"/>
 					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
 					<h:outputText value="#{ForumTool.selectedMessage.message.created}" styleClass="textPanelFooter">
-						<f:convertDateTime pattern="#{msgs.date_format}" />  
+						<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />  
 					</h:outputText>
 					<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
 					<p style="padding:0;margin:.5em 0" id="openLinkBlock" class="toggleParent">
@@ -120,7 +120,7 @@
 		    <h:inputHidden id="titleHidden" value="#{ForumTool.selectedMessage.message.title}" />
 			<h:outputText value="&nbsp;&nbsp;&nbsp; " escape="false" />
 			<img src="/library/image/silk/paste_plain.png" />
-			<a  href="#"  onclick="InsertHTML('<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
+			<a  href="#"  onclick="InsertHTML('<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
 					<h:outputText value="#{msgs.cdfm_message_insert}" />
 				</a>
 				<a  id="countme" href="#" style="margin-left:3em"><img src="/library/image/silk/table_add.png" /> <span id="countmetitle"><h:outputText value="#{msgs.cdfm_message_count}" /></span></a>

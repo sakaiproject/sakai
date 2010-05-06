@@ -41,7 +41,7 @@
 					<h:outputText value="#{message.message.title}"  styleClass="title"/>		          	
 		          	<h:outputText value=" - #{message.message.author}"/>
                     <h:outputText value="#{message.message.created}">
-			   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" />
+			   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
            			</h:outputText>
 						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />
 

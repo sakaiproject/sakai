@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +57,7 @@ import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -149,7 +151,8 @@ public class PrivateMessagesTool
   private ErrorMessages errorMessages;
   private MembershipManager membershipManager;
   private SynopticMsgcntrManager synopticMsgcntrManager;
-    
+  private UserPreferencesManager userPreferencesManager;
+  
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
   private ContentHostingService contentHostingService;
@@ -960,6 +963,11 @@ public class PrivateMessagesTool
   {
     return SessionManager.getCurrentSessionUserId();
   }
+  
+  public TimeZone getUserTimeZone() {
+	  return userPreferencesManager.getTimeZone();
+  }
+  
   //Reply time
   public Date getTime()
   {
@@ -4555,5 +4563,9 @@ private   int   getNum(char letter,   String   a)
 	public void setSynopticMsgcntrManager(
 			SynopticMsgcntrManager synopticMsgcntrManager) {
 		this.synopticMsgcntrManager = synopticMsgcntrManager;
+	}
+	
+	public void setUserPreferencesManager(UserPreferencesManager userPreferencesManager) {
+		this.userPreferencesManager = userPreferencesManager;
 	}
 }

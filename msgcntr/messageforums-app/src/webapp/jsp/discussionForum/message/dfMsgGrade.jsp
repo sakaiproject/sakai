@@ -25,7 +25,7 @@
 				<h:outputText value="#{ForumTool.selectedMessage.message.author}" />
 				<h:outputText value=" #{msgs.cdfm_openb} " />
 				<h:outputText value="#{ForumTool.selectedMessage.message.created}" >
-					<f:convertDateTime pattern="#{msgs.date_format}" />  
+					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />  
 				</h:outputText>
 				<h:outputText value=" #{msgs.cdfm_closeb}" />
 				<%-- Attachments --%>

@@ -209,7 +209,7 @@
 						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter"/>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />
 						<h:outputText value="#{ForumTool.selectedMessage.message.created}"  styleClass="textPanelFooter" >
-							<f:convertDateTime pattern="#{msgs.date_format}" />  
+							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />  
 						</h:outputText>
 						<h:outputText value=" #{msgs.cdfm_closeb}"  styleClass="textPanelFooter" />
 					</h:panelGroup>                                                                                            
