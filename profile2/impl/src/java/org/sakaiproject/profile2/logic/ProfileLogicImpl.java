@@ -19,6 +19,7 @@ package org.sakaiproject.profile2.logic;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
+import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.Message;
@@ -2270,8 +2272,28 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return dao.getAllSakaiPersonIdsCount();
 	}
 
-	
-	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public BigDecimal getKudos(String userUuid){
+		ProfileKudos k = dao.getKudos(userUuid);
+		if(k == null){
+			return null;
+		}
+		return k.getKudos();
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean updateKudos(String userUuid, BigDecimal score) {
+		ProfileKudos k = new ProfileKudos();
+		k.setUserUuid(userUuid);
+		k.setKudos(score);
+		k.setDateAdded(new Date());
+		
+		return dao.updateKudos(k);
+	}
 	
 	
 	// helper method to check if all required twitter fields are set properly

@@ -1,12 +1,13 @@
 package org.sakaiproject.profile2.dao;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.genericdao.api.GeneralGenericDao;
-import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
+import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
+import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
@@ -246,6 +247,21 @@ public interface ProfileDao {
 	
 	public List<UserProfile> getUserProfiles(final int start, final int count);
 	
+	/**
+	 * Get the kudos record for a user
+	 * @param userUuid
+	 * @return	ProfileKudos record, or null
+	 */
+	public ProfileKudos getKudos(String userUuid);
+	
+	/**
+	 * Update a user's kudos record
+	 * @param kudos	ProfileKudos for the user
+	 * @return
+	 */
+	public boolean updateKudos(ProfileKudos kudos);
+	
+	
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
 	final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";
@@ -293,6 +309,9 @@ public interface ProfileDao {
 	final String QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID="getMessageParticipantForMessageAndUuid";
 	final String QUERY_GET_THREAD_PARTICIPANTS="getThreadParticipants";
 
+	//from ProfileKudos.hbm.xml
+	final String QUERY_GET_KUDOS_RECORD="getKudosRecord";
+	
 	// Hibernate object fields
 	final String USER_UUID = "userUuid";
 	final String FRIEND_UUID = "friendUuid";

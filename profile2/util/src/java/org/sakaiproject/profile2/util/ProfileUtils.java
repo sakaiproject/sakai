@@ -23,6 +23,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -507,7 +508,7 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Remove dupliactes from a list, order is retained.
+	 * Remove duplicates from a list, order is retained.
 	 *
 	 * @param list	list of objects to clean
 	 */
@@ -521,5 +522,22 @@ public class ProfileUtils {
 		}
 	    list.clear();
 	    list.addAll(newList);
+	}
+	
+	/**
+	 * Determine how many iterations are needed to get through a list, in chunks
+	 * @param total	total number of items
+	 * @param divisor	amount per set
+	 * @return	number of iterations needed
+	 */
+	public static int getIterations(int total, int divisor){
+		
+		BigDecimal[] d = new BigDecimal(total).divideAndRemainder(new BigDecimal(divisor));
+		//if no remainder, we had an exact value so only return the number
+		if(d[1].equals(BigDecimal.ZERO)){
+			return d[0].intValue();
+		}
+		//otherwise, return number required +1 (to account for remainder)
+		return d[0].intValue()+1;
 	}
 }

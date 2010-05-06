@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.logic;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.sakaiproject.profile2.model.BasicPerson;
@@ -976,5 +977,21 @@ public interface ProfileLogic {
 	 * @return count
 	 */
 	public int getAllSakaiPersonIdsCount();
+	
+	/**
+	 * Get the kudos rating for a user
+	 * @param userUuid	user to get the rating for
+	 * @return	BigDecimal or null if none
+	 */
+	public BigDecimal getKudos(String userUuid);
+	
+	/**
+	 * Update a user's kudos rating
+	 * 
+	 * @param userUuid	uuid for the user
+	 * @param score		score, already calculated as a percentage.
+	 * @return
+	 */
+	public boolean updateKudos(String userUuid, BigDecimal score);
 	
 }

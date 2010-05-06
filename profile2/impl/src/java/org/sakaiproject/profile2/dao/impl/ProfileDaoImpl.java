@@ -17,6 +17,7 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
+import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
@@ -1049,6 +1050,37 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return true;
 		} catch (Exception e) {
 			log.error("saveOfficialImageUrl failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileKudos getKudos(final String userUuid) {
+				
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_KUDOS_RECORD);
+	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	return (ProfileKudos) getHibernateTemplate().executeFind(hcb);
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean updateKudos(ProfileKudos kudos) {
+		try {
+			getHibernateTemplate().saveOrUpdate(kudos);
+			return true;
+		} catch (Exception e) {
+			log.error("updateKudos failed. " + e.getClass() + ": " + e.getMessage());  
 			return false;
 		}
 	}

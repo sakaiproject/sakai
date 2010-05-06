@@ -32,6 +32,8 @@ public class KudosJob implements StatefulJob {
 	private static final Logger log = Logger.getLogger(KudosJob.class);
 	
 	private final String BEAN_ID = "org.sakaiproject.profile2.job.KudosJob";
+	private final int MAX_RECORDS_PER_SET = 50;
+	
 	
 	/**
 	 * setup the rule map
@@ -125,33 +127,39 @@ public class KudosJob implements StatefulJob {
 			return;
 		}
 		
-		log.error("KudosJob run");
+		log.info("KudosJob run");
 		
-		//start a session and set it to admin
+		//start a session and set it to admin - needed?
 		
-		log.error("result:" + RULES.get("email"));
-		log.error("result:" + RULES.get("nickname"));
-		log.error("result:" + RULES.get("birthday"));
-		
+		//get total possible score
 		BigDecimal total = getTotal();
-		log.error("total:" + total);
 		
 		//get total number of records
 		int totalPersons = profileLogic.getAllSakaiPersonIdsCount();
 		
-		//chunk the results
-		
-		//get a set of profiles, this will check the
-		
+		//iterate over list getting a chunk of profiles at a time
+		int i=0;
+		while(i<=totalPersons){
 
-		List<Person> persons = profileLogic.getAllPersons(0, 20);
-		for(Person person: persons) {
-			log.error("out: " + person.getDisplayName());
+			List<Person> persons = profileLogic.getAllPersons(i, MAX_RECORDS_PER_SET);
+
+			for(Person person: persons) {
+				
+				String userUuid = person.getUuid();
+				log.info("Processing user: " + userUuid + " ," + person.getDisplayName());
+				//BigDecimal score = getScoreAsPercentage(getScore(person), total);
+				
+				//if(profileLogic.updateKudos(userUuid, score)) {
+				//	log.info("Kudos updated for user: " + userUuid + ", score: " + score);
+				//}
+			}
 			
-			BigDecimal score = getScore(person);
-			
-			log.error("percent:" + getTotalAsPercentage(score, total));
+			//increment for the next set
+			i=i+MAX_RECORDS_PER_SET;
 		}
+		
+		log.info("KudosJob finished");
+
 		
 	}
 	
@@ -204,11 +212,11 @@ public class KudosJob implements StatefulJob {
 	}
 	
 	/**
-	 * Gets the total as a percentage, two decimal precision
+	 * Gets the score as a percentage, two decimal precision
 	 * @param map
 	 * @return
 	 */
-	private BigDecimal getTotalAsPercentage(BigDecimal score, BigDecimal total) {
+	private BigDecimal getScoreAsPercentage(BigDecimal score, BigDecimal total) {
 		return score.divide(total, 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).stripTrailingZeros();
 	}
 	

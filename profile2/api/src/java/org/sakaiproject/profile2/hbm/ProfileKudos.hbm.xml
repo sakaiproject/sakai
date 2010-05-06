@@ -14,5 +14,9 @@
 		<property name="kudos" column="KUDOS" not-null="true" />
 		<property name="dateAdded" column="DATE_ADDED" not-null="true" />
   	</class>
+  	
+  	<query name="getKudosRecord">
+    	<![CDATA[from ProfileKudos kudos WHERE kudos.userUuid = :userUuid]]>
+	</query>
 
 </hibernate-mapping>
