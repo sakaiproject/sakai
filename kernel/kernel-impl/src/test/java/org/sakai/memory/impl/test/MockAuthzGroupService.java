@@ -118,7 +118,11 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	public Map<String, String> getUserRoles(String userId, Collection<String> azGroupIds) {
+		return null;
+	}
+	
 	public Set getUsersIsAllowed(String function, Collection azGroups) {
 		// TODO Auto-generated method stub
 		return null;
