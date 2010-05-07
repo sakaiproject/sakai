@@ -15,6 +15,7 @@ import org.quartz.StatefulJob;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -153,7 +154,6 @@ public class KudosJob implements StatefulJob {
 			
 			log.info("Processing user: " + userUuid + ", " + person.getDisplayName());
 				
-				
 			//get score for user	
 			BigDecimal score = getScoreAsPercentage(getScore(person), total);
 
@@ -169,8 +169,6 @@ public class KudosJob implements StatefulJob {
 		session.setUserEid(null);
 		
 		log.info("KudosJob finished");
-
-		
 	}
 	
 	/**
@@ -200,7 +198,26 @@ public class KudosJob implements StatefulJob {
 	 * @return
 	 */
 	private BigDecimal getScore(Person person) {
-		return new BigDecimal(25);
+		
+		BigDecimal score = new BigDecimal(0);
+		
+		//profile
+		UserProfile profile = person.getProfile();
+		if(profile != null){
+			if(nb(profile.getNickname())){
+				score = add(score, val("nickname"));
+			}
+			if(nb(profile.getEmail())){
+				score = add(score, val("email"));
+			}
+			if(nb(profile.getBirthday())){
+				score = add(score, val("birthday"));
+			}
+			
+		}
+		
+		return score;
+		
 	}
 	
 	/**
@@ -211,6 +228,24 @@ public class KudosJob implements StatefulJob {
 	 */
 	private BigDecimal add(BigDecimal total, BigDecimal addend) {
 		return total.add(addend);
+	}
+	
+	/**
+	 * Helper for StringUtils.isNotBlank
+	 * @param s1	String to check
+	 * @return
+	 */
+	private boolean nb(String s1){
+		return StringUtils.isNotBlank(s1);
+	}
+	
+	/**
+	 * Helper to get the value of the key from the RULES map
+	 * @param key	key to getvalue for
+	 * @return		BigDecimal value
+	 */
+	private BigDecimal val(String key){
+		return RULES.get(key);
 	}
 	
 	/**
