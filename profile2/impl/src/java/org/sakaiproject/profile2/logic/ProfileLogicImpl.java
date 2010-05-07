@@ -225,27 +225,16 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 		
 		List<User> users = new ArrayList<User>();
-		List<BasicPerson> connections = new ArrayList<BasicPerson>();
 		
 		//check privacy
 		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
 		if(!isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return connections;
+			return new ArrayList<BasicPerson>();
 		}
 		
 		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
 		
-		for(User u: users) {
-			BasicPerson p = new BasicPerson();
-			p.setUuid(u.getId());
-			p.setDisplayName(u.getDisplayName());
-			p.setEmail(u.getEmail());
-			p.setType(u.getType());
-				
-			connections.add(p);
-		}
-		
-		return connections;
+		return getBasicPersons(users);
 	}
 	
 	/**
@@ -260,29 +249,16 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 		
 		List<User> users = new ArrayList<User>();
-		List<Person> connections = new ArrayList<Person>();
 		
 		//check privacy
 		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
 		if(!isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return connections;
+			return new ArrayList<Person>();
 		}
 		
 		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
 		
-		for(User u: users) {
-			Person p = new Person();
-			p.setUuid(u.getId());
-			p.setDisplayName(u.getDisplayName());
-			p.setEmail(u.getEmail());
-			p.setType(u.getType());
-				
-			//TODO flesh this out to add the rest of the objects
-			
-			connections.add(p);
-		}
-		
-		return connections;
+		return getPersons(users);
 	}
 	
 	
@@ -299,19 +275,9 @@ public class ProfileLogicImpl implements ProfileLogic {
 	public List<Person> getConnectionRequestsForUser(final String userId) {
 		
 		List<User> users = new ArrayList<User>();
-		List<Person> requests = new ArrayList<Person>();
 		users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
 		
-		for(User u: users) {
-			Person p = new Person();
-			p.setUuid(u.getId());
-			p.setDisplayName(u.getDisplayName());
-			p.setType(u.getType());
-				
-			requests.add(p);
-		}
-		
-		return requests;
+		return getPersons(users);
 	}
 	
 	/**
@@ -2241,7 +2207,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setType(user.getType());
 		p.setPreferences(getPreferencesRecordForUser(userUuid));
 		p.setPrivacy(getPrivacyRecordForUser(userUuid));
-		p.setProfile(null); //TODO
+		p.setProfile(getUserProfile(userUuid));
 		
 		return p;
 	}

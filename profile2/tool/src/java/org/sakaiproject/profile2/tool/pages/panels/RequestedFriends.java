@@ -108,19 +108,9 @@ public class RequestedFriends extends Panel {
 		    	//get name
 		    	String displayName = person.getDisplayName();
 		    	
-		    	
-		    	//REMOVE THIS WHEN WE FLESH OUT THE PERSON OBJECT RETURNED
-				//ensure privacy
+				//get other objects
 				ProfilePrivacy privacy = person.getPrivacy();
-				if(privacy == null){
-					 privacy = profileLogic.getPrivacyRecordForUser(personUuid);
-				}
-				
-				//ensure preferences
 				ProfilePreferences prefs = person.getPreferences();
-				if(prefs == null){
-					prefs = profileLogic.getPreferencesRecordForUser(personUuid);
-				}
 		    	
 				//image wrapper, links to profile
 		    	Link<String> friendItem = new Link<String>("connectionPhotoWrap", new Model<String>(personUuid)) {
