@@ -151,6 +151,7 @@ function clickSubmitForGrade(){
 <h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
     <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+    <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
       <h:panelGroup>
