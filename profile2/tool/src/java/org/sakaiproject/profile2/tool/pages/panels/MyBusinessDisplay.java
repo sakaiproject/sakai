@@ -26,9 +26,9 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.extensions.markup.html.tabs.TabbedPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -125,7 +125,7 @@ public class MyBusinessDisplay extends Panel {
 			}
 		}
 
-		companyProfilesContainer.add(new TabbedPanel("companyProfiles", tabs));
+		companyProfilesContainer.add(new AjaxTabbedPanel("companyProfiles", tabs));
 		add(companyProfilesContainer);
 		
 		if (0 == tabs.size()) {			

@@ -24,6 +24,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.markup.html.tabs.TabbedPanel;
@@ -51,7 +52,7 @@ public class MyBusinessEdit extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInterestsEdit.class);
-	private TabbedPanel companyProfileTabs;
+	private AjaxTabbedPanel companyProfileTabs;
 	private List<CompanyProfile> companyProfilesToAdd = null;
 	private List<CompanyProfile> companyProfilesToRemove = null;
 	private enum TabDisplay { START, END }
@@ -317,7 +318,7 @@ public class MyBusinessEdit extends Panel {
 			}
 		}
 
-		companyProfileTabs = new TabbedPanel("companyProfiles", tabs);
+		companyProfileTabs = new AjaxTabbedPanel("companyProfiles", tabs);
 		companyProfilesContainer.add(companyProfileTabs);
 
 		if (tabs.size() > 0) {
