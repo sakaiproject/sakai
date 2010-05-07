@@ -8606,7 +8606,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			try {
 				siteType = m_siteService.getSite(siteId).getType();
 			} catch (IdUnusedException e) {
-				M_log.warn("SiteService could not find the site type");
+				M_log.warn("Quota calculation could not find the site '"+ siteId + "' to determine the type.", M_log.isDebugEnabled()?e:null);
 			}
 
 			// use this quota unless we have one more specific
