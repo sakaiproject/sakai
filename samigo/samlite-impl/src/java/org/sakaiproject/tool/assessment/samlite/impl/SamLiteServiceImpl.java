@@ -158,8 +158,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		int questionNumber = 1;
 	
 		for (int i=0;i<lines.length;i++) {
-			if (lines[i].endsWith("\\r"))
-				lines[i] = lines[i].replace('\r', ' ');
+			if (lines[i].endsWith("<br />"))
+				lines[i] = lines[i].replaceAll("<br />", "").replace('\r', ' ');
 			String line = lines[i].trim();
 			
 			if (null != line && !"".equals(line)) {	
@@ -224,8 +224,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			boolean isMC = multipleChoiceMatcher.find();
 			Matcher fillInMatcher = correctFillInPattern.matcher(line);
 			boolean isFI = fillInMatcher.find();
-			boolean isTrue = correctTruePattern.matcher(line.replace("<br />", "")).find();
-			boolean isFalse = correctFalsePattern.matcher(line.replace("<br />", "")).find();
+			boolean isTrue = correctTruePattern.matcher(line).find();
+			boolean isFalse = correctFalsePattern.matcher(line).find();
 			
 			if (isMC) {
 				String earlierCorrectAnswer = question.getCorrectAnswer();
