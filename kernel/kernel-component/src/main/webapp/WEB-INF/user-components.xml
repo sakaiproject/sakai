@@ -38,6 +38,8 @@
  		<property name="caseSensitiveId"><value>false</value></property>
  		<property name="separateIdEid"><value>true</value></property>
 
+        <property name="passwordService" ref="org.sakaiproject.user.impl.PasswordService"/>
+
  		<!-- This is s LRU cache managed by the memory service currently using ehcache -->
  		<property name="cache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.cache" /></property>
 
@@ -126,5 +128,12 @@
         <property name="timeToLive" value="7200" />
         <property name="timeToIdle" value="7200" />
 	</bean>
+
+    <!-- Password service, create this as a named bean so it can be configured if required. -->
+    <bean id="org.sakaiproject.user.impl.PasswordService"
+        class="org.sakaiproject.user.impl.PasswordService">
+    </bean>
+
+  
 
 </beans>
