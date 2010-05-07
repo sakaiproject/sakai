@@ -19,7 +19,6 @@ public class BasicPerson implements Serializable, Comparable<Object> {
 	private String uuid;
 	private String displayName;
 	private String type;
-	private String email;
 	
 	/**
 	 * No arg constructor
@@ -48,14 +47,6 @@ public class BasicPerson implements Serializable, Comparable<Object> {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 	//default sort

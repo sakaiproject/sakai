@@ -2125,7 +2125,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		BasicPerson p = new BasicPerson();
 		p.setUuid(user.getId());
 		p.setDisplayName(user.getDisplayName());
-		p.setEmail(user.getEmail());
 		p.setType(user.getType());
 		return p;
 	}
@@ -2160,7 +2159,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		String userUuid = user.getId();
 		p.setUuid(userUuid);
 		p.setDisplayName(user.getDisplayName());
-		p.setEmail(user.getEmail());
 		p.setType(user.getType());
 		p.setPreferences(getPreferencesRecordForUser(userUuid));
 		p.setPrivacy(getPrivacyRecordForUser(userUuid));
