@@ -54,7 +54,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.SiteService;
@@ -560,35 +559,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return data;
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public ResourceWrapper getResourceWrapped(String resourceId) {
-		
-		ResourceWrapper wrapper = new ResourceWrapper();
-		
-		try {
-			
-			enableSecurityAdvisor();
-		
-			try {
-				ContentResource resource = contentHostingService.getResource(resourceId);
-				wrapper.setBytes(resource.getContent());
-				wrapper.setMimeType(resource.getContentType());
-				wrapper.setResourceID(resourceId);
-				//wrapper.setLength(resource.getContentLength());
-			}
-			catch(Exception e){
-				log.error("SakaiProxy.getResourceWrapped() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
-			}
-		} catch (Exception e) {
-			log.error("SakaiProxy.getResourceWrapped():" + e.getClass() + ":" + e.getMessage());
-		}
-		finally	{
-			disableSecurityAdvisor();
-		}
-		return wrapper;
-	}
+	
 	
 	/**
 	 * {@inheritDoc}

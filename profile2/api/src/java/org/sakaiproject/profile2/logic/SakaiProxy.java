@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.user.api.User;
 /**
  * An interface for abstracting Sakai specific parts away from the main logic.
@@ -250,12 +249,6 @@ public interface SakaiProxy {
 	 */
 	public byte[] getResource(String resourceId);
 	
-	/**
-	 * Retrieve a resource from ContentHosting as a ResourceWrapper object
-	 *
-	 * @param resourceId	the full resourceId of the file
-	 */
-	public ResourceWrapper getResourceWrapped(String resourceId);
 	
 	/**
 	 * Removes the specified resource.

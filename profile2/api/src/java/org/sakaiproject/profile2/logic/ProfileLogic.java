@@ -733,20 +733,6 @@ public interface ProfileLogic {
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
 	
 	
-	
-	
-	/**
-	 * Gets a URL resource, reads it and returns the byte[] wrapped in ResourceWrapper along with metadata. 
-	 * Useful for displaying remote resources where you only have a URL.
-	 * 
-	 * @param url 	String url of the remote resource
-	 * @return
-	 */
-	public ResourceWrapper getURLResourceAsBytes(final String url);
-	
-	
-	
-	
 	/**
 	 * Get the number of all unread messages for this user, across all all message threads.
 	 *

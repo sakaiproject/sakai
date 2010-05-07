@@ -1663,54 +1663,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	
 		
-	/**
- 	 * {@inheritDoc}
- 	 * 
- 	 * TODO: GET RID OF THIS. The new ProfileImageRenderer will be able to render URLs as is.
- 	 */
-	public ResourceWrapper getURLResourceAsBytes(String url) {
-		
-		ResourceWrapper wrapper = new ResourceWrapper();
-		
-		try {
-			URL u = new URL(url);
-			
-			URLConnection uc = u.openConnection();
-			int contentLength = uc.getContentLength();
-			String contentType = uc.getContentType();
-			uc.setReadTimeout(5000); //timeout of 5 sec just to be on the safe side.
-			
-			InputStream in = new BufferedInputStream(uc.getInputStream());
-			byte[] data = new byte[contentLength];
-			
-			int bytes = 0;
-			int offset = 0;
-		      
-			while (offset < contentLength) {
-				bytes = in.read(data, offset, data.length - offset);
-				if (bytes == -1) {
-					break;
-				}
-				offset += bytes;
-			}
-			in.close();
-			
-			if (offset != contentLength) {
-				throw new IOException("Only read " + offset + " bytes; Expected " + contentLength + " bytes.");
-			}
-			
-			wrapper.setBytes(data);
-			wrapper.setMimeType(contentType);
-			wrapper.setLength(contentLength);
-			wrapper.setExternal(true);
-			wrapper.setResourceID(url);
-			
-		} catch (Exception e) {
-			log.error("Failed to retrieve resource: " + e.getClass() + ": " + e.getMessage());
-		} 
-		return wrapper;
-	}
-
+	
 	
 
 	/**
