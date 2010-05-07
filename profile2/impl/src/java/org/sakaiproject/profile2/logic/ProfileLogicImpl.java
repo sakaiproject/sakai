@@ -102,10 +102,11 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		//transform
 		p = transformSakaiPersonToUserProfile(p, sakaiPerson);
-				
-		//if person requested own profile, no need for privacy checks
+		
+		//if person requested own profile or superuser, no need for privacy checks
 		//add the additional information and return
-		if(userUuid.equals(currentUserUuid)) {
+		if(userUuid.equals(currentUserUuid) || sakaiProxy.isSuperUser()) {
+			p.setEmail(u.getEmail());
 			p.setStatus(getUserStatus(userUuid));
 			p.setSocialInfo(getSocialNetworkingInfo(userUuid));
 			p.setCompanyProfiles(getCompanyProfiles(userUuid));
@@ -121,15 +122,15 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		//REMOVE basic info if not allowed
 		if(!isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			log.debug("basic info not allowed");
 			p.setNickname(null);
 			p.setDateOfBirth(null);
 			p.setPersonalSummary(null);
 		}
 		
-		//REMOVE contact info if not allowed
-		if(!isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			log.debug("contact info not allowed");
+		//ADD email if allowed, REMOVE contact info if not
+		if(isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			p.setEmail(u.getEmail());
+		} else {
 			p.setEmail(null);
 			p.setHomepage(null);
 			p.setHomephone(null);
@@ -140,7 +141,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		//REMOVE staff info if not allowed
 		if(!isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			log.debug("staff info not allowed");
 			p.setDepartment(null);
 			p.setPosition(null);
 			p.setSchool(null);
@@ -153,14 +153,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		//REMOVE student info if not allowed
 		if(!isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			log.debug("student info not allowed");
 			p.setCourse(null);
 			p.setSubjects(null);
 		}
 		
 		//REMOVE personal info if not allowed
 		if(!isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			log.debug("personal info not allowed");
 			p.setFavouriteBooks(null);
 			p.setFavouriteTvShows(null);
 			p.setFavouriteMovies(null);
@@ -2094,52 +2092,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<Person> getAllPersons(final int start, final int count) {
-		
-		List<Person> persons = new ArrayList<Person>();
-		
-		//restrict to admin user
-		//if(!sakaiProxy.isAdminUser()) {
-		//	return persons;
-		//}
-		
-		List<UserProfile> profiles = dao.getUserProfiles(start, count);
-		
-	  	//foreach UserProfile returned, build our person object
-	  	for(UserProfile profile: profiles) {
-	  		
-	  		//check person really exists
-	  		User u = sakaiProxy.getUserQuietly(profile.getUserUuid());
-	  		if(u == null) {
-	  			continue;
-	  		}
-	  		
-	  		Person p = new Person();
-	  		
-	  		//set basic info
-	  		p.setUuid(profile.getUserUuid());
-	  		p.setDisplayName(u.getDisplayName());
-	  		p.setEmail(u.getEmail());
-	  		p.setType(u.getType());
-	  		
-	  		//set the profile
-	  		p.setProfile(profile);
-	  		
-	  		//add privacy record
-	  		p.setPrivacy(getPrivacyRecordForUser(profile.getUserUuid()));
-	  	
-	  		//add preferences record
-	  		p.setPreferences(getPreferencesRecordForUser(profile.getUserUuid()));
-	  		
-	  		//add to list
-	  		persons.add(p);
-	  	}
-	  	
-		return persons;
-	}	
+	
 		
 	
 	
@@ -2199,6 +2152,10 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 * {@inheritDoc}
  	 */
 	public Person getPerson(User user) {
+		//catch for non existent user
+		if(user == null){
+			return null;
+		}
 		Person p = new Person();
 		String userUuid = user.getId();
 		p.setUuid(userUuid);

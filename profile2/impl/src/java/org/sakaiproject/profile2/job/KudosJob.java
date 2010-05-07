@@ -13,8 +13,11 @@ import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
 
 /**
  * This is the Kudos calculation job.
@@ -32,7 +35,6 @@ public class KudosJob implements StatefulJob {
 	private static final Logger log = Logger.getLogger(KudosJob.class);
 	
 	private final String BEAN_ID = "org.sakaiproject.profile2.job.KudosJob";
-	private final int MAX_RECORDS_PER_SET = 50;
 	
 	
 	/**
@@ -129,34 +131,42 @@ public class KudosJob implements StatefulJob {
 		
 		log.info("KudosJob run");
 		
-		//start a session and set it to admin - needed?
-		
+		//start a session for admin so we can get full profiles
+		Session session = sessionManager.startSession();
+        sessionManager.setCurrentSession(session);
+        session.setUserEid("admin");
+        session.setUserId("admin");
+				
 		//get total possible score
 		BigDecimal total = getTotal();
 		
 		//get total number of records
-		int totalPersons = profileLogic.getAllSakaiPersonIdsCount();
+		List<String> profileUuids = profileLogic.getAllSakaiPersonIds();
 		
 		//iterate over list getting a chunk of profiles at a time
-		int i=0;
-		while(i<=totalPersons){
-
-			List<Person> persons = profileLogic.getAllPersons(i, MAX_RECORDS_PER_SET);
-
-			for(Person person: persons) {
-				
-				String userUuid = person.getUuid();
-				log.info("Processing user: " + userUuid + " ," + person.getDisplayName());
-				//BigDecimal score = getScoreAsPercentage(getScore(person), total);
-				
-				//if(profileLogic.updateKudos(userUuid, score)) {
-				//	log.info("Kudos updated for user: " + userUuid + ", score: " + score);
-				//}
+		for(String userUuid: profileUuids) {
+		
+			Person person = profileLogic.getPerson(userUuid);
+			if(person == null){
+				continue;
 			}
 			
-			//increment for the next set
-			i=i+MAX_RECORDS_PER_SET;
+			log.info("Processing user: " + userUuid + ", " + person.getDisplayName());
+				
+				
+			//get score for user	
+			BigDecimal score = getScoreAsPercentage(getScore(person), total);
+
+			//save it
+			if(profileLogic.updateKudos(userUuid, score)) {
+				log.info("Kudos updated for user: " + userUuid + ", score: " + score);
+			}
+			
+			
 		}
+		
+		session.setUserId(null);
+		session.setUserEid(null);
 		
 		log.info("KudosJob finished");
 
@@ -191,7 +201,16 @@ public class KudosJob implements StatefulJob {
 	 */
 	private BigDecimal getScore(Person person) {
 		return new BigDecimal(25);
-
+	}
+	
+	/**
+	 * Helper to perform an addition
+	 * @param total		number that is to be added to
+	 * @param addend	number that is to be added
+	 * @return
+	 */
+	private BigDecimal add(BigDecimal total, BigDecimal addend) {
+		return total.add(addend);
 	}
 	
 	/**
@@ -225,6 +244,11 @@ public class KudosJob implements StatefulJob {
 		log.info("KudosJob.init()");		
 	}
 	
+	
+	private SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
+	}
 	
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {

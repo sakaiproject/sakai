@@ -44,7 +44,7 @@
   	
   	<!--  this is a native query to get only the fields that Profile2 currently uses, it is then transformed into a UserProfile object.
   	This should be chunked in the Hibernate call so as to only get a set of records at a time, say 100 -->
-  	<sql-query name="getAllSakaiPersons">
+  	<sql-query name="getSakaiPerson">
   		<return-scalar column="userUuid" type="string" />
   		<return-scalar column="nickname" type="string" />
   		<return-scalar column="dateOfBirth" type="date" />

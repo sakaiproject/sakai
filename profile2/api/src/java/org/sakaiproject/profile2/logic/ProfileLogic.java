@@ -903,16 +903,7 @@ public interface ProfileLogic {
 	
 	
 	
-	/**
-	 * Gets a list of all Person records. It will attempt to set all optional fields, ie Privacy and Preference records as well.
-	 * Due to the volume of data that is returned, this method allows for paging.
-	 * <p>This is used by the KudosJob calculator. There shouldn't be a real need for other applications to use it.
-	 * <p>In addition, due to the sensitive nature of this data, it is restricted to the admin user only.
-	 * @param start
-	 * @param count
-	 * @return
-	 */
-	public List<Person> getAllPersons(int start, int count);
+	
 	
 	/**
 	 * Save the official image url that institutions can set.

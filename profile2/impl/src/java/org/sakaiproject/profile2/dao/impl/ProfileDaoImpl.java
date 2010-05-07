@@ -13,10 +13,11 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.dao.ProfileDao;
-import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
+import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.GalleryImage;
@@ -673,7 +674,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSONS);
+	  			Query q = session.getNamedQuery(QUERY_GET_SAKAI_PERSON);
 
 	  			//see scalars in the hbm
 	  			q.setFirstResult(start);
@@ -687,6 +688,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	profiles = (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
 	  	return profiles;
 	}
+	
 	
 	/**
  	 * {@inheritDoc}

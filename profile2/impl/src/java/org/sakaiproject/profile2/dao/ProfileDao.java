@@ -1,9 +1,9 @@
 package org.sakaiproject.profile2.dao;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
@@ -284,7 +284,7 @@ public interface ProfileDao {
 	//SakaiPersonMeta
 	final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
 	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
-	final String QUERY_GET_ALL_SAKAI_PERSONS = "getAllSakaiPersons";
+	final String QUERY_GET_SAKAI_PERSON = "getSakaiPerson";
 	final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
 	final String QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT = "getAllSakaiPersonIdsCount";
 
