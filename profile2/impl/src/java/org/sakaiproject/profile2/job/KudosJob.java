@@ -12,13 +12,16 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
 
 /**
  * This is the Kudos calculation job.
@@ -44,10 +47,10 @@ public class KudosJob implements StatefulJob {
 	private final HashMap<String,BigDecimal> RULES = new HashMap<String,BigDecimal>() {
 		{
 			//points for profile completeness
-			put("email", new BigDecimal(1));
 			put("nickname", new BigDecimal(1));
 			put("birthday", new BigDecimal(0.5));
 			
+			put("email", new BigDecimal(1));
 			put("homePage", new BigDecimal(1));
 			put("workPhone", new BigDecimal(1));
 			put("homePhone", new BigDecimal(1));
@@ -57,17 +60,40 @@ public class KudosJob implements StatefulJob {
 			put("department", new BigDecimal(0.5));
 			put("school", new BigDecimal(0.5));
 			put("room", new BigDecimal(0.5));
-			put("degree", new BigDecimal(0.5));
+			put("course", new BigDecimal(0.5));
 			put("subjects", new BigDecimal(0.5));
 
 			put("favouriteBooks", new BigDecimal(0.25));
 			put("favouriteTvShows", new BigDecimal(0.25));
 			put("favouriteMovies", new BigDecimal(0.25));
 			put("favouriteQuotes", new BigDecimal(0.25));
-			put("other", new BigDecimal(2));
+			put("personalSummary", new BigDecimal(2));
 
+			//points for openness in privacy
+			put("profileImageShared", new BigDecimal(0.05));
+			put("profileImageBonus", new BigDecimal(0.05));
+			put("basicInfoShared", new BigDecimal(0.05));
+			put("basicInfoBonus", new BigDecimal(0.05));
+			put("contactInfoShared", new BigDecimal(0.05));
+			put("contactInfoBonus", new BigDecimal(0.05));
+			put("personalInfoShared", new BigDecimal(0.05));
+			put("personalInfoBonus", new BigDecimal(0.05));
+			put("staffInfoShared", new BigDecimal(0.05));
+			put("staffInfoBonus", new BigDecimal(0.05));
+			put("studentInfoShared", new BigDecimal(0.05));
+			put("studentInfoBonus", new BigDecimal(0.05));
+			put("viewConnectionsShared", new BigDecimal(0.05));
+			put("viewConnectionsBonus", new BigDecimal(0.05));
+			put("viewStatusShared", new BigDecimal(0.05));
+			put("viewStatusBonus", new BigDecimal(0.05));
+			put("viewPicturesShared", new BigDecimal(0.05));
+			put("viewPicturesBonus", new BigDecimal(0.05));
+
+			put("showBirthYear", new BigDecimal(0.1));
+			
 			//points for usage - more points for the heavier usage
 			put("hasImage", new BigDecimal(5));
+
 			put("hasOneConnection", new BigDecimal(2));
 			put("hasMoreThanTenConnections", new BigDecimal(3));
 
@@ -83,30 +109,6 @@ public class KudosJob implements StatefulJob {
 			put("hasOnePicture", new BigDecimal(0.25));
 			put("hasMoreThanTenPictures", new BigDecimal(1));
 
-			//points for openness in privacy
-			put("connectionsProfileImage", new BigDecimal(0.05));
-			put("allProfileImage", new BigDecimal(0.10));
-			put("connectionsBasicInfo", new BigDecimal(0.05));
-			put("allBasicInfo", new BigDecimal(0.10));
-			put("connectionsContactInfo", new BigDecimal(0.05));
-			put("allContactInfo", new BigDecimal(0.10));
-			put("connectionsPersonalInfo", new BigDecimal(0.05));
-			put("allPersonalInfo", new BigDecimal(0.10));
-			put("connectionsStaffInfo", new BigDecimal(0.05));
-			put("allStaffInfo", new BigDecimal(0.10));
-			put("connectionsStudentInfo", new BigDecimal(0.05));
-			put("allStudentInfo", new BigDecimal(0.10));
-			put("connectionsSearch", new BigDecimal(0.05));
-			put("allSearch", new BigDecimal(0.10));
-			put("connectionsViewConnections", new BigDecimal(0.05));
-			put("allViewConnections", new BigDecimal(0.10));
-			put("connectionsViewStatus", new BigDecimal(0.05));
-			put("allViewStatus", new BigDecimal(0.10));
-			put("connectionsViewPictures", new BigDecimal(0.05));
-			put("allViewPictures", new BigDecimal(0.10));
-
-			put("showBirthYear", new BigDecimal(0.1));
-
 			//points for others viewing their profile
 			//put("hasMoreThanOneVisitor", new BigDecimal(0.05));
 			//put("hasMoreThanTenUniqueVisitors", new BigDecimal(2));
@@ -115,6 +117,222 @@ public class KudosJob implements StatefulJob {
 
 		}
 	};
+	
+	
+	/**
+	 * Calculate the score for this person
+	 * @param person	Person object
+	 * @return
+	 */
+	private BigDecimal getScore(Person person) {
+		
+		BigDecimal score = new BigDecimal(0);
+		
+		//profile
+		UserProfile profile = person.getProfile();
+		if(profile != null){
+			//basic
+			if(nb(profile.getNickname())){
+				score = score.add(val("nickname"));
+			}
+			if(nb(profile.getBirthday())){
+				score = score.add(val("birthday"));
+			}
+			
+			//contact
+			if(nb(profile.getEmail())){
+				score = score.add(val("email"));
+			}
+			if(nb(profile.getHomepage())){
+				score = score.add(val("homePage"));
+			}
+			if(nb(profile.getWorkphone())){
+				score = score.add(val("workPhone"));
+			}
+			if(nb(profile.getHomephone())){
+				score = score.add(val("homePhone"));
+			}
+			if(nb(profile.getMobilephone())){
+				score = score.add(val("mobilePhone"));
+			}
+			
+			//staff/student
+			if(nb(profile.getPosition())){
+				score = score.add(val("position"));
+			}
+			if(nb(profile.getDepartment())){
+				score = score.add(val("department"));
+			}
+			if(nb(profile.getSchool())){
+				score = score.add(val("school"));
+			}
+			if(nb(profile.getRoom())){
+				score = score.add(val("room"));
+			}
+			if(nb(profile.getCourse())){
+				score = score.add(val("course"));
+			}
+			if(nb(profile.getSubjects())){
+				score = score.add(val("subjects"));
+			}
+			
+			//personal
+			if(nb(profile.getFavouriteBooks())){
+				score = score.add(val("favouriteBooks"));
+			}
+			if(nb(profile.getFavouriteTvShows())){
+				score = score.add(val("favouriteTvShows"));
+			}
+			if(nb(profile.getFavouriteMovies())){
+				score = score.add(val("favouriteMovies"));
+			}
+			if(nb(profile.getFavouriteQuotes())){
+				score = score.add(val("favouriteQuotes"));
+			}
+			if(nb(profile.getPersonalSummary())){
+				score = score.add(val("personalSummary"));
+			}
+		}
+		
+		ProfilePrivacy privacy = person.getPrivacy();
+		if(privacy != null){
+			
+			//profile image
+			switch(privacy.getProfileImage()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("profileImageShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("profileImageShared"));
+					score = score.add(val("profileImageBonus"));
+				break;
+			}
+			
+			//basic info
+			switch(privacy.getBasicInfo()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("basicInfoShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("basicInfoShared"));
+					score = score.add(val("basicInfoBonus"));
+				break;
+			}
+			
+			//contact info
+			switch(privacy.getContactInfo()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("contactInfoShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("contactInfoShared"));
+					score = score.add(val("contactInfoBonus"));
+				break;
+			}
+			
+			//personal info
+			switch(privacy.getPersonalInfo()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("personalInfoShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("personalInfoShared"));
+					score = score.add(val("personalInfoBonus"));
+				break;
+			}
+			
+			//staff info
+			switch(privacy.getStaffInfo()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("staffInfoShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("staffInfoShared"));
+					score = score.add(val("staffInfoBonus"));
+				break;
+			}
+			
+			//student info
+			switch(privacy.getStudentInfo()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("studentInfoShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("studentInfoShared"));
+					score = score.add(val("studentInfoBonus"));
+				break;
+			}
+			
+			//view connections
+			switch(privacy.getMyFriends()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("viewConnectionsShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("viewConnectionsShared"));
+					score = score.add(val("viewConnectionsBonus"));
+				break;
+			}
+			
+			//view status
+			switch(privacy.getMyStatus()) {
+				case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+					score = score.add(val("viewStatusShared"));
+				break;
+				case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+					score = score.add(val("viewStatusShared"));
+					score = score.add(val("viewStatusBonus"));
+				break;
+			}
+			
+			//view pictures. if it's disabled, assign full points
+			if(sakaiProxy.isProfileGalleryEnabledGlobally()) {
+				switch(privacy.getMyPictures()) {
+					case (ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) :
+						score = score.add(val("viewPicturesShared"));
+					break;
+					case (ProfileConstants.PRIVACY_OPTION_EVERYONE) :
+						score = score.add(val("viewPicturesShared"));
+						score = score.add(val("viewPicturesBonus"));
+					break;
+				}
+			} else {
+				score = score.add(val("viewPicturesShared"));
+				score = score.add(val("viewPicturesBonus"));
+			}
+			
+			//birth year visible
+			if(privacy.isShowBirthYear()){
+				score = score.add(val("showBirthYear"));
+			}
+			
+		}
+		
+		//points for image that isn't the default
+		ProfileImage image = imageLogic.getProfileImage(person, ProfileConstants.PROFILE_IMAGE_MAIN);
+		if(image != null){
+			if(image.getBinary() != null) {
+				score = score.add(val("hasImage"));
+			}
+			if(StringUtils.equals(image.getUrl(), imageLogic.getUnavailableImageURL())) {
+				score = score.add(val("hasImage"));
+			}
+		}
+		
+		//number of connections
+		
+		//number of sent messages
+		
+		//number of status updates
+		
+		//is twitter enabled?
+		
+		//if gallery enabled, number of gallery images
+		
+		
+		return score;
+		
+	}
 	
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		
@@ -140,6 +358,7 @@ public class KudosJob implements StatefulJob {
 				
 		//get total possible score
 		BigDecimal total = getTotal();
+		log.info("Total score possible: " + total.setScale(2));
 		
 		//get total number of records
 		List<String> profileUuids = profileLogic.getAllSakaiPersonIds();
@@ -152,14 +371,15 @@ public class KudosJob implements StatefulJob {
 				continue;
 			}
 			
-			log.info("Processing user: " + userUuid + ", " + person.getDisplayName());
+			log.info("Processing user: " + userUuid + " (" + person.getDisplayName() + ")");
 				
-			//get score for user	
-			BigDecimal score = getScoreAsPercentage(getScore(person), total);
+			//get score for user
+			BigDecimal score = getScore(person);
+			BigDecimal percentage = getScoreAsPercentage(score, total);
 
 			//save it
 			if(profileLogic.updateKudos(userUuid, score)) {
-				log.info("Kudos updated for user: " + userUuid + ", score: " + score);
+				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2) + ", percentage: " + percentage);
 			}
 			
 			
@@ -192,43 +412,6 @@ public class KudosJob implements StatefulJob {
 		return false;
 	}
 	
-	/**
-	 * Calculate the score for this person
-	 * @param person	Person object
-	 * @return
-	 */
-	private BigDecimal getScore(Person person) {
-		
-		BigDecimal score = new BigDecimal(0);
-		
-		//profile
-		UserProfile profile = person.getProfile();
-		if(profile != null){
-			if(nb(profile.getNickname())){
-				score = add(score, val("nickname"));
-			}
-			if(nb(profile.getEmail())){
-				score = add(score, val("email"));
-			}
-			if(nb(profile.getBirthday())){
-				score = add(score, val("birthday"));
-			}
-			
-		}
-		
-		return score;
-		
-	}
-	
-	/**
-	 * Helper to perform an addition
-	 * @param total		number that is to be added to
-	 * @param addend	number that is to be added
-	 * @return
-	 */
-	private BigDecimal add(BigDecimal total, BigDecimal addend) {
-		return total.add(addend);
-	}
 	
 	/**
 	 * Helper for StringUtils.isNotBlank
@@ -288,6 +471,11 @@ public class KudosJob implements StatefulJob {
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {
 		this.profileLogic = profileLogic;
+	}
+	
+	private ProfileImageLogic imageLogic;
+	public void setImageLogic(ProfileImageLogic imageLogic) {
+		this.imageLogic = imageLogic;
 	}
 	
 	private SessionManager sessionManager;

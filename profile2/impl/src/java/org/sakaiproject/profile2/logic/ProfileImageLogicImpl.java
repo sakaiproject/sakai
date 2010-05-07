@@ -349,10 +349,9 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	}
 	
 	/**
-	 * Get the full URL to the default unavailable image defined in ProfileConstants
-	 * @return
+	 * {@inheritDoc}
 	 */
-	private String getUnavailableImageURL() {
+	public String getUnavailableImageURL() {
 		StringBuilder path = new StringBuilder();
 		path.append(sakaiProxy.getServerUrl());
 		path.append(ProfileConstants.UNAVAILABLE_IMAGE_FULL);

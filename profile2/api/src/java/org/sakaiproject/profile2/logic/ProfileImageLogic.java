@@ -80,6 +80,12 @@ public interface ProfileImageLogic {
 	public boolean setExternalProfileImage(String userUuid, String url, String thumbnail);
 	
 	/**
+	 * Get the full URL to the default unavailable image defined in ProfileConstants
+	 * @return
+	 */
+	public String getUnavailableImageURL();
+	
+	/**
 	 * Add a gallery image for the specified user.
 	 * 
 	 * @param userUuid the ID of the user.
