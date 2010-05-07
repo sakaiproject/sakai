@@ -28,7 +28,6 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.user.api.User;
@@ -658,24 +657,6 @@ public interface ProfileLogic {
 	 * @return boolean
 	 */
 	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy);
-	
-	
-	
-	
-	
-	
-	/**
-	 * Get the profile image for the given user, allowing fallback if no thumbnail exists and wrapping it in a ResourceWrapper
-	 * 
-	 * @param userId 		the uuid of the user we are querying
-	 * @param imageType		comes from ProfileConstants and maps to a directory in ContentHosting
-	 * @return image as bytes
-	 * 
-	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
-	 * 
-	 * @deprecated see public ImageResource getProfileImage(String userUuid, int imageType);
-	 */
-	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType);
 	
 	
 	/**

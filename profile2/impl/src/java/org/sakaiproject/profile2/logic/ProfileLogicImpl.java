@@ -49,7 +49,6 @@ import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -1415,44 +1414,6 @@ public class ProfileLogicImpl implements ProfileLogic {
     	return profilePrivacy.isShowBirthYear();
 	}
 
-	
-
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType) {
-		
-		ResourceWrapper resource = new ResourceWrapper();
-		
-		//get record from db
-		ProfileImageUploaded profileImage = dao.getCurrentProfileImageRecord(userId);
-		
-		if(profileImage == null) {
-			log.debug("ProfileLogic.getCurrentProfileImageForUserWrapped() null for userId: " + userId);
-			return null;
-		}
-		
-		//get main image
-		if(imageType == ProfileConstants.PROFILE_IMAGE_MAIN) {
-			resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
-		}
-		
-		//or get thumbnail
-		if(imageType == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
-			resource = sakaiProxy.getResourceWrapped(profileImage.getThumbnailResource());
-			if(resource == null) {
-				resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
-			}
-		}
-	
-		return resource;
-	}
-	
-	
-	
-	
-	
 	
 	
 	/**
