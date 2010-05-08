@@ -70,4 +70,7 @@ alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null DEFAULT fa
 alter table PROFILE_PRIVACY_T drop SEARCH;
 
 /* add kudos preference (PRFL-336) */
-alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null DEFAULT false;
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null DEFAULT true;
+
+/* add kudos privacy (PRFL-336) */
+alter table PROFILE_PRIVACY_T add MY_KUDOS int not null DEFAULT 0;

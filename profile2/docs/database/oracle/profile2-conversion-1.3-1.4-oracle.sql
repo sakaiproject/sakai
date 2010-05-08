@@ -43,8 +43,8 @@ create table PROFILE_SOCIAL_INFO_T (
 /* TODO */
 
 /* add the new email message preference columns, default to 0, (PRFL-152, PRFL-186) */
-alter table PROFILE_PREFERENCES_T add (EMAIL_MESSAGE_NEW number(1,0) default 0;
-alter table PROFILE_PREFERENCES_T add (EMAIL_MESSAGE_REPLY number(1,0) default 0;
+alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW number(1,0) default 0;
+alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY number(1,0) default 0;
 
 /* add social networking privacy column (PRFL-285) */
 alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO number(1,0) default 0;
@@ -66,10 +66,13 @@ update PROFILE_PRIVACY_T set STUDENT_INFO = ACADEMIC_INFO;
 alter table PROFILE_PRIVACY_T drop ACADEMIC_INFO;
 
 /* add the new useOfficialImage column (PRFL-90) */
-alter table PROFILE_PREFERENCES_T add (USE_OFFICIAL_IMAGE number(1,0) default 0;
+alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE number(1,0) default 0;
 
 /* remove search privacy setting (PRFL-293) */
 alter table PROFILE_PRIVACY_T drop SEARCH;
 
 /* add kudos preference (PRFL-336) */
-alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null DEFAULT false;
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) default 1;
+
+/* add kudos privacy (PRFL-336) */
+alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) default 0;
