@@ -285,15 +285,15 @@ h2 {
   
   
   
-/* sideBox styles */
-.sideBox {
+/* side-widget styles */
+.side-widget {
 	margin-top: 4px;
 	border-top: 1px solid #09c;
 	border-right: 1px solid #d0d0df;
 	
 }
 
-.sideBoxHeading {
+.side-widget-heading {
 	padding-top: 2px;
 	padding-bottom: 2px;
 	padding-left: 2px;
@@ -303,12 +303,12 @@ h2 {
 	word-wrap: break-word;
 }
 	
-.sideBoxContent {
+.side-widget-ontent {
 	display:block;	
 	margin-bottom: 4px;
 }
 
-.sideBoxLabels {
+.side-widget-labels {
 	display: block;
 	position: relative;
 	/*border-bottom: thin solid #d0d0df;*/
@@ -317,18 +317,18 @@ h2 {
 	margin-bottom: 2px;
 }
 
-.sideBoxItemCount, .sideBoxMoreLink  {
+.side-widget-item-count, .side-widget-more-link  {
 	font-size: 70%;
 	position: absolute;
 	width: 50%;
 }
 
-.sideBoxItemCount {
+.side-widget-item-count {
    	left: 0;
    	padding-left: 2px;
 }
 
-.sideBoxMoreLink {
+.side-widget-more-link {
    right: 0;
    text-align: right; /* depends on element width */
    padding-right: 2px;
