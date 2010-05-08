@@ -1385,7 +1385,52 @@ public class ProfileLogicImpl implements ProfileLogic {
     	return false;
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXKudosVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	
+    	//pass to main
+    	return isUserXKudosVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXKudosVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("ProfileLogic.isUserXKudosVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
+    	return false;
+	}
 	
 
 	/**
@@ -2177,6 +2222,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		privacy.setMyPictures((Integer)props.get("myPictures"));
 		privacy.setMessages((Integer)props.get("messages"));
 		privacy.setBusinessInfo((Integer)props.get("businessInfo"));
+		privacy.setMyKudos((Integer)props.get("myKudos"));
 		
 		return privacy;
 	}

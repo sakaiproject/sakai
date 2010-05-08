@@ -47,6 +47,7 @@ public class ProfilePrivacy implements Serializable {
 	private int studentInfo;
 	private int staffInfo;
 	private int socialNetworkingInfo;
+	private int myKudos;
 	
 	/** 
 	 * Empty constructor
@@ -177,6 +178,15 @@ public class ProfilePrivacy implements Serializable {
 		return socialNetworkingInfo;
 	}
 	
+	public void setMyKudos(int myKudos) {
+		this.myKudos = myKudos;
+	}
+
+	public int getMyKudos() {
+		return myKudos;
+	}
+
+
 	@Override
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);

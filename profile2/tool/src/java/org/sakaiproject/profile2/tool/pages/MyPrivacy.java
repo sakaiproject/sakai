@@ -332,6 +332,21 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		// kudos privacy
+		WebMarkupContainer myKudosContainer = new WebMarkupContainer("myKudosContainer");
+		myKudosContainer.add(new Label("myKudosLabel", new ResourceModel("privacy.mykudos")));
+		DropDownChoice kudosChoice = new DropDownChoice("myKudos", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		kudosChoice.setOutputMarkupId(true);
+		myKudosContainer.add(kudosChoice);
+		myKudosContainer.add(new IconWithClueTip("myKudosToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mykudos.tooltip")));
+		form.add(myKudosContainer);
+
+		kudosChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {

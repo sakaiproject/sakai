@@ -25,6 +25,8 @@
 		<property name="staffInfo" column="STAFF_INFO" not-null="true" />
 	    <property name="studentInfo" column="STUDENT_INFO" not-null="true" />
 	    <property name="socialNetworkingInfo" column="SOCIAL_NETWORKING_INFO" not-null="true" />
+	    <property name="myKudos" column="MY_KUDOS" not-null="true" />
+	    
   	</class>
 
 	<query name="getPrivacyRecord">
