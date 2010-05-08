@@ -45,7 +45,7 @@ public class GalleryFeed extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
+	private static final Logger log = Logger.getLogger(GalleryFeed.class);
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
