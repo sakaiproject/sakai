@@ -88,6 +88,11 @@ public class ProfileConstants {
 	public static final String DELETE_IMG = "/library/image/silk/delete.png";
 	public static final String CROSS_IMG = "/library/image/silk/cross.png";
 	public static final String CROSS_IMG_LOCAL = "images/cross.png";
+	
+	public static final String AWARD_BRONZE_IMG = "/library/image/silk/award_star_bronze_1.png";
+	public static final String AWARD_SILVER_IMG = "/library/image/silk/award_star_silver_1.png";
+	public static final String AWARD_GOLD_IMG = "/library/image/silk/award_star_gold_1.png";
+
 
 	
 	//profile picture settings for use in API and tool and their values for sakai.properties

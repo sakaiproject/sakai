@@ -303,7 +303,7 @@ h2 {
 	word-wrap: break-word;
 }
 	
-.side-widget-ontent {
+.side-widget-content {
 	display:block;	
 	margin-bottom: 4px;
 }
@@ -335,7 +335,23 @@ h2 {
 }
 
 
+/* kudos styles */
+.kudos-wrapper {
+	display: block;
+	text-align: center;
+	margin-top: 4px;
+}
 
+.kudos-rating {
+	font-size: 120%;
+	font-weight: bold;
+}
+
+.kudos-icon-left {
+}
+
+.kudos-icon-right {
+}
 
 
 /* mainSection styles */
