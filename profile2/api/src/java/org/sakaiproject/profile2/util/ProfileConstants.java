@@ -128,6 +128,7 @@ public class ProfileConstants {
 	public static final boolean DEFAULT_EMAIL_MESSAGE_REPLY_SETTING = true;
 	public static final boolean DEFAULT_TWITTER_SETTING = false;
 	public static final boolean DEFAULT_OFFICIAL_IMAGE_SETTING = false;
+	public static final boolean DEFAULT_SHOW_KUDOS_SETTING = true;
 
 	//if no record, this is the default for sending email messages
 	public static final boolean DEFAULT_EMAIL_NOTIFICATION_SETTING = true;

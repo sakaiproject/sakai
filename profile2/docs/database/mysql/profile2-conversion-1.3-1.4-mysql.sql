@@ -68,3 +68,6 @@ alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null DEFAULT fa
 
 /* remove search privacy setting (PRFL-293) */
 alter table PROFILE_PRIVACY_T drop SEARCH;
+
+/* add kudos preference (PRFL-336) */
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null DEFAULT false;

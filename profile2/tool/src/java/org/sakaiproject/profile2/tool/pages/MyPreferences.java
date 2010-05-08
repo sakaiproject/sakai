@@ -303,7 +303,35 @@ public class MyPreferences extends BasePage{
 		}
 		
 		form.add(is);
+		
+		
+		
+		// WIDGET SECTION
+		WebMarkupContainer ws = new WebMarkupContainer("widgetSettingsContainer");
+		ws.setOutputMarkupId(true);
+		
+		//widget settings
+		ws.add(new Label("widgetSettingsHeading", new ResourceModel("heading.section.widget")));
+		ws.add(new Label("widgetSettingsText", new ResourceModel("preferences.widget.message")));
 
+		//kudos
+		WebMarkupContainer kudosContainer = new WebMarkupContainer("kudosContainer");
+		kudosContainer.add(new Label("kudosLabel", new ResourceModel("preferences.widget.kudos")));
+		CheckBox kudosSetting = new CheckBox("kudosSetting", new PropertyModel<Boolean>(preferencesModel, "showKudos"));
+		kudosContainer.add(kudosSetting);
+
+		//updater
+		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		ws.add(kudosContainer);
+		
+		form.add(ws);
+		
+		
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
@@ -369,6 +397,8 @@ public class MyPreferences extends BasePage{
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 				}
 				
+				//resize iframe
+				target.appendJavascript("setMainFrameHeight(window.name);");
 				
 				target.addComponent(formFeedback);
             }

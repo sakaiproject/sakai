@@ -42,6 +42,7 @@ public class ProfilePreferences implements Serializable {
 	private boolean messageNewEmailEnabled;
 	private boolean messageReplyEmailEnabled;
 	private boolean useOfficialImage;
+	private boolean showKudos;
 
 	
 	/** 
@@ -131,6 +132,17 @@ public class ProfilePreferences implements Serializable {
 	public void setUseOfficialImage(boolean useOfficialImage) {
 		this.useOfficialImage = useOfficialImage;
 	}
+	
+	public boolean isShowKudos() {
+		return showKudos;
+	}
+
+	public void setShowKudos(boolean showKudos) {
+		this.showKudos = showKudos;
+	}
+
+
+	
 
 	
 
