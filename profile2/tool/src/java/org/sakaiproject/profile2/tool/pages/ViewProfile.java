@@ -744,7 +744,7 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* KUDOS PANEL */
-		//if(isKudosVisible) {
+		if(isKudosVisible) {
 			add(new AjaxLazyLoadPanel("myKudos"){
 				private static final long serialVersionUID = 1L;
 	
@@ -760,9 +760,9 @@ public class ViewProfile extends BasePage {
 					return new EmptyPanel(markupId);
 				}
 			});
-		//} else {
-		//	add(new EmptyPanel("myKudos").setVisible(false));
-		//}
+		} else {
+			add(new EmptyPanel("myKudos").setVisible(false));
+		}
 		
 		
 		/* FRIENDS FEED PANEL */
