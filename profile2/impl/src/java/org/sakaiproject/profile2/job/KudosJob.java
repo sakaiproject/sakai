@@ -358,7 +358,7 @@ public class KudosJob implements StatefulJob {
 				
 		//get total possible score
 		BigDecimal total = getTotal();
-		log.info("Total score possible: " + total.setScale(2));
+		log.info("Total score possible: " + total.setScale(2, RoundingMode.HALF_UP));
 		
 		//get total number of records
 		List<String> profileUuids = profileLogic.getAllSakaiPersonIds();
@@ -379,7 +379,7 @@ public class KudosJob implements StatefulJob {
 
 			//save it
 			if(profileLogic.updateKudos(userUuid, score)) {
-				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2) + ", percentage: " + percentage);
+				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2, RoundingMode.HALF_UP) + ", percentage: " + percentage);
 			}
 			
 			
