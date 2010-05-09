@@ -89,9 +89,10 @@ public class ProfileConstants {
 	public static final String CROSS_IMG = "/library/image/silk/cross.png";
 	public static final String CROSS_IMG_LOCAL = "images/cross.png";
 	
-	public static final String AWARD_BRONZE_IMG = "/library/image/silk/award_star_bronze_1.png";
-	public static final String AWARD_SILVER_IMG = "/library/image/silk/award_star_silver_1.png";
-	public static final String AWARD_GOLD_IMG = "/library/image/silk/award_star_gold_1.png";
+	public static final String AWARD_NORMAL_IMG = "/library/image/silk/medal_silver)1.png";
+	public static final String AWARD_BRONZE_IMG = "/library/image/silk/award_star_bronze_3.png";
+	public static final String AWARD_SILVER_IMG = "/library/image/silk/award_star_silver_3.png";
+	public static final String AWARD_GOLD_IMG = "/library/image/silk/award_star_gold_3.png";
 
 
 	

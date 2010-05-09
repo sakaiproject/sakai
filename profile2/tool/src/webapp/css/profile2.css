@@ -287,13 +287,14 @@ h2 {
   
 /* side-widget styles */
 .side-widget {
-	margin-top: 4px;
-	border-top: 1px solid #09c;
-	border-right: 1px solid #d0d0df;
+	
 	
 }
 
 .side-widget-heading {
+	margin-top: 4px;
+	border-top: 1px solid #09c;
+	border-right: 1px solid #d0d0df;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	padding-left: 2px;

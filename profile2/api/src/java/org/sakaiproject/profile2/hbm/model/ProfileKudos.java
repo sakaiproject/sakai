@@ -14,7 +14,7 @@ public class ProfileKudos implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String userUuid;
-	private BigDecimal kudos;
+	private BigDecimal score;
 	private Date dateAdded;
 	
 	/** 
@@ -31,12 +31,12 @@ public class ProfileKudos implements Serializable {
 		this.userUuid = userUuid;
 	}
 
-	public BigDecimal getKudos() {
-		return kudos;
+	public BigDecimal getScore() {
+		return score;
 	}
 
-	public void setKudos(BigDecimal kudos) {
-		this.kudos = kudos;
+	public void setScore(BigDecimal score) {
+		this.score = score;
 	}
 
 	public Date getDateAdded() {

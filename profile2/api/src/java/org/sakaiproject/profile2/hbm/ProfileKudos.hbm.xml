@@ -11,7 +11,7 @@
 	    	<generator class="assigned" />
 	    </id>
 
-		<property name="kudos" column="KUDOS" not-null="true" />
+		<property name="score" column="SCORE" not-null="true" />
 		<property name="dateAdded" column="DATE_ADDED" not-null="true" />
   	</class>
   	

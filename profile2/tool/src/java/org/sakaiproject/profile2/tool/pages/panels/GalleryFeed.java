@@ -64,10 +64,10 @@ public class GalleryFeed extends Panel {
 		Label heading;
 		if (viewingUserId.equals(ownerUserId)) {
 			heading = new Label("heading", new ResourceModel(
-					"heading.feed.my.pictures"));
+					"heading.widget.my.pictures"));
 		} else {
 			heading = new Label("heading", new StringResourceModel(
-					"heading.feed.view.pictures", null, new Object[] { sakaiProxy.getUserDisplayName(ownerUserId) }));
+					"heading.widget.view.pictures", null, new Object[] { sakaiProxy.getUserDisplayName(ownerUserId) }));
 		}
 		add(heading);
 		

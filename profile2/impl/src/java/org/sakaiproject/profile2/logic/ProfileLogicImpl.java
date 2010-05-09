@@ -2160,7 +2160,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		if(k == null){
 			return null;
 		}
-		return k.getKudos();
+		return k.getScore();
 	}
 
 	/**
@@ -2169,7 +2169,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	public boolean updateKudos(String userUuid, BigDecimal score) {
 		ProfileKudos k = new ProfileKudos();
 		k.setUserUuid(userUuid);
-		k.setKudos(score);
+		k.setScore(score);
 		k.setDateAdded(new Date());
 		
 		return dao.updateKudos(k);

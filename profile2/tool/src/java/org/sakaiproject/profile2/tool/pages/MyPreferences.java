@@ -42,6 +42,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
+import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 
@@ -319,6 +320,9 @@ public class MyPreferences extends BasePage{
 		kudosContainer.add(new Label("kudosLabel", new ResourceModel("preferences.widget.kudos")));
 		CheckBox kudosSetting = new CheckBox("kudosSetting", new PropertyModel<Boolean>(preferencesModel, "showKudos"));
 		kudosContainer.add(kudosSetting);
+		//tooltip
+		kudosContainer.add(new IconWithClueTip("kudosToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("preferences.widget.kudos.tooltip")));
+		
 
 		//updater
 		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {

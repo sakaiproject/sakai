@@ -19,6 +19,7 @@ package org.sakaiproject.profile2.tool.pages;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +50,7 @@ import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
+import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.ViewBusiness;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -141,13 +143,14 @@ public class ViewProfile extends BasePage {
 		boolean isBusinessInfoAllowed = profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isKudosVisible = profileLogic.isUserXKudosVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isStaffInfoAllowed = profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isStudentInfoAllowed = profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isSocialNetworkingInfoAllowed = profileLogic.isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		final ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
 
 		
 		/* IMAGE */
@@ -740,7 +743,26 @@ public class ViewProfile extends BasePage {
 		add(sideLinks);
 		
 		
-		
+		/* KUDOS PANEL */
+		//if(isKudosVisible) {
+			add(new AjaxLazyLoadPanel("myKudos"){
+				private static final long serialVersionUID = 1L;
+	
+				@Override
+				public Component getLazyLoadComponent(String markupId) {
+					if(prefs.isShowKudos()){
+											
+						BigDecimal score = profileLogic.getKudos(userUuid);
+						if(score != null) {
+							return new KudosPanel(markupId, userUuid, currentUserId, score);
+						}
+					} 
+					return new EmptyPanel(markupId);
+				}
+			});
+		//} else {
+		//	add(new EmptyPanel("myKudos").setVisible(false));
+		//}
 		
 		
 		/* FRIENDS FEED PANEL */

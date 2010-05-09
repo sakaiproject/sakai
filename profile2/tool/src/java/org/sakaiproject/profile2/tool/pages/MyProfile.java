@@ -19,6 +19,7 @@ package org.sakaiproject.profile2.tool.pages;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.math.BigDecimal;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -27,7 +28,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -51,6 +52,7 @@ import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
+import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyBusinessDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
@@ -110,8 +112,11 @@ public class MyProfile extends BasePage {
 		add(feedbackPanel);
 		feedbackPanel.setVisible(false); //hide by default
 		
+		
+		
+		
 		//get the prefs record, or a default if none exists yet
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		final ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
 		
 		//if null, throw exception
 		if(prefs == null) {
@@ -497,7 +502,22 @@ public class MyProfile extends BasePage {
 		add(myInterestsDisplay);
 
 		
-		//my quick links panel
+		//kudos panel
+		add(new AjaxLazyLoadPanel("myKudos"){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getLazyLoadComponent(String markupId) {
+				if(prefs.isShowKudos()){
+										
+					BigDecimal score = profileLogic.getKudos(userUuid);
+					if(score != null) {
+						return new KudosPanel(markupId, userUuid, userUuid, score);
+					}
+				} 
+				return new EmptyPanel(markupId);
+			}
+		});
 		
 		
 		//friends feed panel for self - lazy loaded

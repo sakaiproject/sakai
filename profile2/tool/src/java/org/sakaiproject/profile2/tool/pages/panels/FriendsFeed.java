@@ -74,10 +74,10 @@ public class FriendsFeed extends Panel {
 		Label heading = new Label("heading");
 		
 		if(viewingUserId.equals(ownerUserId)) {
-			heading.setDefaultModel(new ResourceModel("heading.feed.my.friends"));
+			heading.setDefaultModel(new ResourceModel("heading.widget.my.friends"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(ownerUserId);
-			heading.setDefaultModel(new StringResourceModel("heading.feed.view.friends", null, new Object[]{ displayName } ));
+			heading.setDefaultModel(new StringResourceModel("heading.widget.view.friends", null, new Object[]{ displayName } ));
 		}
 		add(heading);
 		

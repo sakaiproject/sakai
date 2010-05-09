@@ -1066,11 +1066,12 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_KUDOS_RECORD);
 	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			return q.list();
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
 	  		}
 	  	};
 	  	
-	  	return (ProfileKudos) getHibernateTemplate().executeFind(hcb);
+	  	return (ProfileKudos) getHibernateTemplate().execute(hcb);
 	}
 	
 	
