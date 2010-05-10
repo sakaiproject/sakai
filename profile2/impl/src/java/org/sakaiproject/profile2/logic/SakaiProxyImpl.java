@@ -54,6 +54,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.SiteService;
@@ -1189,6 +1190,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return skinRepo + "/" + skin + "/tool.css";
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String createUuid() {
+		return idManager.createUuid();
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
@@ -1427,6 +1435,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.emailTemplateService = emailTemplateService;
 	}
 	
+	private IdManager idManager;
+	public void setIdManager(IdManager idManager) {
+		this.idManager = idManager;
+	}
 
 	//INJECT OTHER RESOURCES
 	private ArrayList<String> emailTemplates;

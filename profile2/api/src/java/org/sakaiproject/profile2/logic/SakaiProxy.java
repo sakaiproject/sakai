@@ -604,6 +604,12 @@ public interface SakaiProxy {
 	 */
 	public String getToolSkinCSS(String skinRepo);
 	
+	/**
+	 * Get a UUID from the IdManager
+	 * @return
+	 */
+	public String createUuid();
+	
 	
 	
 }

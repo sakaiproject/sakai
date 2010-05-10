@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
@@ -277,7 +276,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			throw new SecurityException("You are not allowed to add a gallery image.");
 		}
 
-		String imageId = IdManager.createUuid();
+		String imageId = sakaiProxy.createUuid();
 
 		// create resource ID
 		String mainResourcePath = sakaiProxy.getProfileGalleryImagePath(userUuid, imageId);
