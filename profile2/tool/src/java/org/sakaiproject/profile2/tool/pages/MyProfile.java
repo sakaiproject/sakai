@@ -373,66 +373,68 @@ public class MyProfile extends BasePage {
 			add(addFriendWindow);
 		
 			visibleSideLinksCount++;
+			
+			
+			//ADMIN: LOCK/UNLOCK A PROFILE
+			WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
+			final Label lockProfileLabel = new Label("lockProfileLabel");
+			
+			final AjaxLink<Void> lockProfileLink = new AjaxLink<Void>("lockProfileLink") {
+				private static final long serialVersionUID = 1L;
+
+				public void onClick(AjaxRequestTarget target) {
+					//toggle it to be opposite of what it currently is, update labels and icons
+					boolean locked = isLocked();
+	    			if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
+	    				setLocked(!locked);
+	    				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
+	    				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
+	    				add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+	    				if(isLocked()){
+	    					add(new AttributeModifier("class", true, new Model<String>("icon locked")));
+	    				} else {
+	    					add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
+	    				}
+	    				target.addComponent(this);
+	    			}
+				}
+			};
+			
+			//set init icon for locked
+			if(isLocked()){
+				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon locked")));
+			} else {
+				lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
+			}
+			
+			lockProfileLink.add(lockProfileLabel);
+					
+			//setup link/label and windows with special property based on locked status
+			lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
+			lockProfileLink.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+			
+			lockProfileContainer.add(lockProfileLink);
+			
+			sideLinks.add(lockProfileContainer);
+			
+			visibleSideLinksCount++;
+
+			
 		} else {
 			//blank components
 			WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
-			addFriendContainer.add(new AjaxLink("addFriendLabel") {
+			addFriendContainer.add(new AjaxLink("addFriendLink") {
 				public void onClick(AjaxRequestTarget target) {}
-			}).add(new Label("addFriendLink"));
+			}).add(new Label("addFriendLabel"));
 			sideLinks.add(addFriendContainer);
 			add(new WebMarkupContainer("addFriendWindow"));
+			
+			WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
+			lockProfileContainer.add(new AjaxLink("lockProfileLink") {
+				public void onClick(AjaxRequestTarget target) {}
+			}).add(new Label("lockProfileLabel"));
+			sideLinks.add(lockProfileContainer);
 		}
-		
-		
-		
-		//ADMIN: LOCK/UNLOCK A PROFILE
-		WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
-		final Label lockProfileLabel = new Label("lockProfileLabel");
-		
-		final AjaxLink<Void> lockProfileLink = new AjaxLink<Void>("lockProfileLink") {
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
-				//toggle it to be opposite of what it currently is, update labels and icons
-				boolean locked = isLocked();
-    			if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
-    				setLocked(!locked);
-    				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
-    				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
-    				add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
-    				if(isLocked()){
-    					add(new AttributeModifier("class", true, new Model<String>("icon locked")));
-    				} else {
-    					add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
-    				}
-    				target.addComponent(this);
-    			}
-			}
-		};
-		
-		//set init icon for locked
-		if(isLocked()){
-			lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon locked")));
-		} else {
-			lockProfileLink.add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
-		}
-		
-		lockProfileLink.add(lockProfileLabel);
-				
-		//setup link/label and windows with special property based on locked status
-		lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
-		lockProfileLink.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
-		
-		lockProfileContainer.add(lockProfileLink);
-		
-		//show lock/unlock link to superUser and only if not own profile
-		if(!sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
-			lockProfileContainer.setVisible(false);
-		} else {
-			visibleSideLinksCount++;
-		}
-		
-		
 		
 		
 		//hide entire list if no links to show
@@ -440,21 +442,7 @@ public class MyProfile extends BasePage {
 			sideLinks.setVisible(false);
 		}
 		
-		sideLinks.add(lockProfileContainer);
 		add(sideLinks);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		//status panel
