@@ -16,7 +16,10 @@
 
 package org.sakaiproject.profile2.tool.models;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
 
 /**
@@ -28,19 +31,24 @@ import org.sakaiproject.profile2.model.Person;
 public class DetachablePersonModel extends LoadableDetachableModel<Person> {
 	
 	private static final long serialVersionUID = 1L;
-	private Person p;
+	private String userUuid;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	protected ProfileLogic profileLogic;
 	
 	public DetachablePersonModel(Person p) {
-		if (p == null)
-        {
-            throw new IllegalArgumentException();
-        }
-        this.p = p;
+		super(p);
+		this.userUuid = p.getUuid();
+	}
+	
+	public DetachablePersonModel(String userUuid) {
+		this.userUuid = userUuid;
 	}
 
 	@Override
 	protected Person load() {
-		return p;
+		InjectorHolder.getInjector().inject(this);
+		return profileLogic.getPerson(userUuid);
 	}
 
 

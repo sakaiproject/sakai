@@ -32,21 +32,21 @@ import org.sakaiproject.profile2.tool.models.DetachableGalleryImageModel;
 public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 
 	private static final long serialVersionUID = 1L;
-	private String userId;
+	private String userUuid;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
 	private ProfileImageLogic imageLogic;
 
-	public GalleryImageDataProvider(String userId) {
+	public GalleryImageDataProvider(String userUuid) {
 		
 		//inject
 		InjectorHolder.getInjector().inject(this);
 		
-		this.userId = userId;
+		this.userUuid = userUuid;
 	}
 
 	public Iterator<GalleryImage> iterator(int first, int count) {	
-		return imageLogic.getGalleryImages(userId).subList(first, first + count).iterator();
+		return imageLogic.getGalleryImages(userUuid).subList(first, first + count).iterator();
 	}
 
 	public IModel<GalleryImage> model(GalleryImage object) {
@@ -58,7 +58,7 @@ public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 	}
 
 	public int size() {
-		return imageLogic.getGalleryImages(userId).size();
+		return imageLogic.getGalleryImages(userUuid).size();
 	}
 
 	public void detach() {

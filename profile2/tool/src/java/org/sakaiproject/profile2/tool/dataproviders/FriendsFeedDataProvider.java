@@ -16,15 +16,12 @@
 
 package org.sakaiproject.profile2.tool.dataproviders;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
@@ -40,64 +37,50 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * s.swinsburg@lancaster.ac.uk
  * January 2009
  * 
- * This implementation of Wicket's IDataProvider gets a list of friends of userX
- * as Person objects
+ * This implementation of Wicket's IDataProvider gets a list of friends of userX as Person objects
  */
 
 
 public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger.getLogger(FriendsFeedDataProvider.class); 
-	private transient List<Person> friends = new ArrayList<Person>();
-	private String userId;
+	private String userUuid;
+	private int subListSize = 0;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
 	protected ProfileConnectionsLogic connectionsLogic;
 	
-	public FriendsFeedDataProvider(final String userId) {
+	public FriendsFeedDataProvider(final String userUuid) {
 		
 		//inject
 		InjectorHolder.getInjector().inject(this);
 		
-		//set userId
-		this.userId = userId;
-		
-		//get list of friends
-		friends = getFriendsForUser(userId);
-	}
-	
-	//this is a helper method to process our friends list
-	private List<Person> getFriendsForUser(final String userId) {
-		
-		List<Person> allFriends = new ArrayList<Person>();
+		//set userUuid
+		this.userUuid = userUuid;
 		
 		//get all friends of userX visible by userY
-		allFriends = connectionsLogic.getConnectionsForUser(userId);
+		List<Person> allFriends = new ArrayList<Person>();
+		allFriends = connectionsLogic.getConnectionsForUser(userUuid);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);
 		
 		//make a subset (but make sure the sublist is not too big for the actual list size)
 		int allFriendsSize = allFriends.size();
-		int subListSize = ProfileConstants.MAX_FRIENDS_FEED_ITEMS;
+		subListSize = ProfileConstants.MAX_FRIENDS_FEED_ITEMS;
 		
 		if(allFriendsSize < subListSize) {
 			subListSize = allFriendsSize;
 		}
 		
-		friends = allFriends.subList(0, subListSize);
-		
-		return friends;
-		
+		//get final list
+		allFriends.subList(0, subListSize);
 	}
-	
-	
 	
 	
 	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<Person> slice = friends.subList(first, first + count);
+			List<Person> slice = connectionsLogic.getConnectionsForUser(userUuid).subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -107,10 +90,7 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 	}
 
     public int size() {
-    	if (friends == null) {
-			return 0;
-    	}
-		return friends.size();
+    	return subListSize;
 	}
 
     public IModel<Person> model(Person object) {
@@ -119,16 +99,6 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
     
     public void detach() {}
 	
-    
-    /* reinit for deserialisation (ie back button) */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("FriendsFeedDataProvider has been deserialized.");
-		//re-init our transient objects
-		friends = getFriendsForUser(userId);
-	}
-    
-    
 }
 
 

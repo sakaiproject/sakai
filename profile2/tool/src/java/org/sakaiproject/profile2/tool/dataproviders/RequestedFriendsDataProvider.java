@@ -16,22 +16,17 @@
 
 package org.sakaiproject.profile2.tool.dataproviders;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 
@@ -43,48 +38,37 @@ import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
  * 
  * This implementation of Wicket's IDataProvider gets a list of friend requests incoming to userId
  * 
- * All requests are returned, whether or not their profile can be linked needs to be tested in the UI.
- * This is because they ALL need to be displayed.
- * Perhaps we should create a Friend or SearchResult object and store the data so we don't need to test in the UI?
- * 
  */
 
 
 public class RequestedFriendsDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger.getLogger(RequestedFriendsDataProvider.class); 
-
-	private transient List<Person> requests = new ArrayList<Person>();
-	private String userId;
+	private String userUuid; 
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
 	protected ProfileConnectionsLogic connectionsLogic;
 	
-	public RequestedFriendsDataProvider(final String userId) {
+	public RequestedFriendsDataProvider(final String userUuid) {
 		
 		//inject
 		InjectorHolder.getInjector().inject(this);
 		
-		//set userId
-		this.userId = userId;
+		//set userUuid
+		this.userUuid = userUuid;
 		
 		//get list of requests for user
-		requests = getFriendsForUser(userId);
+		List<Person> requests = new ArrayList<Person>();
+		requests = connectionsLogic.getConnectionRequestsForUser(userUuid);
 		
 		//sort list based on natural sort of Person model
 		Collections.sort(requests);
 	}
 	
-	//this is a helper method to process our friends list
-	private List<Person> getFriendsForUser(final String userId) {
-		requests = connectionsLogic.getConnectionRequestsForUser(userId);
-		return requests;
-	}
 
 	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<Person> slice = requests.subList(first, first + count);
+			List<Person> slice = connectionsLogic.getConnectionRequestsForUser(userUuid).subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -94,10 +78,7 @@ public class RequestedFriendsDataProvider implements IDataProvider<Person>, Seri
 	}
 
     public int size() {
-    	if (requests == null) {
-			return 0;
-    	}
-		return requests.size();
+    	return connectionsLogic.getConnectionRequestsForUserCount(userUuid);
 	}
 
     public IModel<Person> model(Person object) {
@@ -106,14 +87,6 @@ public class RequestedFriendsDataProvider implements IDataProvider<Person>, Seri
     
     public void detach() {}
     
-    /* reinit for deserialisation (ie back button) */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("RequestedFriendsDataProvider has been deserialized.");
-		//re-init our transient objects
-		requests = getFriendsForUser(userId);
-	}
-	
 }
 
 

@@ -40,10 +40,6 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @param m
 	 */
 	public DetachableMessageThreadModel(MessageThread m){
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.id = m.getId();
 	}
 	
@@ -51,10 +47,6 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @param id
 	 */
 	public DetachableMessageThreadModel(String id){
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.id = id;
 	}
 	
@@ -89,6 +81,10 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @see org.apache.wicket.model.LoadableDetachableModel#load()
 	 */
 	protected MessageThread load(){
+
+		//inject
+		InjectorHolder.getInjector().inject(this);
+		
 		return messagingLogic.getMessageThread(id);
 	}
 }
