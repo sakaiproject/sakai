@@ -28,8 +28,13 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -46,8 +51,23 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	protected ProfileLogic profileLogic;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	protected ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	protected ProfileMessagingLogic messagingLogic;
+	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
 	protected ProfileImageLogic imageLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileKudosLogic")
+	protected ProfileKudosLogic kudosLogic;
 	
 	public BasePage() {
 		//super();
@@ -108,7 +128,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myFriendsLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.friends.tooltip")));
 		
 		//get count of new connection requests
-		int newRequestsCount = profileLogic.getConnectionRequestsForUserCount(currentUserUuid);
+		int newRequestsCount = connectionsLogic.getConnectionRequestsForUserCount(currentUserUuid);
 		Label newRequestsLabel = new Label("newRequestsLabel", new Model<Integer>(newRequestsCount));
 		myFriendsLink.add(newRequestsLabel);
 
@@ -129,7 +149,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myMessagesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.messages.tooltip")));
 		
 		//get count of new messages grouped by thread
-		int newMessagesCount = profileLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
+		int newMessagesCount = messagingLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
 		Label newMessagesLabel = new Label("newMessagesLabel", new Model<Integer>(newMessagesCount));
 		myMessagesLink.add(newMessagesLabel);
 
@@ -258,10 +278,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderCSSReference("css/profile2.css");
 		response.renderJavascriptReference("javascript/profile2.js");
 		
-	}
-	
-	public BasePage getBasePage() {
-		return this;
 	}
 	
 	/* disable caching

@@ -116,7 +116,7 @@ public class MyProfile extends BasePage {
 		
 		
 		//get the prefs record, or a default if none exists yet
-		final ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 		
 		//if null, throw exception
 		if(prefs == null) {
@@ -309,12 +309,12 @@ public class MyProfile extends BasePage {
 			final FriendAction friendActionModel = new FriendAction();
 
 			//setup friend status
-			friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
+			friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 			if(!friend) {
-				friendRequestToThisPerson = profileLogic.isFriendRequestPending(currentUserUuid, userUuid);
+				friendRequestToThisPerson = connectionsLogic.isFriendRequestPending(currentUserUuid, userUuid);
 			}
 			if(!friend && !friendRequestToThisPerson) {
-				friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserUuid);
+				friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userUuid, currentUserUuid);
 			}
 			
 			WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
@@ -510,7 +510,7 @@ public class MyProfile extends BasePage {
 			public Component getLazyLoadComponent(String markupId) {
 				if(prefs.isShowKudos()){
 										
-					BigDecimal score = profileLogic.getKudos(userUuid);
+					BigDecimal score = kudosLogic.getKudos(userUuid);
 					if(score != null) {
 						return new KudosPanel(markupId, userUuid, userUuid, score);
 					}
@@ -559,16 +559,6 @@ public class MyProfile extends BasePage {
 		
 		
 	}
-	
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyProfile has been deserialized.");
-		//re-init our transient objects
-		//profileLogic = getProfileLogic();
-		//sakaiProxy = getSakaiProxy();
-	}	
 	
 	
 	private boolean locked;

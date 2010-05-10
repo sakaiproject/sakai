@@ -18,8 +18,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +30,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -49,8 +47,8 @@ public class MyInfoDisplay extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
 	
 	
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
@@ -83,7 +81,7 @@ public class MyInfoDisplay extends Panel {
 			birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			
 			//get privacy on display of birthday year and format accordingly
-			if(profileLogic.isBirthYearVisible(userId)) {
+			if(privacyLogic.isBirthYearVisible(userId)) {
 				birthdayDisplay = birthday;
 			} else {
 				birthdayDisplay = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
@@ -204,14 +202,5 @@ public class MyInfoDisplay extends Panel {
 			noFieldsMessage.setVisible(false);
 		}
 	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyInfoDisplay has been deserialized.");
-		//re-init our transient objects
-		
-	}
-	
 	
 }

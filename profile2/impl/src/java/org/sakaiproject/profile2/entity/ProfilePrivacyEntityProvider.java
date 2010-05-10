@@ -64,7 +64,7 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
-		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(uuid);
+		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(uuid);
 		if(privacy == null) {
 			throw new EntityNotFoundException("ProfilePrivacy could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -83,7 +83,7 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 		
 		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
 			ProfilePrivacy privacy = (ProfilePrivacy) entity;
-			profileLogic.savePrivacyRecord(privacy);
+			privacyLogic.savePrivacyRecord(privacy);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePrivacy object");
 		}
@@ -99,7 +99,7 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
 			ProfilePrivacy privacy = (ProfilePrivacy) entity;
 			
-			if(profileLogic.savePrivacyRecord(privacy)) {
+			if(privacyLogic.savePrivacyRecord(privacy)) {
 				userUuid = privacy.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -141,11 +141,5 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
 		this.privacyLogic = privacyLogic;
 	}
-
-	private ProfileLogic profileLogic;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
-	
 	
 }

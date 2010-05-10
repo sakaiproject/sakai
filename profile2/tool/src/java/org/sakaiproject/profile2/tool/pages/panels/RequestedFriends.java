@@ -16,9 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -245,14 +242,5 @@ public class RequestedFriends extends Panel {
 		}
 		
 	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("RequestedFriends has been deserialized");
-		//re-init our transient objects
-		
-	}
-	
 	
 }

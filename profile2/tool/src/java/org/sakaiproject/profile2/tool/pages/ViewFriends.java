@@ -17,9 +17,6 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.sakaiproject.profile2.exception.ProfileFriendsIllegalAccessException;
@@ -38,11 +35,11 @@ public class ViewFriends extends BasePage {
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		//double check they are friends
-		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//double check person viewing this page (currentuserId) is allowed to view userId's friends - unless admin
 		if(!sakaiProxy.isSuperUser()){
-			boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
+			boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
 			if(!isFriendsListVisible) {
 				throw new ProfileFriendsIllegalAccessException("User: " + currentUserUuid + " is not allowed to view the friends list for: " + userUuid);
 			}
@@ -56,15 +53,6 @@ public class ViewFriends extends BasePage {
 		//post view event
 		sakaiProxy.postEvent(ProfileConstants.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userUuid, false);
 		
-	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("ViewFriends has been deserialized.");
-		//re-init our transient objects
-		//profile = getProfile();
-		//sakaiProxy = getSakaiProxy();
 	}
 	
 }

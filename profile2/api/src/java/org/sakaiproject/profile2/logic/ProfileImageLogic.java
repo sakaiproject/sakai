@@ -115,8 +115,24 @@ public interface ProfileImageLogic {
 	 */
 	public boolean removeGalleryImage(String userId, long imageId);
 	
+	/**
+	 * Save the official image url that institutions can set.
+	 * @param userUuid		uuid of the user
+	 * @param url			url to image
+	 * @return
+	 */
+	public boolean saveOfficialImageUrl(final String userUuid, final String url);
 	
-	
+	/**
+	 * Get the entity url to a profile image for a user.
+	 *  
+	 * It can be added to any profile without checks as the retrieval of the image does the checks, and a default image
+	 * is used if not allowed or none available.
+	 * 
+	 * @param userUuid	uuid for the user
+	 * @param size		size of image, from ProfileConstants
+	 */
+	public String getProfileImageEntityUrl(String userUuid, int size);
 	
 	
 }

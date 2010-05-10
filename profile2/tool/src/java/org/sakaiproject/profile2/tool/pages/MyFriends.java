@@ -17,9 +17,6 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -69,16 +66,6 @@ public class MyFriends extends BasePage {
 			target.appendJavascript("setMainFrameHeight(window.name);");
 		}
 		
-	}
-	
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyFriends has been deserialized.");
-		//re-init our transient objects
-		//profile = getProfile();
-		//sakaiProxy = getSakaiProxy();
 	}
 	
 }

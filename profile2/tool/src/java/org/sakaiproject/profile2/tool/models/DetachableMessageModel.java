@@ -19,7 +19,7 @@ package org.sakaiproject.profile2.tool.models;
 import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.model.Message;
 
 /**
@@ -33,8 +33,8 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	private static final long serialVersionUID = 1L;
 	private final String id;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	protected ProfileMessagingLogic messagingLogic;
 	  
 	/**
 	 * @param m
@@ -90,6 +90,6 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 */
 	protected Message load(){
 		// loads message from the database
-		return profileLogic.getMessage(id);
+		return messagingLogic.getMessage(id);
 	}
 }

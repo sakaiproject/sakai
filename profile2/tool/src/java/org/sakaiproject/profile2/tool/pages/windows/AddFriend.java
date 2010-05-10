@@ -27,7 +27,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -44,8 +47,14 @@ public class AddFriend extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	private ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	private ProfileConnectionsLogic connectionsLogic;
 	
 	/*
 	 * userX is the current user
@@ -65,8 +74,8 @@ public class AddFriend extends Panel {
 		window.setResizable(false);
 		
 		//prefs and privacy
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userY);
-		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userY);
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userY);
+		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userY);
 		
 		//image
 		add(new ProfileImageRenderer("image", userY, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -90,7 +99,7 @@ public class AddFriend extends Panel {
 				/* double checking */
 				
 				//friend?
-				if(profileLogic.isUserXFriendOfUserY(userX, userY)) {
+				if(connectionsLogic.isUserXFriendOfUserY(userX, userY)) {
 					text.setDefaultModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
@@ -100,7 +109,7 @@ public class AddFriend extends Panel {
 				}
 				
 				//has a friend request already been made to this person?
-				if(profileLogic.isFriendRequestPending(userX, userY)) {
+				if(connectionsLogic.isFriendRequestPending(userX, userY)) {
 					text.setDefaultModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
@@ -110,7 +119,7 @@ public class AddFriend extends Panel {
 				}
 				
 				//has a friend request been made from this person to the current user?
-				if(profileLogic.isFriendRequestPending(userY, userX)) {
+				if(connectionsLogic.isFriendRequestPending(userY, userX)) {
 					text.setDefaultModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
@@ -120,7 +129,7 @@ public class AddFriend extends Panel {
 				}
 				
 				//if ok, request friend
-				if(profileLogic.requestFriend(userX, userY)) {
+				if(connectionsLogic.requestFriend(userX, userY)) {
 					friendActionModel.setRequested(true);
 					
 					//post event

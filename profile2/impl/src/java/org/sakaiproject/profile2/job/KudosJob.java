@@ -13,6 +13,7 @@ import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
@@ -45,6 +46,8 @@ public class KudosJob implements StatefulJob {
 	 * setup the rule map
 	 */
 	private final HashMap<String,BigDecimal> RULES = new HashMap<String,BigDecimal>() {
+		private static final long serialVersionUID = 1L;
+
 		{
 			//points for profile completeness
 			put("nickname", new BigDecimal(1));
@@ -378,7 +381,7 @@ public class KudosJob implements StatefulJob {
 			BigDecimal percentage = getScoreAsPercentage(score, total);
 
 			//save it
-			if(profileLogic.updateKudos(userUuid, score)) {
+			if(kudosLogic.updateKudos(userUuid, score)) {
 				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2, RoundingMode.HALF_UP) + ", percentage: " + percentage);
 			}
 			
@@ -471,6 +474,11 @@ public class KudosJob implements StatefulJob {
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {
 		this.profileLogic = profileLogic;
+	}
+	
+	private ProfileKudosLogic kudosLogic;
+	public void setKudosLogic(ProfileKudosLogic kudosLogic) {
+		this.kudosLogic = kudosLogic;
 	}
 	
 	private ProfileImageLogic imageLogic;

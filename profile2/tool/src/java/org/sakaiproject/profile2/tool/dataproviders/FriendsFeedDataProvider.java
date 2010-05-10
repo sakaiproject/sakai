@@ -29,7 +29,7 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -45,15 +45,15 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  */
 
 
-public class FriendsFeedDataProvider implements IDataProvider, Serializable {
+public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(FriendsFeedDataProvider.class); 
 	private transient List<Person> friends = new ArrayList<Person>();
 	private String userId;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
 	
 	public FriendsFeedDataProvider(final String userId) {
 		
@@ -73,7 +73,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		List<Person> allFriends = new ArrayList<Person>();
 		
 		//get all friends of userX visible by userY
-		allFriends = profileLogic.getConnectionsForUser(userId);
+		allFriends = connectionsLogic.getConnectionsForUser(userId);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);
@@ -113,8 +113,8 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		return friends.size();
 	}
 
-    public IModel model(Object object) {
-    	return new DetachablePersonModel((Person)object);
+    public IModel<Person> model(Person object) {
+    	return new DetachablePersonModel(object);
 	}
     
     public void detach() {}

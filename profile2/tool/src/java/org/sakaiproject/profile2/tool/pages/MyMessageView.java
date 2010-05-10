@@ -16,9 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -67,11 +64,11 @@ public class MyMessageView extends BasePage {
 	public MyMessageView(PageParameters parameters) {
 		log.debug("MyMessageView(" + parameters.toString() +")");
 
-		MessageThread thread = profileLogic.getMessageThread(parameters.getString("thread"));
+		MessageThread thread = messagingLogic.getMessageThread(parameters.getString("thread"));
 		
 		//check user is a thread participant
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(!profileLogic.isThreadParticipant(thread.getId(), currentUserUuid)) {
+		if(!messagingLogic.isThreadParticipant(thread.getId(), currentUserUuid)) {
 			//this would only ever happen if the user has access to the other user's workspace because the link is a direct link to their site
 			//so they won't even reach this part if they don't have access - so it would need to be a very special case.
 			log.error("MyMessageView: user " + currentUserUuid + " attempted to access restricted thread: " + thread.getId());
@@ -150,12 +147,12 @@ public class MyMessageView extends BasePage {
 					messageOwner = true;
 				}
 				if(!messageOwner) {
-					participant = profileLogic.getMessageParticipant(message.getId(), currentUserUuid);
+					participant = messagingLogic.getMessageParticipant(message.getId(), currentUserUuid);
 				}
 				
 				//prefs and privacy
-				ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(messageFromUuid);
-				ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(messageFromUuid);
+				ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(messageFromUuid);
+				ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(messageFromUuid);
 				
 				//photo link
 				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
@@ -191,7 +188,7 @@ public class MyMessageView extends BasePage {
 				//highlight if new, then mark it as read
 				if(!messageOwner && !participant.isRead()) {
 					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
-					profileLogic.toggleMessageRead(participant, true);
+					messagingLogic.toggleMessageRead(participant, true);
 					
 					//set param for first unread message in the thread
 					if(!lastUnreadSet) {
@@ -240,7 +237,7 @@ public class MyMessageView extends BasePage {
 		        //String messageLink = sakaiProxy.getDirectUrlToUserProfile(newMessage.getTo(), urlFor(MyMessageView.class, new PageParameters("thread=" + threadId)).toString());
         		
         		//send it, get Message back so we can add it to the list
-        		Message message = profileLogic.replyToThread(threadId, reply, currentUserUuid);
+        		Message message = messagingLogic.replyToThread(threadId, reply, currentUserUuid);
         		if(message != null) {
         			//clear this field
         			replyField.setModelObject(null);
@@ -289,7 +286,7 @@ public class MyMessageView extends BasePage {
         item.setOutputMarkupId(true);
         messageList.add(item);
        
-        ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(message.getFrom());
+        ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(message.getFrom());
         
         //photo and link
 		item.add(new AjaxLink<String>("photoLink", new Model<String>(message.getFrom())) {
@@ -316,15 +313,5 @@ public class MyMessageView extends BasePage {
 		
         return item;
     }
-	
-
-
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MessageList has been deserialized.");
-		//re-init our transient objects
-		
-	}
 	
 }

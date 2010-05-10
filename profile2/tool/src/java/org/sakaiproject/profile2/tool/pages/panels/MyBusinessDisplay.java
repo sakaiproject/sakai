@@ -16,8 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -167,11 +165,4 @@ public class MyBusinessDisplay extends Panel {
 		add(editButton);
 	}
 	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyBusinessDisplay has been deserialized.");
-	}
 }
-;

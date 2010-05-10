@@ -37,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -149,7 +150,7 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 		}
 		
 		//get list of connections
-		List<BasicPerson> connections = profileLogic.getBasicConnectionsForUser(uuid);
+		List<BasicPerson> connections = connectionsLogic.getBasicConnectionsForUser(uuid);
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}
@@ -502,6 +503,11 @@ public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEn
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {
 		this.profileLogic = profileLogic;
+	}
+	
+	private ProfileConnectionsLogic connectionsLogic;
+	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
+		this.connectionsLogic = connectionsLogic;
 	}
 	
 	private ProfileImageLogic imageLogic;

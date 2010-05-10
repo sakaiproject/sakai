@@ -18,8 +18,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -292,12 +290,4 @@ public class MyInfoEdit extends Panel {
 		}
 	}
 	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyInfoEdit has been deserialized.");
-		//re-init our transient objects
-	}
-	
-
 }

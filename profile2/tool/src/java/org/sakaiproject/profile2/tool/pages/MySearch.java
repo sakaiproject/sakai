@@ -17,8 +17,6 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -163,7 +161,7 @@ public class MySearch extends BasePage {
 		    	final String userType = person.getType();
 
 		    	//get connection status
-		    	int connectionStatus = profileLogic.getConnectionStatus(currentUserUuid, userUuid);
+		    	int connectionStatus = connectionsLogic.getConnectionStatus(currentUserUuid, userUuid);
 		    	boolean friend = (connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) ? true : false;
 		    	
 		    	//image wrapper, links to profile
@@ -203,7 +201,7 @@ public class MySearch extends BasePage {
 		    	
 		    	
 		    	/* ACTIONS */
-				boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
+				boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
 				boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(userType, currentUserType);
 		    	
 
@@ -463,15 +461,6 @@ public class MySearch extends BasePage {
    	
 	}
 
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MySearch has been deserialized.");
-		//re-init our transient objects
-		
-	}
-	
-	
 }
 
 

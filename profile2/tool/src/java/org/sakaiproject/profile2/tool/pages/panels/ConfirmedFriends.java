@@ -37,6 +37,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
@@ -60,9 +61,8 @@ public class ConfirmedFriends extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
-	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
     
 	private Integer numConfirmedFriends = 0;
 	private boolean ownList = false;
@@ -154,7 +154,7 @@ public class ConfirmedFriends extends Panel {
 		    	if(ownList) {
 		    		friend = true; //viewing own page of conenctions, must be friend!
 		    	} else {
-		    		friend = profileLogic.isUserXFriendOfUserY(userUuid, personUuid); //other person viewing, check if they are friends
+		    		friend = connectionsLogic.isUserXFriendOfUserY(userUuid, personUuid); //other person viewing, check if they are friends
 		    	}
 		    	
 				//get other objects
@@ -271,14 +271,5 @@ public class ConfirmedFriends extends Panel {
 		}
 		
 	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("ConfirmedFriends has been deserialized.");
-		//re-init our transient objects
-		
-	}
-	
 	
 }

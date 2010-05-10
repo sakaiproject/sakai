@@ -17,8 +17,6 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -58,7 +56,7 @@ public class MyPrivacy extends BasePage {
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the privacy record for this user from the database, or a default if none exists
-		profilePrivacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		profilePrivacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 		
 		//if null, throw exception
 		if(profilePrivacy == null) {
@@ -412,7 +410,7 @@ public class MyPrivacy extends BasePage {
 		//get the backing model - its elems have been updated with the form params
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();
 
-		if(profileLogic.savePrivacyRecord(profilePrivacy)) {
+		if(privacyLogic.savePrivacyRecord(profilePrivacy)) {
 			log.info("Saved ProfilePrivacy for: " + profilePrivacy.getUserUuid());
 			return true;
 		} else {
@@ -421,15 +419,6 @@ public class MyPrivacy extends BasePage {
 		}
 	
 	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyPrivacy has been deserialized.");
-		//re-init our transient objects
-		
-	}
-	
 	
 }
 

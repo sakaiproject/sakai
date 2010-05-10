@@ -16,9 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -114,12 +111,12 @@ public class MyMessageThreads extends BasePage {
 					messageOwner = true;
 				}
 				if(!messageOwner) {
-					participant = profileLogic.getMessageParticipant(message.getId(), currentUserUuid);
+					participant = messagingLogic.getMessageParticipant(message.getId(), currentUserUuid);
 				}
 				
 				//prefs and privacy
-				ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(messageFromUuid);
-				ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(messageFromUuid);
+				ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(messageFromUuid);
+				ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(messageFromUuid);
 				
 				//photo link
 				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
@@ -199,16 +196,5 @@ public class MyMessageThreads extends BasePage {
 		if(numMessages <= ProfileConstants.MAX_MESSAGES_PER_PAGE) {
 			pager.setVisible(false);
 		}
-		
-		
 	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MessageThreads has been deserialized.");
-		//re-init our transient objects
-		
-	}
-	
 }

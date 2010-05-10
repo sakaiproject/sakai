@@ -24,7 +24,7 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.models.DetachableMessageThreadModel;
 
@@ -40,8 +40,8 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	private static final long serialVersionUID = 1L;
 	private final String userUuid;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	protected ProfileMessagingLogic messagingLogic;
 	
 	public MessageThreadsDataProvider(String userUuid) {
 		
@@ -60,7 +60,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	public Iterator<MessageThread> iterator(int first, int count){
 		
 		try {
-			List<MessageThread> slice = profileLogic.getMessageThreads(userUuid).subList(first, first + count);
+			List<MessageThread> slice = messagingLogic.getMessageThreads(userUuid).subList(first, first + count);
 			Collections.sort(slice, Collections.reverseOrder());
 			return slice.iterator();
 		}
@@ -76,7 +76,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
 	public int size(){
-		return profileLogic.getMessageThreadsCount(userUuid);
+		return messagingLogic.getMessageThreadsCount(userUuid);
 	}
 
 	/**

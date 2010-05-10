@@ -29,8 +29,11 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.tool.models.DetachableMessageThreadModel;
 import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 
 /**
@@ -53,15 +56,15 @@ import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
  */
 
 
-public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable {
+public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriendsDataProvider.class); 
 	private transient List<Person> friends = new ArrayList<Person>();
 	private String userId;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
 	
 	public ConfirmedFriendsDataProvider(final String userId) {
 		
@@ -80,7 +83,7 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 	
 	//this is a helper method to process our friends list
 	private List<Person> getFriendsForUser(final String userId) {
-		friends = profileLogic.getConnectionsForUser(userId);
+		friends = connectionsLogic.getConnectionsForUser(userId);
 		return friends;
 	}
 
@@ -102,9 +105,10 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 		return friends.size();
 	}
 
-    public IModel model(Object object) {
-            return new DetachablePersonModel((Person)object);
+    public IModel<Person> model(Person object) {
+    	return new DetachablePersonModel(object);
     }
+    
     
     public void detach() {}
 	

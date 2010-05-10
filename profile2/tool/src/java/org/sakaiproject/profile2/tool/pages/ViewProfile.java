@@ -17,8 +17,6 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -122,35 +120,35 @@ public class ViewProfile extends BasePage {
 		boolean friendRequestFromThisPerson = false;
 
 		//friend?
-		friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserId);
+		friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserId);
 
 		//if not friend, has a friend request already been made to this person?
 		if(!friend) {
-			friendRequestToThisPerson = profileLogic.isFriendRequestPending(currentUserId, userUuid);
+			friendRequestToThisPerson = connectionsLogic.isFriendRequestPending(currentUserId, userUuid);
 		}
 		
 		//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
 		if(!friend && !friendRequestToThisPerson) {
-			friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserId);
+			friendRequestFromThisPerson = connectionsLogic.isFriendRequestPending(userUuid, currentUserId);
 		}
 		
 		//privacy checks
-		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 		
-		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isBusinessInfoAllowed = profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isKudosVisible = profileLogic.isUserXKudosVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isStaffInfoAllowed = profileLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isStudentInfoAllowed = profileLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isSocialNetworkingInfoAllowed = profileLogic.isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
+		boolean isProfileImageAllowed = privacyLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isBasicInfoAllowed = privacyLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isContactInfoAllowed = privacyLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isBusinessInfoAllowed = privacyLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isPersonalInfoAllowed = privacyLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isKudosVisible = privacyLogic.isUserXKudosVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isStaffInfoAllowed = privacyLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isStudentInfoAllowed = privacyLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isSocialNetworkingInfoAllowed = privacyLogic.isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		final boolean isGalleryVisible = privacyLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
-		final ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 
 		
 		/* IMAGE */
@@ -179,7 +177,7 @@ public class ViewProfile extends BasePage {
 		
 		if(dateOfBirth != null) {
 			
-			if(profileLogic.isBirthYearVisible(userUuid)) {
+			if(privacyLogic.isBirthYearVisible(userUuid)) {
 				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			} else {
 				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
@@ -752,7 +750,7 @@ public class ViewProfile extends BasePage {
 				public Component getLazyLoadComponent(String markupId) {
 					if(prefs.isShowKudos()){
 											
-						BigDecimal score = profileLogic.getKudos(userUuid);
+						BigDecimal score = kudosLogic.getKudos(userUuid);
 						if(score != null) {
 							return new KudosPanel(markupId, userUuid, currentUserId, score);
 						}
@@ -804,12 +802,5 @@ public class ViewProfile extends BasePage {
 		this(parameters.getString("id"));
 	}
 	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("ViewProfile has been deserialized.");
-		//re-init our transient objects
-		
-	}
 	
 }

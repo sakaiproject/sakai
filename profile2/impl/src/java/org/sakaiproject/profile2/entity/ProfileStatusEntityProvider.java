@@ -63,7 +63,7 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
-		ProfileStatus status = profileLogic.getUserStatus(uuid);
+		ProfileStatus status = statusLogic.getUserStatus(uuid);
 		if(status == null) {
 			throw new EntityNotFoundException("ProfileStatus could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -80,7 +80,7 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		
 		if (entity.getClass().isAssignableFrom(ProfileStatus.class)) {
 			ProfileStatus status = (ProfileStatus) entity;
-			profileLogic.setUserStatus(status);
+			statusLogic.setUserStatus(status);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be ProfileStatus object");
 		}
@@ -96,7 +96,7 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		if (entity.getClass().isAssignableFrom(ProfileStatus.class)) {
 			ProfileStatus status = (ProfileStatus) entity;
 			
-			if(profileLogic.setUserStatus(status)) {
+			if(statusLogic.setUserStatus(status)) {
 				userUuid = status.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -136,12 +136,4 @@ public class ProfileStatusEntityProvider implements CoreEntityProvider, AutoRegi
 		this.statusLogic = statusLogic;
 	}
 	
-	private ProfileLogic profileLogic;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
-	
-	
-	
-
 }

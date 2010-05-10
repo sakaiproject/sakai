@@ -25,7 +25,7 @@ import org.sakaiproject.profile2.model.Person;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class DetachablePersonModel extends LoadableDetachableModel {
+public class DetachablePersonModel extends LoadableDetachableModel<Person> {
 	
 	private static final long serialVersionUID = 1L;
 	private Person p;
@@ -39,7 +39,7 @@ public class DetachablePersonModel extends LoadableDetachableModel {
 	}
 
 	@Override
-	protected Object load() {
+	protected Person load() {
 		return p;
 	}
 

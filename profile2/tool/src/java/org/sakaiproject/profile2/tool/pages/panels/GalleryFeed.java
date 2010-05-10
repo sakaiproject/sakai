@@ -16,9 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -164,13 +161,6 @@ public class GalleryFeed extends Panel {
 		viewPicturesLink.add(viewPicturesLabel);
 
 		add(viewPicturesLink);
-	}
-
-	// deserialisation for back button
-	private void readObject(ObjectInputStream in) throws IOException,
-			ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("GalleryFeed has been deserialized.");
 	}
 
 }

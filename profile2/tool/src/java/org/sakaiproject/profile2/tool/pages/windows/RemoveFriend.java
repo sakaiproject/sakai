@@ -27,7 +27,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -44,8 +46,14 @@ public class RemoveFriend extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	private ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	private ProfileConnectionsLogic connectionsLogic;
 
 	/*
 	 * userX is the current user
@@ -65,8 +73,8 @@ public class RemoveFriend extends Panel {
 		window.setResizable(false);
 		
 		//prefs and privacy
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userY);
-		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userY);
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userY);
+		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userY);
 		
 		//image
 		add(new ProfileImageRenderer("image", userY, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -90,7 +98,7 @@ public class RemoveFriend extends Panel {
 				/* double checking */
 				
 				//must be friend in order to remove them
-				boolean friend = profileLogic.isUserXFriendOfUserY(userX, userY);
+				boolean friend = connectionsLogic.isUserXFriendOfUserY(userX, userY);
 				
 				if(!friend) {
 					text.setDefaultModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
@@ -103,7 +111,7 @@ public class RemoveFriend extends Panel {
 				
 				
 				//if ok, remove friend
-				if(profileLogic.removeFriend(userX, userY)) {
+				if(connectionsLogic.removeFriend(userX, userY)) {
 					friendActionModel.setRemoved(true);
 					
 					//post event

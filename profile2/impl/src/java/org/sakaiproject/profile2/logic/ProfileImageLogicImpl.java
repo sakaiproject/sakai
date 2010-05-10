@@ -64,7 +64,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		//if not allowed yet, check we have a privacy record, if not, get one
 		if(!allowed && privacy == null) {
-			privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+			privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 			//if still null, default image
 			if(privacy == null) {
 				log.error("Couldn't retrieve ProfilePrivacy data for user: " + userUuid + ". Using default image.");
@@ -75,8 +75,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		//if not allowed, check privacy record
 		if(!allowed) {
-			boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
-			allowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserUuid, friend);
+			boolean friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
+			allowed = privacyLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserUuid, friend);
 		}
 		
 		//default if still not allowed
@@ -90,7 +90,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		//if we have no prefs, try to get one, it won't be considered if it is still null.
 		if(prefs == null){
-			prefs = profileLogic.getPreferencesRecordForUser(userUuid);
+			prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 		}
 		
 		//if we have prefs and the conditions are set for a user to be able to make a choice, get the pref.
@@ -247,6 +247,21 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	}
 	
 	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean saveOfficialImageUrl(final String userUuid, final String url) {
+		
+		ProfileImageOfficial officialImage = new ProfileImageOfficial(userUuid, url);
+		
+		if(dao.saveOfficialImageUrl(officialImage)) {
+			log.info("Updated official image record for user: " + userUuid); 
+			return true;
+		} 
+		
+		return false;
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public boolean addGalleryImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
@@ -357,6 +372,24 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		path.append(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
 		return path.toString();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getProfileImageEntityUrl(String userUuid, int size) {
+	
+		StringBuilder sb = new StringBuilder();
+		sb.append(sakaiProxy.getServerUrl());
+		sb.append("/direct/profile/");
+		sb.append(userUuid);
+		sb.append("/image/");
+		if(size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL){
+			sb.append("thumb/");
+		}
+		return sb.toString();
+	}
+	
+	
 	
 	/**
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists.
@@ -615,6 +648,21 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {
 		this.profileLogic = profileLogic;
+	}
+	
+	private ProfilePrivacyLogic privacyLogic;
+	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
+		this.privacyLogic = privacyLogic;
+	}
+	
+	private ProfileConnectionsLogic connectionsLogic;
+	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
+		this.connectionsLogic = connectionsLogic;
+	}
+	
+	private ProfilePreferencesLogic preferencesLogic;
+	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
+		this.preferencesLogic = preferencesLogic;
 	}
 	
 	private ProfileDao dao;

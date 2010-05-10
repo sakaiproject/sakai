@@ -1,5 +1,7 @@
 package org.sakaiproject.profile2.logic;
 
+import org.sakaiproject.profile2.model.ProfilePreferences;
+
 /**
  * An interface for dealing with ProfilePreferences in Profile2
  * 
@@ -8,6 +10,57 @@ package org.sakaiproject.profile2.logic;
  */
 public interface ProfilePreferencesLogic {
 
-	//the rest of the methods from ProfileLogic will be moved here soon
+	/**
+	 * Retrieve the preferences record from the database for this user. If none exists, will
+	 * attempt to create one for the user. If that also fails, will return null.
+	 *
+	 * @param userId	uuid of the user to retrieve the record for
+	 * @return ProfilePreferences record or null
+	 */
+	public ProfilePreferences getPreferencesRecordForUser(final String userId);
+	
+	/**
+	 * Save the preferences record to the database
+	 *
+	 * @param profilePreferences	the record for the user
+	 */
+	public boolean savePreferencesRecord(ProfilePreferences profilePreferences);
+	
+	/**
+	 * Check if twitter integration is enabled globally and for a user
+	 *
+	 * @param userId	uuid of the user
+	 */
+	public boolean isTwitterIntegrationEnabledForUser(final String userId);
+	
+	/**
+	 * Check if twitter integration is enabled globally and for a user
+	 * @param prefs	ProfilePreferences object for the user
+	 *
+	 */
+	public boolean isTwitterIntegrationEnabledForUser(ProfilePreferences prefs);
+	
+	/**
+	 * Is this type of notification to be sent as an email to the given user?
+	 * 
+	 * @param userId 	uuid of user
+	 * @param messageType type of message
+	 * @return
+	 */
+	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
 
+	/**
+	 * Validate the Twitter username and password supplied (does NOT run in a separate thread)
+	 *
+	 * @param twitterUsername	twitter username
+	 * @param twitterPassword	twitter password
+	 */
+	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword);
+	
+	/**
+	 * Validate the Twitter username and password supplied via the object (does NOT run in a separate thread)
+	 *
+	 * @param prefs	ProfilePreferences object
+	 */
+	public boolean validateTwitterCredentials(ProfilePreferences prefs);
 }

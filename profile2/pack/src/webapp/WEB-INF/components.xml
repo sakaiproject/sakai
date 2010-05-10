@@ -47,9 +47,13 @@
 	<!-- ProfileLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
     	class="org.sakaiproject.profile2.logic.ProfileLogicImpl">
-    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
-    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+    	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 	</bean>
 	
 	<!-- ProfileLinkLogic -->
@@ -61,28 +65,62 @@
     <!-- ProfilePrivacyLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
     
     <!-- ProfilePreferencesLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
     
     <!-- ProfileStatusLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileStatusLogic"
     	class="org.sakaiproject.profile2.logic.ProfileStatusLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
     </bean>
     
     <!-- ProfileImageLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileImageLogic"
     	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl"
     	init-method="init">
-    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    </bean>
+    
+    <!-- ProfileMessagingLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileMessagingLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileMessagingLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    </bean>
+    
+    <!-- ProfileConnectionsLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileConnectionsLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    </bean>
+    
+    <!-- ProfileKudosLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     </bean>
 
 	
@@ -94,21 +132,17 @@
 	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider">
 		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
-		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	</bean>
 	
 	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider">
 		<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
-		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />	</bean>
+	</bean>
 		
 	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider">
 		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<!--  remove this when we move the methods into ProfilePrivacyLogic -->
-		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />	</bean>
+	</bean>
 		
 	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
 
@@ -116,6 +150,7 @@
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 	</bean>
 	
 	
@@ -179,6 +214,7 @@
 		init-method="init">
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="kudosLogic" ref="org.sakaiproject.profile2.logic.ProfileKudosLogic" />
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>

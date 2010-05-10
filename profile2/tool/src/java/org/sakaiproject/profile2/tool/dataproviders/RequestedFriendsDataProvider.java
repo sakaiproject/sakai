@@ -30,8 +30,10 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 
 /**
  * RequestedFriendsDataProvider.java
@@ -48,7 +50,7 @@ import org.sakaiproject.profile2.model.Person;
  */
 
 
-public class RequestedFriendsDataProvider implements IDataProvider, Serializable {
+public class RequestedFriendsDataProvider implements IDataProvider<Person>, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(RequestedFriendsDataProvider.class); 
@@ -56,8 +58,8 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 	private transient List<Person> requests = new ArrayList<Person>();
 	private String userId;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
 	
 	public RequestedFriendsDataProvider(final String userId) {
 		
@@ -76,7 +78,7 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 	
 	//this is a helper method to process our friends list
 	private List<Person> getFriendsForUser(final String userId) {
-		requests = profileLogic.getConnectionRequestsForUser(userId);
+		requests = connectionsLogic.getConnectionRequestsForUser(userId);
 		return requests;
 	}
 
@@ -98,8 +100,8 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 		return requests.size();
 	}
 
-    public IModel model(Object object) {
-            return new Model((Person)object);
+    public IModel<Person> model(Person object) {
+        return new DetachablePersonModel(object);
     }
     
     public void detach() {}

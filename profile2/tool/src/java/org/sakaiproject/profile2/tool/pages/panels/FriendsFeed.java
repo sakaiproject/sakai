@@ -30,7 +30,10 @@ import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -61,8 +64,14 @@ public class FriendsFeed extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	protected ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
 	
 	
 	public FriendsFeed(String id, final String ownerUserId, final String viewingUserId) {
@@ -120,11 +129,11 @@ public class FriendsFeed extends Panel {
 		    	if(ownerUserId.equals(viewingUserId)) {
 		    		friend = true; //viewing own list of friends so must be a friend
 		    	} else {
-		    		friend = profileLogic.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
+		    		friend = connectionsLogic.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
 		    	}
 	    		
 		    	//link to their profile
-		    	Link friendItem = new Link("friendsFeedItem") {
+		    	Link<String> friendItem = new Link<String>("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
 						//link to own profile if link will point to self
@@ -137,21 +146,8 @@ public class FriendsFeed extends Panel {
 					}
 				};
 				
-				//REMOVE THIS WHEN WE FLESH OUT THE PERSON OBJECT RETURNED
-				//ensure privacy
-				ProfilePrivacy privacy = person.getPrivacy();
-				if(privacy == null){
-					 privacy = profileLogic.getPrivacyRecordForUser(friendId);
-				}
-				
-				//ensure preferences
-				ProfilePreferences prefs = person.getPreferences();
-				if(prefs == null){
-					prefs = profileLogic.getPreferencesRecordForUser(friendId);
-				}
-				
 				/* IMAGE */
-				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, person.getPreferences(), person.getPrivacy(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				
 				//name (will be linked also)
 		    	Label friendLinkLabel = new Label("friendName", displayName);
@@ -166,13 +162,13 @@ public class FriendsFeed extends Panel {
 		add(dataView);
 		
 		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns the number in the grid */
-		final int numFriends = profileLogic.getConnectionsForUserCount(ownerUserId);
+		final int numFriends = connectionsLogic.getConnectionsForUserCount(ownerUserId);
 		Label numFriendsLabel = new Label("numFriendsLabel");
 		add(numFriendsLabel);
 		
 		
 		/* VIEW ALL FRIENDS LINK */
-    	Link viewFriendsLink = new Link("viewFriendsLink") {
+    	Link<String> viewFriendsLink = new Link<String>("viewFriendsLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick() {
@@ -213,16 +209,6 @@ public class FriendsFeed extends Panel {
 		}
 	
 	}
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("FriendsFeed has been deserialized.");
-		//re-init our transient objects
-		
-	}
-	
-	
 	
 	
 }

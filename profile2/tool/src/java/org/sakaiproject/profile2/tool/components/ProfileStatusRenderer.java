@@ -23,11 +23,11 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 /** 
  * This is a helper panel for displaying a user's status.
@@ -45,8 +45,11 @@ public class ProfileStatusRenderer extends Panel {
 	private String msgClass;
 	private String dateClass;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileStatusLogic")
+	private ProfileStatusLogic statusLogic;
 	
 	/**
 	 * Render the status panel for the user.
@@ -65,7 +68,7 @@ public class ProfileStatusRenderer extends Panel {
 		this.dateClass = dateClass;
 		
 		//get data
-		this.privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		this.privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 		
 		//render
 		renderStatus();
@@ -128,7 +131,7 @@ public class ProfileStatusRenderer extends Panel {
 		setOutputMarkupPlaceholderTag(true);
 		
 		//get status
-		ProfileStatus status = profileLogic.getUserStatus(userUuid, privacy);
+		ProfileStatus status = statusLogic.getUserStatus(userUuid, privacy);
 
 		//get status
 		if(status == null) {

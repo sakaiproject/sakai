@@ -35,6 +35,9 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -51,8 +54,14 @@ public class MyStatusPanel extends Panel {
     @SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileStatusLogic")
+	private ProfileStatusLogic statusLogic;
+    
+    @SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	private ProfilePreferencesLogic preferencesLogic;
+    
+    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	private ProfileMessagingLogic messagingLogic;
     
     //get default text that fills the textField
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
@@ -65,7 +74,6 @@ public class MyStatusPanel extends Panel {
 		//get info
 		final String displayName = userProfile.getDisplayName();
 		final String userId = userProfile.getUserUuid();
-		final String currentUserId = sakaiProxy.getCurrentUserId();
 		
 		//if superUser and proxied, can't update
 		boolean editable = true;
@@ -115,7 +123,7 @@ public class MyStatusPanel extends Panel {
 
 			public void onClick(AjaxRequestTarget target) {
 				//clear status, hide and repaint
-				if(profileLogic.clearUserStatus(userId)) {
+				if(statusLogic.clearUserStatus(userId)) {
 					status.setVisible(false); //hide status
 					this.setVisible(false); //hide clear link
 					target.addComponent(status);
@@ -161,7 +169,7 @@ public class MyStatusPanel extends Panel {
 				}
 
 				//save status from userProfile
-				if(profileLogic.setUserStatus(userId, statusMessage)) {
+				if(statusLogic.setUserStatus(userId, statusMessage)) {
 					log.info("Saved status for: " + userId);
 					
 					//post update event
@@ -209,26 +217,15 @@ public class MyStatusPanel extends Panel {
 		
 		
 	}
-	
 
 	public void updateTwitter(String userId, String message) {
 		
-		if(profileLogic.isTwitterIntegrationEnabledForUser(userId)) {
-			profileLogic.sendMessageToTwitter(userId, message);
+		if(preferencesLogic.isTwitterIntegrationEnabledForUser(userId)) {
+			messagingLogic.sendMessageToTwitter(userId, message);
 			
 			//post update event
 			sakaiProxy.postEvent(ProfileConstants.EVENT_TWITTER_UPDATE, "/profile/"+userId, true);
 		}
 	}
-	
-	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyStatusPanel has been deserialized");
-		//re-init our transient objects
-	
-	}
-	
 	
 }

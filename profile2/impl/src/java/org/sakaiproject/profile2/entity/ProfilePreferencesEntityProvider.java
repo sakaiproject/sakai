@@ -63,7 +63,7 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
-		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(uuid);
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(uuid);
 		if(prefs == null) {
 			throw new EntityNotFoundException("ProfilePreferences could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -82,7 +82,7 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		
 		if (entity.getClass().isAssignableFrom(ProfilePreferences.class)) {
 			ProfilePreferences prefs = (ProfilePreferences) entity;
-			profileLogic.savePreferencesRecord(prefs);
+			preferencesLogic.savePreferencesRecord(prefs);
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePreferences object");
 		}
@@ -98,7 +98,7 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		if (entity.getClass().isAssignableFrom(ProfilePreferences.class)) {
 			ProfilePreferences prefs = (ProfilePreferences) entity;
 			
-			if(profileLogic.savePreferencesRecord(prefs)) {
+			if(preferencesLogic.savePreferencesRecord(prefs)) {
 				userUuid = prefs.getUserUuid();
 			}
 			if(userUuid == null) {
@@ -139,9 +139,5 @@ public class ProfilePreferencesEntityProvider implements CoreEntityProvider, Aut
 		this.preferencesLogic = preferencesLogic;
 	}
 
-	private ProfileLogic profileLogic;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
 
 }

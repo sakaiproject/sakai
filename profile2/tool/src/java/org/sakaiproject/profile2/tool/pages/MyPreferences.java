@@ -17,9 +17,6 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -59,7 +56,7 @@ public class MyPreferences extends BasePage{
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the prefs record for this user from the database, or a default if none exists yet
-		profilePreferences = profileLogic.getPreferencesRecordForUser(userUuid);
+		profilePreferences = preferencesLogic.getPreferencesRecordForUser(userUuid);
 		
 		//if null, throw exception
 		if(profilePreferences == null) {
@@ -376,7 +373,7 @@ public class MyPreferences extends BasePage{
 					String twitterUsernameEntered = twitterUsername.getDefaultModelObjectAsString();
 					String twitterPasswordEntered = twitterPassword.getDefaultModelObjectAsString();
 
-					if(!profileLogic.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
+					if(!preferencesLogic.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
 						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.invalid"));
 						formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 						target.addComponent(formFeedback);
@@ -389,7 +386,7 @@ public class MyPreferences extends BasePage{
 				//note that the twitter password is encrypted before its saved and decrypted for display, automatically
 				
 				
-				if(profileLogic.savePreferencesRecord(profilePreferences)) {
+				if(preferencesLogic.savePreferencesRecord(profilePreferences)) {
 					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
@@ -417,12 +414,6 @@ public class MyPreferences extends BasePage{
 		
 	}
 	
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyPreferences has been deserialized.");
-	}
-
 }
 
 

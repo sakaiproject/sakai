@@ -98,5 +98,12 @@ public interface ProfileLinkLogic {
 	 */
 	public String getEntityLinkToProfileConnections();
 	
+	/**
+	 * Generate a tiny URL for the supplied URL
+	 * 
+	 * @param url
+	 * @return
+	 */
+	//public String generateTinyUrl(final String url);
 	
 }

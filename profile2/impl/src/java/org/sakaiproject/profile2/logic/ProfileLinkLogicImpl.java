@@ -128,6 +128,16 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		return url.toString();
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	/*
+	public String generateTinyUrl(final String url) {
+		return tinyUrlService.generateTinyUrl(url);
+	}
+	*/
+	
+	
 	
 
 	/**
@@ -176,6 +186,7 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		base.append(ProfileConstants.LINK_ENTITY_PREFIX);
 		return base.toString();
 	}
+	
 	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {

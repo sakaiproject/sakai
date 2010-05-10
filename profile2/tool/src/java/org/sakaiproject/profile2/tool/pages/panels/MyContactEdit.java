@@ -18,9 +18,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -363,12 +360,4 @@ public class MyContactEdit extends Panel {
 		}
 	}
 
-	/* reinit for deserialisation (ie back button) */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("MyContactEdit has been deserialized.");
-		//re-init our transient objects
-	}
-
-	
 }

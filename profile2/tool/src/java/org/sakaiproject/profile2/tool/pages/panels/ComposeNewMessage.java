@@ -37,7 +37,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.components.ResourceReferences;
@@ -57,8 +59,11 @@ public class ComposeNewMessage extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	protected ProfileMessagingLogic messagingLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	protected ProfileConnectionsLogic connectionsLogic;
 	
 	public ComposeNewMessage(String id) {
 		super(id);
@@ -101,7 +106,7 @@ public class ComposeNewMessage extends Panel {
 		form.add(new Label("toLabel", new ResourceModel("message.to")));
 		
 		//get connections
-		final List<Person> connections = profileLogic.getConnectionsForUser(userId);
+		final List<Person> connections = connectionsLogic.getConnectionsForUser(userId);
 		Collections.sort(connections);
 
 		// list provider
@@ -109,7 +114,7 @@ public class ComposeNewMessage extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			public Iterator<Person> getChoices(String input) {
-            	return profileLogic.getConnectionsSubsetForSearch(connections, input).iterator();
+            	return connectionsLogic.getConnectionsSubsetForSearch(connections, input).iterator();
             }
         };
         
@@ -164,7 +169,7 @@ public class ComposeNewMessage extends Panel {
 				String threadId = ProfileUtils.generateUuid();
 				
 				//save it, it will be abstracted into its proper parts and email notifications sent
-				if(profileLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
+				if(messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
 					
 					//post event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + newMessage.getFrom(), true);
@@ -206,21 +211,4 @@ public class ComposeNewMessage extends Panel {
 		
 	}
 	
-	
-				
-			
-	
-	
-	/* reinit for deserialisation (ie back button) */
-	/*
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		log.debug("ComposeNewMessage has been deserialized.");
-		//re-init our transient objects
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-	}
-	*/
-	
-
 }
