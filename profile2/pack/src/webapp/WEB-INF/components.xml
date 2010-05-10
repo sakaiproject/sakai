@@ -120,10 +120,18 @@
     
     <!-- ProfileKudosLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl">
+    	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
-
+    
+    <!-- CacheManager -->
+    <bean id="org.sakaiproject.profile2.cache.CacheManager"
+    	class="org.sakaiproject.profile2.cache.CacheManagerImpl">
+    	<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+    </bean>
+    
 	
     <!-- EntityProvider beans -->
     <bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">

@@ -3,6 +3,8 @@ package org.sakaiproject.profile2.logic;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 
@@ -14,6 +16,10 @@ import org.sakaiproject.profile2.hbm.model.ProfileKudos;
  */
 public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.kudos";
+	
+	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -37,9 +43,19 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		return dao.updateKudos(k);
 	}
 	
+	public void init() {
+		cache = cacheManager.createCache(CACHE_NAME);
+	}
+	
+	
 	private ProfileDao dao;
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
 	}
-
+	
+	private CacheManager cacheManager;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+	
 }
