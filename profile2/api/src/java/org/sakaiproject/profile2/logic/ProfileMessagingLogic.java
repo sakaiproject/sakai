@@ -32,6 +32,14 @@ public interface ProfileMessagingLogic {
 	public int getThreadsWithUnreadMessagesCount(final String userId);
 	
 	/**
+	 * Get the number of all messages sent from this user
+	 * 
+	 * @param userId	uuid of the user to retrieve the count for
+	 * @return
+	 */
+	public int getSentMessagesCount(final String userId);
+	
+	/**
 	 * Gets a MessageThread, first gets the item, then injects the latest Message into it before returning
 	 * TODO This needs to be optimised to get the latest message property in the same query.
 	 * @param id	id of the thread

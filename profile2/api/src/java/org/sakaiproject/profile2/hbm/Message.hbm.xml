@@ -39,6 +39,11 @@
     	<![CDATA[select count(distinct message.id) from Message as message where message.thread = :thread]]>
 	</query>
 	
+	<!-- get a count of all messages sent by a given user -->
+	<query name="getSentMessagesCount">
+    	<![CDATA[select count(distinct message.id) from Message as message where message.from = :uuid]]>
+	</query>
+	
 	<!-- get a single message -->
 	<query name="getMessage">
     	<![CDATA[from Message as message where message.id = :id]]>

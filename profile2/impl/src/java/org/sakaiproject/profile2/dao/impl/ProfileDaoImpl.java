@@ -846,6 +846,23 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
+	public int getSentMessagesCount(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_SENT_MESSAGES_COUNT);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public List<Message> getMessagesInThread(final String threadId) {
 		
 		List<Message> messages = new ArrayList<Message>();

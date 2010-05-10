@@ -12,9 +12,11 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -323,9 +325,22 @@ public class KudosJob implements StatefulJob {
 		}
 		
 		//number of connections
+		int numConnections = connectionsLogic.getConnectionsForUserCount(person.getUuid());
+		if(numConnections >= 1){
+			score = score.add(val("hasOneConnection"));
+		}
+		if(numConnections > 10){
+			score = score.add(val("hasMoreThanTenConnections"));
+		}
 		
 		//number of sent messages
-		
+		int numSentMessages = messagingLogic.getSentMessagesCount(person.getUuid());
+		if(numSentMessages >= 1){
+			score = score.add(val("hasOneSentMessage"));
+		}
+		if(numSentMessages > 10){
+			score = score.add(val("hasMoreThanTenSentMessages"));
+		}
 		//number of status updates
 		
 		//is twitter enabled?
@@ -381,7 +396,7 @@ public class KudosJob implements StatefulJob {
 			BigDecimal percentage = getScoreAsPercentage(score, total);
 
 			//save it
-			if(kudosLogic.updateKudos(userUuid, score)) {
+			if(kudosLogic.updateKudos(userUuid, percentage)) {
 				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2, RoundingMode.HALF_UP) + ", percentage: " + percentage);
 			}
 			
@@ -484,6 +499,16 @@ public class KudosJob implements StatefulJob {
 	private ProfileImageLogic imageLogic;
 	public void setImageLogic(ProfileImageLogic imageLogic) {
 		this.imageLogic = imageLogic;
+	}
+	
+	private ProfileConnectionsLogic connectionsLogic;
+	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
+		this.connectionsLogic = connectionsLogic;
+	}
+	
+	private ProfileMessagingLogic messagingLogic;
+	public void setMessagingLogic(ProfileMessagingLogic messagingLogic) {
+		this.messagingLogic = messagingLogic;
 	}
 	
 	private SessionManager sessionManager;

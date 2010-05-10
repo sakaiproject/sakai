@@ -45,6 +45,13 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		return dao.getThreadsWithUnreadMessagesCount(userId);
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getSentMessagesCount(final String userId) {
+		return dao.getSentMessagesCount(userId);
+	}
+
 	
 	
 	/**

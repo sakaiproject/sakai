@@ -225,6 +225,8 @@
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 		<property name="kudosLogic" ref="org.sakaiproject.profile2.logic.ProfileKudosLogic" />
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+		<property name="messagingLogic" ref="org.sakaiproject.profile2.logic.ProfileMessagingLogic" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	

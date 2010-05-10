@@ -214,6 +214,8 @@ public interface ProfileDao {
 	
 	public int getThreadsWithUnreadMessagesCount(final String userId);
 	
+	public int getSentMessagesCount(final String userId);
+
 	public List<MessageThread> getMessageThreads(final String userId);
 	
 	public int getMessageThreadsCount(final String userId);
@@ -301,6 +303,8 @@ public interface ProfileDao {
 	final String QUERY_GET_LATEST_MESSAGE_IN_THREAD = "getLatestMessageInThread";
 	final String QUERY_GET_MESSAGE_THREADS="getMessageThreads";
 	final String QUERY_GET_MESSAGE_THREADS_COUNT="getMessageThreadsCount";
+	final String QUERY_GET_SENT_MESSAGES_COUNT="getSentMessagesCount";
+
 	
 	//from MessageThread.hbm.xml
 	final String QUERY_GET_MESSAGE_THREAD="getMessageThread";
