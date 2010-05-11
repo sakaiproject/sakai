@@ -31,12 +31,17 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.jsf.util.RendererUtil;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 
 public class CourierRenderer extends Renderer
 {
+	
+	private SessionManager sessionManager = (SessionManager)
+			ComponentManager.get(SessionManager.class);
+	
 	public boolean supportsComponentType(UIComponent component)
 	{
 		return (component instanceof UIOutput);
@@ -75,9 +80,9 @@ public class CourierRenderer extends Renderer
 			// TODO: Report an error
 		}
 		
-		// the current session's ID
-		String sessionId = SessionManager.getCurrentSession().getId();
-		if (sessionId == null)
+		// the current user's ID
+		String userId = sessionManager.getCurrentSessionUserId();
+		if (userId == null)
 		{
 			//TODO: Report an error?
 		}
@@ -85,7 +90,7 @@ public class CourierRenderer extends Renderer
 		writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
 		writer.write("updateTime = " + updateTime + "000;\n");
 		writer.write("updateUrl = \"" + serverUrl(req) + "/courier/" + placementId);
-		writer.write("?sessionId="+sessionId+"\";\n");
+		writer.write("?userId="+userId+"\";\n");
 		writer.write("scheduleUpdate();\n");
 		writer.write("</script>\n");
 	}
