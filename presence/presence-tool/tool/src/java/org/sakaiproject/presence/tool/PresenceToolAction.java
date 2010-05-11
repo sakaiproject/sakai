@@ -167,7 +167,7 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			{
 				count += sessions.size();
 			}
-			context.put("total", new Integer(count));
+			context.put("total", Integer.valueOf(count));
 		}
 
 		// for servers display mode
@@ -189,7 +189,7 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			{
 				count += sessions.size();
 			}
-			context.put("total", new Integer(count));
+			context.put("total", Integer.valueOf(count));
 		}
 
 		// the url for the online courier, using a 30 second refresh

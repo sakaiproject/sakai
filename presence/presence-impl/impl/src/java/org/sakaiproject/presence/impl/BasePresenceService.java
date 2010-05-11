@@ -233,7 +233,7 @@ public abstract class BasePresenceService implements PresenceService
 
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -778,7 +778,7 @@ public abstract class BasePresenceService implements PresenceService
 					checkAllPresenceForExpiration();
 
 				}
-				catch (Throwable e)
+				catch (Exception e)
 				{
 					M_log.warn("exception checking for expired presence: ", e);
 				}

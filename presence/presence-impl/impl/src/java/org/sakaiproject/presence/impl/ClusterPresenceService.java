@@ -95,7 +95,7 @@ public class ClusterPresenceService extends BasePresenceService
 
 			super.init();
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -175,7 +175,7 @@ public class ClusterPresenceService extends BasePresenceService
 		/**
 		 * {@inheritDoc}
 		 */
-		@SuppressWarnings("unchecked")
+		
 		public List<UsageSession> getSessions(String locationId)
 		{
 			// Note: this assumes

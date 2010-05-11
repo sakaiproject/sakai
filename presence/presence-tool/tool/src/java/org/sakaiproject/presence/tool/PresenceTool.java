@@ -251,7 +251,7 @@ public class PresenceTool extends HttpServlet
 				}
 			}
 		}
-		catch (Throwable any)
+		catch (Exception any)
 		{
 		}
 
