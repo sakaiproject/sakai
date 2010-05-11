@@ -219,7 +219,20 @@ public class PresenceTool extends HttpServlet
 	protected void sendAutoUpdate(PrintWriter out, HttpServletRequest req, String placementId, String context)
 	{
 		// set the refresh of the courier to 1/2 the presence timeout value
-		Web.sendAutoUpdate(out, req, placementId, PresenceService.getTimeout() / 2);
+		int updateTime = PresenceService.getTimeout() / 2;
+
+		String userId = SessionManager.getCurrentSessionUserId();
+		StringBuilder url = new StringBuilder(Web.serverUrl(req));
+		url.append("/courier/");
+		url.append(placementId);
+		url.append("?userId=");
+		url.append(userId);
+
+		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+		out.println("updateTime = " + updateTime + "000;");
+		out.println("updateUrl = \"" + url.toString() + "\";");
+		out.println("scheduleUpdate();");
+		out.println("</script>");
 	}
 
 	/**
