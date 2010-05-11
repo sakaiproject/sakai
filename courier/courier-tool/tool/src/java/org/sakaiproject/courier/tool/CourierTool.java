@@ -123,7 +123,7 @@ public class CourierTool extends HttpServlet
 					}
 				} else {
 					//This courier request was not meant for this user (i.e., session), so we won't honour it
-					M_log.debug("out-of-session courier request");
+					M_log.debug("out-of-session courier request: requestUserId=" + requestUserId + " session user=" + session.getUserId());
 				}
 			}
 		}
