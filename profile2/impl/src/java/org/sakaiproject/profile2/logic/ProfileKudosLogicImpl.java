@@ -23,25 +23,38 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public BigDecimal getKudos(String userUuid){
+	public int getKudos(String userUuid){
+		ProfileKudos k = dao.getKudos(userUuid);
+		if(k == null){
+			return 0;
+		}
+		return k.getScore();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public BigDecimal getRawKudos(String userUuid){
 		ProfileKudos k = dao.getKudos(userUuid);
 		if(k == null){
 			return null;
 		}
-		return k.getScore();
+		return k.getPercentage();
 	}
 
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean updateKudos(String userUuid, BigDecimal score) {
+	public boolean updateKudos(String userUuid, int score, BigDecimal percentage) {
 		ProfileKudos k = new ProfileKudos();
 		k.setUserUuid(userUuid);
 		k.setScore(score);
+		k.setPercentage(percentage);
 		k.setDateAdded(new Date());
 		
 		return dao.updateKudos(k);
 	}
+	
 	
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
@@ -57,5 +70,7 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 	public void setCacheManager(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;
 	}
+
+	
 	
 }

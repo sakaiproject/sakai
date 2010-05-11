@@ -14,7 +14,18 @@ public class ProfileKudos implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String userUuid;
-	private BigDecimal score;
+	/**
+	 * Calculated score out of 100, more accurate if you need better reporting.
+	 */
+	private BigDecimal percentage;
+	
+	/**
+	 * Adjusted score used for display, less accurate, however some items are unattainable depending on who you are
+	 * so this is always rounded up and is fairer. 
+	 * 
+	 * <p>This value is used for display.</p>
+	 */
+	private int score;
 	private Date dateAdded;
 	
 	/** 
@@ -30,12 +41,20 @@ public class ProfileKudos implements Serializable {
 	public void setUserUuid(String userUuid) {
 		this.userUuid = userUuid;
 	}
+	
+	public BigDecimal getPercentage() {
+		return percentage;
+	}
 
-	public BigDecimal getScore() {
+	public void setPercentage(BigDecimal percentage) {
+		this.percentage = percentage;
+	}
+	
+	public int getScore() {
 		return score;
 	}
 
-	public void setScore(BigDecimal score) {
+	public void setScore(int score) {
 		this.score = score;
 	}
 

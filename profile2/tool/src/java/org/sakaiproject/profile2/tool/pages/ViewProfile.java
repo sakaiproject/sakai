@@ -750,8 +750,8 @@ public class ViewProfile extends BasePage {
 				public Component getLazyLoadComponent(String markupId) {
 					if(prefs.isShowKudos()){
 											
-						BigDecimal score = kudosLogic.getKudos(userUuid);
-						if(score != null) {
+						int score = kudosLogic.getKudos(userUuid);
+						if(score > 0) {
 							return new KudosPanel(markupId, userUuid, currentUserId, score);
 						}
 					} 

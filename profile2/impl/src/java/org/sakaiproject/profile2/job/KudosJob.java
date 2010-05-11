@@ -323,7 +323,7 @@ public class KudosJob implements StatefulJob {
 			if(image.getBinary() != null) {
 				score = score.add(val("hasImage"));
 			}
-			if(StringUtils.equals(image.getUrl(), imageLogic.getUnavailableImageURL())) {
+			if(!StringUtils.equals(image.getUrl(), imageLogic.getUnavailableImageURL())) {
 				score = score.add(val("hasImage"));
 			}
 		}
@@ -426,10 +426,11 @@ public class KudosJob implements StatefulJob {
 			//get score for user
 			BigDecimal score = getScore(person);
 			BigDecimal percentage = getScoreAsPercentage(score, total);
+			int adjustedScore = getScoreOutOfTen(score, total);
 
 			//save it
-			if(kudosLogic.updateKudos(userUuid, percentage)) {
-				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2, RoundingMode.HALF_UP) + ", percentage: " + percentage);
+			if(kudosLogic.updateKudos(userUuid, adjustedScore, percentage)) {
+				log.info("Kudos updated for user: " + userUuid + ", score: " + score.setScale(2, RoundingMode.HALF_UP) + ", percentage: " + percentage + ", adjustedScore: " + adjustedScore);
 			}
 			
 			

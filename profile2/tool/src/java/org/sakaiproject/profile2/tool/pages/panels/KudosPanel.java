@@ -16,8 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.math.BigDecimal;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
@@ -25,7 +23,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -38,11 +35,8 @@ public class KudosPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
-	private ProfileLogic profileLogic;
 	
-	
-	public KudosPanel(String id, final String ownerUserId, final String viewingUserId, final BigDecimal score) {
+	public KudosPanel(String id, final String ownerUserId, final String viewingUserId, final int score) {
 		super(id);
 		
 		log.debug("KudosPanel()");
@@ -59,7 +53,7 @@ public class KudosPanel extends Panel {
 		add(heading);
 		
 		//score
-		add(new Label("kudosRating", score.toPlainString()));
+		add(new Label("kudosRating", String.valueOf(score)));
 		
 		String img = getImage(score);
 		
@@ -69,6 +63,25 @@ public class KudosPanel extends Panel {
 
 	}
 	
+	private String getImage(int score) {
+		
+		if(score >= 8) {
+			return ProfileConstants.AWARD_GOLD_IMG;
+		}
+		
+		if(score == 7) {
+			return ProfileConstants.AWARD_SILVER_IMG;
+		}
+		if(score >= 5) {
+			return ProfileConstants.AWARD_BRONZE_IMG;
+		}
+		return ProfileConstants.AWARD_NORMAL_IMG;
+
+	}
+	
+	
+	
+	/*
 	private String getImage(BigDecimal score) {
 		
 		BigDecimal fifty = new BigDecimal(50);
@@ -86,7 +99,9 @@ public class KudosPanel extends Panel {
 			return ProfileConstants.AWARD_BRONZE_IMG;
 		}
 		return ProfileConstants.AWARD_NORMAL_IMG;
-		
 	}
+	*/
+	
+	
 
 }
