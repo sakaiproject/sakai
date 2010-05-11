@@ -35,13 +35,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.Delivery;
 import org.sakaiproject.courier.cover.CourierService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * <p>
@@ -53,6 +54,9 @@ public class CourierTool extends HttpServlet
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CourierTool.class);
 
+	private SessionManager sessionManager = (SessionManager)
+			ComponentManager.get(SessionManager.class);
+	
 	/**
 	 * Shutdown the servlet.
 	 */
@@ -75,28 +79,28 @@ public class CourierTool extends HttpServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		String requestSessionId = req.getParameter("sessionId");
-		Session session = SessionManager.getCurrentSession();
+		// support two "/" separated parameters [1] and [2]) - both get presence updated, the first is the address for delivery (second optional)
+		String[] parts = req.getPathInfo().split("/");
 		
-		if (requestSessionId == null || session.getId().equals(requestSessionId)) {
-			// support two "/" separated parameters [1] and [2]) - both get presence updated, the first is the address for delivery (second optional)
-			String[] parts = req.getPathInfo().split("/");
+		if ((parts.length == 2) || (parts.length == 3))
+		{
+			String placementId = parts[1];
 			
-			if ((parts.length == 2) || (parts.length == 3))
+			// if we are in a newly created session where we had an invalid (presumed timed out) session in the request,
+			// send script to cause a sakai top level redirect
+			if (ThreadLocalManager.get(SessionManager.CURRENT_INVALID_SESSION) != null)
 			{
-				String placementId = parts[1];
+				String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+				if (M_log.isDebugEnabled()) M_log.debug("sending top redirect: " + placementId + " : " + loggedOutUrl);
+				sendTopRedirect(res, loggedOutUrl);
+			}
+
+			else
+			{
+				String requestUserId = req.getParameter("userId");
+				Session session = sessionManager.getCurrentSession();
 				
-				// if we are in a newly created session where we had an invalid (presumed timed out) session in the request,
-				// send script to cause a sakai top level redirect
-				if (ThreadLocalManager.get(SessionManager.CURRENT_INVALID_SESSION) != null)
-				{
-					String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
-					if (M_log.isDebugEnabled()) M_log.debug("sending top redirect: " + placementId + " : " + loggedOutUrl);
-					sendTopRedirect(res, loggedOutUrl);
-				}
-	
-				else
-				{
+				if (requestUserId == null || requestUserId.equals(session.getUserId())) {
 					// compute our courier delivery address: this placement in this session
 					String deliveryId = session.getId() + placementId;
 	
@@ -117,18 +121,17 @@ public class CourierTool extends HttpServlet
 						if (M_log.isDebugEnabled()) M_log.debug("setting second presence: " + secondPlacementId);
 						PresenceService.setPresence(secondPlacementId);
 					}
+				} else {
+					//This courier request was not meant for this user (i.e., session), so we won't honour it
+					M_log.debug("out-of-session courier request");
 				}
 			}
-	
-			// otherwise this is a bad request!
-			else
-			{
-				M_log.warn("bad courier request: " + req.getPathInfo());
-				sendDeliveries(res, new Vector());
-			}
-		} else {
-			//this request was meant for a different session, don't honour it.
-			M_log.warn("out-of-session courier request: " + req.getPathInfo() + ". Expected session: " + session.getId());
+		}
+
+		// otherwise this is a bad request!
+		else
+		{
+			M_log.warn("bad courier request: " + req.getPathInfo());
 			sendDeliveries(res, new Vector());
 		}
 	}
