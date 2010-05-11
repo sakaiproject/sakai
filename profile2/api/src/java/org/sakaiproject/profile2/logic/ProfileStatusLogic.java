@@ -62,4 +62,13 @@ public interface ProfileStatusLogic {
 	 * @param userId		uuid of the user 
 	 */
 	public boolean clearUserStatus(String userId);
+	
+	/**
+	 * Get the number of status updates this user has made. Until PRFL-191 is implemented
+	 * which allows multiple status updates, this will only return one.
+	 * 
+	 * @param userUuid		uuid of the user 
+	 * @return
+	 */
+	public int getStatusUpdatesCount(final String userUuid);
 }

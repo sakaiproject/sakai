@@ -124,6 +124,9 @@ public interface ProfileDao {
 	
 	public boolean clearUserStatus(ProfileStatus profileStatus);
 		
+	public int getStatusUpdatesCount(final String userUuid);
+	
+	
 	
 	
 	public ProfilePrivacy addNewPrivacyRecord(ProfilePrivacy privacy);
@@ -278,6 +281,8 @@ public interface ProfileDao {
 	final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord"; 
 	final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord"; 
 	final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; 
+	final String QUERY_GET_STATUS_UPDATES_COUNT = "getStatusUpdatesCount";
+
 	
 	final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
 	final String QUERY_GET_SOCIAL_NETWORKING_INFO = "getSocialNetworkingInfo";

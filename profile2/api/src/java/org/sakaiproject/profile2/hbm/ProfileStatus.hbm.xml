@@ -34,5 +34,12 @@
   	<query name="getUserStatus">
     	<![CDATA[from ProfileStatus status WHERE status.userUuid = :userUuid AND status.dateAdded >= :oldestStatusDate ORDER BY dateAdded desc]]>
 	</query>
+	
+	<!--  get a count of all status updates (after PRFL-191, restrict this to the distinct status.id -->
+	<query name="getStatusUpdatesCount">
+    	<![CDATA[select count(*) from ProfileStatus as status where status.userUuid = :userUuid]]>
+	</query>
+	
+	
 
 </hibernate-mapping>

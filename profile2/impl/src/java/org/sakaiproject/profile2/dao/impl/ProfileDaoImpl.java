@@ -407,6 +407,23 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
+	public int getStatusUpdatesCount(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_STATUS_UPDATES_COUNT);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public ProfilePrivacy addNewPrivacyRecord(ProfilePrivacy privacy) {
 		
 		try {

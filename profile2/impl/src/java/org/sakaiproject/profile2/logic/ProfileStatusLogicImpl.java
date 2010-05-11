@@ -119,7 +119,12 @@ public class ProfileStatusLogicImpl implements ProfileStatusLogic {
 		return false;
 	}
 
-	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getStatusUpdatesCount(final String userUuid) {
+		return dao.getStatusUpdatesCount(userUuid);
+	}
 	
 	
 	

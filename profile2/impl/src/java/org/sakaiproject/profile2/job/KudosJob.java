@@ -17,6 +17,7 @@ import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
+import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -106,8 +107,10 @@ public class KudosJob implements StatefulJob {
 			put("hasMoreThanTenSentMessages", new BigDecimal(3));
 			
 			put("hasOneStatusUpdate", new BigDecimal(0.25));
-			put("hasMoreThanTenStatusUpdates", new BigDecimal(1));
-			put("hasMoreThanOneHundredStatusUpdates", new BigDecimal(2));
+			
+			// add when PRFL-191 is added
+			//put("hasMoreThanTenStatusUpdates", new BigDecimal(1));
+			//put("hasMoreThanOneHundredStatusUpdates", new BigDecimal(2));
 
 			put("twitterEnabled", new BigDecimal(2));
 
@@ -341,7 +344,9 @@ public class KudosJob implements StatefulJob {
 		if(numSentMessages > 10){
 			score = score.add(val("hasMoreThanTenSentMessages"));
 		}
+		
 		//number of status updates
+		int numStatusUpdates = statusLogic.getStatusUpdatesCount(person.getUuid());
 		
 		//is twitter enabled?
 		
@@ -509,6 +514,11 @@ public class KudosJob implements StatefulJob {
 	private ProfileMessagingLogic messagingLogic;
 	public void setMessagingLogic(ProfileMessagingLogic messagingLogic) {
 		this.messagingLogic = messagingLogic;
+	}
+	
+	private ProfileStatusLogic statusLogic;
+	public void setStatusLogic(ProfileStatusLogic statusLogic) {
+		this.statusLogic = statusLogic;
 	}
 	
 	private SessionManager sessionManager;
