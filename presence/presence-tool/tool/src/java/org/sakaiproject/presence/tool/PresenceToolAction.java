@@ -50,7 +50,6 @@ import org.sakaiproject.util.ResourceLoader;
  * PresenceToolAction is the presence display tool showing everyone everywhere.
  * </p>
  */
-@edu.umd.cs.findbugs.annotations.SuppressWarnings(value="BC_UNCONFIRMED_CAST")
 public class PresenceToolAction extends VelocityPortletPaneledAction
 {
 	private static final long serialVersionUID = 1L;
