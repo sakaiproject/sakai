@@ -877,8 +877,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 	   courierString.append(getCurrentChatChannelId());
 	   courierString.append("/");
 	   courierString.append(getToolString());
-	   courierString.append("?sessionId=");
-	   courierString.append(SessionManager.getCurrentSession().getId());
+	   courierString.append("?userId=");
+	   courierString.append(SessionManager.getCurrentSessionUserId());
 	   
 	   return courierString.toString();
    }
@@ -890,8 +890,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String getCourierPresenceString() {
 		StringBuilder courierString = new StringBuilder("/courier/");
 		courierString.append(getToolString());
-		courierString.append("-presence?sessionId=");
-		courierString.append(SessionManager.getCurrentSession().getId());
+		courierString.append("-presence?userId=");
+		courierString.append(SessionManager.getCurrentSessionUserId());
 		  
 		return courierString.toString();
    }
