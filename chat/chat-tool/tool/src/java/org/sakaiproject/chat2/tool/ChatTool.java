@@ -876,24 +876,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 	   StringBuilder courierString = new StringBuilder("/courier/");
 	   courierString.append(getCurrentChatChannelId());
 	   courierString.append("/");
-	   courierString.append(getToolString());
+	   courierString.append(CHAT_CONTEXT_PRESENCE_PREFIX);
+	   courierString.append(getContext());
 	   courierString.append("?userId=");
 	   courierString.append(SessionManager.getCurrentSessionUserId());
 	   
 	   return courierString.toString();
-   }
-   
-   /**
-    * Get a string that includes the courier-presence sessionId
-    * @return String
-    */
-   public String getCourierPresenceString() {
-		StringBuilder courierString = new StringBuilder("/courier/");
-		courierString.append(getToolString());
-		courierString.append("-presence?userId=");
-		courierString.append(SessionManager.getCurrentSessionUserId());
-		  
-		return courierString.toString();
    }
    
    /**
