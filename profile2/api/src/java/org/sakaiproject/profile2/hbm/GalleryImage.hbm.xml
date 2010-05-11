@@ -26,8 +26,14 @@
     	<![CDATA[from GalleryImage image WHERE image.userUuid = :userUuid]]>
 	</query>
 	
+	<!--  get a single gallery image record -->
 	<query name="getGalleryRecord">
     	<![CDATA[from GalleryImage image WHERE (image.userUuid = :userUuid AND image.id = :id)]]>
+	</query>
+	
+	<!-- get a count of all gallery image records for a given user -->
+	<query name="getGalleryImageRecordsCount">
+    	<![CDATA[select count(distinct image.id) from GalleryImage image where image.userUuid = :userUuid]]>
 	</query>
 	
   	<database-object> 

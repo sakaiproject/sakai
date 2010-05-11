@@ -58,7 +58,7 @@ public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 	}
 
 	public int size() {
-		return imageLogic.getGalleryImages(userUuid).size();
+		return imageLogic.getGalleryImagesCount(userUuid);
 	}
 
 	public void detach() {

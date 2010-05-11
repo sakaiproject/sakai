@@ -134,5 +134,11 @@ public interface ProfileImageLogic {
 	 */
 	public String getProfileImageEntityUrl(String userUuid, int size);
 	
+	/**
+	 * Get a count of the number of gallery images for a user
+	 * @param userUuid	uuid for the user
+	 * @return
+	 */
+	public int getGalleryImagesCount(final String userUuid);
 	
 }

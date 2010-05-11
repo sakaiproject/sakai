@@ -388,6 +388,12 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return sb.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getGalleryImagesCount(final String userUuid) {
+		return dao.getGalleryImagesCount(userUuid);
+	}
 	
 	
 	/**

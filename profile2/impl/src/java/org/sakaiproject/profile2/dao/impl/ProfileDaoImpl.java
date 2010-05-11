@@ -413,7 +413,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_STATUS_UPDATES_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
 	  			return q.uniqueResult();
 	  		}
 	  	};
@@ -574,6 +574,23 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			log.error("removeGalleryImage failed. " + e.getClass() + ": " + e.getMessage());
 			return false;
 		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getGalleryImagesCount(final String userId) {
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS_COUNT);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
 	}
 	
 	/**

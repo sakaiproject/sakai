@@ -162,6 +162,8 @@ public interface ProfileDao {
 	
 	public boolean removeGalleryImage(final GalleryImage galleryImage);
 	
+	public int getGalleryImagesCount(final String userUuid);
+
 	
 	
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId);
@@ -270,8 +272,7 @@ public interface ProfileDao {
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
 	final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";
-	final String QUERY_GET_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
-	final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
+	
 	final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
 	final String QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT = "getFriendRequestsForUserCount"; 
 	final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; 
@@ -282,6 +283,11 @@ public interface ProfileDao {
 	final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord"; 
 	final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; 
 	final String QUERY_GET_STATUS_UPDATES_COUNT = "getStatusUpdatesCount";
+
+	//GalleryImage
+	final String QUERY_GET_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
+	final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
+	final String QUERY_GET_GALLERY_IMAGE_RECORDS_COUNT = "getGalleryImageRecordsCount";
 
 	
 	final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
