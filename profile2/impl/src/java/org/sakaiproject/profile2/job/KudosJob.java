@@ -500,11 +500,22 @@ public class KudosJob implements StatefulJob {
 	
 	/**
 	 * Gets the score as a percentage, two decimal precision
-	 * @param map
+	 * @param score		score for user
+	 * @param total		total possible score
 	 * @return
 	 */
 	private BigDecimal getScoreAsPercentage(BigDecimal score, BigDecimal total) {
 		return score.divide(total, 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).stripTrailingZeros();
+	}
+	
+	/**
+	 * Gets the score out of ten as an int, and rounded up
+	 * @param score		score for user
+	 * @param total		total possible score
+	 * @return
+	 */
+	private static int getScoreOutOfTen(BigDecimal score, BigDecimal total) {
+		return score.divide(total, 1, RoundingMode.HALF_UP).multiply(new BigDecimal(10)).intValue();
 	}
 	
 	
