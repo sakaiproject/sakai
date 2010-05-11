@@ -21,6 +21,7 @@ import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -114,10 +115,10 @@ public class KudosJob implements StatefulJob {
 
 			put("twitterEnabled", new BigDecimal(2));
 
-			put("hasOnePicture", new BigDecimal(0.25));
-			put("hasMoreThanTenPictures", new BigDecimal(1));
+			put("hasOneGalleryPicture", new BigDecimal(0.25));
+			put("hasMoreThanTenGalleryPictures", new BigDecimal(1));
 
-			//points for others viewing their profile
+			//points for others viewing their profile, not yet implemented
 			//put("hasMoreThanOneVisitor", new BigDecimal(0.05));
 			//put("hasMoreThanTenUniqueVisitors", new BigDecimal(2));
 			//put("hasMoreThanOneHundredUniqueVisitors", new BigDecimal(3));
@@ -347,10 +348,36 @@ public class KudosJob implements StatefulJob {
 		
 		//number of status updates
 		int numStatusUpdates = statusLogic.getStatusUpdatesCount(person.getUuid());
+		if(numStatusUpdates >= 1) {
+			score = score.add(val("hasOneStatusUpdate"));
+		}
+		/* enable for PRFL-191 as well as entries in map above.
+		if(numStatusUpdates > 10) {
+			score = score.add(val("hasMoreThanTenStatusUpdates"));
+		}
+		if(numStatusUpdates > 100) {
+			score = score.add(val("hasMoreThanOneHundredStatusUpdates"));
+		}
+		*/
 		
-		//is twitter enabled?
+		ProfilePreferences prefs = person.getPreferences();
+		if(prefs != null){
+			//is twitter enabled?
+			if(prefs.isTwitterEnabled()) {
+				score = score.add(val("twitterEnabled"));
+			}
+		}	
 		
-		//if gallery enabled, number of gallery images
+		//if gallery enabled, number of gallery pictures
+		if(sakaiProxy.isProfileGalleryEnabledGlobally()){
+			int numGalleryPictures = imageLogic.getGalleryImagesCount(person.getUuid());
+			if(numGalleryPictures >= 1) {
+				score = score.add(val("hasOneGalleryPicture"));
+			}
+			if(numGalleryPictures > 10){
+				score = score.add(val("hasMoreThanTenGalleryPictures"));
+			}
+		}
 		
 		
 		return score;
