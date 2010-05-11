@@ -679,7 +679,8 @@ var notifyDeleteControl = function(){
 					<div class="highlightPanel">
 						<p class="shorttext">
 							<label for="upload">$tlang.getString("att.upl")</label>
-							<input type="file" name="upload" id="upload" class="upload" />
+							<input type="file" name="upload0" id="upload0" class="upload" />
+							<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 						</p>	
 			 	</div>
