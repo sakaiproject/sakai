@@ -266,6 +266,7 @@ public class PresenceTool extends HttpServlet
 		// first pass - list Chat users (if any)
 		if (chatUsers != null)
 		{
+			String msg = rb.getString("inchat");
 			for (User u : chatUsers) {
 				String displayName = u.getDisplayName();
 
@@ -275,7 +276,6 @@ public class PresenceTool extends HttpServlet
 					displayName += " (" + asName + ")";
 				}
 
-				String msg = rb.getString("inchat");
 				out.print("<li class=\"inChat\">");
 				out.print("<span title=\"" + msg + "\">");
 				out.print(Web.escapeHtml(displayName));
@@ -290,6 +290,7 @@ public class PresenceTool extends HttpServlet
 			nonChatUsers.removeAll(chatUsers);
 		}
 
+		String msg = rb.getString("insite");
 		for (User u : nonChatUsers)
 		{
 			String displayName = u.getDisplayName();
@@ -300,7 +301,6 @@ public class PresenceTool extends HttpServlet
 				displayName += " (" + asName + ")";
 			}
 
-			String msg = rb.getString("insite");
 			out.print("<li>");
 			out.print("<span title=\"" + msg + "\">");
 			out.print(Web.escapeHtml(displayName));
