@@ -29,7 +29,7 @@
   	    <h:dataTable rendered="#{!empty schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" value="#{schedulerTool.selectedJobDetailWrapper.triggerWrapperList}" var="wrapper" styleClass="chefFlatListViewTable" >  	    
   	      <h:column>
     	      <f:facet name="header">    	      
-    	        <h:commandButton alt="SelectAll" image="/sakai-scheduler-tool/images/checkbox.gif" action="#{schedulerTool.processSelectAllTriggers}"/>    	        
+    	        <h:commandButton alt="SelectAll" image="/scheduler-tool/images/checkbox.gif" action="#{schedulerTool.processSelectAllTriggers}"/>    	        
     	      </f:facet>
     	      <h:selectBooleanCheckbox value="#{wrapper.isSelected}"/>
     	    </h:column>
