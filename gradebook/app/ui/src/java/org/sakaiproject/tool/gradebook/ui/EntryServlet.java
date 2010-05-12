@@ -24,6 +24,8 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +46,24 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
  */
 public class EntryServlet extends HttpServlet {
     private static final Log logger = LogFactory.getLog(EntryServlet.class);
+    private static final String DEFAULT_MYFACES_SECRET = "aWxvdmVzYWs=";
+
+    public void init(ServletConfig config) throws ServletException {
+        ServletContext servletContext = config.getServletContext();
+        /*
+         * check the myfaces secret context param and logs a warning if the default 
+         * secret is still being used.  If default is used, advise that the institution generate their own secret.
+         */
+        String secret = servletContext.getInitParameter("org.apache.myfaces.secret");
+        if(secret == null) {
+            logger.warn("!!!!!  MyFaces state is not encrypted.  See MyFaces wiki web site for documentation on encrypting Viewstate.");
+        } else if(secret.equals(DEFAULT_MYFACES_SECRET)) {
+            logger.warn("!!!!!  MyFaces state encryption password is currently at default. It is advisable to change it by " +
+                  "setting the property org.apache.myfaces.secret in web.xml. See MyFaces wiki web site for documentation " +
+                  "on encrypting Viewstate.");
+        }
+        super.init(config);
+    }
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, java.io.IOException {

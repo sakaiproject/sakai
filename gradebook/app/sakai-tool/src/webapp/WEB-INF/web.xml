@@ -8,6 +8,15 @@
 		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
 		<param-value>client</param-value>
 	</context-param>
+    <context-param>
+      <description>used to enable encryption of the client-side ViewState.  It uses the default 
+	               encryption algorithm, DES.  See MyFaces wiki web site documentation for other encryption options.  Additionally, you
+	               can change the secret by running java -cp myfaces-all.jar:commons-logging.jar:commons-codec.jar org.apache.myfaces.util.StateUtils abcd1234
+	               and replace the param-value with the output.</description>
+      <param-name>org.apache.myfaces.secret</param-name>
+      <param-value>aWxvdmVzYWs=</param-value>
+    </context-param>
+	
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
