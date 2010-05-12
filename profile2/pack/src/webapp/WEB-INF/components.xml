@@ -248,7 +248,7 @@
     	<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
      	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+        <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
      	
     </bean>
 

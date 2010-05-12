@@ -1,9 +1,5 @@
 package org.sakaiproject.profile2.entity;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +7,7 @@ import java.util.Map;
 import java.io.Reader;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -48,9 +44,9 @@ public class ProfileContentProducer implements EntityContentProducer {
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	private SqlService sqlService = null;
-	public void setSqlService(SqlService sqlService) {
-		this.sqlService = sqlService;
+	private SakaiPersonManager sakaiPersonManager = null;
+	public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager) {
+		this.sakaiPersonManager = sakaiPersonManager;
 	}
 
 	private Logger logger = Logger.getLogger(ProfileContentProducer.class);
@@ -97,45 +93,16 @@ public class ProfileContentProducer implements EntityContentProducer {
 		String id = parts[2];
 
 		if ("profile".equals(type)) {
-			Connection conn = null;
-			Statement st = null;
 			try {
-				conn = sqlService.borrowConnection();
-				st = conn.createStatement();
-				ResultSet rs = st.executeQuery("SELECT NOTES FROM SAKAI_PERSON_T WHERE AGENT_UUID = '" + id + "'");
+				SakaiPerson sp = sakaiPersonManager.getSakaiPerson(id, sakaiPersonManager.getUserMutableType());
 				String notes = "";
-				if(rs.next())
-					notes = /* a.k.a. personalSummary :) */ rs.getString("NOTES");
-				
-				rs.close();
-				
+				if(sp != null)
+					notes = sp.getNotes();
 				return notes;
-				/*
-				SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(id);
-				if(sakaiPerson != null) {
-					String content = sakaiPerson.getNotes();
-					return content;
-				}
-				else {
-					return null;
-				}
-				*/
 			} catch (Exception e) {
 				logger.error(
 						"Caught exception whilst getting content for profile '"
 								+ id + "'", e);
-			}
-			finally {
-				if(st != null) {
-					try {
-						st.close();
-					}
-					catch(SQLException sqle) {}
-				}
-				
-				if(conn != null) {
-					sqlService.returnConnection(conn);
-				}
 			}
 		}
 
