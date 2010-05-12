@@ -159,6 +159,7 @@
     	<legacy.profile.api.version>2.8-SNAPSHOT</legacy.profile.api.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <search-api.version>1.3.0-SNAPSHOT</search-api.version>
 	</properties>
     
     <!-- Profile2 related dependencies -->
@@ -283,6 +284,12 @@
     			<version>${sakai.ets.version}</version>
     			<scope>provided</scope>
     		</dependency>
+
+            <dependency>
+                <groupId>org.sakaiproject.search</groupId>
+                <artifactId>search-api</artifactId>
+                <version>${search-api.version}</version>
+            </dependency>
 		    
 		    <!-- legacy dependency-->
 		    <dependency>
