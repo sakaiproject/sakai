@@ -315,6 +315,7 @@ function resizeFrame(){
 						<label for="hidden_false">
 							$tlang.getString("avail.show")
 						</label>
+						<span> - $tlang.getString("avail.show.tips") </span>
 					</td>
 				</tr>
 				<tr>
@@ -325,6 +326,7 @@ function resizeFrame(){
 						<label for="hidden_true">
 							$tlang.getString("avail.hide")
 						</label>
+                        <span> - $tlang.getString("avail.hide.tips") </span>
 					</td>
 				</tr>
 				<tr>
@@ -335,6 +337,7 @@ function resizeFrame(){
 						<label for="hidden_specify">
 							$tlang.getString("avail.specify")
 						</label>
+                        <span> - $tlang.getString("avail.specify.tips") </span>
 					</td>
 				</tr>
 				<tr class="showHideDates">
