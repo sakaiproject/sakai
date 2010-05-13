@@ -160,6 +160,7 @@
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <search-api.version>1.3.0-SNAPSHOT</search-api.version>
+		<entitybroker.version>1.4.0-SNAPSHOT</entitybroker.version>
 	</properties>
     
     <!-- Profile2 related dependencies -->
