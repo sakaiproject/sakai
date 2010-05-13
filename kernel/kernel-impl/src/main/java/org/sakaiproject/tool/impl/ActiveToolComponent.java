@@ -162,6 +162,11 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	 */
 	public void register(Document toolXml, ServletContext context)
 	{
+		if (toolXml == null) {
+			M_log.info("register: invalid or empty tool registration document");
+			return;
+		}
+		
 		Element root = toolXml.getDocumentElement();
 		if (!root.getTagName().equals("registration"))
 		{
