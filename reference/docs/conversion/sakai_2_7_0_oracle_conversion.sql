@@ -724,10 +724,17 @@ alter table EMAIL_TEMPLATE_ITEM add VERSION number(10,0) DEFAULT NULL;
 
 
 -- Samigo
+-- SAM-818
 alter table SAM_ITEM_T add PARTIAL_CREDIT_FLAG number(1,0) NULL; 
 alter table SAM_PUBLISHEDITEM_T add PARTIAL_CREDIT_FLAG number(1,0) NULL; 
 alter table SAM_ANSWER_T add PARTIAL_CREDIT float NULL; 
 alter table SAM_PUBLISHEDANSWER_T add PARTIAL_CREDIT float NULL; 
+
+-- SAM-676
+create table SAM_GRADINGATTACHMENT_T (ATTACHMENTID number(19,0) not null, ATTACHMENTTYPE varchar2(255 char) not null, RESOURCEID varchar2(255 char), FILENAME varchar2(255 char), MIMETYPE varchar2(80 char), FILESIZE number(19,0), DESCRIPTION varchar2(4000 char), LOCATION varchar2(4000 char), ISLINK number(1,0), STATUS number(10,0) not null, CREATEDBY varchar2(255 char) not null, CREATEDDATE timestamp not null, LASTMODIFIEDBY varchar2(255 char) not null, LASTMODIFIEDDATE timestamp not null, ITEMGRADINGID number(19,0), primary key (ATTACHMENTID));
+create index SAM_GA_ITEMGRADINGID_I on SAM_GRADINGATTACHMENT_T (ITEMGRADINGID);
+alter table SAM_GRADINGATTACHMENT_T add constraint FK28156C6C4D7EA7B3 foreign key (ITEMGRADINGID) references SAM_ITEMGRADING_T;
+create sequence SAM_GRADINGATTACHMENT_ID_S;
 
 -- SAK-18370
 
