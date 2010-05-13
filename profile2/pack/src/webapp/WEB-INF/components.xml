@@ -131,38 +131,6 @@
     	class="org.sakaiproject.profile2.cache.CacheManagerImpl">
     	<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
     </bean>
-    
-	
-    <!-- EntityProvider beans -->
-    <bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider">
-		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
-	</bean>
-	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider">
-		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-	</bean>
-	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider">
-		<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-	</bean>
-		
-	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider">
-		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-	</bean>
-		
-	<bean id="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEventsEntityProvider" />
-
-	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProvider">
-		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
-		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
-	</bean>
-	
-	
 
 	<!-- Add our HBM files to the Sakai global session factory -->
 	<bean id="org.sakaiproject.profile2.hbm.HBMMappingList"

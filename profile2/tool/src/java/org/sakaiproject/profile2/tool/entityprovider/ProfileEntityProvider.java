@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.entity;
+package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,6 +36,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
@@ -53,7 +54,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful, RequestAware {
+public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
 	

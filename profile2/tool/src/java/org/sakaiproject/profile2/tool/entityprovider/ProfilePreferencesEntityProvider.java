@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.entity;
+package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.util.List;
 import java.util.Map;
@@ -28,20 +28,21 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 
 /**
- * This is the entity provider for a user's profile privacy.
+ * This is the entity provider for a user's profile preferences.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
-
-	public final static String ENTITY_PREFIX = "profile-privacy";
+public class ProfilePreferencesEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+	
+	public final static String ENTITY_PREFIX = "profile-preferences";
 	
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -52,66 +53,63 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 	}
 
 	public Object getSampleEntity() {
-		return new ProfilePrivacy();
+		return new ProfilePreferences();
 	}
 	
-	
 	public Object getEntity(EntityReference ref) {
-		
+	
 		//convert input to uuid
 		String uuid = sakaiProxy.ensureUuid(ref.getId());
 		if(StringUtils.isBlank(uuid)) {
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
-		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(uuid);
-		if(privacy == null) {
-			throw new EntityNotFoundException("ProfilePrivacy could not be retrieved for " + ref.getId(), ref.getReference());
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(uuid);
+		if(prefs == null) {
+			throw new EntityNotFoundException("ProfilePreferences could not be retrieved for " + ref.getId(), ref.getReference());
 		}
-		return privacy;
+		return prefs;
 	}
 	
 	
 	
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		
+	
 		String userId = ref.getId();
 		if (StringUtils.isBlank(userId)) {
 			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
 		}
 		
-		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
-			ProfilePrivacy privacy = (ProfilePrivacy) entity;
-			privacyLogic.savePrivacyRecord(privacy);
+		if (entity.getClass().isAssignableFrom(ProfilePreferences.class)) {
+			ProfilePreferences prefs = (ProfilePreferences) entity;
+			preferencesLogic.savePreferencesRecord(prefs);
 		} else {
-			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePrivacy object");
+			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePreferences object");
 		}
-	
+		
 	}
 	
 	
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 				
-		//reference will be the userUuid, which comes from the ProfilePrivacy obj passed in
+		//reference will be the userUuid, which comes from the ProfilePreferences obj passed in
 		String userUuid = null;
 
-		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
-			ProfilePrivacy privacy = (ProfilePrivacy) entity;
+		if (entity.getClass().isAssignableFrom(ProfilePreferences.class)) {
+			ProfilePreferences prefs = (ProfilePreferences) entity;
 			
-			if(privacyLogic.savePrivacyRecord(privacy)) {
-				userUuid = privacy.getUserUuid();
+			if(preferencesLogic.savePreferencesRecord(prefs)) {
+				userUuid = prefs.getUserUuid();
 			}
 			if(userUuid == null) {
 				throw new EntityException("Could not create entity", ref.getReference());
 			}
 		} else {
-			 throw new IllegalArgumentException("Invalid entity for create, must be ProfilePrivacy object");
+			 throw new IllegalArgumentException("Invalid entity for create, must be ProfilePreferences object");
 		}
 		return userUuid;
 	}
-
-	
 
 	
 	
@@ -136,10 +134,11 @@ public class ProfilePrivacyEntityProvider implements CoreEntityProvider, AutoReg
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
-	
-	private ProfilePrivacyLogic privacyLogic;
-	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
-		this.privacyLogic = privacyLogic;
+		
+	private ProfilePreferencesLogic preferencesLogic;
+	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
+		this.preferencesLogic = preferencesLogic;
 	}
-	
+
+
 }

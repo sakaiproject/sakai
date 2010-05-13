@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.entity;
+package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.util.Locale;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Map;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -15,7 +16,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class ProfileEventsEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
+public class ProfileEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
 
     public final static String PREFIX = "profile-events";
     public final static String TOOL_ID = "sakai.profile2";

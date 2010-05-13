@@ -11,5 +11,44 @@
 		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
 		-->
 	</bean>
+	
+	<!-- ENTITY PROVIDERS START -->
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileEntityProvider">
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+	</bean>
+	
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileEventsEntityProvider" />
+		
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileLinkEntityProvider">
+		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+	</bean>
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfilePrivacyEntityProvider">
+		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
+	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfilePreferencesEntityProvider">
+		<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
+		
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileStatusEntityProvider">
+		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
+	
+	<!-- ENTITY PROVIDERS END -->
        
 </beans>
