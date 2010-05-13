@@ -109,15 +109,21 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 		// the placement config overrides registered config
 		Properties p = new Properties();
 
-		// put the registered ones in, and do it first so that the placement can override
+		// put the mutable registered ones in, and do it first so that the placement can override
 		if (m_tool != null)
 		{
-			p.putAll(m_tool.getRegisteredConfig());
+			p.putAll(m_tool.getMutableConfig());
 		}
 
-		// put the placement in
+		// put the placement properties in
 		p.putAll(getPlacementConfig());
 
+		// put the final registered ones in last so they cannot be overriden by the placement
+		if (m_tool != null)
+		{
+			p.putAll(m_tool.getFinalConfig());
+		}
+		
 		return p;
 	}
 
