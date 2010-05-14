@@ -165,6 +165,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import java.util.TimeZone;
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
@@ -4064,7 +4065,20 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// for rules...
 			else
 			{
-				List instances = m_singleRule.generateInstances(this.getRange(), range, TimeService.getLocalTimeZone());
+				
+				// for a re-occurring event, the time zone where the first event is created
+				// is passed as a parameter (timezone) to correctly generate the instances 
+				String timeZoneID = this.getField("createdInTimeZone");
+				TimeZone timezone = null;
+				if (timeZoneID.equals(""))
+				{
+					timezone = TimeService.getLocalTimeZone();
+				}
+				else
+				{
+					timezone = TimeZone.getTimeZone(timeZoneID);
+				}
+				List instances = m_singleRule.generateInstances(this.getRange(), range, timezone);
 
 				// remove any excluded
 				getExclusionRule().excludeInstances(instances);

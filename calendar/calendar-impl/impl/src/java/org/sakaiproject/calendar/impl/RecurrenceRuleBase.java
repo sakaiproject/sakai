@@ -110,13 +110,12 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 	*/
 	public List generateInstances(TimeRange prototype, TimeRange range, TimeZone timeZone)
 	{
+		// these calendars are used if local time zone and the time zone where the first event was created (timeZone) are different
+		GregorianCalendar firstEventCalendarDate = null;
+		GregorianCalendar nextFirstEventCalendarDate = null;
 		// %%% Note: base the breakdonw on the "timeZone" parameter to support multiple timeZone displays -ggolden
 		TimeBreakdown startBreakdown = prototype.firstTime().breakdownLocal();
-		List rv = new Vector();
 		
-		// %%% Note: use "timeZone" parameter, when the breakdown above is also based on that zone -ggolden
-//		GregorianCalendar startCalendarDate = new GregorianCalendar(Time.getLocalTimeZone());
-
 		GregorianCalendar startCalendarDate = TimeService.getCalendar(TimeService.getLocalTimeZone(),0,0,0,0,0,0,0);
 		
 		startCalendarDate.set(
@@ -126,7 +125,29 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 			startBreakdown.getHour(),
 			startBreakdown.getMin(),
 			startBreakdown.getSec());
-			
+		
+		// if local time zone and first event time zone are different
+		// a new calendar is generated to calculate the re-occurring events
+		// if not, the local time zone calendar is used
+		boolean differentTimeZone = false;
+		if (TimeService.getLocalTimeZone().getID().equals(timeZone.getID()))
+		{
+			differentTimeZone = false;
+		}
+		else
+		{
+			differentTimeZone = true;
+		}
+		
+		if (differentTimeZone)
+		{
+			firstEventCalendarDate = TimeService.getCalendar(timeZone,0,0,0,0,0,0,0);
+			firstEventCalendarDate.setTimeInMillis(startCalendarDate.getTimeInMillis());
+			nextFirstEventCalendarDate = (GregorianCalendar) firstEventCalendarDate.clone();
+		}
+		
+		List rv = new Vector();
+		
 		GregorianCalendar nextCalendarDate =
 			(GregorianCalendar) startCalendarDate.clone();
 			
@@ -134,6 +155,12 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 		
 		do
 		{
+			if (differentTimeZone)
+			{
+				// next time is calculated according to the first event time zone, not the local one
+				nextCalendarDate.setTimeInMillis(nextFirstEventCalendarDate.getTimeInMillis());
+			}
+			
 			Time nextTime = TimeService.newTime(nextCalendarDate);
 			
 			// is this past count?
@@ -172,8 +199,18 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 					break;
 	
 			// advance interval years.
-			nextCalendarDate = (GregorianCalendar) startCalendarDate.clone();
-			nextCalendarDate.add(getRecurrenceType(), getInterval()*currentCount);
+			
+			if (differentTimeZone)
+			{
+				nextFirstEventCalendarDate = (GregorianCalendar) firstEventCalendarDate.clone();
+				nextFirstEventCalendarDate.add(getRecurrenceType(), getInterval()*currentCount);
+			}
+			else
+			{
+				nextCalendarDate = (GregorianCalendar) startCalendarDate.clone();
+				nextCalendarDate.add(getRecurrenceType(), getInterval()*currentCount);
+			}
+			
 			currentCount++;
 		}
 		while (true);
