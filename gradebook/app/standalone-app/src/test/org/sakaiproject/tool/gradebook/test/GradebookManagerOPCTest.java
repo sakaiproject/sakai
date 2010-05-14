@@ -2722,20 +2722,51 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	public void testCreateUngradedAssignment() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		Long assignment = gradebookManager.createUngradedAssignment(persistentGradebook.getId(), "ungraded-item", new Date(), false, false);
+		String A1_NAME = "ungraded-item";
+		Long assignmentId = gradebookManager.createUngradedAssignment(persistentGradebook.getId(), A1_NAME, new Date(), false, false);
 		
-		Assert.assertTrue(gradebookManager.getAssignment(assignment).getPointsPossible() == null);
-		Assert.assertTrue(gradebookManager.getAssignment(assignment).getUngraded());
+		Assignment assignment = gradebookManager.getAssignment(assignmentId);
+		Assert.assertEquals(null, assignment.getPointsPossible());
+		Assert.assertTrue(assignment.getUngraded());
+		Assert.assertEquals(A1_NAME, assignment.getName());
+		
+		// now try to create an assignment with the same name
+		try {
+		    gradebookManager.createUngradedAssignment(persistentGradebook.getId(), A1_NAME, new Date(), false, false);
+		    fail("Did not catch assignment created with same name as existing assignment");
+		} catch (ConflictingAssignmentNameException cane) {}
+		
+		// try to save one with trailing whitespace
+		try {
+            gradebookManager.createUngradedAssignment(persistentGradebook.getId(), " " + A1_NAME + " ", new Date(), false, false);
+            fail("Did not catch assignment created with same name as existing assignment with trailing spaces");
+        } catch (ConflictingAssignmentNameException cane) {}
 	}
 	
 	public void testCreateUngradedAssignmentForCategory() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		Long assignment = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "ungraded-item", new Date(), false, false);
+		String A1_NAME = "ungraded item";
+		Long assignmentId = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, A1_NAME, new Date(), false, false);
 		
-		Assert.assertTrue(gradebookManager.getAssignment(assignment).getPointsPossible() == null);
-		Assert.assertTrue(gradebookManager.getAssignment(assignment).getUngraded());
-		Assert.assertTrue(gradebookManager.getAssignment(assignment).getCategory().getId().equals(cate1Long));
+		Assignment assignment = gradebookManager.getAssignment(assignmentId);
+        Assert.assertEquals(null, assignment.getPointsPossible());
+        Assert.assertTrue(assignment.getUngraded());
+        Assert.assertEquals(A1_NAME, assignment.getName());
+        Assert.assertEquals(cate1Long, assignment.getCategory().getId());
+		
+	
+		// now try to create an assignment with the same name
+        try {
+            gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, A1_NAME, new Date(), false, false);
+            fail("Did not catch assignment created with same name as existing assignment");
+        } catch (ConflictingAssignmentNameException cane) {}
+        
+        // try to save one with trailing whitespace
+        try {
+            gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, " " + A1_NAME + " ", new Date(), false, false);
+            fail("Did not catch assignment created with same name as existing assignment with trailing spaces");
+        } catch (ConflictingAssignmentNameException cane) {}
 	}
 	
 	public void testSortLetterGrade() throws Exception

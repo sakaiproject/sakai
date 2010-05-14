@@ -382,6 +382,14 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
  			fail();
  		} catch (ConflictingAssignmentNameException e) {}
 		
+        // Can we add one with trailing spaces?
+        try {
+            assignmentDefinition.setName(assignmentName + " ");
+            gradebookService.addAssignment(GRADEBOOK_UID, assignmentDefinition);
+            fail("Did not catch attempt to save assignment with the same name but trailing whitespace");
+        } catch (ConflictingAssignmentNameException e) {
+        }
+ 		
  		// Make sure we don't accept zero-score assignments (at present).
  		assignmentDefinition.setName("Illegal Assignment");
  		assignmentDefinition.setPoints(new Double(0));
