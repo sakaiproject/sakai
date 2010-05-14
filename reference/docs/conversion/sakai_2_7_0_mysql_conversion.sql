@@ -618,8 +618,26 @@ alter table SAM_ANSWER_T add PARTIAL_CREDIT float NULL;
 alter table SAM_PUBLISHEDANSWER_T add PARTIAL_CREDIT float NULL; 
 
 -- SAM-676
-create table SAM_GRADINGATTACHMENT_T (ATTACHMENTID bigint not null auto_increment, ATTACHMENTTYPE varchar(255) not null, RESOURCEID varchar(255), FILENAME varchar(255), MIMETYPE varchar(80), FILESIZE bigint, DESCRIPTION text, LOCATION text, ISLINK bit, STATUS integer not null, CREATEDBY varchar(255) not null, CREATEDDATE datetime not null, LASTMODIFIEDBY varchar(255) not null, LASTMODIFIEDDATE datetime not null, ITEMGRADINGID bigint, primary key (ATTACHMENTID));
-alter table SAM_GRADINGATTACHMENT_T add index FK28156C6C4D7EA7B3 (ITEMGRADINGID), add constraint FK28156C6C4D7EA7B3 foreign key (ITEMGRADINGID) references SAM_ITEMGRADING_T;
+create table SAM_GRADINGATTACHMENT_T (
+	ATTACHMENTID bigint not null auto_increment, 
+	ATTACHMENTTYPE varchar(255) not null, 
+	RESOURCEID varchar(255), 
+	FILENAME varchar(255), 
+	MIMETYPE varchar(80), 
+	FILESIZE bigint, 
+	DESCRIPTION text, 
+	LOCATION text, 
+	ISLINK bit, 
+	STATUS integer not null, 
+	CREATEDBY varchar(255) not null, 
+	CREATEDDATE datetime not null, 
+	LASTMODIFIEDBY varchar(255) not null, 
+	LASTMODIFIEDDATE datetime not null, 
+	ITEMGRADINGID bigint, 
+	primary key (ATTACHMENTID)
+	);
+	
+alter table SAM_GRADINGATTACHMENT_T add index FK28156C6C4D7EA7B3 (ITEMGRADINGID), add constraint FK28156C6C4D7EA7B3 foreign key (ITEMGRADINGID) references SAM_ITEMGRADING_T(ITEMGRADINGID);
 
 -- SAK-18370
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Coordinator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
