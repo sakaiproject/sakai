@@ -11,7 +11,7 @@
 				<param name="sequence">SST_PREFERENCES_ID</param>
 			</generator>
 		</id>
-		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SST_PREFERENCES_SITE_ID_IX" unique="true" />
+		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SST_PREFERENCES_SITE_ID_IX" />
 		<property name="prefs" column="PREFS" type="text" not-null="true"/>
 	</class>
 </hibernate-mapping>

@@ -1,6 +1,6 @@
 create table SST_EVENTS (ID bigint not null auto_increment, USER_ID varchar(99) not null, SITE_ID varchar(99) not null, EVENT_ID varchar(32) not null, EVENT_DATE date not null, EVENT_COUNT bigint not null, primary key (ID));
 create table SST_JOB_RUN (ID bigint not null auto_increment, JOB_START_DATE datetime, JOB_END_DATE datetime, START_EVENT_ID bigint, END_EVENT_ID bigint, LAST_EVENT_DATE datetime, primary key (ID));
-create table SST_PREFERENCES (ID bigint not null auto_increment, SITE_ID varchar(99) not null unique, PREFS text not null, primary key (ID));
+create table SST_PREFERENCES (ID bigint not null auto_increment, SITE_ID varchar(99) not null, PREFS text not null, primary key (ID));
 create table SST_REPORTS (ID bigint not null auto_increment, SITE_ID varchar(99), TITLE varchar(255) not null, DESCRIPTION longtext, HIDDEN bit, REPORT_DEF text not null, CREATED_BY varchar(99) not null, CREATED_ON datetime not null, MODIFIED_BY varchar(99), MODIFIED_ON datetime, primary key (ID));
 create table SST_RESOURCES (ID bigint not null auto_increment, USER_ID varchar(99) not null, SITE_ID varchar(99) not null, RESOURCE_REF varchar(255) not null, RESOURCE_ACTION varchar(12) not null, RESOURCE_DATE date not null, RESOURCE_COUNT bigint not null, primary key (ID));
 create table SST_SITEACTIVITY (ID bigint not null auto_increment, SITE_ID varchar(99) not null, ACTIVITY_DATE date not null, EVENT_ID varchar(32) not null, ACTIVITY_COUNT bigint not null, primary key (ID));
