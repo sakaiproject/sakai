@@ -5976,6 +5976,11 @@ extends VelocityPortletStateAction
 																				  org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 				edit.setDescriptionFormatted(description);
 				edit.setCreator();
+				String timeZone = TimeService.getLocalTimeZone().getID();
+				// we obtain the time zone where the event is created
+				// and save it as an event's property
+				// it is necessary to generate re-occurring events correctly
+				edit.setField("createdInTimeZone",timeZone);
 				setFields(edit, addfieldsMap);
 				
 				RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
