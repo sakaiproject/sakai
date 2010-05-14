@@ -172,20 +172,22 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	public boolean saveUserProfile(UserProfile p) {
 		
-		/*
-		
 		SakaiPerson sp = transformUserProfileToSakaiPerson(p);
 		
 		//update SakaiPerson obj
 		
 		if(sakaiProxy.updateSakaiPerson(sp)) {
 			
+			if(p.getImageUrl() != null) {
+				imageLogic.saveOfficialImageUrl(p.getUserUuid(), p.getImageUrl());
+			}
+			
 			//TODO the fields that can update the Account need to be done as well, if allowed.
 			//TODO if profile is locked,should not update, but will need to get the existing record if exists, then check that.
 			
 			return true;
 		} 
-		*/
+		
 		return false;
 	}
 	
