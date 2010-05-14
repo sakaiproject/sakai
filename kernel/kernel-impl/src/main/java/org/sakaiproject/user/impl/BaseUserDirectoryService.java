@@ -1151,6 +1151,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		// Update the caches to match any changed data.
 		putCachedUser(ref, user);
+		
+		// update in the threadLocal cache if this is the current user
+		if (user.getId().equals(sessionManager().getCurrentSessionUserId())) {
+			threadLocalManager().set(M_curUserKey, user);
+		}
+
 	}
 
 	/**
