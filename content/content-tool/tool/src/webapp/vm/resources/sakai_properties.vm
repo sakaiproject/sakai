@@ -411,7 +411,7 @@
 							Gradebook 
 							<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
 							#foreach ($key in $resourceSelections.keySet())
-								#if($key.startsWith($item.getSubmittedResourceFilter()) && $item.useConditionalRelease())
+								#if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease())
 									<option value="${key}" selected="selected">${resourceSelections.get(${key})}</option>
 								#else
 									<option value="${key}">${resourceSelections.get(${key})}</option>
