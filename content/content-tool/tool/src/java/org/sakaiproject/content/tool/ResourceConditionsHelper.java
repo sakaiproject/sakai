@@ -1,5 +1,6 @@
 package org.sakaiproject.content.tool;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 
 
-public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
+public class ResourceConditionsHelper {
 	
 	/**
 	 * 
@@ -61,15 +62,31 @@ public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
 		logger.debug("operatorValue: " + operatorValue);			
 		String submittedResourceFilter = params.get("selectResource" + ListItem.DOT + index);
 		// the number of grade points are tagging along for the ride. chop this off.
-		String assignmentPoints = submittedResourceFilter.substring(submittedResourceFilter.lastIndexOf("/") + 1);
-		submittedResourceFilter = submittedResourceFilter.substring(0, submittedResourceFilter.lastIndexOf("/"));
+		String[] resourceTokens = submittedResourceFilter.split("/");
+		String assignmentPointsString = resourceTokens[4];
+		submittedResourceFilter = "/" + resourceTokens[1] + "/" + resourceTokens[2] + "/" + resourceTokens[3];
+		String additionalAssignmentInfo = "/" + resourceTokens[4] + "/" + resourceTokens[5] + "/" + resourceTokens[6] + "/" + resourceTokens[7];
 		logger.debug("submittedResourceFilter: " + submittedResourceFilter);
 		String eventDataClass = conditionService.getClassNameForEvent(submittedFunctionName);
 		Object argument = null;
+		if ((selectedIndex == 1) || (selectedIndex == 2)) {
+			argument = "dateMillis:"+resourceTokens[5];
+		}
 		if ((selectedIndex == 9) || (selectedIndex == 10)) {
 			try {
 				argument = Double.valueOf(params.get("assignment_grade" + ListItem.DOT + index));
 			} catch (NumberFormatException e) {
+				VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.invalid.condition.argument"));
+				return;
+			}
+			double assignmentPoints = 0;
+			try {
+				assignmentPoints = new Double(assignmentPointsString);
+			} catch (NumberFormatException e) {
+				return;
+			}
+			if (((Double)argument < 0) || ((Double)argument > assignmentPoints)) {
+				VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.condition.argument.outofrange") + " " + assignmentPointsString);
 				return;
 			}
 			logger.debug("argument: " + argument);
@@ -96,15 +113,17 @@ public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
 			NotificationEdit notification = NotificationService.addNotification();
 			notification.addFunction(submittedFunctionName);
 			notification.addFunction("cond+" + submittedFunctionName);
+			notification.setResourceFilter(submittedResourceFilter);
 			if (missingTermQuery.contains("Date")) {
 				notification.addFunction("datetime.update");
+				notification.setResourceFilter(null);
 			}
 			notification.setAction(resourceConditionRule);
-			notification.setResourceFilter(submittedResourceFilter);
 			notification.getProperties().addProperty(ConditionService.PROP_SUBMITTED_FUNCTION_NAME, submittedFunctionName);
 			notification.getProperties().addProperty(ConditionService.PROP_SUBMITTED_RESOURCE_FILTER, submittedResourceFilter);
 			notification.getProperties().addProperty(ConditionService.PROP_SELECTED_CONDITION_KEY, selectedConditionValue);
 			notification.getProperties().addProperty(ConditionService.PROP_CONDITIONAL_RELEASE_ARGUMENT, params.get("assignment_grade" + ListItem.DOT + index));
+			notification.getProperties().addProperty("SAKAI:conditionEventState", additionalAssignmentInfo);
 			NotificationService.commitEdit(notification);
 			
 			item.setUseConditionalRelease(true);
@@ -141,7 +160,7 @@ public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
 					item.setConditionArgument(notification.getProperties().getProperty(ConditionService.PROP_CONDITIONAL_RELEASE_ARGUMENT));					
 				}
 			} catch (NotificationNotDefinedException e) {
-				addAlert(state, rb.getString("notification.load.error"));								
+				VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.notification.load.error"));								
 			}					
 		}
 		
@@ -179,9 +198,9 @@ public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
 			NotificationEdit notificationToRemove = NotificationService.editNotification(item.getNotificationId());
 			NotificationService.removeNotification(notificationToRemove);
 		} catch (NotificationLockedException e) {
-			addAlert(state, rb.getString("disable.condition.error"));				
+			VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.disable.error"));				
 		} catch (NotificationNotDefinedException e) {
-			addAlert(state, rb.getString("disable.condition.error"));								
+			VelocityPortletPaneledAction.addAlert(state, rb.getString("conditions.disable.error"));								
 		}		
 	}
 	
@@ -213,7 +232,11 @@ public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
 		}
 			
 		if (resourceNotification != null) {
-			EventTrackingService.post(EventTrackingService.newEvent("cond+" + resourceNotification.getFunction(), resourceNotification.getResourceFilter(), true));
+			String eventDataString = resourceNotification.getProperties().getProperty("SAKAI:conditionEventState");
+			// event resource of the form: /gradebook/[gradebook id]/[assignment name]/[points possible]/[due date millis]/[is released]/[is included in course grade]/[has authz]
+			String resource = resourceNotification.getResourceFilter();
+			if (resource == null) resource = "/gradebook/null/null";
+			EventTrackingService.post(EventTrackingService.newEvent("cond+" + resourceNotification.getFunction(), resource + eventDataString, true));
 		}
 		
 	}
