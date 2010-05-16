@@ -2,6 +2,7 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.profile2.model.BasicOnlinePerson;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
 
@@ -20,6 +21,14 @@ public interface ProfileConnectionsLogic {
 	 * @return
 	 */
 	public List<BasicPerson> getBasicConnectionsForUser(final String userUuid);
+	
+	/**
+	 * Gets a list of BasicOnlinePersons that are connected to this user
+	 * 
+	 * @param userUuid		uuid of the user to retrieve the list of connections for
+	 * @return
+	 */
+	public List<BasicOnlinePerson> getBasicOnlineConnectionsForUser(final String userUuid);
 	
 	/**
 	 * Gets a list of Persons that are connected to this user. incl prefs and privacy

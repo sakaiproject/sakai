@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
+import org.sakaiproject.profile2.model.BasicOnlinePerson;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -29,47 +30,27 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */
 	public List<BasicPerson> getBasicConnectionsForUser(final String userUuid) {
-		
-		//check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to get a connection list.");
-		}
-		
-		List<User> users = new ArrayList<User>();
-		
-		//check privacy
-		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
-		if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return new ArrayList<BasicPerson>();
-		}
-		
-		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
-		
+		List<User> users = getConnectedUsers(userUuid);
 		return profileLogic.getBasicPersons(users);
+	}
+	
+	/**
+	 * Gets a list of BasicOnlinePersons that are connected to this user
+	 * 
+	 * @param userUuid		uuid of the user to retrieve the list of connections for
+	 * @return
+	 */
+	public List<BasicOnlinePerson> getBasicOnlineConnectionsForUser(final String userUuid) {
+		
+		//stub, to do.
+		return null;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<Person> getConnectionsForUser(final String userUuid) {
-		
-		//check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to get a connection list.");
-		}
-		
-		List<User> users = new ArrayList<User>();
-		
-		//check privacy
-		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
-		if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return new ArrayList<Person>();
-		}
-		
-		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
-		
+		List<User> users = getConnectedUsers(userUuid);
 		return profileLogic.getPersons(users);
 	}
 	
@@ -298,8 +279,29 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		return false;
 	}
 	
-	
-	
+	/**
+	 * Check auth, privacy and get the list of users that are connected to this user.
+	 * @param userUuid
+	 * @return List<User>, will be empty if none or not allowed.
+	 */
+	private List<User> getConnectedUsers(final String userUuid) {
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to get a connection list.");
+		}
+		
+		List<User> users = new ArrayList<User>();
+		
+		//check privacy
+		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
+		if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+			return users;
+		}
+		
+		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
+		return users;
+	}
 	
 
 	
