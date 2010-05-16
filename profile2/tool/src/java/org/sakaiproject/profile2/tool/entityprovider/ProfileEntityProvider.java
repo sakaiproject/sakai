@@ -42,7 +42,7 @@ import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.BasicPerson;
+import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
@@ -151,7 +151,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 		
 		//get list of connections
-		List<BasicPerson> connections = connectionsLogic.getBasicConnectionsForUser(uuid);
+		List<BasicConnection> connections = connectionsLogic.getBasicConnectionsForUser(uuid);
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}

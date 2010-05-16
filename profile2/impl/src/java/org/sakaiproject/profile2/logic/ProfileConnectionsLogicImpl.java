@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
-import org.sakaiproject.profile2.model.BasicOnlinePerson;
+import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -29,21 +29,9 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<BasicPerson> getBasicConnectionsForUser(final String userUuid) {
+	public List<BasicConnection> getBasicConnectionsForUser(final String userUuid) {
 		List<User> users = getConnectedUsers(userUuid);
-		return profileLogic.getBasicPersons(users);
-	}
-	
-	/**
-	 * Gets a list of BasicOnlinePersons that are connected to this user
-	 * 
-	 * @param userUuid		uuid of the user to retrieve the list of connections for
-	 * @return
-	 */
-	public List<BasicOnlinePerson> getBasicOnlineConnectionsForUser(final String userUuid) {
-		
-		//stub, to do.
-		return null;
+		return getBasicConnections(users);
 	}
 	
 	/**
@@ -278,6 +266,44 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		}
 		return false;
 	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public BasicConnection getBasicConnection(String userUuid) {
+		return getBasicConnection(sakaiProxy.getUserById(userUuid));
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public BasicConnection getBasicConnection(User user) {
+		BasicConnection p = new BasicConnection();
+		p.setUuid(user.getId());
+		p.setDisplayName(user.getDisplayName());
+		p.setType(user.getType());
+		//p.setOnlineStatus(getOnlineStatus(user.getId()));
+		return p;
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<BasicConnection> getBasicConnections(List<User> users) {
+		List<BasicConnection> list = new ArrayList<BasicConnection>();
+		for(User u:users){
+			list.add(getBasicConnection(u));
+		}
+		return list;
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * Check auth, privacy and get the list of users that are connected to this user.

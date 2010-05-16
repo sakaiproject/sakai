@@ -2,9 +2,10 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
-import org.sakaiproject.profile2.model.BasicOnlinePerson;
+import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.user.api.User;
 
 /**
  * An interface for dealing with connections in Profile2
@@ -15,20 +16,12 @@ import org.sakaiproject.profile2.model.Person;
 public interface ProfileConnectionsLogic {
 
 	/**
-	 * Gets a list of BasicPersons that are connected to this user
-	 * 
-	 * @param userUuid		uuid of the user to retrieve the list of connections for
-	 * @return
-	 */
-	public List<BasicPerson> getBasicConnectionsForUser(final String userUuid);
-	
-	/**
 	 * Gets a list of BasicOnlinePersons that are connected to this user
 	 * 
 	 * @param userUuid		uuid of the user to retrieve the list of connections for
 	 * @return
 	 */
-	public List<BasicOnlinePerson> getBasicOnlineConnectionsForUser(final String userUuid);
+	public List<BasicConnection> getBasicConnectionsForUser(final String userUuid);
 	
 	/**
 	 * Gets a list of Persons that are connected to this user. incl prefs and privacy
@@ -133,5 +126,26 @@ public interface ProfileConnectionsLogic {
 	 * @return boolean
 	 */
 	public boolean isUserXFriendOfUserY(String userX, String userY);
+	
+	/**
+	 * Get a BasicConnection
+	 * @param userUuid
+	 * @return
+	 */
+	public BasicConnection getBasicConnection(String userUuid);
+	
+	/**
+	 * Get a BasicConnection
+	 * @param user
+	 * @return
+	 */
+	public BasicConnection getBasicConnection(User user);
+	
+	/**
+	 * Get a List of BasicConnections for the given Users.
+	 * @param users
+	 * @return
+	 */
+	public List<BasicConnection> getBasicConnections(List<User> users);
 	
 }
