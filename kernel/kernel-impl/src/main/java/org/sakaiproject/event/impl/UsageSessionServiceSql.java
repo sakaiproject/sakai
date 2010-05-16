@@ -62,4 +62,20 @@ public interface UsageSessionServiceSql
 	 * @return the SQL statement which retrieves all supposedly active sessions associated with inactive servers
 	 */
 	String getOpenSessionsOnInvalidServersSql(List<String> validServerIds);
+	
+	/**
+	 * @return the SQL statement which retrieves the most recent active sakai session for a given userid
+	 */
+	String getMostRecentOpenSakaiSessionForUserSql();
+	
+	/**
+	 * @return the SQL statement which simply counts any active sakai sessions for a given userid
+	 */
+	String getCountOpenSakaiSessionsForUserSql();
+	
+	/**
+	 * @return the SQL statement which retrieves the most recent active sakai session for each of the given userIds
+	 */
+	String getMostRecentOpenSakaiSessionForMultipleUsersSql(List<String> userIds);
+	
 }

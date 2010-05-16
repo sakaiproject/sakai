@@ -50,7 +50,7 @@ public class MockUsageSessionService implements UsageSessionService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.event.api.UsageSessionService#getOpenSessions()
 	 */
-	public List getOpenSessions()
+	public List<UsageSession> getOpenSessions()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -59,7 +59,7 @@ public class MockUsageSessionService implements UsageSessionService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.event.api.UsageSessionService#getOpenSessionsByServer()
 	 */
-	public Map getOpenSessionsByServer()
+	public Map<String, UsageSession> getOpenSessionsByServer()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -122,7 +122,7 @@ public class MockUsageSessionService implements UsageSessionService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.event.api.UsageSessionService#getSessions(java.util.List)
 	 */
-	public List getSessions(List ids)
+	public List<UsageSession> getSessions(List<String> ids)
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -131,7 +131,7 @@ public class MockUsageSessionService implements UsageSessionService
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.event.api.UsageSessionService#getSessions(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[])
 	 */
-	public List getSessions(String joinTable, String joinAlias, String joinColumn,
+	public List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn,
 			String joinCriteria, Object[] values)
 	{
 		// TODO Auto-generated method stub
@@ -188,6 +188,21 @@ public class MockUsageSessionService implements UsageSessionService
 	 */
 	public boolean login(String uid, String eid, String remoteaddr, String ua, String event)	
 	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public UsageSession getActiveUserSession(String userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<String, UsageSession> getActiveUserSessions(List<String> userIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isUserActive(String userId) {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -29,6 +29,7 @@ import java.util.List;
 public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 {
 	protected static final String USAGE_SESSION_COLUMNS = "SESSION_ID,SESSION_SERVER,SESSION_USER,SESSION_IP,SESSION_HOSTNAME,SESSION_USER_AGENT,SESSION_START,SESSION_END,SESSION_ACTIVE";
+	protected static final String MOST_RECENT_USAGE_SESSION_COLUMNS = "SESSION_ID,SESSION_SERVER,SESSION_USER,SESSION_IP,SESSION_HOSTNAME,SESSION_USER_AGENT,MAX(SESSION_START) as SESSION_START,SESSION_END,SESSION_ACTIVE";
 
    /**
 	 * returns the sql statement which inserts a sakai session into the sakai_session table.
@@ -94,4 +95,38 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 	public String getUpdateServerSakaiSessionSql() {
 		return "update SAKAI_SESSION set SESSION_SERVER = ? where SESSION_ID = ?";
 	}
+
+	/**
+	 * @return the SQL statement which retrieves the most recent active sakai session for a given userid
+	 */
+	public String getMostRecentOpenSakaiSessionForUserSql() {
+		return "select TOP 1 " + USAGE_SESSION_COLUMNS + " from SAKAI_SESSION where SESSION_ACTIVE=1 and SESSION_USER=? ORDER BY SESSION_START DESC";
+	}
+	
+	/**
+	 * @return the SQL statement which simply counts any active sakai sessions for a given userid
+	 */
+	public String getCountOpenSakaiSessionsForUserSql() {
+		return "select count(SESSION_ID) from SAKAI_SESSION where SESSION_ACTIVE=1 and SESSION_USER=?";
+	}
+
+	/**
+	 * @return the SQL statement which retrieves the most recent active sakai session for the given userIds
+	 */
+	public String getMostRecentOpenSakaiSessionForMultipleUsersSql(List<String> userIds) {
+		
+		StringBuilder sql = new StringBuilder("select " + MOST_RECENT_USAGE_SESSION_COLUMNS + " from SAKAI_SESSION where SESSION_ACTIVE=1 and SESSION_USER in (");
+		for (int i = 0; i < userIds.size(); i++)
+		{
+			String userId = userIds.get(i);
+			if (i > 0) sql.append(",");
+			sql.append("'").append(userId).append("'");
+		}
+		sql.append(")");
+		sql.append(" GROUP BY SESSION_USER");
+		
+		return sql.toString();
+	}
+	
+	
 }

@@ -26,6 +26,7 @@ import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1017,5 +1018,107 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		}
 		
 		return sessions.size();
+	}
+	
+	/**
+	 * Check if a userId has an active Sakai session.
+	 * @param userId	userId to check
+	 * @return	true if active, false if not
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean isUserActive(String userId) {
+		
+		String statement = usageSessionServiceSql.getCountOpenSakaiSessionsForUserSql();
+		if (M_log.isDebugEnabled()) { 
+			M_log.debug("will get count of sessions with SQL=" + statement);
+		}
+		
+		List<Long> count = sqlService().dbRead(statement, new Object[] { userId }, new SqlReader() {
+			public Object readSqlResultRecord(ResultSet result) {
+                try {
+                	//count column is a long
+                	return (Long) result.getObject(1);
+                } catch (SQLException e) {
+                	 M_log.error("isUserActive: failed: " + e);
+                	 return null;
+				} 
+			}
+		});
+		
+		for(Long l: count) {
+			// if > 0, then we have an active sakai session
+			if(l > 0){
+				return true;
+			}
+		}
+    	return false;
+	}
+	
+	/**
+	 * Get the most recent Sakai session that is active, for a given user
+	 * @param userId	userId to check
+	 * @return	most recent UsageSession or null if none
+	 */
+	@SuppressWarnings("unchecked")
+	public UsageSession getActiveUserSession(String userId) {
+
+		String statement = usageSessionServiceSql.getMostRecentOpenSakaiSessionForUserSql();
+		if (M_log.isDebugEnabled()) { 
+			M_log.debug("will get session with SQL=" + statement);
+		}
+		
+		UsageSession session = null;
+		
+		List<UsageSession> sessions = sqlService().dbRead(statement, new Object[] { userId }, new SqlReader() {
+			public Object readSqlResultRecord(ResultSet result) {
+				try {
+					return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
+				}
+				catch (SQLException e) {
+					M_log.error("getActiveUserSession: failed: " + e);
+		           	return null;
+				}
+			}
+		});
+
+		if (!sessions.isEmpty()) {
+			session = (UsageSession) sessions.get(0);
+		}
+		return session;
+	}
+	
+	/**
+	 * Get the most recent active UsageSessions for the given users.
+	 * @param userIds	userIds to check
+	 * @return Map of userId and UsageSession. The returned map will not a record for the userId if there is no active session.
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, UsageSession> getActiveUserSessions(List<String> userIds) {
+		
+		String statement = usageSessionServiceSql.getMostRecentOpenSakaiSessionForMultipleUsersSql(userIds);
+		if (M_log.isDebugEnabled()) { 
+			M_log.debug("will get sessions with SQL=" + statement);
+		}
+		
+		Map<String, UsageSession> map = new HashMap<String, UsageSession>();
+		
+		List<UsageSession> sessions = sqlService().dbRead(statement, null, new SqlReader() {
+			public Object readSqlResultRecord(ResultSet result) {
+				try {
+					return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
+				}
+				catch (SQLException e) {
+					M_log.error("getActiveUserSessions: failed: " + e);
+		           	return null;
+				}
+			}
+		});
+		
+		//create the map
+		for (UsageSession session : sessions) {
+			map.put(session.getUserId(), session);
+		}
+
+		return map;
 	}
 }
