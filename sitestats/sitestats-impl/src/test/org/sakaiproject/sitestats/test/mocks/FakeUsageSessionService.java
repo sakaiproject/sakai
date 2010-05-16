@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -35,12 +35,12 @@ public class FakeUsageSessionService implements UsageSessionService {
 		return 0;
 	}
 
-	public List getOpenSessions() {
+	public List<UsageSession> getOpenSessions() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Map getOpenSessionsByServer() {
+	public Map<String, UsageSession> getOpenSessionsByServer() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -75,12 +75,12 @@ public class FakeUsageSessionService implements UsageSessionService {
 		return null;
 	}
 
-	public List getSessions(List arg0) {
+	public List<UsageSession> getSessions(List<String> arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List getSessions(String arg0, String arg1, String arg2, String arg3, Object[] arg4) {
+	public List<UsageSession> getSessions(String arg0, String arg1, String arg2, String arg3, Object[] arg4) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -113,6 +113,21 @@ public class FakeUsageSessionService implements UsageSessionService {
 	public UsageSession startSession(String arg0, String arg1, String arg2) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public UsageSession getActiveUserSession(String userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<String, UsageSession> getActiveUserSessions(List<String> userIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isUserActive(String userId) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
