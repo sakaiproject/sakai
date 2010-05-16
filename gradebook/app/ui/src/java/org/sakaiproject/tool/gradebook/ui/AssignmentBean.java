@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -296,6 +297,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			
 			getGradebookManager().updateAssignment(assignment);
+			long dueDateMillis = -1;
+			Date dueDate = assignment.getDueDate();
+			if (dueDate != null) dueDateMillis = dueDate.getTime();
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateAssignment","/gradebook/"+getGradebookUid()+"/"+assignment.getName()+"/"+assignment.getPointsPossible()+"/"+dueDateMillis+"/"+assignment.isReleased()+"/"+assignment.isCounted()+"/"+getAuthzLevel());
 			
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent())
