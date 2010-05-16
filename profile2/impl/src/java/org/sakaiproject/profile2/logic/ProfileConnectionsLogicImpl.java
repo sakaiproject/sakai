@@ -9,9 +9,9 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
+import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
 

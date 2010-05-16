@@ -3,7 +3,7 @@ package org.sakaiproject.profile2.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
@@ -13,7 +13,6 @@ import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
-import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;

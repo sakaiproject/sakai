@@ -17,10 +17,8 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -28,7 +26,6 @@ import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;

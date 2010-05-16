@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.model;
+package org.sakaiproject.profile2.hbm.model;
 
 import java.io.Serializable;
 import java.util.Date;
