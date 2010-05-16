@@ -205,7 +205,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 			} finally {
 				securityService.popAdvisor();
 			}
-		} else if ("gradebook.updateAssignment".equals(event.getEvent()) || ("cond+gradebook.updateAssignment").equals(event.getEvent())) {
+		} else if ("gradebook.updateAssignment".equals(event.getEvent()) || ("cond+gradebook.updateAssignment").equals(event.getEvent()) || ("datetime.update".equals(event.getEvent()))) {
 			// this availability applies to the whole Resource, not on a per-user basis
 			// TODO set the resource availability
 			AssignmentUpdate update = produceAssignmentUpdateFromEvent(event);
@@ -263,7 +263,9 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					if (member.getRole().toString().equals(group.getMaintainRole())) {
 						shouldBeAvailable = true;
 					} else {
-						AssignmentGrading grading = produceAssignmentGrading(assignmentRefParts[2],assignmentRefParts[3],member.getUserId());
+						// TODO how do we get the actual score for each member?
+						Double score = new Double(0);
+						AssignmentGrading grading = produceAssignmentGrading(member.getUserId(), score);
 						shouldBeAvailable = this.evaluate(grading);
 					}
 					if (shouldBeAvailable) acl.add(member.getUserId());
@@ -342,8 +344,34 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	
 
 	private AssignmentUpdate produceAssignmentUpdateFromEvent(Event event) {
+		// event resource of the form: /gradebook/[gradebook id]/[assignment name]/[points possible]/[due date millis]/[is released]/[is included in course grade]/[has authz]
 		AssignmentUpdate rv = new AssignmentUpdate();
+		if ("datetime.update".equals(event.getEvent())) {
+			for (Predicate p : this.predicates) {
+				if (((Condition)p).getArgument() != null) {
+					Object arg = ((Condition)p).getArgument();
+					if ((arg instanceof String) && (((String)arg).startsWith("dateMillis:"))) {
+						rv.setDueDate(new java.util.Date(Long.parseLong(((String)((Condition)p).getArgument()).substring("dateMillis:".length()))));
+					}
+					return rv;
+				}
+			}
+			return rv;
+		}
 		String[] assignmentRefParts = event.getResource().split("/");
+		rv.setTitle(assignmentRefParts[3]);
+		rv.setDueDate(new Date(Long.parseLong(assignmentRefParts[5])));
+		rv.setIncludedInCourseGrade(Boolean.parseBoolean(assignmentRefParts[7]));
+		rv.setReleasedToStudents(Boolean.parseBoolean(assignmentRefParts[6]));
+		// since we've received an update, we'd better update the predicates
+		for (Predicate p : this.predicates) {
+			if (((Condition)p).getArgument() != null) {
+				Object arg = ((Condition)p).getArgument();
+				if ((arg instanceof String) && (((String)arg).startsWith("dateMillis:"))) {
+					((BooleanExpression)p).setArgument("dateMillis:" + rv.getDueDate().getTime());
+				}
+			}
+		}
 		return rv;
 	}
 
@@ -464,29 +492,25 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	}
 	
 	private AssignmentGrading produceAssignmentGradingFromEvent(Event event) {
-		AssignmentGrading rv = new AssignmentGrading();
+		Double score;
+		String userId;
 		String[] assignmentRefParts = event.getResource().split("/");
 		// a score may be null after a grading event
 		try {
-			rv.setScore(new Double(assignmentRefParts[5]));
+			score = new Double(assignmentRefParts[5]);
 		} catch (NumberFormatException e) {
-			rv.setScore(null);
+			score = null;
 		}
-		rv.setUserId(assignmentRefParts[4]);
+		userId = assignmentRefParts[4];
 		
-		return rv;
+		return produceAssignmentGrading(userId, score);
 	}
 	
-	private AssignmentGrading produceAssignmentGrading(String gradebookId, String assignmentName, String userId) {
+	private AssignmentGrading produceAssignmentGrading(String userId, Double score) {
 		AssignmentGrading rv = new AssignmentGrading();
 		rv.setUserId(userId);
 		
 		return rv;
-	}
-
-	private boolean isAssignmentPastDue(Object assignment) {
-		// TODO stub method
-		return false;
 	}
 
 }
