@@ -130,4 +130,9 @@ public class FakeUsageSessionService implements UsageSessionService {
 		return false;
 	}
 
+	public List<String> getActiveUsers(List<String> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
