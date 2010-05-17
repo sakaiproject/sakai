@@ -25,4 +25,11 @@
          <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
     </bean>
 
+	<bean
+		id="org.sakaiproject.emailtemplateservice.service.external.ExternalLogic"
+		class="org.sakaiproject.emailtemplateservice.service.external.impl.ExternalLogicImpl">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
+
 </beans>

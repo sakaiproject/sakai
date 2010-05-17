@@ -5,13 +5,17 @@
 
  <bean class="org.sakaiproject.emailtemplateservice.tool.producers.MainViewProducer">
  	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+ 	<property name="messages" ref="targettedMessageList" />
+ 	<property name="externalLogic" ref="org.sakaiproject.emailtemplateservice.service.external.ExternalLogic"/>
 
  </bean>
  
  <bean class="org.sakaiproject.emailtemplateservice.tool.producers.ModifyEmailProducer">
  	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
- 	<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
  	<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+ 	<property name="messages" ref="targettedMessageList" />
+ 	<property name="externalLogic" ref="org.sakaiproject.emailtemplateservice.service.external.ExternalLogic"/>
+ 	
  </bean>
  
  <bean name="EmailTemplateLocator" class="org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator">
