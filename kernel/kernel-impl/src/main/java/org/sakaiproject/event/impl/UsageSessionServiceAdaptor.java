@@ -1055,6 +1055,36 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	}
 	
 	/**
+	 * Get the list of users with active Sakai sessions, given the supplied list of userIds.
+	 * @param userIds	userIds to check
+	 * @return	List of userIds that have active Sakai sessions
+	 */
+	@SuppressWarnings("unchecked")
+	public List<String> getActiveUsers(List<String> userIds) {
+		
+		String statement = usageSessionServiceSql.getUsersWithOpenSakaiSessionsSql(userIds);
+		if (M_log.isDebugEnabled()) { 
+			M_log.debug("will get users with active sessions with SQL=" + statement);
+		}
+		
+		
+		List<String> results = sqlService().dbRead(statement, null, new SqlReader() {
+			public Object readSqlResultRecord(ResultSet result) {
+				try {
+					return result.getString(1);
+				}
+				catch (SQLException e) {
+					M_log.error("getActiveUsers: failed: " + e);
+		           	return null;
+				}
+			}
+		});
+		
+		return results;
+	}
+
+	
+	/**
 	 * Get the most recent Sakai session that is active, for a given user
 	 * @param userId	userId to check
 	 * @return	most recent UsageSession or null if none

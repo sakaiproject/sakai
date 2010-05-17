@@ -74,6 +74,11 @@ public interface UsageSessionServiceSql
 	String getCountOpenSakaiSessionsForUserSql();
 	
 	/**
+	 * @return the SQL statement which gets the list of users with active session, from the supplied list
+	 */
+	String getUsersWithOpenSakaiSessionsSql(List<String> userIds);
+	
+	/**
 	 * @return the SQL statement which retrieves the most recent active sakai session for each of the given userIds
 	 */
 	String getMostRecentOpenSakaiSessionForMultipleUsersSql(List<String> userIds);

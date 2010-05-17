@@ -109,7 +109,25 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 	public String getCountOpenSakaiSessionsForUserSql() {
 		return "select count(SESSION_ID) from SAKAI_SESSION where SESSION_ACTIVE=1 and SESSION_USER=?";
 	}
-
+	
+	/**
+	 * @return the SQL statement which gets the list of users with active session, from the supplied list
+	 */
+	public String getUsersWithOpenSakaiSessionsSql(List<String> userIds) {
+		
+		StringBuilder sql = new StringBuilder("select SESSION_USER from SAKAI_SESSION where SESSION_ACTIVE=1 and SESSION_USER in (");
+		for (int i = 0; i < userIds.size(); i++)
+		{
+			String userId = userIds.get(i);
+			if (i > 0) sql.append(",");
+			sql.append("'").append(userId).append("'");
+		}
+		sql.append(")");
+		sql.append(" GROUP BY SESSION_USER");
+		
+		return sql.toString();
+	}
+	
 	/**
 	 * @return the SQL statement which retrieves the most recent active sakai session for the given userIds
 	 */

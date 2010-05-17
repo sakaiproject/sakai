@@ -220,6 +220,13 @@ public interface UsageSessionService
 	public boolean isUserActive(String userId);
 	
 	/**
+	 * Get the list of users with active Sakai sessions, given the supplied list of userIds.
+	 * @param userIds	userIds to check
+	 * @return	List of userIds that have active Sakai sessions
+	 */
+	public List<String> getActiveUsers(List<String> userIds);
+	
+	/**
 	 * Get the most recent Sakai session that is active, for a given user
 	 * @param userId	userId to check
 	 * @return	most recent UsageSession or null if none

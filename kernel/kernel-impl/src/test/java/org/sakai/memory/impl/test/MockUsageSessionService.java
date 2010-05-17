@@ -206,5 +206,10 @@ public class MockUsageSessionService implements UsageSessionService
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public List<String> getActiveUsers(List<String> userIds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
