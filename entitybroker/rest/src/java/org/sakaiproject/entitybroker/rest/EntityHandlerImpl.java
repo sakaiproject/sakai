@@ -198,7 +198,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
             this.servletContext = servletContext;
-            System.out.println("Setting the REST servlet context to: " + servletContext);
+            //System.out.println("Setting the REST servlet context to: " + servletContext);
             entityBrokerManager.setServletContext(servletContext);
             entityRedirectsManager.setServletContext(servletContext);
             entityBatchHandler.setServletContext(servletContext);

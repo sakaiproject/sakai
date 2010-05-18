@@ -133,7 +133,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
             this.servletContext = servletContext;
-            System.out.println("Setting the manager servlet context to: " + servletContext);
+           // System.out.println("Setting the manager servlet context to: " + servletContext);
         }
     }
 
