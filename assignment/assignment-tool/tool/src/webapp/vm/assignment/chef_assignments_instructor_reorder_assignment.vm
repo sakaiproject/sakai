@@ -1,5 +1,10 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - reorder view
+<script type="text/javascript"
+  src="/library/js/fluid-latest/InfusionAll.js"></script>
+
+	<script type="text/javascript" src="/library/js/reorderer.js"></script>
+
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
 	## for user who cannot create assignment nor grade submission, no need to show "Assignment List" link at all since there is really no other toolbar choices
@@ -65,64 +70,95 @@
 			$tlang.getString("gen.reordertitle")
 		</h3>
 		<div class="instruction">
-			$tlang.getString("gen.sortinstruct")
+				$tlang.getString('reorder.instruction.general')
+				<span id="inputFieldMessage" style="display:none">$tlang.getString('reorder.instruction.input')</span>
+				<span id="inputKbdMessage" class="skip">$tlang.getString('reorder.instruction.general.hidden')</span>
 		</div>
-		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0" cellpadding="0" style="border:1px solid #fff">
-			<caption class="skip" style="display: none;">$tlang.getString("sort.caption")</caption>
-			<tbody>
-			<tr>
-				<th id="moveUp">
-				</th>
-				<th id="moveDown">
-				</th>
-				<th id="title">
-					$tlang.getString("gen.asstit")
-				</th>
-				<th id="open">
-					$tlang.getString("gen.open")
-				</th>
-				<th id="due">
-					$tlang.getString("gen.due")
-				</th>
-				<th id="position">
-				    $tlang.getString("gen.position")
-				</th>
-			</tr>
+		<ul class="itemAction noPrint">
+			<li style="display:inline">
+				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString("reorder.undo.last.label")</span>
+				<a href="#" id="undo-last"  style="display:none">$tlang.getString("reorder.undo.last.label")</a>
+			</li>
+			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
+				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString("reorder.undo.all.label")</span>
+					<a id="undo-all" href="#"  style="display:none">$tlang.getString("reorder.undo.all.label")</a>
+			</li>
+			<li style="display:inline;color:#000">
+				<span id="failedValidMessage" style="display:none">$tlang.getString('reorder.fail.valid.message')</span>
+				<span id="messageHolder" class="messageSuccess" style="display:none">$tlang.getString("reorder.fail.valid.message")</span>
+			</li>
+		</ul>	
+		<span id="lastMoveArray" style="display:none"></span>
+		<span id="lastMoveArrayInit" style="display:none"></span>
+		<span id="lastItemMoved"  style="display:none"></span>
+
+		<div id="reorder-list-sortingToolBar" class="itemAction">
+			<a class="title" href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
+					$tlang.getString("listassig.sorbytit") 
+					#if ($sortedBy.equals("title")) 
+						#if ($sortedAsc.equals("true")) 
+							<img id="sortascendingtitle" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+						#else 
+							<img id="sortdescendingtitle" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+						#end 
+					#end 
+				</a>
+				|
+				<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
+					$tlang.getString("listassig.sorbyope")
+					#if ($sortedBy.equals("opendate")) 
+						#if ($sortedAsc.equals("true")) 
+							<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+						#else 
+							<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+						#end 
+					#end 
+				</a>
+				|
+				<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
+					$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
+					#if ($sortedBy.equals("duedate")) 
+						#if ($sortedAsc.equals("true")) 
+							<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+						#else 
+							<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+						#end 
+					#end 
+				</a>
+			</div>
+
+		<ul id="reorder-list">
+
 			#set($count = 1)
 			#foreach($assignment in $assignments)
-			<tr class="sortable">
-			    ## The 1% width attributes fixes a minor bug of having extra space after the drop down.
-				<td headers="moveUp" class="moveUp">
-					<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
-					<img src="#imageLink("sakai/arrowUp.gif")" alt="$tlang.getString("sort.moveup")" border="0" style="width:13px" />
-					</a>
-				</td>
-				<td headers="moveDown" class="moveDown">
-					<a#if($count >= $assignmentsize) style="display:none;"#end href="#" onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
-					<img src="#imageLink("sakai/arrowDown.gif")" alt="$tlang.getString("sort.movedn")" border="0" style="width:13px" />
-					</a>
-				</td>
-				<td headers="title">
-					<h4>$validator.escapeHtml($!assignment.getTitle())</h4>
-				</td>
-				<td headers="open">
+
+			<li class="sortable"  id="listitem.orderable$count">
+				<span style="display:none" class="grabHandle">
+					<input type="text" size="3" value="$count" id="index$count"/>
+					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
+				</span>
+				<span class="title">
+					#if ($!assignment.draft)
+						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
+					#end
+					$validator.escapeHtml($validator.limit($!assignment.getTitle(), 45))
+				</span>
+				<span class="open">
 					$!assignment.openTime.toStringLocalFull()
-				</td>
-				<td headers="due">
+				</span>
+				<span class="close">
 					$!assignment.dueTime.toStringLocalFull()
-				</td>
-				<td headers="position">
-				  <select name="position_$validator.escapeUrl("$assignment.id")" onchange="moveRow(this,this.value);">
+				  <select name="position_$validator.escapeUrl("$assignment.id")" onchange="moveRow(this,this.value);" class="selectSet" style="display:none">
 					#foreach($i in [1..$assignmentsize])
 					<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 					#end
 				  </select>
-				</td>
-			</tr>
+				</span>
+			</li>
 			#set($count = $count + 1)
 			#end
-			</tbody>
-		</table>
+		</ul>
+
 		<p class="act" style="margin:0;padding:.3em 0;">
 			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='reorder';document.reorderForm.submit();return false;" class="active" accesskey="s" />
 			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='cancelreorder';document.reorderForm.submit();return false;" accesskey="x" />
@@ -130,145 +166,4 @@
 	</form>						
 
 </div>
-<script language="JavaScript" type="text/javascript">
-	<!--
-		function submitform(id)
-		{
-			var theForm = document.getElementById(id);
-			if(theForm && theForm.onsubmit)
-			{
-				theForm.onsubmit();
-			}
-			if(theForm && theForm.submit)
-			{
-				theForm.submit();
-			}
-		}
-		function moveRow (clickedObj, destination) {
-			
-			var row = clickedObj.parentNode;
-			// Finding the nearest containing TR element
-			while (row.parentNode && row.tagName != "TR") {
-				row = row.parentNode;
-			}
 
-			var rowParent = row.parentNode;
-			var childNodes = rowParent.childNodes;
-			
-			var childTrs = new Array();
-			for (var i=0; i < childNodes.length; i++){
-				if (childNodes[i].tagName == "TR" && childNodes[i].className == "sortable"){
-					childTrs[childTrs.length] = childNodes[i];
-				}
-			}
-			var curRowPos = getRowPosition(row,childTrs);
-			/*
-				NOTE: first condition of if blocks does boundary checking to make sure we don't 
-				move out of the bounds
-			*/
-			var destIndex = null;
-			if ((curRowPos < childTrs.length-1) && destination && destination.toLowerCase() == "down") {
-				destIndex = curRowPos + 1;
-				// Set the destination integer for consumption below
-				destination = destIndex+1;
-				} else 
-			if ((curRowPos > 0) && destination && destination.toLowerCase() == "up") {
-				destIndex = curRowPos - 1;
-				// Set the destination integer for consumption below
-				destination = destIndex+1;
-			}
-			if (destination && ("" + destination).match(/^[0-9]+$/) && destination > 0 && destination <= childTrs.length) {
-
-				destIndex = destination-1;
-				
-
-				if (curRowPos < destIndex) {
-					/*
-						"insertAfter" functionality as per:
-						http://developer.mozilla.org/en/docs/DOM:element.insertBefore
-					*/
-					rowParent.insertBefore(row,childTrs[destIndex].nextSibling);
-				} else {
-					rowParent.insertBefore(row,childTrs[destIndex]);
-				}
-				
-			}
-			
-			var newChildTrs = new Array();
-			for (var i=0; i < childNodes.length; i++){
-				if (childNodes[i].tagName == "TR" && childNodes[i].className == "sortable"){
-					newChildTrs[newChildTrs.length] = childNodes[i];
-				}
-			}
-			updateUserInterface(newChildTrs,destIndex);
-		}
-		
-		function getRowPosition(currentRow,rowsArray) {
-			for (var i=0; i < rowsArray.length; i++){
-				if (rowsArray[i] == currentRow){
-					return i;
-				}
-			}
-			return "cat";
-		}
-
-		function updateUserInterface(rowsArray,targetRow) {
-			for (var curRow=0; curRow < rowsArray.length; curRow++){
-				var rowChildNodes = rowsArray[curRow].childNodes;
-				
-				if (rowsArray[curRow].tagName == "TR") {
-					if (curRow == targetRow) {
-						rowsArray[curRow].id = "selectedReorder";
-						rowsArray[curRow].cells[0].className = "arrowHere";
-						
-					} else {
-							rowsArray[curRow].id = "sortable";		
-					}
-				}
-				
-				for (var curRowChild=0; curRowChild < rowChildNodes.length; curRowChild++){
-					
-					var hasHeaders = false;
-					if (rowChildNodes[curRowChild].hasAttribute) {
-						hasHeaders = rowChildNodes[curRowChild].hasAttribute("headers");
-					} else {
-						/* 
-						Coping with lack of hasAttribute() method in IE	
-						*/
-						if(rowChildNodes[curRowChild].headers != "") {
-							hasHeaders = true;
-						}
-					}
-
-					if (rowChildNodes[curRowChild].tagName == "TD" && hasHeaders) {
-						
-					var cellChildNodes = rowChildNodes[curRowChild].childNodes;
-						for (var curCellChild=0; curCellChild < cellChildNodes.length; curCellChild++) {
-							if (cellChildNodes[curCellChild].tagName == "A") {
-								if ((curRow == 0 && rowChildNodes[curRowChild].getAttribute("headers") == "moveUp") || (curRow == rowsArray.length-1 && rowChildNodes[curRowChild].getAttribute("headers") == "moveDown")) {
-									cellChildNodes[curCellChild].style.display = "none";
-								} else {
-									cellChildNodes[curCellChild].style.display = "inline";
-							  	cellChildNodes[curCellChild].className = "moveUp";
-								}
-							}
-							if (cellChildNodes[curCellChild].tagName == "SELECT") {
-								cellChildNodes[curCellChild].selectedIndex = curRow;
-							}
-							
-							if (cellChildNodes[curCellChild].tagName == "H4") {
-								if (curRow == targetRow) {
-##									cellChildNodes[curCellChild].style.color = "white";
-								} else {
-##									cellChildNodes[curCellChild].style.color = "black";
-								}
-							}
-
-						}
-					}
-					
-				}
-			}
-		}
-	//-->
-</script>
