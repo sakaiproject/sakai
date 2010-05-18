@@ -1,6 +1,9 @@
 ## version: $Id:  $
 <!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <!-- this is the reorder template -->
+<script type="text/javascript"
+  src="/library/js/fluid-latest/InfusionAll.js"></script>
+<script type="text/javascript" src="/library/js/reorderer.js"></script>
 
 <div class="portletBody specialLink">
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
@@ -18,94 +21,68 @@
 			</h3>
 		</div>
 		<div class="instruction">
-			$tlang.getString("sort.instruct")
+			$tlang.getString("sort.instruction.general")
+				<span id="inputFieldMessage" style="display:none">$tlang.getString('sort.instruction.input')</span>
+				<span id="inputKbdMessage" class="skip">$tlang.getString('sort.instruction.general.hidden')</span>
+			
 		</div>
-		<table class="listHier lines nolines" summary="$tlang.getString("sort.summary")" border="0" cellspacing="0" cellpadding="0">
-			<caption class="skip" style="display: none;">$tlang.getString("sort.caption")</caption>
-			<tbody>
-			<tr>
-				<th id="expansion">
-				</th>
-				<th id="moveUp">
-				</th>
-				<th id="moveDown">
-				</th>
-				<th id="title">
-					$tlang.getString("gen.title1")
-				</a>
-				</th>
-				<th id="creator">
-					$tlang.getString("gen.created")
-				</th>
-				<th id="modified">
-					$tlang.getString("gen.last1")
-				</th>
-				<th id="postion">
-					$tlang.getString("gen.position")
-				</th>
-			</tr>
+		
+		<ul class="itemAction noPrint">
+			<li style="display:inline">
+				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString("sort.undo.last.label")</span>
+				<a href="#" id="undo-last"  style="display:none">$tlang.getString("sort.undo.last.label")</a>
+			</li>
+			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
+				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString("sort.undo.all.label")</span>
+					<a id="undo-all" href="#"  style="display:none">$tlang.getString("sort.undo.all.label")</a>
+			</li>
+			<li style="display:inline;color:#000">
+				<span id="failedValidMessage" style="display:none">$tlang.getString("sort.fail.valid.message")</span>
+				<span id="messageHolder" class="messageSuccess" style="display:none"></span>
+			</li>
+		</ul>	
+		<span id="lastMoveArray" style="display:none"></span>
+		<span id="lastMoveArrayInit" style="display:none"></span>
+		<span id="lastItemMoved"  style="display:none"></span>
+		
+
+		
+		<ul id="reorder-list">
 			#foreach($root in $this_site)
-				<tr>
-					<td headers="expansion" class="arrowHere">
-					</td>
-					<td headers="moveUp" class="moveUp">
-					</td>
-					<td headers="moveDown" class="moveDown">
-					</td>
-					<td headers="title" class="specialLink">
-						<h3> 
-							<img src="#imageLink("sakai/dir_open.gif")" border="0">
-							$root.name
-						</h3>	
-					</td>
-					<td colspan="5">
-					</td>
-				</tr>	
 				#set($collectionMembers = $root.members)
 				#set($count = 1)
 				#foreach($member in $collectionMembers)
-					<tr class="sortable">
-						<td headers="expansion">
-						</td>
-						<td headers="moveUp" class="moveUp">
-							<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
-								<img src="#imageLink("sakai/arrowUp.gif")" alt="$tlang.getString("sort.moveup")" border="0">
-							</a>
-						</td>
-						<td headers="moveDown" class="moveDown">
-							<a href="#"#if($count >= $collectionMembers.size())  style="display:none;"#end onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
-								<img src="#imageLink("sakai/arrowDown.gif")" alt="$tlang.getString("sort.movedn")" border="0">
-							</a>
-						</td>
-						<td headers="title" style="text-indent: 1em;" class="specialLink">
-							<h4>
+					<li class="sortable"  id="listitem.orderable$count">
+						<span style="display:none" class="grabHandle">
+							<input type="text" size="3" value="$count" id="index$count"/>
+							<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
+						</span>
+						<span class="title">
 								#if($member.isFolder())
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
 								#else
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
 								#end
 								$member.name
-							</h4>	
-						</td>
-						<td headers="creator">
+						</span>
+						<span headers="creator">
 							$validator.escapeHtml($member.createdBy)
-						</td>
-						<td headers="modified">
+						</span>
+						<span headers="modified">
 							$member.ModifiedTime
-						</td>
-						<td headers="position">
-							<select name="position_$validator.escapeUrl("$member.id")" onChange="moveRow(this,this.value);">
+						</span>
+						<span headers="position" style="display:none">
+							<select name="position_$validator.escapeUrl("$member.id")" class="selectSet" style="display:none" tabindex="-1">
 								#foreach($i in [1..$collectionMembers.size()])
 									<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 								#end
 							</select>
-						</td>
-					</tr>
+						</span>
+					</li>
 					#set($count = $count + 1)
 				#end
 			#end
-			</tbody>
-		</table>
+		</ul>
 		<p class="act" style="margin:0;padding:.3em 0;">
 			<input id="save" value="$tlang.getString("sort.save")" type="button" class="active" onclick="submitThis('reorderForm','save');" /> 
 			<input id="cancel" value="$tlang.getString("sort.cancel")" type="button" onclick="submitThis('reorderForm','cancel');" />																			
