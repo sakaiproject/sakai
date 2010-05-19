@@ -75,9 +75,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	/** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
 	protected Cache m_recentUserRefresh = null;
 	
-	/** A Cache of users that have active sessions */
-	protected Cache activeUsers = null;
-
 	/*************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 ************************************************************************************************************************************************/
@@ -217,7 +214,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			m_storage.open();
 
 			m_recentUserRefresh = memoryService().newCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
-			activeUsers = memoryService().newCache("org.sakaiproject.event.api.UsageSessionService.activeUsers");
 			
 			M_log.info("init()");
 		}
@@ -511,10 +507,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		// post the login event
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
 
-		// add to cache
-		activeUsers.put(uid, Boolean.TRUE);
-		M_log.debug("Added to active user cache: " + uid);
-		
 		return true;
 	}
 
@@ -550,9 +542,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGOUT, null, true), session);
 		}
 		
-		// remove from cache
-		activeUsers.remove(session.getUserId());
-		M_log.debug("Removed from active user cache: " + session.getUserId());
 	}
 
 	/*************************************************************************************************************************************************
@@ -1032,35 +1021,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return sessions.size();
 	}
 	
-	/**
-	 * Check if a userId has an active Sakai session.
-	 * @param userId	userId to check
-	 * @return	true if active, false if not
-	 */
-	public boolean isUserActive(String userId) {
-		
-		if(activeUsers.containsKey(userId)){
-			return true;
-		}
-		return false;
-	}
 	
-	/**
-	 * Get the list of users with active Sakai sessions, given the supplied list of userIds.
-	 * @param userIds	userIds to check
-	 * @return	List of userIds that have active Sakai sessions
-	 */
-	public List<String> getActiveUsers(List<String> userIds) {
-		
-		List<String> activeUsers = new ArrayList<String>();
-		for(String userId: userIds) {
-			if(isUserActive(userId)){
-				activeUsers.add(userId);
-			}
-		}
-		
-		return activeUsers;
-	}
-
 }
 	

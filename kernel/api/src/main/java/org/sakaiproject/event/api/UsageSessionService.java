@@ -211,19 +211,5 @@ public interface UsageSessionService
 	 * @return number of invalid sessions closed
 	 */
 	int closeSessionsOnInvalidServers(List<String> validServerIds);
-	
-	/**
-	 * Check if a userId has an active Sakai session.
-	 * @param userId	userId to check
-	 * @return	true if active, false if not
-	 */
-	public boolean isUserActive(String userId);
-	
-	/**
-	 * Get the list of users with active Sakai sessions, given the supplied list of userIds.
-	 * @param userIds	userIds to check
-	 * @return	List of userIds that have active Sakai sessions
-	 */
-	public List<String> getActiveUsers(List<String> userIds);
-	
+
 }
