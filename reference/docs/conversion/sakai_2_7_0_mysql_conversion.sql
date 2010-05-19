@@ -75,6 +75,11 @@ create table osp_scaffolding_attachments (
         seq_num int(11) not null,
         primary key (id, seq_num)
     );
+    
+ALTER TABLE osp_scaffolding_attachments
+    ADD CONSTRAINT FK529713EAE023FB45
+	FOREIGN KEY(id)
+	REFERENCES osp_scaffolding(id);
 
 create table osp_scaffolding_form_defs (
         id varchar(36) not null,
@@ -83,6 +88,11 @@ create table osp_scaffolding_form_defs (
         primary key (id, seq_num)
     );
     
+ALTER TABLE osp_scaffolding_form_defs
+    ADD CONSTRAINT FK95431263E023FB45
+	FOREIGN KEY(id)
+	REFERENCES osp_scaffolding(id);
+	
 create table SITEASSOC_CONTEXT_ASSOCIATION (
       FROM_CONTEXT varchar(99) not null, 
       TO_CONTEXT varchar(99) not null, 
