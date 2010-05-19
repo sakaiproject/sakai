@@ -1607,7 +1607,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  }
   }
   
-  public List getItemGradingIds(final Long assessmentGradingId){
+  public List getPublishedItemIds(final Long assessmentGradingId){
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select i.publishedItemId from "+
@@ -2826,8 +2826,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  
 	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData, HashMap sectionSetMap) {
 		  ArrayList answeredPublishedItemIdList = new ArrayList();
-		  List itemGradingIds = getItemGradingIds(assessmentGradingData.getAssessmentGradingId());
-		  Iterator iter = itemGradingIds.iterator();
+		  List publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
+		  Iterator iter = publishedItemIds.iterator();
 		  Long answeredPublishedItemId = Long.valueOf(0l);
 		  while (iter.hasNext()) {
 			  answeredPublishedItemId = (Long) iter.next();

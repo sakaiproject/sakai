@@ -1586,11 +1586,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return results;
 	  }
   
-  public List getItemGradingIds(Long assessmentGradingId) {
+  public List getPublishedItemIds(Long assessmentGradingId) {
 	  	List results = null;
 	    try {
 	    	results = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getItemGradingIds(assessmentGradingId);
+	        getAssessmentGradingFacadeQueries().getPublishedItemIds(assessmentGradingId);
 	    } catch (Exception e) {
 	      e.printStackTrace();
 	    }

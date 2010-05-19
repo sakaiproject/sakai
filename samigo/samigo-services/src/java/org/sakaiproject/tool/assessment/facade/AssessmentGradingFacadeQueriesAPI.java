@@ -185,7 +185,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public ArrayList getLastItemGradingDataPosition(Long assessmentGradingId, String agentId);
 
-  public List getItemGradingIds(Long assessmentGradingId);
+  public List getPublishedItemIds(Long assessmentGradingId);
   
   public HashSet getItemSet(Long publishedAssessmentId, Long sectionId);
   
