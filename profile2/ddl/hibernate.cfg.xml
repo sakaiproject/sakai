@@ -19,5 +19,6 @@
 	       	<mapping resource="org/sakaiproject/profile2/hbm/GalleryImage.hbm.xml" />
 	       	<mapping resource="org/sakaiproject/profile2/hbm/CompanyProfile.hbm.xml" />
 	       	<mapping resource="org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml" />
+			<mapping resource="org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml" />
     </session-factory>
 </hibernate-configuration>
