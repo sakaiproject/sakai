@@ -226,18 +226,4 @@ public interface UsageSessionService
 	 */
 	public List<String> getActiveUsers(List<String> userIds);
 	
-	/**
-	 * Get the most recent Sakai session that is active, for a given user
-	 * @param userId	userId to check
-	 * @return	most recent UsageSession or null if none
-	 */
-	public UsageSession getActiveUserSession(String userId);
-	
-	
-	/**
-	 * Get the most recent active UsageSessions for the given users.
-	 * @param userIds	userIds to check
-	 * @return Map of userId and UsageSession. The returned map will not contain a record for the userId if there is no active session.
-	 */
-	public Map<String, UsageSession> getActiveUserSessions(List<String> userIds);
 }

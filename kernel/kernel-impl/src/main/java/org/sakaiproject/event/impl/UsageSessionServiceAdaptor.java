@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $URL$
+  * $URL$
  * $Id$
  ***********************************************************************************
  *
@@ -25,8 +25,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -72,8 +72,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
-	 /** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
+	/** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
 	protected Cache m_recentUserRefresh = null;
+	
+	/** A Cache of users that have active sessions */
+	protected Cache activeUsers = null;
 
 	/*************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -214,7 +217,8 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			m_storage.open();
 
 			m_recentUserRefresh = memoryService().newCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
-
+			activeUsers = memoryService().newCache("org.sakaiproject.event.api.UsageSessionService.activeUsers");
+			
 			M_log.info("init()");
 		}
 		catch (Exception t)
@@ -507,6 +511,10 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		// post the login event
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));
 
+		// add to cache
+		activeUsers.put(uid, Boolean.TRUE);
+		M_log.debug("Added to active user cache: " + uid);
+		
 		return true;
 	}
 
@@ -541,6 +549,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			// generate a logout event (this session)
 			eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGOUT, null, true), session);
 		}
+		
 	}
 
 	/*************************************************************************************************************************************************
@@ -1025,33 +1034,12 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 * @param userId	userId to check
 	 * @return	true if active, false if not
 	 */
-	@SuppressWarnings("unchecked")
 	public boolean isUserActive(String userId) {
 		
-		String statement = usageSessionServiceSql.getCountOpenSakaiSessionsForUserSql();
-		if (M_log.isDebugEnabled()) { 
-			M_log.debug("will get count of sessions with SQL=" + statement);
+		if(activeUsers.containsKey(userId)){
+			return true;
 		}
-		
-		List<Long> count = sqlService().dbRead(statement, new Object[] { userId }, new SqlReader() {
-			public Object readSqlResultRecord(ResultSet result) {
-                try {
-                	//count column is a long
-                	return (Long) result.getObject(1);
-                } catch (SQLException e) {
-                	 M_log.error("isUserActive: failed: " + e);
-                	 return null;
-				} 
-			}
-		});
-		
-		for(Long l: count) {
-			// if > 0, then we have an active sakai session
-			if(l > 0){
-				return true;
-			}
-		}
-    	return false;
+		return false;
 	}
 	
 	/**
@@ -1059,96 +1047,17 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 * @param userIds	userIds to check
 	 * @return	List of userIds that have active Sakai sessions
 	 */
-	@SuppressWarnings("unchecked")
 	public List<String> getActiveUsers(List<String> userIds) {
 		
-		String statement = usageSessionServiceSql.getUsersWithOpenSakaiSessionsSql(userIds);
-		if (M_log.isDebugEnabled()) { 
-			M_log.debug("will get users with active sessions with SQL=" + statement);
+		List<String> activeUsers = new ArrayList<String>();
+		for(String userId: userIds) {
+			if(isUserActive(userId)){
+				activeUsers.add(userId);
+			}
 		}
 		
-		
-		List<String> results = sqlService().dbRead(statement, null, new SqlReader() {
-			public Object readSqlResultRecord(ResultSet result) {
-				try {
-					return result.getString(1);
-				}
-				catch (SQLException e) {
-					M_log.error("getActiveUsers: failed: " + e);
-		           	return null;
-				}
-			}
-		});
-		
-		return results;
+		return activeUsers;
 	}
 
-	
-	/**
-	 * Get the most recent Sakai session that is active, for a given user
-	 * @param userId	userId to check
-	 * @return	most recent UsageSession or null if none
-	 */
-	@SuppressWarnings("unchecked")
-	public UsageSession getActiveUserSession(String userId) {
-
-		String statement = usageSessionServiceSql.getMostRecentOpenSakaiSessionForUserSql();
-		if (M_log.isDebugEnabled()) { 
-			M_log.debug("will get session with SQL=" + statement);
-		}
-		
-		UsageSession session = null;
-		
-		List<UsageSession> sessions = sqlService().dbRead(statement, new Object[] { userId }, new SqlReader() {
-			public Object readSqlResultRecord(ResultSet result) {
-				try {
-					return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
-				}
-				catch (SQLException e) {
-					M_log.error("getActiveUserSession: failed: " + e);
-		           	return null;
-				}
-			}
-		});
-
-		if (!sessions.isEmpty()) {
-			session = (UsageSession) sessions.get(0);
-		}
-		return session;
-	}
-	
-	/**
-	 * Get the most recent active UsageSessions for the given users.
-	 * @param userIds	userIds to check
-	 * @return Map of userId and UsageSession. The returned map will not a record for the userId if there is no active session.
-	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, UsageSession> getActiveUserSessions(List<String> userIds) {
-		
-		String statement = usageSessionServiceSql.getMostRecentOpenSakaiSessionForMultipleUsersSql(userIds);
-		if (M_log.isDebugEnabled()) { 
-			M_log.debug("will get sessions with SQL=" + statement);
-		}
-		
-		Map<String, UsageSession> map = new HashMap<String, UsageSession>();
-		
-		List<UsageSession> sessions = sqlService().dbRead(statement, null, new SqlReader() {
-			public Object readSqlResultRecord(ResultSet result) {
-				try {
-					return new BaseUsageSession(UsageSessionServiceAdaptor.this,result);
-				}
-				catch (SQLException e) {
-					M_log.error("getActiveUserSessions: failed: " + e);
-		           	return null;
-				}
-			}
-		});
-		
-		//create the map
-		for (UsageSession session : sessions) {
-			map.put(session.getUserId(), session);
-		}
-
-		return map;
-	}
 }
+	

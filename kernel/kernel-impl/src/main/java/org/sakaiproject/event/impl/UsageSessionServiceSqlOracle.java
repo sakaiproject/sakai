@@ -27,11 +27,4 @@ package org.sakaiproject.event.impl;
 public class UsageSessionServiceSqlOracle extends UsageSessionServiceSqlDefault
 {
 	
-	/**
-	 * @return the SQL statement which retrieves the most recent active sakai session for a given userid
-	 */
-	@Override
-	public String getMostRecentOpenSakaiSessionForUserSql() {
-		return "select " + USAGE_SESSION_COLUMNS + " from SAKAI_SESSION where SESSION_ACTIVE=1 and SESSION_USER=? and rownum=1 ORDER BY SESSION_START DESC";
-	}
 }
