@@ -114,6 +114,7 @@
                             </componentProperties>
                         </configuration>
                     </execution>
+                    <!-- 
                     <execution>
                         <id>export-mssql</id>
                         <phase>process-classes</phase>
@@ -153,6 +154,7 @@
                             </componentProperties>
                         </configuration>
                     </execution>
+                    -->
                 </executions>
             </plugin>
         </plugins>
