@@ -1,9 +1,9 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.profile2.model.BasicConnection;
-import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.user.api.User;
 
@@ -147,5 +147,19 @@ public interface ProfileConnectionsLogic {
 	 * @return
 	 */
 	public List<BasicConnection> getBasicConnections(List<User> users);
+	
+	/**
+	 * Get the online status for a user
+	 * @param userUuid	user to check
+	 * @return	int of status, according to ProfileConstants.ONLINE_STATUS_x
+	 */
+	public int getOnlineStatus(String userUuid);
+	
+	/**
+	 * Get the online status for a list of users
+	 * @param userUuid	List of users to check
+	 * @return	Map of userUuid to the status, according to ProfileConstants.ONLINE_STATUS_x
+	 */
+	public Map<String, Integer> getOnlineStatus(List<String> userUuids);
 	
 }

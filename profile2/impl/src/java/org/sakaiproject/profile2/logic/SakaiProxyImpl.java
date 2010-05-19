@@ -50,8 +50,10 @@ import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
@@ -287,6 +289,17 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public List<User> getUsers(List<String> userIds) {
 		return userDirectoryService.getUsers(userIds);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public List<String> getUuids(List<User> users) {
+		List<String> uuids = new ArrayList<String>();
+		for(User u: users){
+			uuids.add(u.getId());
+		}
+		return uuids;
 	}
 
 	
@@ -1197,6 +1210,35 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return idManager.createUuid();
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isUserActive(String userUuid) {
+		return activityService.isUserActive(userUuid);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public List<String> getActiveUsers(List<String> userUuids){
+		return activityService.getActiveUsers(userUuids);
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public Long getLastEventTimeForUser(String userUuid) {
+		return activityService.getLastEventTimeForUser(userUuid);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public Map<String, Long> getLastEventTimeForUsers(List<String> userUuids) {
+		return activityService.getLastEventTimeForUsers(userUuids);
+	}
+	
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
@@ -1438,6 +1480,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private IdManager idManager;
 	public void setIdManager(IdManager idManager) {
 		this.idManager = idManager;
+	}
+	
+	private ActivityService activityService;
+	public void setActivityService(ActivityService activityService) {
+		this.activityService = activityService;
 	}
 
 	//INJECT OTHER RESOURCES

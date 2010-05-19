@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.user.api.User;
 /**
  * An interface for abstracting Sakai specific parts away from the main logic.
@@ -147,9 +148,17 @@ public interface SakaiProxy {
 
 	/**
 	 * Get a list of Users for the given userIds
-	 * @return
+	 * @param userUuids		uuids
+	 * @return List<User>
 	 */
-	public List<User> getUsers(List<String> userIds);
+	public List<User> getUsers(List<String> userUuids);
+	
+	/**
+	 * Get a list of uuids for each of the given Users
+	 * @param users		Users
+	 * @return List<String> of uuids
+	 */
+	public List<String> getUuids(List<User> users);
 	
 	/**
 	 * Get a SakaiPerson for a user
@@ -609,6 +618,35 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String createUuid();
+	
+	/**
+	 * Does the user have a current Sakai session
+	 * @param userUuid	user to check
+	 * @return	true/false
+	 */ 
+	public boolean isUserActive(String userUuid);
+	
+	/**
+	 * Get the list of users with active Sakai sessions, given the supplied list of userIds.
+	 * @param userUuids		List of users to check
+	 * @return	List of userUuids that have active Sakai sessions
+	 */
+	public List<String> getActiveUsers(List<String> userUuids);
+	
+	/**
+	 * Get the last event time for the user.
+	 * @param userUuid		user to check
+	 * @return	Long of time in milliseconds since epoch, or null if no event.
+	 */
+	public Long getLastEventTimeForUser(String userUuid);
+	
+	/**
+	 * Get the last event time for each of the given users
+	 * @param userUuids		users to check
+	 * @return	Map of userId to Long of time in milliseconds since epoch, or null if no event.
+	 */
+	public Map<String, Long> getLastEventTimeForUsers(List<String> userUuids);
+	
 	
 	
 	

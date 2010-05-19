@@ -200,5 +200,4 @@ public interface ProfileLogic {
 	public int getAllSakaiPersonIdsCount();
 	
 	
-	
 }

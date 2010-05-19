@@ -244,16 +244,16 @@ public class ProfileConstants {
 	public static final int FIRST_RECORD = 0;		
 	public static final int MAX_RECORDS = 99;
 	
-	
-	
-	
-	
+	//tool id
 	public static final String TOOL_ID = "sakai.profile2";
 		
 	//email constants
 	public static final String EMAIL_NEWLINE = "<br />\n";
 	
-	//event constants
+	/*
+	 * EVENTS
+	 */
+	
 	//this is so granular so we can get good reports on what and how much is being used 
 	public static final String EVENT_PROFILE_VIEW_OWN = "profile.view.own";
 	public static final String EVENT_PROFILE_VIEW_OTHER = "profile.view.other";
@@ -291,6 +291,10 @@ public class ProfileConstants {
 	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
 
 	public static final String EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE = "profile.socialnetworking.update";
+	
+	/*
+	 * ENTITY
+	 */
 	
 	//custom entity types
 	public static final int ENTITY_PROFILE_FULL = 0;
@@ -332,5 +336,12 @@ public class ProfileConstants {
 	public static final String WICKET_PARAM_THREAD = "thread";
 	public static final String WICKET_PARAM_USERID = "id";
 
+	/*
+	 * ONLINE STATUS
+	 */
+	public static final int ONLINE_STATUS_OFFLINE = 0;
+	public static final int ONLINE_STATUS_ONLINE = 1;
+	public static final int ONLINE_STATUS_AWAY = 2;
 
+	public static final long ONLINE_INACTIVITY_INTERVAL = 5000000; // 5 minutes between events  = online -> away
 }

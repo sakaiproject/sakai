@@ -20,6 +20,7 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+		<property name="activityService" ref="org.sakaiproject.event.api.ActivityService" />
 		
 		<!-- inject other resources -->
 		<property name="emailTemplates" ref="org.sakaiproject.profile2.emailtemplates.List" />

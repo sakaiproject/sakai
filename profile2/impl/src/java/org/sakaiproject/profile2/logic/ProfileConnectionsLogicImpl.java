@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.model.BasicConnection;
-import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
@@ -283,7 +282,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		p.setUuid(user.getId());
 		p.setDisplayName(user.getDisplayName());
 		p.setType(user.getType());
-		//p.setOnlineStatus(getOnlineStatus(user.getId()));
+		p.setOnlineStatus(getOnlineStatus(user.getId()));
 		return p;
 	}
 
@@ -291,15 +290,83 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */
 	public List<BasicConnection> getBasicConnections(List<User> users) {
+		
 		List<BasicConnection> list = new ArrayList<BasicConnection>();
+		
+		//get online status
+		Map<String,Integer> onlineStatus = getOnlineStatus(sakaiProxy.getUuids(users));
+		
+		//this is created manually so that we can use the bulk retrieval of the online status method.
 		for(User u:users){
-			list.add(getBasicConnection(u));
+			BasicConnection p = new BasicConnection();
+			p.setUuid(u.getId());
+			p.setDisplayName(u.getDisplayName());
+			p.setType(u.getType());
+			p.setOnlineStatus(onlineStatus.get(u.getId()));
+			
+			list.add(p);
 		}
 		return list;
 	}
 	
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getOnlineStatus(String userUuid) {
+		//check if user has an active session
+		boolean active = sakaiProxy.isUserActive(userUuid);
+		if(!active) {
+			return ProfileConstants.ONLINE_STATUS_OFFLINE;
+		}
+		
+		//if active, when was their last event
+		Long lastEventTime = sakaiProxy.getLastEventTimeForUser(userUuid);
+		if(lastEventTime == null) {
+			return ProfileConstants.ONLINE_STATUS_OFFLINE;
+		}
+		
+		//if time between now and last event is less than the interval, they are online.
+		long timeNow = new Date().getTime();
+		
+		if((timeNow - lastEventTime.longValue()) < ProfileConstants.ONLINE_INACTIVITY_INTERVAL) {
+			return ProfileConstants.ONLINE_STATUS_ONLINE;
+		}
+		
+		//user is online but inactive
+		return ProfileConstants.ONLINE_STATUS_AWAY;
+	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public Map<String, Integer> getOnlineStatus(List<String> userUuids) {
+		
+		//get the list of users that have active sessions
+		List<String> activeUuids = sakaiProxy.getActiveUsers(userUuids);
+		
+		//get last event times for the new list
+		Map<String, Long> lastEventTimes = sakaiProxy.getLastEventTimeForUsers(activeUuids);
+
+		long timeNow = new Date().getTime();
+		
+		//iterate over original list, create the map
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		for(String uuid: userUuids) {
+			if(lastEventTimes.containsKey(uuid)){
+				//calc time, iff less than interval, online, otherwise away
+				if((timeNow - lastEventTimes.get(uuid).longValue()) < ProfileConstants.ONLINE_INACTIVITY_INTERVAL) {
+					map.put(uuid, ProfileConstants.ONLINE_STATUS_ONLINE);
+				} else {
+					map.put(uuid, ProfileConstants.ONLINE_STATUS_AWAY);
+				}
+			} else {
+				//no session/no last event time
+				map.put(uuid, ProfileConstants.ONLINE_STATUS_OFFLINE);
+			}
+		}
+		return map;
+	}
 	
 	
 	
