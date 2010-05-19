@@ -550,6 +550,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGOUT, null, true), session);
 		}
 		
+		// remove from cache
+		activeUsers.remove(session.getUserId());
+		M_log.debug("Removed from active user cache: " + session.getUserId());
 	}
 
 	/*************************************************************************************************************************************************
