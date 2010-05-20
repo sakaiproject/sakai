@@ -371,8 +371,8 @@ drop table tmp_workflow_guid_map;
 -- END SAK-15710
 
 -- SAK-16835 columns for new quartz version
-alter table QRTZ_TRIGGERS add PRIORITY number(2);
-alter table QRTZ_FIRED_TRIGGERS add PRIORITY number(2);
+alter table QRTZ_TRIGGERS add PRIORITY number(13);
+alter table QRTZ_FIRED_TRIGGERS add PRIORITY number(13);
 
 -- SAK-16835 migrate existing triggers to have default value
 -- see http://www.opensymphony.com/quartz/wikidocs/Quartz%201.6.0.html
