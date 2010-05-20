@@ -348,6 +348,11 @@ drop table tmp_workflow_guid_map;
 alter table QRTZ_TRIGGERS add column PRIORITY int;
 alter table QRTZ_FIRED_TRIGGERS add column PRIORITY int;
 
+-- SAK-16835 migrate existing triggers to have default value
+-- see http://www.opensymphony.com/quartz/wikidocs/Quartz%201.6.0.html
+update QRTZ_TRIGGERS set PRIORITY = 5 where PRIORITY IS NULL;
+update QRTZ_FIRED_TRIGGERS set PRIORITY = 5 where PRIORITY IS NULL;
+
 -- START SiteStats 2.1 (SAK-17773)
 -- IMPORTANT: Installations with previous (contrib) versions of SiteStats deployed should
 --            comment out lines below and consult this url for possible conversion upgrades:
