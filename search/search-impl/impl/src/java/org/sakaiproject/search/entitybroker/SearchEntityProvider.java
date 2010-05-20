@@ -182,7 +182,7 @@ public class SearchEntityProvider extends AbstractEntityProvider implements Coll
 		}
 
 		public String getUrl() {
-			return result.getTool();
+			return result.getUrl();
 		}
 	}
 }
