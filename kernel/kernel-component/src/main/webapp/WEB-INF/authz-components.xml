@@ -28,6 +28,7 @@
  		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		<property name="promoteUsersToProvided"><value>true</value></property>
         <property name="databaseBeans">
            <map>
               <entry key="db2"    ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlDb2"    /></entry>

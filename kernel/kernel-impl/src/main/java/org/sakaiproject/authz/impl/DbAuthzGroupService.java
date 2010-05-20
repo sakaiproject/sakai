@@ -165,6 +165,24 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
+	/**
+	 * Configuration: Whether or not to automatically promote non-provided users with same status
+	 * and role to provided
+	 */
+	protected boolean m_promoteUsersToProvided = true;
+	
+	/**
+	 * Configuration: Whether or not to automatically promote non-provided users with same status
+	 * and role to provided
+	 * 
+	 * @param promoteUsersToProvided
+	 * 	'true' to promote non-provided users, 'false' to maintain their non-provided status
+	 */
+	public void setPromoteUsersToProvided(boolean promoteUsersToProvided)
+	{
+		m_promoteUsersToProvided = promoteUsersToProvided;
+	}
+	
 	/*************************************************************************************************************************************************
 	 * Init and Destroy
 	 ************************************************************************************************************************************************/
@@ -209,7 +227,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	protected Storage newStorage()
 	{
-		return new DbStorage();
+		DbStorage storage = new DbStorage();
+		storage.setPromoteUsersToProvided(m_promoteUsersToProvided);
+		return storage;
 
 	} // newStorage
 
@@ -387,6 +407,19 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	protected class DbStorage extends BaseDbFlatStorage implements Storage, SqlReader
 	{
+		
+		private boolean promoteUsersToProvided = true;
+		
+		/**
+		 * Configure whether or not users with same status and role will be "promoted" to
+		 * being provided.
+		 *  
+		 * @param autoPromoteNonProvidedUsers Whether or not to promote non-provided users
+		 */
+		public void setPromoteUsersToProvided(boolean promoteUsersToProvided) {
+			this.promoteUsersToProvided = promoteUsersToProvided;
+		}
+		
 		/**
 		 * Construct.
 		 */
@@ -2158,36 +2191,39 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 			}
 
-			// compute the records we want to promote from non-provided to provider:
-			// every non-provided user with an equivalent provided entry with the same role
-			for (Map.Entry<String,String> entry : nonProvider.entrySet())
+			if (promoteUsersToProvided)
 			{
-				String userId = entry.getKey();
-				String role = entry.getValue();
-				try
+				// compute the records we want to promote from non-provided to provider:
+				// every non-provided user with an equivalent provided entry with the same role
+				for (Map.Entry<String,String> entry : nonProvider.entrySet())
 				{
-					String userEid = userDirectoryService().getUserEid(userId);
-					String targetRole = (String) target.get(userEid);
-
-					if (role.equals(targetRole))
+					String userId = entry.getKey();
+					String role = entry.getValue();
+					try
 					{
-						// remove from non-provided and add as provided
-						toDelete.add(userId);
-						
-						// Check whether this user was inactive in the site previously, if so preserve status
-						boolean active = true;
-						if (providedInactive.get(userId) != null) {
-							active = false;
+						String userEid = userDirectoryService().getUserEid(userId);
+						String targetRole = (String) target.get(userEid);
+	
+						if (role.equals(targetRole))
+						{
+							// remove from non-provided and add as provided
+							toDelete.add(userId);
+							
+							// Check whether this user was inactive in the site previously, if so preserve status
+							boolean active = true;
+							if (providedInactive.get(userId) != null) {
+								active = false;
+							}
+							
+							toInsert.add(new UserAndRole(userId, role, active, true));
 						}
-						
-						toInsert.add(new UserAndRole(userId, role, active, true));
 					}
+					catch (UserNotDefinedException e)
+					{
+						M_log.warn("refreshAuthzGroup: cannot find eid for user: " + userId);
+					}
+					
 				}
-				catch (UserNotDefinedException e)
-				{
-					M_log.warn("refreshAuthzGroup: cannot find eid for user: " + userId);
-				}
-
 			}
 			
 			// if any, do it
@@ -2508,7 +2544,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			return rv;
 		}
-
 	} // DbStorage
 
 	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with ORs. */
