@@ -4,6 +4,10 @@
 -- use this to convert a Sakai database from 2.6.x to 2.7.0.  Run this before you run your first app server.
 -- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
 --
+-- Script insertion format
+-- -- [TICKET] [short comment]
+-- -- [comment continued] (repeat as necessary)
+-- SQL statement
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- SAK-16610 introduced a new osp presentation review permission
@@ -36,9 +40,7 @@ alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS varchar2(4000);
 alter table MFR_MESSAGE_T add NUM_READERS int;
 update MFR_MESSAGE_T set NUM_READERS = 0; 
 
-
 -- SAK-15710
-
 ALTER TABLE osp_wizard_page_def 
   ADD (defaultCustomForm number(1,0), defaultReflectionForm number(1,0), defaultFeedbackForm number(1,0), 
   defaultReviewers number(1,0), defaultEvaluationForm number(1,0), defaultEvaluators number(1,0));
@@ -139,7 +141,6 @@ where w.wizard_type = 'org.theospi.portfolio.wizard.model.Wizard.sequential'
 insert into OSP_WORKFLOW_PARENT select s.id, null, null, null, null, null, null from osp_scaffolding s where s.id not in (select wp.id from osp_workflow_parent wp);
 
 -- Move the use permission from site to each newly created scaffolding realms and delete the old osp.matrix.scaffolding.use permissions --
-
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'osp.matrix.scaffolding.revise.any');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'osp.matrix.scaffolding.revise.own');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'osp.matrix.scaffolding.delete.any');
@@ -172,7 +173,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Participant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use'));
 
-
 INSERT INTO SAKAI_REALM VALUES (SAKAI_REALM_SEQ.NEXTVAL, '!matrix.template.course', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessAll'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewEvalOther'));
@@ -190,7 +190,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use'));
 
-
 INSERT INTO SAKAI_REALM VALUES (SAKAI_REALM_SEQ.NEXTVAL, '!matrix.template.project', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.project'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessAll'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.project'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewEvalOther'));
@@ -201,10 +200,8 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.project'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use'));
 
-
 INSERT INTO SAKAI_REALM (REALM_KEY, REALM_ID, PROVIDER_ID, MAINTAIN_ROLE, CREATEDBY, MODIFIEDBY, CREATEDON, MODIFIEDON) 
 (select SAKAI_REALM_SEQ.NEXTVAL, concat('/scaffolding/', concat(worksiteId, concat('/', id))) as new_realm_id, '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP from osp_scaffolding);
-
 
 insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 select distinct sr.REALM_KEY, srrf.ROLE_KEY, (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use')
@@ -215,7 +212,6 @@ and srrf.REALM_KEY = (select REALM_KEY from SAKAI_REALM Where REALM_ID = concat(
 
 -- delete from SAKAI_REALM_RL_FN where function_key = (select function_key From SAKAI_REALM_FUNCTION where function_name = 'osp.matrix.scaffolding.use');
 -- delete From SAKAI_REALM_FUNCTION where function_name = 'osp.matrix.scaffolding.use';
-
 
 create table permissions_backfill_src_temp (function_name varchar2(99), TYPE INTEGER);
 CREATE TABLE permissions_backfill_temp (FUNCTION_KEY INTEGER, TYPE INTEGER);
@@ -232,7 +228,6 @@ insert into permissions_backfill_temp
 select rf.function_key, pbst.type 
 from SAKAI_REALM_FUNCTION rf
 join permissions_backfill_src_temp pbst on (pbst.function_name = rf.FUNCTION_NAME);
-
 
 insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 select distinct sr.REALM_KEY, srrf.ROLE_KEY, pbt.FUNCTION_KEY
@@ -254,8 +249,7 @@ and not exists (select 1 from SAKAI_REALM_RL_FN rrf_tmp where rrf_tmp.REALM_KEY 
 
 drop table permissions_backfill_src_temp;
 drop table permissions_backfill_temp;
-
--- --- END ------
+-- END
 
 -- Backfill sites
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
@@ -279,14 +273,12 @@ INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','osp.matrix.scaffoldingSpeci
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','osp.matrix.scaffoldingSpecific.manageStatus');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','osp.matrix.scaffoldingSpecific.viewAllGroups');
 
-
 -- Lookup the role and function keys
 insert into PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
 select SRR.ROLE_KEY, SRF.FUNCTION_KEY
 from PERMISSIONS_SRC_TEMP TMPSRC
 join SAKAI_REALM_ROLE SRR on (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
 join SAKAI_REALM_FUNCTION SRF on (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
-
 
 -- Insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" or any group realms)
 insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
@@ -303,11 +295,9 @@ from
             where SRRFI.REALM_KEY=SRRFD.REALM_KEY and SRRFI.ROLE_KEY=SRRFD.ROLE_KEY and  SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
     );
 
-
 -- clean up the temp tables to use again for group permissions
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
-
 
 CREATE TABLE permissions_convertl_temp (OLD_FUNCTION_KEY INTEGER, OLD_FUNCTION_NAME VARCHAR2(99), FUNCTION_KEY INTEGER, FUNCTION_NAME VARCHAR2(99));
 
@@ -331,8 +321,6 @@ select rf.FUNCTION_KEY, rf.FUNCTION_NAME, rf2.FUNCTION_KEY, rf2.FUNCTION_NAME
 from SAKAI_REALM_FUNCTION rf, SAKAI_REALM_FUNCTION rf2 
 where rf.FUNCTION_NAME = 'osp.matrix.scaffolding.publish' and (rf2.function_name = 'osp.matrix.scaffolding.publish.any' or rf2.function_name = 'osp.matrix.scaffolding.publish.own');
 
-
-
 insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
 select distinct srrf.REALM_KEY, srrf.ROLE_KEY, pct.function_key
 from SAKAI_REALM_RL_FN srrf
@@ -345,8 +333,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'osp.
 update SAKAI_REALM_RL_FN set FUNCTION_KEY = (select function_key from SAKAI_REALM_FUNCTION where function_name = 'osp.portfolio.evaluation.use')
 where function_key = (select function_key From SAKAI_REALM_FUNCTION where function_name = 'osp.matrix.evaluate');
 
-
--- ****** backfill for new returned status
+-- backfill for new returned status
 create table tmp_workflow_guid_map (old_id varchar2(99), new_id varchar2(99), 
   parent_id varchar2(99), old_status varchar2(99), new_status varchar2(99));
 
@@ -370,8 +357,7 @@ join tmp_workflow_guid_map t on (t.old_id = owi.WORKFLOW_ID)
 where t.old_status <> owi.ACTION_VALUE;
 
 drop table tmp_workflow_guid_map;
--- ****** end backfill for returned status
-
+-- end backfill for returned status
 -- END SAK-15710
 
 -- SAK-16835 columns for new quartz version
@@ -382,7 +368,6 @@ alter table QRTZ_FIRED_TRIGGERS add PRIORITY number(13) NOT NULL;
 -- see http://www.opensymphony.com/quartz/wikidocs/Quartz%201.6.0.html
 update QRTZ_TRIGGERS set PRIORITY = 5 where PRIORITY IS NULL;
 update QRTZ_FIRED_TRIGGERS set PRIORITY = 5 where PRIORITY IS NULL; 
-
 
 -- START SiteStats 2.1 (SAK-17773)
 -- IMPORTANT: Installations with previous (contrib) versions of SiteStats deployed should
@@ -435,9 +420,7 @@ insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_
 insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report5_title}','${predefined_report5_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-table</howPresentationMode><howSort>false</howSort><howSortAscending>false</howSortAscending><howSortBy>default</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-visits</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-none</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
 --   6) Users with no activity (Show users with no activity in site.)
 insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report6_title}','${predefined_report6_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesPeriod>byday</howChartSeriesPeriod><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-table</howPresentationMode><howSort>false</howSort><howSortAscending>true</howSortAscending><howSortBy>default</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-none</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
-
 -- END SiteStats 2.1 (SAK-17773)
-
 
 -- START Profile2 1.3 (SAK-17773)
 -- IMPORTANT: Installations with previous (contrib) versions of Profile2 deployed should
@@ -453,12 +436,14 @@ create table PROFILE_FRIENDS_T (
     CONFIRMED_DATE date,
     primary key (ID)
 );
+
 create table PROFILE_IMAGES_EXTERNAL_T (
     USER_UUID varchar2(99) not null,
     URL_MAIN varchar2(4000) not null,
     URL_THUMB varchar2(4000),
     primary key (USER_UUID)
 );
+
 create table PROFILE_IMAGES_T (
     ID number(19,0) not null,
     USER_UUID varchar2(99) not null,
@@ -467,6 +452,7 @@ create table PROFILE_IMAGES_T (
     IS_CURRENT number(1,0) not null,
     primary key (ID)
 );
+
 create table PROFILE_PREFERENCES_T (
     USER_UUID varchar2(99) not null,
     EMAIL_REQUEST number(1,0) not null,
@@ -476,6 +462,7 @@ create table PROFILE_PREFERENCES_T (
     TWITTER_PASSWORD varchar2(255),
     primary key (USER_UUID)
 );
+
 create table PROFILE_PRIVACY_T (
     USER_UUID varchar2(99) not null,
     PROFILE_IMAGE number(10,0) not null,
@@ -489,12 +476,14 @@ create table PROFILE_PRIVACY_T (
     MY_STATUS number(10,0) not null,
     primary key (USER_UUID)
 );
+
 create table PROFILE_STATUS_T (
     USER_UUID varchar2(99) not null,
     MESSAGE varchar2(255) not null,
     DATE_ADDED date not null,
     primary key (USER_UUID)
 );
+
 create table SAKAI_PERSON_META_T (
     ID number(19,0) not null,
     USER_UUID varchar2(99) not null,
@@ -502,6 +491,7 @@ create table SAKAI_PERSON_META_T (
     VALUE varchar2(255) not null,
     primary key (ID)
 );
+
 create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID);
 create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
 create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID);
@@ -511,32 +501,17 @@ create sequence PROFILE_IMAGES_S;
 create sequence SAKAI_PERSON_META_S;
 create index SAKAI_PERSON_META_USER_UUID_I on SAKAI_PERSON_META_T (USER_UUID);
 create index SAKAI_PERSON_META_PROPERTY_I on SAKAI_PERSON_META_T (PROPERTY);
+
 -- Replace Profile by Profile2 for new and existing sites:
 -- update SAKAI_SITE_TOOL set REGISTRATION='sakai.profile2' where REGISTRATION='sakai.profile';
 -- Replace Profile by Profile2 only for new sites:
 update SAKAI_SITE_TOOL set REGISTRATION='sakai.profile2' where REGISTRATION='sakai.profile' and SITE_ID='!user';
 -- END Profile2 1.3 (SAK-17773)
 
-
-
---///////////////////////////////////
---///////////////////////////////////
---///////////////////////////////////
---// MSGCNTR-2.7
---///////////////////////////////////
---///////////////////////////////////
---///////////////////////////////////
-
-
-
---////////////////////////////////////////////////////
---// SAK-11740
---// Email notification of new posts to forum
---////////////////////////////////////////////////////
-
---You may need to run these drop commands if this table still exists in your db
---DROP TABLE MFR_EMAIL_NOTIFICATION_TIF EXISTS ;
---drop sequence MFR_EMAIL_NOTIFICATION_S;
+-- SAK-11740 email notification of new posts to forum
+-- You may need to run these drop commands if this table still exists in your db
+-- DROP TABLE MFR_EMAIL_NOTIFICATION_TIF EXISTS;
+-- drop sequence MFR_EMAIL_NOTIFICATION_S;
 
 CREATE TABLE  "MFR_EMAIL_NOTIFICATION_T"
    (    "ID" NUMBER(19,0) NOT NULL ENABLE,
@@ -547,34 +522,23 @@ CREATE TABLE  "MFR_EMAIL_NOTIFICATION_T"
          PRIMARY KEY ("ID")
   
    )  ;
+   
 CREATE INDEX "MFR_EMAIL_USER_ID_I" ON  "MFR_EMAIL_NOTIFICATION_T" ("USER_ID")  ;
 
 CREATE INDEX  "MFR_EMAIL_CONTEXT_ID_I" ON  "MFR_EMAIL_NOTIFICATION_T" ("CONTEXT_ID") ;
 
-
-
 create sequence MFR_EMAIL_NOTIFICATION_S;
 
-
---////////////////////////////////////////////////////
---// SAK-15052
---// update cafe versions to 2.7.0-SNAPSHOT
---////////////////////////////////////////////////////
-
+-- SAK-15052 update cafe versions to 2.7.0-SNAPSHOT
 alter table MFR_MESSAGE_T add THREADID NUMBER(20);
 alter table MFR_MESSAGE_T add LASTTHREADATE TIMESTAMP;
 alter table MFR_MESSAGE_T add LASTTHREAPOST NUMBER(20);
 
 update MFR_MESSAGE_T set THREADID=IN_REPLY_TO,LASTTHREADATE=CREATED;
 
---////////////////////////////////////////////////////
---// SAK-10869
---// Displaying all messages should mark them as read
---////////////////////////////////////////////////////
+-- SAK-10869 displaying all messages should mark them as read
 
-
--- Add AutoMarkThreadsRead functionality to Message Center (SAK-10869)
-
+-- SAK-10869 add AutoMarkThreadsRead functionality to Message Center
 -- add column to allow AutoMarkThreadsRead as template setting
 alter table MFR_AREA_T add (AUTO_MARK_THREADS_READ NUMBER(1,0));
 update MFR_AREA_T set AUTO_MARK_THREADS_READ=0 where AUTO_MARK_THREADS_READ is NULL;
@@ -590,23 +554,12 @@ alter table MFR_TOPIC_T add (AUTO_MARK_THREADS_READ NUMBER(1,0));
 update MFR_TOPIC_T set AUTO_MARK_THREADS_READ=0 where AUTO_MARK_THREADS_READ is NULL;
 alter table MFR_TOPIC_T modify (AUTO_MARK_THREADS_READ NUMBER(1,0) not null);
 
+-- SAK-10559 view who has read a message
+-- if MFR_MESSAGE_T is missing NUM_READERS, run alter and update commands
+-- alter table MFR_MESSAGE_T add NUM_READERS int;
+-- update MFR_MESSAGE_T set NUM_READERS = 0;
 
-
---////////////////////////////////////////////////////
---// SAK-10559
---// View who has read a message
---////////////////////////////////////////////////////
-
---if MFR_MESSAGE_T is missing NUM_READERS, run alter and update commands
---alter table MFR_MESSAGE_T add NUM_READERS int;
---update MFR_MESSAGE_T set NUM_READERS = 0;
-
-
---////////////////////////////////////////////////////
---// SAK-15655
---// Rework MyWorkspace Synoptic view of Messages & Forums
---////////////////////////////////////////////////////
-
+-- SAK-15655 rework MyWorkspace Synoptic view of Messages & Forums
 create table MFR_SYNOPTIC_ITEM
 (SYNOPTIC_ITEM_ID number(19,0) not null,
 VERSION number(10,0) not null,
@@ -625,13 +578,7 @@ create sequence MFR_SYNOPTIC_ITEM_S;
 
 create index MRF_SYN_USER on MFR_SYNOPTIC_ITEM (USER_ID);
 
-
-
---////////////////////////////////////////////////////
---// MSGCNTR-177
---// MyWorkspace/Home does now show the Messages & Forums Notifications by default
---////////////////////////////////////////////////////
-
+-- MSGCNTR-177 MyWorkspace/Home does now show the Messages & Forums Notifications by default
 update SAKAI_SITE_TOOL
 Set TITLE = 'Unread Messages and Forums'
 Where REGISTRATION = 'sakai.synoptic.messagecenter'; 
@@ -657,28 +604,16 @@ insert into SAKAI_SITE_TOOL
 
 drop table MSGCNTR_TMP;
 
---////////////////////////////////////////////////////
---//  MSGCNTR-25
---//  .UIPermissionsManagerImpl - query did not return a unique result: 4 Error in catalina.out
---////////////////////////////////////////////////////
-
+-- MSGCNTR-25 .UIPermissionsManagerImpl - query did not return a unique result: 4 Error in catalina.out
 alter table MFR_AREA_T add constraint MFR_AREA_CONTEXT_UUID_UNIQUE unique (CONTEXT_ID, TYPE_UUID);
 
---////////////////////////////////////////////////////
---//  MSGCNTR-148
---//  Unique constraint not created on MFR_PRIVATE_FORUM_T
---////////////////////////////////////////////////////
-
---If this alter query fails, use this select query to find duplicates and remove the duplicate:
---select OWNER, surrogateKey, COUNT(OWNER) FROM MFR_PRIVATE_FORUM_T GROUP BY OWNER, surrogateKey HAVING COUNT(OWNER)>1;
+-- MSGCNTR-148 unique constraint not created on MFR_PRIVATE_FORUM_T
+-- If this alter query fails, use this select query to find duplicates and remove the duplicate:
+-- select OWNER, surrogateKey, COUNT(OWNER) FROM MFR_PRIVATE_FORUM_T GROUP BY OWNER, surrogateKey HAVING COUNT(OWNER)>1;
  
 CREATE UNIQUE INDEX MFR_PVT_FRM_OWNER ON  MFR_PRIVATE_FORUM_T (OWNER, surrogateKey); 
 
---////////////////////////////////////////////////////
---//  MSGCNTR-132
---//  Drop unused MC table columns
---////////////////////////////////////////////////////
-
+-- MSGCNTR-132 drop unused MC table columns
 ALTER TABLE MFR_MESSAGE_T
 DROP COLUMN GRADEBOOK;
 
@@ -694,17 +629,7 @@ DROP COLUMN GRADEBOOK;
 ALTER TABLE MFR_TOPIC_T
 DROP COLUMN GRADEBOOK_ASSIGNMENT;
 
---///////////////////////////////////
---///////////////////////////////////
---///////////////////////////////////
---//  END MSGCNTR 2.7
---///////////////////////////////////
---///////////////////////////////////
---///////////////////////////////////
-
-
 -- SAK-17428
-
 alter table GB_CATEGORY_T
 add (
 	IS_EQUAL_WEIGHT_ASSNS number(1,0),
@@ -728,9 +653,7 @@ alter table GB_GRADABLE_OBJECT_T
 add (
 	IS_NULL_ZERO number(1,0)
 );
-
 -- END SAK-17428
-
 
 -- SAK-15311
 ALTER TABLE GB_GRADABLE_OBJECT_T 
@@ -741,8 +664,6 @@ SORT_ORDER number(10,0)
 -- SAK-17679/SAK-18116
 alter table EMAIL_TEMPLATE_ITEM add VERSION number(10,0) DEFAULT NULL;
 
-
--- Samigo
 -- SAM-818
 alter table SAM_ITEM_T add PARTIAL_CREDIT_FLAG number(1,0) NULL; 
 alter table SAM_PUBLISHEDITEM_T add PARTIAL_CREDIT_FLAG number(1,0) NULL; 
@@ -780,7 +701,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Reviewer'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Reviewer'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewofficialphoto'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Reviewer'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewprofile'));
-
 -- end SAK-18370
 
 -- SAK-17206
