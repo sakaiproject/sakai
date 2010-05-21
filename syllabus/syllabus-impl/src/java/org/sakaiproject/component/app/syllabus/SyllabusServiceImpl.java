@@ -1137,7 +1137,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	  while(iter.hasNext())
 	  {
 	    SyllabusData sd = (SyllabusData)iter.next();
-	    if(sd.getView().equalsIgnoreCase("yes") && (sd.getStatus().equalsIgnoreCase("Posted")))
+	    if(sd.getView().equalsIgnoreCase("yes") && (sd.getStatus().equalsIgnoreCase(SyllabusData.ITEM_POSTED)))
 	    {
 	      ArrayList attachList = new ArrayList();
 	  	  Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(sd);

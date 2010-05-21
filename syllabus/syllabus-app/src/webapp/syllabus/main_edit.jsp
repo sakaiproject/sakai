@@ -63,7 +63,7 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
 							</f:facet>
-							<h:outputText value="#{eachEntry.entry.status}"/>
+							<h:outputText value="#{eachEntry.status}"/>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">

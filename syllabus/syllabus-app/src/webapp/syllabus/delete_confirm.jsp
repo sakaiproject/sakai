@@ -28,7 +28,7 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.delConfHeaderStatus}"/>
 						</f:facet>
-						<h:outputText value="#{eachEntry.entry.status}"/>
+						<h:outputText value="#{eachEntry.status}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">

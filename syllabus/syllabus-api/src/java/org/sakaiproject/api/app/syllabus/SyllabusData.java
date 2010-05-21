@@ -24,6 +24,8 @@ import java.util.Set;
 
 public interface SyllabusData
 {
+ 	public final String ITEM_POSTED="posted";
+ 	public final String ITEM_DRAFT= "draft";
   /**
    * @return Returns the emailNotification.
    */

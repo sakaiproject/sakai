@@ -175,6 +175,9 @@ public class SyllabusTool
     {
       this.attachmentList = attachmentList;
     }
+    public String getStatus(){
+		return rb.getString(in_entry.getStatus().toLowerCase());
+	}
   }
 
   protected SyllabusManager syllabusManager;
@@ -291,7 +294,7 @@ public class SyllabusTool
                     }
                     else
                     {
-                        if (en.getStatus().equals("Posted"))
+                        if (en.getStatus().equalsIgnoreCase(SyllabusData.ITEM_POSTED))
                         {
                             DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                             entries.add(den);
@@ -350,7 +353,7 @@ public class SyllabusTool
               }
               else
               {
-                if (en.getStatus().equals("Posted"))
+                if (en.getStatus().equalsIgnoreCase(SyllabusData.ITEM_POSTED))
                 {
                   DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                   entries.add(den);
@@ -781,7 +784,7 @@ public class SyllabusTool
         }
         if (entry.justCreated == true)
         {
-          getEntry().getEntry().setStatus("Posted");
+          getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
           syllabusManager.addSyllabusToSyllabusItem(syllabusItem, getEntry()
               .getEntry());
           //syllabusManager.saveSyllabusItem(syllabusItem);
@@ -866,7 +869,7 @@ public class SyllabusTool
         int initPosition = syllabusManager.findLargestSyllabusPosition(
             syllabusItem).intValue() + 1;
         SyllabusData en = syllabusManager.createSyllabusDataObject(null,
-            new Integer(initPosition), null, null, "Draft", "none");
+            new Integer(initPosition), null, null, SyllabusData.ITEM_DRAFT, "none");
         en.setView("no");
 
         entry = new DecoratedSyllabusEntry(en);
@@ -965,7 +968,7 @@ public class SyllabusTool
         }
         if (entry.justCreated == false)
         {
-          getEntry().getEntry().setStatus("Draft");
+          getEntry().getEntry().setStatus(SyllabusData.ITEM_DRAFT);
           syllabusManager.saveSyllabus(getEntry().getEntry());
           
           for(int i=0; i<attachments.size(); i++)
@@ -1042,7 +1045,7 @@ public class SyllabusTool
         }
         if (entry.justCreated == false)
         {
-          getEntry().getEntry().setStatus("Posted");
+          getEntry().getEntry().setStatus(SyllabusData.ITEM_POSTED);
           syllabusManager.saveSyllabus(getEntry().getEntry());
 
           syllabusService.postChangeSyllabus(getEntry().getEntry());
