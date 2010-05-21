@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 import java.util.Vector;
 
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -47,7 +47,7 @@ import org.sakaiproject.util.SiteEmailNotification;
 public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 {
 	// //private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
-	private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
+	private static ResourceLoader rb = new ResourceLoader("siteemacon");
 
 	private org.sakaiproject.component.api.ComponentManager cm;
 
@@ -107,15 +107,15 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		String returnedString = "";
 		if (SyllabusService.EVENT_SYLLABUS_POST_NEW.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "New Posted Syllabus Item" + " ] " + syllabusName;;
+			returnedString =rb.getFormattedMessage("event.syllabus.post.new", new Object[]{title, syllabusName});
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_POST_CHANGE.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "Existing Syllabus Item Changed" + " ] " + syllabusName;;
+			returnedString =rb.getFormattedMessage("event.syllabus.post.changed", new Object[]{title, syllabusName});
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_DELETE_POST.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "Posted Syllabus Item Has Been Deleted" + " ] " + syllabusName;;
+			returnedString =rb.getFormattedMessage("event.syllabus.post.delete", new Object[]{title, syllabusName});
 		}
 
 		return returnedString;
@@ -188,11 +188,8 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_DELETE_POST.equals(event.getEvent()))
 		{
-			buf.append(" Syllabus Item - ");
-			buf.append(syllabusData.getTitle());
-			buf.append(" for Site - ");
-			buf.append(siteId);
-			buf.append(" has been deleted.");
+			String s =rb.getFormattedMessage("event.syllabus.delete", new Object[]{syllabusData.getTitle(),siteId});
+			buf.append(s);
 			buf.append(newline);
 		}
 
@@ -210,7 +207,8 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		// rv.add("Content-Type: text/html");
 
 		// set the subject
-		rv.add("Subject: " + getSubject(event));
+		String subject =rb.getFormattedMessage("event.syllabus.delete", new Object[]{getSubject(event)});
+		rv.add(subject);
 
 		// from
 		rv.add(getFrom(event));
