@@ -196,7 +196,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			}
 
 
-			List<Option> options = poll.getPollOptions();
+			List<Option> options = pollListManager.getVisibleOptionsForPoll(poll.getPollId());
 			for (int i = 0; i < options.size(); i++){
 				Option o = (Option)options.get(i);
 				UIBranchContainer oRow = UIBranchContainer.make(actionBlock,"options-row:",o.getOptionId().toString());

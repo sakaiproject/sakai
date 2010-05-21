@@ -131,6 +131,14 @@
                 <artifactId>polls-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
+       <dependency>
+        	<groupId>org.sakaiproject.emailtemplateservice</groupId>
+        	<artifactId>emailtemplateservice-api</artifactId>
+        	<version>0.5-SNAPSHOT</version>
+        	<scope>provided</scope>
+        </dependency>
+        	
+        
         </dependencies>
     </dependencyManagement>
     
