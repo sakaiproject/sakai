@@ -81,6 +81,8 @@ ALTER TABLE osp_scaffolding_attachments
 	FOREIGN KEY(id)
 	REFERENCES osp_scaffolding(id);
 
+CREATE INDEX FK529713EAE023FB45 on osp_scaffolding_attachments(id);
+
 create table osp_scaffolding_form_defs (
         id varchar(36) not null,
         form_def_id varchar(255),
@@ -92,6 +94,8 @@ ALTER TABLE osp_scaffolding_form_defs
     ADD CONSTRAINT FK95431263E023FB45
 	FOREIGN KEY(id)
 	REFERENCES osp_scaffolding(id);
+	
+CREATE INDEX FK95431263E023FB45 on osp_scaffolding_form_defs(id);
 	
 create table SITEASSOC_CONTEXT_ASSOCIATION (
       FROM_CONTEXT varchar(99) not null, 
