@@ -103,19 +103,6 @@ create table SITEASSOC_CONTEXT_ASSOCIATION (
 		primary key (FROM_CONTEXT, TO_CONTEXT)
 	);
 
-CREATE TABLE TAGGABLE_LINK ( 
-    LINK_ID           	VARCHAR2(36) NOT NULL,
-    VERSION      	NUMBER(10,0) NOT NULL,
-    ACTIVITY_REF 	VARCHAR2(255) NOT NULL,
-    TAG_CRITERIA_REF      	VARCHAR2(255) NOT NULL,
-    RUBRIC       	CLOB NULL,
-    RATIONALE    	CLOB NULL,
-    EXPORT_STRING	NUMBER(10,0) NOT NULL,
-    VISIBLE      	NUMBER(1,0) NOT NULL,
-    LOCKED       	NUMBER(1,0) DEFAULT 0 NULL,
-    CONSTRAINT TAGGABLE_LINK_PK PRIMARY KEY(LINK_ID)
-);
-
 alter table osp_wizard_page_def add (type varchar2(1) default '0');
 
 update osp_wizard_page_def set type = '0' where id in (
@@ -520,11 +507,9 @@ CREATE TABLE  "MFR_EMAIL_NOTIFICATION_T"
         "CONTEXT_ID" VARCHAR2(255 BYTE) NOT NULL ENABLE,
         "NOTIFICATION_LEVEL" NUMBER(1,0) NOT NULL ENABLE,
          PRIMARY KEY ("ID")
-  
-   )  ;
+   );
    
 CREATE INDEX "MFR_EMAIL_USER_ID_I" ON  "MFR_EMAIL_NOTIFICATION_T" ("USER_ID")  ;
-
 CREATE INDEX  "MFR_EMAIL_CONTEXT_ID_I" ON  "MFR_EMAIL_NOTIFICATION_T" ("CONTEXT_ID") ;
 
 create sequence MFR_EMAIL_NOTIFICATION_S;
@@ -610,8 +595,7 @@ alter table MFR_AREA_T add constraint MFR_AREA_CONTEXT_UUID_UNIQUE unique (CONTE
 -- MSGCNTR-148 unique constraint not created on MFR_PRIVATE_FORUM_T
 -- If this alter query fails, use this select query to find duplicates and remove the duplicate:
 -- select OWNER, surrogateKey, COUNT(OWNER) FROM MFR_PRIVATE_FORUM_T GROUP BY OWNER, surrogateKey HAVING COUNT(OWNER)>1;
- 
-CREATE UNIQUE INDEX MFR_PVT_FRM_OWNER ON  MFR_PRIVATE_FORUM_T (OWNER, surrogateKey); 
+-- CREATE UNIQUE INDEX MFR_PVT_FRM_OWNER ON  MFR_PRIVATE_FORUM_T (OWNER, surrogateKey); 
 
 -- MSGCNTR-132 drop unused MC table columns
 ALTER TABLE MFR_MESSAGE_T
@@ -683,7 +667,6 @@ SHOWQUESTIONLEVELFEEDBACK = 0, SHOWSELECTIONLEVELFEEDBACK = 0, SHOWGRADERCOMMENT
 WHERE ASSESSMENTID in (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TYPEID='142' AND ISTEMPLATE=1);
 
 -- SAK-18370
-
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Coordinator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.export'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Coordinator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewallmembers'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Coordinator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewenrollmentstatus'));
