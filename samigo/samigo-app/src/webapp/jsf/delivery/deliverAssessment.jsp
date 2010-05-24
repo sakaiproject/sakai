@@ -32,23 +32,12 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-	  <script type="text/javascript" language="JavaScript" src="/samigo-app/js/saveForm.js"></script>
-	  	  
-      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
-      </title>
-      </head>
-	
-       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();SaveFormContentAsync('deliverAssessment', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, true);" >
-   <!--div class="portletBody" style='background:#c57717'-->
-      <!--h:outputText value="<body bgcolor='#c57717' #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
-
-      <h:outputText value="<a name='top'></a>" escape="false" />
-      
-      <script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-1.3.2.min.js"></script>
-      <script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
-      <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
-      
-      <script type="text/javascript">
+	  <script type="text/javascript" language="JavaScript" src="../../js/saveForm.js"></script>
+	  <script type="text/javascript" language="JavaScript" src="../../js/jquery-1.3.2.min.js"></script>
+	  <script type="text/javascript" language="JavaScript" src="../../js/jquery-ui-1.7.2.custom.min.js"></script>
+	  <link type="text/css" href="../../css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+	  
+	  <script type="text/javascript">
 		$(document).ready(function(){
 		
 			$('#timer-warning').dialog({
@@ -66,15 +55,27 @@
 			return false;
 		}
 		
-      </script>
+	</script>
+	  
+      <title> <h:outputText value="#{delivery.assessmentTitle}"/>
+      </title>
+      </head>
+       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();SaveFormContentAsync('deliverAssessment', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, true);" >
+   <!--div class="portletBody" style='background:#c57717'-->
+      <!--h:outputText value="<body bgcolor='#c57717' #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
+
+      <h:outputText value="<a name='top'></a>" escape="false" />
+      
       <div id="timer-warning">
       	<h3><h:outputText value="#{deliveryMessages.five_minutes_left1}" /></h3>
       	<p><h:outputText value="#{deliveryMessages.five_minutes_left2}" /></p>
       </div>
+      
+
  
  <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor};background-image:url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)'>" escape="false"/-->
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
-      
+
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">

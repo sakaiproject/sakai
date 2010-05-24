@@ -301,11 +301,12 @@ return;
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+		 <f:param name="email" value="#{description.email}" />
        </h:commandLink>
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
+	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\", '#{description.email}', '#{totalScores.assessmentName}');" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
@@ -349,11 +350,12 @@ return;
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+		 <f:param name="email" value="#{description.email}" />
        </h:commandLink>
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
+	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\",' #{description.email}', '#{totalScores.assessmentName}');" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
@@ -396,12 +398,13 @@ return;
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+ 		 <f:param name="email" value="#{description.email}" />
        </h:commandLink>
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
+	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\", '#{description.email}', '#{totalScores.assessmentName}');" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	  </h:outputLink>
 	  </span>

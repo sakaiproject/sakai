@@ -116,9 +116,8 @@ public class StudentScoreListener
       bean.setFirstName(agent.getFirstName());
       bean.setAssessmentGradingId(ContextUtil.lookupParam("gradingData"));
       bean.setItemId(ContextUtil.lookupParam("itemId"));
-      //String email = ContextUtil.lookupParam("email");
-      //bean.setEmail(email);
-      bean.setEmail(agent.getEmail());
+      String email = ContextUtil.lookupParam("email");
+      bean.setEmail(email);
       
       DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");
