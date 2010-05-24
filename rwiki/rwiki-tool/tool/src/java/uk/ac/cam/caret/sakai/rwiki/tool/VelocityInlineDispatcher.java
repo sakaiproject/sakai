@@ -35,6 +35,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
@@ -160,8 +161,8 @@ public class VelocityInlineDispatcher implements Dispatcher
 			{
 				return "unkown-date";
 			}
-			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoader(request);
-			DateFormat formatter = new SimpleDateFormat(rlb.getString("date_format"));
+			ResourceLoader rl = new ResourceLoader();
+			DateFormat formatter = DateFormat.getDateTimeInstance( DateFormat.LONG, DateFormat.LONG, rl.getLocale() );
 			return formatter.format(date);
 		}
 
