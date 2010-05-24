@@ -142,7 +142,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
     	Link<Void> myMessagesLink = new Link<Void>("myMessagesLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new MyMessageThreads());
+				setResponsePage(new MyMessages());
 			}
 		};
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -26,10 +26,16 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -37,17 +43,29 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
-import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
-import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
+import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-public class MyMessageThreads extends BasePage {
+public class MessageThreadsView extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
-    
-	public MyMessageThreads() {
+
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	protected ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	protected ProfileMessagingLogic messagingLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
+	
+	public MessageThreadsView(final String id) {
+		super(id);
 		
 		log.debug("MessageThreads()");
 		
@@ -151,7 +169,7 @@ public class MyMessageThreads extends BasePage {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						//load messageview panel
-						setResponsePage(new MyMessageView(currentUserUuid, getModelObject().getId(), getModelObject().getSubject()));
+						//setResponsePage(new MyMessageView(id, currentUserUuid, getModelObject().getId(), getModelObject().getSubject()));
 					}
 					
 				};

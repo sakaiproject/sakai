@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -31,11 +31,17 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -44,11 +50,12 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessagesDataProvider;
 import org.sakaiproject.profile2.tool.models.StringModel;
-import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
+import org.sakaiproject.profile2.tool.pages.MyMessages;
+import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-public class MyMessageView extends BasePage {
+public class MyMessageView extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
@@ -57,11 +64,24 @@ public class MyMessageView extends BasePage {
 	private WebMarkupContainer messageListContainer = null;
 	private boolean lastUnreadSet = false;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	protected ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
+	protected ProfileMessagingLogic messagingLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
+	
 	/**
 	 * Constructor for an incoming link with a threadId as part of the PageParameters
 	 * @param parameters
 	 */
-	public MyMessageView(PageParameters parameters) {
+	public MyMessageView(final String id, PageParameters parameters) {
+		super(id);
 		log.debug("MyMessageView(" + parameters.toString() +")");
 
 		MessageThread thread = messagingLogic.getMessageThread(parameters.getString("thread"));
@@ -72,7 +92,7 @@ public class MyMessageView extends BasePage {
 			//this would only ever happen if the user has access to the other user's workspace because the link is a direct link to their site
 			//so they won't even reach this part if they don't have access - so it would need to be a very special case.
 			log.error("MyMessageView: user " + currentUserUuid + " attempted to access restricted thread: " + thread.getId());
-			throw new RestartResponseException(new MyMessageThreads());
+			throw new RestartResponseException(new MyMessages());
 		}
 		
 		renderMyMessagesView(sakaiProxy.getCurrentUserId(), thread.getId(), thread.getSubject());
@@ -84,7 +104,8 @@ public class MyMessageView extends BasePage {
 	 * @param threadId
 	 * @param threadSubject
 	 */
-	public MyMessageView(final String currentUserUuid, final String threadId, final String threadSubject) {
+	public MyMessageView(final String id, final String currentUserUuid, final String threadId, final String threadSubject) {
+		super(id);
 		log.debug("MyMessageView(" + currentUserUuid + ", " + threadId + ", " + threadSubject +")");
 		
 		renderMyMessagesView(currentUserUuid, threadId, threadSubject);
@@ -105,7 +126,7 @@ public class MyMessageView extends BasePage {
 		Button backButton = new Button("backButton", new ResourceModel("button.message.backtolist")) {
 			private static final long serialVersionUID = 1L;
 			public void onSubmit() {
-				setResponsePage(new MyMessageThreads());
+				setResponsePage(new MyMessages(threadId));
 			}
 		};
 		backButton.setDefaultFormProcessing(false);
