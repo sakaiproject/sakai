@@ -515,7 +515,11 @@ public class SiteContentProducer implements EntityContentProducer
 	{
 		Reference reference = getReference(ref);
 		Site s = (Site) reference.getEntity();
-		return s.isPublished();
+		//SAK-18545 its possible the site no longer exits
+		if (s != null) {
+			return s.isPublished();
+		}
+		return false;
 	}
 
 	/*
