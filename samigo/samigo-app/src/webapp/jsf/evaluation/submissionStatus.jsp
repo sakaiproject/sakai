@@ -227,7 +227,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\", '#{description.email}', '#{totalScores.assessmentName}');" value="#">
+	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
@@ -273,7 +273,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\",' #{description.email}', '#{totalScores.assessmentName}');" value="#">
+	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
@@ -319,7 +319,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", '#{totalScores.graderEmailInfo}', \"#{description.firstName} #{description.lastName}\", '#{description.email}', '#{totalScores.assessmentName}');" value="#">
+	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
