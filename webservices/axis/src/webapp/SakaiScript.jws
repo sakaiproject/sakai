@@ -2447,17 +2447,18 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
  * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
  * The authzgroup arguments for sites should start with /site/SITEID, likewise for site groups etc
  * 
- * @param	sessionid		the sessionid of a valid session for the admin user
- * @param	authzgroupid1	the authgroupid of the site you want to copy the role FROM
- * @param	authzgroupid2	the authgroupid of the site you want to copy the role TO
- * @param	roleid			the id of the role you want to copy
- * @param	description		the description of the new role
+ * @param	sessionid			the sessionid of a valid session for the admin user
+ * @param	authzgroupid1		the authgroupid of the site you want to copy the role FROM
+ * @param	authzgroupid2		the authgroupid of the site you want to copy the role TO
+ * @param	roleid				the id of the role you want to copy
+ * @param	description			the description of the new role
+ * @param	removeBeforeSync	if synchronising roles, whether or not to remove the functions from the target role before adding the set in. This will
+ * 								mean that no additional permissions will remain, if they already exist in that role
  * @return					success or AxisFault
  * @throws	AxisFault		if not a super user, if new role cannot be created, if functions differ after the new role is made
  *
  */
-
-public String copyRole( String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description) throws AxisFault
+public String copyRole( String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description, boolean removeBeforeSync) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
@@ -2540,6 +2541,11 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 		//get this role
 		role2 = authzgroup2.getRole(roleid);
 
+		//if removing permissions before syncing (SAK-18019)
+		if(removeBeforeSync){
+			role2.disallowAll();
+		}
+		
 		//add Set of functions to this role
 		role2.allowFunctions(existingfunctions);
 		
@@ -2570,6 +2576,27 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 		 return e.getClass().getName() + " : " + e.getMessage();
 	}
 	return "success";
+}
+
+/**
+ * Copies a role from one authzgroup to another. Useful for mass population/synchronisation 
+ *
+ * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
+ * The authzgroup arguments for sites should start with /site/SITEID, likewise for site groups etc
+ * 
+ * @param	sessionid			the sessionid of a valid session for the admin user
+ * @param	authzgroupid1		the authgroupid of the site you want to copy the role FROM
+ * @param	authzgroupid2		the authgroupid of the site you want to copy the role TO
+ * @param	roleid				the id of the role you want to copy
+ * @param	description			the description of the new role
+ * @return						success or AxisFault
+ * @throws	AxisFault			if not a super user, if new role cannot be created, if functions differ after the new role is made
+ *
+ */
+public String copyRole( String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description) throws AxisFault
+{
+	return copyRole(sessionid, authzgroupid1, authzgroupid2, roleid, description, false);
+	
 }
 
 
