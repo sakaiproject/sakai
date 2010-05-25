@@ -548,7 +548,7 @@ alter table MFR_TOPIC_T modify (AUTO_MARK_THREADS_READ NUMBER(1,0) not null);
 create table MFR_SYNOPTIC_ITEM
 (SYNOPTIC_ITEM_ID number(19,0) not null,
 VERSION number(10,0) not null,
-USER_ID varchar2(99 char) not null,
+USER_ID varchar2(36 char) not null,
 SITE_ID varchar2(99 char) not null,
 SITE_TITLE varchar2(255 char),
 NEW_MESSAGES_COUNT number(10,0),
