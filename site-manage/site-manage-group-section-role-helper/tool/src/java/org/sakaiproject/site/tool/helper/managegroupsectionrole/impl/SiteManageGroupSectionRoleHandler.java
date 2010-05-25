@@ -798,8 +798,8 @@ public class SiteManageGroupSectionRoleHandler {
 		        	// roster provider string
 		        	group.setProviderGroupId(roster);
 		        		
-		        	// set title
-		        	group.setTitle(roster);
+		        	String title = truncateGroupTitle(roster);
+		        	group.setTitle(title);
 	    		}
     		}
 	        	
@@ -813,7 +813,9 @@ public class SiteManageGroupSectionRoleHandler {
         			//group.setProviderGroupId(site.getId() + "_" + role);
         			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
         			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
-        			group.setTitle(role);
+
+		        	String title = truncateGroupTitle(role);
+		        	group.setTitle(title);
         			
         			// get the authz group
                 	String siteReference = siteService.siteReference(site.getId());
@@ -857,6 +859,20 @@ public class SiteManageGroupSectionRoleHandler {
     	}
         return "done";
     }
+
+    /**
+     * check whether the title string is within length limit, truncate it if necessary
+     * @param oTitle
+     * @return
+     */
+	private String truncateGroupTitle(String oTitle) {
+		String title = oTitle;
+		if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
+		{
+			title = title.substring(0, SiteConstants.SITE_GROUP_TITLE_LIMIT);
+		}
+		return title.trim();
+	}
     
     /**
      * Return a single string representing the provider id list
