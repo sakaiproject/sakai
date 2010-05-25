@@ -91,7 +91,7 @@ public class BasicLTIUtil {
   /** To turn on really verbose debugging */
   private static boolean verbosePrint = false;
 
-  public static final String BASICLTI_SUBMIT = "basiclti_submit";
+  public static final String BASICLTI_SUBMIT = "ext_basiclti_submit";
 
   private static final Pattern CUSTOM_REGEX = Pattern.compile("[^A-Za-z0-9]");
   private static final String UNDERSCORE = "_";
