@@ -17,6 +17,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -517,7 +518,7 @@ public class SiteManageGroupSectionRoleHandler {
     	
         Group group = null;
         
-        id = StringUtil.trimToNull(id);
+        id = StringUtils.trimToNull(id);
         
     	String siteReference = siteService.siteReference(site.getId());
     	
@@ -620,7 +621,8 @@ public class SiteManageGroupSectionRoleHandler {
 				else
 				{
 					// normal user id
-					if (group.getUserRole(memberId) == null) {
+					memberId = StringUtils.trimToNull(memberId);
+					if (memberId != null && group.getUserRole(memberId) == null) {
 						Role r = site.getUserRole(memberId);
 						Member m = site.getMember(memberId);
 						Role memberRole = m != null ? m.getRole() : null;
