@@ -3110,11 +3110,12 @@ public class AssignmentAction extends PagedResourceActionII
 					contextString, assignmentRef));
 			context.put("accessPointUrl", accessPointUrl);
 			
+			int submissionType = a.getContent().getTypeOfSubmission();
 			// if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
-			context.put("includeSubmissionText", Boolean.valueOf(Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
+			context.put("includeSubmissionText", Boolean.valueOf(Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType));
 			
 			// if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
-			context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission() || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission()));
+			context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SINGLE_ATTACHMENT_SUBMISSION == submissionType));
 		
 			context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
 			
