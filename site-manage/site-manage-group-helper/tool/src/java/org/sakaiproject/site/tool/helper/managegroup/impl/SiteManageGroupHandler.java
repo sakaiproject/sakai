@@ -342,7 +342,7 @@ public class SiteManageGroupHandler {
     	}
     	else if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
     	{
-    		messages.addMessage(new TargettedMessage("site_group_title_length_limit",new Object[] { "99" }, TargettedMessage.SEVERITY_ERROR));
+    		messages.addMessage(new TargettedMessage("site_group_title_length_limit",new Object[] { String.valueOf(SiteConstants.SITE_GROUP_TITLE_LIMIT) }, TargettedMessage.SEVERITY_ERROR));
     		return null;
     	}
     	else if (id == null)
