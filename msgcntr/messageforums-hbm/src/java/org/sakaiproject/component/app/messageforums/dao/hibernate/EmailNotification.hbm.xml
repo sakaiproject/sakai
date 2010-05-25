@@ -25,7 +25,7 @@
 		</property>
 
 		<property name="notificationLevel">
-			<column name="NOTIFICATION_LEVEL" not-null="true" />
+			<column name="NOTIFICATION_LEVEL" length="1" not-null="true" />
 		</property>
 
 	</class>
