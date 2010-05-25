@@ -1915,7 +1915,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
     
 	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
 		AssessmentData newAssessment = new AssessmentData(new Long("0"), a
-				.getTitle(), a.getDescription(), a.getComments(), null,
+				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
 						.getTesteeNotification(), a.getMultipartAllowed(), a
 						.getStatus(), AgentFacade.getAgentString(), new Date(), 
