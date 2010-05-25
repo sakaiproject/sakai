@@ -31,7 +31,7 @@
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
-    behavior: url(/sitestats-tool/script/border-radius.htc);
+    /*behavior: url(/sitestats-tool/script/border-radius.htc);*/
 }
 .widget .top {
     width: auto;

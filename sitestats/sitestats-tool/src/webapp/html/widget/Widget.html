@@ -35,9 +35,14 @@
 
                jQuery(more).hide();
                jQuery(less).show();
-               jQuery(middle).slideDown('300', function() {
-                   setMainFrameHeightNoScroll(window.name, 0, 100);
-               }); 
+               if(jQuery.browser.msie && jQuery.browser.version == '8.0') {
+                    // as usual, MS IE is buggy...
+            	    jQuery(middle).show();
+               }else{
+            	    jQuery(middle).slideDown('300', function() {
+            	        setMainFrameHeightNoScroll(window.name, 0, 100);
+            	    });
+               } 
         }else{
         	jQuery(more).show();
             jQuery(less).hide();
