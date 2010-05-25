@@ -8,11 +8,11 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
 
-    <name>BasicLTI utilities (basiclti-util)</name>
+    <name>BasicLTI Utilities (basiclti-util)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-util</artifactId>
     <organization>
-        <name>IMS Global</name>
+        <name>IMS Global Learning Consortium</name>
         <url>www.imsglobal.org/</url>
     </organization>
     <inceptionYear>2009</inceptionYear>
