@@ -1,6 +1,26 @@
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/svn/content/trunk/content-tool/tool/src/java/org/sakaiproject/content/tool/ResourceTypeLabeler.java $
+ * $Id: ResourceTypeLabeler.java 59674 2009-04-03 23:05:58Z arwhyte@umich.edu $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007, 2008, 2009, 2010 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.content.tool;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.conditions.api.Condition;
-import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.conditions.api.ConditionService;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -22,7 +42,6 @@ import org.sakaiproject.event.api.NotificationNotDefinedException;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
