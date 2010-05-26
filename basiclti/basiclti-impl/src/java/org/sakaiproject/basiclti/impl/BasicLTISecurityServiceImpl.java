@@ -19,12 +19,9 @@
 
 package org.sakaiproject.basiclti.impl;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 
@@ -35,13 +32,9 @@ import javax.servlet.ServletOutputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
@@ -53,24 +46,21 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 
-import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
+@SuppressWarnings("deprecation")
 public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 	private static ResourceLoader rb = new ResourceLoader("basicltisvc");
@@ -88,7 +78,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 	/** Dependency: a logger component. */
 	private Log logger = LogFactory.getLog(BasicLTISecurityServiceImpl.class);
-	private ThreadLocalManager threadLocalManager = org.sakaiproject.thread_local.cover.ThreadLocalManager.getInstance();
 
 	/**
 	 * Check security for this entity.
@@ -165,13 +154,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		return SecurityService.isSuperUser(userId);
 	}
 
-	/**
-	 * @return siteId
-	 */
-	private String getContextSiteId(String reference) {
-                  // TODO: Fix this - Chuck
-		  return ("/site/" + reference);
-	}
 
 		/*******************************************************************************************************************************
 		 * EntityProducer
@@ -215,6 +197,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	{
 		return new HttpAccess()
 		{
+			@SuppressWarnings("unchecked")
 			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException
@@ -262,7 +245,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref, String userId)
+	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// Since we handle security ourself, we won't support anyone else asking
 		return null;
@@ -305,13 +288,15 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
                 return false;
         }
 
-        public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
+        @SuppressWarnings("unchecked")
+		public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
                         Set userListAllowImport)
         {
 		return null;
         }
 
-        public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
+        @SuppressWarnings("unchecked")
+		public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
         {
 		return null;
         }

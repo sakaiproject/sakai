@@ -89,8 +89,10 @@ import org.sakaiproject.util.ResourceLoader;
  * of SHA-1: maximum length of (264 ? 1) bits.
  */
 
+@SuppressWarnings("deprecation")
 public class ProviderServlet extends HttpServlet {
 
+	private static final long serialVersionUID = 1L;
 	private static Log M_log = LogFactory.getLog(ProviderServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
@@ -142,6 +144,7 @@ public class ProviderServlet extends HttpServlet {
 		doPost(request, response);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
@@ -151,7 +154,7 @@ public class ProviderServlet extends HttpServlet {
 				"imsblti.provider.enabled", null);
 		if (enabled == null || !("true".equals(enabled))) {
 			M_log.warn("Basic LTI Provider is Disabled IP=" + ipAddress);
-			response.setStatus(response.SC_FORBIDDEN);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 

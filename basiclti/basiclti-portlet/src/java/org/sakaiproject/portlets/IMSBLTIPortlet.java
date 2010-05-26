@@ -25,13 +25,7 @@ import java.lang.Integer;
 
 import java.io.PrintWriter;
 import java.io.IOException;
-import java.io.PrintStream;
-
 import java.net.URL;
-import java.net.URLEncoder;
-
-import java.util.Map;
-import java.util.List;
 import java.util.Properties;
 import java.util.ArrayList;
 
@@ -41,14 +35,11 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.RenderResponse;
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
 import javax.portlet.PortletException;
-import javax.portlet.PortletURL;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletConfig;
-import javax.portlet.WindowState;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
@@ -56,29 +47,17 @@ import javax.portlet.ReadOnlyException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.portlet.util.SakaiPortletUtil;
 import org.sakaiproject.portlet.util.PortletHelper;
 
 // Sakai APIs
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
@@ -86,15 +65,11 @@ import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 
-// For Rutgers Security
-import java.security.*;
-
-import javax.crypto.*;
-import javax.crypto.spec.*;
 
 /**
  * a simple IMSBLTIPortlet Portlet
  */
+@SuppressWarnings("deprecation")
 public class IMSBLTIPortlet extends GenericPortlet {
 
     private static ResourceLoader rb = new ResourceLoader("basiclti");
@@ -577,14 +552,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	response.setPortletMode(PortletMode.VIEW);
     }
 
-	private void propCopy(Properties newProp,Map<String,String> newMap, String key)
-	{
-		if ( key == null ) return;
-		String value = newProp.getProperty(key);
-		if ( value == null ) return;
-		newMap.put(key, value);
-	}
-
         /**
          * Get the current site page our current tool is placed on.
          * 
@@ -592,8 +559,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
          */
         protected String getCurrentSitePageId()
         {
-                ToolSession ts = SessionManager.getCurrentToolSession();
-
 		Placement placement = ToolManager.getCurrentPlacement();
 		ToolConfiguration tool = SiteService.findTool(placement.getId());
 		if (tool != null)

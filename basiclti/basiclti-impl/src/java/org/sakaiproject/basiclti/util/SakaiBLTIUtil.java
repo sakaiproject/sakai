@@ -19,33 +19,22 @@
 
 package org.sakaiproject.basiclti.util;
 
-import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
-
 import java.net.URL;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.linktool.LinkToolUtil;
 
-// Sakai APIs
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -59,6 +48,7 @@ import org.sakaiproject.util.Web;
  * This is mostly code to support the Sakai conventions for 
  * making and launching BLTI resources within Sakai.
  */
+@SuppressWarnings("deprecation")
 public class SakaiBLTIUtil {
 
     public static final boolean verbosePrint = false;
@@ -372,12 +362,6 @@ public class SakaiBLTIUtil {
         value = Web.cleanHtml(value);
         if ( value.trim().length() < 1 ) return;
         props.setProperty(key, value);
-    }
-
-    private static String getContext()
-    {
-        String retval = ToolManager.getCurrentPlacement().getContext();
-        return retval;
     }
 
     private static String getExternalRealmId(String siteId) {
