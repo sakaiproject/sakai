@@ -58,7 +58,7 @@
 			</p>
 			<p class="shorttext">
 				<label for="email">
-					$tlang.getString("useedi.ema")
+					$tlang.getString("useconrem.ema")
 				</label>
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
 				<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />

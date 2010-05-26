@@ -36,7 +36,7 @@
 		</p>
 		<p class="shorttext">
 			<label for="email">
-				$tlang.getString("usecre.ema")
+				$tlang.getString("useconrem.ema")
 			</label>
 			<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
 		</p>

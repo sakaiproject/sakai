@@ -86,7 +86,7 @@
 				<tr>
 					<th id="Eid">$tlang.getString("useconrem.useid")</th>
 					<th id="Name">$tlang.getString("useconrem.nam")</th>
-					<th id="Email">$tlang.getString("uselis.ema")</th>
+					<th id="Email">$tlang.getString("useconrem.ema")</th>
 					<th id="Type">$tlang.getString("usecre.typ")</th>
 					<th id="Id">$tlang.getString("useconrem.useuid")</th>
 				</tr>
