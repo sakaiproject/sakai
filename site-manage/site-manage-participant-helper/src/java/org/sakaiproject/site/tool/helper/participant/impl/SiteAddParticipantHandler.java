@@ -762,9 +762,12 @@ public class SiteAddParticipantHandler {
 								if(usersWithEmail.size() == 0) {
 									// If the collection is empty, we didn't find any users with this email address
 									M_log.debug("Unable to find users with email " + officialAccount);
-								} else if (usersWithEmail.size() == 1 && u == null) {
-									// We found one user with this email address.  Use it.
-									u = (User)usersWithEmail.iterator().next();
+								} else if (usersWithEmail.size() == 1) {
+									if (u == null)
+									{
+										// We found one user with this email address.  Use it.
+										u = (User)usersWithEmail.iterator().next();
+									}
 								} else if (!usersWithEmail.isEmpty()) {
 									// If we have multiple users with this email address, expand the list with all matching user's eids and let the instructor choose from them
 									M_log.debug("Found multiple user with email " + officialAccount);
