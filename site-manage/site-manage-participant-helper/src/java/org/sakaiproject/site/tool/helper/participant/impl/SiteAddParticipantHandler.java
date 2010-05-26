@@ -810,7 +810,7 @@ public class SiteAddParticipantHandler {
 						}
 						
 						// update the userRoleTable
-						if (!getUsers().contains(officialAccount))
+						if (!getUsers().contains(officialAccount) && !existingUsers.contains(officialAccount))
 						{
 							userRoleEntries.add(new UserRoleEntry(u.getEid(), ""));
 						}
@@ -961,7 +961,7 @@ public class SiteAddParticipantHandler {
 						}
 						
 						// update the userRoleTable
-						if (!getUsers().contains(userEid))
+						if (!getUsers().contains(userEid) && !existingUsers.contains(userEid))
 						{
 							userRoleEntries.add(new UserRoleEntry(userEid, "", userFirstName, userLastName));
 						}
@@ -993,8 +993,8 @@ public class SiteAddParticipantHandler {
 				count++;
 			}
 
-			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.1", new Object[]{accounts}, TargettedMessage.SEVERITY_ERROR));
-			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.2", null, TargettedMessage.SEVERITY_ERROR));
+			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.1", new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
+			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.2", null, TargettedMessage.SEVERITY_INFO));
 		}
 
 		return;
