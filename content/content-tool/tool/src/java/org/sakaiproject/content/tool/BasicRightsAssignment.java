@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.cover.TimeService;
