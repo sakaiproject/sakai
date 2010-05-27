@@ -151,7 +151,7 @@ public class ProviderServlet extends HttpServlet {
 		M_log.debug("Basic LTI Provider request from IP=" + ipAddress);
 
 		String enabled = ServerConfigurationService.getString(
-				"imsblti.provider.enabled", null);
+				"basiclti.provider.enabled", null);
 		if (enabled == null || !("true".equals(enabled))) {
 			M_log.warn("Basic LTI Provider is Disabled IP=" + ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -212,7 +212,7 @@ public class ProviderServlet extends HttpServlet {
 		// Trim off the leading slash and any trailing space
 		tool_id = tool_id.substring(1).trim();
 		M_log.debug("tool_id="+tool_id);
-		String allowedToolsConfig = ServerConfigurationService.getString("imsblti.provider.allowedtools", null);
+		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", null);
 		
 		String[] allowedTools = allowedToolsConfig.split(":");
 		List<String> allowedToolsList = Arrays.asList(allowedTools);
@@ -232,7 +232,7 @@ public class ProviderServlet extends HttpServlet {
 		// ie without prefixing them with the oauth_consumer_key first.
 		// We also don't both checking their roles in the site.
 		boolean isTrustedConsumer = false;
-		String trustedConsumersConfig = ServerConfigurationService.getString("imsblti.highly.trusted.consumers", null);
+		String trustedConsumersConfig = ServerConfigurationService.getString("basiclti.provider.highly.trusted.consumers", null);
 		if(BasicLTIUtil.isNotBlank(trustedConsumersConfig)) {
 			String[] trustedConsumers = trustedConsumersConfig.split(":");
 			List<String> trustedConsumersList = Arrays.asList(trustedConsumers);
@@ -267,7 +267,7 @@ public class ProviderServlet extends HttpServlet {
 		M_log.debug("siteId="+siteId);
 
 		// Lookup the secret
-		String configPrefix = "imsblti.provider." + oauth_consumer_key + ".";
+		String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
 		String oauth_secret = ServerConfigurationService.getString(configPrefix+ "secret", null);
 		if (oauth_secret == null) {
 			doError(request, response, "launch.key.notfound",oauth_consumer_key, null);
