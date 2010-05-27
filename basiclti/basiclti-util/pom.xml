@@ -28,12 +28,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                    <include>**/*.vm</include>
-                </includes>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
     </build>
