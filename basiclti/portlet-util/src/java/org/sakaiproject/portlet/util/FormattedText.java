@@ -488,24 +488,6 @@ public class FormattedText
 	}
 
 	/**
-	 * Returns a String with HTML entity references converted to characters suitable for processing as formatted text.
-	 * 
-	 * @param value
-	 *        The text containing entity references (e.g., a News item description).
-	 * @return The HTML, ready for processing.
-	 */
-	public static String unEscapeHtml(String value)
-	{
-		if (value == null) return "";
-		if (value.equals("")) return "";
-		value.replaceAll("&lt;", "<");
-		value.replaceAll("&gt;", ">");
-		value.replaceAll("&amp;", "&");
-		value.replaceAll("&quot;", "\"");
-		return value;
-	}
-
-	/**
 	 * Returns a String with HTML anchor normalized to include only href and target="_blank" for safe display by a browser.
 	 * 
 	 * @param anchor
@@ -540,41 +522,6 @@ public class FormattedText
 		else
 			M_log.warn("FormattedText.processAnchor href == null");
 		return newAnchor;
-	}
-
-	/**
-	 * Processes and validates character data as HTML. Disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags. Encodes the text according to the formatted text specification, for the rest of the system to use.
-	 * 
-	 * @param source
-	 *        The escaped HTML (e.g., from the News service)
-	 * @return The validated processed formatted text, ready for use by the system.
-	 */
-	public static String processEscapedHtml(final String source)
-	{
-		if (source == null) return "";
-		if (source.equals("")) return "";
-
-		String Html = null;
-		try
-		{
-			// TODO call encodeUnicode in other process routine
-			Html = encodeUnicode(source);
-		}
-		catch (Exception e)
-		{
-			M_log.warn("FormattedText.processEscapedHtml encodeUnicode(source):", e);
-		}
-		try
-		{
-			// to use the FormattedText functions
-			Html = unEscapeHtml(Html);
-		}
-		catch (Exception e)
-		{
-			M_log.warn("FormattedText.processEscapedHtml unEscapeHtml(Html):", e);
-		}
-
-		return processHtml(Html, new StringBuffer());
 	}
 
 	private static String processHtml(final String source, StringBuffer errorMessages)
