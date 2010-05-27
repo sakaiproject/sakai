@@ -41,10 +41,8 @@
 	 	<span style="font-weight:bold;color:#000">
 		 	${util.escapeHtml($renderBean.localisedPageName)}
 		</span>	
-	 	${rlb.jsp_last_modified_by} 
-	 	#formatDisplayName(${currentRWikiObject.user})
-	 	${rlb.jsp_on}
-	 	#formatDateTime(${currentRWikiObject.version}) 
+	 	#set( $value= ["#formatDisplayName(${currentRWikiObject.user})","#formatDateTime($currentRWikiObject.version)"])
+				${rlb.getFormattedMessage("jsp_last_modified_by", $value.toArray())}
 	 </div>
   
 	<div id="rwiki_head" ><!-- avoid min height in IEX-->				    
