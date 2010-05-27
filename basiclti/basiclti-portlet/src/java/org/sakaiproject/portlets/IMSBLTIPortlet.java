@@ -482,6 +482,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
         if ( imsTIHeight != null ) {
                 try {
                         int x = Integer.parseInt(imsTIHeight);
+                        if ( x < 0 ) {
+                                setErrorMessage(request, rb.getString("error.bad.height") );
+                                return;
+			}
                 }
                 catch(Exception e) {
 			setErrorMessage(request, rb.getString("error.bad.height") );
