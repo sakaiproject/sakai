@@ -211,10 +211,15 @@ public class BasicLTIUtil {
    * 
    * @param propertyName
    * @return true if propertyName is equal to one of the Strings contained in
-   *         {@link BasicLTIConstants#validPropertyNames} ; else return false.
+   *         {@link BasicLTIConstants#validPropertyNames} 
+   *         or is a custom parameter oe extension parameter ;
+   *         else return false.
    */
   public static boolean isSpecifiedPropertyName(final String propertyName) {
     boolean found = false;
+    if ( propertyName.startsWith(BasicLTIConstants.CUSTOM_PREFIX) ) return true;
+    if ( propertyName.startsWith(BasicLTIConstants.EXTENSION_PREFIX) ) return true;
+    if ( propertyName.startsWith(BasicLTIConstants.OAUTH_PREFIX) ) return true;
     for (String key : BasicLTIConstants.validPropertyNames) {
       if (key.equals(propertyName)) {
         found = true;

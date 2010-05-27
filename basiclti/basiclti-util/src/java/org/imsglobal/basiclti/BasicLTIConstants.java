@@ -35,6 +35,7 @@ public class BasicLTIConstants {
    * A title of the context - it should be about the length of a line.
    */
   public static final String CONTEXT_TITLE = "context_title";
+
   /**
    * context_type=CourseSection
    * <p>
@@ -46,6 +47,18 @@ public class BasicLTIConstants {
    * namespace, a fully-qualified URN should be used.
    */
   public static final String CONTEXT_TYPE = "context_type";
+  public static final String CONTEXT_TYPE_COURSE_OFFERING = "CourseOffering";
+  public static final String CONTEXT_TYPE_COURSE_SECTION = "CourseSection";
+  public static final String CONTEXT_TYPE_COURSE_TEMPLATE = "CourseTemplate";
+  public static final String CONTEXT_TYPE_GROUP = "GROUP";
+
+  /**
+   * ext_param=value
+   * <p>
+   * Systems can add their own values to the launch but should prefix
+   * any extensions with "ext_".
+   */
+  public static final String EXTENSION_PREFIX = "ext_";
   /**
    * custom_keyname=value
    * <p>
@@ -70,6 +83,10 @@ public class BasicLTIConstants {
    * include them in the launch data or the TP may fail to function.
    */
   public static final String CUSTOM_PREFIX = "custom_";
+  /**
+   * Parameters with the OAuth prefix are also acceptible.
+   */
+  public static final String OAUTH_PREFIX = "oauth_";
   /**
    * launch_presentation_document_target=iframe
    * <p>
@@ -154,6 +171,37 @@ public class BasicLTIConstants {
   public static final String LIS_PERSON_NAME_GIVEN = "lis_person_name_given";
 
   /**
+   * lis_person_sourcedid=school.edu:user
+   * <p>
+   * This field contains the LIS identifier for the user account that is 
+   * performing this launch.    The example syntax of "school:user" 
+   * is not the required format – lis_person_sourcedid is simply a
+   * globally unique identifier (i.e., a normalized string). This field 
+   * is optional and its content and meaning are defined by LIS.    
+   */
+  public static final String LIS_PERSON_SOURCEDID = "lis_person_sourcedid";
+
+  /**
+   * lis_course_offering_sourcedid=school.edu:SI182-F08 <br/>
+   * lis_course_section_sourcedid=school.edu:SI182-001-F08
+   * <p>
+   * These fields contain LIS course identifiers associated with the 
+   * context of this launch.  These fields are optional and their 
+   * content and meaning are defined by LIS. 
+   */
+  public static final String LIS_COURSE_OFFERING_SOURCEDID = "lis_course_offering_sourcedid";
+  public static final String LIS_COURSE_SECTION_SOURCEDID = "lis_course_section_sourcedid";
+
+  /**
+   * lis_result_sourcedid=83873872987329873264783687634
+   * <p>
+   * This field contains an identifier that indicates the LIS Result 
+   * Identifier (if any) associated with this launch. This field is 
+   * optional and its content and meaning is defined by LIS.    
+   */
+  public static final String LIS_RESULT_SOURCEDID = "lis_result_sourcedid";
+
+  /**
    * lti_message_type=basic-lti-launch-request
    * <p>
    * This indicates that this is a Basic LTI Launch Message. This allows a TP to
@@ -180,6 +228,24 @@ public class BasicLTIConstants {
    * parameter is required.
    */
   public static final String RESOURCE_LINK_ID = "resource_link_id";
+
+  /**
+   * resource_link_title=My Weekly Wiki
+   * <p>
+   * A title for the resource. This is the clickable text that appears 
+   * in the link. This parameter is recommended.
+   */
+  public static final String RESOURCE_LINK_TITLE = "resource_link_title";
+
+  /**
+   * resource_link_description=…
+   * <p>
+   * A plain text description of the link’s destination, suitable for 
+   * display alongside the link. Typically no more than several lines 
+   * long. This parameter is optional.
+   */
+  public static final String RESOURCE_LINK_DESCRIPTION = "resource_link_description";
+
   /**
    * roles=Instructor,Student
    * <p>
@@ -249,7 +315,10 @@ public class BasicLTIConstants {
       LAUNCH_PRESENTATION_LOCALE, LAUNCH_PRESENTATION_RETURN_URL,
       LAUNCH_PRESENTATION_WIDTH, LIS_PERSON_CONTACT_EMAIL_PRIMARY,
       LIS_PERSON_NAME_FAMILY, LIS_PERSON_NAME_FULL, LIS_PERSON_NAME_GIVEN,
-      LTI_MESSAGE_TYPE, LTI_VERSION, RESOURCE_LINK_ID, ROLES,
+      LIS_PERSON_SOURCEDID, LIS_COURSE_OFFERING_SOURCEDID, 
+      LIS_COURSE_SECTION_SOURCEDID, LIS_RESULT_SOURCEDID,
+      LTI_MESSAGE_TYPE, LTI_VERSION, RESOURCE_LINK_ID, 
+      RESOURCE_LINK_TITLE, RESOURCE_LINK_DESCRIPTION, ROLES,
       TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, TOOL_CONSUMER_INSTANCE_DESCRIPTION,
       TOOL_CONSUMER_INSTANCE_GUID, TOOL_CONSUMER_INSTANCE_NAME,
       TOOL_CONSUMER_INSTANCE_URL, USER_ID };

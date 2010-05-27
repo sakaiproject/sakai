@@ -150,9 +150,9 @@ public class SakaiBLTIUtil {
 	// Start setting the Basici LTI parameters
 	setProperty(props,BasicLTIConstants.RESOURCE_LINK_ID,placementId);
         String pagetitle = toNull(getCorrectProperty(config,"pagetitle", placement));
-	if ( pagetitle != null ) setProperty(props,"resource_link_title",pagetitle);
+	if ( pagetitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,pagetitle);
         String tooltitle = toNull(getCorrectProperty(config,"tooltitle", placement));
-	if ( tooltitle != null ) setProperty(props,"resource_link_description",tooltitle);
+	if ( tooltitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,tooltitle);
 
         String releasename = toNull(getCorrectProperty(config,"releasename", placement));
         String releaseemail = toNull(getCorrectProperty(config,"releaseemail", placement));
@@ -169,7 +169,7 @@ public class SakaiBLTIUtil {
 		}
 		if ( "on".equals(releaseemail) ) {
 			setProperty(props,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
-			setProperty(props,"lis_person_sourcedid",user.getEid());
+			setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 		}
 	}
 
@@ -187,7 +187,7 @@ public class SakaiBLTIUtil {
 	if ( site != null ) {
 		String context_type = site.getType();
 		if ( context_type != null && context_type.toLowerCase().contains("course") ){
-			setProperty(props,BasicLTIConstants.CONTEXT_TYPE,"CourseOffering");
+			setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
 		}
 		setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
 		setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
@@ -195,7 +195,7 @@ public class SakaiBLTIUtil {
 		String courseRoster = getExternalRealmId(site.getId());
 		if ( courseRoster != null ) 
 		{
-			setProperty(props,"lis_course_offering_sourced_id",courseRoster);
+			setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
 		}
 	}
 
