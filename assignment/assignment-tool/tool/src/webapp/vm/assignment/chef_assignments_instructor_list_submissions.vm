@@ -90,10 +90,10 @@
 			## show the view by group choice when there is at least one group defined
 			<div class="navPanel">
 				<div class="viewNav">
-					<div class="instruction">
-						$tlang.getString("view_instruction") 
-					</div>
 					#if ($!groups.hasNext())
+						<div class="instruction">
+							$tlang.getString("view_instruction") 
+						</div>
 						<label for="view">
 							$tlang.getString("gen.view2")
 						</label>
