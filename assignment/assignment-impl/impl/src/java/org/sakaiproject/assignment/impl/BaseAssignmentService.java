@@ -5008,7 +5008,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String container = null;
 			String context = null;
 
-			String[] parts = StringUtils.split(reference, Entity.SEPARATOR);
+			// Note: StringUtils.split would not produce the following first null part
+			// Still use StringUtil here.
+			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
 			// we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
 
 			if (parts.length > 2)
