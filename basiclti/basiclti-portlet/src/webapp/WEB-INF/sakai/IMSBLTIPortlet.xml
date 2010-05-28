@@ -42,7 +42,8 @@
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
                 <configuration name="final.launch" value="false"/>
-                <configuration name="final.xml" value="false"/>
+		<!-- We default xml to final to suppress it in the configuration display -->
+                <configuration name="final.xml" value="true"/>
                 <configuration name="final.secret" value="false"/>
                 <configuration name="final.key" value="false"/>
                 <configuration name="final.pagetitle" value="false"/>

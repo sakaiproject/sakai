@@ -112,6 +112,7 @@ function switchui()
 <textarea rows="20" cols="60"  name="imsti.xml" >
 <%=ov.getProperty("imsti.xml","")%>
 </textarea>
+<%=rb.getString("tool.xml.detail") %>
 </div>
 <% } %>
 <% if ( allow(sp,"launch") ) { %>
