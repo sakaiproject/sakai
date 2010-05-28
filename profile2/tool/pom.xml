@@ -52,9 +52,9 @@
    		</dependency>
 
 		<dependency>
-					<groupId>javax.servlet</groupId>
-								<artifactId>servlet-api</artifactId>
-										</dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
 		
 		<!--  INTERNAL DEPENDENCIES -->
 		<dependency>
@@ -64,6 +64,10 @@
     	<dependency>
       		<groupId>org.sakaiproject.profile2</groupId>
       		<artifactId>profile2-util</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject.profile2</groupId>
+      		<artifactId>profile2-bundle</artifactId>
     	</dependency>
     	
     	<!--  GENERIC SAKAI DEPENDENCIES -->

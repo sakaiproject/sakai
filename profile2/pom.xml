@@ -185,6 +185,11 @@
       			<artifactId>profile2-util</artifactId>
       			<version>${project.version}</version>
     		</dependency>
+    		<dependency>
+                <groupId>org.sakaiproject.profile2</groupId>
+                <artifactId>profile2-bundle</artifactId>
+                <version>${project.version}</version>
+            </dependency>
     		
     		<!-- external -->
 			<dependency>
@@ -316,6 +321,7 @@
 	    <module>tool</module>
 	    <module>assembly</module>
 	    <module>deploy</module>
+	    <module>bundle</module>
 	</modules>
     
     <issueManagement>
