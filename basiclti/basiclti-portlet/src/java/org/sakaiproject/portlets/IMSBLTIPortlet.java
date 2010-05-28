@@ -81,7 +81,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
     /** Our log (commons). */
     private static Log M_log = LogFactory.getLog(IMSBLTIPortlet.class);
 
-    public static String EVENT_BASICLTI_CONFIG = "basiclti.config";
+    public static final String EVENT_BASICLTI_CONFIG = "basiclti.config";
 
     private static String LEAVE_SECRET_ALONE = "__dont_change_secret__";
 

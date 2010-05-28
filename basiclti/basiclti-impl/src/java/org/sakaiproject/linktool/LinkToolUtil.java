@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -51,7 +50,6 @@ public class LinkToolUtil {
 	private static String homedir = null;
 	private static SecretKey secretKey = null;
 	private static SecretKey salt = null;
-	private static String ourUrl = null;
 
         private static SecretKey readSecretKey(String filename, String alg) {
             try {

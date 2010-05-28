@@ -19,7 +19,6 @@
 
 package org.sakaiproject.portlet.util;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,8 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.portlet.PortletRequest;
-import javax.portlet.ActionRequest;
-import javax.portlet.PortletURL;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
 
@@ -263,20 +260,21 @@ public class PortletHelper {
         return lastName;
     }
 
-    public static String getEmail(PortletRequest request) {
+    @SuppressWarnings("unchecked")
+	public static String getEmail(PortletRequest request) {
         String email = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+        Map<String,String> userInfo = (Map<String,String>) request.getAttribute(PortletRequest.USER_INFO);
 
         switch (lookupPortalType(request)) {
         case GRIDSPHERE:
             if (userInfo != null) {
-                email = (String) userInfo.get("user.email");
+                email = userInfo.get("user.email");
             }
             break;
 	case PLUTO:
         case UPORTAL:
             if (userInfo != null) {
-                email = (String) userInfo.get("user.home-info.online.email");
+                email = userInfo.get("user.home-info.online.email");
             }
         }
 
@@ -284,11 +282,12 @@ public class PortletHelper {
         return email;
     }
 
-    private static String getGridsphereFullName(PortletRequest request) {
+    @SuppressWarnings("unchecked")
+	private static String getGridsphereFullName(PortletRequest request) {
         String fullName = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+        Map<String,String> userInfo = (Map<String,String>) request.getAttribute(PortletRequest.USER_INFO);
         if (userInfo != null) {
-            fullName = (String) userInfo.get("user.name.full");
+            fullName = userInfo.get("user.name.full");
         }
         return fullName;
     }

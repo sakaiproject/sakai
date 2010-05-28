@@ -19,30 +19,20 @@
 
 package org.sakaiproject.portlet.util;
 
-import java.util.List;
-import java.util.Vector;
-
-import java.net.URLEncoder;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import javax.portlet.PortletRequest;
 
 public class SakaiPortletUtil
 {
 
-    private static boolean debugPrintFlag = true;
-
     public static String getTag(Element theElement, String elementName) {
         try {
             Node node = theElement.getElementsByTagName(elementName).item(0);
 
-            if (node.getNodeType() == node.TEXT_NODE) {
+            if (node.getNodeType() == Node.TEXT_NODE) {
                 return node.getNodeValue();
-            } else if (node.getNodeType() == node.ELEMENT_NODE) {
+            } else if (node.getNodeType() == Node.ELEMENT_NODE) {
                 return node.getFirstChild().getNodeValue();
             }
             return null;
@@ -58,7 +48,8 @@ public class SakaiPortletUtil
          *
          * This is a utility method used several places.
          */
-        public static java.io.InputStream getConfigStream(String fileName, Class curClass)
+        @SuppressWarnings("unchecked")
+		public static java.io.InputStream getConfigStream(String fileName, Class curClass)
         {
                 // Within Sakai default path is usually tomcat/sakai/file.properties
                 // Sakai deployers can move this.
@@ -118,13 +109,4 @@ public class SakaiPortletUtil
         return portalInfo.toLowerCase().startsWith("sakai-charon") ;
     }
 
-    private static void debugPrint(String str)
-    {
-        if ( debugPrintFlag )
-        {
-                System.out.println(str);
-        } else {
-                // Should do Log.debug here
-        }
-    }
 }

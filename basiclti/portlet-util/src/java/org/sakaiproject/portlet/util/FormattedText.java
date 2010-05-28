@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Element;
 
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
