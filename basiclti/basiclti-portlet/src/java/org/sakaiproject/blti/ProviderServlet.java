@@ -128,6 +128,8 @@ public class ProviderServlet extends HttpServlet {
 			} else {
 				return_url += "?lti_msg=" + URLEncoder.encode(rb.getString(s), "UTF-8");
 			}
+			// Avoid Response Splitting
+			return_url = return_url.replaceAll("[\r\n]","");
 			response.sendRedirect(return_url);
 			return;
 		}
