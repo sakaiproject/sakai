@@ -17,13 +17,24 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.RepeatingView;
+import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
 import org.sakaiproject.profile2.tool.pages.panels.MessageThreadsView;
+import org.sakaiproject.profile2.tool.pages.panels.MessageView;
 
 public class MyMessages extends BasePage {
 
 	private static final Logger log = Logger.getLogger(MyMessages.class);
+	
+	private Panel tabPanel;
 	
 	public MyMessages() {
 		renderMyMessages(null);
@@ -42,14 +53,57 @@ public class MyMessages extends BasePage {
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		
-		//show confirmed friends panel for the given user
-		//Panel threadsView = new ConfirmedFriends("confirmedFriends", userUuid);
-		//confirmedFriends.setOutputMarkupId(true);
-		//add(confirmedFriends);
+		//action buttons
+		Form<Void> tabs = new Form<Void>("tabs");
+		RepeatingView buttons = new RepeatingView("repeater");
+				
+		buttons.add(new AjaxFallbackButton(buttons.newChildId(), new ResourceModel("link.messages.mymessages"), tabs) {
+			private static final long serialVersionUID = 1L;
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				log.error("message list");
+				switchContentPanel(new MessageThreadsView("tabPanel"), target);
+			}
+		});
+		buttons.add(new AjaxFallbackButton(buttons.newChildId(), new ResourceModel("link.messages.compose"), tabs) {
+			private static final long serialVersionUID = 1L;
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				log.error("compose");
+				switchContentPanel(new ComposeNewMessage("tabPanel"), target);
+			}
+		});
 		
-		Panel threadsView = new MessageThreadsView("threadsView");
-		add(threadsView);
+		tabs.add(buttons);
+		add(tabs);
+		
+		if(StringUtils.isNotBlank(threadId)){
+			//default view for viewing message
+			tabPanel = new MessageView("tabPanel", currentUserUuid, threadId);
+		} else {
+			//default view for viewing threads
+			tabPanel = new MessageThreadsView("tabPanel");
+		}
+		
+		tabPanel.setOutputMarkupId(true);
+		add(tabPanel);
+		
 	}
+	
+	
+	private void switchContentPanel(Panel replacement, AjaxRequestTarget target) {
+		
+		replacement.setOutputMarkupId(true);
+		tabPanel.replaceWith(replacement);
+		if(target != null) {
+			target.addComponent(replacement);
+			//resize iframe
+			target.appendJavascript("setMainFrameHeight(window.name);");
+		}
+		
+		//must keep reference up to date
+		tabPanel=replacement;
+		
+	}
+	
 }
 
 

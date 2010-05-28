@@ -22,10 +22,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -43,6 +41,7 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
+import org.sakaiproject.profile2.tool.pages.MyMessages;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -72,35 +71,16 @@ public class MessageThreadsView extends Panel {
 		//get current user
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
-		//new message panel
-		final ComposeNewMessage newMessagePanel = new ComposeNewMessage("newMessagePanel");
-		newMessagePanel.setOutputMarkupPlaceholderTag(true);
-		newMessagePanel.setVisible(false);
-		add(newMessagePanel);
+		//heading
+		/*
+		Label heading = new Label("messageThreadListHeading", new ResourceModel("heading.messages"));
+		add(heading);
+		*/
 		
 		//no messages label
 		Label noMessagesLabel = new Label("noMessagesLabel");
 		noMessagesLabel.setOutputMarkupPlaceholderTag(true);
 		add(noMessagesLabel);
-		
-		//new message button
-		Form<Void> form = new Form<Void>("form");
-		IndicatingAjaxButton newMessageButton = new IndicatingAjaxButton("newMessage", form) {
-			private static final long serialVersionUID = 1L;
-
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				//show panel
-				newMessagePanel.setVisible(true);
-				target.addComponent(newMessagePanel);
-				
-				//resize iframe
-				target.prependJavascript("setMainFrameHeight(window.name);");
-			}
-		};
-		newMessageButton.setModel(new ResourceModel("button.message.new"));
-		newMessageButton.setDefaultFormProcessing(false);
-		form.add(newMessageButton);
-		add(form);
 		
 		//container which wraps list
 		final WebMarkupContainer messageThreadListContainer = new WebMarkupContainer("messageThreadListContainer");
@@ -116,7 +96,7 @@ public class MessageThreadsView extends Panel {
 
 			protected void populateItem(final Item<MessageThread> item) {
 		        
-				MessageThread thread = (MessageThread)item.getDefaultModelObject();
+				final MessageThread thread = (MessageThread)item.getDefaultModelObject();
 				Message message = thread.getMostRecentMessage();
 				String messageFromUuid = message.getFrom();
 				
@@ -170,6 +150,11 @@ public class MessageThreadsView extends Panel {
 					public void onClick(AjaxRequestTarget target) {
 						//load messageview panel
 						//setResponsePage(new MyMessageView(id, currentUserUuid, getModelObject().getId(), getModelObject().getSubject()));
+						
+						//load MyMessages with some params that will then load a diff tab panel and show this message panel.
+						setResponsePage(new MyMessages(thread.getId()));
+						
+						
 					}
 					
 				};

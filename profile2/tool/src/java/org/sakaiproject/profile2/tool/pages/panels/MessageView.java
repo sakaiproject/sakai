@@ -28,7 +28,6 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -55,7 +54,7 @@ import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-public class MyMessageView extends Panel {
+public class MessageView extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
@@ -80,7 +79,7 @@ public class MyMessageView extends Panel {
 	 * Constructor for an incoming link with a threadId as part of the PageParameters
 	 * @param parameters
 	 */
-	public MyMessageView(final String id, PageParameters parameters) {
+	public MessageView(final String id, PageParameters parameters) {
 		super(id);
 		log.debug("MyMessageView(" + parameters.toString() +")");
 
@@ -102,14 +101,29 @@ public class MyMessageView extends Panel {
 	 * Constructor for normal viewing
 	 * @param currentUserUuid
 	 * @param threadId
-	 * @param threadSubject
 	 */
-	public MyMessageView(final String id, final String currentUserUuid, final String threadId, final String threadSubject) {
+	public MessageView(final String id, final String currentUserUuid, final String threadId) {
 		super(id);
-		log.debug("MyMessageView(" + currentUserUuid + ", " + threadId + ", " + threadSubject +")");
+		log.debug("MyMessageView(" + currentUserUuid + ", " + threadId + ")");
+		
+		//get subject
+		String threadSubject = messagingLogic.getThreadSubject(threadId);
 		
 		renderMyMessagesView(currentUserUuid, threadId, threadSubject);
 	}
+	
+	/**
+	 * Constructor for normal viewing
+	 * @param currentUserUuid
+	 * @param threadId
+	 */
+	public MessageView(final String id, final String currentUserUuid, final String threadId, final String threadSubject) {
+		super(id);
+		log.debug("MyMessageView(" + currentUserUuid + ", " + threadId + ", " + threadSubject + ")");
+		
+		renderMyMessagesView(currentUserUuid, threadId, threadSubject);
+	}
+	
 	
 	/**
 	 * Does the actual rendering of the page
@@ -119,20 +133,6 @@ public class MyMessageView extends Panel {
 	 */
 	private void renderMyMessagesView(final String currentUserUuid, final String threadId, final String threadSubject) {
 				
-		//buttons
-		Form<Void> buttonsForm = new Form<Void>("buttonsForm");
-		
-		//backbutton
-		Button backButton = new Button("backButton", new ResourceModel("button.message.backtolist")) {
-			private static final long serialVersionUID = 1L;
-			public void onSubmit() {
-				setResponsePage(new MyMessages(threadId));
-			}
-		};
-		backButton.setDefaultFormProcessing(false);
-		buttonsForm.add(backButton);
-		add(buttonsForm);
-		
 		//details container
 		WebMarkupContainer messageDetailsContainer = new WebMarkupContainer("messageDetailsContainer");
 		messageDetailsContainer.setOutputMarkupId(true);

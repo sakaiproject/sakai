@@ -275,6 +275,15 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	public String getThreadSubject(final String threadId) {
+		MessageThread thread = dao.getMessageThread(threadId);
+		return thread.getSubject();
+	}
+
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	public void sendMessageToTwitter(final String userId, final String message){
 		//setup class thread to call later
 		class TwitterUpdater implements Runnable{

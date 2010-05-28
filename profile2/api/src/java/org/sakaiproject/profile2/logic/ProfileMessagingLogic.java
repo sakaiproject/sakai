@@ -148,7 +148,12 @@ public interface ProfileMessagingLogic {
 	 */
 	public void sendMessageToTwitter(final String userId, final String message);
 	
-	
+	/**
+	 * Get the subject of a thread
+	 * @param threadId		id of the thread
+	 * @return
+	 */
+	public String getThreadSubject(final String threadId);
 	
 	
 }

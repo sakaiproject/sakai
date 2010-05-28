@@ -34,9 +34,13 @@
 		-->
 		
 		<div id="fullWidth">
+		
+			<form wicket:id="tabs" class="form-rounded">		
+           		<input type="submit" wicket:id="repeater" value="[buttons]" />
+           	</form>
+		
 			
-			<!-- threadsView by default -->
-            <div wicket:id="threadsView">[threadsView]</div>
+			<div wicket:id="tabPanel" class="tab-panel">[panel content]</div>
 			
 		</div>
 		

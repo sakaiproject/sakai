@@ -88,6 +88,7 @@ public class ComposeNewMessage extends Panel {
 		final Form<NewMessageModel> form = new Form<NewMessageModel>("form", new Model<NewMessageModel>(newMessage));
 		
 		//close button
+		/*
 		WebMarkupContainer closeButton = new WebMarkupContainer("closeButton");
 		closeButton.add(new AjaxFallbackLink<Void>("link") {
 			private static final long serialVersionUID = 1L;
@@ -100,6 +101,7 @@ public class ComposeNewMessage extends Panel {
 			}
 		}.add(new ContextImage("img",new Model<String>(ProfileConstants.CLOSE_IMAGE))));
 		form.add(closeButton);
+		*/
 		
 		
 		//to label
@@ -178,7 +180,7 @@ public class ComposeNewMessage extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
-					target.appendJavascript("$('#" + form.getMarkupId() + "').slideUp();");
+					//target.appendJavascript("$('#" + form.getMarkupId() + "').slideUp();");
 					target.appendJavascript("setMainFrameHeight(window.name);");
 					
 				} else {

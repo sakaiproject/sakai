@@ -236,6 +236,10 @@ h2 {
 .messages {
 	background-image: url(/library/image/silk/comments.png);
 }
+.message {
+	background-image: url(/library/image/silk/comment.png);
+}
+
 
 
 
@@ -435,7 +439,7 @@ h2 {
 }
 
 
-.profileForm, .statusForm {
+.profileForm, .form-rounded {
 	background-color: #e9edff;
 	border: 1px solid #d0d0df;
 }
@@ -443,9 +447,11 @@ h2 {
 .profileForm {
 }
 
-.statusForm {
+.form-rounded {
 	padding: 4px;
 	margin-bottom: 4px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 }
 
 .profileFormButtons {
@@ -500,10 +506,7 @@ h2 {
 }
 
 
-.statusForm {
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-}
+
 
 .statusField {
 	color: #5D5D5D;
@@ -1199,67 +1202,26 @@ div.wicket-aa ul li.selected {
    	/* cursor: pointer; */
 }
 
-/* business-related */
-
-.tabpanel .tab-row {
-  float:left;
-  width:100%;
-  line-height:normal;
- }
-
-.tabpanel .tab-row ul {
-  margin:0;
-  padding:10px 10px 0;
-  list-style:none;
- }
-  
-.tabpanel .tab-row li {
-  float:left;
-  margin:0;
-  padding:0 0 0 9px;
- }
-  
-.tabpanel .tab-row a {
-  display:block;
-  padding:5px 15px 4px 6px;
-  text-decoration:none;
-  font-weight:bold;
-  white-space:nowrap;
-  color:#eee;
- }
-  
-.tab-panel {
-	clear: left;
-}
-  
-.tabpanel .tab-row a:hover {
-  color:#fff;
- }
-  
-.tabpanel .tab-row li.selected {
-
- }
-  
-.tabpanel .tab-row li.selected a {
-  color:#333;
-  padding-bottom:5px;
-  
-}
-  
-.company-profile-tabpanel .tab-row ul {
+/* tabs */  
+.company-profile-tabpanel .tab-row ul,
+.messages-tabpanel .tab-row ul {
     height: 20px;
     margin: 0;
     padding-left: 10px;
 }
 
-.company-profile-tabpanel .tab-row li {
+.company-profile-tabpanel .tab-row li,
+.messages-tabpanel .tab-row li {
     margin: 0;
     padding: 0;
     display: inline;
     list-style-type: none;
 }
 
-.company-profile-tabpanel .tab-row a:link, .company-profile-tabpanel .tab-row a:visited {
+.company-profile-tabpanel .tab-row a:link, 
+.company-profile-tabpanel .tab-row a:visited,
+.messages-tabpanel .tab-row a:link, 
+.messages-tabpanel .tab-row a:visited {
     float: left;
     background: #f3f3f3;
     font-size: 12px;
@@ -1272,13 +1234,17 @@ div.wicket-aa ul li.selected {
     color: #666;
 }
 
-.company-profile-tabpanel .tab-row li.selected a:link, .company-profile-tabpanel .tab-row a:visited.active {
+.company-profile-tabpanel .tab-row li.selected a:link,
+.company-profile-tabpanel .tab-row a:visited.active, 
+.messages-tabpanel .tab-row li.selected a:link,
+.messages-tabpanel .tab-row a:visited.active {
     border-bottom: 1px solid #fff;
     background: #fff;
     color: #000;
 }
 
-.company-profile-tabpanel .tab-row a:hover {
+.company-profile-tabpanel .tab-row a:hover,
+.messages-tabpanel .tab-row a:hover {
     background: #fff;
 }
 
