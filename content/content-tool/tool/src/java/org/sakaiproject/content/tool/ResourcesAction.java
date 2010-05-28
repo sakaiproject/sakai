@@ -5513,20 +5513,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ContentResourceEdit resource = ContentHostingService.addResource(collectionId, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				String resourceType = null;
+				ResourceToolAction action = null;
 				if(pipe != null)
 				{
-					ResourceToolAction action = pipe.getAction();
-					if(action == null)
+					action = pipe.getAction();
+					if(action != null)
 					{
-						
-					}
-					else 
-					{
-						if(action instanceof InteractionAction)
-						{
-							InteractionAction iAction = (InteractionAction) action;
-							iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
-						}
 						resourceType = action.getTypeId();
 					}
 				}
@@ -5622,7 +5614,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					try
 					{
 						ContentHostingService.commitResource(resource, noti);
-						
+						if(action instanceof InteractionAction)
+						{
+						    InteractionAction iAction = (InteractionAction) action;
+						    iAction.finalizeAction(EntityManager.newReference(ContentHostingService.getReference(resource.getId())), pipe.getInitializationId());
+						}
 						toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 		
 						// show folder if in hierarchy view
@@ -5960,7 +5956,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						// need new context
 						state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
 					}
-					sAction.finalizeAction(reference);
 					break;
 				case MOVE:
 					List<String> items_to_be_moved = new ArrayList<String>();
@@ -5978,7 +5973,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute (STATE_MODE, MODE_PROPERTIES);
 					break;
 				case REVISE_METADATA:
-					// sAction.initializeAction(reference);
+					sAction.initializeAction(reference);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ACTION, action);
 					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
@@ -6204,12 +6199,20 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				v = new ArrayList();
 			}
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 			Iterator itemIt = v.iterator();
 			while(itemIt.hasNext())
 			{
 				ListItem item = (ListItem) itemIt.next();
 				try
 				{
+				    ResourceType typeDef = registry.getType(item.getResourceType());
+				    ResourceToolAction action = typeDef.getAction(ResourceToolAction.DELETE);
+
+				    if (action instanceof ServiceLevelAction) {
+				        ServiceLevelAction slAction = (ServiceLevelAction) action;
+				        slAction.finalizeAction(EntityManager.newReference(ContentHostingService.getReference(item.getId())));
+				    }
 					if (item.isCollection())
 					{
 						if (oldCollectionId.equals(item.getId())) {
@@ -6700,7 +6703,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
 			ListItem item = (ListItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
 			ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
-			
+		
 			if(item == null)
 			{
 				
@@ -6783,6 +6786,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						entity = ContentHostingService.editResource(entityId);
 						item.updateContentResourceEdit((ContentResourceEdit)entity);
 						ContentHostingService.commitResource((ContentResourceEdit)entity, noti);
+					}
+					
+					if (action instanceof ServiceLevelAction) {
+					    ServiceLevelAction slAction = (ServiceLevelAction) action;
+					    slAction.finalizeAction(EntityManager.newReference(ContentHostingService.getReference(item.getId())));
 					}
 
 					conditionsHelper.notifyCondition(entity);
