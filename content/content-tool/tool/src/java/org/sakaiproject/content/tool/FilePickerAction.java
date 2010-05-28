@@ -3107,14 +3107,12 @@ public class FilePickerAction extends PagedResourceHelperAction
                 }
                 catch (TypeException e)
                 {
-	                // TODO Auto-generated catch block
 	                logger.warn("TypeException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
                 catch (PermissionException e)
                 {
-                	addAlert(state, crb.getString("notpermis2"));
-                	// TODO Auto-generated catch block
-	                logger.warn("PermissionException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
+                	//SAK-18496 we don't show a user collections they don't have access to 
+                	logger.debug("PermissionException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
 			}
           }
