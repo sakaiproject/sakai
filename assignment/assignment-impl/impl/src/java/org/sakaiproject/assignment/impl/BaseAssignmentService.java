@@ -2616,7 +2616,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		List attachments = s.getSubmittedAttachments();
 		if (attachments != null && attachments.size() >0)
 		{
-			buffer.append(rb.getString("noti.submit.attachments") + newline + newline);
+			buffer.append(rb.getString("gen.att") + newline + newline);
 			for (int j = 0; j<attachments.size(); j++)
 			{
 				Reference r = (Reference) attachments.get(j);
@@ -4606,7 +4606,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									if (withStudentSubmissionAttachment)
 									{
 										// create a attachment folder for the submission attachments
-										String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
+										String sSubAttachmentFolder = submittersName + rb.getString("stuviewsubm.submissatt") + "/";
 										ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
 										out.putNextEntry(sSubAttachmentFolderEntry);
 										// add all submission attachment into the submission attachment folder

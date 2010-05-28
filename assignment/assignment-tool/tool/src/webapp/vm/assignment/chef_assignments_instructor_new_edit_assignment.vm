@@ -780,7 +780,7 @@ $(document).ready(function() {
 				#end
 			</ul>
 			<div class="act">
-				<input type="button" name="attach" value="$tlang.getString('gen.adddroatt2')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
+				<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
 			</div>
 		#end	
 		<a name="extraNodesTop"></a>

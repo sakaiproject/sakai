@@ -573,7 +573,7 @@ var notifyDeleteControl = function(){
 				#end	
 				<div class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
-						$tlang.getString("stuviewsubm.submissatt2")
+						$tlang.getString("gen.att")
 					</h3>	
 					#set ($size = 0)
 					#set ($props = false)
