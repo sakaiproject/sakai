@@ -66,16 +66,20 @@
     
     <!-- ProfilePrivacyLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl">
+    	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
     <!-- ProfilePreferencesLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
-    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl">
+    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
     <!-- ProfileStatusLogic -->

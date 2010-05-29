@@ -3,6 +3,8 @@ package org.sakaiproject.profile2.logic;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -16,7 +18,9 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 
 	private static final Logger log = Logger.getLogger(ProfilePrivacyLogicImpl.class);
-
+	
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.privacy";	
 	
 	/**
  	 * {@inheritDoc}
@@ -27,10 +31,17 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
 	  	}
 		
+		//check cache
+		if(cache.containsKey(userId)){
+			log.debug("Fetching privacy record from cache for: " + userId);
+			return (ProfilePrivacy)cache.get(userId);
+		}
+		
 		//will stay null if we can't get or create one
 		ProfilePrivacy privacy = null;
 		
 		privacy = dao.getPrivacyRecord(userId);
+		log.debug("Fetching privacy record from dao for: " + userId);
 		
 		//if none, create and persist a default
 		if(privacy == null) {
@@ -41,13 +52,19 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 			}
 		}
 		
+		//add to cache
+		if(privacy != null) {
+			log.debug("Adding privacy record to cache for: " + userId);
+			cache.put(userId, privacy);
+		}
+		
 		return privacy;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy) {
+	public boolean savePrivacyRecord(ProfilePrivacy privacy) {
 
 		//if changes not allowed
 		if(!sakaiProxy.isPrivacyChangeAllowedGlobally()) {
@@ -55,8 +72,14 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 			return false;
 		}
 		
-		if(dao.updatePrivacyRecord(profilePrivacy)) {
-			log.info("Saved privacy record for user: " + profilePrivacy.getUserUuid()); 
+		//save
+		if(dao.updatePrivacyRecord(privacy)) {
+			log.info("Saved privacy record for user: " + privacy.getUserUuid()); 
+			
+			//update cache
+			log.debug("Updated privacy record in cache for: " + privacy.getUserUuid());
+			cache.put(privacy.getUserUuid(), privacy);
+			
 			return true;
 		} 
 		
@@ -756,6 +779,10 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		
 		return privacy;
 	}
+	
+	public void init() {
+		cache = cacheManager.createCache(CACHE_NAME);
+	}
 
 	
 	private SakaiProxy sakaiProxy;
@@ -763,9 +790,13 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	
 	private ProfileDao dao;
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
+	}
+	
+	private CacheManager cacheManager;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 }

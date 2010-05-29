@@ -2,8 +2,11 @@ package org.sakaiproject.profile2.logic;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -19,6 +22,9 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 
 	private static final Logger log = Logger.getLogger(ProfilePrivacyLogicImpl.class);
 
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.preferences";	
+	
 	
 	/**
  	 * {@inheritDoc}
@@ -31,20 +37,30 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		
 		//will stay null if we can't get or create a record
 		ProfilePreferences prefs = null;
-		prefs = dao.getPreferencesRecordForUser(userId);
 		
-		if(prefs == null) {
-			prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
-			if(prefs != null) {
-				sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
-				log.info("Created default preferences record for user: " + userId); 
-			}
+		//check cache
+		if(cache.containsKey(userId)){
+			log.debug("Fetching preferences record from cache for: " + userId);
+			//log.debug((ProfilePreferences)cache.get(userId));
+			return (ProfilePreferences)cache.get(userId);
 		}
 		
+		if(prefs == null) {
+			prefs = dao.getPreferencesRecordForUser(userId);
+			log.debug("Fetching privacy record from dao for: " + userId);
+		
+			if(prefs == null) {
+				prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
+				if(prefs != null) {
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
+					log.info("Created default preferences record for user: " + userId); 
+				}
+			}			
+		}
+		
+		//remove this when PRFL-94 is implemented.
 		if(prefs != null) {
-			//decrypt password and set into field
-			prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
-
+			
 			//if owner, decrypt the password, otherwise, remove it entirely
 			String currentUserUuid = sakaiProxy.getCurrentUserId();
 			if(StringUtils.equals(userId, currentUserUuid)){
@@ -53,6 +69,13 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 				prefs.setTwitterPasswordEncrypted(null);
 				prefs.setTwitterPasswordDecrypted(null);
 			}
+			
+		}
+		
+		//add to cache
+		if(prefs != null){
+			log.debug("Adding preferences record to cache for: " + userId);
+			cache.put(userId, prefs);
 		}
 		
 		return prefs;
@@ -77,6 +100,11 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		
 		if(dao.savePreferencesRecord(prefs)){
 			log.info("Updated preferences record for user: " + prefs.getUserUuid()); 
+			
+			//update cache
+			log.debug("Updated preferences record in cache for: " + prefs.getUserUuid());
+			cache.put(prefs.getUserUuid(), prefs);
+			
 			return true;
 		} 
 		
@@ -223,7 +251,9 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	}
 	
 	
-	
+	public void init() {
+		cache = cacheManager.createCache(CACHE_NAME);
+	}
 	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
@@ -233,5 +263,10 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	private ProfileDao dao;
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
+	}
+	
+	private CacheManager cacheManager;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 }
