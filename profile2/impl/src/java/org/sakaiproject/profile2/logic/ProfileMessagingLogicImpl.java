@@ -18,6 +18,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
 
 /**
  * Implementation of ProfileMessagingLogic for Profile2.
@@ -305,11 +306,13 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 			//do it!
 			public synchronized void run() {
 				
-				Twitter twitter = new Twitter(username, password);
+				//Twitter twitter = new Twitter(username, password);
+				
+				Twitter twitter = new TwitterFactory().getInstance(username,password);
 				
 				try {
-					twitter.setSource(sakaiProxy.getTwitterSource());
-					twitter.update(message);
+					//twitter.setSource(sakaiProxy.getTwitterSource());
+					twitter.updateStatus(message);
 					log.info("Twitter status updated for: " + userId); 
 				}
 				catch (Exception e) {

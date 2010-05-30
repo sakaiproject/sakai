@@ -11,6 +11,8 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 
 /**
  * Implementation of ProfilePreferencesLogic API
@@ -201,9 +203,15 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword) {
 		
 		if(StringUtils.isNotBlank(twitterUsername) && StringUtils.isNotBlank(twitterPassword)) {
-			Twitter twitter = new Twitter(twitterUsername, twitterPassword);
-			if(twitter.verifyCredentials()) {
-				return true;
+			//Twitter twitter = new Twitter(twitterUsername, twitterPassword);
+			Twitter twitter = new TwitterFactory().getInstance(twitterUsername,twitterPassword);
+			
+			try {
+				if(twitter.verifyCredentials() != null) {
+					return true;
+				}
+			} catch (TwitterException e) {
+				log.error("Error validating Twitter credentials: " + e.getClass() + ": " + e.getMessage());
 			}
 		}
 		return false;
