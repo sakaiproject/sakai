@@ -229,6 +229,17 @@ public class SakaiBLTIUtil {
 		ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
 	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, 
 		ServerConfigurationService.getString("basiclti.consumer_return_url",null));
+
+	// In case this gets into the standard
+	String tool_css = ServerConfigurationService.getString("basiclti.consumer_instance_css_url",null);
+	setProperty(props,"tool_consumer_instance_css_url", tool_css);  // Ignores null
+	String ext_css = ServerConfigurationService.getString("basiclti.ext_consumer_instance_css_url",null);
+	setProperty(props,"ext_consumer_instance_css_url", ext_css);  // Ignores null
+        if ( tool_css == null && ext_css == null ) { 
+		setProperty(props,"ext_consumer_instance_css_url", 
+			getOurServerUrl() + "/library/skin/default/tool.css" );  
+	}
+
 	return true;
     } 
 
