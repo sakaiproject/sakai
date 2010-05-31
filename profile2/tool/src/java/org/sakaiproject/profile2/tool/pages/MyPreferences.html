@@ -85,16 +85,15 @@
 								<td class="content"><input wicket:id="twitterEnabled" type="checkbox" /></td>
 							</tr>
 							
-							<tr wicket:id="twitterUsernameContainer">
-								<td class="label" wicket:id="twitterUsernameLabel">[twitterUsername]</td>
-								<td class="content">
-									<input type="text" wicket:id="twitterUsername" class="formInputField" />
+							<tr wicket:id="twitterAuthContainer">
+								<td class="label">
+									<a wicket:id="twitterAuthLink" class="icon twitter"><span wicket:id="twitterAuthLabel">[twitterAuthLabel]</span></a>
 								</td>
-							</tr>
-							<tr wicket:id="twitterPasswordContainer">
-								<td class="label" wicket:id="twitterPasswordLabel">[twitterUsername]</td>
 								<td class="content">
-									<input type="password" wicket:id="twitterPassword" class="formInputField" />
+									<form wicket:id="twitterForm">
+										<input type="text" wicket:id="twitterAuthCode" class="form-input-small" size="10" />
+										<input type="submit" wicket:id="twitterSubmit" />
+									</form>
 								</td>
 							</tr>
 							

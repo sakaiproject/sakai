@@ -20,9 +20,6 @@
 		<property name="messageNewEmailEnabled" column="EMAIL_MESSAGE_NEW" not-null="true" />
 		<property name="messageReplyEmailEnabled" column="EMAIL_MESSAGE_REPLY" not-null="true" />
 		<property name="twitterEnabled" column="TWITTER_ENABLED" not-null="true"/>
-	    <property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
-		<property name="twitterPasswordEncrypted" column="TWITTER_PASSWORD" not-null="false" />
-	   
 	   	<property name="useOfficialImage" column="USE_OFFICIAL_IMAGE" not-null="true" />
 	   	<property name="showKudos" column="SHOW_KUDOS" not-null="true" />
 	   

@@ -239,6 +239,9 @@ h2 {
 .message {
 	background-image: url(/library/image/silk/comment.png);
 }
+.twitter {
+	background-image: url(../images/twitter.png);
+}
 
 
 
@@ -517,7 +520,8 @@ h2 {
 
 .formInputField,
 .formInputArea,
-.profileImageUrlInputField {
+.profileImageUrlInputField,
+.form-input-small {
 	padding-left: 2px;
 	border: 1px solid #AAAAAA;
 	margin: .2em;
@@ -529,6 +533,10 @@ h2 {
 
 .formInputArea {
 	width: 300px;
+}
+
+.form-input-small {
+	width: 80px;
 }
 
 .profileImageUrlInputField {
@@ -1257,4 +1265,3 @@ div.wicket-aa ul li.selected {
 .closebutton:hover {
 	background-color: #ffcccc;
 }
-

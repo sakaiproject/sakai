@@ -30,7 +30,6 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 
 	private static final Logger log = Logger.getLogger(ProfileMessagingLogicImpl.class);
 
-	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -307,7 +306,6 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 			public synchronized void run() {
 				
 				//Twitter twitter = new Twitter(username, password);
-				
 				Twitter twitter = new TwitterFactory().getInstance(username,password);
 				
 				try {
@@ -335,7 +333,6 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		new TwitterUpdater(username, password, message);
 		
 	}
-
 	
 	/**
 	 * Sends an email notification to the users. Used for messages. This formats the data and calls {@link SakaiProxy.sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues)}

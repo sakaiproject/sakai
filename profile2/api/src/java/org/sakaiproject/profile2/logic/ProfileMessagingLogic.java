@@ -155,5 +155,4 @@ public interface ProfileMessagingLogic {
 	 */
 	public String getThreadSubject(final String threadId);
 	
-	
 }

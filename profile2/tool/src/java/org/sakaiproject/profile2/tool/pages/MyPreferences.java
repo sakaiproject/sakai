@@ -17,17 +17,18 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
@@ -37,16 +38,28 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
+import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
+
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.http.AccessToken;
+import twitter4j.http.RequestToken;
 
 
 public class MyPreferences extends BasePage{
 
 	private static final Logger log = Logger.getLogger(MyPreferences.class);
 	private transient ProfilePreferences profilePreferences;
+	private transient ExternalIntegrationInfo externalIntegrationInfo;
+
+	private transient RequestToken requestToken;
+	
 
 	public MyPreferences() {
 		
@@ -58,10 +71,17 @@ public class MyPreferences extends BasePage{
 		//get the prefs record for this user from the database, or a default if none exists yet
 		profilePreferences = preferencesLogic.getPreferencesRecordForUser(userUuid);
 		
+		//get the external integration info from the db
+		externalIntegrationInfo = externalIntegrationLogic.getExternalIntegrationInfo(userUuid);
+		
 		//if null, throw exception
 		if(profilePreferences == null) {
 			throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
 		}
+		
+		//setup Twitter request token
+		setTwitterRequestToken();
+		
 		
 		//get email address for this user
 		String emailAddress = sakaiProxy.getUserEmail(userUuid);
@@ -69,6 +89,7 @@ public class MyPreferences extends BasePage{
 		if(emailAddress == null || emailAddress.length() == 0) {
 			emailAddress = new ResourceModel("preferences.email.none").getObject().toString();
 		}
+		
 				
 		Label heading = new Label("heading", new ResourceModel("heading.preferences"));
 		add(heading);
@@ -167,42 +188,96 @@ public class MyPreferences extends BasePage{
 		tc.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
 		tc.add(new Label("twitterSectionText", new ResourceModel("preferences.twitter.message")));
 
-		//username
-		WebMarkupContainer twitterUsernameContainer = new WebMarkupContainer("twitterUsernameContainer");
-		twitterUsernameContainer.add(new Label("twitterUsernameLabel", new ResourceModel("twitter.username")));
-		final TextField<String> twitterUsername = new TextField<String>("twitterUsername", new PropertyModel<String>(preferencesModel, "twitterUsername"));        
-		twitterUsername.setOutputMarkupId(true);
-		twitterUsername.setRequired(false);
-		twitterUsernameContainer.add(twitterUsername);
-			
-		//updater
-		twitterUsername.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		tc.add(twitterUsernameContainer);
-
+		//auth status
+		final WebMarkupContainer twitterAuthContainer = new WebMarkupContainer("twitterAuthContainer");
 		
-		//password (already decrypted in the object)
-		WebMarkupContainer twitterPasswordContainer = new WebMarkupContainer("twitterPasswordContainer");
-		twitterPasswordContainer.add(new Label("twitterPasswordLabel", new ResourceModel("twitter.password")));
-		final PasswordTextField twitterPassword = new PasswordTextField("twitterPassword", new PropertyModel<String>(preferencesModel, "twitterPasswordDecrypted"));        
-		twitterPassword.setOutputMarkupId(true);
-		twitterPassword.setRequired(false);
-		twitterPassword.setResetPassword(false);
-		twitterPasswordContainer.add(twitterPassword);
-				
-		//updater
-		twitterPassword.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-			private static final long serialVersionUID = 1L;
-			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
-            }
-        });
-		tc.add(twitterPasswordContainer);
+		//twitter auth form
+		StringModel twitterModel = new StringModel();
+		final Form<StringModel> twitterForm = new Form<StringModel>("twitterForm", new Model<StringModel>(twitterModel));
+		
+		//auth code
+		final TextField<String> twitterAuthCode = new TextField<String>("twitterAuthCode", new PropertyModel<String>(twitterModel, "string"));        
+		twitterAuthCode.setOutputMarkupId(true);
+		twitterAuthCode.setEnabled(false);
+		twitterForm.add(twitterAuthCode);
 
+		//button
+		final IndicatingAjaxButton twitterSubmit = new IndicatingAjaxButton("twitterSubmit", twitterForm) {
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				StringModel stringModel = (StringModel) form.getModelObject();
+				String accessCode = stringModel.getString();
+				if(StringUtils.isBlank(accessCode)) {
+					return;
+				}
+				
+				AccessToken accessToken = getOAuthAccessToken(accessCode);				
+				if(accessToken == null) {
+					//TODO change this
+					target.appendJavascript("alert('AccessToken was null.');");
+					return;
+				}
+				
+				//set
+				externalIntegrationInfo.setTwitterToken(accessToken.getToken());
+				externalIntegrationInfo.setTwitterSecret(accessToken.getTokenSecret());
+
+				//save
+				if(!externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
+					target.appendJavascript("alert('Couldn't save info');");
+					return;
+				}
+				
+			}
+		};
+		twitterSubmit.setEnabled(false);
+		twitterSubmit.setModel(new ResourceModel("button.link"));
+		twitterForm.add(twitterSubmit);
+		twitterAuthContainer.add(twitterForm);
+		
+		//auth link/label
+		IndicatingAjaxLink<String> twitterAuthLink = new IndicatingAjaxLink<String>("twitterAuthLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				
+				//get auth url
+				String authorisationUrl = getTwitterAuthorisationUrl();
+				
+				if(StringUtils.isBlank(authorisationUrl)){
+					//TODO change this
+					target.appendJavascript("alert('Error getting the Twitter authorisation URL. Please try again later.');");
+					return;
+				}
+				
+				//open window
+				target.appendJavascript("window.open('" + requestToken.getAuthorizationURL() + "','Link your Twitter account','width=800,height=400');");
+				
+				//enable code box and button
+				twitterAuthCode.setEnabled(true);
+				twitterSubmit.setEnabled(true);
+				target.addComponent(twitterAuthCode);
+				target.addComponent(twitterSubmit);
+				
+			}
+		};
+		Label twitterAuthLabel = new Label("twitterAuthLabel", new ResourceModel("twitter.auth.do"));
+		twitterAuthLink.add(twitterAuthLabel);
+		
+		//if already linked, change label, disable link, hide form
+		if(profilePreferences.isTwitterEnabled()) {
+			twitterAuthLabel.setDefaultModel(new ResourceModel("twitter.auth.linked"));
+			twitterAuthLink.setEnabled(false);
+			twitterForm.setVisible(false);
+		}
+		
+		twitterAuthContainer.add(twitterAuthLink);
+
+		twitterAuthContainer.setOutputMarkupPlaceholderTag(true);
+		twitterAuthContainer.setVisible(false);
+		tc.add(twitterAuthContainer);
+		
 		
 		//checkbox (needs to update above components)
 		WebMarkupContainer twitterEnabledContainer = new WebMarkupContainer("twitterEnabledContainer");
@@ -212,33 +287,21 @@ public class MyPreferences extends BasePage{
 
 			protected void onUpdate(AjaxRequestTarget target) { 
 				if(isChecked()) {
-					//enable fields
-					twitterUsername.setEnabled(true);
-					twitterPassword.setEnabled(true);
-					
-					//make them required
-					twitterUsername.setRequired(true);
-					twitterPassword.setRequired(true);
-					
-					
+										
+					//show the panel
+					twitterAuthContainer.setVisible(true);
 				} else {
-					//disable fields
-					twitterUsername.setEnabled(false);
-					twitterPassword.setEnabled(false);
 					
-					//make them not required
-					twitterUsername.setRequired(false);
-					twitterPassword.setRequired(false);
-					
+					//hide the panel
+					twitterAuthContainer.setVisible(false);
 				}
 				
 				//repaint
-				target.addComponent(twitterUsername);
-				target.addComponent(twitterPassword);
+				target.addComponent(twitterAuthContainer);
 			}
 		};
 		twitterEnabledContainer.add(twitterEnabled);
-
+		
 		//updater
 		twitterEnabled.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
@@ -255,21 +318,6 @@ public class MyPreferences extends BasePage{
 		}
 	
 		form.add(tc);
-		
-		// set initial required/enabled states on the twitter fields
-		if(profilePreferences.isTwitterEnabled()) {
-			twitterUsername.setEnabled(true);
-			twitterPassword.setEnabled(true);
-			twitterUsername.setRequired(true);
-			twitterPassword.setRequired(true);
-		} else {
-			twitterUsername.setEnabled(false);
-			twitterPassword.setEnabled(false);
-			twitterUsername.setRequired(false);
-			twitterPassword.setRequired(false);
-		}
-		
-		
 		
 		// OFFICIAL IMAGE SECTION
 		WebMarkupContainer is = new WebMarkupContainer("imageSettingsContainer");
@@ -351,34 +399,38 @@ public class MyPreferences extends BasePage{
 					profilePreferences.setTwitterUsername(null);
 					profilePreferences.setTwitterPasswordDecrypted(null);
 					//clear input
-					twitterUsername.clearInput();
-					twitterPassword.clearInput();
+					//twitterUsername.clearInput();
+					//twitterPassword.clearInput();
 					//repaint
-					target.addComponent(twitterUsername);
-					target.addComponent(twitterPassword);
+					//target.addComponent(twitterUsername);
+					//target.addComponent(twitterPassword);
 				} 
 				
 				//validate twitter fields manually since this is a special form (needs checkbox to set the fields)
 				if(profilePreferences.isTwitterEnabled()) {
-					twitterUsername.validate();
-					twitterPassword.validate();
+					//twitterUsername.validate();
+					//twitterPassword.validate();
+					/*
 					if(!twitterUsername.isValid() || !twitterPassword.isValid()) {
 						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.required"));
 						formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 						target.addComponent(formFeedback);
 						return;
 					}
+					*/
 					
 					//PRFL-27 validate actual username/password details with Twitter itself
-					String twitterUsernameEntered = twitterUsername.getDefaultModelObjectAsString();
-					String twitterPasswordEntered = twitterPassword.getDefaultModelObjectAsString();
+					//String twitterUsernameEntered = twitterUsername.getDefaultModelObjectAsString();
+					//String twitterPasswordEntered = twitterPassword.getDefaultModelObjectAsString();
 
+					/*
 					if(!preferencesLogic.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
 						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.invalid"));
 						formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 						target.addComponent(formFeedback);
 						return;
 					}
+					*/
 					
 					
 				}
@@ -413,6 +465,62 @@ public class MyPreferences extends BasePage{
         add(form);
 		
 	}
+	
+	
+	private final String TWITTER_OAUTH_CONSUMER_KEY="XzSPZIj0LxNaaoBz8XrgZQ";
+	private final String TWITTER_OAUTH_CONSUMER_SECRET="FSChsnmTufYi3X9H25YdFRxBhPXgnh2H0lMnLh7ZVG4";
+	
+	/**
+	 * helper to get and set the Twitter request token
+	 */
+	private void setTwitterRequestToken() {
+		
+		Twitter twitter = new TwitterFactory().getInstance();
+	    twitter.setOAuthConsumer(TWITTER_OAUTH_CONSUMER_KEY, TWITTER_OAUTH_CONSUMER_SECRET);
+	    
+	    try {
+			requestToken = twitter.getOAuthRequestToken();
+		} catch (TwitterException e) {
+			e.printStackTrace();
+		}
+	   
+	}
+	
+	/**
+	 * helper to get the user access token from the request token and supplied access code
+	 * @param accessCode
+	 * @return
+	 */
+	private AccessToken getOAuthAccessToken(String accessCode) {
+		
+		Twitter twitter = new TwitterFactory().getInstance();
+	    twitter.setOAuthConsumer(TWITTER_OAUTH_CONSUMER_KEY, TWITTER_OAUTH_CONSUMER_SECRET);
+	    
+	    try {
+			return twitter.getOAuthAccessToken(requestToken, accessCode);
+		} catch (TwitterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+
+	/**
+	 * Helper to get the Twitter auth url
+	 * @return
+	 */
+	private String getTwitterAuthorisationUrl() {
+		
+		if(requestToken == null) {
+			return null;
+		}
+		return requestToken.getAuthenticationURL();
+	}
+	
+
+	
 	
 }
 

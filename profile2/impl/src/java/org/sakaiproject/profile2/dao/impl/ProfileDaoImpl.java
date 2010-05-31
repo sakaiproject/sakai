@@ -20,6 +20,7 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 import org.sakaiproject.profile2.model.CompanyProfile;
+import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -1137,6 +1138,40 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			return false;
 		}
 	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ExternalIntegrationInfo getExternalIntegrationInfo(final String userUuid) {
+				
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_INTEGRATION_INFO);
+	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	return (ExternalIntegrationInfo) getHibernateTemplate().execute(hcb);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean updateExternalIntegrationInfo(ExternalIntegrationInfo info) {
+		try {
+			getHibernateTemplate().saveOrUpdate(info);
+			return true;
+		} catch (Exception e) {
+			log.error("updateExternalIntegrationInfo failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	
 	
 	public void init() {
 	      log.debug("init");

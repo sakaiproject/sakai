@@ -9,6 +9,7 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.hbm.model.ProfileKudos;
 import org.sakaiproject.profile2.model.CompanyProfile;
+import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -267,6 +268,20 @@ public interface ProfileDao {
 	 */
 	public boolean updateKudos(ProfileKudos kudos);
 	
+	/**
+	 * Get the ExternalIntegrationInfo record for a user
+	 * @param userUuid
+	 * @return
+	 */
+	public ExternalIntegrationInfo getExternalIntegrationInfo(final String userUuid);
+	
+	/**
+	 * Update a user's ExternalIntegrationInfo record
+	 * @param info	ExternalIntegrationInfo for the user
+	 * @return
+	 */
+	public boolean updateExternalIntegrationInfo(ExternalIntegrationInfo info);
+	
 	
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
@@ -325,6 +340,10 @@ public interface ProfileDao {
 
 	//from ProfileKudos.hbm.xml
 	final String QUERY_GET_KUDOS_RECORD="getKudosRecord";
+	
+	//from ExternalIntegrationInfo.hbm.xml
+	final String QUERY_GET_EXTERNAL_INTEGRATION_INFO="getExternalIntegrationInfo";
+	
 	
 	// Hibernate object fields
 	final String USER_UUID = "userUuid";

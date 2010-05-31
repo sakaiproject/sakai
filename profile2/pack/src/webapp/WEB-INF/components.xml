@@ -131,6 +131,12 @@
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
+    <!-- ProfileExternalIntegrationLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    </bean>
+    
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
     	class="org.sakaiproject.profile2.cache.CacheManagerImpl">
@@ -158,6 +164,7 @@
 	        <value>org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml</value>
 	      </list>
 	    </property>
 

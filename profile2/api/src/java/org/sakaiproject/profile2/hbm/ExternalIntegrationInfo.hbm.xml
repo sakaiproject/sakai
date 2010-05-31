@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="ExternalIntegrationInfo" table="PROFILE_EXTERNAL_INTEGRATION_T">
+
+		<!-- one per user -->
+		<id name="userUuid" column="USER_UUID" length="99">
+			<generator class="assigned" />
+		</id>
+		
+		<property name="twitterToken" column="TWITTER_TOKEN" not-null="false" />
+		<property name="twitterSecret" column="TWITTER_SECRET" not-null="false" />
+		
+	</class>
+	
+	<query name="getExternalIntegrationInfo">
+    	<![CDATA[from ExternalIntegrationInfo info WHERE info.userUuid = :userUuid]]>
+	</query>
+</hibernate-mapping>

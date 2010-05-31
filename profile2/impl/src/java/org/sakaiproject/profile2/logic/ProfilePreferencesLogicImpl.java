@@ -6,7 +6,6 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -22,7 +21,7 @@ import twitter4j.TwitterFactory;
  */
 public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 
-	private static final Logger log = Logger.getLogger(ProfilePrivacyLogicImpl.class);
+	private static final Logger log = Logger.getLogger(ProfilePreferencesLogicImpl.class);
 
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.preferences";	
@@ -90,14 +89,9 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
  	 */
 	public boolean savePreferencesRecord(ProfilePreferences prefs) {
 		
-		//validate fields are set and encrypt password if necessary, else clear them all
-		if(checkTwitterFields(prefs)) {
-			prefs.setTwitterPasswordEncrypted(ProfileUtils.encrypt(prefs.getTwitterPasswordDecrypted()));
-		} else {
+		//validate fields are set
+		if(!checkTwitterFields(prefs)) {
 			prefs.setTwitterEnabled(false);
-			prefs.setTwitterUsername(null);
-			prefs.setTwitterPasswordDecrypted(null);
-			prefs.setTwitterPasswordEncrypted(null);
 		}
 		
 		if(dao.savePreferencesRecord(prefs)){

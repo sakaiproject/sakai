@@ -29,6 +29,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -68,6 +69,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileKudosLogic")
 	protected ProfileKudosLogic kudosLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
+	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
 	
 	public BasePage() {
 		//super();
