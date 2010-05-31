@@ -17,16 +17,17 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
-public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, 
-	Outputable, Resolvable, Describeable, CollectionResolvable, ActionsExecutable {
+@SuppressWarnings("deprecation")
+public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful,
+	Describeable, CollectionResolvable, ActionsExecutable {
 
 	private ChatManager chatManager;
 	  
@@ -36,11 +37,22 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 	
 	public class SimpleChatChannel {
 
+		/** The channel id **/
 		private String id;
+		
+		/** The channel's tool placement **/
 		private String placement;
+		
+		/** The channel context (typically site ID) **/
 		private String context;
+		
+		/** Channel title **/
 		private String title;
+		
+		/** Channel description **/
 		private String description;
+		
+		/** True if this is the default channel for this context **/
 		private boolean defaultForContext;
 		
 		public SimpleChatChannel()
@@ -148,6 +160,10 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 	    return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
 	}
 
+	public String[] getHandledInputFormats() {
+	    return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+	}
+
 	public List<SimpleChatChannel> getEntities(EntityReference ref, Search search) {
 
 		List<SimpleChatChannel> channels = new ArrayList<SimpleChatChannel>();
@@ -176,8 +192,10 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 		return channels;
 	}
 
-	// Custom action to start or stop listening to a channel
-	
+	/**
+	 *  Custom action to start listening to a channel
+	 * @return true if a listener is started. 
+	 */
 	 @EntityCustomAction(action="listen",viewKey=EntityView.VIEW_EDIT)
 	 public boolean listen(EntityReference ref, Map<String, Object> params) {
 
@@ -207,5 +225,68 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 		chatManager.addRoomListener(listener, channel.getId());
 		
 		return true;
+	}
+
+	
+	/**
+	 * Create a new chat channel for a given context
+	 * @return the id of the new channel 
+	 */
+	public String createEntity(EntityReference ref, Object entity,
+			Map<String, Object> params) {
+
+		SimpleChatChannel newchannel = (SimpleChatChannel) entity;
+		
+		ChatChannel channel = null;
+		
+		try {
+			channel = chatManager.createNewChannel(newchannel.context, newchannel.title, newchannel.defaultForContext, true, null);
+			channel.setDescription(newchannel.description);
+			chatManager.updateChannel(channel, false);
+		} catch (PermissionException e) {
+			throw new SecurityException("You do not have permission to create a chat channel in the given context (" + 
+					newchannel.context + ")");
+		}
+		
+		return channel.getId();
+	}
+
+	public void updateEntity(EntityReference ref, Object entity,
+			Map<String, Object> params) {
+
+		String channelId = ref.getId();	
+		SimpleChatChannel updchannel = (SimpleChatChannel) entity;
+
+		ChatChannel channel = chatManager.getChatChannel(channelId);
+		
+		if (channel == null) {
+			throw new IllegalStateException("The specified chat channel (" + channelId + ") does not exist");
+		}
+		
+		channel.setTitle(updchannel.getTitle());
+		channel.setDescription(updchannel.getDescription());
+		try {
+			chatManager.updateChannel(channel, true);
+		} catch (PermissionException e) {
+			throw new SecurityException("You do not have permission to update this channel");
+		}
+	}
+
+	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
+
+		String channelId = ref.getId();
+		ChatChannel channel = chatManager.getChatChannel(channelId);
+		
+		if (channel == null) {
+			throw new IllegalStateException("The specified chat channel (" + channelId + ") does not exist");
+		}
+		
+		try {
+			chatManager.deleteChannel(channel);
+		} catch (PermissionException e) {
+			throw new SecurityException("You do not have permission to delete this channel");
+		}
+		
+		return;
 	}
 }

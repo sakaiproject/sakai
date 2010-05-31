@@ -50,7 +50,7 @@ public interface ChatManager extends EntitySummary {
    public static final String CHAT_TOOL_ID = "sakai.chat";
    
    /**
-    * Creates a new ChatChannel but doesn't put it in the database.
+    * Creates a new ChatChannel but doesn't put it in the database. To persist the channel, call updateChannel().
     * @param context Id of what the channel is linked to
     * @param title String the title of the channel
     * @param placementDefaultChannel boolean to set this as the default channel in the context
