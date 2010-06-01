@@ -138,6 +138,16 @@ public class BasicLTIConstants {
    */
   public static final String LAUNCH_PRESENTATION_WIDTH = "launch_presentation_width";
   /**
+   * launch_presentation_css_url=http://www.toolconsumer.url/path/to/lti.css 
+   * <p>
+   * This points to a fully qualified URL for a CSS which can be used to style the tool.
+   * There are no officially defined CSS classes for this file, but the Consumer can 
+   * apply styles to paragraphs, body, and the various HTML elements.  It is up to the 
+   * tool as to whether this CSS is used or not, and in what order this is included relative
+   * to the tool-specific CSS. 
+   */
+  public static final String LAUNCH_PRESENTATION_CSS_URL = "launch_presentation_css_url";
+  /**
    * lis_person_contact_email_primary=user@school.edu
    * <p>
    * These fields contain information about the user account that is performing
@@ -314,6 +324,7 @@ public class BasicLTIConstants {
       LAUNCH_PRESENTATION_DOCUMENT_TARGET, LAUNCH_PRESENTATION_HEIGHT,
       LAUNCH_PRESENTATION_LOCALE, LAUNCH_PRESENTATION_RETURN_URL,
       LAUNCH_PRESENTATION_WIDTH, LIS_PERSON_CONTACT_EMAIL_PRIMARY,
+      LAUNCH_PRESENTATION_CSS_URL,
       LIS_PERSON_NAME_FAMILY, LIS_PERSON_NAME_FULL, LIS_PERSON_NAME_GIVEN,
       LIS_PERSON_SOURCEDID, LIS_COURSE_OFFERING_SOURCEDID, 
       LIS_COURSE_SECTION_SOURCEDID, LIS_RESULT_SOURCEDID,
