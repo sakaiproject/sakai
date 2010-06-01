@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
@@ -55,6 +54,7 @@ import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -99,6 +99,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, ResourceStat>		resourceStatMap						= Collections.synchronizedMap(new HashMap<String, ResourceStat>());
 	private Map<String, SiteActivity>		activityMap							= Collections.synchronizedMap(new HashMap<String, SiteActivity>());
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
+	private Map<String, SitePresence>		presencesMap						= Collections.synchronizedMap(new HashMap<String, SitePresence>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
 
 	private boolean							initialized 						= false;
@@ -453,7 +454,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/** Method called whenever an new event is generated from EventTrackingService: do not call this method! */
 	public void update(Observable obs, Object o) {		
 		if(o instanceof Event){
-			collectThreadQueue.add((Event) o);
+			Event e = (Event) o;
+			Event eventWithPreciseDate = buildEvent(getToday(), e.getEvent(), e.getResource(), e.getContext(), e.getUserId(), e.getSessionId());
+			collectThreadQueue.add(eventWithPreciseDate);
 		}
 	}
 	
@@ -568,11 +571,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
 	
-	private void consolidateEvent(Date date, String eventId, String resourceRef, String userId, String siteId) {
+	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
 		if(eventId == null)
 			return;
+		Date date = getTruncatedDate(dateTime);
 		// update		
-		if(getRegisteredEvents().contains(eventId)){
+		if(getRegisteredEvents().contains(eventId) && !StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
 			// add to eventStatMap
 			String key = userId+siteId+eventId+date;
 			synchronized(eventStatMap){
@@ -646,10 +650,58 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// place entry on map so we can update unique visits later
 				UniqueVisitsKey keyUniqueVisits = new UniqueVisitsKey(siteId, date);
 				uniqueVisitsMap.put(keyUniqueVisits, Integer.valueOf(1));
+				
+				// site presence started
+				if(M_sm.isEnableSitePresences()) {
+					String pKey = siteId+userId+date;
+					SitePresence sp = presencesMap.get(pKey);
+					if(sp == null) {
+						sp = new SitePresenceImpl();
+						sp.setSiteId(siteId);
+						sp.setUserId(userId);
+						sp.setDate(date);
+					}
+					sp.setLastVisitStartTime(dateTime);
+					presencesMap.put(pKey, sp);
+				}
 			}finally{
 				lock.unlock();
 			}
+			
+		}else if(StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
+			// site presence ended
+			if(M_sm.isEnableSitePresences()) {
+				String pKey = siteId+userId+date;
+				lock.lock();
+				try{
+					SitePresence sp = presencesMap.get(pKey);
+					if(sp == null) {
+						sp = doGetSitePresence(siteId, userId, date);
+						if(sp == null) {
+							sp = new SitePresenceImpl();
+							sp.setSiteId(siteId);
+							sp.setUserId(userId);
+							sp.setDate(date);
+						}
+					}
+					if(sp.getLastVisitStartTime() != null) {
+						long existingDuration = sp.getDuration();
+						long start = sp.getLastVisitStartTime().getTime();
+						long additionalDuration = dateTime.getTime() - start;
+						if(additionalDuration > 4*60*60*1000) {
+							LOG.warn("A site presence is longer than 4h: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
+						}
+						sp.setDuration(existingDuration + additionalDuration);						
+						sp.setLastVisitStartTime(null);
+						//LOG.debug("Consolidation: [pres.end] Updated site presence with +"+(additionalDuration/1000)+" sec (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");	
+					}
+					presencesMap.put(pKey, sp);
+				}finally{
+					lock.unlock();
+				}
+			}
 		}
+		
 	}
 	
 
@@ -661,7 +713,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		long startTime = System.currentTimeMillis();
 		if(eventStatMap.size() > 0 || resourceStatMap.size() > 0
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
-				|| visitsMap.size() > 0) {
+				|| visitsMap.size() > 0 || presencesMap.size() > 0) {
 			Object r = getHibernateTemplate().execute(new HibernateCallback() {			
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Transaction tx = null;
@@ -716,6 +768,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 								}
 								doUpdateSiteVisitsObjects(session, tmp5, tmp4);
 							}
+						}
+						
+						// do: SitePresences
+						if(presencesMap.size() > 0) {
+							Collection<SitePresence> tmp6 = null;
+							synchronized(presencesMap){
+								tmp6 = presencesMap.values();
+								presencesMap = Collections.synchronizedMap(new HashMap<String, SitePresence>());
+							}
+							doUpdateSitePresencesObjects(session, tmp6);
 						}
 	
 						// commit ALL
@@ -927,6 +989,52 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
+	private void doUpdateSiteVisitTimeObjects(Session session, Collection<SitePresence> objects) {
+		if(objects == null) return;
+		Iterator<SitePresence> i = objects.iterator();
+		while(i.hasNext()){
+			SitePresence eUpdate = i.next();
+			SitePresence eExisting = null;
+			String eExistingSiteId = null;
+			try{
+				Criteria c = session.createCriteria(SitePresenceImpl.class);
+				c.add(Expression.eq("siteId", eUpdate.getSiteId()));
+				c.add(Expression.eq("userId", eUpdate.getUserId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (SitePresence) c.uniqueResult();
+				}catch(HibernateException ex){
+					try{
+						List<SitePresence> events = (List<SitePresence>) c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (SitePresence) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					}catch(Exception ex3){
+						eExisting = null;
+					}
+				}catch(Exception ex2){
+					LOG.debug("Probably ddbb error when loading data at java object", ex2);
+					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
+					
+				}
+				if(eExisting == null){
+					eExisting = eUpdate;
+				}else{
+					eExisting.setDuration(eExisting.getDuration() + eUpdate.getDuration());
+				}
+				eExistingSiteId = eExisting.getSiteId();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
+					session.saveOrUpdate(eExisting);
+		}
+	}
+	
 	private Map<UniqueVisitsKey, Integer> doGetSiteUniqueVisits(Session session, Map<UniqueVisitsKey, Integer> map) {
 		Iterator<UniqueVisitsKey> i = map.keySet().iterator();
 		while(i.hasNext()){
@@ -964,6 +1072,68 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			map.put(key, Integer.valueOf((int)uniqueVisits));			
 		}
 		return map;
+	}
+	
+	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresence> objects) {
+		if(objects == null) return;
+		Iterator<SitePresence> i = objects.iterator();
+		while(i.hasNext()){
+			SitePresence sp = i.next();
+			SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
+			if(spExisting == null) {
+				session.save(sp);
+			}else{
+				spExisting.setDuration(spExisting.getDuration() + sp.getDuration());
+				spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
+				session.update(spExisting);
+			}
+		}
+	}
+	
+
+	// ################################################################
+	// Special site presence methods (visit time tracking)
+	// ################################################################
+	private SitePresence doGetSitePresence(final String siteId, final String userId, final Date date) {
+		SitePresence svt = null;
+		if(siteId != null || userId != null || date != null) {
+			svt = (SitePresence) getHibernateTemplate().execute(new HibernateCallback() {			
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					return doGetSitePresence(session, siteId, userId, date);
+				}
+			});
+		}
+		return svt;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private SitePresence doGetSitePresence(Session session, String siteId, String userId, Date date) {
+		SitePresence eDb = null;
+		Criteria c = session.createCriteria(SitePresenceImpl.class);
+		c.add(Expression.eq("siteId", siteId));
+		c.add(Expression.eq("userId", userId));
+		c.add(Expression.eq("date", date));
+		
+		try{
+			eDb = (SitePresence) c.uniqueResult();
+		}catch(HibernateException ex){
+			try{
+				List es = c.list();
+				if(es != null && es.size() > 0){
+					LOG.debug("More than 1 result when unique result expected.", ex);
+					eDb = (SitePresence) es.get(0);
+				}else{
+					eDb = null;
+				}
+			}catch (Exception e3){
+				LOG.debug("Probably ddbb error when loading data at java object", e3);
+				eDb = null;
+			}
+			
+		}catch(Exception ex2){
+			LOG.debug("Probably ddbb error when loading data at java object", ex2);
+		}
+		return eDb;
 	}
 	
 
@@ -1051,7 +1221,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		String eventRef = e.getResource();
 		if(eventRef != null){
 			try{
-				if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
+				if(StatsManager.SITEVISIT_EVENTID.equals(eventId)
+						|| StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
 					// presence (site visit) syntax (/presence/SITE_ID-presence)
 					String[] parts = eventRef.split("/");
 					if(parts.length > 2 && parts[2].endsWith(PRESENCE_SUFFIX)) {
@@ -1110,8 +1281,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Collection<String> getRegisteredEvents() {
 		// get all registered events
 		List<String> registeredEvents = M_ers.getEventIds();
-		// add site visit event
+		// add site visit events
 		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
+		if(M_sm.isEnableSitePresences()) {
+			registeredEvents.add(StatsManager.SITEVISITEND_EVENTID);
+		}
 		
 		return registeredEvents;
 	}
@@ -1119,17 +1293,22 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/** Get eventId -> ToolInfo map */
 	private Map<String, ToolInfo> getEventIdToolMap() {
 		return M_ers.getEventIdToolMap();
-	}
-	
+	}	
 	
 	private Date getToday() {
+		return new Date();
+	}	
+	
+	private Date getTruncatedDate(Date date) {
+		if(date == null) return null;
 		Calendar c = Calendar.getInstance();
+		c.setTime(date);
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.SECOND, 0);
 		return c.getTime();
 	}
-	
+
 	private static class UniqueVisitsKey {
 		public String siteId;
 		public Date date;

@@ -282,6 +282,11 @@ public class FakeStatsManager implements StatsManager {
 		return false;
 	}
 
+	public boolean isEnableSitePresences() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	public boolean isEventContextSupported() {
 		// TODO Auto-generated method stub
 		return false;

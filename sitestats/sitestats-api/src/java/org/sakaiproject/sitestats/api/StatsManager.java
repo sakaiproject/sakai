@@ -36,6 +36,9 @@ public interface StatsManager {
 	public final static int				PREFS_RESOURCES_PAGE		= 2;
 	public final static String			SEPARATOR					= "/";
 	public final static String			SITEVISIT_EVENTID			= "pres.begin";
+	public final static String			SITEVISITEND_EVENTID		= "pres.end";
+	public final static String			LOGIN_EVENTID				= "user.login";
+	public final static String			LOGOUT_EVENTID				= "user.logout";
 	public final static String			RESOURCE_EVENTID_PREFIX		= "content.";
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
 	public final static String			SITESTATS_ADMIN_TOOLID		= "sakai.sitestats.admin";
@@ -107,7 +110,10 @@ public interface StatsManager {
 	public boolean isVisitsInfoAvailable();
 	
 	/** Are Resource statistics enabled for Overview page? */
-	public boolean isEnableResourceStats();
+	public boolean isEnableResourceStats();	
+	
+	/** Are site presence statistics enabled? */
+	public boolean isEnableSitePresences();
 	
 	/** Get chart background color used to draw charts on SiteStats tool. */
 	public String getChartBackgroundColor();

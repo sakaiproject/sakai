@@ -202,50 +202,62 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		M_scs.setProperty("presence.events.log", "true");
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
+		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
+		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "false");
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
+		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "false");
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
 		assertEquals(false, M_sm.isEnableSiteVisits());
 		assertEquals(false, M_sm.isVisitsInfoAvailable());
+		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.removeProperty("display.users.present");
 		M_scs.removeProperty("presence.events.log");
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
 		assertEquals(false, M_sm.isEnableSiteVisits());
 		assertEquals(false, M_sm.isVisitsInfoAvailable());
+		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		// revert
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
+		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 	}
 	
 	public void testOtherConfig() {
@@ -300,6 +312,11 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(false, M_sm.isLastJobRunDateVisible());
 		((StatsManagerImpl)M_sm).setLastJobRunDateVisible(true);
 		assertEquals(true, M_sm.isLastJobRunDateVisible());
+		// isEnableSitePresences
+		((StatsManagerImpl)M_sm).setEnableSitePresences(false);
+		assertEquals(false, M_sm.isEnableSitePresences());
+		((StatsManagerImpl)M_sm).setEnableSitePresences(true);
+		assertEquals(true, M_sm.isEnableSitePresences());
 	}
 	
 	public void testPreferences() {

@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -19,6 +19,7 @@
 package org.sakaiproject.sitestats.test.mocks;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +29,13 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 
 public class FakeSessionManager implements SessionManager {
+	private List<Session> sessions = new ArrayList<Session>();
 	private Session currentSession	= new FakeSession();
 
+	public FakeSessionManager() {
+		sessions.add(currentSession);
+	}
+	
 	public int getActiveUserCount(int arg0) {
 		return 0;
 	}
@@ -69,8 +75,7 @@ public class FakeSessionManager implements SessionManager {
 	}
 
 	public List<Session> getSessions() {
-		// TODO Auto-generated method stub
-		return null;
+		return sessions;
 	}
 
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.sitestats.impl.SitePresenceImpl"
+		table="SST_PRESENCES"
+		lazy="true">
+		<id name="id" type="long" column="ID" unsaved-value="0">
+			<generator class="native">
+				<param name="sequence">SST_PRESENCE_ID</param>
+			</generator>
+		</id>     
+        <property name="siteId" type="string" not-null="true" index="SST_PRESENCE_SITE_ID_IX">
+            <column name="SITE_ID" length="99" not-null="true" index="SST_PRESENCE_SITEUSERDATE_ID_IX" />
+        </property>
+        <property name="userId" type="string" not-null="true" index="SST_PRESENCE_USER_ID_IX">
+            <column name="USER_ID" length="99" not-null="true" index="SST_PRESENCE_SITEUSERDATE_ID_IX" />
+        </property>
+		<property name="date" type="date" not-null="true" index="SST_PRESENCE_DATE_IX">
+            <column name="DATE" not-null="true" index="SST_PRESENCE_SITEUSERDATE_ID_IX" />
+        </property>
+		<property name="duration" type="long" not-null="true">
+			<column name="DURATION" not-null="true" default="0" />
+		</property>
+		<property name="lastVisitStartTime" type="timestamp" not-null="false">
+			<column name="LAST_VISIT_START_TIME" not-null="false" default="null" />
+		</property>
+	</class>
+</hibernate-mapping>

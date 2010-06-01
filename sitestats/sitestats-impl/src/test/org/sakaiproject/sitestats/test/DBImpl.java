@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -28,6 +28,7 @@ import org.hibernate.Transaction;
 import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.ResourceStatImpl;
 import org.sakaiproject.sitestats.impl.SiteActivityImpl;
+import org.sakaiproject.sitestats.impl.SitePresenceImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -96,7 +97,11 @@ public class DBImpl extends HibernateDaoSupport implements DB {
 					all = session.createCriteria(ResourceStatImpl.class).list();
 					for(Object o : all) {
 						session.delete(o);
-					}			
+					}	
+					all = session.createCriteria(SitePresenceImpl.class).list();
+					for(Object o : all) {
+						session.delete(o);
+					}		
 					tx.commit();
 				}catch(Exception e){
 					if(tx != null) tx.rollback();

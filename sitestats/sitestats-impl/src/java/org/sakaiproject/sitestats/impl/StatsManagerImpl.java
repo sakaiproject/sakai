@@ -102,6 +102,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean						enableSiteVisits						= null;
 	private Boolean                     enableSiteActivity						= null;
 	private Boolean						enableResourceStats						= null;
+	private Boolean						enableSitePresences						= null;
 	private Boolean 				    visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= false;
 	private boolean						countFilesUsingCHS						= true;
@@ -184,6 +185,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	public boolean isEnableResourceStats() {
 		return enableResourceStats;
+	}
+	
+	public void setEnableSitePresences(Boolean enableSitePresences) {
+		this.enableSitePresences = enableSitePresences;
+	}
+	public void setEnableSitePresences(boolean enableSitePresences) {
+		this.enableSitePresences = Boolean.valueOf(enableSitePresences);
+	}
+	public boolean isEnableSitePresences() {
+		return enableSitePresences;
 	}
 	
 	public void setCountFilesUsingCHS(boolean countFilesUsingCHS) {
@@ -326,6 +337,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		if(enableResourceStats == null) {
 			enableResourceStats = true;
+		}
+		if(enableSitePresences == null) {
+			// turno off, by default
+			enableSitePresences = false;// M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
 		}
 	}
 

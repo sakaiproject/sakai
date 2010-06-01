@@ -37,6 +37,7 @@ import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -45,6 +46,7 @@ import org.sakaiproject.sitestats.impl.EventStatImpl;
 import org.sakaiproject.sitestats.impl.JobRunImpl;
 import org.sakaiproject.sitestats.impl.ResourceStatImpl;
 import org.sakaiproject.sitestats.impl.SiteActivityImpl;
+import org.sakaiproject.sitestats.impl.SitePresenceImpl;
 import org.sakaiproject.sitestats.impl.SiteVisitsImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
@@ -103,7 +105,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		M_sm = createMock(StatsManager.class);
 		// Default values
 		expect(M_sm.isEventContextSupported()).andStubReturn(true);
-		expect(M_sm.isShowAnonymousAccessEvents()).andStubReturn(true);		
+		expect(M_sm.isShowAnonymousAccessEvents()).andStubReturn(true);
+		expect(M_sm.isEnableSitePresences()).andStubReturn(true);	
 		// apply
 		replay(M_sm);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
@@ -374,6 +377,117 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		assertEquals(3, r4.size());
 	}
 	
+	// Site visits, presence time tests
+	@SuppressWarnings("unchecked")
+	public void testSitePresences() {
+		long minPresenceTime = 200;
+		
+		
+		// #1 Test : 2 site visit (different users)
+		
+		// BEGIN SITE PRESENCE
+		Date now = new Date();
+		Event eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event eSV2 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
+		// ... check SST_PRESENCES
+		List<SitePresence> r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, r1.size());
+		SitePresence es1 = r1.get(0);
+		SitePresence es2 = r1.get(1);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
+		if(eSV1.getUserId().equals(es1.getUserId())) {
+			assertEquals(eSV1.getUserId(), es1.getUserId());
+			assertEquals(eSV2.getUserId(), es2.getUserId());
+		}else{
+			assertEquals(eSV1.getUserId(), es2.getUserId());
+			assertEquals(eSV2.getUserId(), es1.getUserId());
+		}
+		assertNotNull(es1.getLastVisitStartTime());
+		assertNotNull(es2.getLastVisitStartTime());
+		assertTrue(es1.getLastVisitStartTime().equals(now) || es1.getLastVisitStartTime().before(now));
+		assertTrue(es2.getLastVisitStartTime().equals(now) || es2.getLastVisitStartTime().before(now));
+		
+		// END SITE PRESENCE
+		try{
+			// give it time before ending presence
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now = new Date();
+		Event eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event eSV2e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e, eSV2e)));
+		// ... check SST_PRESENCES
+		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, r1.size());
+		es1 = r1.get(0);
+		es2 = r1.get(1);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
+		if(eSV1.getUserId().equals(es1.getUserId())) {
+			assertEquals(eSV1.getUserId(), es1.getUserId());
+			assertEquals(eSV2.getUserId(), es2.getUserId());
+		}else{
+			assertEquals(eSV1.getUserId(), es2.getUserId());
+			assertEquals(eSV2.getUserId(), es1.getUserId());
+		}
+		assertNull(es1.getLastVisitStartTime());
+		assertNull(es2.getLastVisitStartTime());
+		assertTrue(es1.getDuration() >= minPresenceTime);
+		assertTrue(es2.getDuration() >= minPresenceTime);
+
+		
+		// #2 Test: 2 site visit (same users)
+		db.deleteAll();
+		
+		// BEGIN SITE PRESENCE
+		now = new Date();
+		eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
+		try{
+			// give it time before ending presence
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now = new Date();
+		eSV2 = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
+		// ... check SST_PRESENCES
+		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, r1.size());
+		es1 = r1.get(0);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(eSV1.getUserId(), es1.getUserId());
+		assertNull(es1.getLastVisitStartTime());
+		long firstDuration = es1.getDuration();
+		assertTrue(firstDuration >= minPresenceTime);
+		
+		// END SITE PRESENCE
+		try{
+			// give it time before ending presence
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now = new Date();
+		eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
+		try{
+			// give it time before ending presence
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now = new Date();
+		eSV2e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
+		// ... check SST_PRESENCES
+		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, r1.size());
+		es1 = r1.get(0);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(eSV1.getUserId(), es1.getUserId());
+		assertNull(es1.getLastVisitStartTime());
+		long totalDuration = es1.getDuration();
+		assertTrue(totalDuration >= firstDuration + minPresenceTime);
+	}
+	
 	// Test (remaining) CustomEventImpl fields
 	public void testCustomEventImpl() {
 		CustomEventImpl e1 = new CustomEventImpl(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a", '-');
@@ -527,6 +641,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(true).anyTimes();
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(false).anyTimes();
+		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);		
 		assertEquals(false, M_sm.isShowAnonymousAccessEvents());
@@ -556,6 +671,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(false).anyTimes();
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(true).anyTimes();
+		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);		
 		assertEquals(false, M_sm.isEventContextSupported());

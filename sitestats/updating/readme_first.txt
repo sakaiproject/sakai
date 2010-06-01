@@ -1,8 +1,9 @@
 Site Stats conversion scripts
 -----------------------------
 
-Change 'mysql' to 'oracle' if appropriate:
+Replace 'mysql' with db vender, if appropriate:
 
+2.x         ==> 2.2:        SiteStats_2-x_2-2_mysql_conversion.sql
 1.x         ==> 2.0:        SiteStats_1-x_2-0_mysql_conversion.sql
 pre-1-0     ==> 1.0:        SiteStats_pre-1-0_1-0_mysql_conversion.sql
 0.5.x (x>1) ==> pre-1-0:    SiteStats_0-5-x_pre-1-0_mysql_conversion.sql
