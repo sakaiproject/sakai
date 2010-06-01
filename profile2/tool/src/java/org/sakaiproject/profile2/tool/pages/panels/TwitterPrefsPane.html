@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+        
+<body>
+
+<wicket:panel>	
+
+	
+	
+	<table class="preferencesContent">
+		
+		<tr wicket:id="fragmentContainer"></tr>
+
+	</table>
+	
+	
+	
+	<wicket:fragment wicket:id="unlinked">
+		<td class="label">
+			<a wicket:id="twitterAuthLink" class="icon twitter"><span wicket:id="twitterAuthLabel">[twitterAuthLabel]</span></a>
+		</td>
+		<td class="content">
+			<form wicket:id="twitterForm">
+				<input type="text" wicket:id="twitterAuthCode" class="form-input-small" size="10" />
+				<input type="submit" wicket:id="twitterSubmit" />
+			</form>
+		</td>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="linked">
+		<td class="label">
+			<span wicket:id="twitterAuthLabel" class="icon twitter">[twitterAuthLabel]</span>
+		</td>
+		<td class="content">
+			<span wicket:id="twitterAuthName">[twitterAuthName]</span>
+			<a wicket:id="twitterAuthRemoveLink"><img wicket:id="twitterAuthRemoveIcon" /></a>
+		</td>
+	</wicket:fragment>
+		
+						
+						
+</wicket:panel>
+	
+	
+</body>
+</html>
+
+						

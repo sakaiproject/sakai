@@ -1,5 +1,7 @@
 package org.sakaiproject.profile2.logic;
 
+import java.util.Map;
+
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 
 /**
@@ -23,20 +25,26 @@ public interface ProfileExternalIntegrationLogic {
 	 * @return
 	 */
 	public boolean updateExternalIntegrationInfo(ExternalIntegrationInfo info);
-	
-	
+
 	/**
-	 * Get a Twitter RequestToken for linking user accounts - used for linking accounts.
-	 * @return RequestToken
-	 *
-	 */
-	//public RequestToken getTwitterRequestToken();
-	
-	/**
-	 * Get a Twitter OAuth AccessToken for the supplied accessCode - used for linking accounts.
-	 * @param requestToken	the RequestToken that was used for getting the accessCode
-	 * @param accessCode	the accessCode
+	 * Returns a map of the Twitter OAuth consumer 'key' and 'secret'
 	 * @return
 	 */
-	//public AccessToken getTwitterAccessToken(RequestToken requestToken, String accessCode);
+	public Map<String,String> getTwitterOAuthConsumerDetails();
+
+	/**
+	 * Gets the Twitter name associated with the stored details, if any.
+	 * @param info  ExternalIntegrationInfo object for the user
+	 * @return name or null if none/error
+	 */
+	public String getTwitterName(ExternalIntegrationInfo info);
+
+	/**
+	 * Check if the stored Twitter credentials are valid.
+	 * @param info   ExternalIntegrationInfo object for the user
+	 * @return true if valid, false if not/error
+	 */
+	public boolean validateTwitterCredentials(ExternalIntegrationInfo info);
+
+	
 }

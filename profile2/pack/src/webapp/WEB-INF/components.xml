@@ -135,6 +135,7 @@
     <bean id="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic"
     	class="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogicImpl">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
     
     <!-- CacheManager -->

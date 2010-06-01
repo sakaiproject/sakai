@@ -49,18 +49,4 @@ public interface ProfilePreferencesLogic {
 	 */
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
 
-	/**
-	 * Validate the Twitter username and password supplied (does NOT run in a separate thread)
-	 *
-	 * @param twitterUsername	twitter username
-	 * @param twitterPassword	twitter password
-	 */
-	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword);
-	
-	/**
-	 * Validate the Twitter username and password supplied via the object (does NOT run in a separate thread)
-	 *
-	 * @param prefs	ProfilePreferences object
-	 */
-	public boolean validateTwitterCredentials(ProfilePreferences prefs);
 }

@@ -1,7 +1,17 @@
 package org.sakaiproject.profile2.logic;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
+
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.http.AccessToken;
 
 /**
  * Implementation of ProfileExternalIntegrationLogic API
@@ -11,9 +21,11 @@ import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
  */
 public class ProfileExternalIntegrationLogicImpl implements ProfileExternalIntegrationLogic {
 
+	private static final Logger log = Logger.getLogger(ProfileExternalIntegrationLogicImpl.class);
+
+	
 	private final String TWITTER_OAUTH_CONSUMER_KEY="XzSPZIj0LxNaaoBz8XrgZQ";
 	private final String TWITTER_OAUTH_CONSUMER_SECRET="FSChsnmTufYi3X9H25YdFRxBhPXgnh2H0lMnLh7ZVG4";
-	
 	
 	/**
  	 * {@inheritDoc}
@@ -30,44 +42,66 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
  	 * {@inheritDoc}
  	 */
 	public boolean updateExternalIntegrationInfo(ExternalIntegrationInfo info) {
-		return dao.updateExternalIntegrationInfo(info);
+		if(dao.updateExternalIntegrationInfo(info)){
+			log.info("ExternalIntegrationInfo updated for user: " + info.getUserUuid());
+		}
+		return false;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	/*
-	public RequestToken getTwitterRequestToken() {
+	public Map<String,String> getTwitterOAuthConsumerDetails() {
 		
-		Twitter twitter = new TwitterFactory().getInstance();
-	    twitter.setOAuthConsumer(TWITTER_OAUTH_CONSUMER_KEY, TWITTER_OAUTH_CONSUMER_SECRET);
-	    
-	    try {
-			return twitter.getOAuthRequestToken();
-		} catch (TwitterException e) {
-			e.printStackTrace();
-		}
-	    
-	    return null;
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("key", sakaiProxy.getServerConfigurationParameter("profile2.twitter.oauth.key", TWITTER_OAUTH_CONSUMER_KEY));
+		map.put("secret", sakaiProxy.getServerConfigurationParameter("profile2.twitter.oauth.secret", TWITTER_OAUTH_CONSUMER_SECRET));
+		return map;
 	}
 	
-	public AccessToken getTwitterAccessToken(RequestToken requestToken, String accessCode) {
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getTwitterName(ExternalIntegrationInfo info) {
 		
-		Twitter twitter = new TwitterFactory().getInstance();
-	    twitter.setOAuthConsumer(TWITTER_OAUTH_CONSUMER_KEY, TWITTER_OAUTH_CONSUMER_SECRET);
+		if(info == null){
+			return null;
+		}
 		
-	    try {
-			return twitter.getOAuthAccessToken(requestToken, accessCode);
-		} catch (TwitterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		//get values
+		String token = info.getTwitterToken();
+		String secret = info.getTwitterSecret();
+		
+		if(StringUtils.isNotBlank(token) && StringUtils.isNotBlank(secret)) {
+
+			//global config
+			Map<String,String> config = getTwitterOAuthConsumerDetails();
+
+			//token for user
+			AccessToken accessToken = new AccessToken(token, secret);
+			
+			//setup
+			Twitter twitter = new TwitterFactory().getOAuthAuthorizedInstance(config.get("key"), config.get("secret"), accessToken);
+			
+			//check
+			try {
+				return twitter.verifyCredentials().getScreenName();
+			} catch (TwitterException e) {
+				log.error("Error retrieving Twitter credentials: " + e.getClass() + ": " + e.getMessage());
+			}
 		}
 		return null;
-		
-		
 	}
-	*/
-
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean validateTwitterCredentials(ExternalIntegrationInfo info) {
+		return StringUtils.isNotBlank(getTwitterName(info));
+	}
+	
+	
 	
 	/**
 	 * Get a default record, will only contain the userUuid
@@ -85,6 +119,11 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 	private ProfileDao dao;
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
+	}
+	
+	private SakaiProxy sakaiProxy;
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
 	}
 	
 	

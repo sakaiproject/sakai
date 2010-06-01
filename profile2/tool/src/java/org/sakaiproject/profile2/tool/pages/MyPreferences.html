@@ -74,31 +74,13 @@
 					</table>
 					
 					
-					<!-- Twitter integration -->
-					<div wicket:id="twitterContainer">
+					<!-- Twitter integration panel -->
+					<div wicket:id="twitterSectionHeadingContainer">
 						<div class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</div>
 						<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
-						
-						<table class="preferencesContent">
-							<tr wicket:id="twitterEnabledContainer">
-								<td class="label" wicket:id="twitterEnabledLabel">[twitterEnabledLabel]</td>
-								<td class="content"><input wicket:id="twitterEnabled" type="checkbox" /></td>
-							</tr>
-							
-							<tr wicket:id="twitterAuthContainer">
-								<td class="label">
-									<a wicket:id="twitterAuthLink" class="icon twitter"><span wicket:id="twitterAuthLabel">[twitterAuthLabel]</span></a>
-								</td>
-								<td class="content">
-									<form wicket:id="twitterForm">
-										<input type="text" wicket:id="twitterAuthCode" class="form-input-small" size="10" />
-										<input type="submit" wicket:id="twitterSubmit" />
-									</form>
-								</td>
-							</tr>
-							
-						</table>
 					</div>
+					<div wicket:id="twitterPanel"></div>
+					
 					
 					<!-- Image settings -->
 					<div wicket:id="imageSettingsContainer">
