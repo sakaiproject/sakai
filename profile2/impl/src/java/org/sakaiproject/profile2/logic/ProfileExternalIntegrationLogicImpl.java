@@ -44,6 +44,7 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 	public boolean updateExternalIntegrationInfo(ExternalIntegrationInfo info) {
 		if(dao.updateExternalIntegrationInfo(info)){
 			log.info("ExternalIntegrationInfo updated for user: " + info.getUserUuid());
+			return true;
 		}
 		return false;
 	}

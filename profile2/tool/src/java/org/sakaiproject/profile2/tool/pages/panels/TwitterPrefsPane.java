@@ -63,21 +63,71 @@ public class TwitterPrefsPane extends Panel {
 	 * Fragment which returns the components for the unlinked view
 	 * @return
 	 */
-	class UnlinkedFragment extends Fragment{
+	private class UnlinkedFragment extends Fragment{
 		
 		private static final long serialVersionUID = 1L;
-		
-		private IndicatingAjaxButton twitterSubmit;
-		private TextField<String> twitterAuthCode;
-		
-		@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
-		protected ProfileExternalIntegrationLogic externalIntegrationLogic;
-		
 		
 		public UnlinkedFragment(final String id, final String markupId, final MarkupContainer container) {
 			super(id, markupId, container);
 			
 			final Component thisFragment = this;
+			
+			//twitter auth form
+			StringModel twitterModel = new StringModel();
+			final Form<StringModel> twitterForm = new Form<StringModel>("twitterForm", new Model<StringModel>(twitterModel));
+			
+			//auth code
+			final TextField<String> twitterAuthCode = new TextField<String>("twitterAuthCode", new PropertyModel<String>(twitterModel, "string"));        
+			twitterAuthCode.setOutputMarkupId(true);
+			twitterAuthCode.setEnabled(false);
+			twitterForm.add(twitterAuthCode);
+	
+			//save button
+			final IndicatingAjaxButton twitterSubmit = new IndicatingAjaxButton("twitterSubmit", twitterForm) {
+				private static final long serialVersionUID = 1L;
+	
+				protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+					
+					StringModel stringModel = (StringModel) form.getModelObject();
+					String accessCode = stringModel.getString();
+					
+					if(StringUtils.isBlank(accessCode)) {
+						//TODO change this
+						target.appendJavascript("alert('AccessCode was null.');");
+						return;
+					}
+					
+					AccessToken accessToken = getOAuthAccessToken(accessCode);				
+					if(accessToken == null) {
+						//TODO change this
+						target.appendJavascript("alert('AccessToken was null.');");
+						return;
+					}
+					
+					//set
+					externalIntegrationInfo.setTwitterToken(accessToken.getToken());
+					externalIntegrationInfo.setTwitterSecret(accessToken.getTokenSecret());
+	
+					//save, replace fragments
+					if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
+						Fragment newFragment = new LinkedFragment(id, markupId, container);
+						newFragment.setOutputMarkupId(true);
+						//newFragment.setMarkupId(thisFragment.getMarkupId()); //must be same markupId
+						thisFragment.replaceWith(newFragment);
+						target.addComponent(newFragment);
+					} else {
+						target.appendJavascript("alert('Couldn't save info');");
+						return;
+					}
+					
+				}
+			};
+			twitterSubmit.setEnabled(false);
+			twitterSubmit.setModel(new ResourceModel("button.link"));
+			twitterForm.add(twitterSubmit);
+			
+			add(twitterForm);
+			
 			
 			//auth link/label
 			final IndicatingAjaxLink<String> twitterAuthLink = new IndicatingAjaxLink<String>("twitterAuthLink") {
@@ -109,58 +159,7 @@ public class TwitterPrefsPane extends Panel {
 			twitterAuthLink.add(twitterAuthLabel);
 			add(twitterAuthLink);
 			
-			//twitter auth form
-			StringModel twitterModel = new StringModel();
-			final Form<StringModel> twitterForm = new Form<StringModel>("twitterForm", new Model<StringModel>(twitterModel));
 			
-			//auth code
-			twitterAuthCode = new TextField<String>("twitterAuthCode", new PropertyModel<String>(twitterModel, "string"));        
-			twitterAuthCode.setOutputMarkupId(true);
-			twitterAuthCode.setEnabled(false);
-			twitterForm.add(twitterAuthCode);
-	
-			//save button
-			twitterSubmit = new IndicatingAjaxButton("twitterSubmit", twitterForm) {
-				private static final long serialVersionUID = 1L;
-	
-				protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-					StringModel stringModel = (StringModel) form.getModelObject();
-					String accessCode = stringModel.getString();
-					if(StringUtils.isBlank(accessCode)) {
-						return;
-					}
-					
-					AccessToken accessToken = getOAuthAccessToken(accessCode);				
-					if(accessToken == null) {
-						//TODO change this
-						target.appendJavascript("alert('AccessToken was null.');");
-						return;
-					}
-					
-					//set
-					externalIntegrationInfo.setTwitterToken(accessToken.getToken());
-					externalIntegrationInfo.setTwitterSecret(accessToken.getTokenSecret());
-	
-					//save, replace fragments
-					if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
-						Fragment newFragment = new LinkedFragment(id, markupId, container);
-						newFragment.setOutputMarkupId(true);
-						//newFragment.setMarkupId(this.getMarkupId()); //must be same markupId
-						thisFragment.replaceWith(newFragment);
-						target.addComponent(newFragment);
-					} else {
-						target.appendJavascript("alert('Couldn't save info');");
-						return;
-					}
-					
-				}
-			};
-			twitterSubmit.setDefaultFormProcessing(false);
-			twitterSubmit.setEnabled(false);
-			twitterSubmit.setModel(new ResourceModel("button.link"));
-			twitterForm.add(twitterSubmit);
-			
-			add(twitterForm);
 			
 			setOutputMarkupId(true);
 		}
@@ -171,14 +170,10 @@ public class TwitterPrefsPane extends Panel {
 	 * Fragment which returns the components for the linked view
 	 * @return
 	 */
-	class LinkedFragment extends Fragment{
+	private class LinkedFragment extends Fragment{
 		
 		private static final long serialVersionUID = 1L;
 
-		@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
-		protected ProfileExternalIntegrationLogic externalIntegrationLogic;
-		
-		
 		public LinkedFragment(final String id, final String markupId, final MarkupContainer container) {
 			super(id, markupId, container);
 		
@@ -208,7 +203,7 @@ public class TwitterPrefsPane extends Panel {
 					if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
 						Fragment newFragment = new UnlinkedFragment(id, markupId, container);
 						newFragment.setOutputMarkupId(true);
-						//newFragment.setMarkupId(this.getMarkupId()); //must be same markupId
+						//newFragment.setMarkupId(thisFragment.getMarkupId()); //must be same markupId
 						thisFragment.replaceWith(newFragment);
 						target.addComponent(newFragment);
 					} else {
