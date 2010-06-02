@@ -132,7 +132,7 @@ public class MyPictures extends BasePage {
 		addPictureUploadFolder.mkdirs();
 
 		Form addPictureForm = new FileUploadForm("addPictureForm", userUuid);
-
+		
 		addPictureForm.setOutputMarkupId(true);
 		add(addPictureForm);
 		
@@ -155,8 +155,12 @@ public class MyPictures extends BasePage {
 				"button.gallery.upload"));
 		addPictureContainer.add(submitButton);
 
-		addPictureContainer.add(new IconWithClueTip("galleryImageUploadToolTip",
-				ProfileConstants.INFO_IMAGE, new ResourceModel("text.gallery.upload.tooltip")));
+		addPictureContainer
+				.add(new IconWithClueTip("galleryImageUploadToolTip",
+						ProfileConstants.INFO_IMAGE, new StringResourceModel(
+								"text.gallery.upload.tooltip", null,
+								new Object[] { sakaiProxy.getMaxProfilePictureSize()
+										* ProfileConstants.MAX_GALLERY_FILE_UPLOADS })));
 		
 		addPictureForm.add(addPictureContainer);
 		
@@ -322,8 +326,8 @@ public class MyPictures extends BasePage {
 			// set form to multipart mode
 			setMultiPart(true);
 
-			setMaxSize(Bytes
-					.kilobytes(ProfileConstants.MAX_GALLERY_IMAGE_UPLOAD_SIZE));
+			setMaxSize(Bytes.megabytes(sakaiProxy.getMaxProfilePictureSize()
+					* ProfileConstants.MAX_GALLERY_FILE_UPLOADS));
 		}
 
 		public Collection<FileUpload> getUploads() {
