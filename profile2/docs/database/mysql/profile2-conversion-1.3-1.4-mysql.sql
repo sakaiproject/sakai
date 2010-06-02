@@ -74,3 +74,16 @@ alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null DEFAULT true;
 
 /* add kudos privacy (PRFL-336) */
 alter table PROFILE_PRIVACY_T add MY_KUDOS int not null DEFAULT 0;
+
+/* remove twitter from preferences (PRFL-94) */
+alter table PROFILE_PREFERENCES_T drop TWITTER_ENABLED;
+alter table PROFILE_PREFERENCES_T drop TWITTER_USERNAME;
+alter table PROFILE_PREFERENCES_T drop TWITTER_PASSWORD;
+
+/* add external integration table (PRFL-94) */
+create table PROFILE_EXTERNAL_INTEGRATION_T (
+	USER_UUID varchar(99) not null,
+	TWITTER_TOKEN varchar(255),
+	TWITTER_SECRET varchar(255),
+	primary key (USER_UUID)
+);
