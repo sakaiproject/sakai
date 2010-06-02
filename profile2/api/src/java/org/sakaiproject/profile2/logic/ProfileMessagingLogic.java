@@ -138,17 +138,6 @@ public interface ProfileMessagingLogic {
 	public boolean isThreadParticipant(final String threadId, final String userId);
 	
 	/**
-	 * Send a message to twitter ( runs in a separate thread)
-	 * Should only be called if twitter integration is enabled globally (ie via sakai.properties) and for the user.
-	 * 
-	 * TODO could call validateTwitterCredentials() first perhaps?
-	 *
-	 * @param userId	uuid of the user
-	 * @param message	the message
-	 */
-	public void sendMessageToTwitter(final String userId, final String message);
-	
-	/**
 	 * Get the subject of a thread
 	 * @param threadId		id of the thread
 	 * @return

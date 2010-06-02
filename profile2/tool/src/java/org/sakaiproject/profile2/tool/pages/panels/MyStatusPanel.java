@@ -17,9 +17,6 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -34,7 +31,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
@@ -62,6 +59,9 @@ public class MyStatusPanel extends Panel {
     
     @SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
 	private ProfileMessagingLogic messagingLogic;
+    
+    @SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
+	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
     
     //get default text that fills the textField
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
@@ -175,8 +175,8 @@ public class MyStatusPanel extends Panel {
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_STATUS_UPDATE, "/profile/"+userId, true);
 
-					//update twitter if set
-					updateTwitter(userId, statusMessage);
+					//update twitter
+					externalIntegrationLogic.sendMessageToTwitter(userId, statusMessage);
 					
 					//repaint status component
 					ProfileStatusRenderer newStatus = new ProfileStatusRenderer("status", userId, null, "tiny");
@@ -215,17 +215,6 @@ public class MyStatusPanel extends Panel {
 		
 		add(statusFormContainer);
 		
-		
-	}
-
-	public void updateTwitter(String userId, String message) {
-		
-		if(preferencesLogic.isTwitterIntegrationEnabledForUser(userId)) {
-			messagingLogic.sendMessageToTwitter(userId, message);
-			
-			//post update event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_TWITTER_UPDATE, "/profile/"+userId, true);
-		}
 	}
 	
 }

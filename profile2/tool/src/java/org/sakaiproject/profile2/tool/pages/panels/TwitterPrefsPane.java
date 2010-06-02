@@ -38,6 +38,8 @@ public class TwitterPrefsPane extends Panel {
 	private transient ExternalIntegrationInfo externalIntegrationInfo;
 	private transient RequestToken requestToken;
 	
+	private Fragment currentFragment;
+	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
 	
@@ -50,119 +52,111 @@ public class TwitterPrefsPane extends Panel {
 		//setup Twitter request token
 		setTwitterRequestToken();
 		
-		//show relevant fragment
+		//setup relevant fragment
 		if(isAlreadyConfigured(externalIntegrationInfo)) {
-			add(new LinkedFragment("fragmentContainer", "linked", this));
+			currentFragment = linkedFragment();
 		} else {
-			add(new UnlinkedFragment("fragmentContainer", "unlinked", this));
+			currentFragment = unlinkedFragment();
 		}
 
+		add(currentFragment);
 	}
 	
 	/**
 	 * Fragment which returns the components for the unlinked view
 	 * @return
 	 */
-	private class UnlinkedFragment extends Fragment{
+	private Fragment unlinkedFragment() {
 		
-		private static final long serialVersionUID = 1L;
+		Fragment frag = new Fragment("fragmentContainer", "unlinked", this);
 		
-		public UnlinkedFragment(final String id, final String markupId, final MarkupContainer container) {
-			super(id, markupId, container);
-			
-			final Component thisFragment = this;
-			
-			//twitter auth form
-			StringModel twitterModel = new StringModel();
-			final Form<StringModel> twitterForm = new Form<StringModel>("twitterForm", new Model<StringModel>(twitterModel));
-			
-			//auth code
-			final TextField<String> twitterAuthCode = new TextField<String>("twitterAuthCode", new PropertyModel<String>(twitterModel, "string"));        
-			twitterAuthCode.setOutputMarkupId(true);
-			twitterAuthCode.setEnabled(false);
-			twitterForm.add(twitterAuthCode);
-	
-			//save button
-			final IndicatingAjaxButton twitterSubmit = new IndicatingAjaxButton("twitterSubmit", twitterForm) {
-				private static final long serialVersionUID = 1L;
-	
-				protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-					
-					StringModel stringModel = (StringModel) form.getModelObject();
-					String accessCode = stringModel.getString();
-					
-					if(StringUtils.isBlank(accessCode)) {
-						//TODO change this
-						target.appendJavascript("alert('AccessCode was null.');");
-						return;
-					}
-					
-					AccessToken accessToken = getOAuthAccessToken(accessCode);				
-					if(accessToken == null) {
-						//TODO change this
-						target.appendJavascript("alert('AccessToken was null.');");
-						return;
-					}
-					
-					//set
-					externalIntegrationInfo.setTwitterToken(accessToken.getToken());
-					externalIntegrationInfo.setTwitterSecret(accessToken.getTokenSecret());
-	
-					//save, replace fragments
-					if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
-						Fragment newFragment = new LinkedFragment(id, markupId, container);
-						newFragment.setOutputMarkupId(true);
-						//newFragment.setMarkupId(thisFragment.getMarkupId()); //must be same markupId
-						thisFragment.replaceWith(newFragment);
-						target.addComponent(newFragment);
-					} else {
-						target.appendJavascript("alert('Couldn't save info');");
-						return;
-					}
-					
+		//twitter auth form
+		StringModel twitterModel = new StringModel();
+		final Form<StringModel> twitterForm = new Form<StringModel>("twitterForm", new Model<StringModel>(twitterModel));
+		
+		//auth code
+		final TextField<String> twitterAuthCode = new TextField<String>("twitterAuthCode", new PropertyModel<String>(twitterModel, "string"));        
+		twitterAuthCode.setOutputMarkupId(true);
+		twitterAuthCode.setEnabled(false);
+		twitterForm.add(twitterAuthCode);
+
+		//save button
+		final IndicatingAjaxButton twitterSubmit = new IndicatingAjaxButton("twitterSubmit", twitterForm) {
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				
+				StringModel stringModel = (StringModel) form.getModelObject();
+				String accessCode = stringModel.getString();
+				
+				if(StringUtils.isBlank(accessCode)) {
+					//TODO change this
+					target.appendJavascript("alert('AccessCode was null.');");
+					return;
 				}
-			};
-			twitterSubmit.setEnabled(false);
-			twitterSubmit.setModel(new ResourceModel("button.link"));
-			twitterForm.add(twitterSubmit);
-			
-			add(twitterForm);
-			
-			
-			//auth link/label
-			final IndicatingAjaxLink<String> twitterAuthLink = new IndicatingAjaxLink<String>("twitterAuthLink") {
-				private static final long serialVersionUID = 1L;
-	
-				public void onClick(AjaxRequestTarget target) {
-					
-					//get auth url
-					String authorisationUrl = getTwitterAuthorisationUrl();
-					
-					if(StringUtils.isBlank(authorisationUrl)){
-						//TODO change this
-						target.appendJavascript("alert('Error getting the Twitter authorisation URL. Please try again later.');");
-						return;
-					}
-					
-					//open window
-					target.appendJavascript("window.open('" + requestToken.getAuthorizationURL() + "','Link your Twitter account','width=800,height=400');");
-					
-					//enable code box and button
-					twitterAuthCode.setEnabled(true);
-					twitterSubmit.setEnabled(true);
-					target.addComponent(twitterAuthCode);
-					target.addComponent(twitterSubmit);
-					
+				
+				AccessToken accessToken = getOAuthAccessToken(accessCode);				
+				if(accessToken == null) {
+					//TODO change this
+					target.appendJavascript("alert('AccessToken was null.');");
+					return;
 				}
-			};
-			Label twitterAuthLabel = new Label("twitterAuthLabel", new ResourceModel("twitter.auth.do"));
-			twitterAuthLink.add(twitterAuthLabel);
-			add(twitterAuthLink);
-			
-			
-			
-			setOutputMarkupId(true);
-		}
+				
+				//set
+				externalIntegrationInfo.setTwitterToken(accessToken.getToken());
+				externalIntegrationInfo.setTwitterSecret(accessToken.getTokenSecret());
+
+				//save, replace fragments
+				if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
+					switchContentFragments(linkedFragment(), target);
+				} else {
+					target.appendJavascript("alert('Couldn't save info');");
+					return;
+				}
+				
+			}
+		};
+		twitterSubmit.setEnabled(false);
+		twitterSubmit.setModel(new ResourceModel("button.link"));
+		twitterForm.add(twitterSubmit);
+		
+		frag.add(twitterForm);
+		
+		
+		//auth link/label
+		final IndicatingAjaxLink<String> twitterAuthLink = new IndicatingAjaxLink<String>("twitterAuthLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				
+				//get auth url
+				String authorisationUrl = getTwitterAuthorisationUrl();
+				
+				if(StringUtils.isBlank(authorisationUrl)){
+					//TODO change this
+					target.appendJavascript("alert('Error getting the Twitter authorisation URL. Please try again later.');");
+					return;
+				}
+				
+				//open window
+				target.appendJavascript("window.open('" + requestToken.getAuthorizationURL() + "','Link your Twitter account','width=800,height=400');");
+				
+				//enable code box and button
+				twitterAuthCode.setEnabled(true);
+				twitterSubmit.setEnabled(true);
+				target.addComponent(twitterAuthCode);
+				target.addComponent(twitterSubmit);
+				
+			}
+		};
+		Label twitterAuthLabel = new Label("twitterAuthLabel", new ResourceModel("twitter.auth.do"));
+		twitterAuthLink.add(twitterAuthLabel);
+		frag.add(twitterAuthLink);
+		
+		
+		frag.setOutputMarkupId(true);
+		
+		return frag;
 	}
 	
 	
@@ -170,62 +164,69 @@ public class TwitterPrefsPane extends Panel {
 	 * Fragment which returns the components for the linked view
 	 * @return
 	 */
-	private class LinkedFragment extends Fragment{
+	private Fragment linkedFragment() {
 		
-		private static final long serialVersionUID = 1L;
-
-		public LinkedFragment(final String id, final String markupId, final MarkupContainer container) {
-			super(id, markupId, container);
+		Fragment frag = new Fragment("fragmentContainer", "linked", this);
 		
-			final Component thisFragment = this;
-			
-			//label
-			add(new Label("twitterAuthLabel", new ResourceModel("twitter.auth.linked")));
-			
-			//screen name
-			String twitterName = externalIntegrationLogic.getTwitterName(externalIntegrationInfo);
-			Label twitterAuthName = new Label("twitterAuthName", new Model<String>(twitterName));
-			
-			if(StringUtils.isBlank(twitterName)){
-				twitterAuthName.setDefaultModel(new ResourceModel("error.twitter.details.invalid"));
-			}
-			add(twitterAuthName);
-	
-			//remove link
-			IndicatingAjaxLink<String> twitterAuthRemoveLink  = new IndicatingAjaxLink<String>("twitterAuthRemoveLink") {
-				private static final long serialVersionUID = 1L;
-	
-				public void onClick(AjaxRequestTarget target) {
-					externalIntegrationInfo.setTwitterToken(null);
-					externalIntegrationInfo.setTwitterSecret(null);
-					
-					//remove details
-					if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
-						Fragment newFragment = new UnlinkedFragment(id, markupId, container);
-						newFragment.setOutputMarkupId(true);
-						//newFragment.setMarkupId(thisFragment.getMarkupId()); //must be same markupId
-						thisFragment.replaceWith(newFragment);
-						target.addComponent(newFragment);
-					} else {
-						target.appendJavascript("alert('Couldn't remove info');");
-						return;
-					}
-				}
-			};
-			
-			ContextImage twitterAuthRemoveIcon = new ContextImage("twitterAuthRemoveIcon",new Model<String>(ProfileConstants.CROSS_IMG));
-			twitterAuthRemoveLink.add(twitterAuthRemoveIcon);
-			twitterAuthRemoveLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.unlinktwitter")));
-			add(twitterAuthRemoveLink);
-			
-			setOutputMarkupId(true);
-
+		//label
+		frag.add(new Label("twitterAuthLabel", new ResourceModel("twitter.auth.linked")));
+		
+		//screen name
+		String twitterName = externalIntegrationLogic.getTwitterName(externalIntegrationInfo);
+		Label twitterAuthName = new Label("twitterAuthName", new Model<String>(twitterName));
+		
+		if(StringUtils.isBlank(twitterName)){
+			twitterAuthName.setDefaultModel(new ResourceModel("error.twitter.details.invalid"));
 		}
+		frag.add(twitterAuthName);
+
+		//remove link
+		IndicatingAjaxLink<String> twitterAuthRemoveLink  = new IndicatingAjaxLink<String>("twitterAuthRemoveLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				externalIntegrationInfo.setTwitterToken(null);
+				externalIntegrationInfo.setTwitterSecret(null);
+				
+				//remove details
+				if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
+					switchContentFragments(unlinkedFragment(), target);
+				} else {
+					target.appendJavascript("alert('Couldn't remove info');");
+					return;
+				}
+			}
+		};
+		
+		ContextImage twitterAuthRemoveIcon = new ContextImage("twitterAuthRemoveIcon",new Model<String>(ProfileConstants.CROSS_IMG));
+		twitterAuthRemoveLink.add(twitterAuthRemoveIcon);
+		twitterAuthRemoveLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.unlinktwitter")));
+		frag.add(twitterAuthRemoveLink);
+		
+		frag.setOutputMarkupId(true);
+		
+		return frag;
 	}
 	
-	
-	
-	
+	/**
+	 * Helper to switch content fragments for us
+	 * 
+	 * @param replacement	replacement Fragment
+	 * @param target		AjaxRequestTarget
+	 */
+	private void switchContentFragments(Fragment replacement, AjaxRequestTarget target) {
+		
+		replacement.setOutputMarkupId(true);
+		currentFragment.replaceWith(replacement);
+		if(target != null) {
+			target.addComponent(replacement);
+			//resize iframe
+			target.appendJavascript("setMainFrameHeight(window.name);");
+		}
+		
+		//must keep reference up to date
+		currentFragment=replacement;
+	}
 
 	/**
 	 * Helper to get and set the Twitter request token we need for linking accounts

@@ -7,6 +7,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -102,6 +104,73 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 		return StringUtils.isNotBlank(getTwitterName(info));
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void sendMessageToTwitter(final String userUuid, final String message){
+		//setup class thread to call later
+		class TwitterUpdater implements Runnable{
+			private Thread runner;
+			private String userUuid;
+			private String userToken;
+			private String userSecret;
+			private String message;
+
+			public TwitterUpdater(String userUuid, String userToken, String userSecret, String message) {
+				this.userUuid=userUuid;
+				this.userToken=userToken;
+				this.userSecret=userSecret;
+				this.message=message;
+				
+				runner = new Thread(this,"Profile2 TwitterUpdater thread"); 
+				runner.start();
+			}
+			
+
+			//do it!
+			public synchronized void run() {
+				
+				//global config
+				Map<String,String> config = getTwitterOAuthConsumerDetails();
+
+				//token for user
+				AccessToken accessToken = new AccessToken(userToken, userSecret);
+				
+				//setup
+				Twitter twitter = new TwitterFactory().getOAuthAuthorizedInstance(config.get("key"), config.get("secret"), accessToken);
+				
+				try {
+					twitter.updateStatus(message);
+					log.info("Twitter status updated for: " + userUuid); 
+					
+					//post update event
+					sakaiProxy.postEvent(ProfileConstants.EVENT_TWITTER_UPDATE, "/profile/"+userUuid, true);
+				}
+				catch (Exception e) {
+					log.error("ProfileLogic.sendMessageToTwitter() failed. " + e.getClass() + ": " + e.getMessage());  
+				}
+			}
+		}
+		
+		//is twitter enabled
+		if(!sakaiProxy.isTwitterIntegrationEnabledGlobally()){
+			return;
+		}
+			
+		//get user info
+		ExternalIntegrationInfo info = getExternalIntegrationInfo(userUuid);
+		if(info == null){
+			return;
+		}
+		String token = info.getTwitterToken();
+		String secret = info.getTwitterSecret();
+		if(StringUtils.isBlank(token) || StringUtils.isBlank(secret)) {
+			return;
+		}
+		
+		//instantiate class to send the data
+		new TwitterUpdater(userUuid, token, secret, message);
+	}
 	
 	
 	/**

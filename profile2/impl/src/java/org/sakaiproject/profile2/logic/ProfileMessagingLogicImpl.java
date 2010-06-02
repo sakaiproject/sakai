@@ -282,59 +282,6 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 
 	
 	/**
- 	 * {@inheritDoc}
- 	 */
-	public void sendMessageToTwitter(final String userId, final String message){
-		//setup class thread to call later
-		class TwitterUpdater implements Runnable{
-			private Thread runner;
-			private String username;
-			private String password;
-			private String message;
-
-			public TwitterUpdater(String username, String password, String message) {
-				this.username=username;
-				this.password=password;
-				this.message=message;
-				
-				runner = new Thread(this,"Profile2 TwitterUpdater thread"); 
-				runner.start();
-			}
-			
-
-			//do it!
-			public synchronized void run() {
-				
-				//Twitter twitter = new Twitter(username, password);
-				Twitter twitter = new TwitterFactory().getInstance(username,password);
-				
-				try {
-					//twitter.setSource(sakaiProxy.getTwitterSource());
-					twitter.updateStatus(message);
-					log.info("Twitter status updated for: " + userId); 
-				}
-				catch (Exception e) {
-					log.error("ProfileLogic.sendMessageToTwitter() failed. " + e.getClass() + ": " + e.getMessage());  
-				}
-			}
-		}
-		
-		//get preferences for this user
-		ProfilePreferences profilePreferences = preferencesLogic.getPreferencesRecordForUser(userId);
-		
-		if(profilePreferences == null) {
-			return;
-		}
-		//get details
-		String username = profilePreferences.getTwitterUsername();
-		String password = profilePreferences.getTwitterPasswordDecrypted();
-		
-		//instantiate class to send the data
-		new TwitterUpdater(username, password, message);
-		
-	}
-	
-	/**
 	 * Sends an email notification to the users. Used for messages. This formats the data and calls {@link SakaiProxy.sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues)}
 	 * @param toUuids		list of users to send the message to - this will be formatted depending on their email preferences for this message type so it is safe to pass all users you need
 	 * @param fromUuid		uuid from
