@@ -18,6 +18,8 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Model for storing a user's external integration details
  * 
@@ -60,4 +62,13 @@ public class ExternalIntegrationInfo implements Serializable {
 		this.twitterSecret = twitterSecret;
 	}
 
+	/**
+	 * Check if the user has already configured their Twitter info.
+	 * @param info	ExternalIntegrationInfo record to check
+	 * @return
+	 */
+	public boolean isTwitterAlreadyConfigured() {
+		return (StringUtils.isNotBlank(getTwitterSecret()) && (StringUtils.isNotBlank(getTwitterSecret())));
+	}
+	
 }

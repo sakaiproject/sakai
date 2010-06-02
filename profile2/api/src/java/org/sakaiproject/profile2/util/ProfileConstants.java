@@ -132,7 +132,6 @@ public class ProfileConstants {
 	public static final boolean DEFAULT_EMAIL_CONFIRM_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_MESSAGE_NEW_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_MESSAGE_REPLY_SETTING = true;
-	public static final boolean DEFAULT_TWITTER_SETTING = false;
 	public static final boolean DEFAULT_OFFICIAL_IMAGE_SETTING = false;
 	public static final boolean DEFAULT_SHOW_KUDOS_SETTING = true;
 
@@ -141,7 +140,6 @@ public class ProfileConstants {
 
 	public static final String PROP_EMAIL_REQUEST_ENABLED="emailRequestEnabled";
 	public static final String PROP_EMAIL_CONFIRM_ENABLED="emailConfirmEnabled";
-	public static final String PROP_TWITTER_ENABLED="twitterEnabled";
 	
 	
 	

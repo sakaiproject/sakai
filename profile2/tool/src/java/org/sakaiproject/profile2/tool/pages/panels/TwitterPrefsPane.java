@@ -53,7 +53,7 @@ public class TwitterPrefsPane extends Panel {
 		setTwitterRequestToken();
 		
 		//setup relevant fragment
-		if(isAlreadyConfigured(externalIntegrationInfo)) {
+		if(externalIntegrationInfo.isTwitterAlreadyConfigured()) {
 			currentFragment = linkedFragment();
 		} else {
 			currentFragment = unlinkedFragment();
@@ -280,13 +280,6 @@ public class TwitterPrefsPane extends Panel {
 		return requestToken.getAuthenticationURL();
 	}
 	
-	/**
-	 * Helper to check if the user has already configured their Twitter info.
-	 * @param info	ExternalIntegrationInfo record to check
-	 * @return
-	 */
-	private boolean isAlreadyConfigured(ExternalIntegrationInfo info) {
-		return (StringUtils.isNotBlank(info.getTwitterSecret()) && (StringUtils.isNotBlank(info.getTwitterSecret())));
-	}
+	
 
 }

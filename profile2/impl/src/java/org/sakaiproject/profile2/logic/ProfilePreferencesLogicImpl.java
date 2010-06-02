@@ -1,6 +1,5 @@
 package org.sakaiproject.profile2.logic;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
@@ -83,49 +82,6 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		return false;
 	}
 	
-	
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isTwitterIntegrationEnabledForUser(final String userId) {
-		
-		//check global settings
-		if(!sakaiProxy.isTwitterIntegrationEnabledGlobally()) {
-			return false;
-		}
-		
-		//check own preferences - change this to get the twitter settings.
-		ProfilePreferences profilePreferences = getPreferencesRecordForUser(userId);
-		if(profilePreferences == null) {
-			return false;
-		}
-		
-		if(profilePreferences.isTwitterEnabled()) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isTwitterIntegrationEnabledForUser(ProfilePreferences prefs) {
-		
-		//check global settings
-		if(!sakaiProxy.isTwitterIntegrationEnabledGlobally()) {
-			return false;
-		}
-		
-		//check own prefs
-		if(prefs == null) {
-			return false;
-		}
-		
-		return prefs.isTwitterEnabled();
-	}
-	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -181,7 +137,6 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		prefs.setConfirmEmailEnabled(ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING);
 		prefs.setMessageNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING);
 		prefs.setMessageReplyEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING);
-		prefs.setTwitterEnabled(ProfileConstants.DEFAULT_TWITTER_SETTING);
 		prefs.setUseOfficialImage(ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING);
 		prefs.setShowKudos(ProfileConstants.DEFAULT_SHOW_KUDOS_SETTING);
 				

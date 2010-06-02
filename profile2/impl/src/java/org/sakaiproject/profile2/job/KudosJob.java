@@ -13,15 +13,16 @@ import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileKudosLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -360,13 +361,21 @@ public class KudosJob implements StatefulJob {
 		}
 		*/
 		
+		/*
 		ProfilePreferences prefs = person.getPreferences();
 		if(prefs != null){
 			//is twitter enabled?
 			if(prefs.isTwitterEnabled()) {
 				score = score.add(val("twitterEnabled"));
 			}
-		}	
+		}
+		*/
+		ExternalIntegrationInfo externalIntegrationInfo = externalIntegrationLogic.getExternalIntegrationInfo(person.getUuid());
+		if(externalIntegrationInfo != null){
+			if(externalIntegrationInfo.isTwitterAlreadyConfigured()) {
+				score = score.add(val("twitterEnabled"));
+			}
+		}
 		
 		//if gallery enabled, number of gallery pictures
 		if(sakaiProxy.isProfileGalleryEnabledGlobally()){
@@ -558,6 +567,11 @@ public class KudosJob implements StatefulJob {
 	private ProfileStatusLogic statusLogic;
 	public void setStatusLogic(ProfileStatusLogic statusLogic) {
 		this.statusLogic = statusLogic;
+	}
+	
+	private ProfileExternalIntegrationLogic externalIntegrationLogic;
+	public void setExternalIntegrationLogic(ProfileExternalIntegrationLogic externalIntegrationLogic) {
+		this.externalIntegrationLogic = externalIntegrationLogic;
 	}
 	
 	private SessionManager sessionManager;

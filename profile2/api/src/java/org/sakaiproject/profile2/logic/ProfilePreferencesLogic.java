@@ -27,20 +27,6 @@ public interface ProfilePreferencesLogic {
 	public boolean savePreferencesRecord(ProfilePreferences profilePreferences);
 	
 	/**
-	 * Check if twitter integration is enabled globally and for a user
-	 *
-	 * @param userId	uuid of the user
-	 */
-	public boolean isTwitterIntegrationEnabledForUser(final String userId);
-	
-	/**
-	 * Check if twitter integration is enabled globally and for a user
-	 * @param prefs	ProfilePreferences object for the user
-	 *
-	 */
-	public boolean isTwitterIntegrationEnabledForUser(ProfilePreferences prefs);
-	
-	/**
 	 * Is this type of notification to be sent as an email to the given user?
 	 * 
 	 * @param userId 	uuid of user
