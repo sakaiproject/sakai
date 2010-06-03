@@ -290,11 +290,18 @@
             <id>framework</id>
             <properties>
                 <clean.targets>
+                    components/archive-pack;
                     components/scheduler-component
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
             <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.common</groupId>
+                    <artifactId>archive-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.scheduler</groupId>
                     <artifactId>scheduler-assembly</artifactId>

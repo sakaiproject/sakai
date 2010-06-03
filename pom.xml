@@ -48,8 +48,6 @@
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement/announcement-api/api</module>
-                <module>archive/archive-api/api</module>
-                <module>archive/import-api</module>
                 <module>authz</module>
                 <module>config</module>
                 <module>content</module>
