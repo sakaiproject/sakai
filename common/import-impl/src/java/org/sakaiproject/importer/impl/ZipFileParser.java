@@ -102,14 +102,19 @@ public abstract class ZipFileParser implements ImportFileParser {
     	        // TODO I think this is actually ok since this basically goes until it fails anyway
     	        entry = null;
     	    }
+    	    boolean foundTheManifest = false;
     	    while (entry != null)
     	    {
     	        String zipName = entry.getName();
-    	        // figure out if the manifest file is buried somewhere below the top of the archive
-    	        if (zipName.endsWith("imsmanifest.xml") && !zipName.startsWith("imsmanifest.xml")) {
-    	            localArchiveLocation += "/" + zipName.substring(0, zipName.lastIndexOf("/"));
+    	        // if the imsmanifest.xml is at the root, do not recurse the dirs for looking for another manifest
+    	        if (!foundTheManifest && zipName.endsWith("imsmanifest.xml") && zipName.startsWith("imsmanifest.xml")) {
+    	            foundTheManifest = true;
     	        }
-    
+    	        // figure out if the manifest file is buried somewhere below the top of the archive
+    	        if (!foundTheManifest && zipName.endsWith("imsmanifest.xml") && !zipName.startsWith("imsmanifest.xml")) {
+    	            localArchiveLocation += "/" + zipName.substring(0, zipName.lastIndexOf("/"));
+    	            foundTheManifest = true;
+    	        }
     	        //for attachment type files
     	        // Get the directory part.
     	        int ix = zipName.lastIndexOf('/');
