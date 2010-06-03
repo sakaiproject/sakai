@@ -141,7 +141,7 @@ public interface SakaiProxy {
 	public User getUserQuietly(String userId);
 	
 	/**
-	 * Get the title of the current tool
+	 * Get the title of the current tool. If no current tool is set, returns 'Profile'.
 	 * @return
 	 */
 	public String getCurrentToolTitle();

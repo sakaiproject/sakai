@@ -63,6 +63,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -281,7 +282,11 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getCurrentToolTitle() {
-		return toolManager.getCurrentTool().getTitle();
+		Tool tool = toolManager.getCurrentTool();
+		if(tool != null)
+			return tool.getTitle();
+		else
+			return "Profile";
 	}
 	
 	/**
