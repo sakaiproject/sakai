@@ -44,7 +44,7 @@
 						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label> 
 						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" /> 
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
-						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
+						<a class="indnt2 remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
 							<img src="#imageLink("sakai/cross.png")" alt="x" />
 						</a>
 						<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />

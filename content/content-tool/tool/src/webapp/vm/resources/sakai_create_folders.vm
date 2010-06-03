@@ -38,7 +38,7 @@
 						<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
 						##  onkeypress="return handleEnterKey(this, event)"
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
-						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
+						<a class="indnt2 remove" style="display:none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
 							<img src="#imageLink("sakai/cross.png")"  alt="x" />
 						</a>
 					</p>

@@ -43,7 +43,16 @@
 		metadataDiv.style.display = "block";
 		resizeFrame('grow');
 	}
-	
+	/* Small function that should be run after adding or removing a file item so that we don't display the close link on the last item */
+	function updateCloseLinks()
+	{
+		var removeItems = jQuery("#fileInputDiv a.remove");
+		if (removeItems.size() < 2) {
+			removeItems.hide();
+		} else {
+			removeItems.show();
+		}
+	}
 	function attachEventHandlers()
 	{
 		for(var i = 0; i < document.links.length; i++)
@@ -418,7 +427,7 @@
 		}
 		
 		attachEventHandlers();
-
+		updateCloseLinks();
 		var debug_guy = document.getElementById("debugger");
 		if(debug_guy)
 		{
@@ -507,7 +516,7 @@
 			removeTree(propertiesDiv);
 			fileInputDiv.removeChild(propertiesDiv);
 		}
-		
+		updateCloseLinks();
 		resizeFrame('grow');
 		return false;
 	}
