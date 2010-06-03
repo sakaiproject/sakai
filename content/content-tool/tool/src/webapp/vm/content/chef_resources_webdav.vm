@@ -62,19 +62,21 @@
 <style>
 .ahref{behavior:url(#default#AnchorClick);}
 </style>
+
 <div class="portletBody specialLink">
 	<ul class="navIntraTool actionToolBar" role="menu">
 		<li class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
 		<li role="menuitem" aria-disabled="true"><span class="current">$tlang.getString('dav.webdav')</span></li>
 	</ul>
 	#if($menu)#toolbar($menu)#end
-	<h3>$tlang.getString("dav.webdav")</h3>
-	<h4>$tlang.getString("dav.url")</h4>
-	<p>$tlang.getString("dav.graf20a") <strong>${site_title}</strong>. $tlang.getString("dav.graf20b") <strong>#if("$!inMyWorkspace" == "true")~${user_id}#else${site_id}#end</strong>.</p>
-	<p>$tlang.getString("dav.graf21")</p>
-	<p>
-		$tlang.getString("dav.graf22")
-	</p>
+	<div id="davdocs_intro">
+		<h3>$tlang.getString("dav.webdav")</h3>
+		<p>$tlang.getString("dav.graf1").</p>
+		<p>$tlang.getString("dav.graf2") <strong>$tlang.getString("dav.graf3")</strong>. $tlang.getString("dav.graf4").</p>
+		<p>$tlang.getString("dav.graf5") <strong>$tlang.getString("dav.graf6")</strong> $tlang.getString("dav.graf7") <strong>$tlang.getString("dav.graf8")</strong> $tlang.getString("dav.graf9").</p>
+		<div id="davdocs_step1">
+			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
+
 	<p class="indnt3">
 		#if("$!inMyWorkspace" == "true")
 			<strong>${server_url}${dav_user}$user_id</strong>
@@ -86,6 +88,7 @@
 			<strong>${server_url}${dav_group}$site_id</strong>
 		#end
 	</p>
+	
 	<script type="text/javascript">
 		function IEVersion8(){
 			if (document.documentMode){ 
@@ -96,6 +99,7 @@
 	
 	<div id="webdavLinkIE">
 	<!--[if lt IE 8]>
+	
 	#if($isWinIEBrowser)
 		<p class="shorttext">
 			$tlang.getString("dav.xpie")
@@ -120,10 +124,9 @@
 			#end
 		</p>
 	#end
-<![endif]-->
+	<![endif]-->
+	</div>
 </div>
-
-	<h4>$tlang.getString("dav.setup")</h4>
 	<iframe src="$webdav_instructions"
 		width="100%"
 		name="webdav_instructions_inner"
