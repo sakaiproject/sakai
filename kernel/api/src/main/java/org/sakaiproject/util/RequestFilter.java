@@ -66,6 +66,7 @@ import org.sakaiproject.tool.cover.SessionManager;
  * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the
  * end user's browser storing the user's session id.
  */
+@SuppressWarnings("deprecation")
 public class RequestFilter implements Filter
 {
 	/** Our log (commons). */
@@ -717,18 +718,6 @@ public class RequestFilter implements Filter
 				long elapsedTime = System.currentTimeMillis() - startTime;
 				M_log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
-		}
-		
-		// retrieve the configured cookie name, if any
-		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
-		{
-			cookieName = System.getProperty(SAKAI_COOKIE_NAME);
-		}
-
-		// retrieve the configured cookie domain, if any
-		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
-		{
-			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
 		}
 	}
 
