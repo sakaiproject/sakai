@@ -57,8 +57,11 @@ import org.sakaiproject.vm.ActionURL;
  * Extending VmServlet provides support for component location and use of the Velocity Template Engine.
  * </p>
  */
+@SuppressWarnings("deprecation")
 public abstract class ToolServlet extends VmServlet
 {
+	private static final long serialVersionUID = 1L;
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(ToolServlet.class);
 
@@ -159,8 +162,14 @@ public abstract class ToolServlet extends VmServlet
 	{
 		// get the panel
 		String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-		if (panel == null || panel.equals("") || panel.equals("null")) panel = MAIN_PANEL;
-
+		
+		if (panel == null || panel.equals("") || panel.equals("null")) {
+			panel = MAIN_PANEL;
+		} else {
+			// sanitize value
+            panel = panel.replaceAll("[\r\n]","");
+		}
+			
 		// HELPER_ID needs the panel appended
 		String helperId = HELPER_ID + panel;
 
@@ -329,6 +338,7 @@ public abstract class ToolServlet extends VmServlet
 	/**
 	 * Process a Portlet action.
 	 */
+	@SuppressWarnings("unchecked")
 	protected void processAction(HttpServletRequest req, HttpServletResponse res)
 	{
 		// see if there's an action parameter, whose value has the action to use
@@ -337,10 +347,10 @@ public abstract class ToolServlet extends VmServlet
 		// if that's not present, see if there's a combination name with the action encoded in the name
 		if (action == null)
 		{
-			Enumeration names = req.getParameterNames();
+			Enumeration<String> names = req.getParameterNames();
 			while (names.hasMoreElements())
 			{
-				String name = (String) names.nextElement();
+				String name = names.nextElement();
 				if (name.startsWith(PARAM_ACTION_COMBO))
 				{
 					action = name.substring(PARAM_ACTION_COMBO.length());
@@ -632,14 +642,11 @@ protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, 
          return false;
       }
 
-      int partIndex = 0;
-      String part = null;
       if (!parts[1].endsWith(HELPER_EXT))
       {
     	  return false;
       }
       
-      ToolSession toolSession = SessionManager.getCurrentToolSession();
 
       // calc helper id
       int posEnd = parts[1].lastIndexOf(".");

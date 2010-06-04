@@ -68,8 +68,12 @@ import org.sakaiproject.vm.ActionURL;
  * VelocityPortletPaneledAction ...
  * </p>
  */
+@SuppressWarnings("deprecation")
 public abstract class VelocityPortletPaneledAction extends ToolServlet
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(VelocityPortletPaneledAction.class);
 
@@ -226,17 +230,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	} // titlePanelUpdateId
 
-	// Note: this is the "new" way - but the old code needs the "old" way
-	// /**
-	// * Add another string to the alert message.
-	// * @param state The session state.
-	// * @param message The string to add.
-	// */
-	// protected void addAlert(SessionState state, String message)
-	// {
-	// getAlert(state).add(message);
-	// }
-
 	/**
 	 * Add another string to the alert message.
 	 * 
@@ -275,7 +268,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		super.initState(state, req, res);
 
 		// call the old initState:
-		PortletConfig config = (PortletConfig) req.getAttribute(ATTR_CONFIG);
 		VelocityPortlet portlet = (VelocityPortlet) req.getAttribute(ATTR_PORTLET);
 		JetspeedRunData rundata = (JetspeedRunData) req.getAttribute(ATTR_RUNDATA);
 
@@ -298,7 +290,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		super.updateState(state, req, res);
 
 		// the old way has just initState, so...
-		PortletConfig config = (PortletConfig) req.getAttribute(ATTR_CONFIG);
 		VelocityPortlet portlet = (VelocityPortlet) req.getAttribute(ATTR_PORTLET);
 		JetspeedRunData rundata = (JetspeedRunData) req.getAttribute(ATTR_RUNDATA);
 
@@ -325,7 +316,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		Context context = (Context) req.getAttribute(ATTR_CONTEXT);
 
 		// other wrappers
-		PortletConfig config = (PortletConfig) req.getAttribute(ATTR_CONFIG);
 		VelocityPortlet portlet = (VelocityPortlet) req.getAttribute(ATTR_PORTLET);
 		JetspeedRunData rundata = (JetspeedRunData) req.getAttribute(ATTR_RUNDATA);
 
@@ -342,12 +332,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String collectionId = contentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 		context.put(CONTEXT_SITE_COLLECTION_ID, collectionId);
 		
-		//		String collectionUrl = ContentHostingService.getUrl(collectionId);
-		//		context.put(CONTEXT_SITE_COLLECTION_URL, collectionUrl);
-
 		// indicate which WYSIWYG editor to use in legacy tools
 		String editor = EditorConfiguration.getWysiwigEditor();
-			//ServerConfigurationService.getString("wysiwyg.editor");
 		
 		context.put("sakai_editor", editor);
 		context.put("editorConfig", new EditorConfiguration());
@@ -376,6 +362,9 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			{
 				// default to main panel
 				panel = LAYOUT_MAIN;
+			} else {
+				// sanitize value
+	            panel = panel.replaceAll("[\r\n]","");
 			}
 
 			context.put("panel", panel);
@@ -490,10 +479,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		// if that's not present, see if there's a combination name with the action encoded in the name
 		if (action == null)
 		{
-			Iterator names = params.getNames();
+			Iterator<String> names = params.getNames();
 			while (names.hasNext())
 			{
-				String name = (String) names.next();
+				String name = names.next();
 				if (name.startsWith(BUTTON))
 				{
 					action = name.substring(BUTTON.length());
@@ -539,9 +528,15 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			// Tool tool = (Tool) req.getAttribute(ATTR_TOOL);
 			// TODO: redirect url? pannel? placement id?
 			String url = Web.returnUrl(req, null);
-			String redirect = url + "?" + /* ActionURL.PARAM_PID + "=" + tool.getId() + "&" + */ActionURL.PARAM_PANEL + "="
-					+ ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-			// Logger.info(this + " ** redirect to: " + redirect);
+			
+			String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
+			if (panel == null || panel.equals("") || panel.equals("null")) {
+				panel = MAIN_PANEL;
+			} else {
+				// sanitize value
+	            panel = panel.replaceAll("[\r\n]","");
+			}
+			String redirect = url + "?" + ActionURL.PARAM_PANEL + "=" + panel;
 
 			try
 			{
@@ -710,11 +705,11 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	/**
 	 * This is used to get "template" from the map, the default template registered for the tool in chef_tools.xreg.
 	 */
-	protected Map getContext(RunData data)
+	protected Map<String,String> getContext(RunData data)
 	{
 		// get template from the servlet config
 		String template = getServletConfig().getInitParameter("template");
-		Map rv = new HashMap();
+		Map<String,String> rv = new HashMap<String,String>();
 		rv.put("template", template);
 
 		return rv;
@@ -894,26 +889,11 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String peid = ((JetspeedRunData) runData).getJs_peid();
 		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
-		// preserve floating, if we are
-		// boolean floating = state.getAttribute(STATE_FLOAT) != null;
-
 		// clear this state
 		resetTool(state);
 
-		String windowToolId = null;
-
-		// // restore the floating
-		// if (floating)
-		// {
-		// state.setAttribute(STATE_FLOAT, "float");
-		//
-		// // we need to tell the window with this tool id (i.e. the floating one) what's going on
-		// windowToolId = peid;
-		// }
-
 		// // make sure the Main panel is updated
 		String main = VelocityPortletPaneledAction.mainPanelUpdateId(peid);
-		// CourierService.deliver(PortalService.getCurrentClientWindowId(windowToolId), main);
 		schedulePeerFrameRefresh(main);
 
 	} // doReset
@@ -938,6 +918,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 * @param response
 	 *        The render response.
 	 */
+	@SuppressWarnings("unchecked")
 	protected void setVmStdRef(HttpServletRequest request, HttpServletResponse response)
 	{
 		// pick up all the super ones
@@ -959,7 +940,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				session.removeAttribute(ATTR_TOP_REFRESH);
 			}
 
-			Set ids = (Set) session.getAttribute(ATTR_FRAME_REFRESH);
+			Set<String> ids = (Set<String>) session.getAttribute(ATTR_FRAME_REFRESH);
 			if (ids != null)
 			{
 				setVmReference("frameRefresh", ids, request);
@@ -1069,15 +1050,16 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 * @param id
 	 *        The peer frame's id.
 	 */
+	@SuppressWarnings("unchecked")
 	protected void schedulePeerFrameRefresh(String id)
 	{
 		ToolSession session = SessionManager.getCurrentToolSession();
 
 		// add to (or create) our set of ids to refresh
-		Set soFar = (Set) session.getAttribute(ATTR_FRAME_REFRESH);
+		Set<String> soFar = (Set<String>) session.getAttribute(ATTR_FRAME_REFRESH);
 		if (soFar == null)
 		{
-			soFar = new HashSet();
+			soFar = new HashSet<String>();
 			session.setAttribute(ATTR_FRAME_REFRESH, soFar);
 		}
 		soFar.add(id);
