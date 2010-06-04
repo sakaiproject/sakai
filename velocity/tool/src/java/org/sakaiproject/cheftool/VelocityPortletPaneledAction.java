@@ -367,20 +367,28 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	            panel = panel.replaceAll("[\r\n]","");
 			}
 
-			context.put("panel", panel);
-
 			// form a method name "build" + panel name (first letter caps) + "PanelContext"
+			// let our extension classes override the pannel name for the method
+
 			// buildPanelContext( VelocityPortlet, Context, ControllerState, RunData )
 			Class[] types = new Class[4];
 			types[0] = VelocityPortlet.class;
 			types[1] = Context.class;
 			types[2] = RunData.class;
 			types[3] = SessionState.class;
+			
+			Method method;
+			try {
+				String methodName = panelMethodName(panel);
+				method = getClass().getMethod(methodName, types);
+			} catch (NoSuchMethodException e) {
+				// method for this panel not found, probably a malformed URL
+				panel = LAYOUT_MAIN;
+				String methodName = panelMethodName(panel);
+				method = getClass().getMethod(methodName, types);
+			}
 
-			// let our extension classes override the pannel name for the method
-			String methodName = panelMethodName(panel);
-
-			Method method = getClass().getMethod(methodName, types);
+			context.put("panel", panel);
 
 			Object[] args = new Object[4];
 			args[0] = portlet;
