@@ -2634,7 +2634,7 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(STATE_CM_CURRENT_USERID));
 				context.put("form_additional", (String) state
 						.getAttribute(FORM_ADDITIONAL));
-				context.put("authorizers", getAuthorizers(state));
+				context.put("authorizers", getAuthorizers(state, STATE_CM_AUTHORIZER_LIST));
 			}
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
@@ -2678,8 +2678,10 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("form_description", siteInfo.description);
 			context.put("officialAccountName", ServerConfigurationService
 					.getString("officialAccountName", ""));
-			context.put("value_uniqname", state
-					.getAttribute(STATE_SITE_QUEST_UNIQNAME));
+			if (state.getAttribute(STATE_SITE_QUEST_UNIQNAME) == null)
+			{
+				context.put("value_uniqname", getAuthorizers(state, STATE_SITE_QUEST_UNIQNAME));
+			}
 			int number = 1;
 			if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 				number = ((Integer) state
@@ -2963,13 +2965,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("authzGroupService", AuthzGroupService.getInstance());
 			
-			if (selectedSect !=null && !selectedSect.isEmpty()){
-				context.put("value_uniqname", selectedSect.get(0).getAuthorizer());
+			if (selectedSect !=null && !selectedSect.isEmpty() && state.getAttribute(STATE_SITE_QUEST_UNIQNAME) == null){
+				context.put("value_uniqname", selectedSect.get(0).getAuthorizerString());
 			}
-			else {
-				context.put("value_uniqname", "");
-			}
-			
+			context.put("value_uniqname", state.getAttribute(STATE_SITE_QUEST_UNIQNAME));
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 
 			return (String) getContext(data).get("template") + TEMPLATE[53];
@@ -10793,25 +10792,20 @@ public class SiteAction extends PagedResourceActionII {
 
 		public boolean attached;
 
-		public String authorizer;
+		public List<String> authorizer;
 
 		public SectionObject(Section section) {
 			this.section = section;
 			this.eid = section.getEid();
 			this.title = section.getTitle();
 			this.category = section.getCategory();
-			String authorizers = "";
+			List<String> authorizers = new ArrayList<String>();
 			if (section.getEnrollmentSet() != null){
-			        Set instructorset = section.getEnrollmentSet().getOfficialInstructors();
-			        List list = new ArrayList(instructorset);
-			        if (list != null) {
-			                for (int i = 0; i < list.size(); i++) {
-			                        if (i == 0) {
-			                                authorizers = (String) list.get(i);
-			                        } else {
-			                                authorizers = authorizers + ", " + list.get(i);
-			                        }
-			                }
+			        Set<String> instructorset = section.getEnrollmentSet().getOfficialInstructors();
+			        if (instructorset != null) {
+		                for (String instructor:instructorset) {
+		                	authorizers.add(instructor);
+		                }
 			        }
 			}
 			this.authorizer = authorizers;
@@ -10858,11 +10852,28 @@ public class SiteAction extends PagedResourceActionII {
 			return attached;
 		}
 
-		public String getAuthorizer() {
+		public List<String> getAuthorizer() {
 			return authorizer;
 		}
+		
+		public String getAuthorizerString() {
+			String rv = "";
+			if (authorizer != null && !authorizer.isEmpty())
+			{
+				for (int count = 0; count < authorizer.size(); count++)
+				{
+					// concatenate all authorizers into a String
+					if (count > 0)
+					{
+						rv+=", ";
+					}
+					rv += authorizer.get(count);
+				}
+			}
+			return rv;
+		}
 
-		public void setAuthorizer(String authorizer) {
+		public void setAuthorizer(List<String> authorizer) {
 			this.authorizer = authorizer;
 		}
 
@@ -11272,7 +11283,7 @@ public class SiteAction extends PagedResourceActionII {
 		
 			for (SectionObject so : soList)
 			{
-				so.setAuthorizer(uniqueName);
+				so.setAuthorizer(new ArrayList(Arrays.asList(uniqueName.split(","))));
 		
 				if (requestedSections == null) {
 					requestedSections = new ArrayList<SectionObject>();
@@ -11304,7 +11315,7 @@ public class SiteAction extends PagedResourceActionII {
 			// editing site		
 			for (SectionObject so : soList)
 			{
-				so.setAuthorizer(uniqueName);
+				so.setAuthorizer(new ArrayList(Arrays.asList(uniqueName.split(","))));
 			
 				List<SectionObject> cmSelectedSections = (List<SectionObject>) state.getAttribute(STATE_CM_SELECTED_SECTIONS);
 				
@@ -11353,17 +11364,25 @@ public class SiteAction extends PagedResourceActionII {
 					} 
 					else 
 					{
-						try 
+						// check instructors
+						List instructors = new ArrayList(Arrays.asList(uniqname.split(",")));
+						for (Iterator iInstructors = instructors.iterator(); iInstructors.hasNext();)
 						{
-							UserDirectoryService.getUserByEid(uniqname);
+							String instructorId = (String) iInstructors.next();
+							try
+							{
+								UserDirectoryService.getUserByEid(instructorId);
+							}
+							catch (UserNotDefinedException e) 
+							{
+								addAlert(state, rb.getString("java.validAuthor1") + " " 
+										+ ServerConfigurationService.getString("officialAccountName") + " " + rb.getString("java.validAuthor2"));
+								M_log.warn(this + ".doFind_course:" + rb.getString("java.validAuthor1") + " " 
+										+ ServerConfigurationService.getString("officialAccountName") + " " + rb.getString("java.validAuthor2"));
+							}
+						}
+						if (state.getAttribute(STATE_MESSAGE) == null) {
 							addRequestedSection(state);
-						} 
-						catch (UserNotDefinedException e) 
-						{
-							addAlert(state, rb.getString("java.validAuthor1") + " " 
-									+ ServerConfigurationService.getString("officialAccountName") + " " + rb.getString("java.validAuthor2"));
-							M_log.warn(this + ".doFind_course:" + rb.getString("java.validAuthor1") + " " 
-									+ ServerConfigurationService.getString("officialAccountName") + " " + rb.getString("java.validAuthor2"), e);
 						}
 					}
 				}
@@ -11501,10 +11520,10 @@ public class SiteAction extends PagedResourceActionII {
 		return list;
 	}
 
-	private String getAuthorizers(SessionState state) {
+	private String getAuthorizers(SessionState state, String attributeName) {
 		String authorizers = "";
 		ArrayList list = (ArrayList) state
-				.getAttribute(STATE_CM_AUTHORIZER_LIST);
+				.getAttribute(attributeName);
 		if (list != null) {
 			for (int i = 0; i < list.size(); i++) {
 				if (i == 0) {
@@ -11526,7 +11545,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (s != null)
 				{
 					SectionObject so = new SectionObject(s);
-					so.setAuthorizer(userId);
+					so.setAuthorizer(new ArrayList(Arrays.asList(userId.split(","))));
 					list.add(so);
 				}
 			}
