@@ -45,13 +45,6 @@
       <property name="location"><value>/sakai_course_sites/aqzn.html</value></property>
    </bean>
    
-   <bean id="reviewProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ards</value></property>
-      <property name="name"><value>Review My Profile</value></property>
-      <property name="location"><value>/sakai_course_sites/ards.html</value></property>
-   </bean>
-         
-   
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>

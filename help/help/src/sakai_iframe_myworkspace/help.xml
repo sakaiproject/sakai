@@ -27,12 +27,6 @@
       <property name="location"><value>/sakai_iframe_myworkspace/arbj.html</value></property>
    </bean>
    
-   <bean id="searchUserProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>ardb</value></property>
-      <property name="name"><value>Search User's Profile</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/ardb.html</value></property>
-   </bean>
-   
    <bean id="setMOD" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcw</value></property>
       <property name="name"><value>Set Message of the Day Options</value></property>
@@ -43,13 +37,6 @@
       <property name="docId"><value>arbc</value></property>
       <property name="name"><value>Clicking the Back Button</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arbc.html</value></property>
-   </bean>
-   
-   <bean id="modifyProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>aqze</value></property>
-      <property name="name"><value>Modify Profile</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/aqze.html</value></property>
-      <property name="defaultForTool"><value>sakai.profile</value></property>
    </bean>
    
    <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
