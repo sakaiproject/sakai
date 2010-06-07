@@ -143,8 +143,6 @@
                   <list>
                      <ref bean="workspaceOverview"/>
                      <ref bean="clickBackButton"/>
-                     <ref bean="modifyProfile"/>
-                     <ref bean="searchUserProfile"/>
                      <ref bean="setMOD"/>
                      <ref bean="changeWorkspace"/>
                      <ref bean="membershipOverview"/>
