@@ -3310,8 +3310,11 @@ private   int   getNum(char letter,   String   a)
     String sendEmailOut=getSendEmailOut();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
-    Matcher emailMatcher = VALID_EMAIL_PATTERN_MATCH.matcher(email);
-    if (email != null && (!SET_AS_NO.equals(forward)) && (!emailMatcher.matches())){
+    Matcher emailMatcher = null;
+    if(email != null)
+    	emailMatcher = VALID_EMAIL_PATTERN_MATCH.matcher(email);
+    
+    if (email != null && (!SET_AS_NO.equals(forward)) && emailMatcher != null && (!emailMatcher.matches())){
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
