@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- handles configuration of internationalization messages -->
+	<bean id="messageLocator" class="uk.org.ponder.springutil.SpringMessageLocator">
+		<property name="messageSource">
+			<bean
+				class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+				<property name="basename">
+					<value>WEB-INF/bundle/Messages</value>
+				</property>
+				<property name="cacheSeconds">
+					<value>10</value>
+				</property>
+			</bean>
+		</property>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<!-- Override the default style of user messages -->
+	<bean id="messageTemplateContributor" parent="templateContributorParent">
+		<property name="baseDirectory" value="component-templates/" />
+		<property name="templateNames" value="Navbar,Messages,RecipientSelector" />
+	</bean>
+
+	<!-- For security purposes, only beans listed in the comma separated value list
+		may be the target of EL operations coming in over the request -->
+	<bean parent="requestAddressibleParent">
+		<property name="value" value="emailBean,configBean" />
+	</bean>
+
+	<!-- Override this definition from RSF-evolvers, to reflect the fact we are
+		serving the RSF components templates from our own webapp (as provided using
+		the "partial WAR" build strategy -->
+	<bean id="componentsTemplateResourceBase" class="java.lang.String">
+		<constructor-arg value="/" />
+	</bean>
+</beans>

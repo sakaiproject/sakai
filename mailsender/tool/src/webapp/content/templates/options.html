@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title rsf:id="page-title">Options</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
+	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" language="JavaScript" src="../js/jquery-1.2.6.min.js"></script>
+</head>
+<body>
+<div class="portletBody">
+
+	<div rsf:id="navIntraTool:" class="navIntraTool">Menu items will show here</div>
+
+	<div rsf:id="message-for:*">Messages for the user show here</div>
+
+	<form rsf:id="optionsForm" method="post">
+		<h3 rsf:id="msg=options_toolbar" class="insColor insBak insBorder">Options</h3>
+		<div rsf:id="msg=options_instruction" class="instruction section">
+			You are currently choosing options for Email. Settings chosen on this page will become the default settings for this site.
+		</div>
+
+		<div class="section">
+			<div class="optionsheaderkeyholder">
+				<span rsf:id="msg=options_copies" class="headerkey">Copies:</span>
+			</div>
+			<div class="optionsheadervalue">
+				<div class="checkbox">
+					<input rsf:id="sendMeACopy" id="sendMeACopy" name="sendMeACopy" type="checkbox" />
+					<label rsf:id="msg=sendmeacopy" for="sendMeACopy">Send me a copy</label>
+				</div>
+				<div rsf:id="addToArchiveDiv" class="checkbox">
+					<input rsf:id="addToArchive" id="addToArchive" name="addToArchive" type="checkbox" />
+					<label rsf:id="msg=addtoemailarchive" for="addToArchive">Add to Email Archive, visible to all site participants</label>
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="optionsheaderkeyholder">
+				<span rsf:id="msg=replyto" class="headerkey">Reply-to:</span>
+			</div>
+			<div class="optionsheadervalue">
+				<span rsf:id="replyToSelect" />
+				<div>
+					<input rsf:id="replyToSender" id="replyToSender" type="radio" />
+					<label rsf:id="replyToSenderLabel" for="replyToSender">Sender</label>
+					<br/>
+					<input rsf:id="replyToNone" id="replyToNone" type="radio" />
+					<label rsf:id="replyToNoneLabel" for="replyToNone">Do not allow reply</label>
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="optionsheaderkeyholder">
+				<span rsf:id="msg=options_displayinvalidemails" class="headerkey optionsHeaderKey">Display invalid emails:</span>
+			</div>
+			<div class="optionsheadervalue">
+				<span rsf:id="invalidEmailsSelect" />
+				<div>
+					<input rsf:id="invalidEmailsYes" id="invalidEmailsYes" type="radio" />
+					<label rsf:id="invalidEmailsYesLabel" for="invalidEmailsYes">Yes</label>
+					<br/>
+					<input rsf:id="invalidEmailsNo" id="invalidEmailsNo" type="radio" />
+					<label rsf:id="invalidEmailsNoLabel" for="invalidEmailsNo">No</label>
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="optionsheaderkeyholder">
+				<span rsf:id="msg=options_displayemptygroups" class="headerkey optionsHeaderKey">Display empty recipient groups:</span>
+			</div>
+			<div class="optionsheadervalue">
+				<span rsf:id="emptyGroupsSelect" />
+				<div>
+					<input rsf:id="emptyGroupsYes" id="emptyGroupsYes" type="radio" />
+					<label rsf:id="emptyGroupsYesLabel" for="emptyGroupsYes">Yes</label>
+					<br/>
+					<input rsf:id="emptyGroupsNo" id="emptyGroupsNo" type="radio" />
+					<label rsf:id="emptyGroupsNoLabel" for="emptyGroupsNo">No</label>
+				</div>
+			</div>
+		</div>
+		<div rsf:id="subjectPrefixDiv" class="section">
+			<div class="optionsheaderkeyholder">
+				<span rsf:id="msg=options_subjectprefix" class="headerkey">Subject Prefix:</span>
+			</div>
+			<div class="optionsheadervalue">
+				<span rsf:id="subjectPrefixSelect" />
+				<div>
+					<input rsf:id="subjectPrefixDefault" id="subjectPrefixDefault" type="radio" onclick="jQuery('#customPrefixDiv').hide()" />
+					<label rsf:id="subjectPrefixDefaultLabel" for="subjectPrefixDefault">Use the default prefix (%site_title%: )</label>
+					<br/>
+					<input rsf:id="subjectPrefixCustom" id="subjectPrefixCustom" type="radio" onclick="jQuery('#customPrefixDiv').show()" />
+					<label rsf:id="subjectPrefixCustomLabel" for="subjectPrefixCustom">Use a custom prefix</label>
+					<br/>
+					<div id="customPrefixDiv" rsf:id="customPrefixDiv">
+						<span rsf:id="msg=options_customprefix" />
+						<input rsf:id="subjectPrefix" size="15" />
+					</div>
+					<span rsf:id="msg=options_customprefixnote" />
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<p class="act section">
+				<input rsf:id="update-button" name="update" value="Update Defaults" class="active" type="submit" />
+				<input rsf:id="cancel-button" name="cancel" value="Cancel" type="submit" />
+			</p>
+		</div>
+	</form>
+	<div class="cleaner" />
+</div>
+</body>
+</html>
