@@ -78,12 +78,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		log.debug("BasePage()");
 		
-		//get SakaiProxy API
-		//sakaiProxy = getSakaiProxy();
-		
-		//get ProfileLogic API
-		//profileLogic = getProfileLogic();
-		
+		//set page title
+		add(new Label("pageTitle", new StringResourceModel("page.title", this, null)));  
+				
 		//set Locale - all pages will inherit this.
 		setUserPreferredLocale();
 		
@@ -291,13 +288,22 @@ public class BasePage extends WebPage implements IHeaderContributor {
     } 
 	*/
 	
+	/**
+	 * Allow overrides of the user's locale
+	 */
 	public void setUserPreferredLocale() {
 		Locale locale = ProfileUtils.getUserPreferredLocale();
 		log.debug("User preferred locale: " + locale);
 		getSession().setLocale(locale);
 	}
 	
-	
+	/**
+	 * Allow Pages to set the title
+	 * @param model
+	 */
+	protected void setPageTitle(IModel model) {  
+		get("pageTitle").setModel(model);  
+	}  
 	
 	
 	
