@@ -56,6 +56,8 @@
 						<input type="submit" wicket:id="sbnSubmit" value="Search" />
 					</div>
 					
+					<!-- work around for IE and single form element submit with Enter button, PRFL-378 -->
+					<input type="text" style="display:none;" />
 				</form>	
 			</div>
 			
@@ -80,6 +82,9 @@
 					<div class="pageFormButtons">
 						<input type="submit" wicket:id="sbiSubmit" value="Search" />
 					</div>
+					
+					<!-- work around for IE and single form element submit with Enter button, PRFL-378 -->
+					<input type="text" style="display:none;" />
 					
 				</form>	
 			</div>
