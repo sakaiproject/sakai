@@ -35,15 +35,8 @@
 		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
 	</bean>
 
-	<!--
-	This bean uses the built in email service for sending email rather than the email service.
-	This should work with any version of sakai but will be phased out as the updated email service
-	become more prevalent with later releases.
-	-->
-	<!--
 	<bean id="org.sakaiproject.mailsender.logic.ExternalLogic"
-			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicBuiltinImpl"
-			init-method="init">
+			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicImpl">
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -55,15 +48,16 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="configLogic" ref="org.sakaiproject.mailsender.logic.ConfigLogic" />
 	</bean>
-	-->
 
 	<!--
-	This bean uses the sakai email service for sending email rather than the built in email service.
+	This bean uses the email service for sending email rather than the built in email service.
 	This can only be used if the email service provided supports attachments.  This became available
 	around the time of K1 1.0.
 	-->
+	<!--
 	<bean id="org.sakaiproject.mailsender.logic.ExternalLogic"
-			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicEmailServiceImpl">
+			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicEmailServiceImpl"
+			init-method="init">
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -74,6 +68,7 @@
 
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 	</bean>
+	-->
 
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"
 		class="org.springframework.cache.ehcache.EhCacheFactoryBean">

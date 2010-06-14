@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 	Copyright (c) 2003-2009 The Sakai Foundation.
 
@@ -14,47 +14,56 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>mailsender-base</artifactId>
-    <groupId>org.sakaiproject.mailsender</groupId>
-    <version>1.6-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>Sakai Mail Sender API</name>
-  <artifactId>mailsender-api</artifactId>
-  <description>Mail Sender Interfaces (API)</description>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target>shared</deploy.target>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <!--org.sakaiprojectsakai-authz-api-->
-    <!--org.sakaiprojectsakai-component-api-->
-    <!--org.sakaiprojectsakai-site-api-->
-    <!--org.sakaiprojectsakai-tool-api-->
-    <!--org.sakaiprojectsakai-user-api-->
-    <!--org.sakaiprojectsakai-util-api-->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-    </dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>mailsender-base</artifactId>
+		<groupId>org.sakaiproject.mailsender</groupId>
+		<version>1.6-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<name>Sakai Mail Sender API</name>
+	<artifactId>mailsender-api</artifactId>
+	<description>Mail Sender Interfaces (API)</description>
+	<packaging>jar</packaging>
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
+		</dependency>
+	</dependencies>
 </project>

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 	Copyright (c) 2008 The Sakai Foundation.
 
@@ -14,129 +14,107 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-<!--
-    <groupId>org.sakaiproject</groupId>
-    <artifactId>master</artifactId>
-    <version>2.6-SNAPSHOT</version>
--->
-    <groupId>org.sakaiproject.purepoms</groupId>
-    <artifactId>sakai-standard-tool</artifactId>
-    <version>2.7.0-build05-SNAPSHOT</version>
-  </parent>
-  <groupId>org.sakaiproject.mailsender</groupId>
-  <artifactId>mailsender-base</artifactId>
-  <name>Sakai Mail Sender Project</name>
-  <version>1.6-SNAPSHOT</version>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/contrib/gatech/mailsender</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/gatech/mailsender</developerConnection>
-    <url>https://source.sakaiproject.org/contrib/gatech/mailsender</url>
-  </scm>
-  <packaging>pom</packaging>
-  <properties>
-    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.4</rsfutil.version>
-  </properties>
-  <modules>
-    <module>help</module>
-    <module>api</module>
-    <module>impl</module>
-    <module>tool</module>
-    <module>pack</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-<!-- internal -->
-      <dependency>
-        <groupId>org.sakaiproject.mailsender</groupId>
-        <artifactId>mailsender-api</artifactId>
-        <version>${pom.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.mailsender</groupId>
-        <artifactId>mailsender-impl-internal</artifactId>
-        <version>${pom.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.mailsender</groupId>
-        <artifactId>mailsender-impl-external</artifactId>
-        <version>${pom.version}</version>
-      </dependency>
-<!-- sakai -->
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-mailarchive-api</artifactId>
-        <version>[2.6.1,2.7.0-SNAPSHOT]</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-message-api</artifactId>
-        <version>[2.6.1,2.7.0-SNAPSHOT]</version>
-        <scope>provided</scope>
-      </dependency>
-<!-- spring -->
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
-        <version>2.5.6.SEC01</version>
-      </dependency>
-<!-- commons -->
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>1.1</version>
-        <scope>provided</scope>
-      </dependency>
-<!-- activation & mail -->
-      <dependency>
-        <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <version>1.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>1.3.1</version>
-        <scope>provided</scope>
-      </dependency>
-<!-- rsf -->
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>sakairsf</artifactId>
-        <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>SakaiRSFComponents-evolvers</artifactId>
-        <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>SakaiRSFComponents-templates</artifactId>
-        <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.rsfutil</groupId>
-        <artifactId>RSFComponents-templates</artifactId>
-        <version>${rsfutil.version}</version>
-        <type>war</type>
-      </dependency>
-<!-- testing -->
-      <dependency>
-        <groupId>org.easymock</groupId>
-        <artifactId>easymock</artifactId>
-        <version>2.4</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>M2</version>
+	</parent>
+	<groupId>org.sakaiproject.mailsender</groupId>
+	<artifactId>mailsender-base</artifactId>
+	<name>Sakai Mail Sender Project</name>
+	<version>1.6-SNAPSHOT</version>
+	<scm>
+		<connection>scm:svn:https://source.sakaiproject.org/contrib/gatech/mailsender</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/contrib/gatech/mailsender</developerConnection>
+		<url>https://source.sakaiproject.org/contrib/gatech/mailsender</url>
+	</scm>
+	<packaging>pom</packaging>
+	<properties>
+		<sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+		<rsfutil.version>0.7.4</rsfutil.version>
+	</properties>
+	<modules>
+		<module>help</module>
+		<module>api</module>
+		<module>impl</module>
+		<module>tool</module>
+		<module>pack</module>
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.mailsender</groupId>
+				<artifactId>mailsender-api</artifactId>
+				<version>${pom.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.mailsender</groupId>
+				<artifactId>mailsender-impl</artifactId>
+				<version>${pom.version}</version>
+				<!--
+					<scope>runtime</scope>
+					-->
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject</groupId>
+				<artifactId>sakai-util</artifactId>
+				<version>${sakai.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.0.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.mail</groupId>
+				<artifactId>mail</artifactId>
+				<version>1.3.1</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>uk.org.ponder.sakairsf</groupId>
+				<artifactId>sakairsf</artifactId>
+				<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>uk.org.ponder.sakairsf</groupId>
+				<artifactId>SakaiRSFComponents-evolvers</artifactId>
+				<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>uk.org.ponder.sakairsf</groupId>
+				<artifactId>SakaiRSFComponents-templates</artifactId>
+				<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+				<type>war</type>
+			</dependency>
+			<dependency>
+				<groupId>uk.org.ponder.rsfutil</groupId>
+				<artifactId>RSFComponents-templates</artifactId>
+				<version>${rsfutil.version}</version>
+				<type>war</type>
+			</dependency>
+			<dependency>
+				<groupId>org.easymock</groupId>
+				<artifactId>easymock</artifactId>
+				<version>2.4</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
