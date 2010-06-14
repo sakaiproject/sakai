@@ -433,7 +433,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public int getMaxProfilePictureSize() {
-		return serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
+		return serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_IMAGE_UPLOAD_SIZE);
 	}
 	
 	private String getProfileGalleryPath(String userId) {
