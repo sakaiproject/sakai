@@ -11304,7 +11304,7 @@ public class SiteAction extends PagedResourceActionII {
 				siteInfo = new SiteInfo();
 			}
 			if (siteInfo.title == null || siteInfo.title.trim().length() == 0) {
-				if (requestedSections.size() == 1) {
+				if (requestedSections.size() >= 1) {
 					siteInfo.title = requestedSections.get(0).getTitle();
 					state.setAttribute(STATE_SITE_INFO, siteInfo);
 				}
