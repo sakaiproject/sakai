@@ -51,6 +51,20 @@
 			}
 		}
 	}
+	
+	function toggleSelectAll(caller, elementName)
+    {
+		var newValue = caller.checked;
+		var elements = document.getElementsByName(elementName);
+			
+		if(elements)
+		{
+			for(var i = 0; i < elements.length; i++)
+			{
+				elements[i].checked = newValue;
+			}
+		}
+   	}
 	// -->
 </script>
 <div class ="portletBody">
@@ -166,7 +180,7 @@
 			<table class ="listHier lines nolines" summary ="$tlang.getString('list.summary')" border ="0" id ="siteList">
 				<tr>
 					<th id="checkbox" class="screenOnly attach">
-						&nbsp;
+						<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedMembers')"  title="$tlang.getString('check.all')" />
 					</th>
 					<th id="title">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_title)")" title ="$tlang.getString('list.sortbytitle')"> 
