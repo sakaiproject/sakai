@@ -13,6 +13,8 @@ import org.apache.commons.lang.StringUtils;
  * <p>Note. Eventually, this will return only Strings. The byte[] will be base64 encoded and returned as a data URI you can use, however this
  * is not supported in browsers older than IE8 (Safari, Firefox, Chrome, all ok though).
  * 
+ * <p>You can get alt text for the image via getAltText()</p>
+ * 
  * <p>This is not related to the similarly named hibernate model (hbm.model.ProfileImage)</p>
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
@@ -24,6 +26,7 @@ public class ProfileImage {
 	private String externalImageUrl;
 	private String officialImageUrl;
 	private String officialImageEncoded;
+	private String altText;
 	
 	public ProfileImage() {}
 	
@@ -90,6 +93,14 @@ public class ProfileImage {
 
 	public void setOfficialImageEncoded(String officialImageEncoded) {
 		this.officialImageEncoded = officialImageEncoded;
+	}
+
+	public String getAltText() {
+		return altText;
+	}
+
+	public void setAltText(String altText) {
+		this.altText = altText;
 	}
 	
 	

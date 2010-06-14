@@ -15,6 +15,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
@@ -37,14 +38,22 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		ProfileImage image = new ProfileImage();
 		boolean allowed = false;
+		boolean isSameUser = false;
 		String officialImageSource;
 		
 		String defaultImageUrl = getUnavailableImageURL();
+		
+		//get current user
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(StringUtils.equals(userUuid, currentUserUuid)){
+			isSameUser = true;
+		}
 		
 		//check prefs supplied was valid, if given
 		if(prefs != null && !StringUtils.equals(userUuid, prefs.getUserUuid())) {
 			log.error("ProfilePreferences data supplied was not for user: " + userUuid);
 			image.setExternalImageUrl(defaultImageUrl);
+			image.setAltText(getAltText(userUuid, isSameUser, false));
 			return image;
 		}
 		
@@ -52,12 +61,12 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if(privacy != null && !StringUtils.equals(userUuid, privacy.getUserUuid())) {
 			log.error("ProfilePrivacy data supplied was not for user: " + userUuid);
 			image.setExternalImageUrl(defaultImageUrl);
+			image.setAltText(getAltText(userUuid, isSameUser, false));
 			return image;
 		}
 		
 		//check if same user
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(StringUtils.equals(userUuid, currentUserUuid)){
+		if(isSameUser){
 			allowed = true;
 		}
 		
@@ -68,6 +77,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			if(privacy == null) {
 				log.error("Couldn't retrieve ProfilePrivacy data for user: " + userUuid + ". Using default image.");
 				image.setExternalImageUrl(defaultImageUrl);
+				image.setAltText(getAltText(userUuid, isSameUser, false));
 				return image;
 			} 
 		}
@@ -81,6 +91,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		//default if still not allowed
 		if(!allowed){
 			image.setExternalImageUrl(defaultImageUrl);
+			image.setAltText(getAltText(userUuid, isSameUser, false));
 			return image;
 		}
 		
@@ -109,10 +120,12 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				} else {
 					image.setUploadedImage(getUploadedProfileImage(userUuid, size));
 				}
+				image.setAltText(getAltText(userUuid, isSameUser, true));
 			break;
 			
 			case ProfileConstants.PICTURE_SETTING_URL: 
 				image.setExternalImageUrl(getExternalProfileImageUrl(userUuid, size));
+				image.setAltText(getAltText(userUuid, isSameUser, true));
 			break;
 			
 			case ProfileConstants.PICTURE_SETTING_OFFICIAL: 
@@ -127,10 +140,12 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 						image.setExternalImageUrl(defaultImageUrl);
 					}
 				}
+				image.setAltText(getAltText(userUuid, isSameUser, true));
 			break;
 			
 			default:
 				image.setExternalImageUrl(defaultImageUrl);
+				image.setAltText(getAltText(userUuid, isSameUser, false));
 			break;
 				
 		}
@@ -520,7 +535,33 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return u.getProperties().getProperty(sakaiProxy.getOfficialImageAttribute());
 	}
 	
-	
+	/**
+	 * Helper to get the altText to be used for the image
+	 * @param userUuid
+	 * @param isOwner
+	 * @param hasImage
+	 * @return
+	 */
+	private String getAltText(String userUuid, boolean isOwner, boolean hasImage) {
+		
+		//owner and has an image
+		if(isOwner && hasImage){
+			return Messages.getString("profile.image.my.alt");
+		}
+		
+		//owner and doesnt have an image
+		if(isOwner && !hasImage){
+			return Messages.getString("profile.image.my.none.alt");
+		}
+		
+		//not owner so get name
+		if(!isOwner) {
+			String displayName = sakaiProxy.getUserDisplayName(userUuid);
+			return Messages.getString("profile.image.other.alt", new Object[] { displayName });
+		}
+		
+		return null;
+	}
 	
 	//service init
 	public void init() {

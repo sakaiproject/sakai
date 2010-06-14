@@ -232,6 +232,9 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 				addNoCacheNoise(tag);
 			}
 			
+			//add alt text
+			tag.put("alt", image.getAltText());
+			
 			return;
 		}
 		
@@ -244,11 +247,16 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 				addNoCacheNoise(tag);
 			}
 			*/
+			//add alt text
+			tag.put("alt", image.getAltText());
 			return;
 		}
 		
 		//do default
 		tag.put("src", getDefaultImage());
+		
+		//add alt text
+		tag.put("alt", image.getAltText());
 	}
 	
 	
@@ -296,4 +304,6 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 		
 		tag.put("src", url);
 	}
+	
+	
 }
