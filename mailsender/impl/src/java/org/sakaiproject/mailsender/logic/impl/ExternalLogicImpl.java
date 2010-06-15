@@ -94,13 +94,13 @@ public class ExternalLogicImpl implements ExternalLogic
 	/** Defaut value for use of ssl */
 	boolean DEFAULT_USE_SSL = false;
 
-	protected FunctionManager functionManager;
-	protected ToolManager toolManager;
-	protected SecurityService securityService;
-	protected SessionManager sessionManager;
-	protected SiteService siteService;
-	protected MailArchiveService mailArchiveService;
-	protected UserDirectoryService userDirectoryService;
+	private FunctionManager functionManager;
+	private ToolManager toolManager;
+	private SecurityService securityService;
+	private SessionManager sessionManager;
+	private SiteService siteService;
+	private MailArchiveService mailArchiveService;
+	private UserDirectoryService userDirectoryService;
     private ConfigLogic configLogic;
     private ServerConfigurationService configService;
 
