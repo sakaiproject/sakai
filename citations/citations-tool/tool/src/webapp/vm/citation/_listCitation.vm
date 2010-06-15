@@ -11,7 +11,7 @@
 			#set( $urlHref = $citation.openurl )
 		#end
 
-		<a href="$urlHref" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
+		<a href="$!{xilator.escapeHtml($urlHref)" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
 
 		<br />
 		$!{xilator.escapeHtml( $!{citation.creator} )}
@@ -23,7 +23,7 @@
 
   				#if(!$citation.hasPreferredUrl() || ($citation.hasPreferredUrl() && ($citation.getPreferredUrlId() != $urlid)))
 
-  					  <a href="$citation.getCustomUrl("$urlid").toString()" target="_blank">
+  					  <a href="$!{xilator.escapeHtml($citation.getCustomUrl("$urlid").toString())}" target="_blank">
   					  #if( ! $citation.getCustomUrlLabel("$urlid") || $citation.getCustomUrlLabel("$urlid") == "" )
   					    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )#end</a> |
   			  #end
