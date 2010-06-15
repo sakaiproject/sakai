@@ -413,15 +413,6 @@
             </snapshots>
         </repository>
         <repository>
-            <id>sakai-ibiblio-mirror</id>
-            <name>Sakai Ibiblio Mirror Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-ibiblio</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>default</id>
             <name>Maven Repository Switchboard</name>
             <layout>default</layout>
