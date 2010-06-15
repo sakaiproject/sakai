@@ -80,9 +80,13 @@
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-velocity-tool-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+    <!--org.sakaiprojectsakai-user-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-util${sakai.version}-->
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
