@@ -92,7 +92,7 @@
   </h:panelGrid>
   <h:panelGrid border="0">
     <h:panelGroup>
-    <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" >
+    <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);" >
   	  <f:validateDoubleRange />
     </h:inputText>
     <h:message for="answerdsc" styleClass="validate"/>

@@ -446,14 +446,14 @@ public class RichTextEditArea extends Renderer
     writer.write("\nfunction show_hide_editor(client_id){");
     writer.write("\n\tvar status =  document.getElementById(client_id + '_textinput_current_status');");
     writer.write("\n\tif (status.value == \"firsttime\") {");
-    writer.write("\n\t\tstatus.value = \"expaneded\";");
+    writer.write("\n\t\tstatus.value = \"expanded\";");
     writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);");
     writer.write("\n\t\tsetBlockDivs();");
     writer.write("\n\t\tretainHideUnhideStatus('none');\n\t}");
     writer.write("\n\telse if (status.value == \"collapsed\") {");
-    writer.write("\n\t\tstatus.value = \"expaneded\";");
+    writer.write("\n\t\tstatus.value = \"expanded\";");
     writer.write("\n\t\texpandMenu(client_id);\n\t}");
-    writer.write("\n\telse if (status.value == \"expaneded\") {");
+    writer.write("\n\telse if (status.value == \"expanded\") {");
     writer.write("\n\t\tstatus.value = \"collapsed\";");
     writer.write("\n\t\tcollapseMenu(client_id);\n\t}");    
     writer.write("\n");
@@ -623,7 +623,7 @@ public class RichTextEditArea extends Renderer
 			valueHasRichText = Pattern.compile(".*<.*?>.*", Pattern.CASE_INSENSITIVE).matcher(valueNoNewLine).matches();
 	    }
 	    // only if user expands the FCK editor, we treat it as rich text
-	    if ("expaneded".equals(current_status) && valueHasRichText) {
+	    if ("expanded".equals(current_status) && valueHasRichText) {
 	    	StringBuilder alertMsg = new StringBuilder();
 	    	finalValue = FormattedText.processFormattedText(newValue, alertMsg);
 	    	if (alertMsg.length() > 0)
