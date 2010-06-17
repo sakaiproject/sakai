@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -21,6 +21,8 @@
  */
 
 package org.sakaiproject.sitestats.test.mocks;
+
+import java.util.Date;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.sitestats.test.data.FakeData;
@@ -124,5 +126,10 @@ public class FakeEvent implements Event {
    public String getUserId() {
       return "userId";
    }
+
+public Date getEventTime() {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 }

@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -80,5 +80,9 @@ public class CustomEventImpl implements Event {
 
 	public int getPriority() {
 		return 0;
+	}
+
+	public Date getEventTime() {
+		return date;
 	}
 }
