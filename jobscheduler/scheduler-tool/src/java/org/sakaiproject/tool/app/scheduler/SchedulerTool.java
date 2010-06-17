@@ -526,6 +526,12 @@ public class SchedulerTool
     {
       try
       {
+          //TODO: These messages should be put into properties
+          if (((String) value).length() > 80) {
+              FacesMessage message = new FacesMessage("Job name is too long");
+              message.setSeverity(FacesMessage.SEVERITY_WARN);
+              throw new ValidatorException(message);
+          }
         JobDetail jd = schedulerManager.getScheduler().getJobDetail(
             (String) value, Scheduler.DEFAULT_GROUP);
         if (jd != null)
