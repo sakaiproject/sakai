@@ -22,6 +22,7 @@
 package org.sakaiproject.event.impl;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -756,6 +757,10 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		public String toString()
 		{
 			return m_seq + ":" + getEvent() + "@" + getResource() + "[" + (getModify() ? "m" : "a") + ", " + getPriority() + "]";
+		}
+
+		public Date getEventTime() {
+			return new Date(m_time.getTime());
 		}
 	}
 }

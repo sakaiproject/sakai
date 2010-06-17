@@ -1,6 +1,7 @@
 package org.sakaiproject.conditions.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.conditions.api.EvaluationAction;
@@ -74,6 +75,11 @@ public class TestConditionService extends TestCase {
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public Date getEventTime() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 			
 		};
 	}
@@ -110,6 +116,11 @@ public class TestConditionService extends TestCase {
 			}
 
 			public String getUserId() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public Date getEventTime() {
 				// TODO Auto-generated method stub
 				return null;
 			}

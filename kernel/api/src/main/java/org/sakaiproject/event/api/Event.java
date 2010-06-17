@@ -21,6 +21,8 @@
 
 package org.sakaiproject.event.api;
 
+import java.util.Date;
+
 /**
  * <p>
  * Event represents a single significant activity by the end-user.
@@ -76,4 +78,10 @@ public interface Event
 	 * @return The event's notification priority.
 	 */
 	int getPriority();
+	
+	/**
+	 * Retrieve the events time
+	 * @return the events time
+	 */
+	Date getEventTime();
 }
