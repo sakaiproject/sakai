@@ -49,6 +49,12 @@
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 	</bean>
 	
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileMessagingEntityProvider">
+		<property name="messagingLogic" ref="org.sakaiproject.profile2.logic.ProfileMessagingLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+	</bean>
+	
 	<!-- ENTITY PROVIDERS END -->
        
 </beans>
