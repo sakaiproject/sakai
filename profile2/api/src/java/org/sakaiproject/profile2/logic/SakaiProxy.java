@@ -519,6 +519,13 @@ public interface SakaiProxy {
 	public String ensureUuid(String userId);
 	
 	/**
+	 * Convenience method to check if the user making a request is the same as the current user
+	 * @param userUuid	uuid to check against current user
+	 * @return	
+	 */
+	public boolean currentUserMatchesRequest(String userUuid);
+	
+	/**
 	 * Is the profile2.privacy.change.enabled flag set in sakai.properties?
 	 * If not set, defaults to true
 	 * <p>

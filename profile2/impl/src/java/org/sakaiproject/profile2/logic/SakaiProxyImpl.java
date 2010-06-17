@@ -1072,6 +1072,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean currentUserMatchesRequest(String userUuid) {
+		
+		//get current user
+		String currentUserUuid = getCurrentUserId();
+		
+		//check match
+		if(StringUtils.equals(currentUserUuid, userUuid)) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean isPrivacyChangeAllowedGlobally() {
 		return serverConfigurationService.getBoolean("profile2.privacy.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED);
 	}
