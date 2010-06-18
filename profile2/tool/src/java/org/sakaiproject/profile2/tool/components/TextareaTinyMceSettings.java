@@ -90,6 +90,9 @@ public class TextareaTinyMceSettings extends TinyMCESettings {
 		setStatusbarLocation(null);
 		setResizing(true);
 		setHorizontalResizing(true);
+		
+		//remove leading and trailing p tags, PRFL-387
+		addCustomSetting("forced_root_block : false");
 
 	}
 	
