@@ -143,6 +143,12 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.webservices</groupId>
+                    <artifactId>webservices-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
