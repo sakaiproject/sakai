@@ -1,33 +1,48 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.8-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>Sakai WebServices Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>webservices-base</artifactId>
-  <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/webservices/trunk</url>
-  </scm>
-  <modules>
-    <module>axis</module>
-    <module>axis2</module>
-    <module>util</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-util-axis</artifactId>
-        <version>2.8-SNAPSHOT</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>Sakai WebServices Project</name>
+  	<groupId>org.sakaiproject.webservices</groupId>
+  	<artifactId>webservices</artifactId>
+  	
+  	<packaging>pom</packaging>
+  	<version>2.8-SNAPSHOT</version>
+
+  	<parent>
+    	<artifactId>base</artifactId>
+    	<groupId>org.sakaiproject</groupId>
+    	<version>2.8-SNAPSHOT</version>
+    	<relativePath>../pom.xml</relativePath>
+  	</parent>
+  	
+  	<organization>
+    	<name>Sakai Foundation</name>
+    	<url>http://sakaiproject.org/</url>
+  	</organization>
+  	
+  	<inceptionYear>2005</inceptionYear>
+  	
+  	<scm>
+    	<connection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</connection>
+    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</developerConnection>
+    	<url>https://source.sakaiproject.org/svn/webservices/trunk</url>
+  	</scm>
+  	
+  	<dependencyManagement>
+    	<dependencies>
+      		<dependency>
+        		<groupId>org.sakaiproject.webservices</groupId>
+        		<artifactId>sakai-util-axis</artifactId>
+        		<version>2.8-SNAPSHOT</version>
+      		</dependency>
+    	</dependencies>
+  	</dependencyManagement>
+  
+  	<modules>
+    	<module>axis</module>
+    	<module>axis2</module>
+    	<module>util</module>
+  	</modules>
+  
 </project>

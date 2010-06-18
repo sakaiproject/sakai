@@ -1,106 +1,93 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>webservices-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.8-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>Sakai Axis Servlet</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-axis</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
-  <packaging>war</packaging>
-  <dependencies>
-  	<dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-<!-- from lib 
-             32489 28 Feb 22:39 axis-ant.jar
-           1573104 28 Feb 22:39 axis.jar
-             74527 28 Feb 22:39 commons-discovery.jar
-             31605 28 Feb 22:39 commons-logging.jar
-             32071 28 Feb 22:39 jaxrpc.jar
-            352668 28 Feb 22:39 log4j-1.2.8.jar
-             19427 28 Feb 22:39 saaj.jar
-            161701 28 Feb 22:39 wsdl4j.jar
-	-->
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-jaxrpc</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-saaj</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-wsdl4j</artifactId>
-      <version>1.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-<!--properties:  dependencyType: lib -->
-    </dependency>
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>1.0.b2</version>
-    </dependency>
-<!-- Xerxces is endorsed in Sakai -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-<!--properties:  -->
-    </dependency>
-    <dependency>
-      <groupId>commons-discovery</groupId>
-      <artifactId>commons-discovery</artifactId>
-      <version>0.2</version>
-    </dependency>
-<!--org.sakaiprojectsakai-component${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-axis</artifactId>
-    </dependency>
-  </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-     </resources>
-<!-- java source -->
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+  	<name>Sakai Axis Servlet</name>
+  	<groupId>org.sakaiproject.webservices</groupId>
+  	<artifactId>sakai-axis</artifactId>
+  
+  	<packaging>war</packaging>
+  
+    <parent>
+		<groupId>org.sakaiproject.webservices</groupId>
+    	<artifactId>webservices</artifactId>
+    	<version>2.8-SNAPSHOT</version>
+    	<relativePath>../pom.xml</relativePath>
+  	</parent>
+  
+ 	<dependencies>
+ 		
+ 		<!--  internal dependencies -->
+ 		<dependency>
+	      	<groupId>org.sakaiproject.webservices</groupId>
+	      	<artifactId>sakai-util-axis</artifactId>
+	    </dependency>
+	    
+ 		<!--  Sakai dependencies -->
+	  	<dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-kernel-api</artifactId>
+	    </dependency>
+	    <dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-kernel-util</artifactId>
+	    </dependency>
+	    <dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-component-manager</artifactId>
+	    </dependency>
+
+		<!--  external dependencies -->
+    	<dependency>
+      		<groupId>axis</groupId>
+      		<artifactId>axis</artifactId>
+      		<version>1.3</version>
+    	</dependency>
+	    <dependency>
+	      	<groupId>axis</groupId>
+	      	<artifactId>axis-jaxrpc</artifactId>
+	      	<version>1.3</version>
+	    </dependency>
+	    <dependency>
+	      	<groupId>axis</groupId>
+	      	<artifactId>axis-saaj</artifactId>
+	      	<version>1.3</version>
+	    </dependency>
+	    <dependency>
+	      	<groupId>axis</groupId>
+	      	<artifactId>axis-wsdl4j</artifactId>
+	      	<version>1.5.1</version>
+	    </dependency>
+	    <dependency>
+	      	<groupId>log4j</groupId>
+	      	<artifactId>log4j</artifactId>
+	      	<version>1.2.8</version>
+	    </dependency>
+	    <dependency>
+	      	<groupId>xml-apis</groupId>
+	      	<artifactId>xml-apis</artifactId>
+	      	<version>1.0.b2</version>
+	    </dependency>
+	    <dependency>
+	      	<groupId>commons-logging</groupId>
+	      	<artifactId>commons-logging</artifactId>
+	      	<version>1.0.4</version>
+	    </dependency>
+	    <dependency>
+	      	<groupId>commons-discovery</groupId>
+	      	<artifactId>commons-discovery</artifactId>
+	      	<version>0.2</version>
+	    </dependency>
+	</dependencies>
+  
+  	<build>
+    	<resources>
+      		<resource>
+        		<directory>${basedir}/src/bundle</directory>
+        		<includes>
+          			<include>**/*.properties</include>
+        		</includes>
+      		</resource>
+     	</resources>
+  	</build>
 </project>
