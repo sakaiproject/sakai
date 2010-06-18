@@ -176,6 +176,83 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		return actionReturn;
 	}
 	
+	@EntityCustomAction(action="requestFriend",viewKey=EntityView.VIEW_SHOW)
+	public Object requestFriend(EntityReference ref,Map<String,Object> params) {
+		
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		String friendId = (String) params.get("friendId");
+		
+		//get list of connections
+		if(!connectionsLogic.requestFriend(uuid, friendId)) {
+			throw new EntityException("Error requesting friend connection for " + ref.getId(), ref.getReference());
+		}
+		else
+			return Messages.getString("Label.friend.requested");
+	}
+	
+	@EntityCustomAction(action="removeFriend",viewKey=EntityView.VIEW_SHOW)
+	public Object removeFriend(EntityReference ref,Map<String,Object> params) {
+		
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		String friendId = (String) params.get("friendId");
+		
+		//get list of connections
+		if(!connectionsLogic.removeFriend(uuid, friendId)) {
+			throw new EntityException("Error removing friend connection for " + ref.getId(), ref.getReference());
+		}
+		else
+			return Messages.getString("Label.friend.add");
+	}
+	
+	@EntityCustomAction(action="confirmFriendRequest",viewKey=EntityView.VIEW_SHOW)
+	public Object confirmFriendRequest(EntityReference ref,Map<String,Object> params) {
+		
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		String friendId = (String) params.get("friendId");
+		
+		//get list of connections
+		if(!connectionsLogic.confirmFriendRequest(friendId, uuid)) {
+		//if(!connectionsLogic.confirmFriendRequest(uuid, friendId)) {
+			throw new EntityException("Error confirming friend connection for " + ref.getId(), ref.getReference());
+		}
+		else
+			return Messages.getString("Label.friend.remove");
+	}
+	
+	@EntityCustomAction(action="ignoreFriendRequest",viewKey=EntityView.VIEW_SHOW)
+	public Object ignoreFriendRequest(EntityReference ref,Map<String,Object> params) {
+		
+		//convert input to uuid
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		String friendId = (String) params.get("friendId");
+		
+		//get list of connections
+		if(!connectionsLogic.ignoreFriendRequest(uuid, friendId)) {
+			throw new EntityException("Error ignoring friend connection for " + ref.getId(), ref.getReference());
+		}
+		else
+			return Messages.getString("Label.friend.add");
+	}
+	
 	@EntityURLRedirect("/{prefix}/{id}/account")
 	public String redirectUserAccount(Map<String,String> vars) {
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
@@ -230,8 +307,10 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		//maybe it needs to be stored in a separate field and treated differently. Or returned as a localised string.
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"profile2-profile\">");
 		
+		sb.append("<script type=\"text/javascript\" src=\"javascript/profile-eb.js\"></script>");
+		
+		sb.append("<div class=\"profile2-profile\">");
 		
 			sb.append("<div class=\"profile2-profile-image\">");
 			sb.append("<img src=\"");
@@ -255,6 +334,26 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<div class=\"profile2-profile-displayName\">");
 			sb.append(userProfile.getDisplayName());
 			sb.append("</div>");
+		}
+		
+		if(!sakaiProxy.getCurrentUserId().equals(userProfile.getUserUuid())) {
+			
+			int connectionStatus = connectionsLogic.getConnectionStatus(sakaiProxy.getCurrentUserId(), userProfile.getUserUuid());
+		
+			if(connectionStatus == ProfileConstants.CONNECTION_CONFIRMED) {
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-confirmed\"><a href=\"javascript:;\" onClick=\"return removeFriend('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\">" + Messages.getString("Label.friend.remove") + "</a></div>");
+			}
+			else if(connectionStatus == ProfileConstants.CONNECTION_REQUESTED) {
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-request\">" + Messages.getString("Label.friend.requested") + "</div>");
+			}
+			else if(connectionStatus == ProfileConstants.CONNECTION_INCOMING) {
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-request\">" + Messages.getString("Label.friend.requested") + "<a href=\"javascript:;\" title=\"" + Messages.getString("Label.friend.confirm") + "\" onClick=\"return confirmFriendRequest('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\"><img src=\"/library/image/silk/accept.png\"></a><a href=\"javascript:;\" title=\"" + Messages.getString("Label.friend.ignore") + "\" onClick=\"return ignoreFriendRequest('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\"><img src=\"/library/image/silk/cancel.png\"></a></div>");
+			}
+			else {
+				sb.append("<div id=\"profile_friend_" + userProfile.getUserUuid() + "\" class=\"icon connection-add\"><a href=\"javascript:;\" onClick=\"return requestFriend('" + sakaiProxy.getCurrentUserId() + "','" + userProfile.getUserUuid() + "');\">" + Messages.getString("Label.friend.add") + "</a></div>");
+			}
+			
+			sb.append("<br />");
 		}
 		
 		//status
