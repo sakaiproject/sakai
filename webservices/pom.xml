@@ -41,7 +41,10 @@
   
   	<modules>
     	<module>axis</module>
-    	<module>axis2</module>
+    	<!--  
+    		removed axis2 from deployment, SAK-18658
+    		<module>axis2</module>
+    	-->
     	<module>util</module>
   	</modules>
   
