@@ -89,3 +89,21 @@ div.profile2-profile-content-thumb {
 	color: #5D5D5D;
 	margin-bottom: 2px;
 }
+
+.icon {
+	background-position: center left;
+    background-repeat: no-repeat;
+    padding-left: 18px;
+}
+
+.connection-request {
+	background-image: url(/library/image/silk/group_gear.png);
+}
+
+.connection-add {
+	background-image: url(/library/image/silk/user_add.png);
+}
+
+.connection-confirmed {
+	background-image: url(/library/image/silk/group_link.png);
+}
