@@ -23,6 +23,7 @@ import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Observable;
@@ -380,7 +381,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 	// Site visits, presence time tests
 	@SuppressWarnings("unchecked")
 	public void testSitePresences() {
-		long minPresenceTime = 200;
+		//System.out.println("--- testSitePresences() :: START ---");
+		long minPresenceTime = 100;
 		
 		
 		// #1 Test : 2 site visit (different users)
@@ -440,6 +442,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		
 		// #2 Test: 2 site visit (same users)
 		db.deleteAll();
+		//System.out.println("--- testSitePresences() :: START II ---");
 		
 		// BEGIN SITE PRESENCE
 		now = new Date();
@@ -447,35 +450,12 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
 		try{
 			// give it time before ending presence
+			minPresenceTime = 150;
 			Thread.sleep(minPresenceTime);			
 		}catch(Exception e) {}
-		now = new Date();
-		eSV2 = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
-		// ... check SST_PRESENCES
-		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(1, r1.size());
-		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
-		long firstDuration = es1.getDuration();
-		assertTrue(firstDuration >= minPresenceTime);
-		
-		// END SITE PRESENCE
-		try{
-			// give it time before ending presence
-			Thread.sleep(minPresenceTime);			
-		}catch(Exception e) {}
-		now = new Date();
-		eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
-		try{
-			// give it time before ending presence
-			Thread.sleep(minPresenceTime);			
-		}catch(Exception e) {}
-		now = new Date();
-		eSV2e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Date now2 = new Date();
+		long secondDuration = now2.getTime() - now.getTime();
+		eSV2 = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
@@ -485,7 +465,109 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		assertEquals(eSV1.getUserId(), es1.getUserId());
 		assertNull(es1.getLastVisitStartTime());
 		long totalDuration = es1.getDuration();
-		assertTrue(totalDuration >= firstDuration + minPresenceTime);
+		long firstDuration = totalDuration;
+		assertTrue(totalDuration == secondDuration);
+		
+		// END SITE PRESENCE
+		now = new Date();
+		eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e)));
+		try{
+			// give it time before ending presence
+			minPresenceTime = 250;
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now2 = new Date();
+		secondDuration = now2.getTime() - now.getTime();
+		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
+		// ... check SST_PRESENCES
+		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, r1.size());
+		es1 = r1.get(0);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(eSV1.getUserId(), es1.getUserId());
+		assertNull(es1.getLastVisitStartTime());
+		totalDuration = es1.getDuration();
+		//System.out.println("1. totalDuration: "+totalDuration);
+		//System.out.println("1.   firstDuration: "+firstDuration);
+		//System.out.println("1.   secondDuration: "+secondDuration);
+		assertTrue(totalDuration == firstDuration + secondDuration);
+		
+		
+		// #3 Test: one pres.end (with one pres.begin already on db)
+		db.deleteAll();
+		// insert related pres.begin directly on db
+		now = new Date();
+		Date dbDate = getTruncatedDate(now);
+		firstDuration = 10000;
+		SitePresence sp1 = new SitePresenceImpl();
+		sp1.setSiteId(FakeData.SITE_A_ID);
+		sp1.setDate(dbDate);
+		sp1.setUserId(FakeData.USER_A_ID);
+		sp1.setDuration(firstDuration);
+		sp1.setLastVisitStartTime(now);
+		db.insertObject(sp1);
+		assertTrue(db.getResultsForClass(SitePresenceImpl.class).size() == 1);
+		// generate pres.end for processing in SST
+		try{
+			// give it time before ending presence
+			minPresenceTime = 300;
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now2 = new Date();
+		secondDuration = now2.getTime() - now.getTime();
+		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
+		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, r1.size());
+		es1 = r1.get(0);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(eSV1.getUserId(), es1.getUserId());
+		assertNull(es1.getLastVisitStartTime());
+		totalDuration = es1.getDuration();
+		//System.out.println("2. totalDuration: "+totalDuration);
+		//System.out.println("2.   firstDuration: "+firstDuration);
+		//System.out.println("2.   secondDuration: "+secondDuration);
+		assertTrue(totalDuration == firstDuration + secondDuration);
+		//System.out.println("--- testSitePresences() :: END ---");
+		
+		
+		// #4 Test: one pres.end (with one pres.begin already on db, with duration = 0)
+		db.deleteAll();
+		// insert related pres.begin directly on db
+		now = new Date();
+		firstDuration = 0;
+		sp1 = new SitePresenceImpl();
+		sp1.setSiteId(FakeData.SITE_A_ID);
+		sp1.setDate(dbDate);
+		sp1.setUserId(FakeData.USER_A_ID);
+		sp1.setDuration(firstDuration);
+		sp1.setLastVisitStartTime(now);
+		db.insertObject(sp1);
+		assertTrue(db.getResultsForClass(SitePresenceImpl.class).size() == 1);
+		// generate pres.end for processing in SST
+		try{
+			// give it time before ending presence
+			minPresenceTime = 300;
+			Thread.sleep(minPresenceTime);			
+		}catch(Exception e) {}
+		now2 = new Date();
+		secondDuration = now2.getTime() - now.getTime();
+		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
+		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, r1.size());
+		es1 = r1.get(0);
+		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		assertEquals(eSV1.getUserId(), es1.getUserId());
+		assertNull(es1.getLastVisitStartTime());
+		totalDuration = es1.getDuration();
+		//System.out.println("3. totalDuration: "+totalDuration);
+		//System.out.println("3.   firstDuration: "+firstDuration);
+		//System.out.println("3.   secondDuration: "+secondDuration);
+		assertTrue(totalDuration == firstDuration + secondDuration);
+		//System.out.println("--- testSitePresences() :: END ---");
 	}
 	
 	// Test (remaining) CustomEventImpl fields
@@ -751,6 +833,16 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		}catch(Exception e){
 			fail("There is no JobRun in database! [2]");
 		}
+	}
+	
+	private Date getTruncatedDate(Date date) {
+		if(date == null) return null;
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		return c.getTime();
 	}
 
 }

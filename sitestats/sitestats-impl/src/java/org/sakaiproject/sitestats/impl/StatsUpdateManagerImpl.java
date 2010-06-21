@@ -58,6 +58,7 @@ import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
@@ -99,7 +100,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, ResourceStat>		resourceStatMap						= Collections.synchronizedMap(new HashMap<String, ResourceStat>());
 	private Map<String, SiteActivity>		activityMap							= Collections.synchronizedMap(new HashMap<String, SiteActivity>());
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
-	private Map<String, SitePresence>		presencesMap						= Collections.synchronizedMap(new HashMap<String, SitePresence>());
+	private Map<String, SitePresenceConsolidation>	presencesMap				= Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
 
 	private boolean							initialized 						= false;
@@ -389,18 +390,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	public double getNumberOfEventsProcessedPerSec() {
 		if(totalTimeInEventProcessing > 0) {
-			return round((double)totalEventsProcessed / ((double)totalTimeInEventProcessing/1000), 3);
+			return Util.round((double)totalEventsProcessed / ((double)totalTimeInEventProcessing/1000), 3);
 		}else{
-			return round((double)totalEventsProcessed / 0.001, 3); // => will assume 1ms instead of 0ms
+			return Util.round((double)totalEventsProcessed / 0.001, 3); // => will assume 1ms instead of 0ms
 		}
 	}
 	
 	public double getNumberOfEventsGeneratedPerSec() {
 		double ellapsed = (double) getTotalTimeEllapsedSinceReset();
 		if(ellapsed > 0) {
-			return round((double)totalEventsProcessed / (ellapsed/1000), 3);
+			return Util.round((double)totalEventsProcessed / (ellapsed/1000), 3);
 		}else{
-			return round((double)totalEventsProcessed / 0.001, 3); // => will assume 1ms instead of 0ms
+			return Util.round((double)totalEventsProcessed / 0.001, 3); // => will assume 1ms instead of 0ms
 		}
 	}
 	
@@ -435,16 +436,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sb.append("Idle: ").append(isIdle());
 		}
 		return sb.toString();
-	}
-	
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
 	}
 	
 
@@ -654,15 +645,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				// site presence started
 				if(M_sm.isEnableSitePresences()) {
 					String pKey = siteId+userId+date;
-					SitePresence sp = presencesMap.get(pKey);
-					if(sp == null) {
-						sp = new SitePresenceImpl();
+					SitePresenceConsolidation spc = presencesMap.get(pKey);
+					if(spc == null) {
+						SitePresence sp = new SitePresenceImpl();
 						sp.setSiteId(siteId);
 						sp.setUserId(userId);
 						sp.setDate(date);
+						spc = new SitePresenceConsolidation(sp);
 					}
-					sp.setLastVisitStartTime(dateTime);
-					presencesMap.put(pKey, sp);
+					spc.sitePresence.setLastVisitStartTime(dateTime);
+					presencesMap.put(pKey, spc);					
 				}
 			}finally{
 				lock.unlock();
@@ -674,28 +666,27 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				String pKey = siteId+userId+date;
 				lock.lock();
 				try{
-					SitePresence sp = presencesMap.get(pKey);
-					if(sp == null) {
-						sp = doGetSitePresence(siteId, userId, date);
-						if(sp == null) {
-							sp = new SitePresenceImpl();
-							sp.setSiteId(siteId);
-							sp.setUserId(userId);
-							sp.setDate(date);
-						}
-					}
-					if(sp.getLastVisitStartTime() != null) {
-						long existingDuration = sp.getDuration();
-						long start = sp.getLastVisitStartTime().getTime();
-						long additionalDuration = dateTime.getTime() - start;
-						if(additionalDuration > 4*60*60*1000) {
-							LOG.warn("A site presence is longer than 4h: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
-						}
-						sp.setDuration(existingDuration + additionalDuration);						
+					SitePresenceConsolidation spc = presencesMap.get(pKey);
+					if(spc == null) {
+						SitePresence sp = new SitePresenceImpl();
+						sp.setSiteId(siteId);
+						sp.setUserId(userId);
+						sp.setDate(date);
 						sp.setLastVisitStartTime(null);
-						//LOG.debug("Consolidation: [pres.end] Updated site presence with +"+(additionalDuration/1000)+" sec (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");	
+						spc = new SitePresenceConsolidation(sp, dateTime);
 					}
-					presencesMap.put(pKey, sp);
+					if(spc.sitePresence.getLastVisitStartTime() != null) {
+						long existingDuration = spc.sitePresence.getDuration();
+						long start = spc.sitePresence.getLastVisitStartTime().getTime();
+						long thisEventTime = dateTime.getTime();
+						long additionalDuration = thisEventTime - start;
+						if(additionalDuration > 4*60*60*1000) {
+							LOG.warn("A site presence is longer than 4h!: duration="+(additionalDuration/1000/60)+" min (SITE:"+siteId+", USER:"+userId+", DATE:"+date+")");
+						}
+						spc.sitePresence.setDuration(existingDuration + additionalDuration);						
+						spc.sitePresence.setLastVisitStartTime(null);	
+					}
+					presencesMap.put(pKey, spc);
 				}finally{
 					lock.unlock();
 				}
@@ -772,10 +763,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						
 						// do: SitePresences
 						if(presencesMap.size() > 0) {
-							Collection<SitePresence> tmp6 = null;
+							Collection<SitePresenceConsolidation> tmp6 = null;
 							synchronized(presencesMap){
 								tmp6 = presencesMap.values();
-								presencesMap = Collections.synchronizedMap(new HashMap<String, SitePresence>());
+								presencesMap = Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
 							}
 							doUpdateSitePresencesObjects(session, tmp6);
 						}
@@ -1074,16 +1065,24 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return map;
 	}
 	
-	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresence> objects) {
+	private void doUpdateSitePresencesObjects(Session session, Collection<SitePresenceConsolidation> objects) {
 		if(objects == null) return;
-		Iterator<SitePresence> i = objects.iterator();
+		Iterator<SitePresenceConsolidation> i = objects.iterator();
 		while(i.hasNext()){
-			SitePresence sp = i.next();
+			SitePresenceConsolidation spc = i.next();
+			SitePresence sp = spc.sitePresence;
 			SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
 			if(spExisting == null) {
 				session.save(sp);
 			}else{
-				spExisting.setDuration(spExisting.getDuration() + sp.getDuration());
+				long previousTotalPresence = spExisting.getDuration();
+				long previousPresence = 0;
+				long newTotalPresence = 0;
+				if(spc.firstEventIsPresEnd) {
+					previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
+				} 
+				newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
+				spExisting.setDuration(newTotalPresence);				
 				spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
 				session.update(spExisting);
 			}
@@ -1094,18 +1093,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// ################################################################
 	// Special site presence methods (visit time tracking)
 	// ################################################################
-	private SitePresence doGetSitePresence(final String siteId, final String userId, final Date date) {
-		SitePresence svt = null;
-		if(siteId != null || userId != null || date != null) {
-			svt = (SitePresence) getHibernateTemplate().execute(new HibernateCallback() {			
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					return doGetSitePresence(session, siteId, userId, date);
-				}
-			});
-		}
-		return svt;
-	}
-	
 	@SuppressWarnings("unchecked")
 	private SitePresence doGetSitePresence(Session session, String siteId, String userId, Date date) {
 		SitePresence eDb = null;
@@ -1342,4 +1329,54 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			return c.getTime();
 		}
 	}
+	
+	private static class SitePresenceConsolidation {
+		public boolean firstEventIsPresEnd;
+		public Date firstPresEndDate;
+		public SitePresence sitePresence;
+		
+		public SitePresenceConsolidation(SitePresence sitePresence) {
+			this(sitePresence, null);
+		}
+		
+		public SitePresenceConsolidation(SitePresence sitePresence, Date firstPresEndDate) {
+			this.sitePresence = sitePresence;
+			if(firstPresEndDate == null) {
+				this.firstEventIsPresEnd = false;
+				this.firstPresEndDate = null;
+			}else{
+				this.firstEventIsPresEnd = true;
+				this.firstPresEndDate = firstPresEndDate;
+			}
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if(o instanceof SitePresenceConsolidation) {
+				SitePresenceConsolidation u = (SitePresenceConsolidation) o;
+				return firstEventIsPresEnd == u.firstEventIsPresEnd
+					&& ( (firstPresEndDate == null && u.firstPresEndDate == null) || (firstPresEndDate != null && firstPresEndDate.equals(u.firstPresEndDate)) )
+					&& ( (sitePresence == null && u.sitePresence == null) || (sitePresence != null && sitePresence.equals(u.sitePresence)) );
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return Boolean.valueOf(firstEventIsPresEnd).hashCode() + firstPresEndDate.hashCode() + sitePresence.hashCode();
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder buff = new StringBuilder();
+			buff.append("firstPresEndDate: ");
+			buff.append(firstPresEndDate);
+			buff.append(" | sitePresence => ");
+			if(sitePresence != null) buff.append(sitePresence.toString());
+			else buff.append("null");
+			return buff.toString();
+		}
+		
+	}
+	
 }

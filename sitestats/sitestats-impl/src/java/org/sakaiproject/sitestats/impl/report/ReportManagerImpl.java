@@ -75,10 +75,12 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsAuthz;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
@@ -273,6 +275,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
 				|| reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
 			data = M_sm.getEventStats(rpp.siteId, rpp.events, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
+		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)){
+			data = M_sm.getPresenceStats(rpp.siteId, rpp.iDate, rpp.fDate, rpp.userIds, rpp.inverseUserSelection, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS)){
 			data = M_sm.getVisitsTotalsStats(rpp.siteId, rpp.iDate, rpp.fDate, pagingPosition, rpp.totalsBy, rpp.sortBy, rpp.sortAscending, rpp.maxResults);
 		}else if(reportDef.getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
@@ -482,7 +486,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			return totalsBy.contains(StatsManager.T_LASTDATE) && !ReportManager.WHO_NONE.equals(params.getWho());
 			
 		}else if(column.equals(StatsManager.T_TOTAL)) {
-			return !ReportManager.WHO_NONE.equals(params.getWho()) && !ReportManager.WHAT_VISITS_TOTALS.equals(params.getWhat())
+			return !ReportManager.WHAT_PRESENCES.equals(params.getWhat()) && !totalsBy.contains(StatsManager.T_DURATION)
+				&& !ReportManager.WHO_NONE.equals(params.getWho()) && !ReportManager.WHAT_VISITS_TOTALS.equals(params.getWhat())
 				&& !totalsBy.contains(StatsManager.T_VISITS) && !totalsBy.contains(StatsManager.T_UNIQUEVISITS);
 			
 		}else if(column.equals(StatsManager.T_VISITS)) {
@@ -490,6 +495,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			
 		}else if(column.equals(StatsManager.T_UNIQUEVISITS)) {
 			return totalsBy.contains(StatsManager.T_UNIQUEVISITS);
+			
+		}else if(column.equals(StatsManager.T_DURATION)) {
+			//return totalsBy.contains(StatsManager.T_DURATION);
+			return ReportManager.WHAT_PRESENCES.equals(params.getWhat());
 			
 		}else{
 			LOG.warn("isReportColumnAvailable(): invalid column: "+column);
@@ -698,6 +707,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
 			headerRow.createCell(ix++).setCellValue(msgs.getString("th_uniquevisitors"));
 		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DURATION)) {
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_duration") + " (" + msgs.getString("minutes_abbr") + ")");
+		}
 
 		// Fill the spreadsheet cells
 		Iterator<Stat> i = statsObjects.iterator();
@@ -770,6 +782,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
 				SiteVisits sv = (SiteVisits) se;
 				row.createCell(ix++).setCellValue(sv.getTotalUnique());
+			}
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DURATION)) {
+				SitePresence ss = (SitePresence) se;
+				double durationInMin = ss.getDuration() == 0 ? 0 : Util.round((double)ss.getDuration() / 1000 / 60, 1); // in minutes
+				row.createCell(ix++).setCellValue(durationInMin);
 			}
 		}
 
@@ -883,6 +900,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				sb.append(",");
 			}
 			appendQuoted(sb, msgs.getString("th_uniquevisitors"));
+			isFirst = false;
+		}
+		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DURATION)) {
+			if(!isFirst) {
+				sb.append(",");
+			}
+			appendQuoted(sb, msgs.getString("th_duration") + " (" + msgs.getString("minutes_abbr") + ")");
 			isFirst = false;
 		}
 		sb.append("\n");
@@ -1015,6 +1039,16 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				}
 				SiteVisits sv = (SiteVisits) se;
 				appendQuoted(sb, Long.toString(sv.getTotalUnique()));
+				isFirst = false;
+			}
+			// duration
+			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DURATION)) {
+				if(!isFirst) {
+					sb.append(",");
+				}
+				SitePresence ss = (SitePresence) se;
+				double durationInMin = ss.getDuration() == 0 ? 0 : Util.round((double)ss.getDuration() / 1000 / 60, 1); // in minutes
+				appendQuoted(sb, Double.toString(durationInMin));
 				isFirst = false;
 			}
 			sb.append("\n");
@@ -1277,6 +1311,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
 				|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS_TOTALS))
 				return msgs.getString("report_what_visits");
+			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES))
+				return msgs.getString("report_what_presences");
 			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)
 				|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_ACTIVITY_TOTALS)){
 				StringBuilder buff = new StringBuilder();
@@ -1307,6 +1343,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		public String getReportActivitySelectionTitle(Report report) {
 			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS))
 				return msgs.getString("report_what_visits");
+			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES))
+				return msgs.getString("report_what_presences");
 			else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){
 				if(report.getReportDefinition().getReportParams().getWhatEventSelType().equals(ReportManager.WHAT_EVENTS_BYTOOL))
 					return msgs.getString("reportres_summ_act_tools_selected");
@@ -1320,7 +1358,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		 * @see org.sakaiproject.sitestats.api.report.ReportFormattedParams#getReportActivitySelection(org.sakaiproject.sitestats.api.report.Report)
 		 */
 		public String getReportActivitySelection(Report report) {
-			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)){
+			if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_VISITS)
+					|| report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)){
 				// visits
 				return null;
 			}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)){

@@ -67,6 +67,7 @@ import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -74,6 +75,7 @@ import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
@@ -312,7 +314,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// ################################################################	
 	public void init(){
 		// Set default properties if not set by spring/sakai.properties
-		setDefaultPropertiesIfNotSet();
+		checkAndSetDefaultPropertiesIfNotSet();
 		
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
@@ -325,7 +327,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
 	}
 	
-	public void setDefaultPropertiesIfNotSet() {
+	public void checkAndSetDefaultPropertiesIfNotSet() {
 		if(enableSiteVisits == null) {
 			enableSiteVisits = M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
 		}
@@ -339,8 +341,17 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			enableResourceStats = true;
 		}
 		if(enableSitePresences == null) {
-			// turno off, by default
+			// turn off, by default
 			enableSitePresences = false;// M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
+		}else if(enableSitePresences.booleanValue()){
+			// if turned on, make sure "display.users.present" is true
+			// this feature doesn't work properly with "presence.events.log"
+			if(M_scs.getBoolean("display.users.present", false)) {
+				enableSitePresences = M_scs.getBoolean("display.users.present", false);
+			}else if(M_scs.getBoolean("presence.events.log", false)) {
+				enableSitePresences = false;
+				LOG.warn("Disabled SiteStats presence tracking: doesn't work properly with 'presence.events.log' => only plays nicely with 'display.users.present'");
+			}
 		}
 	}
 
@@ -858,9 +869,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		c.add(Calendar.MONTH, -11);
 		Date lastYear = cl.getTime();
 		
-		double last7DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastWeek, now) / 7.0, 1);
-		double last30DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastMonth, now) / 30.0, 1);
-		double last365DaysVisitsAverage = round(getTotalSiteVisits(siteId, lastYear, now) / 365.0, 1);
+		double last7DaysVisitsAverage = Util.round(getTotalSiteVisits(siteId, lastWeek, now) / 7.0, 1);
+		double last30DaysVisitsAverage = Util.round(getTotalSiteVisits(siteId, lastMonth, now) / 30.0, 1);
+		double last365DaysVisitsAverage = Util.round(getTotalSiteVisits(siteId, lastYear, now) / 365.0, 1);
 		svt.setLast7DaysVisitsAverage(last7DaysVisitsAverage);
 		svt.setLast30DaysVisitsAverage(last30DaysVisitsAverage);
 		svt.setLast365DaysVisitsAverage(last365DaysVisitsAverage);
@@ -872,7 +883,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		svt.setTotalUniqueVisits(totalSiteUniqueVisits);
 		svt.setTotalVisits(totalSiteVisits);
 		svt.setTotalUsers(totalSiteUsers);
-		svt.setPercentageOfUsersThatVisitedSite(round(percentageOfUsersThatVisitedSite, 1));
+		svt.setPercentageOfUsersThatVisitedSite(Util.round(percentageOfUsersThatVisitedSite, 1));
 		
 		return svt;
 	}
@@ -909,9 +920,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		c.add(Calendar.MONTH, -11);
 		Date lastYear = cl.getTime();
 		
-		double last7DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastWeek, now) / 7.0, 1);
-		double last30DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastMonth, now) / 30.0, 1);
-		double last365DaysActivityAverage = round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastYear, now) / 365.0, 1);
+		double last7DaysActivityAverage = Util.round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastWeek, now) / 7.0, 1);
+		double last30DaysActivityAverage = Util.round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastMonth, now) / 30.0, 1);
+		double last365DaysActivityAverage = Util.round(getTotalSiteActivity(siteId, prefsdata.getToolEventsStringList(), lastYear, now) / 365.0, 1);
 		sat.setLast7DaysActivityAverage(last7DaysActivityAverage);
 		sat.setLast30DaysActivityAverage(last30DaysActivityAverage);
 		sat.setLast365DaysActivityAverage(last365DaysActivityAverage);
@@ -1444,6 +1455,207 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					q.setParameterList("anonymousEvents", anonymousEvents);
 				}
 				LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
+				Integer rowCount = q.list().size();
+				if(!inverseUserSelection){
+					return rowCount;
+				}else{
+					return getSiteUsers(siteId).size() - rowCount;
+				}
+			}
+		};
+		return (Integer) getHibernateTemplate().execute(hcb);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStats(java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
+	 */
+	public List<Stat> getPresenceStats(
+			final String siteId,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy, 
+			final String sortBy, 
+			boolean sortAscending,
+			final int maxResults) {
+		
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
+				Q_TYPE_PRESENCE, totalsBy, siteId, 
+				null, null, showAnonymousAccessEvents, null, null, 
+				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
+		final String hql = sqlBuilder.getHQL();
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
+		
+		// DO IT!
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				if(siteId != null) {
+					q.setString("siteid", siteId);
+				}
+				if(userIds != null && !userIds.isEmpty()) {
+					if(userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							q.setParameterList("users"+blockId, userIds.subList(startIndex, startIndex+1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users"+blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				if(page != null){
+					q.setFirstResult(page.getFirst() - 1);
+					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				if(maxResults > 0) {
+					q.setMaxResults(maxResults);
+				}
+				LOG.debug("getPresenceStats(): " + q.getQueryString());
+				List<Object[]> records = q.list();
+				List<Stat> results = new ArrayList<Stat>();
+				Set<String> siteUserIds = null;
+				if(inverseUserSelection)
+					siteUserIds = getSiteUsers(siteId);
+				if(records.size() > 0){
+					Calendar cal = Calendar.getInstance();
+					for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
+						if(!inverseUserSelection){
+							Object[] s = iter.next();
+							SitePresence c = new SitePresenceImpl();
+							if(columnMap.containsKey(StatsSqlBuilder.C_SITE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_SITE);
+								c.setSiteId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_USER)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_USER);
+								c.setUserId((String)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_DATE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATE);
+								c.setDate((Date)s[ix]);
+							}
+							if(columnMap.containsKey(StatsSqlBuilder.C_DATEMONTH)
+								&& columnMap.containsKey(StatsSqlBuilder.C_DATEYEAR)) {
+								int ixY = (Integer) columnMap.get(StatsSqlBuilder.C_DATEYEAR);
+								int ixM = (Integer) columnMap.get(StatsSqlBuilder.C_DATEMONTH);
+								int yr = 0, mo = 0;
+								if(getDbVendor().equals("oracle")){
+									yr = Integer.parseInt((String)s[ixY]);
+									mo = Integer.parseInt((String)s[ixM]) - 1;
+								}else{
+									yr = ((Integer)s[ixY]).intValue();
+									mo = ((Integer)s[ixM]).intValue() - 1;
+								}
+								cal.set(Calendar.YEAR, yr);
+								cal.set(Calendar.MONTH, mo);
+								c.setDate(cal.getTime());
+							}else if(columnMap.containsKey(StatsSqlBuilder.C_DATEYEAR)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATEYEAR);
+								int yr = 0;
+								if(getDbVendor().equals("oracle")){
+									yr = Integer.parseInt((String)s[ix]);
+								}else{
+									yr = ((Integer)s[ix]).intValue();
+								}
+								cal.set(Calendar.YEAR, yr);
+								c.setDate(cal.getTime());
+							}
+							{
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DURATION);
+								c.setDuration(c.getDuration() + ((Long)s[ix]).longValue());
+							}
+							results.add(c);
+						}else{
+							if(siteUserIds != null) {
+								siteUserIds.remove((Object) iter.next());
+							}
+						}
+					}
+				}
+				if(inverseUserSelection){
+					long id = 0;
+					Iterator<String> iU = siteUserIds.iterator();
+					while(iU.hasNext()){
+						String userId = iU.next();
+						SitePresence c = new SitePresenceImpl();
+						c.setId(id++);
+						c.setUserId(userId);
+						c.setSiteId(siteId);
+						c.setDuration(0);
+						c.setCount(0);
+						results.add(c);
+					}
+				}
+				return results;	
+			}
+		};
+		return (List<Stat>) getHibernateTemplate().execute(hcb);
+	}
+	
+	public int getPresenceStatsRowCount(
+			final String siteId,
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final List<String> totalsBy) {
+		
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
+				Q_TYPE_PRESENCE, totalsBy,
+				null, null, null, showAnonymousAccessEvents, null, null, 
+				iDate, fDate, userIds, inverseUserSelection, null, true);
+		final String hql = sqlBuilder.getHQL();
+
+		// DO IT!
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(hql);
+				if(siteId != null){
+					q.setString("siteid", siteId);
+				}
+				if(userIds != null && !userIds.isEmpty()) {
+					if(userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							q.setParameterList("users"+blockId, userIds.subList(startIndex, startIndex+1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users"+blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
+				if(iDate != null)
+					q.setDate("idate", iDate);
+				if(fDate != null){
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				LOG.debug("getPresenceStatsRowCount(): " + q.getQueryString());
 				Integer rowCount = q.list().size();
 				if(!inverseUserSelection){
 					return rowCount;
@@ -2111,6 +2323,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		public static final Integer		C_TOTAL				= 9;
 		public static final Integer		C_VISITS			= 10;
 		public static final Integer		C_UNIQUEVISITS		= 11;
+		public static final Integer		C_DURATION			= 12;
 
 		private Map<Integer, Integer>	columnMap;
 		
@@ -2157,6 +2370,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					this.totalsBy = TOTALSBY_VISITSTOTALS_DEFAULT;
 				}else if(queryType == Q_TYPE_ACTIVITYTOTALS){
 					this.totalsBy = TOTALSBY_ACTIVITYTOTALS_DEFAULT;
+				}else if(queryType == Q_TYPE_PRESENCE){
+					this.totalsBy = TOTALSBY_PRESENCE_DEFAULT;
 				}
 			}else{
 				this.totalsBy = totalsBy;
@@ -2263,6 +2478,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}else if(queryType == Q_TYPE_ACTIVITYTOTALS) {
 					selectFields.add("sum(s.count) as total");
 					columnMap.put(C_TOTAL, columnIndex++);
+				}else if(queryType == Q_TYPE_PRESENCE) {
+					selectFields.add("sum(s.duration) as duration");
+					columnMap.put(C_DURATION, columnIndex++);
 				}else {
 					if(queryType == Q_TYPE_EVENT
 						|| totalsBy.contains(T_DATEMONTH) || totalsBy.contains(T_DATEYEAR)) {
@@ -2313,6 +2531,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}else{
 					return "from SiteVisitsImpl as s ";
 				}
+			}else if(queryType == Q_TYPE_PRESENCE){
+				return "from SitePresenceImpl as s ";
 			}else{
 				//if(queryType == Q_TYPE_ACTIVITYTOTALS){
 				return "from SiteActivityImpl as s ";
@@ -2353,7 +2573,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					whereFields.add("s.resourceRef like (:resource"+i+")");
 				}
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE) 
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE  || queryType == Q_TYPE_PRESENCE) 
 				&& userIds != null) {
 				if(!userIds.isEmpty()) {
 					if(userIds.size() <= 1000) {
@@ -2384,7 +2604,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(fDate != null) {
 				whereFields.add("s.date < :fdate");
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE)
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_PRESENCE)
 				&& !showAnonymousAccessEvents) {
 				whereFields.add("s.userId != '?'");
 			}
@@ -2525,9 +2745,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						(totalsBy.contains(T_DATE) || totalsBy.contains(T_LASTDATE) )) {
 					sortField = "s.date";
 				}
+				if(sortBy.equals(T_DURATION)) {
+					if(dbVendor.equals("oracle") || dbVendor.equals("hql")) {
+						sortField = "sum(s.duration)";
+					}else{
+						sortField = "col_" + (columnMap.get(C_DURATION)) + "_0_";
+					}
+				}
 				if(sortBy.equals(T_TOTAL)) {
 					if(dbVendor.equals("oracle") || dbVendor.equals("hql")) {
-						sortField = "sum(s.count)";					
+						sortField = "sum(s.count)";
 					}else{
 						// Big, dangerous & ugly hack to get aggregate
 						// functions in 'order by' clauses for MySQL.
@@ -3500,16 +3727,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 		};
 		return ((List<String>) getHibernateTemplate().execute(hcb));
-	}
-
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
 	}
 	
 	private String getDbVendor() {

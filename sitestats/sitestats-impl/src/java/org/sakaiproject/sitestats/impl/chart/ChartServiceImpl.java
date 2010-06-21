@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -74,11 +74,13 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.Report;
@@ -380,8 +382,10 @@ public class ChartServiceImpl implements ChartService {
 				@Override
 				public String generateLabel(CategoryDataset dataset, int row, int column) {
 					Number n = dataset.getValue(row, column);
-					if(n.intValue() != 0)
-						return n.intValue()+"";
+					if(n.doubleValue() != 0) {
+						if((double)n.intValue() == n.doubleValue()) return Integer.toString(n.intValue());
+						else return Double.toString( Util.round(n.doubleValue(), 1) );
+					}
 					return "";
 				}			
 			});
@@ -445,7 +449,8 @@ public class ChartServiceImpl implements ChartService {
 				public String generateLabel(CategoryDataset dataset, int row, int column) {
 					Number n = dataset.getValue(row, column);
 					if(n.intValue() != 0)
-						return n.intValue()+"";
+						//return n.intValue()+"";
+						return n.toString();
 					return "";
 				}			
 			});
@@ -633,8 +638,8 @@ public class ChartServiceImpl implements ChartService {
 
 				public String generateLabel(XYDataset dataset, int series, int item) {
 					Number n = dataset.getY(series, item);
-					if(n.intValue() != 0)
-						return n.intValue()+"";
+					if(n.doubleValue() != 0)
+						return n.toString();
 					return "";
 				}	
 
@@ -791,7 +796,7 @@ public class ChartServiceImpl implements ChartService {
 			int decimalPlaces = 1;
 			if(percentage < 0.1)
 				decimalPlaces = 2;
-			String label = M_ers.getToolName(s.getTool().getToolId()) + " " + round(percentage, decimalPlaces) + "%";
+			String label = M_ers.getToolName(s.getTool().getToolId()) + " " + Util.round(percentage, decimalPlaces) + "%";
 			pieDataSet.setValue(label, percentage );
 		}
 		if(lsac.size() > showMax){
@@ -805,7 +810,7 @@ public class ChartServiceImpl implements ChartService {
 			int decimalPlaces = 1;
 			if(percentage < 0.1)
 				decimalPlaces = 2;
-			String label = otherTools + " " + round(percentage, decimalPlaces) + "%";
+			String label = otherTools + " " + Util.round(percentage, decimalPlaces) + "%";
 			pieDataSet.setValue(label, percentage );
 		}
 		return pieDataSet;
@@ -895,9 +900,9 @@ public class ChartServiceImpl implements ChartService {
 				Comparable key = getStatValue(s, dataSource);
 				if(key != null) {
 					if(usedKeys.contains(key)){
-						dataSet.incrementValue(s.getCount(), key, key);
+						dataSet.incrementValue(getTotalValue(s, report).doubleValue(), key, key);						
 					}else{
-						dataSet.addValue(s.getCount(), key, key);
+						dataSet.addValue(getTotalValue(s, report), key, key);
 						usedKeys.add(key);
 					}
 				}
@@ -911,9 +916,9 @@ public class ChartServiceImpl implements ChartService {
 				Comparable cat = getStatValue(s, categorySource);
 				if(key != null && cat != null) {
 					if(usedKeys.containsKey(cat) && key.equals(usedKeys.get(cat))){
-						dataSet.incrementValue(s.getCount(), key, cat);
+						dataSet.incrementValue(getTotalValue(s, report).doubleValue(), key, cat);
 					}else{
-						dataSet.addValue(s.getCount(), key, cat);
+						dataSet.addValue(getTotalValue(s, report), key, cat);
 						usedKeys.put(cat, key);
 					}
 				}
@@ -937,17 +942,18 @@ public class ChartServiceImpl implements ChartService {
 		// fill dataset
 		DefaultPieDataset dataSet = new DefaultPieDataset();
 		String dataSource = report.getReportDefinition().getReportParams().getHowChartSource();
-		int total = 0;
+		//int total = 0;
+		double total = 0;
 		for(Stat s : reportData){
 			Comparable key = getStatValue(s, dataSource);
 			if(key != null) {
 				try{
 					Number existingValue = dataSet.getValue(key);
-					dataSet.setValue(key, s.getCount() + existingValue.longValue());
-					total += s.getCount();
+					dataSet.setValue(key, getTotalValue(existingValue, s, report));
+					total += getTotalValue(s, report).doubleValue();
 				}catch(UnknownKeyException e){
-					dataSet.setValue(key, s.getCount());
-					total += s.getCount();
+					dataSet.setValue(key, getTotalValue(s, report));
+					total += getTotalValue(s, report).doubleValue();
 				}
 			}
 		}
@@ -965,15 +971,15 @@ public class ChartServiceImpl implements ChartService {
 			Number existingValue = dataSet.getValue(key);
 			if(currItem < maxDisplayedItems) {
 				// re-compute values
-				int valueInt = existingValue.intValue();
-				double percentage = (double) valueInt * 100 / total;
-				double valuePercentage = round(percentage, (percentage > 0.1) ? 1 : 2 );
+				double percentage = (double) existingValue.doubleValue() * 100 / total;
+				double valuePercentage = Util.round(percentage, (percentage > 0.1) ? 1 : 2 );
 				// replace key with updated label
 				StringBuilder keyStr = new StringBuilder(key.toString());
 				keyStr.append(' ');
 				keyStr.append(valuePercentage);
 				keyStr.append("% (");
-				keyStr.append(valueInt);
+				if((double)existingValue.intValue() == existingValue.doubleValue()) keyStr.append(existingValue.intValue());
+				else keyStr.append(existingValue.doubleValue());
 				keyStr.append(")");
 				dataSet.remove(key);
 				dataSet.setValue(keyStr.toString(), existingValue);
@@ -985,14 +991,15 @@ public class ChartServiceImpl implements ChartService {
 		}
 		// compute "Others" value
 		if(othersValues.intValue() > 0){
-			double percentage = (double) othersValues.intValue() * 100 / total;
-			double valuePercentage = round(percentage, (percentage > 0.1) ? 1 : 2 );
+			double percentage = (double) othersValues.doubleValue() * 100 / total;
+			double valuePercentage = Util.round(percentage, (percentage > 0.1) ? 1 : 2 );
 			// replace key with updated label
 			StringBuilder keyStr = new StringBuilder(msgs.getString("pie_chart_others"));
 			keyStr.append(' ');
 			keyStr.append(valuePercentage);
 			keyStr.append("% (");
-			keyStr.append(othersValues.intValue());
+			if((double)othersValues.intValue() == othersValues.doubleValue()) keyStr.append(othersValues.intValue());
+			else keyStr.append(othersValues.doubleValue());
 			keyStr.append(")");
 			dataSet.setValue(keyStr.toString(), othersValues);
 		}
@@ -1033,9 +1040,9 @@ public class ChartServiceImpl implements ChartService {
 				if(key != null) {
 					Number existing = null;
 					if((existing = ts.getValue(key)) == null) {
-						ts.add(key, s.getCount());
+						ts.add(key, getTotalValue(s, report));
 					}else{
-						ts.addOrUpdate(key, s.getCount() + existing.longValue());
+						ts.addOrUpdate(key, getTotalValue(existing, s, report));
 					}
 					keys.add(key);
 				}
@@ -1061,9 +1068,9 @@ public class ChartServiceImpl implements ChartService {
 					
 					Number existing = null;
 					if((existing = ts.getValue(key)) == null) {
-						ts.add(key, s.getCount());
+						ts.add(key, getTotalValue(s, report));
 					}else{
-						ts.addOrUpdate(key, s.getCount() + existing.longValue());
+						ts.addOrUpdate(key, getTotalValue(existing, s, report));
 					}
 					keys.add(key);
 				}
@@ -1213,16 +1220,6 @@ public class ChartServiceImpl implements ChartService {
 		LOG.info("Unable to parse body background-color (color:" + color+"). Assuming white.");
 		return Color.white;
 	}
-	
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
-	}
 	//periodGrouping
 
 	private Comparable getStatValue(Stat s, String fieldCode) {
@@ -1333,10 +1330,53 @@ public class ChartServiceImpl implements ChartService {
 					return ((SiteVisits) s).getTotalUnique();
 				}
 				return s.getCount();
+			}else if(fieldCode.equals(StatsManager.T_DURATION)) {
+				if(s instanceof SitePresence) {
+					double duration = (double) ((SitePresence) s).getDuration();
+					return Util.round(duration / 1000 / 60, 1); // in minutes
+				}
 			}
 		}catch(Exception e) {
-			LOG.warn("Erro occurred while getting value for chart", e);			
+			LOG.warn("Error occurred while getting value for chart", e);			
 		}
 		return null;
 	}
+	
+	
+	private Number getTotalValue(Stat s, Report r) {
+		return getTotalValue(null, s, r);
+	}
+	private Number getTotalValue(Number existingValue, Stat s, Report r) {
+		try{
+			String what = r.getReportDefinition().getReportParams().getWhat();
+			if(ReportManager.WHAT_VISITS_TOTALS.equals(what)) {
+				if(s instanceof SiteVisits) {
+					long totalVisits = ((SiteVisits) s).getTotalVisits();
+					if(existingValue != null) {
+						totalVisits += existingValue.longValue();
+					}
+					return totalVisits;
+				}
+				
+			}else if(ReportManager.WHAT_PRESENCES.equals(what)) {
+				if(s instanceof SitePresence) {
+					double duration = (double) ((SitePresence) s).getDuration();
+					duration = Util.round(duration / 1000 / 60, 1); // in minutes
+					if(existingValue != null) {
+						duration += existingValue.doubleValue();
+					}
+					return duration;
+				}
+			}
+			long count = s.getCount();
+			if(existingValue != null) {
+				count += existingValue.longValue();
+			}
+			return count;
+		}catch(Exception e) {
+			LOG.warn("Error occurred while getting total value for chart", e);			
+		}
+		return null;
+	}
+	
 }

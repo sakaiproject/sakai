@@ -150,6 +150,11 @@ public class ReportDefsProvider implements IDataProvider {
 					return true;
 				}
 			}
+		}else if(ReportManager.WHAT_PRESENCES.equals(reportDef.getReportParams().getWhat())) {
+			// keep presence based reports if site presences are enabled
+			if(Locator.getFacade().getStatsManager().isEnableSitePresences()) {
+				return true;
+			}
 		}else{
 			// at least one tool from the selection must be present
 			if(ReportManager.WHAT_EVENTS_BYEVENTS.equals(reportDef.getReportParams().getWhatEventSelType())) {

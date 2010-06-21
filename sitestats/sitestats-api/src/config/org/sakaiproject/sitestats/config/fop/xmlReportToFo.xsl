@@ -85,6 +85,9 @@
                                 <xsl:if test="showTotalUnique = 'true'">
                                     <fo:table-column column-width="8.5mm" />
                                 </xsl:if>
+                                <xsl:if test="showDuration = 'true'">
+                                    <fo:table-column column-width="8.5mm" />
+                                </xsl:if>
 								<fo:table-header>
 									<xsl:apply-templates select="datarowheader" />
 								</fo:table-header>
@@ -207,6 +210,13 @@
                     </fo:block>
                 </fo:table-cell>
             </xsl:if>
+            <xsl:if test="showDuration = 'true'">
+                <fo:table-cell border-bottom-width="0.75pt" border-bottom-style="dashed" border-bottom-color="#cccccc" padding-bottom="1pt" padding-left="1pt" padding-right="1pt">
+                    <fo:block>
+                        <xsl:value-of select="th_duration" />
+                    </fo:block>
+                </fo:table-cell>
+            </xsl:if>
 		</fo:table-row>
 	</xsl:template>
 
@@ -314,6 +324,13 @@
                 <fo:table-cell padding-left="1pt" padding-right="1pt">
                     <fo:block wrap-option="no-wrap">
                         <xsl:value-of select="totalUnique" />
+                    </fo:block>
+                </fo:table-cell>
+            </xsl:if>
+            <xsl:if test="showDuration = 'true'">
+                <fo:table-cell padding-left="1pt" padding-right="1pt">
+                    <fo:block wrap-option="no-wrap">
+                        <xsl:value-of select="duration" />
                     </fo:block>
                 </fo:table-cell>
             </xsl:if>

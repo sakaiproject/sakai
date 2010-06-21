@@ -32,6 +32,7 @@ import org.apache.wicket.model.Model;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -57,6 +58,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	public final static String		COL_TOTAL			= StatsManager.T_TOTAL;
 	public final static String		COL_VISITS			= StatsManager.T_VISITS;
 	public final static String		COL_UNIQUEVISITS	= StatsManager.T_UNIQUEVISITS;
+	public final static String		COL_DURATION		= StatsManager.T_DURATION;
 
 	private boolean					log					= true;
 	private PrefsData				prefsData;
@@ -233,6 +235,13 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					SiteVisits sv1 = (SiteVisits) r1;
 					SiteVisits sv2 = (SiteVisits) r2;
 					int res = Long.valueOf(sv1.getTotalUnique()).compareTo(Long.valueOf(sv2.getTotalUnique()));
+					if(sortAscending)
+						return res;
+					else return -res;
+				}else if(fieldName.equals(COL_DURATION)){
+					SitePresence sv1 = (SitePresence) r1;
+					SitePresence sv2 = (SitePresence) r2;
+					int res = Long.valueOf(sv1.getDuration()).compareTo(Long.valueOf(sv2.getDuration()));
 					if(sortAscending)
 						return res;
 					else return -res;

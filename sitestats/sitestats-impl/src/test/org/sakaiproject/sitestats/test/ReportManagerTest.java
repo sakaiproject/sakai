@@ -38,6 +38,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -176,6 +177,7 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 		((StatsManagerImpl)M_sm).setSiteService(M_ss);
 		//((StatsManagerImpl)M_sm).setContentHostingService(M_chs);
 		((StatsManagerImpl)M_sm).setResourceLoader(msgs);
+		((StatsManagerImpl)M_sm).setEnableSitePresences(true);
 		((ReportManagerImpl)M_rm).setResourceLoader(msgs);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
@@ -192,20 +194,35 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 	private List<Event> getSampleData() {
 		List<Event> samples = new ArrayList<Event>();
 		Date today = new Date();
+		Date today_2 = new Date(today.getTime() + 60*1000);
+		Date today_3 = new Date(today.getTime() + 2*60*1000);
+		Date today_4 = new Date(today.getTime() + 3*60*1000);
 		Date oneDayBefore = new Date(today.getTime() - 24*60*60*1000);
+		Date oneDayBefore_2 = new Date(today.getTime() - 24*60*60*1000 + 60*1000);
+		Date oneDayBefore_3 = new Date(today.getTime() - 24*60*60*1000 + 2*60*1000);
+		Date oneDayBefore_4 = new Date(today.getTime() - 24*60*60*1000 + 3*60*1000);
 		Date twoDaysBefore = new Date(today.getTime() - 2*24*60*60*1000);
+		Date twoDaysBefore_2 = new Date(today.getTime() - 2*24*60*60*1000 + 60*1000);
 		Date fourDaysBefore = new Date(today.getTime() - 4*24*60*60*1000);
+		Date fourDaysBefore_2 = new Date(today.getTime() - 4*24*60*60*1000 + 60*1000);
 		Date sixDaysBefore = new Date(today.getTime() - 6*24*60*60*1000);
+		Date sixDaysBefore_2 = new Date(today.getTime() - 6*24*60*60*1000 + 60*1000);
 		// visits
-		Event vAToday = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		Event vBToday = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event vATodayS1 = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vATodayE1 = M_sum.buildEvent(today_2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vATodayS2 = M_sum.buildEvent(today_3, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vATodayE2 = M_sum.buildEvent(today_4, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vBTodayS1 = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event vBTodayE1 = M_sum.buildEvent(today_3, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
 		Event vAOneDayBefore = M_sum.buildEvent(oneDayBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		Event vATowDaysBefore = M_sum.buildEvent(twoDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		Event vAFourDaysBefore = M_sum.buildEvent(fourDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		Event vBFourDaysBefore = M_sum.buildEvent(fourDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
 		Event vBSixDaysBefore = M_sum.buildEvent(sixDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
 		samples.addAll(Arrays.asList(
-				vAToday, vAToday, vBToday, 			// today:			3 visits, 2 unique
+				vATodayS1, vATodayE1, 
+				vATodayS2, vATodayE2, 
+				vBTodayS1, vBTodayE1, 				// today:			3 visits, 2 unique
 				vAOneDayBefore, 					// 1 day before:	1 visits, 1 unique
 				vATowDaysBefore, vATowDaysBefore, 	// 2 day before:	2 visits, 1 unique
 				vAFourDaysBefore, vBFourDaysBefore, // 4 day before:	2 visits, 2 unique
@@ -413,6 +430,39 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 //		System.out.println("ReportData: "+ r.getReportData());
 //		assertEquals(1, r.getReportData().size());
 //		assertEquals(1, r.getReportData().get(0).getCount());
+		
+		// presences I
+		rp.setWhat(ReportManager.WHAT_PRESENCES);
+		totalsBy = new ArrayList<String>();
+		totalsBy.add(StatsManager.T_SITE);
+		totalsBy.add(StatsManager.T_USER);
+		totalsBy.add(StatsManager.T_DATE);
+		rp.setHowTotalsBy(totalsBy);
+		rp.setHowSort(false);
+		r = M_rm.getReport(rd, true, null, true);
+		checkCollumns(rd.getReportParams());
+		assertEquals(7, r.getReportData().size());
+		
+		// presences II
+		rp.setWhat(ReportManager.WHAT_PRESENCES);
+		totalsBy = new ArrayList<String>();
+		totalsBy.add(StatsManager.T_SITE);
+		totalsBy.add(StatsManager.T_DATE);
+		rp.setHowTotalsBy(totalsBy);
+		rp.setHowSort(false);
+		r = M_rm.getReport(rd, true, null, true);
+		checkCollumns(rd.getReportParams());
+		assertEquals(5, r.getReportData().size());
+		
+		// presences III
+		rp.setWhat(ReportManager.WHAT_PRESENCES);
+		totalsBy = new ArrayList<String>();
+		totalsBy.add(StatsManager.T_SITE);
+		rp.setHowTotalsBy(totalsBy);
+		rp.setHowSort(false);
+		r = M_rm.getReport(rd, true, null, true);
+		checkCollumns(rd.getReportParams());
+		assertEquals(1, r.getReportData().size());
 		
 	}
 	
@@ -792,12 +842,14 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 				StatsManager.T_SITE, StatsManager.T_USER, StatsManager.T_EVENT, StatsManager.T_TOOL,
 				StatsManager.T_RESOURCE, StatsManager.T_RESOURCE_ACTION, StatsManager.T_DATE,
 				StatsManager.T_DATEMONTH, StatsManager.T_DATEYEAR, StatsManager.T_LASTDATE, StatsManager.T_TOTAL,
-				StatsManager.T_VISITS, StatsManager.T_UNIQUEVISITS 
+				StatsManager.T_VISITS, StatsManager.T_UNIQUEVISITS, StatsManager.T_DURATION  
 				);
 		List<String> totalsBy = params.getHowTotalsBy();
 		for(String c : all) {
 			boolean containsColumn = M_rm.isReportColumnAvailable(params, c);
-			boolean expected = totalsBy == null || totalsBy.contains(c) || c.equals(StatsManager.T_TOTAL);
+			boolean expected = totalsBy == null || totalsBy.contains(c) 
+				|| (c.equals(StatsManager.T_TOTAL) && !ReportManager.WHAT_PRESENCES.equals(params.getWhat()))
+				|| (c.equals(StatsManager.T_DURATION) && ReportManager.WHAT_PRESENCES.equals(params.getWhat()));
 			//System.out.println("containsColumn("+c+"): "+containsColumn+" expected: "+expected);
 			assertEquals(expected, containsColumn);
 		}

@@ -342,4 +342,15 @@ public class FakeStatsManager implements StatsManager {
 		return 0;
 	}
 
+	public List<Stat> getPresenceStats(String siteId, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, PagingPosition page, List<String> totalsBy, String sortBy,
+			boolean sortAscending, int maxResults) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int getPresenceStatsRowCount(String siteId, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, List<String> totalsBy) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

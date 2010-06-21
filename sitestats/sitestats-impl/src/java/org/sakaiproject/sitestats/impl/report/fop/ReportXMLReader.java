@@ -29,9 +29,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.chart.ChartService;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
@@ -211,6 +213,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("th_total", msgs.getString("th_total"));
         handler.element("th_visits", msgs.getString("th_visits"));
         handler.element("th_uniquevisitors", msgs.getString("th_uniquevisitors"));
+        handler.element("th_duration", msgs.getString("th_duration") + " (" + msgs.getString("minutes_abbr") + ")");
         
         handler.endElement("datarowheader");
 	}
@@ -232,6 +235,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         handler.element("showTotal", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_TOTAL)));
         handler.element("showTotalVisits", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_VISITS)));
         handler.element("showTotalUnique", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_UNIQUEVISITS)));
+        handler.element("showDuration", String.valueOf(M_rm.isReportColumnAvailable(params, StatsManager.T_DURATION)));
 	}
 
 	private void generateReportChart(Report report) throws SAXException {
@@ -275,6 +279,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         boolean showTotal = M_rm.isReportColumnAvailable(params, StatsManager.T_TOTAL);
         boolean showTotalVisits = M_rm.isReportColumnAvailable(params, StatsManager.T_VISITS);
         boolean showTotalUnique = M_rm.isReportColumnAvailable(params, StatsManager.T_UNIQUEVISITS);
+        boolean showDuration = M_rm.isReportColumnAvailable(params, StatsManager.T_DURATION);
 
         Iterator<Stat> i = data.iterator();
         while(i.hasNext()){
@@ -377,6 +382,11 @@ public class ReportXMLReader extends AbstractObjectReader {
             	SiteVisits ss = (SiteVisits) cs;
 	            handler.element("totalUnique", String.valueOf(ss.getTotalUnique()));
             }
+            if(showDuration) {
+            	SitePresence ss = (SitePresence) cs;
+            	double durationInMin = ss.getDuration() == 0 ? 0 : Util.round((double)ss.getDuration() / 1000 / 60, 1); // in minutes
+	            handler.element("duration", String.valueOf(durationInMin));
+            }
             
             handler.endElement("datarow");
         }
@@ -437,7 +447,11 @@ public class ReportXMLReader extends AbstractObjectReader {
             if(showTotalUnique) {
 	            handler.element("totalUnique", messageNoData);
             	messageNoData = "";
-            }            
+            }  
+            if(showDuration) {
+	            handler.element("duration", messageNoData);
+            	messageNoData = "";
+            }           
             handler.endElement("datarow");
         }
 	}

@@ -34,6 +34,7 @@ import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
@@ -181,7 +182,7 @@ public class ResourcesWidget extends Panel {
 			
 			@Override
 			public String getSecondValue() {
-				double percentage = getTotalFiles()==0 ? 0 : round(100 * totalDistinctFileReads / (double) getTotalFiles(), 0);
+				double percentage = getTotalFiles()==0 ? 0 : Util.round(100 * totalDistinctFileReads / (double) getTotalFiles(), 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			
@@ -780,15 +781,5 @@ public class ResourcesWidget extends Panel {
 			}		
 		}
 		return totalFiles;
-	}
-	
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
 	}
 }

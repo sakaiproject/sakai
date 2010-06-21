@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -103,12 +103,12 @@ public class ReportParams implements Serializable {
 		this.siteId = siteId;
 	}
 
-	/** Get the what type selection (see {@link ReportManager#WHAT_EVENTS},{@link ReportManager#WHAT_RESOURCES}, {@link ReportManager#WHAT_VISITS}). */
+	/** Get the what type selection (see {@link ReportManager#WHAT_EVENTS},{@link ReportManager#WHAT_RESOURCES}, {@link ReportManager#WHAT_VISITS}, {@link ReportManager#WHAT_PRESENCES}). */
 	public String getWhat() {
 		return what;
 	}
 
-	/** Set the what type selection (see {@link ReportManager#WHAT_EVENTS},{@link ReportManager#WHAT_RESOURCES}, {@link ReportManager#WHAT_VISITS}). */
+	/** Set the what type selection (see {@link ReportManager#WHAT_EVENTS},{@link ReportManager#WHAT_RESOURCES}, {@link ReportManager#WHAT_VISITS}, {@link ReportManager#WHAT_PRESENCES}). */
 	public void setWhat(String what){
 		this.what = what;
 	}

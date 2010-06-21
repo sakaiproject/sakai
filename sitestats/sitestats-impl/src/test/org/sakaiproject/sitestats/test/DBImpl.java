@@ -35,6 +35,22 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class DBImpl extends HibernateDaoSupport implements DB {
 
+	public void insertObject(final Object obj) {
+		getHibernateTemplate().execute(new HibernateCallback() {			
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Transaction tx = null;
+				try{
+					tx = session.beginTransaction();
+					session.saveOrUpdate(obj);
+					tx.commit();
+				}catch(Exception e){
+					if(tx != null) tx.rollback();
+				}
+				return Boolean.TRUE;
+			}
+		});
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List getResultsForClass(final Class classz) {
 		return (List) getHibernateTemplate().execute(new HibernateCallback() {			

@@ -33,6 +33,7 @@ import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
@@ -183,7 +184,7 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public String getSecondValue() {
-				double percentage = totalActivity==0 ? 0 : round(100 * totalToolActivity / (double) totalActivity, 0);
+				double percentage = totalActivity==0 ? 0 : Util.round(100 * totalToolActivity / (double) totalActivity, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			
@@ -312,7 +313,7 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public String getSecondValue() {
-				double percentage = totalActivity==0 ? 0 : round(100 * totalUserActivity / (double) totalActivity, 0);
+				double percentage = totalActivity==0 ? 0 : Util.round(100 * totalUserActivity / (double) totalActivity, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			
@@ -675,15 +676,5 @@ public class ActivityWidget extends Panel {
 			prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
-	}
-	
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
 	}
 }

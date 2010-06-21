@@ -41,6 +41,7 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				&& userId.equals(other.getUserId())
 				&& date.equals(other.getDate())
 				&& duration == other.getDuration()
+				&& getCount() == other.getCount()
 				&& lastVisitStartTime == other.getLastVisitStartTime();
 	}
 
@@ -113,7 +114,7 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 	}
 
 	public long getCount() {
-		return 0;
+		return duration;
 	}
 
 }

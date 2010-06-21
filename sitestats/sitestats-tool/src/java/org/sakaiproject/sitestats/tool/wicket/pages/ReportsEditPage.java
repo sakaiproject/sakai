@@ -112,6 +112,7 @@ public class ReportsEditPage extends BasePage {
 	private boolean 				visitsVisible	= true;
 	private boolean 				activityVisible	= true;
 	private boolean 				resourcesVisible = true;
+	private boolean 				presencesVisible = true;
 	
 	/** Report related */
 	private ReportDefModel			reportDefModel;
@@ -171,6 +172,7 @@ public class ReportsEditPage extends BasePage {
 			}catch(Exception e) {
 				resourcesVisible = false;
 			}
+			presencesVisible = Locator.getFacade().getStatsManager().isEnableSitePresences();
 			// render body
 			renderBody();
 		}else{
@@ -388,6 +390,7 @@ public class ReportsEditPage extends BasePage {
 		if(visitsVisible) { 	whatOptions.add(ReportManager.WHAT_VISITS); 	}
 		if(activityVisible) { 	whatOptions.add(ReportManager.WHAT_EVENTS); 	}
 		if(resourcesVisible) { 	whatOptions.add(ReportManager.WHAT_RESOURCES); 	}
+		if(presencesVisible) { 	whatOptions.add(ReportManager.WHAT_PRESENCES); 	}
 		IChoiceRenderer whatChoiceRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHAT_VISITS.equals(object)) {
@@ -398,6 +401,9 @@ public class ReportsEditPage extends BasePage {
 				}
 				if(ReportManager.WHAT_RESOURCES.equals(object)) {
 					return new ResourceModel("report_what_resources").getObject();
+				}
+				if(ReportManager.WHAT_PRESENCES.equals(object)) {
+					return new ResourceModel("report_what_presences").getObject();
 				}
 				return object;
 			}

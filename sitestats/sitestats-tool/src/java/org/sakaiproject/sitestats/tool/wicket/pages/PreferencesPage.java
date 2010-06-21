@@ -36,6 +36,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.tool.facade.Locator;
@@ -237,22 +238,12 @@ public class PreferencesPage extends BasePage {
 	}
 	
 	public void setChartTransparency(String value) {
-		float converted = (float) round(Double.parseDouble(value)/100,1);
+		float converted = (float) Util.round(Double.parseDouble(value)/100,1);
 		getPrefsdata().setChartTransparency(converted);
 	}
 	
 	public String getChartTransparency() {
-		return Integer.toString((int) round(getPrefsdata().getChartTransparency()*100,0) );
-	}
-	
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
+		return Integer.toString((int) Util.round(getPrefsdata().getChartTransparency()*100,0) );
 	}
 }
 

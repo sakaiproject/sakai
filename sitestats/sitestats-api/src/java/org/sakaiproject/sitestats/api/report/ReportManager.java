@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -46,6 +46,7 @@ public interface ReportManager {
 	public static final String	WHAT_EVENTS_ALLTOOLS		= "all";
 	public static final String	WHAT_EVENTS					= "what-events";
 	public static final String	WHAT_VISITS					= "what-visits";
+	public static final String	WHAT_PRESENCES				= "what-presences";
 	public static final String	WHAT_VISITS_TOTALS			= "what-visits-totals";
 	public static final String	WHAT_ACTIVITY_TOTALS		= "what-activity-totals";
 	public static final String	HOW_TOTALSBY				= "how-totalsby";

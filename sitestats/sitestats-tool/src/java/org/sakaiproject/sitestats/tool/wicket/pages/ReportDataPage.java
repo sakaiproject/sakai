@@ -54,8 +54,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
@@ -480,6 +482,19 @@ public class ReportDataPage extends BasePage {
 		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_UNIQUEVISITS)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_uniquevisitors"), columnsSortable ? ReportsDataProvider.COL_UNIQUEVISITS : null, "totalUnique"));
 		}
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DURATION)) {
+			columns.add(new PropertyColumn(new ResourceModel("th_duration"), columnsSortable ? ReportsDataProvider.COL_DURATION : null, "duration") {
+				@Override
+				public void populateItem(Item item, String componentId, IModel model) {
+					double duration = (double) ((SitePresence) model.getObject()).getDuration();
+					duration = Util.round(duration / 1000 / 60, 1); // in minutes
+					StringBuilder b = new StringBuilder(String.valueOf(duration));
+					b.append(' ');
+					b.append(new ResourceModel("minutes_abbr").getObject());					
+					item.add(new Label(componentId, b.toString()));
+				}
+			});
+		}
 		return columns;
 	}
 	
@@ -518,6 +533,8 @@ public class ReportDataPage extends BasePage {
 			exportFileName.append((String) new ResourceModel("report_what_visits").getObject());
 		}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_EVENTS)) {
 			exportFileName.append((String) new ResourceModel("report_what_events").getObject());
+		}else if(report.getReportDefinition().getReportParams().getWhat().equals(ReportManager.WHAT_PRESENCES)) {
+			exportFileName.append((String) new ResourceModel("report_what_presences").getObject());
 		}else{
 			exportFileName.append((String) new ResourceModel("report_what_resources").getObject());
 		}

@@ -203,7 +203,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
 		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -213,7 +213,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
 		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -223,7 +223,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
 		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -233,7 +233,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(false, M_sm.isEnableSiteVisits());
 		assertEquals(false, M_sm.isVisitsInfoAvailable());
 		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -243,7 +243,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(false, M_sm.isEnableSiteVisits());
 		assertEquals(false, M_sm.isVisitsInfoAvailable());
 		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -254,7 +254,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setEnableSiteVisits(null);
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
 		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
@@ -263,7 +263,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 	public void testOtherConfig() {
 		// isEnableSiteActivity
 		((StatsManagerImpl)M_sm).setEnableSiteActivity(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteActivity());
 		((StatsManagerImpl)M_sm).setEnableSiteActivity(false);
 		assertEquals(false, M_sm.isEnableSiteActivity());
@@ -271,7 +271,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(true, M_sm.isEnableSiteActivity());
 		// isEnableResourceStats
 		((StatsManagerImpl)M_sm).setEnableResourceStats(null);
-		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableResourceStats());
 		((StatsManagerImpl)M_sm).setEnableResourceStats(false);
 		assertEquals(false, M_sm.isEnableResourceStats());

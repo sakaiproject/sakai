@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.tool.wicket.widget;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
+import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
@@ -63,7 +68,10 @@ public class VisitsWidget extends Panel {
 		widgetMiniStats.add(getMiniStatUniqueVisits());
 		widgetMiniStats.add(getMiniStatEnrolledUsers());
 		widgetMiniStats.add(getMiniStatEnrolledUsersWithVisits());
-		widgetMiniStats.add(getMiniStatEnrolledUsersWithoutVisits());		
+		widgetMiniStats.add(getMiniStatEnrolledUsersWithoutVisits());
+		if(Locator.getFacade().getStatsManager().isEnableSitePresences()) {
+			widgetMiniStats.add(getMiniStatAveragePresenceTime());
+		}
 		
 		// Tabs
 		List<AbstractTab> tabs = new ArrayList<AbstractTab>();
@@ -268,7 +276,7 @@ public class VisitsWidget extends Panel {
 			public String getSecondValue() {
 				int totalUsersInSite = getSiteUsers().size();
 				int totalEnrUsersWithVisits = Integer.parseInt(getValue());
-				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithVisits / (double) totalUsersInSite, 0);
+				double percentage = totalUsersInSite==0 ? 0 : Util.round(100 * totalEnrUsersWithVisits / (double) totalUsersInSite, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			@Override
@@ -332,7 +340,7 @@ public class VisitsWidget extends Panel {
 			public String getSecondValue() {
 				int totalUsersInSite = getSiteUsers().size();
 				int totalEnrUsersWithoutVisits = Integer.parseInt(getValue());
-				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithoutVisits / (double) totalUsersInSite, 0);
+				double percentage = totalUsersInSite==0 ? 0 : Util.round(100 * totalEnrUsersWithoutVisits / (double) totalUsersInSite, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			@Override
@@ -367,6 +375,126 @@ public class VisitsWidget extends Panel {
 				r.setReportParams(rp);
 				return r;
 			}
+		};
+	}
+	
+	/** MiniStat: Average presence time */
+	private WidgetMiniStat getMiniStatAveragePresenceTime() {
+		return new WidgetMiniStat() {
+			private static final long	serialVersionUID	= 1L;
+			@Override
+			public String getValue() {
+				long start = 0;
+				if(LOG.isDebugEnabled()) start = System.currentTimeMillis();
+				
+				// Total time in site
+				double durationInMs = getTotalTimeInSiteInMs();			
+				
+				// First presence date
+				Date firstPresenceDate = getFirstPresenceDate();
+				
+				// Total visits since first presence date
+				long totalVisits = Locator.getFacade().getStatsManager().getTotalSiteVisits(siteId, firstPresenceDate, null);
+				
+				// Average presence time (total presence time / total visits)
+				double durationInMin = durationInMs == 0 ? 0 : Util.round((durationInMs/totalVisits) / 1000 / 60, 1); // in minutes
+				
+				StringBuilder val = new StringBuilder();
+				val.append(String.valueOf(durationInMin));
+				val.append(' ');
+				val.append(new ResourceModel("minutes_abbr").getObject());	
+				
+				if(LOG.isDebugEnabled()) LOG.debug("getMiniStatAveragePresenceTime() in " + (System.currentTimeMillis() - start) + " ms");
+				return val.toString();
+			}
+			@Override
+			public String getSecondValue() {
+				return null;
+			}
+			@Override
+			public String getTooltip() {
+				return null;
+			}
+			@Override
+			public boolean isWiderText() {
+				return false;
+			}
+			@Override
+			public String getLabel() {
+				return (String) new ResourceModel("overview_title_presence_time_avg").getObject();
+			}
+			@Override
+			public ReportDef getReportDefinition() {
+				ReportDef r = new ReportDef();
+				r.setId(0);
+				r.setSiteId(siteId);
+				ReportParams rp = new ReportParams(siteId);
+				rp.setWhat(ReportManager.WHAT_PRESENCES);
+				rp.setWhen(ReportManager.WHEN_ALL);
+				rp.setWho(ReportManager.WHO_ALL);
+				// grouping
+				List<String> totalsBy = new ArrayList<String>();
+				totalsBy.add(StatsManager.T_DATE);
+				totalsBy.add(StatsManager.T_USER);
+				rp.setHowTotalsBy(totalsBy);
+				// sorting
+				rp.setHowSort(true);
+				rp.setHowSortBy(StatsManager.T_DATE);
+				rp.setHowSortAscending(false);
+				// chart
+				rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
+				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
+				rp.setHowChartSource(StatsManager.T_DATE);
+				rp.setHowChartSeriesSource(StatsManager.T_NONE);
+				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
+				r.setReportParams(rp);
+				return r;
+			}
+			
+			private double getTotalTimeInSiteInMs() {
+				ReportDef r = new ReportDef();
+				r.setId(0);
+				r.setSiteId(siteId);
+				ReportParams rp = new ReportParams(siteId);
+				rp.setWhat(ReportManager.WHAT_PRESENCES);
+				rp.setWhen(ReportManager.WHEN_ALL);
+				rp.setWho(ReportManager.WHO_ALL);
+				List<String> totalsBy = new ArrayList<String>();
+				totalsBy.add(StatsManager.T_SITE);
+				rp.setHowTotalsBy(totalsBy);
+				r.setReportParams(rp);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true);
+				double duration = 0;;
+				if(report.getReportData().size() > 0) {
+					duration = (double) ((SitePresence)(report.getReportData().get(0))).getDuration();
+				}
+				return duration;
+			}
+			
+			private Date getFirstPresenceDate() {
+				ReportDef r = new ReportDef();
+				r.setId(0);
+				r.setSiteId(siteId);
+				ReportParams rp = new ReportParams(siteId);
+				rp.setWhat(ReportManager.WHAT_PRESENCES);
+				rp.setWhen(ReportManager.WHEN_ALL);
+				rp.setWho(ReportManager.WHO_ALL);
+				List<String> totalsBy = new ArrayList<String>();
+				totalsBy.add(StatsManager.T_DATE);
+				rp.setHowTotalsBy(totalsBy);
+				rp.setHowSort(true);
+				rp.setHowSortAscending(true);
+				rp.setHowSortBy(StatsManager.T_DATE);
+				r.setReportParams(rp);
+				PagingPosition paging = new PagingPosition(0, 0);
+				Report report = Locator.getFacade().getReportManager().getReport(r, true, paging, false);
+				Date firstDate = new Date();
+				if(report.getReportData().size() > 0) {
+					firstDate = ((SitePresence)(report.getReportData().get(0))).getDate();
+				}
+				return firstDate;
+			}
+			
 		};
 	}
 	
@@ -559,15 +687,5 @@ public class VisitsWidget extends Panel {
 			}
 		}
 		return usersWithVisits;
-	}
-	
-	private static double round(double val, int places) {
-		long factor = (long) Math.pow(10, places);
-		// Shift the decimal the correct number of places to the right.
-		val = val * factor;
-		// Round to the nearest integer.
-		long tmp = Math.round(val);
-		// Shift the decimal the correct number of places back to the left.
-		return (double) tmp / factor;
 	}
 }

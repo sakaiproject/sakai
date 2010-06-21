@@ -40,10 +40,16 @@ function checkHowTotalsBySelection() {
 	    		// disable Tool, Resource and Resource Action selection
 	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
 	    	}
-	    }else // 'what-events' 
+	    }else if(what == 'what-events') {
 	    	if(i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
-    		// disable Resource and Resource Action selection
-	        jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    		// disable Resource and Resource Action selection
+	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    	}
+	    }else if(what == 'what-presences') {
+	    	if(i == TOTALSBY_IX_TOOL || i == TOTALSBY_IX_EVENT || i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
+	    		// disable Resource and Resource Action selection
+	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    	}
 	    }
 	});
 }
@@ -204,6 +210,8 @@ function checkHowChartSelection() {
 				}
 			});
 	    }
+	    // just in case, remove possible invalid option (reportParams.howChartCategorySource.null)
+	    jQuery('#howChartCategorySource option[value=""]').remove();
 		setMainFrameHeightNoScroll(window.name);
 	}
 }

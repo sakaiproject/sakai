@@ -78,6 +78,7 @@ public interface StatsManager {
 	public static final int				Q_TYPE_RESOURCE				= 1;
 	public static final int				Q_TYPE_VISITSTOTALS			= 2;
 	public static final int				Q_TYPE_ACTIVITYTOTALS		= 3;
+	public static final int				Q_TYPE_PRESENCE				= 4;
 	public static final String			T_NONE						= "none";
 	public static final String			T_SITE						= "site";
 	public static final String			T_USER						= "user";
@@ -92,10 +93,12 @@ public interface StatsManager {
 	public static final String			T_TOTAL						= "total";
 	public static final String			T_VISITS					= "visits";
 	public static final String			T_UNIQUEVISITS				= "unique-visits";
+	public static final String			T_DURATION					= "duration";
 	public static final List<String>	TOTALSBY_EVENT_DEFAULT		= Arrays.asList(T_USER, T_EVENT, T_DATE);
 	public static final List<String>	TOTALSBY_RESOURCE_DEFAULT	= Arrays.asList(T_USER, T_RESOURCE, T_RESOURCE_ACTION, T_DATE);
 	public static final List<String>	TOTALSBY_VISITSTOTALS_DEFAULT	= Arrays.asList(T_DATE);
 	public static final List<String>	TOTALSBY_ACTIVITYTOTALS_DEFAULT	= Arrays.asList(T_DATE);
+	public static final List<String>	TOTALSBY_PRESENCE_DEFAULT	= Arrays.asList(T_DATE);
 	
 	// ################################################################
 	// Spring bean methods
@@ -270,6 +273,53 @@ public interface StatsManager {
 	public int getEventStatsRowCount(
 			final String siteId,
 			final List<String> events, 
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final List<String> totalsBy);
+	
+	/**
+	 * Get presence statistics (totals by user/event/date).
+	 * @param siteId The site ID (can be null)
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService}) (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param userIds The list of user Ids (can be null)
+	 * @param inverseUserSelection match users not in userIds list
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_EVENT_DEFAULT}, {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortBy Column to sort by (can be null) (see {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortAscending Sort ascending?
+	 * @param maxResults Maximum number of results (specify 0 (zero) for no limitation)
+	 * @return a list of {@link EventStat} objects
+	 */
+	public List<Stat> getPresenceStats(
+			final String siteId, 
+			final Date iDate, final Date fDate,
+			final List<String> userIds,
+			final boolean inverseUserSelection,
+			final PagingPosition page, 
+			final List<String> totalsBy,
+			final String sortBy,
+			final boolean sortAscending,
+			final int maxResults);
+	
+	/**
+	 * Get row count for presence statistics (totals by user/event/date).
+	 * @param siteId The site ID (can be null)
+	 * @param events List of events to get statistics for (see {@link #getPreferences(String, boolean)}, {@link EventRegistryService}) (can be null)
+	 * @param iDate The initial date (can be null)
+	 * @param fDate The final date (can be null)
+	 * @param userIds The list of user Ids (can be null)
+	 * @param inverseUserSelection match users not in userIds list
+	 * @param page The PagePosition subset of items to return (can be null)
+	 * @param totalsBy Columns to sort by (see {@link #TOTALSBY_EVENT_DEFAULT}, {@link #T_USER}, {@link #T_EVENT}, {@link #T_DATE}, {@link #T_LASTDATE})
+	 * @param sortBy Columns to sort by (can be null)
+	 * @param sortAscending Sort ascending?
+	 * @return Row count.
+	 */
+	public int getPresenceStatsRowCount(
+			final String siteId, 
 			final Date iDate, final Date fDate,
 			final List<String> userIds,
 			final boolean inverseUserSelection,
