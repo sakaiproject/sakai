@@ -326,11 +326,7 @@ public class ActivityWidget extends Panel {
 					}else if(("?").equals(mostActiveUser)) {
 						name = (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
-						try{
-							name = Locator.getFacade().getUserDirectoryService().getUser(mostActiveUser).getDisplayName();
-						}catch(UserNotDefinedException e1){
-							name = (String) new ResourceModel("user_unknown").getObject();
-						}
+						name = Locator.getFacade().getStatsManager().getUserNameForDisplay(mostActiveUser);
 					}
 					return name;
 				}else{

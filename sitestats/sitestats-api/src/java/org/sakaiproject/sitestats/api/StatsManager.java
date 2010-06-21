@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
+import org.sakaiproject.user.api.User;
 
 
 public interface StatsManager {
@@ -141,6 +142,9 @@ public interface StatsManager {
 	
 	/** Are exporting reports enabled? */
 	public boolean isEnableReportExport();
+	
+	/** Is user name sorted using User.getSortName()? Otherwise, User.getDisplayName() should be used. */
+	public boolean isSortUsersByDisplayName();
 	
 	// ################################################################
 	// Preferences
@@ -485,6 +489,20 @@ public interface StatsManager {
 	 * @return Users id list
 	 */
 	public Set<String> getSiteUsers(String siteId);
+	
+	/**
+	 * Get user display name (will return User.getSortName() unless "sortUsersByDisplayName@org.sakaiproject.sitestats.api.StatsManager = true" specified in sakai.properties).
+	 * @param userId User ID
+	 * @return The user display name
+	 */
+	public String getUserNameForDisplay(String userId);
+	
+	/**
+	 * Get user display name (will return User.getSortName() unless "sortUsersByDisplayName@org.sakaiproject.sitestats.api.StatsManager = true" specified in sakai.properties).
+	 * @param userId An User object.
+	 * @return The user display name
+	 */
+	public String getUserNameForDisplay(User user);
 	
 	/**
 	 * Get users with at least one visit in site.

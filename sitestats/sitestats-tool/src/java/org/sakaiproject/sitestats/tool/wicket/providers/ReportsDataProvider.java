@@ -162,18 +162,8 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 						return res;
 					else return -res;
 				}else if(fieldName.equals(COL_USERNAME)){
-					String s1;
-					try{
-						s1 = M_uds.getUser(r1.getUserId()).getDisplayName().toLowerCase();
-					}catch(UserNotDefinedException e){
-						s1 = "-";
-					}
-					String s2;
-					try{
-						s2 = M_uds.getUser(r2.getUserId()).getDisplayName().toLowerCase();
-					}catch(UserNotDefinedException e){
-						s2 = "-";
-					}
+					String s1 = Locator.getFacade().getStatsManager().getUserNameForDisplay(r1.getUserId()).toLowerCase();
+					String s2 = Locator.getFacade().getStatsManager().getUserNameForDisplay(r2.getUserId()).toLowerCase();
 					int res = collator.compare(s1, s2);
 					if(sortAscending)
 						return res;

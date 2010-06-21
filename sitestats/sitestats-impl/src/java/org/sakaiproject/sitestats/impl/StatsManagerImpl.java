@@ -115,6 +115,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						lastJobRunDateVisible					= true;
 	private boolean						isEventContextSupported					= false;
 	private boolean						enableReportExport						= true;
+	private boolean						sortUsersByDisplayName					= false;
 
 	/** Controller fields */
 	private boolean						showAnonymousAccessEvents				= true;
@@ -249,6 +250,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	public boolean isLastJobRunDateVisible(){
 		return lastJobRunDateVisible;
+	}
+	
+	public void setSortUsersByDisplayName(boolean sortUsersByDisplayName) {
+		this.sortUsersByDisplayName = sortUsersByDisplayName;
+	}
+	public boolean isSortUsersByDisplayName() {
+		return sortUsersByDisplayName;
 	}
 
 	public void setEventRegistryService(EventRegistryService eventRegistryService) {
@@ -510,6 +518,25 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			LOG.warn("Inexistent site for site id: "+siteId);
 		}
 		return null;
+	}
+	
+	public String getUserNameForDisplay(String userId) {
+		String name = null;
+		try{
+			User user = M_uds.getUser(userId);
+			name = getUserNameForDisplay(user);
+		}catch(UserNotDefinedException e){
+			name = msgs.getString("user_unknown");
+		}
+		return name;
+	}
+	
+	public String getUserNameForDisplay(User user) {
+		if(isSortUsersByDisplayName()) {
+			return user.getDisplayName();
+		}else{
+			return user.getSortName();
+		}
 	}
 	
 	public Set<String> getUsersWithVisits(final String siteId) {

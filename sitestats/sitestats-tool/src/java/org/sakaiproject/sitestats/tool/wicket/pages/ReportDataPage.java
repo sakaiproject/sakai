@@ -351,11 +351,7 @@ public class ReportDataPage extends BasePage {
 						}else if(("?").equals(userId)) {
 							name = (String) new ResourceModel("user_anonymous_access").getObject();
 						}else{
-							try{
-								name = Locator.getFacade().getUserDirectoryService().getUser(userId).getDisplayName();
-							}catch(UserNotDefinedException e1){
-								name = (String) new ResourceModel("user_unknown").getObject();
-							}
+							name= Locator.getFacade().getStatsManager().getUserNameForDisplay(userId);
 						}
 					}else{
 						name = (String) new ResourceModel("user_unknown").getObject();

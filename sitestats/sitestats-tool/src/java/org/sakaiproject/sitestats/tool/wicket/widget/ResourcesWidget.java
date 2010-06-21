@@ -415,11 +415,7 @@ public class ResourcesWidget extends Panel {
 					}else if(("?").equals(user)) {
 						name = (String) new ResourceModel("user_anonymous_access").getObject();
 					}else{
-						try{
-							name = Locator.getFacade().getUserDirectoryService().getUser(user).getDisplayName();
-						}catch(UserNotDefinedException e1){
-							name = (String) new ResourceModel("user_unknown").getObject();
-						}
+						name = Locator.getFacade().getStatsManager().getUserNameForDisplay(user);
 					}
 					return name;
 				}else{

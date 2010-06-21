@@ -36,6 +36,8 @@ import org.sakaiproject.sitestats.api.SummaryActivityChartData;
 import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class FakeStatsManager implements StatsManager {
 
@@ -351,6 +353,22 @@ public class FakeStatsManager implements StatsManager {
 	public int getPresenceStatsRowCount(String siteId, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, List<String> totalsBy) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public String getUserNameForDisplay(String userId) {
+		return userId;
+	}
+	
+	public String getUserNameForDisplay(User user) {
+		if(isSortUsersByDisplayName()) {
+			return user.getDisplayName();
+		}else{
+			return user.getSortName();
+		}
+	}
+
+	public boolean isSortUsersByDisplayName() {
+		return false;
 	}
 
 }

@@ -314,7 +314,7 @@ public class ReportXMLReader extends AbstractObjectReader {
 	    				try{
 	    					User user = M_uds.getUser(id);
 	    					userId = user.getDisplayId();
-	    					userName = user.getDisplayName();
+	    					userName = M_sm.getUserNameForDisplay(user);
 	    				}catch(UserNotDefinedException e1){
 	    					userId = id;
 	    					userName = msgs.getString("user_unknown");

@@ -1248,11 +1248,7 @@ public class ChartServiceImpl implements ChartService {
 					}else if(("?").equals(userId)) {
 						name = msgs.getString("user_anonymous_access");
 					}else{
-						try{
-							name = M_uds.getUser(userId).getDisplayName();
-						}catch(UserNotDefinedException e1){
-							name = msgs.getString("user_unknown");
-						}
+						name = M_sm.getUserNameForDisplay(userId);
 					}
 				}else{
 					name = msgs.getString("user_unknown");

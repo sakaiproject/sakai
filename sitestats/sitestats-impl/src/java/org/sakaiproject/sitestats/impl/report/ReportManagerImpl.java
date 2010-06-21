@@ -732,7 +732,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	    				try{
 	    					User user = M_uds.getUser(userId);
 	    					userEid = user.getDisplayId();
-	    					userName = user.getDisplayName();
+	    					userName = M_sm.getUserNameForDisplay(user);
 	    				}catch(UserNotDefinedException e1){
 	    					userEid = userId;
 	    					userName = msgs.getString("user_unknown");
@@ -932,7 +932,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	    				try{
 	    					User user = M_uds.getUser(userId);
 	    					userEid = user.getDisplayId();
-	    					userName = user.getDisplayName();
+	    					userName = M_sm.getUserNameForDisplay(user);
 	    				}catch(UserNotDefinedException e1){
 	    					userEid = userId;
 	    					userName = msgs.getString("user_unknown");
@@ -1196,11 +1196,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}else if(("?").equals(userId)) {
 				userName = msgs.getString("user_anonymous_access");
 			}else{
-				try{
-					userName = M_uds.getUser(userId).getDisplayName();
-				}catch(UserNotDefinedException e1){
-					userName = msgs.getString("user_unknown");
-				}
+				userName = M_sm.getUserNameForDisplay(userId);
 			}
 		}else{
 			userName = msgs.getString("user_unknown");

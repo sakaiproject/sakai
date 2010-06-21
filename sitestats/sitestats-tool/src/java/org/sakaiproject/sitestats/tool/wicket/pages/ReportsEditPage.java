@@ -1036,7 +1036,7 @@ public class ReportsEditPage extends BasePage {
 							return Web.escapeHtml(userId);
 						}
 						StringBuilder buff = new StringBuilder();
-						buff.append(u.getDisplayName());
+						buff.append(Locator.getFacade().getStatsManager().getUserNameForDisplay(u));
 						buff.append(" (");
 						buff.append(u.getDisplayId());
 						buff.append(")");
