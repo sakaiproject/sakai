@@ -44,7 +44,9 @@
 							#if ($check_home)
 								checked="checked"
 							#end
-##							onchange="this.checked ? document.getElementById('row-home').className='selectedSelected':document.getElementById('row-home').className=''"
+							#if ($!defaultTools.indexOf($!homeToolId) != -1)
+								disabled="disabled"
+							#end
 						/>
 					</td>
 					<td>
