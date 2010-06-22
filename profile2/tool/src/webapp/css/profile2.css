@@ -1265,3 +1265,12 @@ div.wicket-aa ul li.selected {
 .closebutton:hover {
 	background-color: #ffcccc;
 }
+
+
+/* accessibility */
+.accessibility-label {
+    position: absolute; 
+    left: -999em; 
+    width: 1em; 
+    overflow: hidden; 
+}
