@@ -184,7 +184,7 @@
 			#end	
 			#if ($!feedback_comment.length()>0)
 				<h4>$tlang.getString("gen.sumcom")</h4>	
-				<div class="textPanel">$validator.escapeHtmlFormattedText($feedback_comment)</div>
+				<div class="textPanel">$validator.escapeHtml($feedback_comment)</div>
 			#else
 			#end
 				#set ($size = 0)

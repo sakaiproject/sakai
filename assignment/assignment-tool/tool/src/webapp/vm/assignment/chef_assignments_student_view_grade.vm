@@ -331,7 +331,7 @@
 				## show feedback comment and feedback comment when submission is released or returned
 				#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length()>0))
 					<h5>$tlang.getString("gen.addinst")</h5>	
-					<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+					<div class="textPanel">$validator.escapeHtml($submission.FeedbackComment)</div>
 				#end
 				#set ($size = 0)
 				#set ($props = false)
