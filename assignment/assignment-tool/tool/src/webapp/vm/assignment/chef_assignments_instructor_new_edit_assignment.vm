@@ -989,7 +989,7 @@ $(document).ready(function() {
 					<textarea name="note_text_holder" id="note_text_holder"  style="display:none"  cols="60" rows="2" wrap="virtual">$validator.escapeHtmlTextarea($!note_text)</textarea>
 				#else
 					#if ($!allowReadAssignmentNoteItem)
-					 <div class="notes">$!note_text</div>
+					 <div class="notes">$validator.escapeHtml($!note_text)</div>
 				 #end
 				#end
 				###chef_setupformattedtextareaparams("assigntext" "200" "365" "small")
