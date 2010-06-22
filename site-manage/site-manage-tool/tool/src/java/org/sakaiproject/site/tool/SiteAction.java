@@ -2232,6 +2232,8 @@ public class SiteAction extends PagedResourceActionII {
 			
 			// all info related to multiple tools
 			multipleToolIntoContext(context, state);
+		
+			context.put("homeToolId", TOOL_ID_HOME);
 
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:

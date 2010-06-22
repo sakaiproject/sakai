@@ -18,7 +18,7 @@
 		#if (($oldSelectedHome) && (!$check_home))
 			$tlang.getString("java.home")
 			#if ($!allowPageOrderHelper)
-				($validator.escapeHtml($!toolRegistrationTitleList.get("home")))
+				($validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
 			#end
 			<br />
 			<script type="text/javascript">
@@ -72,7 +72,7 @@
 			#end
 			$tlang.getString("java.home")
 			#if ($!allowPageOrderHelper)
-				($validator.escapeHtml($!toolRegistrationTitleList.get("home")))
+				($validator.escapeHtml($!toolRegistrationTitleList.get($homeToolId)))
 			#end
 			#if (!$oldSelectedHome)
 				</span>
@@ -124,7 +124,7 @@
 			#else
 				$!newToolTitle
 				## exclude Home tool 
-				#if (!$!newTool.equals("home") && $!allowPageOrderHelper)
+				#if (!$!newTool.equals($homeToolId) && $!allowPageOrderHelper)
 					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
 				#end
 			#end
