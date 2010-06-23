@@ -385,7 +385,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.personalSummary"));
 			sb.append("</span>");
-			sb.append(userProfile.getPersonalSummary());
+			
+			//PRFL-389 abbreviate long personal summary
+			int maxLength = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.formatted.profile.summary.max", ProfileConstants.FORMATTED_PROFILE_SUMMARY_MAX_LENGTH));
+			sb.append(StringUtils.abbreviate(userProfile.getPersonalSummary(), maxLength));
+			
 			sb.append("</div>");
 		}
 		

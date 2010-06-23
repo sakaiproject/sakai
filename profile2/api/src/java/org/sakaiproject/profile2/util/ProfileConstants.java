@@ -116,6 +116,7 @@ public class ProfileConstants {
 	//the property that an external provider may set into the user properties for the jpegPhoto field.
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 	
+	
 	/*
 	 * PREFERENCES
 	 */
@@ -139,7 +140,6 @@ public class ProfileConstants {
 
 	public static final String PROP_EMAIL_REQUEST_ENABLED="emailRequestEnabled";
 	public static final String PROP_EMAIL_CONFIRM_ENABLED="emailConfirmEnabled";
-	
 	
 	
 	/*
@@ -203,6 +203,7 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED = false; //profile2.profile.business.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED = false; //profile2.official.image.enabled
 	
+	
 	/*
 	 * MESSAGING
 	 */
@@ -247,6 +248,7 @@ public class ProfileConstants {
 	//email constants
 	public static final String EMAIL_NEWLINE = "<br />\n";
 	
+	
 	/*
 	 * EVENTS
 	 */
@@ -289,6 +291,7 @@ public class ProfileConstants {
 
 	public static final String EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE = "profile.socialnetworking.update";
 	
+	
 	/*
 	 * ENTITY
 	 */
@@ -305,10 +308,14 @@ public class ProfileConstants {
 	//entity css
 	public static final String ENTITY_CSS_PROFILE = "/profile2-tool/css/profile2-profile-entity.css";
 	
+	//max length of the personal summary in the formatted profile
+	public static final String FORMATTED_PROFILE_SUMMARY_MAX_LENGTH = "1000"; //profile2.formatted.profile.summary.max
+	
 	
 	/*
 	 * EMAIL TEMPLATING
 	 */
+	
 	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_NEW = "profile2.messageNew";
 	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_REPLY = "profile2.messageReply";
 	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST = "profile2.connectionRequest";
@@ -318,6 +325,7 @@ public class ProfileConstants {
 	/*
 	 * DIRECT LINKS
 	 */
+	
 	public static final String ENTITY_BROKER_PREFIX = "/direct";
 	public static final String LINK_ENTITY_PREFIX = "/my";
 	public static final String LINK_ENTITY_PROFILE = "/profile";
@@ -336,6 +344,7 @@ public class ProfileConstants {
 	/*
 	 * ONLINE STATUS
 	 */
+	
 	public static final int ONLINE_STATUS_OFFLINE = 0;
 	public static final int ONLINE_STATUS_ONLINE = 1;
 	public static final int ONLINE_STATUS_AWAY = 2;
