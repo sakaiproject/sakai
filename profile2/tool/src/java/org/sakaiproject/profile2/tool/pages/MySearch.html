@@ -45,7 +45,7 @@
 						<tr>
 							<td class="label" wicket:id="sbnNameLabel">[sbnNameLabel]</td>
 							<td class="content">
-								<input type="text" wicket:id="searchName" class="formInputField" />
+								<input type="text" wicket:id="searchName" class="formInputField" wicket:message="title:text.search.byname.tooltip" />
 							</td>
 							<td class="toolTip"><span wicket:id="sbnNameToolTip">[searchToolTip]</span></td>
 						</tr>
@@ -72,7 +72,7 @@
 						<tr>
 							<td class="label" wicket:id="sbiInterestLabel">[sbiInterestLabel]</td>
 							<td class="content">
-								<input type="text" wicket:id="searchInterest" class="formInputField" />
+								<input type="text" wicket:id="searchInterest" class="formInputField" wicket:message="title:text.search.byinterest.tooltip" />
 							</td>
 							<td class="toolTip"><span wicket:id="sbiInterestToolTip">[searchToolTip]</span></td>
 						</tr>
@@ -91,7 +91,7 @@
 			
 			
 			<!--  results -->
-			<div wicket:id="numSearchResults" class="search-results-header">No results or 1-5 of 20 results</div>
+			<div wicket:id="numSearchResults" class="search-results-header" tabindex="0">No results or 1-5 of 20 results</div>
 			
 			<div class="search-results-wrap" wicket:id="searchResultsContainer">
 				<div class="search-result" wicket:id="searchResults" >
@@ -100,13 +100,13 @@
 					</a>
 			    	
 			    	<div class="search-result-info-wrap">
-			    		<a href="#" wicket:id="searchResultProfileLink"><span wicket:id="searchResultName" class="search-result-info-name">[name]</span></a>
+			    		<a href="#" wicket:id="searchResultProfileLink"><span wicket:id="searchResultName" class="search-result-info-name" tabindex="0">[name]</span></a>
 			    		<span wicket:id="searchResultStatus">status</span>
 			    	</div>
 			    	<div class="search-result-actions-wrap">
 			    		<ul class="search-result-actions">
-			    			<li wicket:id="connectionContainer"><a wicket:id="connectionLink" class="icon connection-add"><span wicket:id="connectionLabel">add as a friend</span></a></li>
-			    			<li wicket:id="viewFriendsContainer"><a wicket:id="viewFriendsLink" class="icon connections"><span wicket:id="viewFriendsLabel">view friends</span></a></li>
+			    			<li wicket:id="connectionContainer"><a wicket:id="connectionLink" class="icon connection-add"><span wicket:id="connectionLabel" tabindex="0">add as a friend</span></a></li>
+			    			<li wicket:id="viewFriendsContainer"><a wicket:id="viewFriendsLink" class="icon connections"><span wicket:id="viewFriendsLabel" tabindex="0">view friends</span></a></li>
 			    		</ul>
 			    	</div>
 			    	
