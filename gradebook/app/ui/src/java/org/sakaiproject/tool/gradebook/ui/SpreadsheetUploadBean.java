@@ -112,7 +112,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     // Holds list of unknown user ids
     private List unknownUsers = new ArrayList();
     private List unknownAssignments = new ArrayList();
-    
+
     private static final String POINTS_POSSIBLE_STRING = "export_points_possible";
     private static final String CUMULATIVE_GRADE_STRING = "roster_course_grade_column_name";
     private static final String IMPORT_SUCCESS_STRING = "import_entire_success";
@@ -124,18 +124,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     static final String PICKED_FILE_REFERENCE = "pickedFileReference";
     static final String PICKED_FILE_DESC = "pickedFileDesc";
     static final String IMPORT_TITLE = "gradebookImportTitle";
-    
+
     /**
      * Property set via sakai.properties to limit the file size allowed for spreadsheet
      * uploads. This property is in MB and defaults to 1 MB.
      */
     public static final String PROPERTY_FILE_SIZE_MAX = "gradebook.upload.max";
-    
+
     /**
      * The default max file size, in MB, for a spreadsheet upload.
      */
     public static final int FILE_SIZE_DEFAULT = 1;
-    
+
     /**
      * If an upload contains more than the number of students in the class plus
      * this value, the upload will fail.
@@ -143,17 +143,17 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private static final int MAX_NUM_ROWS_OVER_CLASS_SIZE = 50;
 
     private String pageName;
-    
+
     public SpreadsheetUploadBean() {
-    
+
     }
-    
+
     public void init() {
-    	
+
     	localGradebook = getGradebook();
 
         initializeRosterMap();
-        
+
         selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
         categoriesSelectList = new ArrayList();
 
@@ -170,7 +170,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		}
 
     }
-    
+
     private void initializeRosterMap() {
       //initialize rosteMap which is map of displayid and user objects
         rosterMap = new HashMap();
@@ -410,23 +410,23 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		this.setPageName("spreadsheetAll");
 		return unknownUsers.size();
 	}
-	
+
 	public List getCategoriesSelectList() {
     	return categoriesSelectList;
     }
-    
+
     public String getSelectedCategory() {
     	return selectedCategory;
     }
-    
+
     public void setSelectedCategory(String selectedCategory) {
     	this.selectedCategory = selectedCategory;
     }
-    
+
     public Gradebook getLocalGradebook() {
     	return localGradebook;
     }
-    
+
     /**
 	 * For retaining the pageName variable throughout import process
 	 */
@@ -437,14 +437,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public void setPageName(String pageName) {
         this.pageName = pageName;
     }
-    
+
     public String getExternallyMaintainedImportMsg() {
     	if (externallyMaintainedImportMsg == null || externallyMaintainedImportMsg.length() < 1)
     		return null;
-    	
+
     	return externallyMaintainedImportMsg.toString();
     }
-    
+
     /**
      * Returns the Category associated with selectedCategory
      * If unassigned or not found, returns null
@@ -453,7 +453,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Category retrieveSelectedCategory() {
     	Long catId = null;
     	Category category = null;
-    	
+
 		if (selectedCategory != null && !selectedCategory.equals(AssignmentBean.UNASSIGNED_CATEGORY)) {
 			try {
 				catId = new Long(selectedCategory);
@@ -461,16 +461,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			catch (Exception e) {
 				catId = null;
 			}
-			
+
 			if (catId != null)
 			{
 				// check to make sure there is a corresponding category
 				category = getGradebookManager().getCategory(catId);
 			}
 		}
-		
+
 		return category;
-    }    
+    }
 
 	//view file from db
     public String viewItem(){
@@ -553,16 +553,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     /**
      * Bulk import of grades from a freshly imported spreadsheet
-     * 
+     *
      * @return String for navigation
-     * 
+     *
      * @throws Exception
      */
     public String processFileEntire() throws Exception {
     	InputStream inputStream = null;
     	String fileName = null;
 	    List contents = null;
-	    
+
 	    int maxFileSizeInMB;
 	    try {
 	        maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_DEFAULT);
@@ -571,16 +571,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	        maxFileSizeInMB = FILE_SIZE_DEFAULT;
 	    }
         long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
-        
+
         boolean isXlsImport = false;
 
         if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
 	            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
 	        }
-	
+
 	        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
-	        
+
 	        if (upFile.getName().endsWith("csv")) {
 	            isXlsImport = false;
 	        } else if (upFile.getName().endsWith("xls")) {
@@ -589,28 +589,28 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
 	            return null;
 	        }
-	        
+
 	        if (upFile.getSize() > maxFileSizeInBytes) {
 	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxFileSizeInMB + ""}));
                 return null;
 	        }
-	        
+
 	        fileName = upFile.getName();
 	        inputStream = new BufferedInputStream(upFile.getInputStream());
         }
         else {
         	savePickedUploadFile();
-        	
+
         	if (pickedFileReference != null) {
 		        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
-		        
+
 		        if (pickedFileDesc == null) {
 		            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error", new String[] {pickedFileDesc}));
 		            return null;
 		        }
-		        
+
 		        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
-	            
+
 	            if (pickedFileDesc.endsWith("csv")) {
 	                isXlsImport = false;
 	            } else if (pickedFileDesc.endsWith("xls")) {
@@ -619,9 +619,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	                FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {pickedFileDesc}));
 	                return null;
 	            }
-		        
+
 		        fileName = pickedFileDesc;
-		        
+
 		        ContentResource resource = getPickedContentResource();
 		        if (resource != null) {
 		            // double check the file size does not exceed our limit
@@ -631,7 +631,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		            }
 		        }
 		        inputStream = getPickedFileStream(resource);
-		        
+
 		        clearPickedFile();
         	}
             else {
@@ -646,7 +646,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
 		}
-			
+
 		try {
 		    if (isXlsImport) {
 		        contents = excelToArray(inputStream);
@@ -657,24 +657,24 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		catch(IOException ioe) {
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
-		} 
+		}
 		finally {
 		    if (inputStream != null) {
 		        inputStream.close();
 		    }
 		}
-		
+
 		// double check that the number of rows in this spreadsheet is reasonable
         int numStudentsInSite = getNumStudentsInSite();
         if (contents.size() > (numStudentsInSite + MAX_NUM_ROWS_OVER_CLASS_SIZE)) {
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filerows_error", new String[] {contents.size() + "", numStudentsInSite + ""}));
             return null;
         }
-        
+
         // reset error lists
         unknownUsers = new ArrayList();
         unknownAssignments = new ArrayList();
-        
+
         spreadsheet = new Spreadsheet();
         spreadsheet.setDate(new Date());
         spreadsheet.setTitle(this.getTitle());
@@ -695,7 +695,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filecontent_error"));
             return null;
         }
-        
+
         // check for blank header titles - don't want assignments added w/ blank titles
         Iterator headerIter = assignmentHeaders.iterator();
         // skip the name col
@@ -719,12 +719,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 SpreadsheetRow  row = new SpreadsheetRow(line);
 
                 List rowData = row.getRowcontent();
-                
+
                 // if Cumulative column was in spreadsheet, need to filter it out
                 // here
                 if (header.isHasCumulative()) rowData.remove(rowData.size()-1);
 
-                // if the number of cols in the student row is less than the # headers, 
+                // if the number of cols in the student row is less than the # headers,
                 // we need to append blank placeholders
                 if (rowData.size() < headerCount) {
                 	while (rowData.size() < (headerCount)) {
@@ -743,7 +743,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
         rowCount = String.valueOf(rowcount - 1); // subtract header
         if(unknownusers > 0){
-            this.hasUnknownUser = true;            
+            this.hasUnknownUser = true;
             return null;
         }
 
@@ -754,7 +754,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             assignmentList.add(new Integer(i));
             if(logger.isDebugEnabled()) logger.debug("col added" + i);
         }
-        columnCount = String.valueOf(assignmentHeaders.size()); 
+        columnCount = String.valueOf(assignmentHeaders.size());
 
         for(int i = 0;i<assignmentHeaders.size();i++){
             SelectItem item = new  SelectItem(new Integer(i + 1),(String)assignmentHeaders.get(i));
@@ -772,12 +772,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
    		return "spreadsheetVerify";
     }
-        
+
     public String processFile() throws Exception {
     	InputStream inputStream = null;
     	String fileName = null;
 	    List contents = null;
-	    
+
 	    int maxFileSizeInMB;
         try {
             maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_DEFAULT);
@@ -792,9 +792,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	        if (upFile != null && logger.isDebugEnabled()) {
 	            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
 	        }
-	
+
 	        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
-	        
+
 	        if (upFile.getName().endsWith("csv")) {
 	            isXlsImport = false;
 	        } else if (upFile.getName().endsWith("xls")) {
@@ -803,26 +803,26 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
 	            return null;
 	        }
-	        
+
 	        if (upFile.getSize() > maxFileSizeInBytes) {
                 FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxFileSizeInMB + ""}));
                 return null;
             }
-	        
+
 	        fileName = upFile.getName();
 	        inputStream = new BufferedInputStream(upFile.getInputStream());
         }
         else {
         	savePickedUploadFile();
-        	
+
         	if (pickedFileReference != null) {
 		        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
-		        
+
 		        if (pickedFileDesc == null) {
 		            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error", new String[] {pickedFileDesc}));
 		            return null;
 		        }
-		        
+
 		        if(logger.isDebugEnabled()) logger.debug("check that the file type is allowed");
 
 		        if (pickedFileDesc.endsWith("csv")) {
@@ -833,9 +833,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {pickedFileDesc}));
 		            return null;
 		        }
-		        
+
 		        fileName = pickedFileDesc;
-		        
+
 		        ContentResource resource = getPickedContentResource();
                 if (resource != null) {
                     // double check the file size does not exceed our limit
@@ -845,7 +845,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                     }
                 }
                 inputStream = getPickedFileStream(resource);
-		        
+
 		        clearPickedFile();
         	}
             else {
@@ -860,7 +860,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
 		}
-			
+
 		try {
 		    if (isXlsImport) {
                 contents = excelToArray(inputStream);
@@ -871,13 +871,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		catch(IOException ioe) {
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
-		} 
+		}
 		finally {
             if (inputStream != null) {
                 inputStream.close();
             }
         }
-		
+
 	    // double check that the number of rows in this spreadsheet is reasonable
 		int numStudentsInSite = getNumStudentsInSite();
         if (contents.size() > (numStudentsInSite + MAX_NUM_ROWS_OVER_CLASS_SIZE)) {
@@ -887,7 +887,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 		spreadsheet = new Spreadsheet();
         spreadsheet.setDate(new Date());
-        // SAK-14173 - get title from session if available 
+        // SAK-14173 - get title from session if available
         // and then clear the value from the session
         spreadsheet.setTitle(this.getTitle());
         clearImportTitle();
@@ -952,7 +952,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filecontent_error"));
             return null;
         }
-		
+
         return "spreadsheetUploadPreview";
     }
 
@@ -978,7 +978,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             if (line.replaceAll(",", "").replaceAll("\"", "").equals("")) {
                 continue;
             }
-            
+
             contents.add(line);
         }
         return contents;
@@ -1020,7 +1020,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
 
     /**
-     * If user has selected column to import, grab the values and 
+     * If user has selected column to import, grab the values and
      */
     public String importData(){
 
@@ -1057,7 +1057,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                  if(logger.isDebugEnabled())logger.debug("user "+ user + "is not known to the system");
                  userid = "";
              }
-             
+
              String points;
              try{
             	 int index = Integer.parseInt(selectedColumn);
@@ -1103,31 +1103,31 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	boolean gbUpdated = false;
     	hasUnknownAssignments = false;
     	externallyMaintainedImportMsg = new StringBuilder();
-    	
+
     	LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
     	if (getGradeEntryByLetter()) {
     		lgpm = getGradebookManager().getLetterGradePercentMapping(localGradebook);
     	}
-    	
+
         if(logger.isDebugEnabled())logger.debug("importDataAll()");
 
         // first, verify imported data is valid
         if (!verifyImportedData(lgpm))
         	return "spreadsheetVerify";
-        
+
         List grAssignments = getGradebookManager().getAssignments(getGradebook().getId());
         Iterator assignIter = assignmentHeaders.iterator();
-        
+
         // since the first two columns are user ids and name, skip over
         int index = 1;
         if (assignIter.hasNext()) assignIter.next();
-        
+
         while (assignIter.hasNext()) {
         	String assignmentName = (String) assignIter.next();
         	String pointsPossibleAsString = null;
-        	
+
         	String [] parsedAssignmentName = assignmentName.split(" \\[");
-        	
+
         	assignmentName = parsedAssignmentName[0].trim();
         	Double pointsPossible = null;
         	if (parsedAssignmentName.length > 1) {
@@ -1144,22 +1144,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	        }
         	    }
         	}
-        	
+
         	// probably last column but not sure, so continue
         	if (getLocalizedString(CUMULATIVE_GRADE_STRING).equals(assignmentName)) {
         		continue;
-        	}        	
-        	
+        	}
+
         	index++;
-        	
+
         	// Get Assignment object from assignment name
         	Assignment assignment = getAssignmentByName(grAssignments, assignmentName);
             List gradeRecords = new ArrayList();
-      		
+
         	// if assignment == null, need to create a new one plus all the grade records
         	// if exists, need find those that are changed and only apply those
         	if (assignment == null) {
-        		
+
         		if (pointsPossible != null) {
         			// params: gradebook id, name of assignment, points possible, due date, NOT counted, is released
         			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE);
@@ -1175,7 +1175,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		}
 
         		Iterator it = studentRows.iterator();
-           		
+
            		if(logger.isDebugEnabled())logger.debug("number of student rows "+studentRows.size() );
            		int i = 1;
 
@@ -1194,14 +1194,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
            				userid = "";
            				// checked when imported from user's system so should not happen at this point.
            			}
-           			
+
            			if(line.size() > index) {
                			String inputScore = (String)line.get(index);
-               			
+
                			if (inputScore != null && inputScore.trim().length() > 0) {
            					Double scoreAsDouble = null;
            					String scoreAsString = inputScore.trim();
-    
+
                             AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, null);
 
                             // truncate input points/% to 2 decimal places
@@ -1226,10 +1226,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                             }
            				}
            			}
-           			
+
            			i++;
            		}
-           		
+
            		gbUpdated = true;
          	}
         	else {
@@ -1254,7 +1254,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	}
 
 			getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords, getGradebook().getGrade_type());
-			getGradebookBean().getEventTrackingService().postEvent("gradebook.importEntire","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());        	
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.importEntire","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());
        }
 
         // just in case previous attempt had unknown users
@@ -1266,18 +1266,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             else {
                	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_SOME_SUCCESS_STRING));
             }
-        } 
+        }
         else if (! hasUnknownAssignments) {
         	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_NO_CHANGES));
         }
-       	
+
         this.setPageName("spreadsheetAll");
         return "spreadsheetAll";
     }
-    
+
     /**
      * Returns TRUE if specific value imported from spreadsheet is valid
-     * 
+     *
      * @return false if the spreadsheet contains a invalid points possible, an invalid
      * score value, more than one column for the same gb item, more than one row for the same student
      */
@@ -1296,7 +1296,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	if (assignmentHeaders != null && !assignmentHeaders.isEmpty()) {
     		// add one b/c assignmentHeaders does not include the username col but studentRows does
     		indexOfCumColumn = assignmentHeaders.indexOf(getLocalizedString(CUMULATIVE_GRADE_STRING)) + 1;
-    		
+
     		// we need to double check that there aren't any duplicate assignments
     		// in the spreadsheet. the first column is the student name, so skip
     		List<String> assignmentNames = new ArrayList<String>();
@@ -1305,7 +1305,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		        if (i==indexOfCumColumn) {
     		            continue;
     		        }
-    		        
+
     		        String header = (String)assignmentHeaders.get(i);
     		        String [] parsedAssignmentName = header.split(" \\[");
     	            String assignmentName = parsedAssignmentName[0].trim();
@@ -1313,18 +1313,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	                FacesUtil.addErrorMessage(getLocalizedString("import_assignment_duplicate_titles", new String[] {assignmentName}));
     	                return false;
     	            }
-    	            
+
     	            assignmentNames.add(assignmentName);
     		    }
     		}
     	}
-    	
+
     	List<String> uploadedStudents = new ArrayList<String>();
 
     	for (int row=0; row < studentRows.size(); row++) {
     		SpreadsheetRow scoreRow = (SpreadsheetRow) studentRows.get(row);
     		List studentScores = scoreRow.getRowcontent();
-    		
+
     		// verify that a student doesn't appear more than once in the ss
     		String username = (String)studentScores.get(0);
     		if (username != null) {
@@ -1332,7 +1332,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		        FacesUtil.addErrorMessage(getLocalizedString("import_assignment_duplicate_student", new String[] {username}));
                     return false;
     		    }
-    		    
+
     		    uploadedStudents.add(username);
     		}
 
@@ -1371,7 +1371,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     						if (standardizedLetterGrade == null) {
     							FacesUtil.addErrorMessage(getLocalizedString("import_entire_invalid_letter"));
     							return false;
-    						} 
+    						}
     					}
     				}
     			}
@@ -1384,14 +1384,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     /**
      * Returns a list of AssignmentGradeRecords that are different than in current
      * Gradebook. Returns empty List if no differences found.
-     *  
+     *
      * @param assignment
      * 			The Assignment object whose grades need to be checked
      * @param fromSpreadsheet
      * 			The rows of grades from the imported spreadsheet
      * @param index
-     * 			The column of spreadsheet to check 
-     * 
+     * 			The column of spreadsheet to check
+     *
      * @return
      * 			List containing AssignmentGradeRecords for those student's grades that
      * 			have changed
@@ -1400,7 +1400,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	List updatedGradeRecords = new ArrayList();
      	List studentUids = new ArrayList();
     	List studentRowsWithUids = new ArrayList();
-    	
+
    		Iterator it = fromSpreadsheet.iterator();
 
    		while(it.hasNext()) {
@@ -1411,7 +1411,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
    			final String user = ((String)line.get(0)).toLowerCase();
    			try {
    				userid = ((User)rosterMap.get(user)).getUserUid();
-   		
+
    				// create list of uids to get current grades from gradebook
    				studentUids.add(userid);
 
@@ -1420,32 +1420,32 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
    				linePlus.add(userid);
    				linePlus.addAll(line);
    				studentRowsWithUids.add(linePlus);
-   				
+
    			}
    			catch(Exception e) {
    				// Weirdness. Should be caught when importing, not here
-   			}   			
+   			}
   		}
 
   		List gbGrades = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
 
 		// now do the actual comparison
 		it = studentRowsWithUids.iterator();
-		
+
 		boolean updatingExternalGrade = false;
 		while(it.hasNext()) {
 			final List aRow = (List) it.next();
 
 			final String userid = (String) aRow.get(0);
 			final String user = (String) aRow.get(1);
-			
+
 			AssignmentGradeRecord gr = findGradeRecord(gbGrades, userid);
-			
+
 			String score = null;
 			if (index < aRow.size()) {
 				score = ((String) aRow.get(index)).trim();
 			}
-			
+
 			if (getGradeEntryByPercent() || getGradeEntryByPoints()) {
 				Double scoreEarned = null;
 				boolean updateScore = true;
@@ -1463,7 +1463,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					if (scoreEarned != null)
 						scoreEarned = new Double(FacesUtil.getRoundDown(scoreEarned.doubleValue(), 2));
 				}
-			
+
 				if (updateScore) {
 				    if (gr == null) {
 				        if (scoreEarned != null) {
@@ -1491,8 +1491,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 				        // 3 ways points earned different: 1 null other not (both ways) or actual
 				        // values different
-				        if ((gbScoreEarned == null && scoreEarned != null) || 
-				                (gbScoreEarned != null && scoreEarned == null) || 
+				        if ((gbScoreEarned == null && scoreEarned != null) ||
+				                (gbScoreEarned != null && scoreEarned == null) ||
 				                (gbScoreEarned != null && scoreEarned != null && gbScoreEarned.doubleValue() != scoreEarned.doubleValue())) {
 
 				            gr.setPointsEarned(scoreEarned); //manager will use correct field depending on grade entry method
@@ -1501,7 +1501,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				                updatedGradeRecords.add(gr);
 				            else
 				                updatingExternalGrade = true;
-				        }			
+				        }
 				    }
 				}
 			} else if (getGradeEntryByLetter()) {
@@ -1515,7 +1515,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					if (score != null && score.length() > 0) {
 						if (!assignment.isExternallyMaintained()) {
 							gr = new AssignmentGradeRecord(assignment,userid,null);
-							gr.setLetterEarned(score);		                
+							gr.setLetterEarned(score);
 							updatedGradeRecords.add(gr);
 						} else {
 							updatingExternalGrade = true;
@@ -1527,75 +1527,75 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 					if ((gbLetterEarned != null && !gbLetterEarned.equals(score)) ||
 							(gbLetterEarned == null && score != null))  {
-					
+
 						gr.setLetterEarned(score);
 						if (!assignment.isExternallyMaintained())
 							updatedGradeRecords.add(gr);
 						else
 							updatingExternalGrade = true;
-					}			
+					}
 				}
 			}
 		}
-		
+
 		if (updatingExternalGrade)
 			externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_grades",
 					new String[] {Validator.escapeHtml(assignment.getName()), Validator.escapeHtml(assignment.getExternalAppName())}) + "<br/>");
-		
+
 		return updatedGradeRecords;
     }
 
     /**
      * Finds the AssignmentGradeRecord for userid passed in (if it exists).
-     * 
+     *
      * @param gbGrades
      * 			List of AssignmentGradeRecord objects.
      * @param userid
      * 			String of user id to find.
-     * 
+     *
      * @return
      * 			AssignmentGradeRecord if it's student id matches id passed in. NULL otherwise.
      */
     private AssignmentGradeRecord findGradeRecord(List gbGrades, String userid) {
     	Iterator it = gbGrades.iterator();
-    	
+
     	while (it.hasNext()) {
     		AssignmentGradeRecord agr = (AssignmentGradeRecord) it.next();
-    		
+
     		if (agr.getStudentId().equals(userid)) {
     			gbGrades.remove(agr); // for efficiency
     			return agr;
     		}
     	}
-    	
+
     	return null;
     }
-    
+
     /**
      * Used to find assignment in gradebook by its name
-     * 
+     *
      * @param list The list of gradebook assignments
      * @param name The String to look for
-     * 
+     *
      * @return Assignment object if found, null otherwise
      */
     private Assignment getAssignmentByName(List assignList, String name) {
     	for (Iterator assignIter = assignList.iterator(); assignIter.hasNext(); ) {
     		Assignment assignment = (Assignment) assignIter.next();
-    		
+
     		if (assignment.getName().trim().equalsIgnoreCase(name.trim())) {
     			// remove for performance
     			assignList.remove(assignment);
     			return assignment;
     		}
     	}
-    	
+
     	return null;
     }
 
     /**
      * Cancel import and return to Import Grades page.
-     * 
+     *
      * @return String to navigate to Import Grades page.
      */
     public String processImportAllCancel() {
@@ -1611,7 +1611,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(logger.isDebugEnabled()) logger.debug("first check if all variables are numeric");
 
         logger.debug("********************" + scores);
-        
+
         LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
         if (getGradeEntryByLetter()) {
         	lgpm = getGradebookManager().getLetterGradePercentMapping(getGradebook());
@@ -1663,7 +1663,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	} else {
         		assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
         	}
-        	
+
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 
             assignment = getGradebookManager().getAssignment(assignmentId);
@@ -1712,9 +1712,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
             getGradebookManager().updateAssignmentGradesAndComments(assignment,gradeRecords,comments);
             getGradebookBean().getEventTrackingService().postEvent("gradebook.importItem","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());
-    		
+
     		return "spreadsheetListing";
-            
+
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
@@ -1940,7 +1940,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	if (head.get(head.size()-1).equals("Cumulative")) {
         		head.remove(head.size()-1);
         	}
-        
+
         	return head;
         }
 
@@ -1970,7 +1970,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         private boolean isKnown;
 
         public SpreadsheetRow(String source) {
-            
+
             // this may be instantiated before SpreadsheetUploadBean is initialized, so make sure
             // the rosterMap is populated
             if (rosterMap == null) {
@@ -1981,25 +1981,25 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             rowcontent = new ArrayList();
             CSV csv = new CSV();
             rowcontent = csv.parse(source);
-            
+
             // derive the user information
             String userContent = (String) rowcontent.get(0);
             if (userContent != null) {
                 userId = userContent.toLowerCase();
-                
+
                 // check to see if this student is in the roster
                 if (rosterMap.containsKey(userId)) {
                     isKnown = true;
                     User user = (User)rosterMap.get(userId);
                     userDisplayName = user.getDisplayName();
                     userUid = user.getUserUid();
-                    
+
                     if(logger.isDebugEnabled())logger.debug("get userid "+ userId + "username is "+userDisplayName);
                 } else {
                     isKnown = false;
                     userDisplayName = getLocalizedString("import_preview_unknown_name");
                     userUid = null;
-                    
+
                     if (logger.isDebugEnabled()) logger.debug("User " + userId + " is unknown to this gradebook");
                 }
             } else {
@@ -2007,7 +2007,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 userDisplayName = getLocalizedString("import_preview_unknown_name");
                 userUid = null;
                 userId = null;
-                
+
                 if(logger.isDebugEnabled())logger.debug("Null userId in spreadsheet");
             }
 
@@ -2179,7 +2179,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             }
         }
     }
-    
+
     //************************ EXCEL file parsing *****************************
     /**
      * method converts an input stream to an List consisting of strings
@@ -2191,7 +2191,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private List excelToArray(InputStream inputStreams) throws IOException {
         HSSFWorkbook wb  = new HSSFWorkbook(inputStreams);
 
-        //Convert an Excel file to csv       
+        //Convert an Excel file to csv
         HSSFSheet sheet = wb.getSheetAt(0);
         List array = new ArrayList();
         Iterator it = sheet.rowIterator();
@@ -2219,6 +2219,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC){
                 double value = cell.getNumericCellValue();
                 cellValue = getNumberFormat().format(value);
+                cellValue = "\"" + cellValue + "\"";
             }
 
             csvRow = csvRow + cellValue;
@@ -2231,11 +2232,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     }
 
-    
+
     /**
      * Process an upload ActionEvent from spreadsheetUpload.jsp or spreadsheetEntireGBImport.jsp
      * Source of this action is the Upload button on either page
-     * 
+     *
      * @param event
      */
     public void launchFilePicker(ActionEvent event) {
@@ -2247,7 +2248,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	        // SAK-14173 - store title
 	        currentToolSession.setAttribute(IMPORT_TITLE, this.title);
 			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
-			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, titleText); 
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, titleText);
 			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, instructionText);
 			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER,
 				ComponentManager.get("org.sakaiproject.content.api.ContentResourceFilter.spreadsheetCsvFile"));
@@ -2257,7 +2258,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		catch(Exception e) {
 			logger.error(this + ".launchFilePicker - " + e);
 			e.printStackTrace();
-		}	
+		}
     }
 
     /**
@@ -2289,7 +2290,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     /**
      * Extract and store the reference to the uploaded file.
      * Only process the first reference - don't do multiple uploads.
-     * 
+     *
      */
     public void savePickedUploadFile() {
       ToolSession session = SessionManager.getCurrentToolSession();
@@ -2298,7 +2299,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	  pickedFileDesc = (String) session.getAttribute(PICKED_FILE_DESC);
       }
     }
-    
+
     /**
      * Use the uploaded file reference to get an InputStream.
      * Must be a reference to a ContentResource
@@ -2320,9 +2321,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         return inStream;
     }
-    
+
     /**
-     * 
+     *
      * @return the ContentResource associated with the {@link #pickedFileReference} property.
      * returns null if the entity is not a ContentResource
      */
@@ -2341,12 +2342,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         return resource;
     }
-    
+
     private void clearPickedFile() {
         ToolSession session = SessionManager.getCurrentToolSession();
     	session.removeAttribute(PICKED_FILE_REFERENCE);
     	session.removeAttribute(PICKED_FILE_DESC);
-    	
+
     	pickedFileDesc = null;
     	pickedFileReference = null;
     }
@@ -2360,7 +2361,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	    if (session.getAttribute(PICKED_FILE_DESC) != null) {
 	    	pickedFileDesc = (String) session.getAttribute(PICKED_FILE_DESC);
 	    }
-		
+
 		return pickedFileDesc;
 	}
 
@@ -2370,9 +2371,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	public void setPickedFileDesc(String pickedFileDesc) {
 		this.pickedFileDesc = pickedFileDesc;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return the number of users with the student-type role enrolled in the current site
 	 */
 	private int getNumStudentsInSite() {
@@ -2380,7 +2381,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         int numStudentsInSite = enrollments != null ? enrollments.size() : 0;
         return numStudentsInSite;
 	}
-	
+
 	private String getCsvDelimiter() {
 	    if (csvDelimiter == null) {
 	        csvDelimiter = ServerConfigurationService.getString("csv.separator", ",");
@@ -2388,9 +2389,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 	    return csvDelimiter;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param doubleAsString
 	 * @return a locale-aware Double value representation of the given String
 	 * @throws ParseException
@@ -2404,12 +2405,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 	    return scoreAsDouble;
 	}
-	
+
 	private NumberFormat getNumberFormat() {
 	    if (numberFormat == null) {
 	        numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
 	    }
-	    
+
 	    return numberFormat;
 	}
 
