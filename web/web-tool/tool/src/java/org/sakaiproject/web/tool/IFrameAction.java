@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Collections;
+import java.util.Locale;
 import java.net.URLEncoder;
+import java.io.File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -324,6 +326,36 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		return null;
 	}
 
+	/** Construct and return localized filepath, if it exists
+	 **/
+	private String getLocalizedURL(String property) {
+		String filename = ServerConfigurationService.getString(property);
+		if ( filename == null || filename.trim().length()==0 )
+			return filename;
+		else
+			filename = filename.trim();
+			
+		int extIndex = filename.lastIndexOf(".") >= 0 ? filename.lastIndexOf(".") : filename.length()-1;
+		String ext = filename.substring(extIndex);
+		String doc = filename.substring(0,extIndex);
+		Locale locale = new ResourceLoader().getLocale();
+
+		if (locale != null){
+			// check if localized file exists for current language/locale/variant
+			String localizedFile = doc + "_" + locale.toString() + ext;
+			String filePath = getServletConfig().getServletContext().getRealPath( ".."+localizedFile );
+			if ( (new File(filePath)).exists() )
+				return localizedFile;
+			
+			// otherwise, check if localized file exists for current language
+			localizedFile = doc + "_" + locale.getLanguage() + ext;
+			filePath = getServletConfig().getServletContext().getRealPath( ".."+localizedFile );
+			if ( (new File(filePath)).exists() )
+				return localizedFile;
+		}
+		return filename;
+	}
+
 	/**
 	 * Compute the actual URL we will used, based on the configuration special and source URLs
 	 */
@@ -334,15 +366,13 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// if marked for "site", use the site intro from the properties
 		if (SPECIAL_SITE.equals(special))
 		{
-			// set the url to the site config'ed url
-			rv = StringUtil.trimToNull(ServerConfigurationService.getString("server.info.url"));
+			rv = StringUtil.trimToNull(getLocalizedURL("server.instructions.url"));
 		}
 
 		// if marked for "workspace", use the "user" site info from the properties
 		else if (SPECIAL_WORKSPACE.equals(special))
 		{
-			// set the url to the site config'ed url
-			rv = StringUtil.trimToNull(ServerConfigurationService.getString("myworkspace.info.url"));
+			rv = StringUtil.trimToNull(getLocalizedURL("myworkspace.instructions.url"));
 		}
 
 		// if marked for "worksite", use the setting from the site's definition
@@ -377,7 +407,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// if it's not special, and we have no value yet, set it to the webcontent instruction page, as configured
 		if (rv == null || rv.equals("http://") || rv.equals("https://"))
 		{
-			rv = StringUtil.trimToNull(ServerConfigurationService.getString("webcontent.instructions.url"));
+			rv = StringUtil.trimToNull(getLocalizedURL("webcontent.instructions.url"));
 		}
 
 		if (rv != null)
