@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -968,10 +969,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
 			
-			List<String> copyrightTypes = new ArrayList<String>(Arrays.asList(rrb.getStrings("copyrighttype")));
-			context.put("copyrightTypes", copyrightTypes);
-			context.put("copyrightTypesSize", rrb.getString("copyrighttype.count"));
-			context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
+			List<String>  copyrightValues = new ArrayList<String>(Arrays.asList(rrb.getStrings("copyrighttype")));
+
+            Hashtable copyrightTypes = new Hashtable();
+
+            int len = copyrightValues.size();
+
+                for (int i=0;i<len;i++){
+
+                               copyrightTypes.put(new Integer(i), (String)copyrightValues.get(i));
+
+                }
+
+                context.put("copyrightTypes", copyrightTypes);
+                context.put("copyrightKeys", copyrightTypes.keys());
+                context.put("copyrightTypesSize", rrb.getString("copyrighttype.count"));				
+				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
 		}
 		
 	}	// copyrightChoicesIntoContext
