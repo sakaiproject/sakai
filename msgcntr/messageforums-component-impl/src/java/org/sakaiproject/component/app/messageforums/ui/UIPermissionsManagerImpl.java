@@ -22,9 +22,11 @@ package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -1358,8 +1360,19 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
   private String getUserRole(String siteId, String userId)
   {
-	  LOG.debug("getCurrentUserRole()");
-	  return authzGroupService.getUserRole(userId, "/site/" + siteId);
+    LOG.debug("getCurrentUserRole()");
+    Map roleMap = (Map) ThreadLocalManager.get("message_center_user_role_map");
+    if(roleMap == null){
+    	roleMap = new HashMap();
+    }
+    String userRole = (String) roleMap.get(siteId + "-" + userId);
+    if(userRole == null){
+    	userRole = authzGroupService.getUserRole(userId, "/site/" + siteId);
+    	roleMap.put(siteId + "-" + userId, userRole);
+    	ThreadLocalManager.set("message_center_user_role_map", roleMap);
+    }
+    
+    return userRole;
   }
    
    public boolean  getAnonRole()

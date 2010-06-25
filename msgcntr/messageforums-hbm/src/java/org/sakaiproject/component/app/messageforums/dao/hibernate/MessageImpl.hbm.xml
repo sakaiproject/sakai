@@ -460,8 +460,8 @@
     
  </query>
 
-<!--  -->
- <query name="findAggregatePvtMsgCntForUserInContext">
+<!--  
+  <query name="findAggregatePvtMsgCntForUserInContext">
     <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join message.recipients recipient
@@ -470,7 +470,18 @@
              group by recipient.read, recipient.typeUuid
     ]]>
   </query>
-  
+  -->
+  <sql-query name="findAggregatePvtMsgCntForUserInContext"> 
+     <return-scalar column="READ_STATUS" type="java.lang.Boolean"/> 
+     <return-scalar column="TYPE_UUID" type="java.lang.String"/> 
+     <return-scalar column="readCount" type="java.lang.Integer"/>
+     select READ_STATUS, TYPE_UUID, count(READ_STATUS) as readCount
+             from MFR_PVT_MSG_USR_T
+             where USER_ID = :userId and                   
+                   CONTEXT_ID = :contextId
+             group by READ_STATUS, TYPE_UUID
+   </sql-query>
+   
   <query name="findPrvtMsgsByUserTypeContext">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join fetch message.recipients recipient
