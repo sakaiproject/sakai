@@ -444,6 +444,18 @@
     
     <bean id="org.sakaiproject.api.app.messageforums.ForumTopicEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumTopicEntityProviderImpl">
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="uiPermissionsManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+		</property>
+		<property name="messageManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
+        <property name="privateMessageManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+      	</property>
+      	<property name="typeManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        </property>
     </bean>
     
     <bean id="org.sakaiproject.api.app.messageforums.ForumEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumEntityProviderImpl">
@@ -452,7 +464,21 @@
 
     <bean id="org.sakaiproject.api.app.messageforums.ForumMessageEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl">
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="privateMessageManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+      	</property>
+      	<property name="uiPermissionsManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+        </property>
+        <property name="messageManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
     </bean>
+
+	<bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrItemProvider" class="org.sakaiproject.component.app.messageforums.entity.SynopticMsgcntrItemEntityProviderImpl">
+		<property name="synopticMsgcntrManager" ref="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager" />
+    </bean>
+
 
 	<bean id="forumsAdaptor"
 		class="org.sakaiproject.component.app.messageforums.entity.MessageForumsEntityContentProducer"

@@ -61,6 +61,7 @@ public interface PrivateMessageManager {
     
     public void markMessageAsReadForUser(final PrivateMessage message);
     public void markMessageAsReadForUser(final PrivateMessage message, final String contextId);
+    public void markMessageAsReadForUser(final PrivateMessage message, final String contextId, final String userId, String toolId);
     
     public void markMessageAsUnreadForUser(final PrivateMessage message);
     public void markMessageAsUnreadForUser(final PrivateMessage message, final String contextId);
@@ -70,6 +71,9 @@ public interface PrivateMessageManager {
     
     public List getMessagesByTypeByContext(final String typeUuid,
 			final String contextId);
+    public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
+    	      final String order);
+
 
     /**
      * check if private message area is enabled for the current user

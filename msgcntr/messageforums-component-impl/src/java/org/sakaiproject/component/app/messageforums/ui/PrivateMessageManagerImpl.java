@@ -801,6 +801,31 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return (List) getHibernateTemplate().execute(hcb);        
   }
   
+  public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
+	      final String order){
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getMessagesByTypeForASite(typeUuid:" + typeUuid + ")");
+    }
+
+    HibernateCallback hcb = new HibernateCallback()
+    {
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException
+      {
+        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
+        Query qOrdered = session.createQuery(q.getQueryString() + " order by "
+                + orderField + " " + order);
+        qOrdered.setParameter("userId", userId, Hibernate.STRING);
+        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);
+        qOrdered.setParameter("contextId", contextId, Hibernate.STRING);
+        return qOrdered.list();
+      }
+    };
+
+    return (List) getHibernateTemplate().execute(hcb);        
+  }
+
 
     /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#findMessageCount(java.lang.String)
@@ -1327,6 +1352,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    */
   public void markMessageAsReadForUser(final PrivateMessage message, final String contextId)
   {
+	  markMessageAsReadForUser(message, contextId, getCurrentUser(), ToolManager.getCurrentTool().getId());
+	  
+  }
+  
+  public void markMessageAsReadForUser(final PrivateMessage message, final String contextId, final String userId, String toolId)
+  {
 
     if (LOG.isDebugEnabled())
     {
@@ -1338,7 +1369,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       throw new IllegalArgumentException("Null Argument");
     }
 
-    final String userId = getCurrentUser();
 
     /** fetch recipients for message */
     PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
@@ -1373,10 +1403,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     		decrementMessagesSynopticToolInfo(searchRecipient.getUserId(), contextId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 
     		
-      	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage), false));
+      	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage, toolId, userId, contextId), false));
     	}
     }
   }
+
   
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#markMessageAsReadForUser(org.sakaiproject.api.app.messageforums.PrivateMessage)
@@ -1707,16 +1738,20 @@ return topicTypeUuid;
    * Constructs the event message string
    */
   private String getEventMessage(Object object) {
-  	String eventMessagePrefix = "";
-  	final String toolId = ToolManager.getCurrentTool().getId();
-		  	
-	if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
-		eventMessagePrefix = "/messages&Forums/site/";
-	else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
-		eventMessagePrefix = "/messages/site/";
-	else
-		eventMessagePrefix = "/forums/site/";
-  	
-  	return eventMessagePrefix + getContextId() + "/" + object.toString() + "/" + getCurrentUser();
+	  return getEventMessage(object, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
 	}
+  
+  private String getEventMessage(Object object, String toolId, String userId, String contextId) {
+  	String eventMessagePrefix = "";
+  	
+  		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
+  			eventMessagePrefix = "/messagesAndForums/site/";
+  		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
+  			eventMessagePrefix = "/messages/site/";
+  		else
+  			eventMessagePrefix = "/forums/site/";
+  	
+  	return eventMessagePrefix + contextId + "/" + object.toString() + "/" + userId;
+  }
+
 }

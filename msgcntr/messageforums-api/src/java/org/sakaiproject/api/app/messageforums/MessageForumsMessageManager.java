@@ -52,6 +52,8 @@ public interface MessageForumsMessageManager {
     public void markMessageReadForUser(Long topicId, Long messageId, boolean read);
     
     public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId);
+    
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId);
 
     public boolean isMessageReadForUser(Long topicId, Long messageId);
 
