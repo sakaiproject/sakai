@@ -2,6 +2,7 @@ package org.sakaiproject.content.providers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -385,6 +386,10 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 		public String getContext()
 		{
 			return context;
+		}
+
+		public Date getEventTime() {
+			return null;
 		}
 	}
 }
