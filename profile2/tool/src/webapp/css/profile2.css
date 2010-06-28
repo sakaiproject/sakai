@@ -1149,8 +1149,6 @@ div.wicket-aa ul li.selected {
 
 /* gallery-related */
 
-
-
 .add-form-item {
 	vertical-align: top;
 }
@@ -1182,32 +1180,43 @@ div.wicket-aa ul li.selected {
 	border-spacing: 5px;
 	padding: 5px;
 }
+	
+/* gallery feed styles */
 
 #gallery-feed {
 	display: block;
+	text-align: center;
+}
+
+#gallery-feed table {
 	border: none;
-	margin: auto;
-	padding:auto;
+	margin: 0 auto;
+	table-layout: fixed;
+}
+
+#gallery-feed table td {
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 1px;
+	margin-right: 1px;
+	vertical-align: top;
 }
 
 .gallery-feed-item {
 	vertical-align: top;
 	width: 55px;
 	max-width: 55px;
-	overflow: hidden;
 	margin: 1px;
 	text-align: center;
-	cursor: pointer;
+	word-wrap: break-word;
+	white-space: normal;
 }
 
-.gallery-feed-picture img {
+.gallery-feed-item img {
 	max-width: 55px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
-	/* centre the image inside this cell */
 	display:block;
    	margin:auto;
-   	/* end centreing */
-   	/* cursor: pointer; */
 }
 
 /* tabs */  
