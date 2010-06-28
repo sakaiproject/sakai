@@ -1,3 +1,4 @@
+#parse("/vm/assignment/assignment_macros.vm")
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	#if ($taggable && $allowAddAssignment)
 		#if (!$activityHelpers.isEmpty())
@@ -203,9 +204,7 @@
 								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 							#end
 							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-								($props.getPropertyFormatted($props.NamePropContentLength))
-							#end
+							#propertyDetails($props)
 						</li>
 					#end
 				#end
@@ -352,9 +351,7 @@
 										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 									#end
 									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-										($props.getPropertyFormatted($props.NamePropContentLength))
-									#end
+									#propertyDetails($props)
 								</li>
 							#end
 						#end

@@ -1,4 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_assignment.vm,v 1.9 2005/06/14 14:47:34 zqian.umich.edu Exp $ -->
+#parse("/vm/assignment/assignment_macros.vm")
 <div class="portletBody"  xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 	<ul class="navIntraTool actionToolBar" role="menu">
 		#if ($allowAddAssignment)
@@ -208,9 +209,7 @@
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 												#end
 												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-												#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-													($props.getPropertyFormatted($props.NamePropContentLength))
-												#end
+												#propertyDetails($props)
 											</li>
 										#end
 									#end
@@ -303,9 +302,7 @@
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 								#end
 							#end

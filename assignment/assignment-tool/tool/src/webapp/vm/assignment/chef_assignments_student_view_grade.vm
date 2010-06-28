@@ -1,4 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
+#parse("/vm/assignment/assignment_macros.vm")
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript" src="/library/js/jquery.js"></script>
 <script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
@@ -172,9 +173,7 @@
 							#else
 								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 							#end
-							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-								($props.getPropertyFormatted($props.NamePropContentLength))
-							#end
+							#propertyDetails($props)
 						</li>
 					#end
 				#end
@@ -209,9 +208,7 @@
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 									#end
 							#end
@@ -255,9 +252,7 @@
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 									#end
 							#end
@@ -318,9 +313,7 @@
 								#else
 									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 								#end
-								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-									($props.getPropertyFormatted($props.NamePropContentLength))
-								#end
+								#propertyDetails($props)
 							</li>
 						#end
 					#end
@@ -363,9 +356,7 @@
 									#else
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 									#end
-									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-										($props.getPropertyFormatted($props.NamePropContentLength))
-									#end
+									#propertyDetails($props)
 								</li>
 							#end
 						#end

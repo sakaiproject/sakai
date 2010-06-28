@@ -1,4 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
+#parse("/vm/assignment/assignment_macros.vm")
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript">
 focus_path = [ '$fField' ];
@@ -243,9 +244,7 @@ function handleEnterKeyPress(ev)
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 								#end
 							#end
@@ -281,9 +280,7 @@ function handleEnterKeyPress(ev)
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 									#end
 							#end
@@ -327,9 +324,7 @@ function handleEnterKeyPress(ev)
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 									#end
 							#end
@@ -393,9 +388,7 @@ function handleEnterKeyPress(ev)
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
 										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
+										#propertyDetails($props)
 									</li>
 								#end
 							#end
@@ -453,9 +446,7 @@ function handleEnterKeyPress(ev)
 												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
 											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-											#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-												($props.getPropertyFormatted($props.NamePropContentLength))
-											#end
+											#propertyDetails($props)
 										</li>
 									#end
 								#end
@@ -490,9 +481,7 @@ function handleEnterKeyPress(ev)
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 												#end
 												<a href="$prevAttachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-												#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-													($props.getPropertyFormatted($props.NamePropContentLength))
-												#end
+												#propertyDetails($props)
 											</li>
 										#end
 									#end

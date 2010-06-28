@@ -1,0 +1,8 @@
+#macro( propertyDetails $props )
+	<span class="textPanelFooter">(
+	#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+		$props.getPropertyFormatted($props.NamePropContentLength);
+	#end
+	$props.getPropertyFormatted($props.NamePropCreationDate)
+	)</span>
+#end

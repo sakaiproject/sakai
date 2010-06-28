@@ -1,3 +1,4 @@
+#parse("/vm/assignment/assignment_macros.vm")
 ## showing the submission confirmation page
 <div class="portletBody">
 	<h3>
@@ -131,9 +132,7 @@
 					#set ($props = $attachment.Properties) 
 					#if ($!props)
 						<li>$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))						
-						#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-							($props.getPropertyFormatted($props.NamePropContentLength))
-						#end
+						#propertyDetails($props)
 						</li>
 					#end
 				#end
