@@ -1152,7 +1152,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 						 continue;
 					 }
 					
-					 pipe.setRevisedContent(url.getBytes());
+					 try {
+						 pipe.setRevisedContent(url.getBytes(ResourcesAction.UTF_8_ENCODING));
+					 } catch (UnsupportedEncodingException e) {
+						 pipe.setRevisedContent(url.getBytes());
+					 }
 				}
 				
 				pipe.setFileName(Validator.escapeResourceName(url));
