@@ -6300,27 +6300,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						two.append(one.charAt(i));
 					}
 				}
-				//res.sendRedirect(two);
-				String twoString = two.toString();
-				if (twoString.startsWith("http://")) {
-					StringBuilder html = new StringBuilder("<html><head>");
-					html.append("<title>" + rb.getFormattedMessage("redirect.title", 
-							new Object[]{m_serverConfigurationService.getString("ui.service ", "Sakai")}) + "</title>");
-					html.append("<meta http-equiv=\"refresh\" content=\"1;URL=");
-					html.append(two);
-					html.append("\" /></head><body>");
-					html.append(rb.getString("redirect.text"));
-					html.append(" <a href=\"");
-					html.append(twoString);
-					html.append("\">" + rb.getString("redirect.text2")+ "</a>");
-					html.append("</body></html>");
-
-					res.setContentType("text/html");
-					res.getWriter().println(html.toString());
-				} else {
-					res.sendRedirect(twoString);
-				}
-
+				res.sendRedirect(two.toString());
 			}
 
 			else
