@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -6292,20 +6293,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						throw new IdUnusedException(ref.getReference());
 					}
 	
-					String one = new String(content);
-					StringBuilder two = new StringBuilder("");
-					for (int i = 0; i < one.length(); i++)
-					{
-						if (one.charAt(i) == '+')
-						{
-							two.append("%2b");
-						}
-						else
-						{
-							two.append(one.charAt(i));
-						}
-					}
-					res.sendRedirect(two.toString());
+					// An invalid URI format will get caught by the outermost catch block 
+					URI uri = new URI(new String(content, "UTF-8"));				
+					res.sendRedirect(uri.toASCIIString());
 					
 				} else {
 					// we have a text/url mime type, but the body is too long to issue as a redirect
