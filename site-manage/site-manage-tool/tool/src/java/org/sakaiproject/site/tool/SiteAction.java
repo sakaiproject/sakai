@@ -2281,7 +2281,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("disableJoinable", Boolean.TRUE);
 				}
 
-				context.put("roles", getRoles(state));
+				context.put("roles", getJoinerRoles(site.getReference()));
 			} else {
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
@@ -2320,11 +2320,11 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				try {
 					AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
-					context.put("roles", r.getRoles());
+					context.put("roles", getJoinerRoles(r.getId()));
 				} catch (GroupNotDefinedException e) {
 					try {
 						AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
-						context.put("roles", rr.getRoles());
+						context.put("roles", getJoinerRoles(rr.getId()));
 					} catch (GroupNotDefinedException ee) {
 					}
 				}
@@ -8198,6 +8198,44 @@ public class SiteAction extends PagedResourceActionII {
 		return roles;
 
 	} // getRoles
+	
+	/**
+	 * getRoles
+	 * 
+	 */
+	private List<Role> getJoinerRoles(String realmId) {
+		List roles = new ArrayList();
+		/** related to SAK-18462, this is a list of permissions that the joinable roles shouldn't have ***/
+		String[] prohibitPermissionForJoinerRole = ServerConfigurationService.getStrings("siteinfo.prohibited_permission_for_joiner_role");
+		if (prohibitPermissionForJoinerRole == null) {
+			prohibitPermissionForJoinerRole = new String[]{"site.upd"};
+		}
+		if (realmId != null)
+		{
+			try {
+				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				// get all roles that allows at least one permission in the list
+				Set<String> permissionAllowedRoleIds = new HashSet<String>();
+				for(String permission:prohibitPermissionForJoinerRole)
+				{
+					permissionAllowedRoleIds.addAll(realm.getRolesIsAllowed(permission));
+				}
+				for(Role role:realm.getRoles())
+				{
+					if (permissionAllowedRoleIds == null 
+							|| permissionAllowedRoleIds!= null && !permissionAllowedRoleIds.contains(role.getId()))
+					{
+						roles.add(role);
+					}
+				}
+				Collections.sort(roles);
+			} catch (GroupNotDefinedException e) {
+				M_log.warn( this + ".getRoles: IdUnusedException " + realmId, e);
+			}
+		}
+		return roles;
+
+	} // getRolesWithoutPermission
 
 	private void addSynopticTool(SitePage page, String toolId,
 			String toolTitle, String layoutHint) {
