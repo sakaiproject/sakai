@@ -69,10 +69,6 @@ public class ReportDefModel extends LoadableDetachableModel {
 		}
 		return reportDef;
 	}
-
-	@Override
-	public void detach() {
-	}
 	
 	private String getSiteId() {
 		if(siteId == null) {

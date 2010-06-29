@@ -514,7 +514,6 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		Object cached = cacheReportDef.get(String.valueOf(id));
 		if(cached != null){
 			reportDef = (ReportDef) cached;
-			LOG.debug("Getting report with id "+id+" from cache");
 		}else{
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -524,13 +523,13 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			Object o = getHibernateTemplate().execute(hcb);
 			if(o != null) {
 				reportDef = (ReportDef) o;
-				try{
-					reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
-				}catch(Exception e){
-					LOG.warn("getReportDefinition(): unable to parse report parameters.");
-				}
 				cacheReportDef.put(String.valueOf(id), reportDef);
 			}
+		}
+		try{
+			reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
+		}catch(Exception e){
+			LOG.warn("getReportDefinition(): unable to parse report parameters.");
 		}
 		return reportDef;
 	}
