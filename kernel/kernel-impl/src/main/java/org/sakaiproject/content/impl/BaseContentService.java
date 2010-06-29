@@ -177,6 +177,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
 
+	/** Maximum length of a URL which we allow for redirection 
+	 * (c/f http://www.boutell.com/newfaq/misc/urllength.html) */
+	protected static final long MAX_URL_LENGTH = 8192;
+
 	protected static final Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
 	/** sakai.properties setting to enable secure inline html (true by default) */
@@ -6276,31 +6280,37 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			long len = resource.getContentLength();
 			String contentType = resource.getContentType();
-			String resourceType = resource.getResourceType();
 
-			// for url resource type, encode a redirect to the body URL
-			if (resourceType.equalsIgnoreCase(ResourceType.TYPE_URL))
+			// for url content type, encode a redirect to the body URL
+			if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
 			{
-				byte[] content = resource.getContent();
-				if ((content == null) || (content.length == 0))
-				{
-					throw new IdUnusedException(ref.getReference());
-				}
-
-				String one = new String(content);
-				StringBuilder two = new StringBuilder("");
-				for (int i = 0; i < one.length(); i++)
-				{
-					if (one.charAt(i) == '+')
+				if (len < MAX_URL_LENGTH) {
+	
+					byte[] content = resource.getContent();
+					if ((content == null) || (content.length == 0))
 					{
-						two.append("%2b");
+						throw new IdUnusedException(ref.getReference());
 					}
-					else
+	
+					String one = new String(content);
+					StringBuilder two = new StringBuilder("");
+					for (int i = 0; i < one.length(); i++)
 					{
-						two.append(one.charAt(i));
+						if (one.charAt(i) == '+')
+						{
+							two.append("%2b");
+						}
+						else
+						{
+							two.append(one.charAt(i));
+						}
 					}
+					res.sendRedirect(two.toString());
+					
+				} else {
+					// we have a text/url mime type, but the body is too long to issue as a redirect
+					throw new EntityNotDefinedException(ref.getReference());
 				}
-				res.sendRedirect(two.toString());
 			}
 
 			else
