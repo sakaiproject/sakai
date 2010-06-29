@@ -166,12 +166,8 @@ public class GalleryImageEdit extends Panel {
 					// close modal window
 					mainImageWindow.close(target);
 
-					if (sakaiProxy.isSuperUserAndProxiedToUser(
-							userId)) {
-						setResponsePage(new MyPictures(galleryPageIndex, userId));
-					} else {
-						setResponsePage(new MyPictures(galleryPageIndex));
-					}
+					setResponsePage(new MyPictures(galleryPageIndex));
+					
 				} else {
 					// user alert
 					formFeedback.setDefaultModel(new ResourceModel(

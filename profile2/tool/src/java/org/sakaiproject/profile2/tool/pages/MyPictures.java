@@ -89,31 +89,6 @@ public class MyPictures extends BasePage {
 	}
 
 	/**
-	 * This constructor enables an admin user to edit another user's gallery.
-	 */
-	public MyPictures(String userUuid) {
-		
-		this(0, userUuid);
-
-	}
-	
-	/**
-	 * This constructor allows us to go directly to a page for a user
-	 * @param pageToDisplay
-	 * @param userUuid
-	 */
-	public MyPictures(int pageToDisplay, String userUuid) {
-		
-		//double check only super users
-		if(!sakaiProxy.isSuperUser()) {
-			log.error("MyPictures: user " + sakaiProxy.getCurrentUserId() + " attempted to access MyPictures for " + userUuid + ". Redirecting...");
-			throw new RestartResponseException(new MyProfile());
-		}
-		
-		renderMyPictures(pageToDisplay, userUuid);
-	}
-
-	/**
 	 * Does the actual rendering of the page
 	 */
 	private void renderMyPictures(int pageToDisplay, String userUuid) {
@@ -381,12 +356,7 @@ public class MyPictures extends BasePage {
 						ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD,
 						"/profile/" + sakaiProxy.getCurrentUserId(), true);
 
-				if (sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
-					setResponsePage(new MyPictures(gridView.getPageCount(),
-							userUuid));
-				} else {
-					setResponsePage(new MyPictures(gridView.getPageCount()));
-				}
+				setResponsePage(new MyPictures(gridView.getPageCount()));
 
 			}
 

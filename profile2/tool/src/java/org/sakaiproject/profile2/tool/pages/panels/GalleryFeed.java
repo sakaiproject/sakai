@@ -125,9 +125,8 @@ public class GalleryFeed extends Panel {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 
-				if (sakaiProxy.isSuperUserAndProxiedToUser(
-						ownerUserId)) {
-					setResponsePage(new MyPictures(ownerUserId));
+				if (sakaiProxy.isSuperUserAndProxiedToUser(ownerUserId)) {
+					setResponsePage(new ViewPictures(ownerUserId));
 				} else if (viewingUserId.equals(ownerUserId)) {
 					setResponsePage(new MyPictures());
 				} else {
