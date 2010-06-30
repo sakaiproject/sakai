@@ -29,6 +29,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
@@ -55,6 +56,9 @@ public class GalleryImageEdit extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
 	private ProfileImageLogic imageLogic;
 
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	private ProfilePreferencesLogic preferencesLogic;
+	
 	public GalleryImageEdit(String id, final ModalWindow mainImageWindow,
 			final String userId, final GalleryImage image,
 			final int galleryPageIndex) {
@@ -83,13 +87,22 @@ public class GalleryImageEdit extends Panel {
 		AjaxFallbackButton removePictureButton = createRemovePictureButton(imageEditForm);
 		imageOptionsContainer.add(removePictureButton);
 
-		imageOptionsContainer.add(new Label("setProfileImageLabel",
-				new ResourceModel("pictures.setprofileimage")));
+		Label setProfileImageLabel = new Label("setProfileImageLabel",
+				new ResourceModel("pictures.setprofileimage"));
+		imageOptionsContainer.add(setProfileImageLabel);
 
 		AjaxFallbackButton setProfileImageButton = createSetProfileImageButton(
 				mainImageWindow, userId, image, galleryPageIndex,
 				imageEditForm, formFeedback);
 
+		if ((true == sakaiProxy.isOfficialImageEnabledGlobally() && 
+				false == sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled())
+				|| preferencesLogic.getPreferencesRecordForUser(userId).isUseOfficialImage()) {
+			
+			setProfileImageLabel.setVisible(false);
+			setProfileImageButton.setVisible(false);
+		}
+		
 		imageOptionsContainer.add(setProfileImageButton);
 
 		imageEditForm.add(imageOptionsContainer);
