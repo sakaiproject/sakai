@@ -51,6 +51,9 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -156,7 +159,18 @@ public class ResourcesHandler implements HandlesImportable {
 				if(m_log.isDebugEnabled()){ 
 					m_log.debug("import ResourcesHandler about to add web link entitled '" + title + "'");
 				}
-				addContentResource(id, contentType, contents, resourceProps, notifyOption);
+				ContentResource contentResource = addContentResource(id, contentType, contents, resourceProps, notifyOption);
+				if (contentResource != null) {
+					try {
+						ContentResourceEdit cre = contentHostingService.editResource(contentResource.getId());
+						cre.setResourceType(ResourceType.TYPE_URL);
+						contentHostingService.commitResource(cre, notifyOption);
+
+					} catch (Exception e1) {
+						m_log.error("import ResourcesHandler tried to set Resource Type of web link and failed", e1);
+					}
+				}
+
 			} else if ("sakai-html-document".equals(thing.getTypeName())) {
 				title = ((HtmlDocument)thing).getTitle();
 				contents = ((HtmlDocument)thing).getContent().getBytes();
@@ -257,8 +271,8 @@ public class ResourcesHandler implements HandlesImportable {
 			e.printStackTrace();
 		} 
 	}
-	
-	protected void addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
+
+	protected ContentResource addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
 		try {
 			id = makeIdClean(id);
 			ResourcePropertiesEdit resourceProps = contentHostingService.newResourceProperties();
@@ -272,7 +286,7 @@ public class ResourcesHandler implements HandlesImportable {
 			if(existsDirectory(enclosingDirectory)) {
 				contentHostingService.addProperty(enclosingDirectory, ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
 			}
-			contentHostingService.addResource(id, contentType, contents, resourceProps, notifyOption);
+			return contentHostingService.addResource(id, contentType, contents, resourceProps, notifyOption);
 		} catch (PermissionException e) {
 			m_log.error("ResourcesHandler.addContentResource: " + e.toString());
 		} catch (IdUsedException e) {
@@ -300,6 +314,7 @@ public class ResourcesHandler implements HandlesImportable {
 			e.printStackTrace();
 		}
 		
+		return null;
 	}
 	
 	protected boolean existsDirectory(String path) {
