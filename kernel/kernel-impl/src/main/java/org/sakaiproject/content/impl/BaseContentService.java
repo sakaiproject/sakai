@@ -7455,6 +7455,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								ResourcePropertiesEdit p = edit.getPropertiesEdit();
 								p.clear();
 								p.addAll(oProperties);
+								edit.setAvailability(((ContentCollection) oResource).isHidden(), ((ContentCollection) oResource).getReleaseDate(), ((ContentCollection) oResource).getRetractDate());
 								// complete the edit
 								m_storage.commitCollection(edit);
 								((BaseCollectionEdit) edit).closeEdit();
@@ -7483,6 +7484,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								edit.setContentType(((ContentResource) oResource).getContentType());
 								edit.setResourceType(((ContentResource) oResource).getResourceType());
 								edit.setContent(((ContentResource) oResource).streamContent());
+								edit.setAvailability(((ContentResource) oResource).isHidden(), ((ContentResource) oResource).getReleaseDate(), ((ContentResource) oResource).getRetractDate());
 								//edit.setContent(((ContentResource) oResource).getContent());
 								// import properties
 								ResourcePropertiesEdit p = edit.getPropertiesEdit();
