@@ -114,28 +114,28 @@
             <property name="campus" column="CAMPUS" />
             <property name="hidePrivateInfo" column="HIDE_PRIVATE_INFO" />
             <property name="hidePublicInfo" column="HIDE_PUBLIC_INFO" />
-            <property name="notes" column="NOTES" length="4000" />
+            <property name="notes" column="NOTES" type="string" length="4000" />
             <property name="pictureUrl" column="PICTURE_URL" />
             <property name="systemPicturePreferred" column="SYSTEM_PICTURE_PREFERRED" />
             <property name="ferpaEnabled" column="ferpaEnabled" index="SAKAI_PERSON_ferpaEnabled_I" />
             <property name="dateOfBirth" column="dateOfBirth" type="date" />
             <property name="locked" column="locked" type="boolean" />
             
-            <property name="favouriteBooks" column="FAVOURITE_BOOKS" length="4000" />
-            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" length="4000" />
-            <property name="favouriteMovies" column="FAVOURITE_MOVIES" length="4000" />
-            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" length="4000" />
+            <property name="favouriteBooks" column="FAVOURITE_BOOKS" type="string" length="4000" />
+            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" type="string" length="4000" />
+            <property name="favouriteMovies" column="FAVOURITE_MOVIES" type="string" length="4000" />
+            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" type="string" length="4000" />
             
-            <property name="educationCourse" column="EDUCATION_COURSE" length="4000" />
-            <property name="educationSubjects" column="EDUCATION_SUBJECTS" length="4000" />
+            <property name="educationCourse" column="EDUCATION_COURSE" type="string" length="4000" />
+            <property name="educationSubjects" column="EDUCATION_SUBJECTS" type="string" length="4000" />
             
             <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
             
-			<property name="staffProfile" column="STAFF_PROFILE" length="4000" />
-			<property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" length="4000" />
-			<property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" length="4000" />
-			<property name="publications" column="PUBLICATIONS" length="4000" />
-			<property name="businessBiography" column="BUSINESS_BIOGRAPHY" length="4000" />
+			<property name="staffProfile" column="STAFF_PROFILE" type="string" length="4000" />
+			<property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" type="string" length="4000" />
+			<property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" type="string" length="4000" />
+			<property name="publications" column="PUBLICATIONS" type="string" length="4000"  />
+			<property name="businessBiography" column="BUSINESS_BIOGRAPHY" type="string" length="4000" />
             
           </subclass>
         </subclass>
