@@ -245,13 +245,13 @@ public class ResourcesHandler implements HandlesImportable {
 					else {
 						addContentResource(path + entry.getName(), contentType, contents, resourceProps, notifyOption);
 					}
-					entry = (ZipEntry) zipStream.getNextEntry();
 				}
 				else {
 					if(m_log.isWarnEnabled()) {
 						m_log.warn("Zip file is of unknown size... giving up");
 					}					
 				}
+				entry = (ZipEntry) zipStream.getNextEntry();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
