@@ -1158,6 +1158,11 @@ div.wicket-aa ul li.selected {
 	padding-right: 10px;
 }
 
+.gallery-warning-text {
+	font-size: 12px;
+	font-weight: bold;
+}
+
 .gallery-form {
 	position: relative;
 }
