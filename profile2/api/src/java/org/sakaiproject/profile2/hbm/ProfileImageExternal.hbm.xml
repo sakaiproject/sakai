@@ -12,8 +12,8 @@
 	    	<generator class="assigned" />
 	    </id>
 	    
-		<property name="mainUrl" column="URL_MAIN" length="4000" not-null="true" />
-		<property name="thumbnailUrl" column="URL_THUMB" length="4000" not-null="false" />
+		<property name="mainUrl" column="URL_MAIN" type="string" length="4000" not-null="true" />
+		<property name="thumbnailUrl" column="URL_THUMB" type="string" length="4000" not-null="false" />
 
   	</class>
   	

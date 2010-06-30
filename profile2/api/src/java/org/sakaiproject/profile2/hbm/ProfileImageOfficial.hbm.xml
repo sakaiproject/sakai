@@ -12,7 +12,7 @@
 	    	<generator class="assigned" />
 	    </id>
 	    
-		<property name="url" column="URL" length="4000" not-null="true" />
+		<property name="url" column="URL" type="string" length="4000" not-null="true" />
 
   	</class>
   	
