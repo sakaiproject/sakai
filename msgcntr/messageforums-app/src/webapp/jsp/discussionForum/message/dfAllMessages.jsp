@@ -265,10 +265,10 @@
 					<h:outputText value=" cu: #{message.childUnread }" />
 					<h:outputText value= " mr: #{message.read}" />
 					--%>
-					<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount ==0}"  value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-					<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount ==1}"  value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-					<h:outputText  escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 1}" value=" #{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
-					<h:outputText  value="#{msgs.cdfm_newflagresponses}" styleClass="childrenNew childrenNewThread" rendered="#{message.depth == 0 && message.childUnread > 0}"/>							
+					<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount ==0}"  value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg} - #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+					<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount ==1}"  value="#{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+					<h:outputText  escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 1}" value=" #{msgs.cdfm_openb} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs} - #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+					<h:outputText  value="#{msgs.cdfm_newflagresponses}" styleClass="childrenNew childrenNewThread" rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) > 0}"/>							
 			</h:column>
 				<%-- author column --%>
 			<h:column>
