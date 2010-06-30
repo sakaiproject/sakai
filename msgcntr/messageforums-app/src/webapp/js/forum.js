@@ -374,11 +374,12 @@ function countStuff() {
 	var rteId = textareas.item(0).id;
 	var oEditor = FCKeditorAPI.GetInstance(rteId) ;
 	var oDOM = oEditor.EditorDocument ;
+	var splitArray;
 	if ( document.all ) // If Internet Explorer.
 	{
 		wordCount = 0;
 		if(oDOM.body.innerText.length > 0){
-			wordCount=oDOM.body.innerText.split(" ").length;
+			splitArray = oDOM.body.innerText.trim().split(" ");
 		}
 	}
 	else // If Gecko.
@@ -387,7 +388,13 @@ function countStuff() {
 		r.selectNodeContents(oDOM.body);
 		wordCount = 0;
 		if(r.toString().length > 0){
-			wordCount = r.toString().split(" ").length;
+			splitArray = r.toString().trim().split(" ");
+		}
+	}
+	var i = 0;
+	for(i = 0; i < splitArray.length; i++){
+		if(splitArray[i].trim() != ''){
+			wordCount++;
 		}
 	}
 	msgupdatecounts = $('.msg-updatecount').text();
