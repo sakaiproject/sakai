@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 import twitter4j.Twitter;

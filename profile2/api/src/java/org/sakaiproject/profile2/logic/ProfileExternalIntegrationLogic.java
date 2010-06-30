@@ -2,7 +2,6 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 
 /**
