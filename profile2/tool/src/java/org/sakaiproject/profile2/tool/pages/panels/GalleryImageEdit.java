@@ -49,6 +49,7 @@ public class GalleryImageEdit extends Panel {
 
 	private final WebMarkupContainer imageOptionsContainer;
 	private final WebMarkupContainer removeConfirmContainer;
+	private final WebMarkupContainer setProfileImageConfirmContainer;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
@@ -91,9 +92,7 @@ public class GalleryImageEdit extends Panel {
 				new ResourceModel("pictures.setprofileimage"));
 		imageOptionsContainer.add(setProfileImageLabel);
 
-		AjaxFallbackButton setProfileImageButton = createSetProfileImageButton(
-				mainImageWindow, userId, image, galleryPageIndex,
-				imageEditForm, formFeedback);
+		AjaxFallbackButton setProfileImageButton = createSetProfileImageButton(imageEditForm);
 
 		if ((true == sakaiProxy.isOfficialImageEnabledGlobally() && 
 				false == sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled())
@@ -126,7 +125,29 @@ public class GalleryImageEdit extends Panel {
 
 		removeConfirmContainer.setVisible(false);
 		imageEditForm.add(removeConfirmContainer);
+		
+		setProfileImageConfirmContainer = new WebMarkupContainer("gallerySetProfileImageConfirmContainer");
+		setProfileImageConfirmContainer.setOutputMarkupId(true);
+		setProfileImageConfirmContainer.setOutputMarkupPlaceholderTag(true);
+		
+		Label setProfileImageConfirmLabel = new Label("setProfileImageConfirmLabel",
+				new ResourceModel("pictures.setprofileimage.confirm"));
+		setProfileImageConfirmContainer.add(setProfileImageConfirmLabel);
 
+		
+		AjaxFallbackButton setProfileImageConfirmButton = createSetProfileImageConfirmButton(
+				mainImageWindow, userId, image, galleryPageIndex, formFeedback,
+				imageEditForm);
+		
+		setProfileImageConfirmButton.add(new FocusOnLoadBehaviour());
+		setProfileImageConfirmContainer.add(setProfileImageConfirmButton);
+		
+		AjaxFallbackButton setProfileImageCancelButton = createSetProfileImageCancelButton(imageEditForm);
+		setProfileImageConfirmContainer.add(setProfileImageCancelButton);
+
+		setProfileImageConfirmContainer.setVisible(false);
+		imageEditForm.add(setProfileImageConfirmContainer);
+		
 		add(new GalleryImageRenderer("galleryImageMainRenderer", true, image
 				.getMainResource()));
 		
@@ -217,14 +238,57 @@ public class GalleryImageEdit extends Panel {
 		return removePictureButton;
 	}
 
-	private AjaxFallbackButton createSetProfileImageButton(
+	private AjaxFallbackButton createSetProfileImageCancelButton(Form imageEditForm) {
+		AjaxFallbackButton removeCancelButton = new AjaxFallbackButton(
+				"gallerySetProfileImageCancelButton", new ResourceModel(
+						"button.cancel"), imageEditForm) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				target.prependJavascript("$('#"
+						+ setProfileImageConfirmContainer.getMarkupId() + "').hide();");
+
+				imageOptionsContainer.setVisible(true);
+				target.addComponent(imageOptionsContainer);
+
+				target.appendJavascript("setMainFrameHeight(window.name);");
+			}
+
+		};
+		return removeCancelButton;
+	}
+	
+	private AjaxFallbackButton createSetProfileImageButton(Form imageEditForm) {
+		AjaxFallbackButton setProfileImageButton = new AjaxFallbackButton(
+				"gallerySetProfileImageButton", new ResourceModel(
+						"button.gallery.setprofile"), imageEditForm) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+
+				imageOptionsContainer.setVisible(false);
+
+				target.prependJavascript("$('#"
+						+ imageOptionsContainer.getMarkupId() + "').hide();");
+
+				setProfileImageConfirmContainer.setVisible(true);
+				target.addComponent(setProfileImageConfirmContainer);
+				target.prependJavascript("setMainFrameHeight(window.name);");
+			}
+
+		};
+		return setProfileImageButton;
+	}
+	
+	private AjaxFallbackButton createSetProfileImageConfirmButton(
+
 			final ModalWindow mainImageWindow, final String userId,
 			final GalleryImage image, final int galleryPageIndex,
-			Form imageOptionsForm, final Label formFeedback) {
+			final Label formFeedback, Form imageEditForm) {
 
 		AjaxFallbackButton setProfileImageButton = new AjaxFallbackButton(
-				"galleryImageSetProfileButton", new ResourceModel(
-						"button.gallery.setprofile"), imageOptionsForm) {
+				"gallerySetProfileImageConfirmButton", new ResourceModel(
+						"button.gallery.setprofile.confirm"), imageEditForm) {
 
 			private static final long serialVersionUID = 1L;
 
