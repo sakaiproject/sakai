@@ -1224,6 +1224,32 @@ div.wicket-aa ul li.selected {
    	margin:auto;
 }
 
+/* CSS to format the Wicket multi-file upload component */
+.wicket-mfu-container {
+	padding: 5px;
+	margin-top: 3px;
+	background-color: white;
+	border: 1px solid gray;
+	font-size: 10px;
+}
+
+.wicket-mfu-container div {
+	padding: 5px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+.wicket-mfu-caption {
+	font-weight: bold;
+	border: 1px solid gray;
+}
+
+.wicket-mfu-container input {
+	margin-left: 5px;
+	font-size: 10px;
+	float: right;
+}
+
 /* tabs */  
 .company-profile-tabpanel .tab-row ul,
 .messages-tabpanel .tab-row ul {
