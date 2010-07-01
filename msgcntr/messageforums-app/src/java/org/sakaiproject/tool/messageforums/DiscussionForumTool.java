@@ -497,8 +497,18 @@ public class DiscussionForumTool
 	 
 	     // query the database for all of the forums that are associated with the current site
 	     List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
-	     if (tempForums == null || tempForums.size() < 1) {
-	       return null;
+	     if (tempForums == null || tempForums.size() < 1) {	    	 
+	    	 if(SecurityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
+	    		 //initialize area:
+	    		 forumManager.getDiscussionForumArea();
+	    		 //try again:
+		    	 tempForums = forumManager.getForumsForMainPage();
+			     if (tempForums == null || tempForums.size() < 1) {
+			    	 return null;
+			     }
+	    	 }else{	    		 
+	    		 return null;
+	    	 }
 	     }
 	 
 	     // establish some values that we will check multiple times to shave a few processing cycles
