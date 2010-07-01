@@ -66,7 +66,7 @@
 							<h4>
 								<img src="#imageLink($att_item.iconLocation)" border= "0" alt="$att_item.hoverText" hspace="0" />
 								##<img src="#imageLink($contentTypeImageService.getContentTypeImage($att_item.type))" border= "0" alt ="$contentTypeImageService.getContentTypeDisplayName($att_item.type) icon" hspace="0" />
-								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$att_item.displayName</a>
+								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$validator.escapeHtml($att_item.displayName)</a>
 							</h4>	
 						</td>
 						<td  headers="action">
