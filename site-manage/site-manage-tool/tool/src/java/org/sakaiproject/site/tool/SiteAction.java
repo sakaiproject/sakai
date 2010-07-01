@@ -3307,9 +3307,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		String max_file_size_mb = ServerConfigurationService.getString(
 				"content.upload.max", "1");
-		int max_bytes = 1024 * 1024;
+		long max_bytes = 1024 * 1024;
 		try {
-			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+			max_bytes = Long.parseLong(max_file_size_mb) * 1024 * 1024;
 		} catch (Exception e) {
 			// if unable to parse an integer from the value
 			// in the properties file, use 1 MB as a default
@@ -3329,7 +3329,7 @@ public class SiteAction extends PagedResourceActionII {
 			byte[] fileData = fileFromUpload.get();
 
 			if (fileData.length >= max_bytes) {
-				addAlert(state, rb.getString("size") + " " + max_file_size_mb
+				addAlert(state, rb.getString("importFile.size") + " " + max_file_size_mb
 						+ "MB " + rb.getString("importFile.exceeded"));
 			} else if (fileData.length > 0) {
 
