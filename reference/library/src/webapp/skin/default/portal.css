@@ -718,6 +718,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 
 /*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
 .portlet{
+	
 }
 
 /*.portletTitleWrap are wrappers for the tool title documents,
@@ -777,7 +778,8 @@ below they are contextually defined depending on the column as an example,as you
 	padding: 0;
 	color: #555;
 	font-weight: bold;
-	font-size: 1.2em;
+	font-family:'Trebuchet MS',Verdana,sans-serif;
+	font-size: 1.2em !important;
 }
 
 
@@ -835,6 +837,7 @@ below they are contextually defined depending on the column as an example,as you
 	margin-bottom: .5em;
 	height: auto;
 	border: none;
+	margin-top:0
 }
 
 /*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
