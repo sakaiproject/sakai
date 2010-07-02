@@ -1245,9 +1245,8 @@ div.wicket-aa ul li.selected {
 }
 
 .wicket-mfu-container input {
-	margin-left: 5px;
+	margin-left: 10px;
 	font-size: 10px;
-	float: right;
 }
 
 /* tabs */  
