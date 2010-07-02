@@ -84,9 +84,8 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private boolean multipleSubmissions;
   private String scoringOption;
    
-  // lydial added for timezone conversion 
-  //private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
-  private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
+  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
+  //private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
   private boolean hasRandomDrawPart;
   private boolean isAssessmentRetractForEdit;
