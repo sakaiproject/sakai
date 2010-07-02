@@ -1219,7 +1219,7 @@ div.wicket-aa ul li.selected {
 
 .gallery-feed-item img {
 	max-width: 55px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
+	width: 55px; /* ie6 max-width hack removed */
 	display:block;
    	margin:auto;
 }
