@@ -883,6 +883,11 @@ public class UsersAction extends PagedResourceActionII
 			{
 				// add the user in one step so that all you need is add not update permission
 				// (the added might be "anon", and anon has add but not update permission)
+				
+				//SAK-18209 only an admin user should be able to specify a ID
+				if (!SecurityService.isSuperUser()) {
+					id = null;
+				}
 				User newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, null);
 
 				// put the user in the state
