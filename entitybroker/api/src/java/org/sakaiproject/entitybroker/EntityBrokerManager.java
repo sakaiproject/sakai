@@ -292,4 +292,9 @@ public interface EntityBrokerManager {
      */
     public String getServletContext();
 
+	/**
+	 * Returns the maximum depth of object graph allowed during transcoding to JSON
+	 */
+	public int getMaxJSONLevel();
+
 }

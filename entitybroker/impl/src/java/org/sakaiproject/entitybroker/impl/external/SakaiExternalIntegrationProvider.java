@@ -111,6 +111,13 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
     }
 
     /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#getMaxJSONLevel()
+     */
+	public String getMaxJSONLevel() {
+        return serverConfigurationService.getString("entitybroker.maxJSONLevel","7"); // default 7
+	}
+
+    /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#fetchEntity(java.lang.String)
      */
     public Object fetchEntity(String reference) {

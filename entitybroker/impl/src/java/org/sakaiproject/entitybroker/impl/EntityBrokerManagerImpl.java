@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -112,6 +111,25 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
         this.entityPropertiesService = entityPropertiesService;
         this.entityViewAccessProviderManager = entityViewAccessProviderManager;
         this.externalIntegrationProvider = externalIntegrationProvider;
+	}
+
+	public void init() {
+
+		// Set the maximum depth of object graph which can be transcoded into JSON.
+		// An integer between 4 and 26. Anything below 5 is set at 5, anything above 25 is set to 25.
+		String maxJSONLevelString = externalIntegrationProvider.getMaxJSONLevel();
+
+		try {
+			maxJSONLevel = Integer.parseInt(maxJSONLevelString);
+			if(this.maxJSONLevel < 5) {
+				this.maxJSONLevel = 5;
+			}
+			else if(this.maxJSONLevel > 25) {
+				this.maxJSONLevel = 25;
+			}
+		}
+		catch(NumberFormatException nfe) {
+		}
     }
 
     private EntityProviderManager entityProviderManager;
@@ -119,6 +137,15 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     private EntityViewAccessProviderManager entityViewAccessProviderManager;
     private ExternalIntegrationProvider externalIntegrationProvider;
     private EntityRESTProvider entityRESTProvider;
+
+	private int maxJSONLevel = 7;
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getMaxJSONLevel()
+     */
+	public int getMaxJSONLevel() {
+		return maxJSONLevel;
+	}
 
     private String servletContext;
     public String getServletContext() {

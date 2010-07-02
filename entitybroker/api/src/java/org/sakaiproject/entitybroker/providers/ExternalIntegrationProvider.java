@@ -44,6 +44,11 @@ public interface ExternalIntegrationProvider {
      */
     public String getServerUrl();
 
+	/**
+	 * Gets the entitybroker.maxJSONLevel config string from sakai.properties via ServerConfigurationService. Defaults to 5.
+	 */
+    public String getMaxJSONLevel();
+
     /**
      * Fetches a concrete object representing this entity reference from an external system<br/>
      * Note that this object may be a {@link String} or {@link Map} and does not have to be a POJO,

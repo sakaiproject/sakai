@@ -108,7 +108,8 @@
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.EntityBrokerManager"
-        class="org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl">
+        class="org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl"
+		init-method="init">
         <property name="entityProviderManager"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager" />
         <property name="entityPropertiesService" 

@@ -801,6 +801,7 @@ public class EntityEncodingManager {
         if (transcoders == null) {
             transcoders = new HashMap<String, Transcoder>();
             JSONTranscoder jt = new JSONTranscoder(true, true, false);
+			jt.setMaxLevel(entityBrokerManager.getMaxJSONLevel());
             transcoders.put(jt.getHandledFormat(), jt);
             transcoders.put(Formats.JSONP, jt);
             XMLTranscoder xt = new XMLTranscoder(true, true, false, false);

@@ -54,6 +54,13 @@ public class ExternalIntegrationProviderMock implements ExternalIntegrationProvi
     }
 
     /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#getMaxJSONLevel()
+     */
+    public String getMaxJSONLevel() {
+        return "12";
+    }
+
+    /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider#handleEntityError(javax.servlet.http.HttpServletRequest, java.lang.Throwable)
      */
     public String handleEntityError(HttpServletRequest req, Throwable error) {
