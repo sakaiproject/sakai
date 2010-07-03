@@ -42,7 +42,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		
 		if(prefs == null) {
 			prefs = dao.getPreferencesRecordForUser(userId);
-			log.debug("Fetching privacy record from dao for: " + userId);
+			log.debug("Fetching preferences record from dao for: " + userId);
 		
 			if(prefs == null) {
 				prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
