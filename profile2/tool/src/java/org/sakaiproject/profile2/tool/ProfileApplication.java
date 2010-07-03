@@ -16,6 +16,9 @@
 
 package org.sakaiproject.profile2.tool;
 
+import java.util.Locale;
+
+import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
@@ -24,8 +27,10 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.util.ResourceLoader;
 
 public class ProfileApplication extends WebApplication {    
     	
@@ -43,6 +48,8 @@ public class ProfileApplication extends WebApplication {
 		getApplicationSettings().setPageExpiredErrorPage(MyProfile.class);
 		getApplicationSettings().setAccessDeniedPage(MyProfile.class);
 		
+		// Custom resource loader since our properties are not in the default location
+		getResourceSettings().addStringResourceLoader(new ProfileStringResourceLoader());		
 	}
 	
 	// Throw RuntimeExceptions so they are caught by the Sakai ErrorReportHandler
@@ -56,6 +63,22 @@ public class ProfileApplication extends WebApplication {
 		};
 	}
 	
+	//Custom resource loader
+	private static class ProfileStringResourceLoader implements IStringResourceLoader {
+		
+		private ResourceLoader messages = new ResourceLoader("ProfileApplication");
+		
+		public String loadStringResource(Component component, String key) {
+			return messages.getString(key, key);
+		}
+
+		public String loadStringResource(Class clazz, String key, Locale locale, String style) {
+			messages.setContextLocale(locale);
+			return messages.getString(key, key);
+		}
+
+	}
+	
 	
 	public ProfileApplication() {
 	}
@@ -64,5 +87,5 @@ public class ProfileApplication extends WebApplication {
 	public Class<Dispatcher> getHomePage() {
 		return Dispatcher.class;
 	}
-
+	
 }
