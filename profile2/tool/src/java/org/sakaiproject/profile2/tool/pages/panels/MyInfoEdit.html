@@ -109,6 +109,7 @@
 		http://docs.jquery.com/UI/Datepicker/datepicker#options
 		*/
 		$(document).ready(function(){
+
 			$('.datePicker').datepicker({
 				yearRange: '-100:+1',
 				dateFormat: 'dd MM yy',
@@ -117,12 +118,11 @@
 				maxDate: new Date(),  
 				showOn: 'both', 
 				buttonImage: '/library/image/silk/calendar.png',
+				buttonText: jQuery.i18n.prop('accessibility.profile.birthday'),
 				buttonImageOnly: true
 			});
-		});
+		
 
-
-		$(document).ready(function() {
 			$('.sakai-wicket-iconwithtooltip').cluetip({
 				local: true,
 				showTitle: false,
@@ -134,6 +134,7 @@
 			});	
 			
 		});
+		
 
 	</script> 
 	

@@ -276,6 +276,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//add live plugin to listen for markup added after the DOM is ready
 		//response.renderJavascriptReference("javascript/jquery.livequery.js");
 		
+		//for i18n plugin
+		response.renderJavascriptReference("javascript/jquery.i18n.properties-min.js");
+		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		response.renderCSSReference("css/profile2.css");

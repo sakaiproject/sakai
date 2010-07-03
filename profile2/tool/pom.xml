@@ -162,6 +162,37 @@
                 <filtering>false</filtering>
             </resource>
 		</resources>
+		
+		<plugins>
+			<!-- Unpack resource bundles JAR into webapp/bundle -->
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-dependency-plugin</artifactId>
+                 <executions>
+					<execution>
+						<id>unpack</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.sakaiproject.profile2</groupId>
+									<artifactId>profile2-bundle</artifactId>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/${project.build.finalName}/bundle</outputDirectory>
+									<includes>**/*.properties</includes>
+									<excludes></excludes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>	
+		
 	</build>
 
 	
