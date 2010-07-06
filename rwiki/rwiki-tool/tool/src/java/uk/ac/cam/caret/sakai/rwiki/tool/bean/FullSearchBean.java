@@ -44,6 +44,9 @@ public class FullSearchBean
 	
 	private static Log log = LogFactory.getLog(FullSearchBean.class);
 
+	/** Tool restriction: see RWikiEntityContentProducer.getTool() **/
+	private static final String SEARCH_SUFFIX = " +tool:wiki";
+		
 	/**
 	 * The search criteria
 	 */
@@ -195,7 +198,7 @@ public class FullSearchBean
 			int searchStart = requestPage * pagesize;
 			int searchEnd = searchStart + pagesize;
 			try {
-				searchResults = searchService.search(search, l, searchStart,
+				searchResults = searchService.search(search.concat(SEARCH_SUFFIX), l, searchStart,
 						searchEnd);
 				long end = System.currentTimeMillis();
 				timeTaken = end - start;
