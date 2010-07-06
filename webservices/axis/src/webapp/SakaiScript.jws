@@ -2118,6 +2118,11 @@ public String removeMemberFromSite(String sessionid, String siteid, String eid) 
 public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, String eid) throws AxisFault {
 	Session s = establishSession(sessionid);
 	
+	if ("/site/!admin".equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
+	}
+
 	try {		
 		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
 		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
@@ -2220,6 +2225,11 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 	
 	Session s = establishSession(sessionid);
 	
+	if ("/site/!admin".equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
+	}
+
 	try {
 		
 		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
