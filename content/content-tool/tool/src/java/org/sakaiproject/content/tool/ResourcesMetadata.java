@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 
 /**
  * The class represents metadata properties.
@@ -1093,6 +1094,10 @@ public class ResourcesMetadata
 			try
 			{
 				rv = m_currentValues.get(index);
+				if (rv instanceof String)
+				{
+					rv = Validator.escapeHtml((String)rv);
+				}
 			}
 			catch(ArrayIndexOutOfBoundsException e)
 			{
@@ -1107,7 +1112,7 @@ public class ResourcesMetadata
 	 */
 	public Object getValue()
 	{
-		return getValue(0);
+		return Validator.escapeHtml((String)getValue(0));
 	}
 	
 	public List getInstanceValues()
