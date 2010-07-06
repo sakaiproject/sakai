@@ -126,7 +126,7 @@ public class SiteParticipantHelper {
 							else
 							{
 								participant = new Participant();
-								participant.credits = e.getCredits();
+								participant.credits = e.getCredits() != null?e.getCredits():"";
 								participant.name = user.getSortName();
 								if (member.isProvided())
 								{
