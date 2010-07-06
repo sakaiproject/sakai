@@ -1112,7 +1112,7 @@ public class ResourcesMetadata
 	 */
 	public Object getValue()
 	{
-		return Validator.escapeHtml((String)getValue(0));
+		return getValue(0);
 	}
 	
 	public List getInstanceValues()
