@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -1217,6 +1218,41 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 	try {
 
 		Site siteEdit = siteService.getSite(siteid);
+		
+		// Check that the tool is visible (not stealthed) and available for this site type (category)
+		if (!securityService.isSuperUser(session.getUserId())) {
+
+			Set categories = new HashSet<String>();
+			Set<Tool> visibleTools = toolManager.findTools(categories, null);
+			
+			boolean toolVisible = false;
+			for (Tool tool : visibleTools) {
+				if (tool.getId().equals(toolid)) {
+					toolVisible = true;
+				}
+			}
+			
+			if (!toolVisible) {
+				LOG.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
+				throw new AxisFault("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
+			}
+
+			categories.add(siteEdit.getType());		
+			Set<Tool> availableTools = toolManager.findTools(categories, null);
+
+			boolean toolAvailable = false;
+			for (Tool tool : availableTools) {
+				if (tool.getId().equals(toolid)) {
+					toolAvailable = true;
+				}
+			}
+			
+			if (!toolAvailable) {
+				LOG.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+				throw new AxisFault("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+			}
+		}
+				
 		List pageEdits = siteEdit.getPages();
 		for (Iterator i = pageEdits.iterator(); i.hasNext();)
 		{
