@@ -746,13 +746,17 @@ public String allowFunctionForRole( String sessionid, String authzgroupid, Strin
 {
 	Session session = establishSession(sessionid);
 	
-	try {
+	// check that ONLY super user's are accessing this (see SAK-18494)
+	if (!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
+	}
 
+	try {
 		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		Role role = authzgroup.getRole(roleid);
 		role.allowFunction(functionname);
 		authzGroupService.save(authzgroup);
-	
 	}
 	catch (Exception e) {  
 		LOG.error("WS allowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
