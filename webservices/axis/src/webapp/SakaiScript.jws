@@ -62,6 +62,8 @@ private static final Log LOG = LogFactory.getLog(SakaiScript.class);
 
 private static final String TOOL_CONFIG_FUNCTIONS = "functions.require";
 
+private static final String ADMIN_SITE_REALM = "/site/!admin";
+
 private AuthzGroupService authzGroupService;
 private CalendarService calendarService;
 private EventTrackingService eventTrackingService;
@@ -1360,6 +1362,11 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
 {
 	Session s = establishSession(sessionid);
 	
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+	}
+
 	try {
 		AuthzGroup authzgroup = null; 
 		authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
@@ -2118,7 +2125,7 @@ public String removeMemberFromSite(String sessionid, String siteid, String eid) 
 public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, String eid) throws AxisFault {
 	Session s = establishSession(sessionid);
 	
-	if ("/site/!admin".equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
 		LOG.warn("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
 		throw new AxisFault("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
 	}
@@ -2155,6 +2162,11 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 	
 	Session s = establishSession(sessionid);
 		
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+	}
+	
 	try {
 		
 		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
@@ -2225,7 +2237,7 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 	
 	Session s = establishSession(sessionid);
 	
-	if ("/site/!admin".equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
 		LOG.warn("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
 		throw new AxisFault("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
 	}
