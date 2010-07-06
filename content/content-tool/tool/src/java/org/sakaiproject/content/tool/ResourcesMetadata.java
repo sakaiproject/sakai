@@ -1094,10 +1094,7 @@ public class ResourcesMetadata
 			try
 			{
 				rv = m_currentValues.get(index);
-				if (rv instanceof String)
-				{
-					rv = Validator.escapeHtml((String)rv);
-				}
+
 			}
 			catch(ArrayIndexOutOfBoundsException e)
 			{

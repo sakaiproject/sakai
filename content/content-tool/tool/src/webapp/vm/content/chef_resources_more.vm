@@ -178,7 +178,7 @@
 								$tag.label
 							</td>
 							<td>
-								$!tag.value 
+								 $validator.escapeHtml($!tag.value) 
 							</td>
 						</tr>
 					#end
