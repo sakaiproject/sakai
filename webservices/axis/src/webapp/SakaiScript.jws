@@ -1111,6 +1111,14 @@ public String copySite( String sessionid, String siteidtocopy, String newsiteid,
 	try {
 
 		Site site = siteService.getSite(siteidtocopy);
+		
+		// If not admin, check maintainer membership in the source site
+		if (!securityService.isSuperUser(session.getUserId()) && 
+			!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+			LOG.warn("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+			throw new AxisFault("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+		}
+		
 		Site siteEdit = siteService.addSite(newsiteid, site);
 		siteEdit.setTitle(title);
 		siteEdit.setDescription(description);
