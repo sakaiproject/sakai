@@ -1,0 +1,16 @@
+<sakai:tool_bar>
+    <sakai:tool_bar_item action="overview" value="#{msgs.navbar_overview}" disabled="#{viewBean eq overview}" />
+    <sakai:tool_bar_item action="pictures" value="#{msgs.navbar_pics}" disabled="#{viewBean eq pictures}" rendered="#{viewBean.renderPicturesLink}"/>
+    <sakai:tool_bar_item action="#{viewBean.groupMembership}" value="#{msgs.navbar_group_membership}" disabled="#{viewBean eq groupMembership}" rendered="#{viewBean.renderGroupMembershipLink}"/>
+    <sakai:tool_bar_item action="status" value="#{msgs.navbar_status}" disabled="#{viewBean eq status}" rendered="#{viewBean.renderStatusLink}" />
+</sakai:tool_bar>
+
+<h:panelGrid columns="2" styleClass="rosterPageHeader" columnClasses="rosterPageHeaderLeft,rosterPageHeaderRight">
+	<sakai:view_title value="#{viewBean.pageTitle}" />
+
+	<h:panelGroup>
+		<h:commandButton actionListener="#{viewBean.export}" value="#{msgs.export}" rendered="#{viewBean.exportablePage}" title="#{msgs.export_roster}"/>
+		<h:commandButton onclick="javascript:window.print();return false;" value="#{(viewBean ne pictures) ? msgs.print : msgs.print_screen}" title="#{(viewBean ne pictures) ? msgs.print : msgs.print_screen}"/>
+		<h:commandButton onclick="javascript:printFriendly('#{viewBean.printFriendlyUrl}');" value="#{msgs.print_single}" rendered="#{viewBean eq pictures}" />
+	</h:panelGroup>
+</h:panelGrid>

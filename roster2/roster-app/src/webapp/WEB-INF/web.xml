@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!-- Changed spec level to 2.4 PAFH 8/30/2006 -->
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <display-name>sakai.roster</display-name>
+
+    <description>sakai.roster</description>
+
+    <context-param>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>client</param-value>
+    </context-param>
+
+    <!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+    <!-- Faces Servlet -->
+    <servlet>
+        <servlet-name>sakai.site.roster</servlet-name>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>main</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/roster</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!-- Faces Servlet -->
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    <!--Roster image rendering servlet -->
+    <servlet>
+	  <!-- Ordering changed to meet DTD - PAFH 8/30/2006 -->
+        <description>Participant Image Rendering Servlet</description>
+        <display-name>Participant Image Rendering Servlet</display-name>
+        <servlet-name>ParticipantImageServlet</servlet-name>
+         <servlet-class>org.sakaiproject.tool.roster.ParticipantImageServlet</servlet-class>
+        <load-on-startup> 2 </load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ParticipantImageServlet</servlet-name>
+        <url-pattern>*.prf</url-pattern>
+    </servlet-mapping>
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+</web-app>

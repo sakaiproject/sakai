@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+    <application>
+        <variable-resolver>org.sakaiproject.jsf.app.SakaiVariableResolver</variable-resolver>
+        <message-bundle>org.sakaiproject.tool.roster.bundle.Messages</message-bundle>
+        <locale-config>
+            <default-locale>en</default-locale>
+            <supported-locale>en</supported-locale>
+            <supported-locale>de</supported-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>es</supported-locale>
+        </locale-config>
+    </application>
+    <navigation-rule>
+        <from-view-id>/roster/*</from-view-id>
+        <navigation-case>
+            <from-outcome>overview</from-outcome>
+            <to-view-id>/roster/main.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>printFriendlyRoster</from-outcome>
+            <to-view-id>/roster/printFriendlyRoster.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>completeProfile</from-outcome>
+            <to-view-id>/roster/displayCompleteProfile.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>publicProfile</from-outcome>
+            <to-view-id>/roster/displayPublicProfile.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>profileNotFound</from-outcome>
+            <to-view-id>/roster/profileNotFound.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>options</from-outcome>
+            <to-view-id>/roster/options.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pictures</from-outcome>
+            <to-view-id>/roster/pictures.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>status</from-outcome>
+            <to-view-id>/roster/status.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>groupMembership</from-outcome>
+            <to-view-id>/roster/groupMembership.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+    </navigation-rule>
+
+    <managed-bean>
+        <managed-bean-name>services</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.ServicesBean</managed-bean-class>
+        <managed-bean-scope>application</managed-bean-scope>
+        <managed-property>
+            <property-name>rosterManager</property-name>
+            <value>#{org_sakaiproject_api_app_roster_RosterManager}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>sectionAwareness</property-name>
+            <value>#{org_sakaiproject_section_api_SectionAwareness}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>cmService</property-name>
+            <value>#{org_sakaiproject_coursemanagement_api_CourseManagementService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>authzService</property-name>
+            <value>#{org_sakaiproject_authz_api_AuthzGroupService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>securityService</property-name>
+            <value>#{org_sakaiproject_authz_api_SecurityService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>siteService</property-name>
+            <value>#{org_sakaiproject_site_api_SiteService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>toolManager</property-name>
+            <value>#{org_sakaiproject_tool_api_ToolManager}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>userDirectoryService</property-name>
+            <value>#{org_sakaiproject_user_api_UserDirectoryService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>serverConfigurationService</property-name>
+            <value>#{org_sakaiproject_component_api_ServerConfigurationService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>profileManager</property-name>
+            <value>#{org_sakaiproject_api_app_profile_ProfileManager}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>photoService</property-name>
+            <value>#{org_sakaiproject_api_app_roster_PhotoService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>eventTrackingService</property-name>
+            <value>#{org_sakaiproject_event_api_EventTrackingService}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>requestCache</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RequestCache</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>statusRequestCache</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.StatusRequestCache</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>prefs</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterPreferences</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+	        <property-name>services</property-name>
+	        <value>#{services}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>searchFilter</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.SearchFilter</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>filter</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.FilteredParticipantListingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <property-name>searchFilter</property-name>
+            <value>#{searchFilter}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>services</property-name>
+            <value>#{services}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>enrollmentStatusPrefs</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterPreferences</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+	        <property-name>services</property-name>
+	        <value>#{services}</value>
+        </managed-property>        
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>enrollmentStatusFilter</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.FilteredStatusListingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <property-name>searchFilter</property-name>
+            <value>#{searchFilter}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>services</property-name>
+            <value>#{services}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>overview</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterOverview</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>filter</property-name>
+            <value>#{filter}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>prefs</property-name>
+            <value>#{prefs}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>profileBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterProfile</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>services</property-name>
+            <value>#{services}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>prefs</property-name>
+            <value>#{prefs}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>pictures</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterPictures</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>filter</property-name>
+            <value>#{filter}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>prefs</property-name>
+            <value>#{prefs}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>status</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterStatus</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>filter</property-name>
+            <value>#{enrollmentStatusFilter}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>prefs</property-name>
+            <value>#{enrollmentStatusPrefs}</value>
+        </managed-property>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>groupMembership</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.roster.RosterGroupMembership</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>filter</property-name>
+            <value>#{filter}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>prefs</property-name>
+            <value>#{prefs}</value>
+        </managed-property>
+    </managed-bean>
+
+    <!-- =================== Component to display richtext  ============== -->
+    <component>
+        <component-type>RosterDisplayHTML</component-type>
+        <component-class>org.sakaiproject.jsf.roster.RosterDisplayHTMLComponent</component-class>
+    </component>
+
+    <render-kit>
+
+        <renderer>
+            <component-family>RosterDisplayHTML</component-family>
+            <renderer-type>RosterDisplayHTMLRender</renderer-type>
+            <renderer-class>org.sakaiproject.jsf.roster.RosterDisplayHTMLRender</renderer-class>
+        </renderer>
+        
+        <renderer>
+            <component-family>javax.faces.Command</component-family>
+            <renderer-type>org.apache.myfaces.SortHeader</renderer-type>
+            <renderer-class>org.sakaiproject.jsf.roster.HtmlSortHeaderRenderer</renderer-class>
+        </renderer>
+
+    </render-kit>
+
+
+    <converter>
+        <converter-id>textTruncateConverter</converter-id>
+        <converter-class>org.sakaiproject.jsf.roster.TextTruncateConverter</converter-class>
+    </converter>
+    
+    <converter>
+        <converter-id>groupTextTruncateConverter</converter-id>
+        <converter-class>org.sakaiproject.jsf.roster.GroupTextTruncateConverter</converter-class>
+    </converter>
+
+</faces-config>

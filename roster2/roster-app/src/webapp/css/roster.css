@@ -1,0 +1,42 @@
+table.rosterPageHeader {
+	width:100%;
+}
+
+.rosterPageHeaderLeft  {
+	vertical-align:top;
+    text-align:left;
+}
+
+.rosterPageHeaderRight  {
+	vertical-align:top;
+    text-align:right;
+}
+
+.filterLabel {
+	vertical-align:top;
+	font-weight:bold;
+}
+
+.filterElement {
+}
+
+table.searchFilter {
+	margin-top:1em;
+}
+
+table.rosterPicturesFilter {
+	width:45em;
+}
+
+table.rosterPictures {
+	width:45em;
+}
+
+
+table.rosterPictures td {
+	width:9em;
+	height:10em;
+	vertical-align:top;
+}
+
+@media print  { .noprint  { display: none; } }

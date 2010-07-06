@@ -1,0 +1,34 @@
+<%-- Initialize the filter --%>
+<h:outputText value="#{filter.init}" />
+
+<h:panelGrid columns="3" rendered="#{filter.displaySectionsFilter}">
+    <h:outputText value="#{msgs.section_filter_pre}" styleClass="filterLabel" />
+    <h:selectOneMenu id="section_filter" value="#{filter.sectionFilter}" onchange="this.form.submit()" immediate="true">
+        <f:selectItems value="#{filter.sectionSelectItems}" />
+    </h:selectOneMenu>
+    <h:outputText value="#{msgs.section_filter_post}" styleClass="filterLabel" />
+</h:panelGrid>
+
+<h:panelGrid id="search_group" columns="2" styleClass="searchFilter">
+    <t:div id="search_filter" styleClass="act">
+        <h:inputText id="search" value="#{filter.searchFilterString}" onfocus="clearIfDefaultString(this, '#{msgs.roster_search_text}')" onkeypress="return handleEnterKey(this, event)"/>
+        <h:commandButton id="search_button" value="#{msgs.roster_search_button}" actionListener="#{filter.search}" styleClass="active" />
+        <h:commandButton id="clear_button" value="#{msgs.roster_clear_button}" actionListener="#{filter.clearSearch}" />
+    </t:div>
+
+    <h:panelGroup styleClass="instruction">
+        <t:div style="padding-left:10px;" rendered="#{filter.participantCount > 0}">
+            <h:outputFormat value="#{msgs.currently_displaying_participants}" rendered="#{filter.participantCount > 1}">
+                <f:param value="#{filter.participantCount}" />
+            </h:outputFormat>
+            <h:outputFormat value="#{msgs.currently_displaying_participant}"  rendered="#{filter.participantCount == 1}">
+                <f:param value="#{filter.participantCount}" />
+            </h:outputFormat>
+        </t:div>
+
+        <t:div style="padding-left:10px;" rendered="#{filter.participantCount > 1 }">
+            <h:outputText value="#{filter.roleCountMessage}" />
+        </t:div>
+    </h:panelGroup>
+</h:panelGrid>
+

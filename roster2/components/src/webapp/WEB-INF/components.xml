@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean id="org.sakaiproject.api.app.roster.RosterManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref
+				bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.roster.RosterManagerImpl" init-method="init">
+                <lookup-method name="profileManager" bean="org.sakaiproject.api.app.profile.ProfileManager" />
+                <lookup-method name="privacyManager" bean="org.sakaiproject.api.privacy.PrivacyManager" />
+                <lookup-method name="sectionService" bean="org.sakaiproject.section.api.SectionAwareness" />
+                <lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+                <lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+                <lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+                <lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+                <lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
+                <lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+                <lookup-method name="cmService" bean="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+                <lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />                           
+            </bean>
+
+        </property>
+    </bean>
+
+    <!--
+		The out-of-the-box provider of roster photos is the profile service.
+		Installations can override the default provider by registering a bean named 
+		"org.sakaiproject.api.app.roster.PhotoService".
+	-->
+    <bean id="org.sakaiproject.component.app.roster.ProfilePhotoService"
+          class="org.sakaiproject.component.app.roster.ProfilePhotoService"
+          lazy-init="true">
+        <property name="profileManager" ref="org.sakaiproject.api.app.profile.ProfileManager" />
+	</bean>
+	
+</beans>
