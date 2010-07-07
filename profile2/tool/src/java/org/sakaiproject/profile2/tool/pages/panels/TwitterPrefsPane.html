@@ -20,7 +20,7 @@
 	
 	<wicket:fragment wicket:id="unlinked">
 		<td class="label">
-			<a wicket:id="twitterAuthLink" class="icon twitter"><span wicket:id="twitterAuthLabel">[twitterAuthLabel]</span></a>
+			<a wicket:id="twitterAuthLink" class="icon twitter new-window"><span wicket:id="twitterAuthLabel">[twitterAuthLabel]</span></a>
 		</td>
 		<td class="content">
 			<form wicket:id="twitterForm">
@@ -40,6 +40,17 @@
 		</td>
 	</wicket:fragment>
 		
+		
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$(function(){
+			    $('a.new-window').click(function(){
+			        window.open(this.href);
+			        return false;
+			    });
+			});
+		});
+	</script>
 						
 						
 </wicket:panel>

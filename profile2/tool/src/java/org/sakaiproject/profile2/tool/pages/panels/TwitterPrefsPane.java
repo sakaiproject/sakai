@@ -5,8 +5,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -22,6 +20,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
+import org.sakaiproject.profile2.tool.components.AjaxExternalLink;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -122,24 +121,11 @@ public class TwitterPrefsPane extends Panel {
 		
 		frag.add(twitterForm);
 		
-		
 		//auth link/label
-		final IndicatingAjaxLink<String> twitterAuthLink = new IndicatingAjaxLink<String>("twitterAuthLink") {
+		final AjaxExternalLink<String> twitterAuthLink = new AjaxExternalLink<String>("twitterAuthLink", getTwitterAuthorisationUrl()) {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
-				
-				//get auth url
-				String authorisationUrl = getTwitterAuthorisationUrl();
-				
-				if(StringUtils.isBlank(authorisationUrl)){
-					//TODO change this
-					target.appendJavascript("alert('Error getting the Twitter authorisation URL. Please try again later.');");
-					return;
-				}
-				
-				//open window
-				target.appendJavascript("window.open('" + requestToken.getAuthorizationURL() + "','Link your Twitter account','width=800,height=400');");
 				
 				//enable code box and button
 				twitterAuthCode.setEnabled(true);
@@ -152,8 +138,6 @@ public class TwitterPrefsPane extends Panel {
 		Label twitterAuthLabel = new Label("twitterAuthLabel", new ResourceModel("twitter.auth.do"));
 		twitterAuthLink.add(twitterAuthLabel);
 		frag.add(twitterAuthLink);
-		
-		
 		frag.setOutputMarkupId(true);
 		
 		return frag;
