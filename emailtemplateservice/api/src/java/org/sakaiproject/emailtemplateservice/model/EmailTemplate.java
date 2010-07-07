@@ -29,138 +29,154 @@ import java.util.Date;
  */
 public class EmailTemplate implements java.io.Serializable {
 
-   // Fields
+	// Fields
 
-   private Long id;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8697605573015358433L;
 
-   private Date lastModified;
+	private Long id;
 
-   private String key;
+	private Date lastModified;
 
-   private String locale;
+	private String key;
 
-   private String owner;
+	private String locale;
 
-   private String subject;
+	private String owner;
 
-   private String message;
+	private String subject;
 
-   private String htmlMessage;
-   
-   private Integer version;
-   
+	private String message;
 
+	private String htmlMessage;
 
-private String defaultType;
+	private Integer version;
 
-   // Constructors
-
-   /** default constructor */
-   public EmailTemplate() {
-   }
-
-   /** minimal constructor 
-    * @param key TODO*/
-   public EmailTemplate(String key, String owner, String message) {
-      if (this.lastModified == null) {
-         this.lastModified = new Date();
-      }
-      this.owner = owner;
-      this.message = message;
-   }
-
-   /** full constructor */
-   public EmailTemplate(String key, String owner, String message, String defaultType, String locale) {
-      if (this.lastModified == null) {
-         this.lastModified = new Date();
-      }
-      this.key = key;
-      this.locale = locale;
-      this.owner = owner;
-      this.message = message;
-      this.defaultType = defaultType;
-   }
-
-   // Property accessors
-   public Long getId() {
-      return this.id;
-   }
-
-   public void setId(Long id) {
-      this.id = id;
-   }
-
-   public Date getLastModified() {
-      return this.lastModified;
-   }
-
-   public void setLastModified(Date lastModified) {
-      this.lastModified = lastModified;
-   }
-
-   public String getOwner() {
-      return this.owner;
-   }
-
-   public void setOwner(String owner) {
-      this.owner = owner;
-   }
-
-   public String getMessage() {
-      return this.message;
-   }
-
-   public void setMessage(String message) {
-      this.message = message;
-   }
-
-   public String getDefaultType() {
-      return this.defaultType;
-   }
-
-   public void setDefaultType(String defaultType) {
-      this.defaultType = defaultType;
-   }
-
-   public String getKey() {
-      return key;
-   }
-
-   public void setKey(String key) {
-      this.key = key;
-   }
-
-   public String getLocale() {
-      return locale;
-   }
-
-   public void setLocale(String locale) {
-      this.locale = locale;
-   }
-
-   public String getSubject() {
-      return subject;
-   }
-
-   public void setSubject(String subject) {
-	   this.subject = subject;
-   }
+	private String from;
 
 
-   public String getHtmlMessage() {
-	   return htmlMessage;
-   }
 
-   public void setHtmlMessage(String htmlMessge) {
-	   this.htmlMessage = htmlMessge;
-   }
+	private String defaultType;
 
-   public void setVersion(Integer version) {
-	   this.version = version;
-   }
+	// Constructors
 
-   public Integer getVersion() {
-	   return version;
-   }
+	/** default constructor */
+	public EmailTemplate() {
+	}
+
+	/** minimal constructor 
+	 * @param key TODO*/
+	public EmailTemplate(String key, String owner, String message) {
+		if (this.lastModified == null) {
+			this.lastModified = new Date();
+		}
+		this.owner = owner;
+		this.message = message;
+	}
+
+	/** full constructor */
+	public EmailTemplate(String key, String owner, String message, String defaultType, String locale) {
+		if (this.lastModified == null) {
+			this.lastModified = new Date();
+		}
+		this.key = key;
+		this.locale = locale;
+		this.owner = owner;
+		this.message = message;
+		this.defaultType = defaultType;
+	}
+
+	// Property accessors
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getLastModified() {
+		return this.lastModified;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public String getOwner() {
+		return this.owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getMessage() {
+		return this.message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getDefaultType() {
+		return this.defaultType;
+	}
+
+	public void setDefaultType(String defaultType) {
+		this.defaultType = defaultType;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getLocale() {
+		return locale;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+
+	public String getHtmlMessage() {
+		return htmlMessage;
+	}
+
+	public void setHtmlMessage(String htmlMessge) {
+		this.htmlMessage = htmlMessge;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
 
 }

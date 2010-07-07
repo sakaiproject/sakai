@@ -325,8 +325,12 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				
 				// we need to manually contruct the headers
 				List<String> headers = new ArrayList<String>();
-				headers.add("From: \"" + fromName + "\" <" + fromEmail + ">" );
-				
+				//the template may specify a from address
+				if (rt.getFrom() != null) {
+					headers.add("From: \"" + rt.getFrom() );
+				} else {
+					headers.add("From: \"" + fromName + "\" <" + fromEmail + ">" );
+				}
 				// Add a To: header of either the recipient (if only 1), or the sender (if multiple)
 				String toName = fromName;
 				String toEmail = fromEmail;

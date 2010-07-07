@@ -23,6 +23,10 @@ package org.sakaiproject.emailtemplateservice.model;
 
 public class RenderedTemplate extends EmailTemplate {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6279976323700630617L;
 	private String renderedSubject;
 	private String renderedMessage;
 	private String renderedHtmlMessage;
