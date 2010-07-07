@@ -298,6 +298,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			toolIdIconMap.put("sakai.todolist", StatsManager.SILK_ICONS_DIR + "note.png");
 			toolIdIconMap.put("sakai.markup", StatsManager.SILK_ICONS_DIR + "layout_edit.png");
 			toolIdIconMap.put("sakai.bbb", StatsManager.SILK_ICONS_DIR + "webcam.png");
+			toolIdIconMap.put("sakai.basiclti", StatsManager.SILK_ICONS_DIR + "application_go.png");
 			
 			// Defaults: admin tools
 			toolIdIconMap.put("sakai.users", StatsManager.SILK_ICONS_DIR + "folder_user.png");
