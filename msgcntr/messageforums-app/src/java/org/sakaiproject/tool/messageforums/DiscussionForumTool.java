@@ -513,7 +513,7 @@ public class DiscussionForumTool
 	 
 	     // establish some values that we will check multiple times to shave a few processing cycles
 	     boolean readFullDescription = "true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription"));
-	 
+	     userId = getUserId();
 	     // run through the topics once to get their parent forums, create the decorated topics that will be used later, and
 	     // possibly set the message count
 	     SortedSet<DiscussionForum> tempSortedForums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
@@ -540,11 +540,16 @@ public class DiscussionForumTool
 	             if (readFullDescription) decoTopic.setReadFullDesciption(true);
 	 
 	             // set the message count for moderated topics, otherwise it will be set later
-	             if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum())) {
-	               decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(currTopic));
-	               decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(currTopic));
-	             } else {
-	               topicIdsForCounts.add(currTopic.getId());
+	             if(uiPermissionsManager.isRead(decoTopic.getTopic(), (DiscussionForum)currTopic.getOpenForum(), userId)){
+	            	 if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum())) {
+	            		 decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(currTopic));
+	            		 decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(currTopic));
+	            	 } else {
+	            		 topicIdsForCounts.add(currTopic.getId());
+	            	 }
+	             }else{
+	            	 decoTopic.setTotalNoMessages(0);
+	            	 decoTopic.setUnreadNoMessages(0);
 	             }
 	 
 	             topicBeans.put(currTopic.getId(), decoTopic);
@@ -552,16 +557,18 @@ public class DiscussionForumTool
 	         }
 	       } // end the big forum if
 	     }
-	 
+	     
+	     
+
 	     // get the total message count of non-moderated topics and add them to the discussion topic bean and
 	     // initialize the unread number of messages to all of them.
 	     List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
 	     for (Object[] counts: topicMessageCounts) {
-	       DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	       decoTopic.setTotalNoMessages((Integer)counts[1]);
-	       decoTopic.setUnreadNoMessages((Integer)counts[1]);
+	    	 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
+	    	 decoTopic.setTotalNoMessages((Integer)counts[1]);
+	    	 decoTopic.setUnreadNoMessages((Integer)counts[1]);
 	     }
-	 
+
 	     // get the total read message count for the current user of non-moderated and add them to the discussion
 	     // topic bean as the number of unread messages.  I could've combined this with the previous query but
 	     // stupid Hibernate (3.x) won't let us properly outer join mapped entitys that do not have a direct
@@ -570,10 +577,10 @@ public class DiscussionForumTool
 	     // loop.
 	     topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
 	     for (Object[] counts: topicMessageCounts) {
-	       DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	       decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
+	    	 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
+	    	 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
 	     }
-	 
+
 	     // get the assignments for use later
 	     try {
 	       assignments = new ArrayList<SelectItem>();
@@ -608,7 +615,7 @@ public class DiscussionForumTool
 	     forums = new ArrayList<DiscussionForumBean>();
 	     int sortIndex = 1;
 	     int unreadMessagesCount = 0;
-	     userId = getUserId();
+	     
 
 	     for (DiscussionForum forum: tempSortedForums) {
 	       // manually set the sort index now that the list is sorted
@@ -2531,7 +2538,7 @@ public class DiscussionForumTool
 			  }
 
 			  List topicMsgs = topic.getMessages();
-			  if (topicMsgs == null || topicMsgs.size() == 0) {
+			  if (topicMsgs == null || topicMsgs.size() == 0 || !uiPermissionsManager.isRead(topic, forum)) {
 				  decoTopic.setTotalNoMessages(0);
 				  decoTopic.setUnreadNoMessages(0);
 			  } else if (!topic.getModerated().booleanValue() || uiPermissionsManager.isModeratePostings(topic, forum)) {
@@ -2784,9 +2791,11 @@ public class DiscussionForumTool
     	{    
     		decoTopic.setPreviousTopicId(forumManager.getPreviousTopic(topic).getId());
     	}
-
-    	List temp_messages = forumManager.getTopicByIdWithMessagesAndAttachments(topic.getId())
-    	.getMessages();
+    	List temp_messages = null;
+    	if(uiPermissionsManager.isRead(topic, selectedForum.getForum())){
+    		temp_messages = forumManager.getTopicByIdWithMessagesAndAttachments(topic.getId())
+    		.getMessages();
+    	}
     	if (temp_messages == null || temp_messages.size() < 1)
     	{
     		decoTopic.setTotalNoMessages(0);
