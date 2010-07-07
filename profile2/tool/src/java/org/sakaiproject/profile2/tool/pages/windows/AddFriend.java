@@ -148,6 +148,7 @@ public class AddFriend extends Panel {
             }
 		};
 		submitButton.add(new FocusOnLoadBehaviour());
+		submitButton.add(new AttributeModifier("title", true, new StringResourceModel("accessibility.connection.add", null, new Object[]{ friendName } )));
 		form.add(submitButton);
 		
         
