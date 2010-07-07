@@ -184,6 +184,7 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 
 
 		UIInput.make(form, "emailSubject", emailTemplateOTP + "subject",template.getSubject());
+		UIInput.make(form, "emailFrom", emailTemplateOTP + "from",template.getFrom());
 		UIInput.make(form, "emailKey", emailTemplateOTP + "key",template.getKey());
 		UIInput.make(form, "emailLocale", emailTemplateOTP + "locale",template.getLocale());
 		UIInput.make(form, "emailMessage", emailTemplateOTP + "message",template.getMessage());
