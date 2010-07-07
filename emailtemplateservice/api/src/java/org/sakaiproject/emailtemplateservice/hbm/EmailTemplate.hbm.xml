@@ -22,6 +22,9 @@
         <property name="subject" type="text">
 	        <column name="SUBJECT" not-null="true" length="100000000"/>
         </property>
+        <property name="from" type="text">
+	        <column name="emailfrom" not-null="false" length="255"/>
+        </property>
         <!-- the email template message -->
         <property name="message" type="text">
              <column name="MESSAGE" not-null="true" length="100000000"/>
