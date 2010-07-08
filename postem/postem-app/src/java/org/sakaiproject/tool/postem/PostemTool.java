@@ -39,6 +39,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.shared_impl.util.MessageUtils;
@@ -268,8 +269,9 @@ public class PostemTool {
 		if (currentGradebook == null) {
 			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
-		if (currentStudent == null) {
-			return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
+		if (currentStudent == null) {	
+			return "<p>" + msgs.getFormattedMessage("no_grades_for_user", 
+					new Object[]{StringEscapeUtils.escapeHtml(currentGradebook.getTitle())}) + "</p>";
 		}
 		return currentStudent.formatGrades();
 		
@@ -281,7 +283,8 @@ public class PostemTool {
 		}
 		Set students = currentGradebook.getStudents();
 		if (students.size() == 0) {
-			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
+			return "<p>" + msgs.getFormattedMessage("no_grades_in_gradebook", 
+					new Object[]{StringEscapeUtils.escapeHtml(currentGradebook.getTitle())}) + "</p>";
 		}
 		if (currentGradebook.getFirstUploadedUsername() != null) {
 			StudentGrades student = currentGradebook.studentGrades(currentGradebook.getFirstUploadedUsername());
@@ -298,7 +301,8 @@ public class PostemTool {
 		}
 
 		if (currentGradebook.getUsernames() == null || currentGradebook.getUsernames().isEmpty()) {
-			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
+			return "<p>" + msgs.getFormattedMessage("no_grades_in_gradebook", 
+					new Object[]{StringEscapeUtils.escapeHtml(currentGradebook.getTitle())}) + "</p>";
 		}
 		
 		if (selectedStudent == null || selectedStudent.equals("")) {
