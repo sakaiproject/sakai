@@ -568,7 +568,7 @@ public class MessageForumStatisticsBean {
 			statistics.add(userAuthoredInfo);
 		}
 
-		sortStatisticsByUser(statistics);
+		sortStatisticsByUser3(statistics);
 		return statistics;
 	}
 	
