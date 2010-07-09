@@ -31,6 +31,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
@@ -174,6 +175,7 @@ public class RequestedFriends extends Panel {
 					}
 				};
 				ContextImage ignoreConnectionIcon = new ContextImage("ignoreConnectionIcon",new Model<String>(ProfileConstants.CANCEL_IMG));
+				ignoreConnectionIcon.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ displayName } )));
 				ignoreConnectionLink.add(ignoreConnectionIcon);
 				ignoreConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
 				item.add(ignoreConnectionLink);
@@ -219,6 +221,7 @@ public class RequestedFriends extends Panel {
 					}
 				};
 				ContextImage confirmConnectionIcon = new ContextImage("confirmConnectionIcon",new Model<String>(ProfileConstants.ACCEPT_IMG));
+				confirmConnectionIcon.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ displayName } )));
 				confirmConnectionLink.add(confirmConnectionIcon);
 				confirmConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
 				item.add(confirmConnectionLink);
