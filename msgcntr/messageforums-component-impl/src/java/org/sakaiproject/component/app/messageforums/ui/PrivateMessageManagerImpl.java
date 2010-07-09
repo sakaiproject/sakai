@@ -1392,19 +1392,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     for(int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
     	if(((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
     		recordIndex = i;
+    		if (! ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getRead()) {
+    			((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
+    		}
     	}      
     }
     
-    if (recordIndex != -1)
-    {
-    	if (! ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getRead()) {
-    		((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
-    		
-    		decrementMessagesSynopticToolInfo(searchRecipient.getUserId(), contextId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-
-    		
-      	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage, toolId, userId, contextId), false));
-    	}
+    if(recordIndex != -1){
+		decrementMessagesSynopticToolInfo(searchRecipient.getUserId(), contextId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage, toolId, userId, contextId), false));
     }
   }
 
@@ -1462,28 +1458,28 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  for(int i  = 0; i < pvtMessage.getRecipients().size(); i++) {
 		  if(((PrivateMessageRecipientImpl) pvtMessage.getRecipients().get(i)).getUserId().equals(searchRecipient.getUserId())){
 			  recordIndex = i;
+			  if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+					  .getRead()) {
+				  ((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+				  .setRead(Boolean.FALSE);				  
+			  }
 		  }      
 	  }
-
-	  if (recordIndex != -1) {
-			if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
-					.getRead()) {
-				((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
-						.setRead(Boolean.FALSE);
-				Site currentSite;
-				try {
-					currentSite = SiteService.getSite(contextId);
-					incrementMessagesSynopticToolInfo(searchRecipient
-							.getUserId(), contextId,
-							SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-				} catch (IdUnusedException e) {
-					e.printStackTrace();
-				}
-				EventTrackingService.post(EventTrackingService.newEvent(
-						DiscussionForumService.EVENT_MESSAGES_UNREAD,
-						getEventMessage(pvtMessage), false));
-			}
-		}
+	  if(recordIndex != -1){
+		  Site currentSite;
+		  try {
+			  currentSite = SiteService.getSite(contextId);
+			  incrementMessagesSynopticToolInfo(searchRecipient
+					  .getUserId(), contextId,
+					  SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+		  } catch (IdUnusedException e) {
+			  e.printStackTrace();
+		  }
+		  
+		  EventTrackingService.post(EventTrackingService.newEvent(
+				  DiscussionForumService.EVENT_MESSAGES_UNREAD,
+				  getEventMessage(pvtMessage), false));
+	  }
 	}
 
   
