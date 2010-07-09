@@ -51,8 +51,17 @@
 		<input type="hidden" name="action" value="commenteditsave"/>
 		<input type="hidden" name="panel" value="Main"/>
 		<input type="hidden" name="version" value="${currentRWikiObject.version.time}"/>
-		<input type="hidden" name="pageName" value="${currentRWikiObject.name}" />
-		<input type="hidden" name="realm" value="${currentRWikiObject.realm }"/>
+		<jsp:element name="input">
+            <jsp:attribute name="type">hidden</jsp:attribute>
+            <jsp:attribute name="name">pageName</jsp:attribute>
+            <jsp:attribute name="value"><c:out value="${currentRWikiObject.name}" escapeXml="true"/></jsp:attribute>
+        </jsp:element>
+        <jsp:element name="input">
+            <jsp:attribute name="type">hidden</jsp:attribute>
+            <jsp:attribute name="name">realm</jsp:attribute>
+            <jsp:attribute name="value"><c:out value="${currentRWikiObject.realm}" escapeXml="true"/></jsp:attribute>
+        </jsp:element>
+		
 		<br/>
 		<nobr>
 		<span class="act">
