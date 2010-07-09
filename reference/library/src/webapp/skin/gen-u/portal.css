@@ -556,8 +556,12 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 
-.portletTitle .title a:hover{
+.portletTitle .title a:hover, .portletTitle .title a:focus{
 	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .title a:focus,.portletTitle .action a:focus{ 
+	outline:black dotted thin; 
 }
 
 .portletTitle .action{
@@ -584,7 +588,7 @@ below they are contextually defined depending on the column as an example,as you
 	outline:none
 }
 
-.portletTitle .action a:hover{
+.portletTitle .action a:hover, .portletTitle .action a:focus{
 	background: url(images/help_h.gif) center right no-repeat;
 }
 .portletTitle .action a#jsr-edit{
