@@ -576,9 +576,12 @@ h2 {
 
 
 .formSectionHeading {
+	/* PRFL-372 div > h4, added color
 	font-weight: bold;
-	padding-left: 0;
 	padding-top: 2px;
+	*/
+	color: #333;
+	padding-left: 0;
 }
 
 .formSectionText {
@@ -848,13 +851,16 @@ h2 {
 
 /* heading for pages and items */
 .header {
+	/* PRFL-372 - div > h3, added margin-top
 	font-size: 1.1em;
-	font-weight: bold;
+	font-weight: bold;*/
+	margin-top: 0;
 	border-bottom: thin solid #5D5D5D;
 	margin-bottom: 8px;
 	padding-bottom: 3px;
 	padding-left: 19px;
 	width: 500px;
+	
 }
 
 
