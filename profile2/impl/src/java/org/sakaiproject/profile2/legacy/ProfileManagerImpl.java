@@ -77,6 +77,13 @@ public class ProfileManagerImpl implements ProfileManager {
 		if (profile == null){
 			return false;
 		}
+    	
+    	//deny if request is coming from a site with roster (and) WITHOUT "roster.viewprofile" permission (PRFL-394)
+		String currentSiteId = sakaiProxy.getCurrentSiteId();
+		if(!sakaiProxy.isUserMyWorkspace(currentSiteId)
+    			&& !sakaiProxy.isUserAllowedInSite(sakaiProxy.getCurrentUserId(), "roster.viewprofile", currentSiteId)) {
+    		return false;
+    	}
 		
 		//the profile will already be cleaned by the Profile2 Privacy methods.
 		return true;

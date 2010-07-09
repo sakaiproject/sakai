@@ -663,4 +663,20 @@ public interface SakaiProxy {
 	public String getServerConfigurationParameter(String key, String def);
 	
 	
+	/**
+	 * Check if specified site is a My Workspace site
+	 * @param siteId id of site
+	 * @return true if site is a My Workspace site, false otherwise.
+	 */
+	public boolean isUserMyWorkspace(String siteId);
+	
+	/**
+	 * Generic method to check if user has permission in site
+	 * @param userId userId of user to check permission
+	 * @param permission the permission to check in site
+	 * @param siteId site id
+	 * @return
+	 */
+	public boolean isUserAllowedInSite(String userId, String permission, String siteId);
+	
 }

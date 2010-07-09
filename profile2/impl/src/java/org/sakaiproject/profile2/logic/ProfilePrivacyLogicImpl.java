@@ -113,6 +113,13 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	if(userY.equals(userX)) {
     		return true;
     	}
+    	
+		//bypass user privacy setting if request is coming from a site with roster + "roster.viewofficialphoto" permission (PRFL-394)
+    	String currentSiteId = sakaiProxy.getCurrentSiteId();
+    	if(!sakaiProxy.isUserMyWorkspace(currentSiteId)
+    			&& sakaiProxy.isUserAllowedInSite(sakaiProxy.getCurrentUserId(), "roster.viewofficialphoto", currentSiteId)) {
+    		return true;
+    	}
 		
 		//if no privacy record, return whatever the flag is set as by default
     	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default

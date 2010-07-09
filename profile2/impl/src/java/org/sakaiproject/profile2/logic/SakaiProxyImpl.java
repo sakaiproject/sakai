@@ -59,6 +59,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
@@ -1265,6 +1266,30 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public String getServerConfigurationParameter(String key, String def) {
 		return serverConfigurationService.getString(key, def);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isUserMyWorkspace(String siteId) {
+		return siteService.isUserSite(siteId);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isUserAllowedInSite(String userId, String permission, String siteId) {
+		if(securityService.isSuperUser()) {
+			return true;
+		}
+		String siteRef = siteId;
+		if(siteId != null && !siteId.startsWith(SiteService.REFERENCE_ROOT)) {
+			siteRef = SiteService.REFERENCE_ROOT + Entity.SEPARATOR + siteId;
+		}
+		if(securityService.unlock(userId, permission, siteRef)) {
+			return true;
+		}
+		return false;
 	}
 	
 	
