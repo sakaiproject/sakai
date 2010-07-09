@@ -985,7 +985,11 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public boolean isProfilePictureChangeEnabled() {
-		return serverConfigurationService.getBoolean("profile2.picture.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED);
+		// PRFL-395: Ability to enable/disable profile picture change per user type
+		boolean globallyEnabled = serverConfigurationService.getBoolean("profile2.picture.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED);
+		String userType = getUserType(getCurrentUserId());
+		// return user type specific setting, defaulting to global one
+		return serverConfigurationService.getBoolean("profile2.picture.change." + userType + ".enabled", globallyEnabled);
 	}
 	
 	/**
