@@ -194,11 +194,11 @@
 							#if ($!gradeType == 1)
 								<option value="gen.nograd" #if($!defaultGrade && $!defaultGrade.equals("gen.nograd"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
 							#elseif ($!gradeType == 2)
-								#foreach ($i in $grade_scale_letter)
+								#foreach ($i in ["ungraded", "A+", "A", "A-","B+","B","B-","C+","C","C-","D+","D","D-","E","F"])
 									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
 								#end
 							#elseif ($!gradeType == 4)
-								#foreach ($i in $grade_scale_passfail)
+								#foreach ($i in ["ungraded", "Pass", "Fail"])
 									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
 								#end
 							#elseif ($!gradeType == 5)

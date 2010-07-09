@@ -2485,7 +2485,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected String getSubject(String submissionOrReleaseGrade)
 	{
 		String subject = "submission".equals(submissionOrReleaseGrade)?rb.getString("noti.subject.content"):rb.getString("noti.releasegrade.subject.content");
-		return "Subject: " + subject ;
+		return rb.getString("noti.subject.label") + " " + subject ;
 	}
 	
 	protected String getFrom()
