@@ -154,6 +154,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.contentreview.service.ContentReviewService;
@@ -2425,6 +2426,9 @@ public class AssignmentAction extends PagedResourceActionII
 			state.removeAttribute(GRADE_SUBMISSION_DONE);
 		}
 		
+		// put grade scales into context
+		gradeScalesIntoContext(context);
+		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
 
@@ -2753,6 +2757,9 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		context.put("form_search", FORM_SEARCH);
 		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+		
+		// put grade scales into context
+		gradeScalesIntoContext(context);
 		
 		String template = (String) getContext(data).get("template");
 		
@@ -12533,4 +12540,10 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(STATE_SEARCH);
 
 	} // doSubmission_search_clear
+	
+	public void gradeScalesIntoContext(Context context)
+	{
+		context.put("grade_scale_letter", StringUtil.split(rb.getString("grade.scale.letter", "ungraded,A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F"), ","));
+		context.put("grade_scale_passfail", StringUtil.split(rb.getString("grade.scale.passfail", "ungraded,Pass,Fail"), ","));
+	}
 }	
