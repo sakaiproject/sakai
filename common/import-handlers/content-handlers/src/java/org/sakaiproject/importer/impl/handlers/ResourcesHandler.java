@@ -115,7 +115,7 @@ public class ResourcesHandler implements HandlesImportable {
 				resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
 
 				
-				if (title.endsWith(".zip")) {
+				if (title.toLowerCase().endsWith(".zip")) {
 					
 					//create a folder with the name of the zip, minus the .zip
 					String container = title.substring(0, title.length() - 4);
