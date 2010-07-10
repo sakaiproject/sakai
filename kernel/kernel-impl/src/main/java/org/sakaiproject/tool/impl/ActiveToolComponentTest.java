@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.impl;
 
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -55,4 +56,13 @@ public class ActiveToolComponentTest extends ActiveToolComponent
 	{
 		return null;
 	}
+	
+	/**
+	 * @return the SecurityService collaborator.
+	 */
+	protected SecurityService securityService()
+	{
+		return null;
+	}
+	
 }

@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Set;
 
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.w3c.dom.Document;
 
 /**
@@ -101,6 +103,31 @@ public interface ToolManager
 	 */
 	void setResourceBundle (String toolId, String filename);
 
+	/**
+	 * Check whether a tool is visible to the current user in this site,
+	 * depending on permissions required to view the tool.
+	 * 
+	 * The optional tool configuration tag "functions.require" describes a
+	 * set of permission lists which decide the visibility of the tool link
+	 * for this site user. Lists are separated by "|" and permissions within a
+	 * list are separated by ",". Users must have all the permissions included in
+	 * at least one of the permission lists.
+	 *
+	 * For example, a value like "section.role.student,annc.new|section.role.ta"
+	 * would let a user with "section.role.ta" see the tool, and let a user with
+	 * both "section.role.student" AND "annc.new" see the tool, but not let a user
+	 * who only had "section.role.student" see the tool.
+	 *
+	 * If the configuration tag is not set or is null, then all users see the tool.
+	 * 
+	 * Based on: portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java
+	 * 
+	 * @param site		Site this tool is in
+	 * @param config	ToolConfiguration of the tool in the site
+	 * @return
+	 */
+	boolean isVisible(Site site, ToolConfiguration config);
+	
 	// TODO: unregister...
 }
 
