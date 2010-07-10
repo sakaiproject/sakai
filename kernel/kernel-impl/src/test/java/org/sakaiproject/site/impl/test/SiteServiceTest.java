@@ -1,5 +1,9 @@
 package org.sakaiproject.site.impl.test;
 
+import java.sql.SQLException;
+import java.util.Set;
+import java.util.TreeSet;
+
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -36,15 +40,15 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		};
 		return setup;
 	}
-	
+
 	public void testNullSiteId() {
 		SiteService siteService = org.sakaiproject.site.cover.SiteService.getInstance();
 		SessionManager sessionManager = org.sakaiproject.tool.cover.SessionManager.getInstance();
 		Session session = sessionManager.getCurrentSession();
 		session.setUserEid("admin");
 		session.setUserId("admin");
-		
-		
+
+
 		try {
 			Site site = siteService.addSite("", "other");
 			fail();
@@ -57,7 +61,33 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
-		
-		
+
+
+	}
+
+
+	public void testNonExistentSiteId() {
+		/*
+		 * See KNL-512 sending a realm ID that doesn't exit to 
+		 * .BaseSiteService.setUserSecurity causes a db error
+		 * 
+		 */
+
+		SiteService siteService = org.sakaiproject.site.cover.SiteService.getInstance();
+		SessionManager sessionManager = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+
+		Set<String> siteSet =  new TreeSet<String>();
+		siteSet.add("nosuchSite");
+		try { 
+			siteService.setUserSecurity("admin", siteSet, siteSet, siteSet);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+
 	}
 }

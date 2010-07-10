@@ -1638,8 +1638,63 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * @inheritDoc
 	 */
-	public void setUserSecurity(String userId, Set updateSites, Set visitUnpSites, Set visitSites)
+	public void setUserSecurity(String userId, Set<String> updateSites, Set<String> visitUnpSites, Set<String> visitSites)
 	{
+		//KNL-512 we need to filter out any non-existent sites from the list
+		List<String> nonExistentIds = new ArrayList<String>();
+		
+		Iterator<String> updateIt = updateSites.iterator();
+		while (updateIt.hasNext())
+		{
+			String id = updateIt.next();
+			if (!nonExistentIds.contains(id)) 
+			{
+				if (!this.siteExists(id)) 
+				{
+					M_log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
+					nonExistentIds.add(id);
+				}
+			}
+		}
+		
+		
+		Iterator<String> visitUnpIt = visitUnpSites.iterator();
+		while (visitUnpIt.hasNext())
+		{
+			String id = visitUnpIt.next();
+			if (!nonExistentIds.contains(id)) 
+			{
+				if (!this.siteExists(id)) 
+				{
+					M_log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
+					nonExistentIds.add(id);
+				}
+			}
+		}
+		
+		
+		
+		Iterator<String> visitIt = visitSites.iterator();
+		while (visitIt.hasNext())
+		{
+			String id = visitIt.next();
+			if (!nonExistentIds.contains(id)) 
+			{
+				if (!this.siteExists(id)) 
+				{
+					M_log.warn("setUserSecurity passed a non existent site Id it will be discarded: " + id);
+					nonExistentIds.add(id);
+				}
+			}
+		}
+		
+		for (int i = 0; i < nonExistentIds.size(); i++)
+		{
+			String id = nonExistentIds.get(i);
+			updateSites.remove(id);
+			visitUnpSites.remove(id);
+			visitSites.remove(id);		}
+		
 		m_storage.setUserSecurity(userId, updateSites, visitUnpSites, visitSites);
 	}
 
