@@ -325,7 +325,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			fields[2] = search.toLowerCase();
 			fields[3] = search;
 			fields[4] = search;
-			List rv = super.getSelectedResources(userServiceSql.getUserWhereSql(), "SAKAI_USER_ID_MAP.EID", fields, "SAKAI_USER_ID_MAP");
+			
+			List rv = super.getSelectedResources(userServiceSql.getUserWhereSql(), "SAKAI_USER_ID_MAP.EID", fields, first, last, "SAKAI_USER_ID_MAP");
 
 			return rv;
 		}

@@ -114,6 +114,9 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		mappedUserIds.add(user.getId());	// Store for later use
 		clearUserFromServiceCaches(user.getId());
 		
+		//for the search later we want a similar user
+		user = UserDirectoryService.addUser(null, "thisIs a search user", "Joe", "Guest", "joe@somewhere.edu", "pw", "Student", null);
+		
 		// The User Directory Service implementation currently includes no metadata that
 		// distinguishes a metadata-free Sakai-managed user from a provided user, and so
 		// no field of a full join can be safely checked to decide whether the provider
@@ -206,6 +209,18 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		}
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 	}
+	
+	
+	public void testSearchUsers() {
+		List<User> users = UserDirectoryService.searchUsers("Joe", 1, 1);
+		if (users == null) {
+			log.error("empty list from search");
+			fail();
+		} else if (users.size() == 0 || users.size() > 1) {
+			log.error("list of size 1 expected list contained: " + users.size());
+			fail();
+		}
+ 	}
 
 	private static void actAsAdmin() {
 		SessionManager.getCurrentSession().setUserId("admin");
