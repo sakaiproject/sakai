@@ -22,6 +22,7 @@
 package org.sakaiproject.importer.impl.handlers;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,6 +67,7 @@ import org.apache.commons.logging.Log;
 
 public class ResourcesHandler implements HandlesImportable {
 	private static final String COPYRIGHT = "(c) 2007";
+	private final int BUFFER = 2048;
 	
 	private ContentHostingService contentHostingService;
 	private SessionManager sessionManager;
@@ -222,8 +224,7 @@ public class ResourcesHandler implements HandlesImportable {
 			path = path + "/";
 		}
 		try {
-			entry = (ZipEntry) zipStream.getNextEntry();
-			while (entry != null) {
+			while((entry = zipStream.getNextEntry()) != null) {
 				Map resourceProps = new HashMap();
 				contentType = new MimetypesFileTypeMap().getContentType(entry.getName());
 				String title = entry.getName();
@@ -236,36 +237,23 @@ public class ResourcesHandler implements HandlesImportable {
 					m_log.debug("import ResourcesHandler about to add file entitled '" + title + "'");
 				}
 
-				int size = (int) entry.getSize();
-				// -1 means unknown size.
-				if (size != -1) {
+				int count;
+				ByteArrayOutputStream contents = new ByteArrayOutputStream();
+				byte[] data = new byte[BUFFER];
+				
+				while ((count = zipStream.read(data, 0, BUFFER)) != -1) {
+					contents.write(data, 0, count);
+				}
 
-					byte[] contents = new byte[(int) size];
-					int returnBytes = 0;
-					int chunk = 0;
-					while (((int)size - returnBytes) > 0) {
-						chunk = zipStream.read(contents,returnBytes,(int)size - returnBytes);
-						if (chunk == -1) {
-							break;
-						}
-						returnBytes += chunk;
-					}
+				if (entry.isDirectory()) {
 
-					if (entry.isDirectory()) {
-
-						addContentCollection(path + entry.getName(), resourceProps);
-						addAllResources(contents, path + entry.getName(), notifyOption);
-					}
-					else {
-						addContentResource(path + entry.getName(), contentType, contents, resourceProps, notifyOption);
-					}
+					addContentCollection(path + entry.getName(), resourceProps);
+					addAllResources(contents.toByteArray(), path + entry.getName(), notifyOption);
 				}
 				else {
-					if(m_log.isWarnEnabled()) {
-						m_log.warn("Zip file is of unknown size... giving up");
-					}					
+					addContentResource(path + entry.getName(), contentType, contents.toByteArray(), resourceProps, notifyOption);
 				}
-				entry = (ZipEntry) zipStream.getNextEntry();
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
