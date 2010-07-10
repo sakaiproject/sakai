@@ -126,7 +126,7 @@ where w.wizard_type = 'org.theospi.portfolio.wizard.model.Wizard.sequential'
 );
 
 -- since scaffolding are now extending osp_workflow_parent
-insert into OSP_WORKFLOW_PARENT select s.id, null, null, null, null, null, null from osp_scaffolding s where s.id not in (select wp.id from osp_workflow_parent wp);
+insert into osp_workflow_parent select s.id, null, null, null, null, null, null from osp_scaffolding s where s.id not in (select wp.id from osp_workflow_parent wp);
 
 -- Move the use permission from site to each newly created scaffolding realms and delete the old osp.matrix.scaffolding.use permissions
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.matrix.scaffolding.revise.any');
