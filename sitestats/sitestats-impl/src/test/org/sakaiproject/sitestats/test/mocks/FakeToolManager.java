@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.tool.api.Placement;
@@ -74,7 +76,7 @@ public class FakeToolManager implements ToolManager {
 		return currentPlacement;
 	}
 	
-	public Set findTools(Set categories, Set keywords) {
+	public Set<Tool> findTools(Set categories, Set keywords) {
 		return tools;
 	}
 
@@ -123,6 +125,13 @@ public class FakeToolManager implements ToolManager {
 	public void setResourceBundle(String arg0, String arg1) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+
+	public boolean isVisible(Site arg0, ToolConfiguration arg1) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
