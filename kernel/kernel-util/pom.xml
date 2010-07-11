@@ -67,6 +67,10 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
     <!-- added deps for OWASP html cleaner 
     <dependency>
       <groupId>org.owasp</groupId>

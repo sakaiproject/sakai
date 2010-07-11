@@ -86,11 +86,6 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
-import org.sakaiproject.content.types.FileUploadType;
-import org.sakaiproject.content.types.FolderType;
-import org.sakaiproject.content.types.HtmlDocumentType;
-import org.sakaiproject.content.types.TextDocumentType;
-import org.sakaiproject.content.types.UrlResourceType;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -815,14 +810,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			M_log.warn("init(): ", t);
 		}
 
-		if(usingResourceTypeRegistry())
-		{
-			this.getResourceTypeRegistry().register(new FileUploadType());
-			this.getResourceTypeRegistry().register(new FolderType());
-			this.getResourceTypeRegistry().register(new TextDocumentType());
-			this.getResourceTypeRegistry().register(new HtmlDocumentType());
-			this.getResourceTypeRegistry().register(new UrlResourceType());
-		}
+
 
 		this.m_useSmartSort = m_serverConfigurationService.getBoolean("content.smartSort", true);
 

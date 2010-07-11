@@ -1,4 +1,4 @@
-package org.sakaiproject.content.impl.util;
+package org.sakaiproject.content.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
