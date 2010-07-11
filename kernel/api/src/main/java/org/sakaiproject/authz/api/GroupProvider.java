@@ -38,6 +38,8 @@ public interface GroupProvider
 	 * @param userId
 	 *        The user Id.
 	 * @return the role name for this particular user in the external group, or null if none.
+	 * 
+	 * @deprecated This code is apparently not used by any provider and will likely be removed (KNL-518)
 	 */
 	String getRole(String id, String user);
 
