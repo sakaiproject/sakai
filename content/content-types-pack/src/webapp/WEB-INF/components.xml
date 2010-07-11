@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="ContentTypeRegistyBean" class="org.sakaiproject.content.types.ContentTypeRegistryBean"
+	init-method="init">
+		<property name="resourceTypeRegistry" ref="org.sakaiproject.content.api.ResourceTypeRegistry"/>
+		<property name="useContentTypeRegistry"><value>true</value></property>
+	</bean>
+
+</beans>

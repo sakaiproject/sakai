@@ -41,7 +41,8 @@
         <module>content-impl-providers/pack</module>
         <module>content-tool/tool</module>
 	<module>content-bundles</module>
-       </modules>
+	<module>content-types</module>
+      </modules>
     </profile>
     <profile>
       <id>full</id>
@@ -54,6 +55,8 @@
         <module>content-impl-providers/pack</module>
         <module>content-tool/tool</module>
 	<module>content-bundles</module>
+	<module>content-types</module>
+	<module>content-types-pack</module>
       </modules>
     </profile>
   </profiles>
