@@ -73,14 +73,14 @@ public interface ContentTypeImageService
 	* Access an ordered list of all mimetype categories.
 	* @return The list of mimetype categories in alphabetic order.
 	*/
-	public List getMimeCategories();
+	public List<String> getMimeCategories();
 
 	/**
 	* Access an ordered list of all mimetype subtypes for a particular category. 
 	* @param category The category.
 	* @return The list of mimetype subtypes in alphabetic order.
 	*/
-	public List getMimeSubtypes(String category);
+	public List<?> getMimeSubtypes(String category);
 
 }	// ContentTypeImageService
 

@@ -404,10 +404,10 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 *        The category.
 	 * @return The list of mimetype subtypes in alphabetic order.
 	 */
-	public List<?> getMimeSubtypes(String category)
+	public List<String> getMimeSubtypes(String category)
 	{
-		List rv = new Vector();
-		Set subtypes = (Set) m_mimetypes.get(category);
+		List<String> rv = new Vector<String>();
+		Set<String> subtypes = (Set<String>) m_mimetypes.get(category);
 		if (subtypes != null)
 		{
 			rv.addAll(subtypes);
