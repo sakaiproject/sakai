@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.types;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,9 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.ArrayList;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -39,7 +37,6 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
@@ -396,7 +393,7 @@ public class FileUploadType extends BaseResourceType
 			return helperId;
 		}
 
-		public List getRequiredPropertyKeys() 
+		public List<String> getRequiredPropertyKeys() 
 		{
 			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
@@ -450,9 +447,9 @@ public class FileUploadType extends BaseResourceType
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
 		 */
-		public Set getPermission()
+		public Set<String> getPermission()
 		{
-			Set rv = new TreeSet();
+			Set<String> rv = new TreeSet<String>();
 			rv.add(ContentHostingService.AUTH_RESOURCE_REMOVE_ANY);
 			rv.add(ContentHostingService.AUTH_RESOURCE_REMOVE_OWN);
 			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
@@ -526,9 +523,9 @@ public class FileUploadType extends BaseResourceType
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
 		 */
-		public Set getPermission()
+		public Set<String> getPermission()
 		{
-			Set rv = new TreeSet();
+			Set<String> rv = new TreeSet<String>();
 			rv.add(ContentHostingService.AUTH_RESOURCE_ADD);
 			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
 			rv.add(ContentHostingService.AUTH_RESOURCE_HIDDEN);
@@ -672,7 +669,7 @@ public class FileUploadType extends BaseResourceType
 			return helperId;
 		}
 
-		public List getRequiredPropertyKeys() 
+		public List<String> getRequiredPropertyKeys() 
 		{
 			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);

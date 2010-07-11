@@ -22,10 +22,6 @@
 package org.sakaiproject.content.api;
 
 import java.util.List;
-import java.util.Set;
-
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.user.api.User;
 
 /**
  * 

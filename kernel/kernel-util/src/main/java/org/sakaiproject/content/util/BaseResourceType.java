@@ -21,17 +21,9 @@
 
 package org.sakaiproject.content.util;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ExpandableResourceType;
-import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.ResourceToolAction.ActionType;
-import org.sakaiproject.entity.api.Reference;
 
 /**
  * 

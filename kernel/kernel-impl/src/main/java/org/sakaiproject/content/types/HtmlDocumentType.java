@@ -21,37 +21,25 @@
 
 package org.sakaiproject.content.types;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.ArrayList;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceType;
-import org.sakaiproject.content.types.FileUploadType.FileUploadAccessAction;
-import org.sakaiproject.content.types.FileUploadType.FileUploadCopyAction;
-import org.sakaiproject.content.types.FileUploadType.FileUploadCreateAction;
-import org.sakaiproject.content.types.FileUploadType.FileUploadDeleteAction;
-import org.sakaiproject.content.types.FileUploadType.FileUploadDuplicateAction;
-import org.sakaiproject.content.types.FileUploadType.FileUploadMoveAction;
-import org.sakaiproject.content.types.FileUploadType.FileUploadReviseAction;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
