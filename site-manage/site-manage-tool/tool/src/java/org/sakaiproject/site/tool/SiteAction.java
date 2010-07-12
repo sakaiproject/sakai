@@ -173,6 +173,7 @@ public class SiteAction extends PagedResourceActionII {
 	/** portlet configuration parameter values* */
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
+	private static ResourceLoader cfgRb = new ResourceLoader("multipletools");
 
 	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 			.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
@@ -1087,6 +1088,7 @@ public class SiteAction extends PagedResourceActionII {
 			Context context, RunData data, SessionState state) {
 		rb = new ResourceLoader("sitesetupgeneric");
 		context.put("tlang", rb);
+		context.put("clang", cfgRb);
 		// TODO: what is all this doing? if we are in helper mode, we are
 		// already setup and don't get called here now -ggolden
 		/*
