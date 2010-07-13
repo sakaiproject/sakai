@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.w3c.dom.Document;
@@ -40,7 +42,7 @@ public class ToolManager implements org.sakaiproject.tool.api.ToolManager {
 		currentPlacement = placement;
 	}
 	
-	public Set findTools(Set categories, Set keywords) {
+	public Set<Tool> findTools(Set<String> categories, Set<String> keywords) {
 		return tools;
 	}
 
@@ -89,5 +91,11 @@ public class ToolManager implements org.sakaiproject.tool.api.ToolManager {
 	public void setResourceBundle(String arg0, String arg1) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	public boolean isVisible(Site arg0, ToolConfiguration arg1) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
