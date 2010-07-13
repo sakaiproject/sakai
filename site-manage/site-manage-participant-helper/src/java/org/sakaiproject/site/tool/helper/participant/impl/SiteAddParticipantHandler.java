@@ -1007,7 +1007,16 @@ public class SiteAddParticipantHandler {
 			}
 
 			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.1", new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
-			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.2", null, TargettedMessage.SEVERITY_INFO));
+			if (!pList.isEmpty())
+			{
+				// continue add
+				targettedMessageList.addMessage(new TargettedMessage("add.existingpart.2", null, TargettedMessage.SEVERITY_INFO));
+			}
+			else
+			{
+				// no valid user input left, prompt for more
+				targettedMessageList.addMessage(new TargettedMessage("java.guest", null, TargettedMessage.SEVERITY_ERROR));
+			}
 		}
 
 		return;
