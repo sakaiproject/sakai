@@ -77,13 +77,27 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 
 	// adjust scroll
 	var objDiv = document.getElementById("Monitor");
-   objDiv.scrollTop = objDiv.scrollHeight;
+    objDiv.scrollTop = objDiv.scrollHeight;
+
+    // update the messages count
+    chat2_totalMessages++;
+    chat2_shownMessages++;
+    updateShownText();
 
 }                           
 
+function updateShownText() {
+    var countText = chat2_messageCountTemplate + '';
+    countText = countText.replace('*SHOWN*', chat2_shownMessages);
+    countText = countText.replace('*TOTAL*', chat2_totalMessages);
+    $("#chat2_messages_shown_total").text(countText);
+}
+
 //Library to ajaxify the Chatroom message submit action
 	$(document).ready(function() {
-        //resize horizontal chat area to get rid of horizontal scrollbar in IE
+		updateShownText();
+
+		//resize horizontal chat area to get rid of horizontal scrollbar in IE
         if($.browser.msie){
            $(".chatList").width('93%');
         }

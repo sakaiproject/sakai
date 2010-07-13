@@ -81,16 +81,38 @@ public interface ChatManager extends EntitySummary {
    public ChatChannel getChatChannel(String chatChannelId);
 
    /**
-    * gets all the messages from the Channel after the passed date
-    * @param channel ChatChannel 
-    * @param context Context of channel and messages to return
-    * @param date Date that the messages need to be newer than.  All messages will be returned if null
-    * @param items The number of messages to return.  All if set to 0
+    * gets all the messages from the Channel after the passed date,
+    * limited to returning the the default maximum number of messages (100),
+    * use {@link #getChannelMessagesCount(ChatChannel, String, Date)} to find the total number of messages
+    * 
+    * @param channel the ChatChannel to get messages for
+    * @param context [OPTIONAL] Context of channel and messages to return (only used if the channel is null)
+    * @param date [OPTIONAL] Date that the messages need to be newer than, includes all messages if null
+    * @param start The item to start on (supports paging)
+    * @param max The maximum number of items to return, uses the default maximum if above the default max or < 0, returns none if set to 0
     * @param sortAsc Boolean to sort the records in ascending order
     * @return List of ChatMessages
     */
-   public List<ChatMessage> getChannelMessages(ChatChannel channel, String context, Date date, int items, boolean sortAsc) throws PermissionException;
+   public List<ChatMessage> getChannelMessages(ChatChannel channel, String context, Date date, int start, int max, boolean sortAsc) throws PermissionException;
+
+   /**
+    * Gets the count of all the messages from the Channel after the passed date
+    * 
+    * @param channel the ChatChannel to get messages for
+    * @param context [OPTIONAL] Context of channel and messages to return (only used if the channel is null)
+    * @param date [OPTIONAL] Date that the messages need to be newer than, includes all messages if null
+    * @return the count of ChatMessages
+    */
+   public int getChannelMessagesCount(ChatChannel channel, String context, Date date);
    
+   /**
+    * Get the number of messages in a given chat channel
+    * @param channel ChatChannel to find the number of messages
+    * @return int the number of messages in the passed channel
+    * @deprecated use {@link #getChannelMessagesCount(ChatChannel, String, Date)}
+    */
+   public int countChannelMessages(ChatChannel channel);
+
    /**
     * creates an unsaved Chat Message
     * @param ChatChannel the channel that the new message will be in
@@ -166,7 +188,7 @@ public interface ChatManager extends EntitySummary {
     * Returns the context's default channel, or null if none.
     * @param contextId
     * @param placement
-    * @return
+    * @return the Channel
     */
    public ChatChannel getDefaultChannel(String contextId, String placement);
 
@@ -220,7 +242,7 @@ public interface ChatManager extends EntitySummary {
    /**
     * Returns a Date object that is the offset number of days before the current date
     * @param offset Difference in days from current date
-    * @return
+    * @return a Date
     */
    public Date calculateDateByOffset(int offset);
  
@@ -235,12 +257,5 @@ public interface ChatManager extends EntitySummary {
     * @param values Object[] of data to bind into the sql statement
     */
    public void migrateMessage(String sql, Object[] values);
-   
-   /**
-    * Get the number of messages in a given chat channel
-    * @param channel ChatChannel to find the number of messages
-    * @return int the number of messages in the passed channel
-    */
-   public int countChannelMessages(ChatChannel channel);
    
 }

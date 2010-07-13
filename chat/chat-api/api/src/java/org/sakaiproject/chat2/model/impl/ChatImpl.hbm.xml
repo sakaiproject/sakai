@@ -29,7 +29,7 @@
 		<property name="migratedChannelId" type="string" length="99" />
 
 		<set name="messages" cascade="all-delete-orphan" inverse="false"
-			lazy="true">
+			lazy="true" fetch="join" batch-size="50">
 			<key column="CHANNEL_ID" />
 			<one-to-many class="ChatMessage" />
 		</set>

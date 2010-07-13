@@ -40,7 +40,7 @@ public class ChatChannel implements Entity {
    public static final String FILTER_TODAY = "SelectTodaysMessages";
    public static final String FILTER_ALL = "SelectAllMessages";
    public static final String FILTER_NONE = "SelectNoneMessages";
-   public static final int MAX_MESSAGES = -999;
+   public static final int MAX_MESSAGES = 250;
    
    private String id;
    private String placement;
@@ -177,7 +177,7 @@ public class ChatChannel implements Entity {
    /**
     * Converts the serialized xml back to a ChatChannel object
     * @param channelElement
-    * @return
+    * @return the Channel
     */
    public static ChatChannel xmlToChatChannel(Element channelElement, String siteId) {
       ChatChannel tmpChannel = new ChatChannel();

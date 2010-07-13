@@ -57,7 +57,7 @@
 						</h:panelGroup>
 						<h:panelGroup>
 							<t:radio for="filterType" index="1" />
-							<h:inputText id="filterParam_last" size="3"
+							<h:inputText id="filterParam_last" size="4"
 								value="#{ChatTool.currentChannelEdit.filterParamLast}" />
 							<h:outputLabel value="#{msgs['custom.mess']}" for="filterParam_last"/>
 						</h:panelGroup>

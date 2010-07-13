@@ -13,7 +13,6 @@
 <h:form id="topForm">
       <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
 
-
          <sakai:tool_bar rendered="#{ChatTool.canManageTool || ChatTool.siteChannelCount > 1 || ChatTool.maintainer}">
             <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.canManageTool}">
                <h:outputText value="#{msgs.manage_tool}" />
@@ -60,6 +59,12 @@
 					</h:outputFormat>
 					<h:outputText value="#{msgs.lay_restricted_note_none}" rendered="#{ChatTool.canRenderNoMessages}" />
 				</div>
+                <div id="chat2_messages_shown_total" class="shown_total"></div>
+<script type="text/javascript">
+var chat2_totalMessages = <h:outputText value="#{ChatTool.roomMessagesCount}" />;
+var chat2_shownMessages = chat2_totalMessages;
+var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownTotalText}" />"; // replace *SHOWN* and *TOTAL*
+</script>
 				<sakai:messages />
 				<div id="Monitor" class="chatListMonitor">
 					<%@include file="roomMonitor.jspf" %>

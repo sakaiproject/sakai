@@ -289,7 +289,7 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		boolean sortAsc = true;
 		
 		try {
-			List<ChatMessage> chatmsgs = chatManager.getChannelMessages(channel, context, fromdate, items, sortAsc);
+			List<ChatMessage> chatmsgs = chatManager.getChannelMessages(channel, context, fromdate, 0, items, sortAsc);
 			
 			for (ChatMessage c : chatmsgs) {
 				msglist.add(new SimpleChatMessage(c));
