@@ -596,8 +596,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 		
 		// Check user has access to this tool in this site
-		// This will be incorporated into KNL-428 but is here until then.
-		if(!isToolVisible(site, toolConfig)) {
+		if(!ToolManager.isVisible(site, toolConfig)) {
 			M_log.warn("Not allowed to access tool user_id=" + user_id + " site="+ siteId + " tool=" + tool_id);
 			doError(request, response, "launch.site.tool.denied", "user_id=" + user_id + " site="+ siteId + " tool=" + tool_id, null);
 			return;
@@ -651,53 +650,4 @@ public class ProviderServlet extends HttpServlet {
 
 	}
 	
-	/**
-	 * Method to check if a tool is visible for a user in a site, based on KNL-428
-	 * @param site
-	 * @param toolConfig
-	 * @return
-	 */
-	private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
-		
-		//no way to check, so allow access. It's then up to the tool to control permissions
-		if(site == null || toolConfig == null) {
-			return true;
-		}
-		
-		String toolPermissionsStr = toolConfig.getConfig().getProperty("functions.require");
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("tool: " + toolConfig.getToolId() + ", permissions: " + toolPermissionsStr);
-		}
-
-		//no special permissions required, it's visible
-		if(BasicLTIUtil.isBlank(toolPermissionsStr)) {
-			return true;
-		}
-		
-		//check each set, if multiple permissions in the set, must have all.
-		String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
-		for (int i = 0; i < toolPermissionsSets.length; i++){
-			String[] requiredPermissions = toolPermissionsSets[i].split(","); 
-			boolean allowed = true;
-			for (int j = 0; j < requiredPermissions.length; j++) {
-				//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
-				//as that set may override and allow access
-				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
-					allowed = false;
-					break;
-				}
-			}
-			//if allowed, we have matched the entire set so are satisfied
-			//otherwise we will check the next set
-			if(allowed) {
-				return true;
-			}
-		}
-		
-		//no sets were completely matched
-		return false;
-	}
-	
-	
-
 }
