@@ -3008,28 +3008,18 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 		for(ToolConfiguration toolConfig: tools) {
 			//if we not a superAdmin, check the page properties
 			//if any tool on this page is hidden, skip the rest of the tools and exclude this page from the output
-			//this is consistent with the portal, but may change, see http://jira.sakaiproject.org/browse/SAK-18126
+			//this makes the behaviour consistent with the portal
 			
 			//if not superUser, process  tool function requirements
 			if(!isSuperUser) {
 			
 				//skip processing tool if we've skipped tools previously on this page
-				//this may change, see http://jira.sakaiproject.org/browse/SAK-18126
 				if(!includePage) {
 					continue;
 				}
 				
 				//skip this tool if not visible, ultimately hiding the whole page
-				//this may change, see http://jira.sakaiproject.org/browse/SAK-18126
-				//replace with the commented section when KNL-428 is in.
-				/*
 				if(!toolManager.isVisible(site, toolConfig)) {
-					includePage = false;
-					break;
-				}
-				*/
-				
-				if(!isToolVisible(site, toolConfig)) {
 					includePage = false;
 					break;
 				}
@@ -3095,48 +3085,7 @@ public String getPagesAndToolsForSite(String sessionid, String userid, String si
 	
 }
 
-/**
- * Method to check if a tool is visible for a user in a site, based on KNL-428
- * This can be removed once KNL-428 is in.
- * @param site
- * @param toolConfig
- * @return
- */
-private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
-	
-	String toolPermissionsStr = toolConfig.getConfig().getProperty("functions.require");
-	if (LOG.isDebugEnabled()) {
-		LOG.debug("tool: " + toolConfig.getToolId() + ", permissions: " + toolPermissionsStr);
-	}
 
-	//no special permissions required, it's visible
-	if(StringUtils.isBlank(toolPermissionsStr)) {
-		return true;
-	}
-	
-	//check each set, if multiple permissions in the set, must have all.
-	String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
-	for (int i = 0; i < toolPermissionsSets.length; i++){
-		String[] requiredPermissions = toolPermissionsSets[i].split(","); 
-		boolean allowed = true;
-		for (int j = 0; j < requiredPermissions.length; j++) {
-			//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
-			//as that set may override and allow access
-			if (!securityService.unlock(requiredPermissions[j].trim(), site.getReference())){
-				allowed = false;
-				return false;
-			}
-		}
-		//if allowed, we have matched the entire set so are satisfied
-		//otherwise we will check the next set
-		if(allowed) {
-			return true;
-		}
-	}
-	
-	//no sets were completely matched
-	return false;
-}
 
 
 
