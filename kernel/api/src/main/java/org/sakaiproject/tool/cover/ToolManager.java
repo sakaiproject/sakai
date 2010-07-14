@@ -124,4 +124,11 @@ public class ToolManager
 		org.sakaiproject.tool.api.ToolManager manager = getInstance();
 		manager.setResourceBundle (toolId, filename);
 	}
+	
+	public static boolean isVisible (org.sakaiproject.site.api.Site site, org.sakaiproject.site.api.ToolConfiguration config)
+	{
+		org.sakaiproject.tool.api.ToolManager manager = getInstance();
+		return manager.isVisible (site, config);
+	}
+	
 }
