@@ -928,8 +928,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                 if ( cm == null || uam == null ) return;
 
                 String userAgent = req.getHeader("user-agent");
+                //SAK-18782 this could be null
+                if (userAgent == null) {
+                	//no more we can do here
+                	return;
+                }
                 String device = uam.getDeviceIDFromUALoose(userAgent);
-		// System.out.println("device="+device+" agent="+userAgent);
+                M_log.debug("device="+device+" agent="+userAgent);
 
                 // Not a mobile device
                 if ( device == null || device.length() < 1 || device.startsWith("generic") ) return;
