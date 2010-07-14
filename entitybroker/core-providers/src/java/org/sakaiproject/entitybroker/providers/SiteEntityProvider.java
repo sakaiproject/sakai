@@ -325,10 +325,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         } else if (EntityView.Method.POST.name().equals(view.getMethod())) {
             // POST /direct/site/siteid/group/groupid - update metadata for group but not membership
 
-            if (groupTitle == null && groupDescription == null) {
+            if (groupTitle == null) {
                 // No metadata specified
                 throw new IllegalArgumentException(
-                        "Either a TITLE or a DESCRIPTION needs to be provided to edit group: "
+                        "A group title needs to be provided to edit group: "
                                 + groupId);
             }
 
@@ -341,9 +341,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 if (groupTitle != null) {
                     group.setTitle(groupTitle);
                 }
+                //clear description if it is not provided
                 if (groupDescription != null) {
-                    group.setDescription(groupDescription);
+                	 groupDescription = groupDescription.trim();
                 }
+                groupDescription = groupDescription.trim();
+                
             } else {
                 throw new IllegalArgumentException("Cannot find a group with given id: " + groupId
                         + " in site:" + siteId);
