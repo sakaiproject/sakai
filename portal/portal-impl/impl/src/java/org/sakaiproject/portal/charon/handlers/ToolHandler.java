@@ -237,7 +237,7 @@ public class ToolHandler extends BasePortalHandler
 				//as that set may override and allow access
 				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
 					allowed = false;
-					return false;
+					break;
 				}
 			}
 			//if allowed, we have matched the entire set so are satisfied
