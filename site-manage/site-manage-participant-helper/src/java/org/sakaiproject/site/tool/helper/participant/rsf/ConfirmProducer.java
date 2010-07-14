@@ -64,7 +64,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 	}
 	
 	public UserDirectoryService userDirectoryService;
-	public void setUserDiretoryService(UserDirectoryService userDirectoryService)
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
 	}

@@ -77,7 +77,7 @@ public class GroupListProducer
     }
     
 	public UserDirectoryService userDirectoryService;
-	public void setUserDiretoryService(UserDirectoryService userDirectoryService)
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
 	}

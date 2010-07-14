@@ -72,7 +72,7 @@ public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseR
 	}
 	
 	public UserDirectoryService userDirectoryService;
-	public void setUserDiretoryService(UserDirectoryService userDirectoryService)
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
 	}
