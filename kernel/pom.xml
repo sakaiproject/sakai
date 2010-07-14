@@ -18,7 +18,8 @@
         <url>http://jira.sakaiproject.org/browse/KNL</url>
     </issueManagement>
     <ciManagement>
-        <system>continuum</system>
+        <system>hudson</system>
+        <url>http://builds.sakaiproject.org:8080/view/Sakai%20Framework/job/kernel%20trunk/</url>
         <notifiers>
             <notifier>
                 <type>mail</type>
@@ -27,7 +28,7 @@
                 <sendOnSuccess>false</sendOnSuccess>
                 <sendOnWarning>false</sendOnWarning>
                 <configuration>
-                    <address>builds@collab.sakaiproject.org</address>
+                    <address>sakai-dev@collab.sakaiproject.org</address>
                 </configuration>
             </notifier>
         </notifiers>
