@@ -28,6 +28,8 @@ import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.api.GroupAwareEdit;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 
@@ -188,8 +190,8 @@ public class ContentHostingService
 	 * @throws org.sakaiproject.exception.IdInvalidException
 	 * @throws org.sakaiproject.exception.PermissionException
 	 * @throws org.sakaiproject.exception.InconsistentException
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #getProperties()},
-	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)}, {@link #GroupAwareEdit.setAvailability(boolean, Time, Time)} 
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
+	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, org.sakaiproject.time.api.Time, org.sakaiproject.time.api.Time)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,

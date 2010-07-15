@@ -41,7 +41,7 @@ public interface ServiceLevelAction extends ResourceToolAction
 	 * This method is invoked after the Resources tool does its part of the action
 	 * in case the registrant needs to participate in the action at that point.  Will
 	 * not be invoked after cancelAction(Reference reference) is invoked.
-	 * @param entity A reference to the entity  with respect to which the action is taken
+	 * @param reference A reference to the entity  with respect to which the action is taken
 	 */
 	public void finalizeAction(Reference reference);
 	
@@ -50,7 +50,7 @@ public interface ServiceLevelAction extends ResourceToolAction
 	 * the initializeAction(Reference reference) method in case the registrant needs to 
 	 * clean up a canceled action at that point. Will not be invoked after 
 	 * finalizeAction(Reference reference) is invoked.
-	 * @param entity A reference to the entity  with respect to which the action is taken
+	 * @param reference A reference to the entity  with respect to which the action is taken
 	 */
 	public void cancelAction(Reference reference);
 	

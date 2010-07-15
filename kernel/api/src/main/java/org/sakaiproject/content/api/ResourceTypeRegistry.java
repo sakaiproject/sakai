@@ -106,7 +106,7 @@ public interface ResourceTypeRegistry
 	
 	/**
 	 * @param context
-	 * @param typeIds
+	 * @param enabled
 	 */
 	public void setMapOfResourceTypesForContext(String context, Map<String,Boolean> enabled);
 	

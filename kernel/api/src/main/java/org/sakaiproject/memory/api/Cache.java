@@ -54,8 +54,6 @@ public interface Cache extends Cacher
 	 *        The key with which to find the object.
 	 * @param payload
 	 *        The object to cache.
-	 * @param duration
-	 *        The time to cache the object (seconds).
 	 */
 	void put(Object key, Object payload);
 

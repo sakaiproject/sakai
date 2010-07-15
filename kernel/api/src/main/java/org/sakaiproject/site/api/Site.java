@@ -271,7 +271,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	/**
 	 * Set the published state of this site.
 	 * 
-	 * @param status
+	 * @param published
 	 *        The published state of the site.
 	 */
 	void setPublished(boolean published);

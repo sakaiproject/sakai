@@ -202,7 +202,7 @@ public interface ResourceToolActionPipe
 	
 	/**
 	 * Used by ResourcesAction to provide helper with current value of resource's "content".
-	 * @return
+	 * @param content
 	 */
 	public void setContent(byte[] content);
 	
@@ -216,20 +216,21 @@ public interface ResourceToolActionPipe
 	
 	/**
 	 * Used by ResourcesAction to provide helper with alternative access to current value of resource's "content".
-	 * @param content
+	 * @param ostream
+	 * 
 	 */
 	public void setContentStream(InputStream ostream);
 	
 	/**
 	 * Used by ResourcesAction to provide helper with mimetype of resource. 
-	 * @param ostream
+	 * @param type
 	 */
 	public void setMimeType(String type);
 	
 	/**
 	 * Used by helper to indicate that an error was encountered which prevented completion 
 	 * of the action.
-	 * @param actionCanceled
+	 * @param errorEncountered
 	 */
 	public void setErrorEncountered(boolean errorEncountered);
 	
@@ -248,7 +249,7 @@ public interface ResourceToolActionPipe
 	 * Used by ResourcesAction to provide a value for the initialization-id.  Should be initialized
 	 * to the value returned by the InteractionAction.initializeAction() method (possibly null or
 	 * an empty string is this information is not needed by the helper). 
-	 * @param 
+	 * @param id
 	 */
 	public void setInitializationId(String id);
 	

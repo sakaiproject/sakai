@@ -250,7 +250,7 @@ public interface AliasService extends EntityProducer
 	/**
 	 * Commit the changes made to a AliasEdit object, and release the lock. The AliasEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The AliasEdit object to commit.
 	 */
 	void commit(AliasEdit edit);
@@ -258,7 +258,7 @@ public interface AliasService extends EntityProducer
 	/**
 	 * Cancel the changes made to a AliasEdit object, and release the lock. The AliasEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The AliasEdit object to commit.
 	 */
 	void cancel(AliasEdit edit);

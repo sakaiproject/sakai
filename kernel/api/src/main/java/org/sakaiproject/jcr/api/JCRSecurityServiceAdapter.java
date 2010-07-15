@@ -36,32 +36,35 @@ public interface JCRSecurityServiceAdapter
 	public static final String JCR_UPDATE = "jcr.update";
 
 	/**
-	 * @param internalPath
+	 * @param userId
 	 * @param jcrPath
 	 * @return
 	 */
 	boolean allowUpdate(String userId, String jcrPath);
 
 	/**
-	 * @param internalPath
-	 * @return
+	 * @param userId
+	 * @param jcrPath
+	 *  @return
 	 */
 	boolean allowAdd(String userId, String jcrPath);
 
 	/**
-	 * @param internalPath
+	 * @param jcrPath internalPath
 	 * @return
 	 */
 	String getSakaiRealm(String jcrPath);
 
 	/**
-	 * @param internalPath
+	 * @param userId
+	 * @param jcrPath internalPath
 	 * @return
 	 */
 	boolean allowRemove(String userId, String jcrPath);
 
 	/**
-	 * @param internalPath
+	 * @param userId
+	 * @param jcrPath internalPath
 	 * @return
 	 */
 	boolean allowGet(String userId, String jcrPath);
@@ -87,7 +90,8 @@ public interface JCRSecurityServiceAdapter
 	void removeSecurityConverter(JCRSecurityConverter o);
 
 	/**
-	 * @param workspace
+	 * @param userId
+	 * @param jcrPath workspace
 	 * @return
 	 */
 	boolean canAccessWorkspace(String userId, String jcrPath);

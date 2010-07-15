@@ -74,7 +74,7 @@ public interface SitePage extends Edit, Serializable
 	 * Get all the tools placed in the site on this page that are of any of
 	 * these tool ids.
 	 * 
-	 * @param tooldIds
+	 * @param toolIds
 	 *        The tool id array (String, such as sakai.chat, not a tool
 	 *        configuration / placement uuid) to search for.
 	 * @return A Collection (ToolConfiguration) of all the tools placed in the

@@ -21,8 +21,6 @@
 
 package org.sakaiproject.content.api;
 
-import java.util.List;
-import java.util.Vector;
 
 /**
  * ResourceToolAction defines the way in which actions are described in a resource-type registration. 

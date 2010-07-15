@@ -69,7 +69,7 @@ public interface JCRService
 	Session login() throws LoginException, RepositoryException;
 
 	/**
-	 * @return
+	 * 
 	 * @throws LoginException
 	 * @throws RepositoryException
 	 */

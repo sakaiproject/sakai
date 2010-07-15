@@ -51,7 +51,7 @@ public interface JCRNodeFactoryService
 	 * ends in / the / will be removed before the requested folder is created If
 	 * the folder alread exists, that node will be returned.
 	 * 
-	 * @param id
+	 * @param folderPath
 	 * @return
 	 * @throws JCRNodeFactoryServiceException
 	 */
@@ -74,7 +74,7 @@ public interface JCRNodeFactoryService
 	/**
 	 * Get an output stream for the content of a file, that can be read
 	 * 
-	 * @param the
+	 * @param id
 	 *        filePath
 	 * @return
 	 * @throws RepositoryException

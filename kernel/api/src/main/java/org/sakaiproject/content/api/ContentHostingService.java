@@ -223,7 +223,7 @@ public interface ContentHostingService extends EntityProducer
 	/**
 	 * check permissions for addCollection().
 	 * 
-	 * @param channelId
+	 * @param id
 	 *        The channel id.
 	 * @return true if the user is allowed to addCollection(id), false if not.
 	 */
@@ -245,7 +245,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception InconsistentException
 	 *            if the containing collection does not exist.
 	 * @return a new ContentCollection object.
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Entity.getProperties()},
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties) throws IdUsedException, IdInvalidException,
@@ -274,8 +274,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws PermissionException 
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
-	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)} and {@link #commitCollection(ContentCollectionEdit)}
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
+	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)} and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
@@ -308,8 +308,8 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws PermissionException 
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
-	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)}, {@link #GroupAwareEdit.setAvailability(boolean, Time, Time)} 
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link Entity#getProperties()},
+	 * 		{@link GroupAwareEdit#setGroupAccess(Collection)}, {@link GroupAwareEdit#setAvailability(boolean, Time, Time)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
@@ -462,7 +462,7 @@ public interface ContentHostingService extends EntityProducer
 	/**
 	 * Remove just a collection. It must be empty.
 	 * 
-	 * @param collection
+	 * @param edit
 	 *        The collection to remove.
 	 * @exception TypeException
 	 *            if the resource exists but is not a collection.
@@ -530,7 +530,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
-	 * @deprecated Suggest use of {@link #addResource(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * @deprecated Suggest use of {@link #addResource(String)} followed by {@link Entity#getProperties()},
 	 * 		and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, int priority)
@@ -604,7 +604,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
-	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
+	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
@@ -640,7 +640,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
-	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
+	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, int priority)
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
@@ -719,7 +719,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
-	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
+	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
@@ -770,7 +770,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
-	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
+	 * 		followed by {@link Entity#getProperties()} and {@link #commitResource(ContentResourceEdit)}
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
@@ -1696,7 +1696,7 @@ public interface ContentHostingService extends EntityProducer
 	 * 
 	 * @param property
 	 *        The property name used for the sort.
-	 * @param asc
+	 * @param ascending
 	 *        true if the sort is to be ascending (false for descending).
 	 */
 	public Comparator newContentHostingComparator(String property, boolean ascending);
@@ -1878,7 +1878,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @param pageSize (page) size of results
 	 * @param page (page) increment of results
 	 * @return collection of ContentResource
-	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
+	 * @see org.sakaiproject.content.api.ContentHostingService#MAXIMUM_PAGE_SIZE
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
 

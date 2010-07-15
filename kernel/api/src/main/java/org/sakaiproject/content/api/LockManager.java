@@ -33,7 +33,7 @@ public interface LockManager
 	void removeLock(String assetId, String qualifierId);
 
 	/**
-	 * @param node -
+	 * @param assetId -
 	 *        the asset to check
 	 * @return - a non-empty Collection of active Locks, or null
 	 */
