@@ -46,7 +46,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * 
 	 * @param userId
 	 *        The user.
-	 * @param role
+	 * @param roleId
 	 *        The role name.
 	 * @param active
 	 *        The active flag.

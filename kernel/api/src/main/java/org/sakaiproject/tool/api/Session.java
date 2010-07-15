@@ -183,7 +183,7 @@ public interface Session
 	/**
 	 * Set the enterprise id of the user associated with this session.
 	 * 
-	 * @return The enterprise id of the user associated with this session.
+	 * @param eid The enterprise id of the user associated with this session.
 	 */
 	void setUserEid(String eid);
 

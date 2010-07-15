@@ -58,7 +58,7 @@ public interface VirusScanner {
    
    /**
     * Scan a item from content hosting service
-    * @param resourceid a resource if for an item in contenthosting e.g /content/a434234sdfghsdf
+    * @param resourceId a resource if for an item in contenthosting e.g /content/a434234sdfghsdf
     * @throws VirusFoundException
     * @throws VirusScanIncompleteException
     */

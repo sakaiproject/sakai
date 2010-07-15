@@ -115,7 +115,7 @@ public interface UsageSessionService
 	 *        the column name of the joinTable that is to match the session id in the join ON clause
 	 * @param joinCriteria
 	 *        the criteria of the select (after the where)
-	 * @param fields
+	 * @param values
 	 *        Optional values to go with the criteria in an implementation specific way.
 	 * @return The List (UsageSession) of UsageSession object for these ids.
 	 */

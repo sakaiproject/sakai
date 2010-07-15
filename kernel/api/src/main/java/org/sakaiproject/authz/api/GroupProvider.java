@@ -35,7 +35,7 @@ public interface GroupProvider
 	 * 
 	 * @param id
 	 *        The external group id.
-	 * @param userId
+	 * @param user
 	 *        The user Id.
 	 * @return the role name for this particular user in the external group, or null if none.
 	 * 

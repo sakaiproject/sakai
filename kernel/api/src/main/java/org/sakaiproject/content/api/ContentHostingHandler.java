@@ -178,7 +178,7 @@ public interface ContentHostingHandler
 	/**
 	 * @param resourceId
 	 * @param uuid
-	 * @return
+	 * 
 	 */
 	 void setResourceUuid(String resourceId, String uuid);
 

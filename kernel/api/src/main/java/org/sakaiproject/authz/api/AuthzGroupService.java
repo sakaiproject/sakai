@@ -367,8 +367,6 @@ public interface AuthzGroupService extends EntityProducer
 	 * 
 	 * @param userId
 	 *        The user id.
-	 * @param function
-	 *        The function to open.
 	 * @param azGroupId
 	 *        The AuthzGroup id to consult, if it exists.
 	 * @return the role name for this user in this AuthzGroup, if the user has active membership, or null if not.
@@ -392,8 +390,6 @@ public interface AuthzGroupService extends EntityProducer
 	 * 
 	 * @param userIds
 	 *        The user ids as a Collection of String.
-	 * @param function
-	 *        The function to open.
 	 * @param azGroupId
 	 *        The AuthzGroup id to consult, if it exists.
 	 * @return A Map (userId (String) -> role name (String)) of role names for each user who have active membership; if the user does not, it will not be in the Map.

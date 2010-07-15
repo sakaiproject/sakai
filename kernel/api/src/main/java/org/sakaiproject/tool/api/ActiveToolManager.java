@@ -57,7 +57,8 @@ public interface ActiveToolManager extends ToolManager
 
 	/**
 	 * Add tools in this stream of Tool XML schema to the registry.
-	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 * @param toolXmlStream The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 * @param config the Servlet context
 	 */
 	void register(InputStream toolXmlStream, ServletContext config);
 
@@ -69,13 +70,13 @@ public interface ActiveToolManager extends ToolManager
 
 	/**
 	 * Parse a registration file and return a list of Tool Registrations
-	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 * @param toolXml The file of Tool schema XML in which tools to be added to the registry are to be found.
 	 */
 	List<Tool> parseTools(Document toolXml);
 
 	/**
 	 * Parse a registration file and return a list of Tool Registrations
-	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 * @param toolXmlStream The file of Tool schema XML in which tools to be added to the registry are to be found.
 	 */
 	List<Tool> parseTools(InputStream toolXmlStream);
 

@@ -245,7 +245,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception InconsistentException
 	 *            if the containing collection does not exist.
 	 * @return a new ContentCollection object.
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link ContentEntity.getPropertiesEdit()},
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public ContentCollection addCollection(String id, ResourceProperties properties) throws IdUsedException, IdInvalidException,

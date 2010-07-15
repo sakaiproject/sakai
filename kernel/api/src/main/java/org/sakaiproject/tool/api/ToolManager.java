@@ -56,7 +56,7 @@ public interface ToolManager
 
 	/**
 	 * Add tools in this stream of Tool XML schema to the registry.
-	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 * @param toolXmlStream The file of Tool schema XML in which tools to be added to the registry are to be found.
 	 */
 	void register(InputStream toolXmlStream);
 
@@ -99,7 +99,7 @@ public interface ToolManager
 	 * Register a resource bundle to localize tool title and description.
 	 * @param toolId Id string of the tool being set.
 	 * @param filename Full filename of the resource bundle.
-	 * @author Mark Norton for SAK-8908
+	 * 
 	 */
 	void setResourceBundle (String toolId, String filename);
 

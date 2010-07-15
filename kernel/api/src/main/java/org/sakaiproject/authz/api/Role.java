@@ -88,7 +88,7 @@ public interface Role extends Comparable, Serializable
 	/**
 	 * Add this function to the set of functions that users with this role are allowed to perform.
 	 * 
-	 * @param function
+	 * @param lock
 	 *        The function name to add to the allowed set.
 	 */
 	void allowFunction(String lock);
@@ -104,7 +104,7 @@ public interface Role extends Comparable, Serializable
 	/**
 	 * Remove this function from the set of functions that users with this role are allowed to perform.
 	 * 
-	 * @param function
+	 * @param lock
 	 *        The function name to disallow.
 	 */
 	void disallowFunction(String lock);
@@ -112,7 +112,7 @@ public interface Role extends Comparable, Serializable
 	/**
 	 * Remove these functions from the set of functions that users with this role are allowed to perform.
 	 * 
-	 * @param function
+	 * @param functions
 	 *        The Collection (String) of function names to remove from the allowed set.
 	 */
 	void disallowFunctions(Collection<String> functions);

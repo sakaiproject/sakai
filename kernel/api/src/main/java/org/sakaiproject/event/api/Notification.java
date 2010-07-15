@@ -57,7 +57,7 @@ public interface Notification extends Entity
 	/**
 	 * Check if the notification watches for events with this function code.
 	 * 
-	 * @param event
+	 * @param function
 	 *        The Event function to test.
 	 * @return true if this notification watches for evens with this function code, false if not.
 	 */

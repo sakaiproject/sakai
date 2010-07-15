@@ -134,8 +134,8 @@ public interface NotificationService
 	/**
 	 * Remove this notification - it must be a notification with a lock from editNotification(). The NotificationEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param id
-	 *        The notification id.
+	 * @param notification
+	 *        The notification
 	 * @exception PermissionException
 	 *            if the current notification does not have permission to remove this notification.
 	 */

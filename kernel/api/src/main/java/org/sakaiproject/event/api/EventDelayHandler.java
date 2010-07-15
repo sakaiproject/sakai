@@ -47,7 +47,6 @@ public interface EventDelayHandler
 	 * Read a list of event delay IDs using resource and event.
 	 * 
 	 * @param resource
-	 * @param event
 	 * @return
 	 */
 	List<String> findDelayIds(String resource);
@@ -98,7 +97,6 @@ public interface EventDelayHandler
 	 * Delete all delayed events for a resource
 	 * 
 	 * @param resource
-	 * @param event
 	 * @return
 	 */
 	boolean deleteDelay(String resource);

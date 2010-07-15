@@ -41,7 +41,7 @@ public interface NotificationEdit extends Notification, Edit
 	/**
 	 * Set the Event function, clearing any that have already been set.
 	 * 
-	 * @param event
+	 * @param function
 	 *        The Event function to watch for.
 	 */
 	void setFunction(String function);
@@ -49,7 +49,7 @@ public interface NotificationEdit extends Notification, Edit
 	/**
 	 * Add another Event function.
 	 * 
-	 * @param event
+	 * @param function
 	 *        Another Event function to watch for.
 	 */
 	void addFunction(String function);
