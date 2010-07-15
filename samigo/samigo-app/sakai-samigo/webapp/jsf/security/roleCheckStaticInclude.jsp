@@ -9,9 +9,9 @@
   AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
                          "authorization");
   // System.out.println("***** roleCheck: authzBean="+authzBean);
-  if (authzBean.getAuthzMap().size()==0){ 
+  //if (authzBean.getAuthzMap().size()==0){ 
     authzBean.addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
-  }
+  //}
   boolean adminPrivilege = authzBean.getAdminPrivilege();
 
   if (!adminPrivilege)
