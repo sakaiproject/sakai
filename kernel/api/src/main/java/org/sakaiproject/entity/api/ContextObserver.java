@@ -56,7 +56,7 @@ public interface ContextObserver
 	 * @param toolPlacement
 	 *        true if one of your tool is placed in the context after the change.
 	 */
-	void contextDeleted(String context, boolean toolPlacment);
+	void contextDeleted(String context, boolean toolPlacement);
 
 	/**
 	 * Provide the string array of tool ids, for tools that we need context preperation for.

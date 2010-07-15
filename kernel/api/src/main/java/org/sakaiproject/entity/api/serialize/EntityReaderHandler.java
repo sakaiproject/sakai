@@ -59,7 +59,7 @@ public interface EntityReaderHandler
 	/**
 	 * returns true if the implementation will parse the target
 	 * 
-	 * @param xml
+	 * @param blob xml
 	 * @return
 	 */
 	boolean accept(byte[] blob);

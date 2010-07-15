@@ -84,7 +84,7 @@ public interface TimeService
 	 *        day in month (1..31)
 	 * @param hour
 	 *        hour in day (0..23)
-	 * @param minuet
+	 * @param minute
 	 *        minute in hour (0..59)
 	 * @param second
 	 *        second in minute (0..59)
@@ -116,7 +116,7 @@ public interface TimeService
 	 *        day in month (1..31)
 	 * @param hour
 	 *        hour in day (0..23)
-	 * @param minuet
+	 * @param minute
 	 *        minute in hour (0..59)
 	 * @param second
 	 *        second in minute (0..59)
@@ -148,7 +148,7 @@ public interface TimeService
 	 *        day in month (1..31)
 	 * @param hour
 	 *        hour in day (0..23)
-	 * @param minuet
+	 * @param minute
 	 *        minute in hour (0..59)
 	 * @param second
 	 *        second in minute (0..59)
@@ -252,7 +252,7 @@ public interface TimeService
 	 * @param ms
 	 *        millisecond in second (0..999)
 	 */
-	GregorianCalendar getCalendar(TimeZone zone, int year, int month, int day, int hour, int min, int sec, int ms);
+	GregorianCalendar getCalendar(TimeZone zone, int year, int month, int day, int hour, int min, int second, int ms);
 
 	/**
 	 * Compare two Time for differences, either may be null

@@ -71,9 +71,9 @@ public interface EntityProducer
 	 *        The id of the site getting imported into.
 	 * @param root
 	 *        The XML DOM tree of content to merge.
-	 * @param archviePath
+	 * @param archivePath
 	 *        The path to the folder where we are reading auxilary files.
-	 * @param fromSite
+	 * @param fromSiteId
 	 *        The site id from which these items were archived.
 	 * @param attachmentNames
 	 *        A map of old attachment name (as found in the DOM) to new attachment name.

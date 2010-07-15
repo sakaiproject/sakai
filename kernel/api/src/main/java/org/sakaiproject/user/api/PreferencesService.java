@@ -98,7 +98,7 @@ public interface PreferencesService extends EntityProducer
 	/**
 	 * Commit the changes made to a PreferencesEdit object, and release the lock. The PreferencesEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The PreferencesEdit object to commit.
 	 */
 	void commit(PreferencesEdit edit);
@@ -106,7 +106,7 @@ public interface PreferencesService extends EntityProducer
 	/**
 	 * Cancel the changes made to a PreferencesEdit object, and release the lock. The PreferencesEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The PreferencesEdit object to commit.
 	 */
 	void cancel(PreferencesEdit edit);
@@ -114,7 +114,7 @@ public interface PreferencesService extends EntityProducer
 	/**
 	 * Remove this PreferencesEdit - it must be locked from edit(). The PreferencesEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The PreferencesEdit object to remove.
 	 */
 	void remove(PreferencesEdit edit);

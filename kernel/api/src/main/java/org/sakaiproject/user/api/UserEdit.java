@@ -33,7 +33,7 @@ public interface UserEdit extends User, Edit
 	/**
 	 * Set the user's id. Note: this is a special purpose routine that is used only to establish the id field, when the id is null, and cannot be used to change a user's id, which is defined to be an un-changing value.
 	 * 
-	 * @param name
+	 * @param id
 	 *        The user id.
 	 */
 	void setId(String id);

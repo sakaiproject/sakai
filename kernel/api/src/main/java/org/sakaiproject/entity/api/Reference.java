@@ -156,7 +156,6 @@ public interface Reference
 	 * @param subType
 	 * @param id
 	 * @param container
-	 * @param container2
 	 * @param context
 	 * @return true if settings are accepted, false if not.
 	 */
