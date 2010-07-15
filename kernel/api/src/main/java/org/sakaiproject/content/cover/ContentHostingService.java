@@ -161,7 +161,7 @@ public class ContentHostingService
 	 * @throws org.sakaiproject.exception.IdInvalidException
 	 * @throws org.sakaiproject.exception.PermissionException
 	 * @throws org.sakaiproject.exception.InconsistentException
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #getProperties(String)},
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
@@ -188,7 +188,7 @@ public class ContentHostingService
 	 * @throws org.sakaiproject.exception.IdInvalidException
 	 * @throws org.sakaiproject.exception.PermissionException
 	 * @throws org.sakaiproject.exception.InconsistentException
-	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
+	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #getProperties()},
 	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)}, {@link #GroupAwareEdit.setAvailability(boolean, Time, Time)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
