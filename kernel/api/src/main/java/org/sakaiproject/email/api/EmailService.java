@@ -48,7 +48,7 @@ public interface EmailService
 	 *        The subject of this message.
 	 * @param content
 	 *        The body of the message.
-	 * @param headerToStr
+	 * @param headerTo
 	 *        If specified, this is placed into the message header, but "to" is used for the recipients.
 	 * @param replyTo
 	 *        If specified, this is the reply to header address(es).
@@ -86,8 +86,7 @@ public interface EmailService
 	 *            Additional email headers to send (List of String). For example, content type or
 	 *            forwarded headers (may be null)
 	 * @param attachments
-	 * @param contentType
-	 * @param charset
+	 * 
 	 */
 	void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
@@ -137,7 +136,7 @@ public interface EmailService
 	 *             converting to {@link javax.mail.internet.InternetAddress}.
 	 * @throws NoRecipientsException
 	 * @return {@link java.util.List} of recipients that were found to be invalid per to
-	 *         {@link javax.mail.internet.InternetAddress.InternetAddress}.
+	 *         {@link javax.mail.internet.InternetAddress}.
 	 */
 	List<EmailAddress> send(EmailMessage message) throws AddressValidationException,
 			NoRecipientsException;

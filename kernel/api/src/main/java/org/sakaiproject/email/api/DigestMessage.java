@@ -38,7 +38,7 @@ public interface DigestMessage
 	/**
 	 * Set the to (user id) of the message.
 	 * 
-	 * @param subject
+	 * @param to
 	 *        The to (user id) of the message.
 	 */
 	void setTo(String to);

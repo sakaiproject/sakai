@@ -34,7 +34,7 @@ public interface DigestEdit extends Digest, Edit
 	/**
 	 * Add another message, in the current time period.
 	 * 
-	 * @param subject
+	 * @param to
 	 *        The to (user id) of the message.
 	 * @param subject
 	 *        The subject of the message.

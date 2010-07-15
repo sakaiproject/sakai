@@ -67,7 +67,7 @@ public class EmailAddress
 	 * @param address
 	 *            Actual address of email recipient.
 	 * @throws IllegalArgumentException If address is null or empty.
-	 * @see org.sakaiproject.email.api.EmailAddress#init(String)
+	 * @see org.sakaiproject.email.api.EmailAddress
 	 */
 	public EmailAddress(String address, String name)
 	{

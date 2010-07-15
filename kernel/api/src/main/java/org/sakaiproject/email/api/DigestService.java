@@ -70,16 +70,14 @@ public interface DigestService
 	/**
 	 * Add a new message to a digest, creating one if needed. This returns right away; the digest will be added as soon as possible.
 	 * 
-	 * @param message
-	 *        The message to digest.
-	 * @param subject
+	 * @param to
 	 *        The to (user id) of the message.
 	 * @param subject
 	 *        The subject of the message.
 	 * @param body
 	 *        The subject of the message.
 	 */
-	void digest(String to, String Subject, String body);
+	void digest(String to, String subject, String body);
 
 	/**
 	 * Add a new digest with this id. Must commit(), remove() or cancel() when done.
@@ -106,7 +104,7 @@ public interface DigestService
 	/**
 	 * Commit the changes made to a DigestEdit object, and release the lock. The DigestEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The DigestEdit object to commit.
 	 */
 	void commit(DigestEdit edit);
@@ -114,7 +112,7 @@ public interface DigestService
 	/**
 	 * Cancel the changes made to a DigestEdit object, and release the lock. The DigestEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The DigestEdit object to commit.
 	 */
 	void cancel(DigestEdit edit);
@@ -122,7 +120,7 @@ public interface DigestService
 	/**
 	 * Remove this DigestEdit - it must be locked from edit(). The DigestEdit is disabled, and not to be used after this call.
 	 * 
-	 * @param user
+	 * @param edit
 	 *        The DigestEdit object to remove.
 	 */
 	void remove(DigestEdit edit);

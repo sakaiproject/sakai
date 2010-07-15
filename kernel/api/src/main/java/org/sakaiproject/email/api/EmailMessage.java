@@ -45,8 +45,8 @@ import org.sakaiproject.email.api.EmailAddress.RecipientType;
  * The default character set for a message is UTF-8.
  * </p>
  *
- * @see javax.mail.Transport#send(MimeMessage)
- * @see javax.mail.Transport#send(MimeMessage, Address[])
+ * @see javax.mail.Transport#send(Message)
+ * @see javax.mail.Transport#send(Message, Address[])
  * @see javax.mail.internet.InternetAddress
  */
 public class EmailMessage
@@ -166,7 +166,7 @@ public class EmailMessage
 	/**
 	 * Set recipient for replies.
 	 *
-	 * @param email
+	 * @param emailAddress
 	 *            Email string of reply to recipient.
 	 */
 	public void addReplyTo(EmailAddress emailAddress)
@@ -181,7 +181,7 @@ public class EmailMessage
 	/**
 	 * Set recipient for replies.
 	 *
-	 * @param email
+	 * @param replyTo
 	 *            {@link EmailAddress} of reply to recipient.
 	 */
 	public void setReplyTo(List<EmailAddress> replyTo)
@@ -204,7 +204,7 @@ public class EmailMessage
 	 *
 	 * @param type
 	 * @return
-	 * @see Type
+	 * @see javax.mail.Message.RecipientType
 	 */
 	public List<EmailAddress> getRecipients(RecipientType type)
 	{
@@ -600,7 +600,7 @@ public class EmailMessage
 	 *
 	 * @param characterSet
 	 *            The character set used to render text in this message.
-	 * @see org.sakaproject.email.api.CharacterSet
+	 * @see org.sakaiproject.email.api.CharacterSet
 	 */
 	public void setCharacterSet(String characterSet)
 	{
