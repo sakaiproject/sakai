@@ -850,7 +850,7 @@ public class HistogramListener
 			}
 			catch(NullPointerException npe)
 			{
-				log.warn("null column height " + npe);
+				log.warn("bars[" + i + "] is null. " + npe);
 			}
 		}
 
@@ -1088,7 +1088,7 @@ public class HistogramListener
 				bars[i].setColumnHeight(Integer.toString(heights[i]));
 			}
 			catch (NullPointerException npe) {
-				log.warn("null column height in getTFMCScores" + npe);
+				log.warn("bars[" + i + "] is null. " + npe);
 			}
 		}
 		qbean.setHistogramBars(bars);
@@ -1243,7 +1243,7 @@ public class HistogramListener
     		bars[i].setColumnHeight(Integer.toString(heights[i]));
     	}
     	catch (NullPointerException npe) {
-    		log.warn("null column height in getTFMCScores" + npe);
+    		log.warn("bars[" + i + "] is null. " + npe);
     	}
     }	
     
@@ -2080,11 +2080,16 @@ public class HistogramListener
     	
     	
     	for (int i=0; i<questionBean.getHistogramBars().length; i++) {
+    		try {
     		if (questionBean.getHistogramBars()[i].getIsCorrect()) {
            		statsLine.add(ExportResponsesBean.FORMAT_BOLD);
     		}
        		dVal = Double.parseDouble("" + questionBean.getHistogramBars()[i].getNumStudents() );
        		statsLine.add(dVal);
+    		}
+    		catch (NullPointerException npe) {
+    			log.warn("questionBean.getHistogramBars()[" + i + "] is null. " + npe);
+    		}
     	}
     	
     	spreadsheetRows.add(statsLine);
