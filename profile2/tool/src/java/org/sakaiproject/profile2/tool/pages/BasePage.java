@@ -303,9 +303,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 * Allow Pages to set the title
 	 * @param model
 	 */
+	/*
 	protected void setPageTitle(IModel model) {  
 		get("pageTitle").setDefaultModel(model);  
-	}  
+	} 
+	*/ 
 	
 	
 	
