@@ -84,7 +84,7 @@ ${responseHead}
 	  ## be nice to render here the UI string from instance - so like "CTools" or "CamTools" for context. See next line
 		<li class="instanceNote"><span></span></li>
 		## need to get string from bundle
-  	<li class="sitesLink"><span><a href="${portalTopUrl}" title="Back to Site List">Sites</a></span></li>
+  	<li class="sitesLink"><span><a href="${portalTopUrl}" title="Back to Site List">$rloader.getString("pda_sites")</a></span></li>
  #set ($currentSiteChildren=0) 			 
 #if ($currentSite)
   #if ( $currentSite.isChild )
@@ -120,9 +120,9 @@ ${responseHead}
 #if ( ${wurflSmallDisplay} ) 
   <!-- WURFL Small Display -->
   #if ( $loggedIn ) 
-    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">Log Out</a></span></li>
+    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
   #else
-    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">Log In</a></span></li>
+    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
   #end
   <!-- End WURFL Small Display -->
 #else
@@ -130,17 +130,17 @@ ${responseHead}
 	  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 	    #if ($currentSite)
 	      #if ( ! $currentSite.isMyWorkspace )
-	          <li class="usersPresentLink"><span><a id="usersPresentLink" href="#">Users Present</a></span></li>		  
+	          <li class="usersPresentLink"><span><a id="usersPresentLink" href="#">$rloader.getString("pda_present")</a></span></li>		  
 	      #end
 	    #end
 	  #end
 
 	  #if ( $loggedIn ) 
 			## need to get string from bundle
-	    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">Log Out</a></span></li>
+	    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
 	  #else
 			## need to get string from bundle
-	    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">Log In</a></span></li>
+	    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
 	  #end
   </li>
 #end
