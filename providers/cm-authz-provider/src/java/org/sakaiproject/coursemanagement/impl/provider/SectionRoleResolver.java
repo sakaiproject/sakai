@@ -53,6 +53,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 	/**
 	 * Internal configuration.
 	 */
+	@SuppressWarnings("unchecked")
 	public void init() {
 		if (configuration != null) {
 			if (log.isDebugEnabled()) log.debug("Using configuration object; section role map=" + configuration.get(SECTION_ROLE_TO_SITE_ROLE) + ", officialInstructorRole=" + configuration.get(OFFICIAL_INSTRUCTOR_TO_SITE_ROLE) + ", enrollment status role map=" + configuration.get(ENROLLMENT_STATUS_TO_SITE_ROLE));
@@ -126,7 +127,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 
 			// Convert these roles to Sakai roles
 			for(String key : sectionRoles.keySet()) {
-				groupRoleMap.put(key, convertRole((String)sectionRoles.get(key)));
+				groupRoleMap.put(key.toUpperCase(), convertRole((String)sectionRoles.get(key)));
 			}
 		}
 
@@ -142,7 +143,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 
 				// Only add the enrollment if it's not dropped and it has an enrollment role mapping
 				if(roleFromEnrollmentStatus != null && ! enr.isDropped()) {
-					groupRoleMap.put(section.getEid(), roleFromEnrollmentStatus);
+					groupRoleMap.put(section.getEid().toUpperCase(), roleFromEnrollmentStatus);
 				}
 			}
 		}
@@ -151,7 +152,7 @@ public class SectionRoleResolver extends BaseRoleResolver {
 		if ((officialInstructorRole != null) && (officialInstructorRole.length() > 0)) {
 			Set<Section> instructingSections = cmService.findInstructingSections(userEid);
 			for(Section instructingSection : instructingSections) {
-				groupRoleMap.put(instructingSection.getEid(), officialInstructorRole);
+				groupRoleMap.put(instructingSection.getEid().toUpperCase(), officialInstructorRole);
 			}
 		}
 		
