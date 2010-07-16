@@ -11,7 +11,7 @@
 			#set( $urlHref = $citation.openurl )
 		#end
 
-		<a href="$!{xilator.escapeHtml($urlHref)" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
+		<a href="$!{xilator.escapeHtml($urlHref)}" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
 
 		<br />
 		$!{xilator.escapeHtml( $!{citation.creator} )}
