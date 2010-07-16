@@ -1425,7 +1425,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         }
         
         log.info("answer2Num= " + answer2Num);      
-        
+        // Can accept increasing and decreasing ranges
+        if (answer1Num > answer2Num) {
+          float swap = answer1Num;
+          answer1Num = answer2Num;
+          answer2Num = swap;
+        }
         
           if (data.getAnswerText() != null){
     	    studentanswer= data.getAnswerText().trim().replace(',','.');    // in Spain, comma is used as a decimal point
