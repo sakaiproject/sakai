@@ -831,7 +831,7 @@ public class SiteManageGroupSectionRoleHandler {
                 			{
                 				String userId = uIterator.next();
                 				Member member = site.getMember(userId);
-            					group.addMember(userId, role, member.isActive(), member.isProvided());
+            					group.addMember(userId, role, member.isActive(), false);
                 			}
                 		}
                 	}
@@ -859,6 +859,7 @@ public class SiteManageGroupSectionRoleHandler {
 	        }
         	
     	}
+
         return "done";
     }
 
