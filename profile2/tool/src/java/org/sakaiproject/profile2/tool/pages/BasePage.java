@@ -80,9 +80,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		log.debug("BasePage()");
 		
-		//set page title
-		add(new Label("pageTitle", new StringResourceModel("page.title", this, null)));  
-				
 		//set Locale - all pages will inherit this.
 		setUserPreferredLocale();
 		
