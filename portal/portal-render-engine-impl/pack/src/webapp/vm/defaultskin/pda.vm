@@ -28,6 +28,8 @@
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta name="viewport" content="width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=2.0"/>
   	<link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png"/>      
+	<meta name="apple-mobile-web-app-capable" content="yes" /> 
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 #if ( ${bufferedResponse} && ${responseHead} ) 
 <!-- Head material from Tool (will include title and headscripts) -->
 ${responseHead}
