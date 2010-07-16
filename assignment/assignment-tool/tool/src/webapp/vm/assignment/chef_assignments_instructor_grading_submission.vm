@@ -512,8 +512,8 @@ function handleEnterKeyPress(ev)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade">
-											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>ungraded</option>
-											#foreach ($i in ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"])
+											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+											#foreach ($i in $letterGradeOptions)
 												<option  value="$i" #if ($!value_grade.equals($i))selected="selected"#end>$i</option>
 											#end
 										</select>
@@ -527,7 +527,7 @@ function handleEnterKeyPress(ev)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade" >
-											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
+											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
 											#foreach ($i in ["Pass", "Fail"])
 													<option  value="$i" #if ($!value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
 											#end
