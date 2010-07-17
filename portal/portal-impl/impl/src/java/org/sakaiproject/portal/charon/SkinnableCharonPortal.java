@@ -716,18 +716,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private String getRequestHandler(HttpServletRequest req){
 		setupWURFL();
-		if ( cm == null || uam == null ) return null;
+		if ( wurflHolder == null || wurfl == null ) return null;
 		
-		String userAgent = req.getHeader("user-agent");
-		if (userAgent == null) {
-		    return null;
-		}
-		String device = uam.getDeviceIDFromUALoose(userAgent);
+		
+		Device device = wurfl.getDeviceForRequest(req);
+		String deviceName = device.getId();
 
 		// Not a mobile device
-		if ( device == null || device.length() < 1 || device.startsWith("generic") ) return null;
+		if ( deviceName == null || deviceName.length() < 1 || deviceName.startsWith("generic") ) return null;
 		else
-			return device;
+			return deviceName;
 	}
 
 	/**
@@ -957,15 +955,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		setupWURFL();
 		if ( wurflHolder == null || wurfl == null ) return;
-		/*
-		String userAgent = req.getHeader("user-agent");
-		//SAK-18782 this could be null
-		if (userAgent == null) {
-			//no more we can do here
-			return;
-		}
-		String device = uam.getDeviceIDFromUALoose(userAgent);
-		*/
+		
+		
 		Device device = wurfl.getDeviceForRequest(req);
 		M_log.debug("device=" + device.getId() + " agent=" + req.getHeader("user-agent"));
 
