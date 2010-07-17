@@ -722,10 +722,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Device device = wurfl.getDeviceForRequest(req);
 		String deviceName = device.getId();
 
-		// Not a mobile device
-		if ( deviceName == null || deviceName.length() < 1 || deviceName.startsWith("generic") ) return null;
-		else
-			return deviceName;
+		// Not a device recognised by WURFL
+		if ( deviceName == null || deviceName.length() < 1 || deviceName.startsWith("generic") ) { 
+			return null;
+		} else {
+			//if this is a mobile device 
+			String isMobile = device.getCapability("is_wireless_device");
+			Boolean isMobileBool = Boolean.valueOf(isMobile);
+			if (isMobileBool.booleanValue()) {
+				return deviceName;
+			}
+			return null;
+		}
 	}
 
 	/**
