@@ -61,7 +61,11 @@
 	</listener>
 	<context-param>
 		<param-name>wurfl</param-name>
-		<param-value>/WEB-INF/wurfl.zip</param-value>
+	<param-value>/WEB-INF/wurfl.zip</param-value>
+	</context-param>
+	<context-param>
+  		<param-name>wurflPatch</param-name>
+  		<param-value>/WEB-INF/wurfl_patch.xml</param-value>
 	</context-param>
 
 
