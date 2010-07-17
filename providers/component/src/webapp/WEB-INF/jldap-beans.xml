@@ -166,9 +166,10 @@
 			</map>
 		</property -->
 		
-		<!-- Optional. Defaults to allowing searches on any EID, including empty
+		<!-- Optional. If you don't provide an eidValidator the system
+		defaults to allowing searches on any EID, including empty
 		and null Strings. -->
-		<!-- property name="eidValidator">
+		<property name="eidValidator">
 			<bean class="edu.amc.sakai.user.RegexpBlacklistEidValidator">
 				<property name="regexpFlags">
 					<bean id="java.util.regex.Pattern.CASE_INSENSITIVE"
@@ -176,13 +177,13 @@
 				</property>
 				<property name="eidBlacklist">
 					<list>
-						<value>guest</value>
-						<value>nobody</value>
-						<value>adversary</value>
+						<value>null</value>
+						<!--value>nobody</value-->
+						<!--value>adversary</value-->
 					</list>
 				</property>
 			</bean>
-		</property -->
+		</property>
 		
 	</bean>
 			
