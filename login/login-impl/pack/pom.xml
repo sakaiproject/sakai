@@ -7,35 +7,24 @@
     <version>2.8-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>authn</name>
+  <name>login-pack</name>
   <groupId>org.sakaiproject.login</groupId>
-  <artifactId>authn</artifactId>
+  <artifactId>login-pack</artifactId>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>war</packaging>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
+      <groupId>org.sakaiproject.login</groupId>
+      <artifactId>login-impl</artifactId>
+      <version>${project.version}</version>
+      
     </dependency>
   </dependencies>
   <build>
@@ -43,9 +32,21 @@
       <resource>
         <directory>${basedir}/src/bundle</directory>
         <includes>
+          <include>**/*.config</include>
           <include>**/*.properties</include>
+          <include>**/*.vm</include>
         </includes>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/testBundle</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </testResource>
+    </testResources>
+    <sourceDirectory>src/java</sourceDirectory>
   </build>
 </project>

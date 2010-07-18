@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	     <link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	    <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
+	    <meta http-equiv="Content-Style-Type" content="text/css" />
+	    <title>${uiService}</title>
+		<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+		<meta name="viewport" content="width=320, user-scalable=no"/>
+	</head>
+	<body onload="if ((document.getElementById('pw').passwordfocus != true)) document.getElementById('eid').focus() ;parent.updCourier(doubleDeep, ignoreCourier);">
+		<script type="text/javascript" language="JavaScript">
+			focus_path = ["eid"];
+		</script>
+		<!-- xlogin.vm -->
+		<hr/>
+		Blah!
+		<table class="login" cellpadding="0" cellspacing="0" border="0" summary="layout">
+		<tr>
+			<th colspan="2">${loginRequired}</th>
+		</tr>
+		<tr>
+			<td class="logo"></td>
+			<td class="form">
+				<form method="post" action="${action}" enctype="application/x-www-form-urlencoded">
+				#if (${notify})
+					<div class="alertMessage">${notify}</div>
+				#end
+					<table border="0" class="loginform" summary="layout">
+					<tr>
+						<td><label for="eid">${loginEidWording}</label></td>
+						<td><input name="eid" id="eid" value="${eid}" type="text"/></td>
+					</tr>
+					<tr>
+						<td><label for="pw">${loginPwWording}</label></td>
+						<td><input name="pw" id="pw" value="${password}" type="password" onfocus="this.passwordfocus = true; "/></td>
+					</tr>
+					#if (${loginAdvice})
+					<tr>
+						<td colspan="2">${loginAdvice}</td>
+					</tr>
+					#end
+					<tr>
+						<td colspan="2"><input name="submit" type="submit" id="submit" value="${loginWording}"/></td>
+					</tr>
+					</table>
+				</form>
+			</td>
+		</tr>
+		</table>
+		<!-- end xlogin.vm -->
+	</body>
+</html>

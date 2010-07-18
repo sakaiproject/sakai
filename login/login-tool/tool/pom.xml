@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>login-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>login</artifactId>
+    <groupId>org.sakaiproject.login</groupId>
     <version>2.8-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-login-tool</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.login</groupId>
   <artifactId>sakai-login-tool</artifactId>
   <organization>
-    <name>University of Michigan</name>
+  	<name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
@@ -51,6 +51,11 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.login</groupId>
+      <artifactId>login-api</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

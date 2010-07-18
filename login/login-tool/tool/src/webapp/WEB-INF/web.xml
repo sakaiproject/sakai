@@ -2,8 +2,8 @@
 <web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>sakai-sample-tools-login</display-name>
-    <description>Sakai 2 sample tools: login</description>
+    <display-name>xlogin</display-name>
+    <description>login</description>
 
     <filter>
         <filter-name>sakai.request</filter-name>
@@ -39,7 +39,7 @@
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>
-        <servlet-class>org.sakaiproject.login.tool.LoginTool</servlet-class>
+        <servlet-class>org.sakaiproject.login.tool.SkinnableLogin</servlet-class>
         <init-param>
             <param-name>container</param-name>
             <param-value>/sakai-login-tool/container</param-value>
@@ -58,48 +58,9 @@
         <servlet-name>sakai.login.container</servlet-name>
         <url-pattern>/container/*</url-pattern>
     </servlet-mapping>
-
-    <listener>
+	
+	<listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
-
-	<!-- to add a user to this BASIC auth tomcat container authentication, add lines to your tomcat/conf/tomcat-users.xml:
-    		*** Enable this only if using Tomcat's built-in BASIC auth
-	    <tomcat-users>
-	        <role rolename="sakaiuser"/>
-	        <user username="NAME" password="PW" roles="sakaiuser"/>
-	    </tomcat-users>
-	among the other definitions there -->
-
-    <!-- Define a Security Constraint on this Application
-    		*** Enable this only if using Tomcat's built-in BASIC auth
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>container</web-resource-name>
-            <url-pattern>/container/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>sakaiuser</role-name>
-        </auth-constraint>
-    </security-constraint>
-	*** -->
-
-    <!-- Define the Login Configuration for this Application
-    		*** Enable this only if using Tomcat's built-in BASIC auth
-    <login-config>
-        <auth-method>BASIC</auth-method>
-        <realm-name>Sakai Users</realm-name>
-    </login-config>
-	*** -->
-
-    <!-- Security roles referenced by this web application
-    		*** Enable this only if using Tomcat's built-in BASIC auth
-    <security-role>
-        <description>
-            The role that is required to log in to Sakai
-        </description>
-        <role-name>sakaiuser</role-name>
-    </security-role>
-	*** -->
-
+	
 </web-app>

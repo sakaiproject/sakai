@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.login.api.LoginService"
+			class="org.sakaiproject.login.impl.LoginServiceComponent"
+			singleton="true">
+
+			<lookup-method name="authenticationManager" bean="org.sakaiproject.user.api.AuthenticationManager"/>
+			<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+			<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService"/>
+	</bean>
+
+
+</beans>
