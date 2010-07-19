@@ -7784,12 +7784,12 @@ public class SiteAction extends PagedResourceActionII {
 				AuthzGroup gRealm = AuthzGroupService.getAuthzGroup(group.getReference());
 				String gProviderId = StringUtil.trimToNull(gRealm.getProviderGroupId());
 				if (gProviderId != null)
-				{ 
-					if ((manualCourseSectionList== null && cmRequestedCourseList == null)
-						|| (manualCourseSectionList != null && !listContainsString(manualCourseSectionList, gProviderId) && cmRequestedCourseList == null)
-						|| (manualCourseSectionList == null && cmRequestedCourseList != null && !listContainsString(cmRequestedCourseList, gProviderId))
-						|| (manualCourseSectionList != null && !listContainsString(manualCourseSectionList, gProviderId) && cmRequestedCourseList != null && !listContainsString(cmRequestedCourseList, gProviderId)))
+				{
+					if (!listContainsString(manualCourseSectionList, gProviderId) 
+						&& !listContainsString(cmRequestedCourseList, gProviderId) 
+						&& !listContainsString(providerCourseSectionList, gProviderId))
 					{
+						// if none of those three lists contains the provider id, remove the group and realm
 						AuthzGroupService.removeAuthzGroup(group.getReference());
 					}
 				}
