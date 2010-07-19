@@ -86,7 +86,7 @@ div#footer {
 
 #myPhoto img {
 	max-width: 200px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 200 ) + "px"); /* ie6 max-width hack */
+	width: 200px;
 	background-color: transparent;
 	text-align:center;
 }
@@ -632,7 +632,7 @@ h2 {
 	
 .friends-feed-item-photo {
 	max-width: 55px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
+	width: 55px;
 	/* centre the image inside this cell */
 	display:block;
    	margin:auto;
@@ -694,7 +694,7 @@ h2 {
 	top: 5px;
 	left: 5px;
 	max-width: 100px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+	width: 100px;
 	border: 1px solid #666666;
 	padding: 2px;
 }
@@ -885,7 +885,7 @@ h2 {
 	top: 0;
 	left: 0;
 	max-width: 100px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+	width: 100px;
 	border: 1px solid #666666;
 	padding: 2px;
 }
@@ -1010,7 +1010,7 @@ div.wicket-aa ul li.selected {
 .message-thread-photo{
 	float:left;
 	max-width: 50px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 50 ) + "px"); /* ie6 max-width hack */
+	width: 50px;
 }
 
 
@@ -1099,7 +1099,7 @@ div.wicket-aa ul li.selected {
 .message-photo{
 	float:left;
 	max-width: 55px;
-	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
+	width: 55px;
 }
 
 .message-info-wrap {
@@ -1225,7 +1225,7 @@ div.wicket-aa ul li.selected {
 
 .gallery-feed-item img {
 	max-width: 55px;
-	width: 55px; /* ie6 max-width hack removed */
+	width: 55px;
 	display:block;
    	margin:auto;
 }
