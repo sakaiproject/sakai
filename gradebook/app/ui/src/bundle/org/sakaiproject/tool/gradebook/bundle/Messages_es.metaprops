@@ -11,8 +11,6 @@ add_assignment_counted..text.changed=20080603094657
 add_assignment_counted..text.md5=FRE/iTDwY8zLZBAD1g2QyQ\=\=
 add_assignment_counted_detail..text.changed=20080603094657
 add_assignment_counted_detail..text.md5=n0KJ4mSEr/QxHlb70nT5xQ\=\=
-add_assignment_date_format..text.changed=20080603094657
-add_assignment_date_format..text.md5=fmLHcJxJooVkUaEUrk+DdA\=\=
 add_assignment_due_date..text.changed=20080603094657
 add_assignment_due_date..text.md5=bSNOc7hjN3rSOu9HtiMUbA\=\=
 add_assignment_duplicate_name..text.changed=20080603094657
@@ -469,8 +467,6 @@ import_assignment_comments_none..text.changed=20080603094657
 import_assignment_comments_none..text.md5=PC0ChG5agOUp/8qpKEUhwg\=\=
 import_assignment_counted..text.changed=20080603094657
 import_assignment_counted..text.md5=1j8NShVfcuuPeuOVpyTbng\=\=
-import_assignment_date_format..text.changed=20080603094657
-import_assignment_date_format..text.md5=fmLHcJxJooVkUaEUrk+DdA\=\=
 import_assignment_due_date..text.changed=20080603094657
 import_assignment_due_date..text.md5=1w1wzKo1cwsxi5Q84CsCWw\=\=
 import_assignment_entire_missing_title..text.changed=20080603094657
