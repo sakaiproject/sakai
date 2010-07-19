@@ -118,6 +118,11 @@ function resizeFrame(){
 </script>
 <script type="text/javascript">
 	$(document).ready(function() {
+		$('#notiHistoryToggle').click(function(e){
+			e.preventDefault();
+			$('#notiHistory').toggle();
+			resizeFrame('grow')
+		})
 		#if($specify) 
 			$('.showHideDates').show()
 		#else
@@ -462,6 +467,58 @@ function resizeFrame(){
 				</p>	
 			#end
 		</div>	
+		
+		#if ($notiHistory)
+			<div class="specialLink"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
+			<table class="listHier indnt2" id="notiHistory" border="0" style="width:auto;display:none" cellpadding="0" cellspacing="0" summary="$tlang.getString("revise.notify.ver_summary")">
+				<thead>
+					<tr><th scope="col">$tlang.getString("revise.notify.ver_daterevisedtitle")</th><th scope="col">$tlang.getString("revise.notify.ver_typetitle")</th><th scope="col">$tlang.getString("revise.notify.ver_datereleasedtitle")</th></tr>
+				</thead>
+				<tbody> 
+					#set($notiEventCount = 1)
+					#foreach ($notiEvent in $notiHistory)
+						#if($notiEventCount == $notiHistory.size())
+							<tr style="font-weight:bold;font-size:1.1em">
+						#else
+							<tr>
+						#end	
+							#set($notiEventItemCount = 0)
+							#foreach ($notiEventItem in $notiEvent)
+								#if ($notiEventItemCount ==0)
+									<td>$notiEventItem</td>
+								#elseif ($notiEventItemCount ==1)
+									<td>
+										#if($notiEventItem =="0")
+											$tlang.getString("revise.notify.short_none")
+											#set($notiEventType = 0)
+										#elseif($notiEventItem =="1")
+											$tlang.getString("revise.notify.short_high")
+											#set($notiEventType = 1)
+										#elseif($notiEventItem =="2")
+											$tlang.getString("revise.notify.short_low")
+											#set($notiEventType = 2)
+										#else
+											<span class="highlight">$tlang.getString("revise.notify.draft")</spa
+											#set($notiEventType = 3)
+										#end
+									</td>
+								#else 
+									<td>
+										#if($notiEventType == 0)
+											$tlang.getString("revise.notify.ver.dated_future") $notiEventItem
+										#elseif($notiEventType == 1 || $notiEventType == 2)
+											$tlang.getString("revise.notify.ver.dateds_future") $notiEventItem
+										#end
+									</td>
+								#end	
+								#set($notiEventItemCount = $notiEventItemCount + 1)
+							#end
+						</tr>	
+						#set($notiEventCount = $notiEventCount + 1)
+					 #end	
+				</tbody>	
+			</table>
+		#end
 		<p class="act">
 				<input type="button" class="active" name="post" accesskey="s"  id="saveChanges"  value=
 					#if ( $newAnn =="true")				
