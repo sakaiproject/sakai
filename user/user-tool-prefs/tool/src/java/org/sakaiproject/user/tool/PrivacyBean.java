@@ -55,8 +55,6 @@ public class PrivacyBean {
 	private final String SET_SHOW_ALL_STRING = "privacy_show_all_set";
 	private final String SET_HIDE_ALL_STRING = "privacy_hide_all_set";
 	private final String SHOW_ME="Show Me";
-	private final String HIDDEN_VALUE = "hidden";
-	private final String VISIBLE_VALUE = "visible";
 	
 	private String checkboxText;
 	private boolean changeStatus;
@@ -143,11 +141,11 @@ public class PrivacyBean {
 	}
 	
 	public String getVisibleValue() {
-		return VISIBLE_VALUE;
+		return VISIBLE;
 	}
 	
 	public String getHiddenValue() {
-		return HIDDEN_VALUE;
+		return HIDDEN;
 	}
 	
 	/**
@@ -265,7 +263,7 @@ public class PrivacyBean {
 		}
 		
 		if (!privacyStatus.equals("")){
-			processChoice(isMyWorkspace() ? curSite : getContextId(), privacyStatus.equals(HIDDEN_VALUE) ? false : true);
+			processChoice(isMyWorkspace() ? curSite : getContextId(), privacyStatus.equals(HIDDEN) ? false : true);
 		}
 		displayPopup = false;
 
