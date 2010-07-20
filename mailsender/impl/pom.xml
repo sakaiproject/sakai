@@ -40,6 +40,85 @@
             </plugin>
         </plugins>
     </build>
+
+	
+	<profiles>
+		<profile>
+			<!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
+			<id>K1</id>
+			<activation>
+				<file>
+					<exists>../master/../kernel-deploy/pom.xml</exists>
+				</file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-kernel-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-component-manager</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.kernel</groupId>
+					<artifactId>sakai-kernel-util</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
+			<id>pre-K1</id>
+			<activation>
+				<file>
+					<exists>../master/../component/pom.xml</exists>
+				</file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-authz-api</artifactId>
+				</dependency>
+		        <dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-component-api</artifactId>
+				</dependency>
+		        <dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-entity-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-event-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-memory-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-site-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-tool-api</artifactId>
+				</dependency>
+		        <dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-api</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util-api</artifactId>
+				</dependency>
+		        <dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
     <dependencies>
         <dependency>
 			<groupId>${sakai.spring.groupId}</groupId>
@@ -83,51 +162,11 @@
 <!-- sakai -->
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-		</dependency>
-        <dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-		</dependency>
-        <dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-mailarchive-api</artifactId>
-		</dependency>
-        <dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-memory-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-message-api</artifactId>
-		</dependency>
-        <dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-		</dependency>
-        <dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-		</dependency>
-        <dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
 		</dependency>
 
 <!-- testing -->

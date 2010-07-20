@@ -21,7 +21,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>2.5.6</version>
+		<version>2.6-SNAPSHOT</version>
 	</parent>
 	<groupId>org.sakaiproject.mailsender</groupId>
 	<artifactId>mailsender-base</artifactId>
@@ -58,6 +58,37 @@
             </snapshots>
         </repository>
 	</repositories>
+
+	<profiles>
+		<profile>
+			<!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
+			<id>K1</id>
+			<activation>
+				<file>
+					<exists>../master/../kernel-deploy/pom.xml</exists>
+				</file>
+			</activation>
+		</profile>
+		<profile>
+			<!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
+			<id>pre-K1</id>
+			<activation>
+				<file>
+					<exists>../master/../component/pom.xml</exists>
+				</file>
+			</activation>
+			<dependencyManagement>
+				<dependencies>
+					<dependency>
+						<groupId>org.sakaiproject</groupId>
+						<artifactId>sakai-util</artifactId>
+						<version>${sakai.version}</version>
+					</dependency>
+				</dependencies>
+			</dependencyManagement>
+		</profile>
+	</profiles>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -77,11 +108,7 @@
 				<artifactId>mailsender-impl</artifactId>
 				<version>${pom.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>sakai-util</artifactId>
-				<version>${sakai.version}</version>
-			</dependency>
+			<!-- sakai-util -->
 
 			<dependency>
 				<groupId>javax.activation</groupId>
