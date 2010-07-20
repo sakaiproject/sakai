@@ -375,25 +375,32 @@ function countStuff() {
 	var oEditor = FCKeditorAPI.GetInstance(rteId) ;
 	var oDOM = oEditor.EditorDocument ;
 	var splitArray;
-	if ( document.all ) // If Internet Explorer.
-	{
-		wordCount = 0;
-		if(oDOM.body.innerText.length > 0){
-			splitArray = oDOM.body.innerText.trim().split(" ");
+	wordCount = 0;
+	
+	var newR = "";
+	var i = 0;
+	
+	if(document.all){
+		//IE
+		for(i = 0; i < oDOM.body.childNodes.length; i++){
+			//add a non-character to the end of the text to help divide <br> and other tags
+			if(oDOM.body.childNodes.item(i).nodeType == 3)
+				newR = newR + oDOM.body.childNodes.item(i).nodeValue + "&";
+		}
+	}else{
+		for(i = 0; i < oDOM.body.childNodes.length; i++){
+			//add a non-character to the end of the text to help divide <br> and other tags			
+			newR = newR + oDOM.body.childNodes[i].textContent + "&";
 		}
 	}
-	else // If Gecko.
-	{
-		var r = oDOM.createRange();	
-		r.selectNodeContents(oDOM.body);
-		wordCount = 0;
-		if(r.toString().length > 0){
-			splitArray = r.toString().trim().split(" ");
-		}
+	
+	if(newR.toString().length > 0){
+		splitArray = newR.split(/[^a-zA-Z]/);
 	}
+
 	var i = 0;
 	for(i = 0; i < splitArray.length; i++){
-		if(splitArray[i].trim() != ''){
+		if(splitArray[i] != ''){
 			wordCount++;
 		}
 	}
