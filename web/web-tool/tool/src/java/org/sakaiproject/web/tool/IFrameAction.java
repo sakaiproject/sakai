@@ -366,13 +366,13 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// if marked for "site", use the site intro from the properties
 		if (SPECIAL_SITE.equals(special))
 		{
-			rv = StringUtil.trimToNull(getLocalizedURL("server.instructions.url"));
+			rv = StringUtil.trimToNull(getLocalizedURL("server.info.url"));
 		}
 
 		// if marked for "workspace", use the "user" site info from the properties
 		else if (SPECIAL_WORKSPACE.equals(special))
 		{
-			rv = StringUtil.trimToNull(getLocalizedURL("myworkspace.instructions.url"));
+			rv = StringUtil.trimToNull(getLocalizedURL("myworkspace.info.url"));
 		}
 
 		// if marked for "worksite", use the setting from the site's definition
