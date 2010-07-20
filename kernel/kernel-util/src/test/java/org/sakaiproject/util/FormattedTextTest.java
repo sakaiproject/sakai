@@ -130,4 +130,65 @@ public class FormattedTextTest extends TestCase {
         assertFalse( result.contains("data:image/svg+xml;base64"));
         assertFalse( result.contains("<script"));
     }
+
+    public void testKNL_528() {
+        // http://jira.sakaiproject.org/browse/KNL-528
+
+        String SVG_BAD_CAPS = "<div>hello</div><EMBED ALLOWSCRIPTACCESS=\"always\" type=\"image/svg+xml\" SRC=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></EMBED>";
+        String SVG_BAD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></embed>";
+
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+        
+        strFromBrowser = SVG_BAD;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<embed"));
+        assertFalse( result.contains("src="));
+        assertFalse( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+
+        strFromBrowser = SVG_BAD_CAPS;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<EMBED"));
+        assertFalse( result.contains("SRC="));
+        assertFalse( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+
+/* CDATA is ignored so it will not be cleaned
+        String TRICKY = "<div><![CDATA[<EMBED SRC=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>]]></div>";
+        String CDATA_TRICKY = "<div><![CDATA[<embed src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></embed>]]></div>";
+
+        strFromBrowser = CDATA_TRICKY;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<embed"));
+        assertFalse( result.contains("src="));
+        assertFalse( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+
+        strFromBrowser = TRICKY;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div"));
+        assertTrue( result.contains("<EMBED"));
+        assertFalse( result.contains("SRC="));
+        assertFalse( result.contains("data:image/svg+xml;base64"));
+        assertFalse( result.contains("<script"));
+*/
+    }
+
 }

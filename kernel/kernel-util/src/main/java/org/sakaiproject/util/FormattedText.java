@@ -326,7 +326,7 @@ public class FormattedText
         }
 
         // deal with hardcoded empty space character from Firefox 1.5
-        if (val.equals("&nbsp;")) {
+        if (val.equalsIgnoreCase("&nbsp;")) {
             val = "";
         }
 
@@ -853,12 +853,12 @@ public class FormattedText
 		}
 		if (pass) {
 		    // Special check for src="data:image/svg+xml;base64,.... : http://jira.sakaiproject.org/browse/SAK-18269
-		    if ("embed".equals(tag) 
+		    if ("embed".equalsIgnoreCase(tag) 
 		            && value != null 
-		            && value.indexOf("src") >= 0
-		            && value.indexOf("data:image/svg") > 0
+		            && value.toLowerCase().indexOf("src") >= 0
+		            && value.toLowerCase().indexOf("data:image/svg") > 0
 		            ) {
-		        int pos = value.indexOf(";base64,");
+		        int pos = value.toLowerCase().indexOf(";base64,");
 		        if (pos > 0) {
 		            pos = pos + 8;
 		            String b64text = value.substring(pos);
