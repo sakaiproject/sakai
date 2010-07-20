@@ -12,3 +12,4 @@ uk.ac.cam.caret.sakai.rwiki.component.macros.ColorMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.BackgroundColorMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.SpanMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.WorksiteInfoMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.PreMacro
