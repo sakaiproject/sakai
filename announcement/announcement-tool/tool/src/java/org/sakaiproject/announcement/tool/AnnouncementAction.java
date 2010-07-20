@@ -2624,7 +2624,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		if (checkForm)
 		{
-			if ((use_start_date && use_end_date) && retractDate.before(releaseDate))
+			if ((use_start_date && use_end_date) && retractDate!=null && retractDate.before(releaseDate))
 			{
 				addAlert(sstate, rb.getString("java.alert.baddates"));
 			}
