@@ -2219,7 +2219,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
 			context.put("selectedTools", orderToolIds(state, checkNullSiteType(state, site), (List) state
-					.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST)));
+					.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), false));
 			context.put("oldSelectedTools", state
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 			context.put("oldSelectedHome", state
@@ -2412,7 +2412,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			context.put("selectedTools", orderToolIds(state, site_type,
-					(List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST))); // String toolId's
+					(List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), false)); // String toolId's
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put("importSitesTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
@@ -8240,7 +8240,7 @@ public class SiteAction extends PagedResourceActionII {
 	} // getRolesWithoutPermission
 
 	private void addSynopticTool(SitePage page, String toolId,
-			String toolTitle, String layoutHint) {
+			String toolTitle, String layoutHint, int position) {
 		page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 		
 		// Add synoptic announcements tool
@@ -8249,9 +8249,26 @@ public class SiteAction extends PagedResourceActionII {
 		tool.setTool(toolId, reg);
 		tool.setTitle(toolTitle);
 		tool.setLayoutHints(layoutHint);
+		
+		// count how many synoptic tools in the second/right column
+		int totalSynopticTools = 0;
+		for (ToolConfiguration t : page.getTools())
+		{
+			if (t.getToolId() != null && SYNOPTIC_TOOL_ID_MAP.containsKey(t.getToolId()))
+			{
+				totalSynopticTools++;
+			}
+		}
+		// now move the newly added synoptic tool to proper position
+		for (int i=0; i< (totalSynopticTools-position-1);i++)
+		{
+			tool.moveUp();
+		}
 	}
 
 	private void saveFeatures(ParameterParser params, SessionState state, Site site) {
+		
+		String siteType = checkNullSiteType(state, site);
 		
 		// get the list of Worksite Setup configured pages
 		List wSetupPageList = state.getAttribute(STATE_WORKSITE_SETUP_PAGE_LIST)!=null?(List) state.getAttribute(STATE_WORKSITE_SETUP_PAGE_LIST):new Vector();
@@ -8289,7 +8306,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		// order the id list
-		chosenList = orderToolIds(state, checkNullSiteType(state, site), chosenList);
+		chosenList = orderToolIds(state, siteType, chosenList, false);
 		
 		// Special case - Worksite Setup Home comes from a hardcoded checkbox on
 		// the vm template rather than toolRegistrationList
@@ -8374,7 +8391,9 @@ public class SiteAction extends PagedResourceActionII {
 			List<ToolConfiguration> toolList = page.getTools();
 			// get tool id set for Home page from configuration
 			List<String> homeToolIds = getHomeToolIds(state, !homeInWSetupPageList, page);
-
+			// order the tool id list
+			homeToolIds = orderToolIds(state, siteType, homeToolIds, true);
+			
 			// count
 			int nonSynopticToolIndex=0, synopticToolIndex = 0;
 			
@@ -8409,16 +8428,23 @@ public class SiteAction extends PagedResourceActionII {
 					boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
 					
 					//first check whether the parent tool is available in site but its parent tool is no longer selected
-					if (pageHasToolId(toolList, homeToolId) && !hasAnyParentToolId && !SiteService.isUserSite(site.getId()))
+					if (pageHasToolId(toolList, homeToolId))
 					{
-						for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext();) 
+						if (!hasAnyParentToolId && !SiteService.isUserSite(site.getId()))
 						{
-							ToolConfiguration tConf= (ToolConfiguration) iToolList.next();
-							if (tConf.getTool().getId().equals(homeToolId))
+							for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext();) 
 							{
-								page.removeTool((ToolConfiguration) tConf);
-								break;
+								ToolConfiguration tConf= (ToolConfiguration) iToolList.next();
+								if (tConf.getTool().getId().equals(homeToolId))
+								{
+									page.removeTool((ToolConfiguration) tConf);
+									break;
+								}
 							}
+						}
+						else{
+							// update position
+							page.setPosition(synopticToolIndex++);
 						}
 					}
 					
@@ -8429,7 +8455,7 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							// use value from map to find an internationalized tool title
 							String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
-							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex++ + ",1");
+							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex);
 						} catch (Exception e) {
 							M_log.warn(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
 						}
@@ -8521,8 +8547,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		// then looking for any tool to add
-		for (ListIterator j = orderToolIds(state,
-				(String) state.getAttribute(STATE_SITE_TYPE), chosenList)
+		for (ListIterator j = orderToolIds(state, siteType, chosenList, false)
 				.listIterator(); j.hasNext();) {
 			String toolId = (String) j.next();
 			boolean multiAllowed = isMultipleInstancesAllowed(findOriginalToolId(state, toolId));
@@ -9561,7 +9586,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 	}
 
-	private List orderToolIds(SessionState state, String type, List toolIdList) {
+	private List orderToolIds(SessionState state, String type, List toolIdList, boolean synoptic) {
 		List rv = new Vector();
 		if (state.getAttribute(STATE_TOOL_HOME_SELECTED) != null
 				&& ((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED))
@@ -9585,10 +9610,21 @@ public class SiteAction extends PagedResourceActionII {
 				String tool_id = ((Tool) i.next()).getId();
 				for (ListIterator j = toolIdList.listIterator(); j.hasNext();) {
 					String toolId = (String) j.next();
-					String rToolId = originalToolId(toolId, tool_id);
-					if (rToolId != null)
+					if (!synoptic)
 					{
-						rv.add(toolId);
+						String rToolId = originalToolId(toolId, tool_id);
+						if (rToolId != null)
+						{
+							rv.add(toolId);
+						}
+					}
+					else
+					{
+						List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(toolId);
+						if (parentToolList != null && parentToolList.contains(tool_id))
+						{
+							rv.add(toolId);
+						}
 					}
 				}
 			}
