@@ -1679,7 +1679,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private boolean canViewHidden(AnnouncementMessage msg, String siteId) 
 	{
-		final boolean b = SecurityService.unlock(AnnouncementService.SECURE_READ_DRAFT, msg.getReference())
+		final boolean b = SecurityService.unlock(AnnouncementService.SECURE_ANNC_READ_DRAFT, msg.getReference())
 							 || SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId)
 							 || msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()) ; 
 		return b;
