@@ -4925,13 +4925,16 @@ public class SiteAction extends PagedResourceActionII {
 
 			Site site = getStateSite(state);
 
-			ResourcePropertiesEdit rp = site.getPropertiesEdit();
-
 			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 			if (templateSite == null) 
 			{
 				// normal site creation: add the features.
 				saveFeatures(params, state, site);
+				try {
+				    site = SiteService.getSite(site.getId());
+				} catch (Exception ee) {
+				    M_log.error(this + "doFinish: unable to reload site after copying tools");
+				}
 			}
 			else
 			{
@@ -4940,6 +4943,11 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					// create based on template: skip add features, and copying all the contents from the tools in template site
 					importToolContent(templateSite.getId(), site, true);
+					try {
+					    site = SiteService.getSite(site.getId());
+					} catch (Exception ee) {
+					    M_log.error(this + "doFinish: unable to reload site after copying tools");
+					}
 				}
 				// copy members
 				if(state.getAttribute(STATE_TEMPLATE_SITE_COPY_USERS) != null) 
@@ -4989,6 +4997,8 @@ public class SiteAction extends PagedResourceActionII {
 				sendTemplateUseNotification(site, UserDirectoryService.getCurrentUser(), templateSite);	
 			}
 				
+			ResourcePropertiesEdit rp = site.getPropertiesEdit();
+
 			// for course sites
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
