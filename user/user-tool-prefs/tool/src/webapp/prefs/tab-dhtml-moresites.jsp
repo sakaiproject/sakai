@@ -75,8 +75,12 @@
                         <f:param value="#{UserPrefsTool.tabCount - 1 }"/>
                     </h:outputFormat> 
                 </div>
-								<b><h:outputLabel for="numtabs" value="#{msgs.tab_count}"/></b>
-								<h:inputText id="numtabs" size="2" value="#{UserPrefsTool.tabCount}" />
+				<b><h:outputLabel for="numtabs" value="#{msgs.tab_count}"/></b>
+                <!-- SAK-18563 -->
+                <h:selectOneMenu id="numtabs" value="#{UserPrefsTool.tabCount}" styleClass="notsbs">
+                    <f:selectItems value="#{UserPrefsTool.tabsChoices}" />
+                </h:selectOneMenu>
+				<%--<h:inputText id="numtabs" size="2" value="#{UserPrefsTool.tabCount}" />--%>
                 <br />
                 <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10" styleClass="sr">
                     <f:selectItems value="#{UserPrefsTool.prefOrderItems}" />
