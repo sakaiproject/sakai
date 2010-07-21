@@ -86,7 +86,7 @@ div#footer {
 
 #myPhoto img {
 	max-width: 200px;
-	width: 200px;
+	width: expression(Math.min(parseInt(this.offsetWidth),200) + "px"); /* ie6 max-width hack */
 	background-color: transparent;
 	text-align:center;
 }
