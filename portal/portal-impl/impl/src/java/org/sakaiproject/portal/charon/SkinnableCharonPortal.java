@@ -32,6 +32,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,6 +41,7 @@ import net.sourceforge.wurfl.core.Device;
 import net.sourceforge.wurfl.core.WURFLHolder;
 import net.sourceforge.wurfl.core.WURFLManager;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -718,6 +720,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		setupWURFL();
 		if ( wurflHolder == null || wurfl == null ) return null;
 		
+		//check sakai.properties to see if auto redirect is enabled
+		//defaults to true - if set to false, skip the PDA check
+		if(StringUtils.equals(ServerConfigurationService.getString("portal.pda.autoredirect", "true"), "false")){
+			return null;
+		}
+		
+		//check if we have a cookie to force classic view, skip the PDA check
+		Cookie c = findCookie(req, Portal.PORTAL_MODE_COOKIE_NAME);
+		if ((c != null) && (c.getValue().equals(Portal.FORCE_CLASSIC_COOKIE_VALUE))) {
+			return null;
+		}
+		
 		
 		Device device = wurfl.getDeviceForRequest(req);
 		String deviceName = device.getId();
@@ -792,13 +806,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
-			String requestHander =  getRequestHandler(req);
+			String requestHandler = getRequestHandler(req);
 
-			if (requestHander!=null){
+			if (requestHandler != null){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";
-			}else{
+			} else{
 				ph = handlerMap.get(parts[1]);
 			}
 
@@ -818,8 +832,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 
 				List<PortalHandler> urlHandlers;
-				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i
-				.hasNext();)
+				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i.hasNext();)
 				{
 					ph = i.next();
 					stat = ph.doGet(parts, req, res, session);
@@ -1095,8 +1108,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
 			PortalHandler ph;
-			String requestHander =  getRequestHandler(req);
-			if (requestHander!=null){
+			String requestHandler = getRequestHandler(req);
+			if (requestHandler != null){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";
@@ -1116,8 +1129,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 
 				List<PortalHandler> urlHandlers;
-				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i
-				.hasNext();)
+				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i.hasNext();)
 				{
 					ph = i.next();
 					stat = ph.doPost(parts, req, res, session);
@@ -1862,6 +1874,28 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public SiteNeighbourhoodService getSiteNeighbourhoodService()
 	{
 		return portalService.getSiteNeighbourhoodService();
+	}
+	
+	/**
+	 * Find a cookie by this name from the request
+	 * 
+	 * @param req
+	 *        The servlet request.
+	 * @param name
+	 *        The cookie name
+	 * @return The cookie of this name in the request, or null if not found.
+	 */
+	private Cookie findCookie(HttpServletRequest req, String name) {
+		
+		Cookie[] cookies = req.getCookies();
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				if (cookies[i].getName().equals(name)) {
+					return cookies[i];
+				}
+			}
+		}
+		return null;
 	}
 
 

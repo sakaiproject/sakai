@@ -23,9 +23,11 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -45,6 +47,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -68,6 +71,8 @@ public class PDAHandler extends PageHandler
 	private static final Log log = LogFactory.getLog(PDAHandler.class);
 
 	private static final String URL_FRAGMENT = "pda";
+	private static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain"; //RequestFilter.SAKAI_COOKIE_DOMAIN
+	
 
 	public PDAHandler()
 	{
@@ -86,6 +91,31 @@ public class PDAHandler extends PageHandler
 			try
 			{
 
+				//check if we want to force back to the classic view
+				String forceClassic = req.getParameter(Portal.FORCE_CLASSIC_REQ_PARAM);
+				if(StringUtils.equals(forceClassic, "yes")){
+					
+					log.debug("PDAHandler - force.classic");
+					
+					//set the portal mode cookie to force classic
+					Cookie c = new Cookie(Portal.PORTAL_MODE_COOKIE_NAME, Portal.FORCE_CLASSIC_COOKIE_VALUE);
+					c.setPath("/");
+					c.setMaxAge(-1);
+					
+					//need to set domain and https as per RequestFilter
+					if (System.getProperty(SAKAI_COOKIE_DOMAIN) != null) {
+						c.setDomain(System.getProperty(SAKAI_COOKIE_DOMAIN));
+					}
+					if (req.isSecure() == true) {
+						c.setSecure(true);
+					}
+					res.addCookie(c);
+					
+					//redirect to classic view
+					res.sendRedirect(req.getContextPath());
+				}
+				
+				
 				// /portal/pda/site-id
 				String siteId = null;
 				if (parts.length >= 3)

@@ -251,6 +251,11 @@ ${responseBody}
     #end
 #end
 #end
+
+<div id="pda-footer">
+<a class="switch-link" href="${portalTopUrl}?force.classic=yes">$rloader.getString("pda_switch")</a>
+</div>
+
 </div>
 <!-- end pda.vm -->
 	</body>
