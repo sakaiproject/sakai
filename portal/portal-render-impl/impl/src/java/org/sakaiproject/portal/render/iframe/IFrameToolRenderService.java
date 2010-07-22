@@ -99,8 +99,10 @@ public class IFrameToolRenderService implements ToolRenderService
 		toolUrl = URLUtils.addParameter(toolUrl, "panel", "Main");
 
 		final StringBuilder sb = new StringBuilder();
-		
-		
+	
+                //SAK-18792 if we don't replace '&' characters we will end up with malformed XML. '&' signifies the beginning
+                //   of an XML "entity" like &lt; &gt;, etc.	
+	        toolUrl = toolUrl.replace("&", "&amp;");	
 		
 		sb.append("<iframe").append("	name=\"").append(
 				Web.escapeJavascript("Main" + configuration.getId())).append("\"\n")
