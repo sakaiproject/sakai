@@ -341,6 +341,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
+        m.put("siteType", s.getType());
+	    m.put("siteId", s.getId());
 
 		// TODO: This should come from the site neighbourhood.
 		ResourceProperties rp = s.getProperties();
