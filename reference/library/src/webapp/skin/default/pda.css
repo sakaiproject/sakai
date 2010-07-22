@@ -202,3 +202,25 @@
 	width:150px;
 	overflow:auto;
 }
+
+#pda-footer {
+	font-size: 11px !important;
+	width:100%;
+	background-color:#09C;
+	font-family: Helvetica, Arial,sans-serif;
+	margin:0;
+	clear: both;
+	overflow: hidden;
+	padding: 0;
+	padding-left: 0.5em;
+	line-height: 1.5em;
+	text-align: center;
+}
+
+.switch-link {
+	color:#fff;
+	text-decoration:none !important;
+}	
+.switch-link:hover{
+	text-decoration: underline !important;
+}
