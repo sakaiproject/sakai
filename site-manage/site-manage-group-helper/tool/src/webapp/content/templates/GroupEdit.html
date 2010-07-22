@@ -6,6 +6,9 @@
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+	<link type="text/css" href="/library/js/jquery-ui-latest/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url"></script>
@@ -23,14 +26,32 @@
 	opt.saveNewLeftOptions("newLeft");
 	opt.saveNewRightOptions("newRight");
 	</SCRIPT>
+	<script language="JavaScript" type="text/javascript">
+		<!--
+		function checkform ( form, message )
+		{
+		  // check whether the title field is null
+		
+		  // ** START **
+		  if (form.group_title.value == "") {
+		   	$('.messageValidation').show();
+		    form.group_title.focus();
+		    return false ;
+		  }
+		  // ** END **
+		  return true ;
+		}
+		//-->
+	</script>
 </head>
 <body>
 <div class="portletBody">
 	<div rsf:id="error-row:">
 		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
 	</div>
-	<form rsf:id="groups-form">
+	<form rsf:id="groups-form" onsubmit="return checkform(this);">
 		<h3 rsf:id="prompt"></h3>
+		<p id="" class="messageValidation" rsf:id="emptyGroupTitleAlert" style="display:none"/>
 		<p rsf:id="instructions" class="instruction">
 			Select members of the site member list and add to group. Select members of group list and remove. Click Update to save changes.
 		</p>
@@ -39,8 +60,7 @@
 				<span class="reqStar">*</span>
 				<span rsf:id="group_title_label">Title</span>
 			</label>
-			<br />
-			<input name="Title" type="text" size="50" rsf:id="group_title" />
+			<br /><input name="group_title" type="text" size="50" maxsize="99" rsf:id="group_title" id="group_title"/>
 		</p>	
 		<label rsf:id="group_description_label">
 			Description
