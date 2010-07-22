@@ -48,7 +48,8 @@
 	
 	<!-- ProfileLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl">
+    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
+    	init-method="init">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
@@ -93,11 +94,9 @@
     
     <!-- ProfileImageLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileImageLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl"
-    	init-method="init">
+    	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
     	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
     	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
