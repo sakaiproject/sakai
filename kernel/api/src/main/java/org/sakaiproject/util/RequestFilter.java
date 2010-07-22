@@ -889,7 +889,7 @@ public class RequestFilter implements Filter
 		}
 
 		// retrieve the configured cookie domain, if any
-		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
+		if (System.getProperty(SAKAI_COOKIE_DOMAIN) != null)
 		{
 			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
 		}
