@@ -201,6 +201,7 @@ public class SelectActionListener
     HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
     DeliveryBeanie deliveryAnt = null;
     boolean isUnique = true;
+    select.setHasAnyAssessmentRetractForEdit(false);
     for (int k = 0; k < recentSubmittedList.size(); k++) {
         hasHighest = false;
         hasMultipleSubmission = false;
@@ -267,6 +268,9 @@ public class SelectActionListener
         delivery.setFeedback(hasFeedback);
         boolean isAssessmentRetractForEdit = isAssessmentRetractForEdit(p);
         delivery.setIsAssessmentRetractForEdit(isAssessmentRetractForEdit);
+        if (isAssessmentRetractForEdit) {
+        	select.setHasAnyAssessmentRetractForEdit(true);
+        }
         if (containRandomPartAssessmentIds.contains(g.getPublishedAssessmentId())) {
         	delivery.setHasRandomDrawPart(true);
         }

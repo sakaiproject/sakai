@@ -256,9 +256,11 @@ sorting actions for table:
           <h:outputText value="#{selectIndexMessages.title} " styleClass="currentSort"  />
         </h:panelGroup>
       </f:facet>
-
+	
 	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
-	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
+	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
+	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" styleClass="validate" />
+	
    </h:column>
 	
 	<!-- STATS creating separate column for stats -->
@@ -367,7 +369,13 @@ sorting actions for table:
 	    
   </h:dataTable>
 
+  <f:verbatim><br/></f:verbatim>
+  
+  <h:panelGrid>
   <h:outputText value="#{selectIndexMessages.asterisk} #{selectIndexMessages.has_been_modified}" rendered="#{select.hasAnyAssessmentBeenModified}" styleClass="validate"/> 
+  <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.currently_being_edited}" rendered="#{select.hasAnyAssessmentRetractForEdit}" styleClass="validate"/>
+  </h:panelGrid>
+
   </div></div>
   </h:form>
 </div>
