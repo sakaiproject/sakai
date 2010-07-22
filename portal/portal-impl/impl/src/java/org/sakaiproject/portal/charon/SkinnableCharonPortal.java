@@ -1308,12 +1308,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String toolContextPath, String toolPathInfo) throws ToolException,
 			IOException
 			{
+        String portalPath = ServerConfigurationService.getString("portalPath", "/portal");
 
 		// if there is a stored request state, and path, extract that from the
 		// session and reinstance it
 
 		// generate the forward to the tool page placement
-		String portalPlacementUrl = "/portal" + getPortalPageUrl(p);
+		String portalPlacementUrl = portalPath + getPortalPageUrl(p);
 		res.sendRedirect(portalPlacementUrl);
 		return;
 
