@@ -6,7 +6,7 @@
       <property name="docId"><value>ardy</value></property>
       <property name="name"><value>Sites Overview</value></property>
       <property name="location"><value>/sakai_sites/ardy.html</value></property>
-      <property name="defaultForTool"><value>sakai.sites.tool</value></property>
+      <property name="defaultForTool"><value>sakai.sites</value></property>
    </bean>
    
    <bean id="addSite" class="org.sakaiproject.component.app.help.model.ResourceBean">

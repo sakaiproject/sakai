@@ -6,7 +6,7 @@
       <property name="docId"><value>ardy_ru</value></property>
       <property name="name"><value>Сайты: обзор</value></property>
       <property name="location"><value>/sakai_sites/ardy_ru.html</value></property>
-      <property name="defaultForTool"><value>sakai.sites.tool</value></property>
+      <property name="defaultForTool"><value>sakai.sites</value></property>
    </bean>
    
    <bean id="addSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
