@@ -33,6 +33,65 @@
         <module>basiclti-util</module>
         <module>portlet-util</module>
     </modules>
+    
+    <developers>
+        <developer>
+            <id>csev</id>
+            <name>Charles Severance</name>
+            <organization>University of Michigan</organization>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>botimer</id>
+            <name>Noah Botimer</name>
+            <organization>University of Michigan</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>jonespm</id>
+            <name>Matt Jones</name>
+            <organization>University of Michigan</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>lance</id>
+            <name>Lance Speelmon</name>
+            <organization>Indiana University</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>sswinsburg</id>
+            <name>Steve Swinsburg</name>
+            <organization>Australian National University</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+11</timezone>
+        </developer>
+        <developer>
+            <id>arwhyte</id>
+            <name>Anthony Whyte</name>
+            <organization>Sakai Foundation / University of Michigan</organization>
+            <roles>
+                <role>developer</role>
+                <role>release manager</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
 
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/basiclti/trunk</connection>
