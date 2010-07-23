@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="assignmentOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardn_zh_CN</value></property>
+      <property name="name"><value>作业总览</value></property>
+      <property name="location"><value>/sakai_assignment_grades/ardn_zh_CN.html</value></property>
+      <property name="defaultForTool"><value>sakai.assignment</value></property>
+   </bean>
+
+   <bean id="createAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arbs_zh_CN</value></property>
+      <property name="name"><value>创建/添加、编辑或删除作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbs_zh_CN.html</value></property>
+   </bean>
+   
+   <bean id="gradingAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arda_zh_CN</value></property>
+      <property name="name"><value>评阅作业/复查学生状态</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arda_zh_CN.html</value></property>
+   </bean>
+   
+   <bean id="assignmentAttachment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arda_zh_CN</value></property>
+      <property name="name"><value>添加附件</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arda_zh_CN.html</value></property>
+   </bean>
+  
+   <bean id="reviseAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzj_zh_CN</value></property>
+      <property name="name"><value>预览作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/aqzj_zh_CN.html</value></property>
+   </bean>  
+   <bean id="returnAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardd_zh_CN</value></property>
+      <property name="name"><value>返还作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/ardd_zh_CN.html</value></property>
+   </bean>   
+   <bean id="resubmitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcy_zh_CN</value></property>
+      <property name="name"><value>再次提交作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arcy_zh_CN.html</value></property>
+   </bean>   
+   <bean id="exportAssignmentGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcd_zh_CN</value></property>
+      <property name="name"><value>导出作业分数</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arcd_zh_CN.html</value></property>
+   </bean>   
+   <bean id="readAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aren_zh_CN</value></property>
+      <property name="name"><value>阅读作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/aren_zh_CN.html</value></property>
+   </bean>  
+   <bean id="duplicateAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardj_zh_CN</value></property>
+      <property name="name"><value>复制作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/ardj_zh_CN.html</value></property>
+   </bean>   
+   <bean id="submitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbm_zh_CN</value></property>
+      <property name="name"><value>完成并提交作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbm_zh_CN.html</value></property>
+   </bean>   
+   <bean id="postAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbk_zh_CN</value></property>
+      <property name="name"><value>发布作业</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbk_zh_CN.html</value></property>
+   </bean>   
+   <bean id="assignmentHonorPledge" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbi_zh_CN</value></property>
+      <property name="name"><value>添加诚实誓言</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbi_zh_CN.html</value></property>
+   </bean>   
+   <bean id="checkAssignmentGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbg_zh_CN</value></property>
+      <property name="name"><value>检查作业分数</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbg_zh_CN.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>根</value></property>
+      <property name="categories">
+         <list>
+            <bean id="assignmentCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>作业</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="assignmentOverview"/>
+                     <ref bean="createAssignment"/>
+					 <ref bean="gradingAssignment"/>
+					 <ref bean="assignmentAttachment"/>
+                     <ref bean="reviseAssignment"/>					 
+					 <ref bean="returnAssignment"/>
+					 <ref bean="resubmitAssignment"/>
+					 <ref bean="exportAssignmentGrade"/>
+					 <ref bean="readAssignment"/>
+					 <ref bean="duplicateAssignment"/>
+					 <ref bean="submitAssignment"/>
+					 <ref bean="postAssignment"/>
+					 <ref bean="assignmentHonorPledge"/>
+					 <ref bean="checkAssignmentGrade"/>
+                     
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
