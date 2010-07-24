@@ -61,4 +61,16 @@ public class MockFunctionManager implements FunctionManager
 		log.info("Registering "+function);
 	}
 
+	public List<String> getRegisteredUserMutableFunctions() {
+		return new ArrayList();
+	}
+
+	public List<String> getRegisteredUserMutableFunctions(String prefix) {
+		return new ArrayList();
+	}
+
+	public void registerFunction(String function, boolean userMutable) {
+		log.info("Registering "+function);		
+	}
+
 }

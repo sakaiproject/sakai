@@ -64,6 +64,14 @@ public class FunctionManager
 		manager.registerFunction(param0);
 	}
 
+	public static void registerFunction(java.lang.String param0, boolean param1)
+	{
+		org.sakaiproject.authz.api.FunctionManager manager = getInstance();
+		if (manager == null) return;
+
+		manager.registerFunction(param0, param1);
+	}
+
 	public static java.util.List getRegisteredFunctions()
 	{
 		org.sakaiproject.authz.api.FunctionManager manager = getInstance();
@@ -79,4 +87,21 @@ public class FunctionManager
 
 		return manager.getRegisteredFunctions(param0);
 	}
+	
+	public static java.util.List getRegisteredUserMutableFunctions()
+	{
+		org.sakaiproject.authz.api.FunctionManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.getRegisteredUserMutableFunctions();
+	}
+
+	public static java.util.List getRegisteredUserMutableFunctions(java.lang.String param0)
+	{
+		org.sakaiproject.authz.api.FunctionManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.getRegisteredUserMutableFunctions(param0);
+	}
+
 }

@@ -21,7 +21,6 @@
 
 package org.sakaiproject.authz.impl;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -42,7 +41,11 @@ public class FunctionManagerComponent implements FunctionManager
 	private static Log M_log = LogFactory.getLog(FunctionManagerComponent.class);
 
 	/** List of security functions. */
-	protected List m_registeredFunctions = new Vector();
+	protected List<String> m_registeredFunctions = new Vector<String>();
+
+	/** List of user-mutable security functions. */
+	protected List<String> m_registeredUserMutableFunctions = new Vector<String>();
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -73,33 +76,68 @@ public class FunctionManagerComponent implements FunctionManager
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void registerFunction(String function)
 	{
+		registerFunction(function, false);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void registerFunction(String function, boolean userMutable) {
 		if (function == null) return;
 
 		m_registeredFunctions.add(function);
+		
+		if (userMutable) {
+			m_registeredUserMutableFunctions.add(function);
+		}
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
-	public List getRegisteredFunctions()
+	public List<String> getRegisteredFunctions()
 	{
-		return new Vector(m_registeredFunctions);
+		return new Vector<String>(m_registeredFunctions);
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
-	public List getRegisteredFunctions(String prefix)
+	public List<String> getRegisteredFunctions(String prefix)
 	{
-		List rv = new Vector();
+		List<String> rv = new Vector<String>();
 
-		for (Iterator i = m_registeredFunctions.iterator(); i.hasNext();)
+		for (String function : m_registeredFunctions)
 		{
-			String function = (String) i.next();
+			if (function.startsWith(prefix))
+			{
+				rv.add(function);
+			}
+		}
+
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getRegisteredUserMutableFunctions() {
+		return new Vector<String>(m_registeredUserMutableFunctions);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getRegisteredUserMutableFunctions(String prefix) {
+		
+		List<String> rv = new Vector<String>();
+
+		for (String function : m_registeredUserMutableFunctions)
+		{
 			if (function.startsWith(prefix))
 			{
 				rv.add(function);

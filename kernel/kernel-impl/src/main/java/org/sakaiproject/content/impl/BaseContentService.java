@@ -789,17 +789,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					ContentHostingService.REFERENCE_ROOT);
 
 			// register functions
-			functionManager.registerFunction(AUTH_RESOURCE_ADD);
-			functionManager.registerFunction(AUTH_RESOURCE_READ);
-			functionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY);
-			functionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN);
-			functionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY);
-			functionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN);
-			functionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS);
-			functionManager.registerFunction(AUTH_RESOURCE_HIDDEN);
+			functionManager.registerFunction(AUTH_RESOURCE_ADD, true);
+			functionManager.registerFunction(AUTH_RESOURCE_READ, true);
+			functionManager.registerFunction(AUTH_RESOURCE_WRITE_ANY, true);
+			functionManager.registerFunction(AUTH_RESOURCE_WRITE_OWN, true);
+			functionManager.registerFunction(AUTH_RESOURCE_REMOVE_ANY, true);
+			functionManager.registerFunction(AUTH_RESOURCE_REMOVE_OWN, true);
+			functionManager.registerFunction(AUTH_RESOURCE_ALL_GROUPS, true);
+			functionManager.registerFunction(AUTH_RESOURCE_HIDDEN, true);
 
-			functionManager.registerFunction(AUTH_DROPBOX_OWN);
-			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN);
+			functionManager.registerFunction(AUTH_DROPBOX_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN, false);
 
 
 			M_log.info("init(): site quota: " + m_siteQuota + " body path: " + m_bodyPath + " volumes: "

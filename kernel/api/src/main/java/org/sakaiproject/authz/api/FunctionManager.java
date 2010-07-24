@@ -33,9 +33,24 @@ public interface FunctionManager
 	/**
 	 * Register an authz function
 	 * 
-	 * param function The function name.
+	 * @param function The function name.
 	 */
 	void registerFunction(String function);
+
+	/**
+	 * Register an authz function
+	 * 
+	 * @param function
+	 *            The function name.
+	 * @param userMutable
+	 *            If true, this function is intended to be settable by users with update
+	 *            rights in the authzgroup, for example through a tool
+	 *            permissions widget or web service. Setting this to false indicates that
+	 *            tool UIs or web services should not allow this permission
+	 *            to be altered by a user, but does not enforce this in Role.allowFunction()
+	 *            or Role.disallowFunction().
+	 */
+	void registerFunction(String function, boolean userMutable);
 
 	/**
 	 * Access all the registered functions.
@@ -52,4 +67,21 @@ public interface FunctionManager
 	 * @return A List (String) of registered functions that begin with the string.
 	 */
 	List<String> getRegisteredFunctions(String prefix);
+	
+	/**
+	 * Access all the registered functions intended to be user-settable
+	 * 
+	 * @return A List (String) of registered functions.
+	 */
+	List<String> getRegisteredUserMutableFunctions();
+
+	/**
+	 * Access all the registered functions intended to be user-settable that begin with the string.
+	 * 
+	 * @param prefix
+	 *        The prefix pattern to find.
+	 * @return A List (String) of registered functions that begin with the string.
+	 */
+	List<String> getRegisteredUserMutableFunctions(String prefix);
+
 }
