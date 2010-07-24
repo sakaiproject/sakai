@@ -185,6 +185,39 @@ public class LinkToolUtil {
             return null;
         }
 
+        private static String decrypt (String enc) {
+            LinkToolSetup();
+            if ( secretKey == null ) return null;
+                if (secretKey == null)
+                        secretKey = readSecretKey("privkey", "Blowfish");
+
+                try {
+                        Cipher dcipher = Cipher.getInstance("Blowfish");
+                        dcipher.init(Cipher.DECRYPT_MODE, secretKey);
+                        byte[] dec = hex2byte(enc);
+                        // Decrypt
+                        byte[] utf8 = dcipher.doFinal(dec);
+                        // Decode using utf-8
+                        return new String(utf8, "UTF8");
+                } catch (Exception ignore) {
+                        M_log.warn("linktool decrypt failed");
+                }
+                return null;
+        }
+
+
+        public static byte[] hex2byte(String strhex) {
+                if(strhex==null) return null;
+                int l = strhex.length();
+
+                if(l %2 ==1) return null;
+                byte[] b = new byte[l/2];
+                for(int i = 0 ; i < l/2 ;i++){
+                        b[i] = (byte)Integer.parseInt(strhex.substring(i *2,i*2 +2),16);
+                }
+                return b;
+        }
+
 
     // Setup the LinkTool Environment Variables one time
     // If this fails, it does not re-try
