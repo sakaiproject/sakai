@@ -828,13 +828,18 @@ function setBlockDivs()
 <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true or assessmentSettings.valueMap.toGradebook_isInstructorEditable==true or assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading}" >
  <f:verbatim><div class="tier2"></f:verbatim>
-<%--     DEBUGGING:
-     AnonymousGrading= <h:outputText value="#{assessmentSettings.anonymousGrading}" /> ;
---%>
-
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> <f:verbatim> <div class="longtext"></f:verbatim>  <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" /><f:verbatim></div><div class="tier3"> </f:verbatim>
-      <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"  layout="pageDirection">
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> 
+    <f:verbatim> <div class="longtext"></f:verbatim>  
+    <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
+    <f:verbatim></div><div class="tier3"> </f:verbatim>
+      <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected != 'Anonymous Users'}" >
+        <h:selectOneRadio id="anonymousGrading1" value="#{assessmentSettings.anonymousGrading}"  layout="pageDirection">
+          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
+        </h:selectOneRadio>
+      </h:panelGrid>
+      <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected == 'Anonymous Users'}" >
+        <h:selectOneRadio id="anonymousGrading2" value="1" layout="pageDirection" disabled="true">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
         </h:selectOneRadio>

@@ -220,20 +220,18 @@ public class SaveAssessmentSettings
       // need to fix evaluation so it can take AssessmentFacade later
       evaluation.setAssessmentBase(assessment.getData());
     }
-    if (assessmentSettings.getAnonymousGrading()!=null)
-      evaluation.setAnonymousGrading(new Integer(assessmentSettings.getAnonymousGrading()));
     
-    // If there is value set for toDefaultGradebook, we reset it
-    // Otherwise, do nothing
-    if (assessmentSettings.getToDefaultGradebook() != null ) {
-    	String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
-    	if ("Anonymous Users".equals(firstTargetSelected)) {
-    		evaluation.setToGradeBook("2");
-    	}
-    	else {
-    		evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
-    	}
-    }
+    String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
+	if ("Anonymous Users".equals(firstTargetSelected)) {
+		evaluation.setAnonymousGrading(Integer.valueOf("1"));
+		evaluation.setToGradeBook("2");
+	}
+	else {
+		if (assessmentSettings.getAnonymousGrading() != null)
+		      evaluation.setAnonymousGrading(Integer.valueOf(assessmentSettings.getAnonymousGrading()));
+		if (assessmentSettings.getToDefaultGradebook() != null)
+			evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+	}
     
     if (assessmentSettings.getScoringType()!=null)
       evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));

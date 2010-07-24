@@ -811,8 +811,14 @@ function uncheckOther(field){
   <f:verbatim><div class="tier2"></f:verbatim>
   <h:panelGroup rendered="#{publishedSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> <f:verbatim> <div class="longtext"></f:verbatim>  <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
   <f:verbatim></div><div class="tier3"> </f:verbatim>
-        <h:panelGrid columns="2"  >
-          <h:selectOneRadio id="anonymousGrading" value="#{publishedSettings.anonymousGrading}"  layout="pageDirection" disabled="#{publishedSettings.editPubAnonyGradingRestricted}">
+        <h:panelGrid columns="2" rendered="#{publishedSettings.firstTargetSelected != 'Anonymous Users'}">
+          <h:selectOneRadio id="anonymousGrading1" value="#{publishedSettings.anonymousGrading}"  layout="pageDirection" disabled="#{publishedSettings.editPubAnonyGradingRestricted}">
+            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
+          </h:selectOneRadio>
+        </h:panelGrid>
+        <h:panelGrid columns="2" rendered="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}">
+          <h:selectOneRadio id="anonymousGrading2" value="1"  layout="pageDirection" disabled="true">
             <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
             <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
           </h:selectOneRadio>
