@@ -62,8 +62,7 @@ function GetFormContent(formId, buttonName) {
 var counter = 0
 
 function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds, ok ) {
-
-    if (!ok) {
+    if (!ok) { 
 		return;
     }
 
