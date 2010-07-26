@@ -4121,49 +4121,59 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public List<String> getSubmitterIdList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
 		
 		List<String> rv = new ArrayList<String>();
+		List<User> rvUsers = new ArrayList<User>();
+		allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
+		searchString = StringUtils.trimToNull(searchString);
+		
+		boolean bSearchFilterOnly = "true".equalsIgnoreCase(searchFilterOnly);
 		try
 		{
 			Assignment a = getAssignment(aRef);
 			
 			if (a != null)
 			{	
-				// Step 1: get all student that meets the search criteria. If search is null or empty string, return all users that can submit
-				List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
-				List searchedUsers = getSearchedUsers(searchString, allowAddSubmissionUsers);
-				
-				// Step 2: get group if any that is selected
-				List<User> selectedGroupUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
-	
-				// Step 3: retain the intersection of search result and group filter result
-				if (searchedUsers.isEmpty() && selectedGroupUsers.isEmpty())
+				if (bSearchFilterOnly)
 				{
-					// both search and group filter return nothing, no user is selected
-					if ("true".equalsIgnoreCase(searchFilterOnly))
+					if (allOrOneGroup == null && searchString == null)
 					{
+						// if the option is set to "Only show user submissions according to Group Filter and Search result"
+						// if no group filter and no search string is specified, no user will be shown first by default;
 						return rv;
 					}
-				}
-				else if (searchedUsers.isEmpty() && !selectedGroupUsers.isEmpty())
-				{
-					// according to the group filter result
-					allowAddSubmissionUsers.retainAll(selectedGroupUsers);
-				}
-				else if (!searchedUsers.isEmpty() && selectedGroupUsers.isEmpty())
-				{
-					// according to the group filter result
-					allowAddSubmissionUsers.retainAll(searchedUsers);
+					else 
+					{
+						List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
+						if (allOrOneGroup == null && searchString != null) 
+						{
+							// search is done for all submitters
+							rvUsers = getSearchedUsers(searchString, allowAddSubmissionUsers, false);
+						}
+						else
+						{
+							// group filter first
+							rvUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
+							if (searchString != null)
+							{
+								// then search
+								rvUsers = getSearchedUsers(searchString, rvUsers, true);
+							}
+						}
+					}
 				}
 				else
 				{
-					// both are non-empty
-					allowAddSubmissionUsers.retainAll(selectedGroupUsers);
-					allowAddSubmissionUsers.retainAll(searchedUsers);
+					List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
+					
+					// Step 1: get group if any that is selected
+					rvUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
+					
+					// Step 2: get all student that meets the search criteria based on previous group users. If search is null or empty string, return all users.
+					rvUsers = getSearchedUsers(searchString, rvUsers, true);
 				}
 				
-				
-				if (allowAddSubmissionUsers != null && allowAddSubmissionUsers.size() > 0)
+				if (!rvUsers.isEmpty())
 				{
-					for (Iterator uIterator = allowAddSubmissionUsers.iterator(); uIterator.hasNext();)
+					for (Iterator uIterator = rvUsers.iterator(); uIterator.hasNext();)
 					{
 						User u = (User) uIterator.next();
 						
@@ -4310,9 +4320,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * keep the users that match search string in sortname, eid, email field
 	 * @param searchString
 	 * @param userList
+	 * @param retain If true, the original list will be kept if there is no search string specified
 	 * @return
 	 */
-	private List getSearchedUsers(String searchString, List userList) {
+	private List getSearchedUsers(String searchString, List userList, boolean retain) {
 		List rv = new ArrayList();
 		if (searchString != null && searchString.length() > 0)
 		{
@@ -4333,6 +4344,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					}
 				}
 			}
+		}
+		else if (retain)
+		{
+			// retain the original list
+			rv = userList;
 		}
 		return rv;
 	}
