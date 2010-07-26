@@ -91,7 +91,7 @@
 				
 								
 								<h:panelGroup rendered="#{!topic.topic.mutable}">
-									<h:graphicImage url="/images/dir_closed.gif" alt="" />
+									<h:graphicImage style="margin-right:0.2em; vertical-align:top;" url="/images/dir_closed.gif" alt="" />
 									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}"
 										             immediate="true" title=" #{msgs[topic.topic.title]}">
 										<h:outputText value="  " />
@@ -117,7 +117,7 @@
 									<h:outputText value=" " />
 								</h:panelGroup>
 								<h:panelGroup rendered="#{topic.topic.mutable}">
-									<h:graphicImage url="/images/dir_closed.gif" alt="" />
+									<h:graphicImage style="margin-right:0.2em; vertical-align:top;" url="/images/dir_closed.gif" alt="" />
 									<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}"
 										             immediate="true" title=" #{topic.topic.title}">
 
