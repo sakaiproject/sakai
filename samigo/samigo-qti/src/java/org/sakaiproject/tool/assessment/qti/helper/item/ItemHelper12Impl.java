@@ -1620,7 +1620,9 @@ public class ItemHelper12Impl extends ItemHelperBase
         	  if(answer.getIsCorrect().booleanValue()){
         		  answer.setPartialCredit(100f);
         	  }
-       		  addAnswerFeedbackPartialCredit(itemXml, value,
+        	  
+        	  if (answer.getItem().getPartialCreditFlag()) 
+        		  addAnswerFeedbackPartialCredit(itemXml, value,
         				  isInsert, xpathIndex, "" + label, Float.valueOf(((answer.getItem().getScore().floatValue())*answer.getPartialCredit().floatValue())/100f)); //--mustansar
           }
           else 
