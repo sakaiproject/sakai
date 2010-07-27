@@ -36,8 +36,9 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
                 }
             }
             sitetitle = unescape(data.title);
-            content = ("<h4>" + owner + email + "</h4>" + "<p class=\'textPanelFooter\'>" + shortdesc + "</p>" + "<div class=\"textPanel\">" + desc + "</div>");
+            content = ("<h4>" + owner + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + $(shortdesc).text() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
             $("#" + dialogTarget).html(content);
+            $("#" + dialogTarget + ' #shortdesc').text(shortdesc);
             $("#" + dialogTarget).dialog('option', 'title', sitetitle);
             utils.endDialog(e, dialogTarget);
             return false;
