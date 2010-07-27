@@ -271,8 +271,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-700', '!admin', 'Memory', '0', 10, '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-710', '!admin-700', '!admin', 'sakai.memory', 1, 'Memory', NULL )
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-900', '!admin', 'Site Archive', '0', 9, '0' )
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-910', '!admin-900', '!admin', 'sakai.archive', 1, 'Site Archive / Import', NULL )
-INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1205', '!admin', 'User Membership', '0', 15, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1211', '!admin-1201', '!admin', 'sakai.emailtemplateservice', 1, 'Email Templates', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1205', '!admin', 'Email Templates', '0', 15, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1211', '!admin-1205', '!admin', 'sakai.emailtemplateservice', 1, 'Email Templates', NULL );
 INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1)
 -- rSmart CLE Custom
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1100', '!admin', 'Job Scheduler', '0', 12, '0' )
