@@ -2750,11 +2750,12 @@ public class AssignmentAction extends PagedResourceActionII
 		supplementItemIntoContext(state, context, assignment, null);
 		
 		// search context
-		if (state.getAttribute(STATE_SEARCH) == null)
+		String searchString = (String) state.getAttribute(STATE_SEARCH);
+		if (searchString == null)
 		{
-			state.setAttribute(STATE_SEARCH, rb.getString("search_student_instruction"));
+			searchString = rb.getString("search_student_instruction");
 		}
-		context.put("searchString", state.getAttribute(STATE_SEARCH));
+		context.put("searchString", searchString);
 		
 		context.put("form_search", FORM_SEARCH);
 		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
@@ -3104,9 +3105,9 @@ public class AssignmentAction extends PagedResourceActionII
 			// if the assignment is of attachment-only or allow both text and attachment, include option for uploading student attachment
 			context.put("includeSubmissionAttachment", Boolean.valueOf(Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SINGLE_ATTACHMENT_SUBMISSION == submissionType));
 		
-			context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+			context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION)!=null?state.getAttribute(VIEW_SUBMISSION_LIST_OPTION):"");
 			
-			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH));
+			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH):"");
 			
 			context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 		}
@@ -11774,10 +11775,6 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
-		String view = params.getString("view");
-		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
-		String search = params.getString("search");
-		state.setAttribute(VIEW_SUBMISSION_SEARCH, search);
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_DOWNLOAD_ALL);
 
 	} // doPrep_download_all
