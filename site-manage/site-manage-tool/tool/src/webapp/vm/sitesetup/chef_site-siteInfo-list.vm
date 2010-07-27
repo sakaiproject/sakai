@@ -193,7 +193,7 @@ function printPreview(target){
 						$tlang.getString("sitegen.siteinfolist.icon")
 					</th>
 					<td>
-						<p class="textPanelFooter">$!siteIcon</p>
+						<p class="textPanelFooter">$validator.escapeHtml($!siteIcon)</p>
 					</td>
 				</tr>	
 			#end
