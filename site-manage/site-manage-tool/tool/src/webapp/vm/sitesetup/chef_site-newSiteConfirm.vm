@@ -77,9 +77,8 @@
 				<td>
 					<ul class="attachList" style="margin:0">
 						#if ($check_home)
-							<li><span class="home">$tlang.getString("java.home")</span></li>
+							<li>$tlang.getString("java.home")</li>
 						#end
-						
 						#foreach($tool in $toolRegistrationList)
 							#set($toolId = $tool.Id)
 								#if ($toolRegistrationSelectedList.contains($tool.Id))

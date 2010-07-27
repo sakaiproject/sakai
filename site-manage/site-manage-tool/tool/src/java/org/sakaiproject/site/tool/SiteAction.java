@@ -9596,13 +9596,8 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 	}
 
-	private List orderToolIds(SessionState state, String type, List toolIdList, boolean synoptic) {
+	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
 		List rv = new Vector();
-		if (state.getAttribute(STATE_TOOL_HOME_SELECTED) != null
-				&& ((Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED))
-						.booleanValue()) {
-			rv.add(TOOL_ID_HOME);
-		}
 
 		// look for null site type
 		if (type == null && state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
@@ -9611,22 +9606,14 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		if (type != null && toolIdList != null) {
-			Set categories = new HashSet();
-			categories.add(type);
-			Set tools = ToolManager.findTools(categories, null);
-			SortedIterator i = new SortedIterator(tools.iterator(),
-					new ToolComparator());
-			for (; i.hasNext();) {
-				String tool_id = ((Tool) i.next()).getId();
-				for (ListIterator j = toolIdList.listIterator(); j.hasNext();) {
-					String toolId = (String) j.next();
-					if (!synoptic)
+			List<String> orderedToolIds = ServerConfigurationService.getToolOrder(type);
+			for (String tool_id : orderedToolIds) {
+				for (String toolId : toolIdList) {
+					String rToolId = originalToolId(toolId, tool_id);
+					if (rToolId != null)
 					{
-						String rToolId = originalToolId(toolId, tool_id);
-						if (rToolId != null)
-						{
-							rv.add(toolId);
-						}
+						rv.add(toolId);
+						break;
 					}
 					else
 					{
@@ -9634,9 +9621,17 @@ public class SiteAction extends PagedResourceActionII {
 						if (parentToolList != null && parentToolList.contains(tool_id))
 						{
 							rv.add(toolId);
+							break;
 						}
 					}
 				}
+			}
+		}
+		
+		// add those toolids without specified order
+		for (String toolId : toolIdList) {
+			if (!rv.contains(toolId)) {
+				rv.add(toolId);
 			}
 		}
 		return rv;
