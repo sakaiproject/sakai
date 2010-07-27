@@ -770,8 +770,6 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String STATE_SEARCH = "state_search";
 	private static final String FORM_SEARCH = "form_search";
 	
-	private static final String SEARCHABLE_USER_FIELDS = "searchable_user_fields";
-	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
@@ -2666,7 +2664,6 @@ public class AssignmentAction extends PagedResourceActionII
 			// put creator information into context
 			putCreatorIntoContext(context, assignment);
 			
-			// ever set the default grade for no-submissions
 			String defaultGrade = assignment.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
 			if (defaultGrade != null)
 			{
@@ -2678,6 +2675,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 			context.put("view", view);
 			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH));
+			
 			// access point url for zip file download
 			String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 			String accessPointUrl = ServerConfigurationService.getAccessUrl().concat(AssignmentService.submissionsZipReference(
@@ -2752,8 +2750,11 @@ public class AssignmentAction extends PagedResourceActionII
 		supplementItemIntoContext(state, context, assignment, null);
 		
 		// search context
+		if (state.getAttribute(STATE_SEARCH) == null)
+		{
+			state.setAttribute(STATE_SEARCH, rb.getString("search_student_instruction"));
+		}
 		context.put("searchString", state.getAttribute(STATE_SEARCH));
-		context.put("searchPrompt", getSearchPrompt(state));
 		
 		context.put("form_search", FORM_SEARCH);
 		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
@@ -2761,46 +2762,25 @@ public class AssignmentAction extends PagedResourceActionII
 		// letter grading
 		letterGradeOptionsIntoContext(context);
 		
+		// ever set the default grade for no-submissions
+		if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+		{
+			// non-electronic submissions
+			context.put("form_action", "eventSubmit_doSet_defaultNotGradedNonElectronicScore");
+			context.put("form_label", rb.getFormattedMessage("not.graded.non.electronic.submission.grade", new Object[]{state.getAttribute(STATE_NUM_MESSAGES)}));
+		}
+		else
+		{
+			// other types of submissions
+			context.put("form_action", "eventSubmit_doSet_defaultNoSubmissionScore");
+			context.put("form_label", rb.getFormattedMessage("non.submission.grade", new Object[]{state.getAttribute(STATE_NUM_MESSAGES)}));
+		}
+		
 		String template = (String) getContext(data).get("template");
 		
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
 
 	} // build_instructor_grade_assignment_context
-
-	/**
-	 * construct the search field prompt
-	 * @param state
-	 * @return
-	 */
-	private String getSearchPrompt(SessionState state) {
-		StringBuilder sBuilder = new StringBuilder();
-		String rv = "";
-		sBuilder.append(rb.getString("search_student_instruction"));
-		List<String> searchFields = (List<String>) state.getAttribute(SEARCHABLE_USER_FIELDS);
-		if (searchFields != null)
-		{
-			if (searchFields.contains("sortname"))
-			{
-				sBuilder.append(" ").append(rb.getString("search_student_instruction_name")).append(",");
-			}
-			if (searchFields.contains("eid"))
-			{
-				sBuilder.append(" ").append(rb.getString("search_student_instruction_eid")).append(",");
-			}
-			if (searchFields.contains("email"))
-			{
-				sBuilder.append(" ").append(rb.getString("search_student_instruction_email")).append(",");
-			}
-			if (searchFields.contains("id"))
-			{
-				sBuilder.append(" ").append(rb.getString("search_student_instruction_id")).append(",");
-			}
-			rv = sBuilder.toString();
-			if (rv.endsWith(","))
-				rv = rv.substring(0, rv.length()-1);
-		}
-		return rv;
-	}
 
 	/**
 	 * make sure the state variable VIEW_SUBMISSION_LIST_OPTION is not null
@@ -3497,7 +3477,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if ("clearSearch".equals(option))
 		{
-			state.setAttribute(VIEW_SUBMISSION_SEARCH, "");
+			state.removeAttribute(VIEW_SUBMISSION_SEARCH);
 		}
 		else if ("download".equals(option))
 		{
@@ -7282,7 +7262,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			String aReference = a.getReference();
 
-			Iterator submissions = AssignmentService.getSubmissions(a).iterator();
+			Iterator submissions = getFilteredSubmitters(state, aReference).iterator();
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
@@ -8360,17 +8340,6 @@ public class AssignmentAction extends PagedResourceActionII
 		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO) == null)
 		{
 			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, Integer.valueOf(2012));
-		}
-		
-		if (state.getAttribute(SEARCHABLE_USER_FIELDS) == null)
-		{
-			String[] fields = ServerConfigurationService.getStrings("assignment.searchable_user_fields");
-			if (fields == null || fields.length == 0)
-			{
-				// if missing from the configuration, defaults to eid, sortname, and email
-				fields = new String[]{"eid", "sortname","email"};
-			}
-			state.setAttribute(SEARCHABLE_USER_FIELDS, new ArrayList(Arrays.asList(fields)));
 		}
 	} // initState
 
@@ -10790,6 +10759,57 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	/**
+	 * return list of submission object based on the group filter/search result
+	 * @param state
+	 * @param aRef
+	 * @return
+	 */
+	protected List<AssignmentSubmission> getFilteredSubmitters(SessionState state, String aRef)
+	{
+		List<AssignmentSubmission> rv = new ArrayList<AssignmentSubmission>();
+
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+		String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+		Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+		
+		List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+
+		// construct the user-submission list
+		if (submitterIds != null && !submitterIds.isEmpty())
+		{
+			for (Iterator<String> iSubmitterIdsIterator = submitterIds.iterator(); iSubmitterIdsIterator.hasNext();)
+			{
+				String uId = iSubmitterIdsIterator.next();
+				try
+				{
+					User u = UserDirectoryService.getUser(uId);
+
+					try
+					{
+						AssignmentSubmission sub = AssignmentService.getSubmission(aRef, u);
+						rv.add(sub);
+					}
+					catch (IdUnusedException subIdException)
+					{
+						M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
+					}
+					catch (PermissionException subPerException)
+					{
+						M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of user " + u.getId());
+					}
+				}
+				catch (UserNotDefinedException e)
+				{
+					M_log.warn(this + ":sizeResources cannot find user id=" + uId + e.getMessage() + "");
+				}
+			}
+		}
+		
+		return rv;
+	}
+	
+	/**
 	 * Set default score for all ungraded non electronic submissions
 	 * @param data
 	 */
@@ -10856,7 +10876,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (grade != null && state.getAttribute(STATE_MESSAGE) == null)
 			{
 				// get the user list
-				List submissions = AssignmentService.getSubmissions(a);
+				List submissions = getFilteredSubmitters(state, a.getReference());
 				
 				for (int i = 0; i<submissions.size(); i++)
 				{
@@ -10876,8 +10896,6 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 			}
-		
-		
 	}
 	
 	/**
@@ -10946,7 +10964,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (grade != null && state.getAttribute(STATE_MESSAGE) == null)
 			{
 				// get the submission list
-				List submissions = AssignmentService.getSubmissions(a);
+				List submissions = getFilteredSubmitters(state, a.getReference());
 				
 				for (int i = 0; i<submissions.size(); i++)
 				{
@@ -10977,7 +10995,6 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 			}
-		
 	}
 	
 	/**

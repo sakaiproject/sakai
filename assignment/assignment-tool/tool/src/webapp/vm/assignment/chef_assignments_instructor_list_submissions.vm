@@ -110,11 +110,9 @@
 							#end
 						</select>
 					#end
-					<div class="instruction">
-						$searchPrompt
-					</div>
+					<p />
 					<label for="$form_search" class="skip">$tlang.getString("search")</label>
-					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="30" />
+					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
 					<input type="button" value="$tlang.getString('search')" 
 						onclick="blur();document.getElementById('option').value='search';document.viewForm.submit();return false;" />
 					#if (($!searchString) && (!$searchString.equals("")))
@@ -132,15 +130,6 @@
 					$tlang.getString("nostudent_searchview")
 				</div>
 			#else
-				#if ($submissionType != 4)
-					## only show this for not "non-electronic" type of assignments
-					#set($form_action="eventSubmit_doSet_defaultNoSubmissionScore")
-					#set($form_label = "non.submission.grade")
-				#else
-					## assign grade to not graded "non-electronic" submissions
-					#set($form_action="eventSubmit_doSet_defaultNotGradedNonElectronicScore")
-					#set($form_label="not.graded.non.electronic.submission.grade")
-				#end
 				<div class="listNav">
 						## download all
 							<a href="" onclick="javascript:document.getElementById('option').value='download';document.viewForm.submit();return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
@@ -171,20 +160,11 @@
 		#if (!$!showMsg || $showMsg ==0)
 		#else
 		<div class="navPanel">
-			#if ($submissionType != 4)
-				## only show this for not "non-electronic" type of assignments
-				#set($form_action="eventSubmit_doSet_defaultNoSubmissionScore")
-				#set($form_label = "non.submission.grade")
-			#else
-				## assign grade to not graded "non-electronic" submissions
-				#set($form_action="eventSubmit_doSet_defaultNotGradedNonElectronicScore")
-				#set($form_label="not.graded.non.electronic.submission.grade")
-			#end
 			<div class="viewNav">
 							#set ($gradeType = $assignment.getContent().TypeOfGrade)
 				<form name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="$!form_action" value="setScore" />
-					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$tlang.getString($!form_label)</label>
+					<label for="defaultGrade_1" style="display:block" class="textPanelFooter">$!form_label</label>
 					##for non-point-based grading, choose the default grade from drop-down
 					#if ($!gradeType != 3)
 						<select id="defaultGrade_1" name="defaultGrade" size="1" >
