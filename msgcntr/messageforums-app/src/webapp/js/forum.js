@@ -395,7 +395,7 @@ function countStuff() {
 	}
 	
 	if(newR.toString().length > 0){
-		splitArray = newR.split(/[^a-zA-Z]/);
+		splitArray = newR.split(/[^a-zA-Z']/);
 	}
 
 	var i = 0;
