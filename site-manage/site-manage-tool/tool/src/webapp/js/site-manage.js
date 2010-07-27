@@ -32,13 +32,14 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
                 }
                 
                 if (data.props['contact-email']) {
-                    email = " (<a href=\"mailto:" + data.props['contact-email'] + "\">" + data.props['contact-email'] + "</a>)";
+                    email = " (<a href=\"" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
                 }
             }
-            sitetitle = unescape(data.title);
-            content = ("<h4>" + owner + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + $(shortdesc).text() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
+            sitetitle = data.title.escapeHTML();
+            content = ("<h4><span id=\'owner\'></span>" + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + $(shortdesc).text() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
             $("#" + dialogTarget).html(content);
             $("#" + dialogTarget + ' #shortdesc').text(shortdesc);
+            $("#" + dialogTarget + ' #owner').text(owner);
             $("#" + dialogTarget).dialog('option', 'title', sitetitle);
             utils.endDialog(e, dialogTarget);
             return false;
@@ -316,6 +317,10 @@ jQuery.fn.fadeToggle = function(speed, easing, callback){
     return this.animate({
         opacity: 'toggle'
     }, speed, easing, callback);
+};
+//escape markup
+String.prototype.escapeHTML = function(){
+    return (this.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;'));
 };
 
 /*
