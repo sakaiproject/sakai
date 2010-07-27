@@ -255,6 +255,8 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1100', '!admin', 'Job Scheduler', '0'
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1110', '!admin-1100', '!admin', 'sakai.scheduler', 1, 'Job Scheduler', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1000', '!admin', 'Super User', '0', 13, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1010', '!admin-1000', '!admin', 'sakai.su', 1, 'Super User', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1205', '!admin', 'User Membership', '0', 15, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1211', '!admin-1201', '!admin', 'sakai.emailtemplateservice', 1, 'Email Templates', NULL );
 
 -- Create the !error site to be displayed when there is a problem accessing a site.
 
