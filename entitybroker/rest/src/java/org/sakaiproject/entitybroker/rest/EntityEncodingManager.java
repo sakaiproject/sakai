@@ -717,7 +717,7 @@ public class EntityEncodingManager {
                             if (value != null) {
                                 sVal = ReflectUtils.getInstance().convert(value, String.class);
                             }
-                            sb.append(sVal);
+                            sb.append(StringEscapeUtils.escapeHtml(sVal));
                         }
                         if (required) {
                             sb.append(" <b style='color:red;'>*</b> ");
