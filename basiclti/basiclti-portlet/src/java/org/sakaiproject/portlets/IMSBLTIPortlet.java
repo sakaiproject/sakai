@@ -27,7 +27,9 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -50,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.portlet.util.PortletHelper;
 
 // Sakai APIs
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -64,6 +67,14 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
+
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 
 
 /**
@@ -105,6 +116,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("custom");
         fieldList.add("releasename");
         fieldList.add("releaseemail");
+        fieldList.add("assignment");
     }
 
     // Simple Debug Print Mechanism
@@ -213,6 +225,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
         }
 
 	request.setAttribute("imsti.oldvalues", oldValues);
+  
+	List<String> assignments = getGradeBookAssignments();
+        if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
     }
 
     public void addProperty(Properties values, RenderRequest request,
@@ -477,6 +492,21 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
         }
 
+        // TODO: HTML Protect this stuff
+        // Make Sure the Assignment is a legal one
+	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
+        if ( assignment != null && assignment.trim().length() > 1 ) {
+	        List<String> assignments = getGradeBookAssignments();
+                boolean found = false;
+                if ( assignments != null ) for ( String assn : assignments ) {
+                      if ( assn.equals(assignment) ) found = true;
+                }
+                if ( ! found ) {
+			setErrorMessage(request, rb.getString("error.gradable.badassign") + assignment );
+			return;
+		}
+        }
+
 	String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
         if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;
         if ( imsTIHeight != null ) {
@@ -608,6 +638,36 @@ public class IMSBLTIPortlet extends GenericPortlet {
     {
             String retval = ToolManager.getCurrentPlacement().getContext();
             return retval;
+    }
+
+    // get all assignments from the Gradebook
+    protected List<String> getGradeBookAssignments()
+    {
+        List<String> retval = new ArrayList<String>();
+        try
+        {
+                GradebookService g = (GradebookService)  ComponentManager
+                                .get("org.sakaiproject.service.gradebook.GradebookService");
+
+	        String gradebookUid = getContext();
+                if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid))) ) return null;
+                List gradebookAssignments = g.getAssignments(gradebookUid);
+                List gradebookAssignmentsExceptSamigo = new ArrayList();
+
+                // filtering out anything externally provided
+                for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+                {
+                        org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+                         if ( gAssignment.isExternallyMaintained() ) continue;
+                         retval.add(gAssignment.getName());
+                }
+                return retval;
+        }
+        catch (GradebookNotFoundException e)
+        {
+                dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+                return null;
+        }
     }
 
 }

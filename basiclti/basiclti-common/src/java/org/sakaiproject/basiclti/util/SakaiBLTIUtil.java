@@ -171,6 +171,28 @@ public class SakaiBLTIUtil {
 			setProperty(props,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 			setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 		}
+
+	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
+System.out.println("ASSIGN="+assignment);
+
+        	/*
+		lis_result_sourcedid=
+		ext_ims_lis_simple_outcome_url=
+		ext_ims_lis_resultvalue_sourcedids=
+		decimal, percentage, ratio, passfail, letteraf, letterafplus, or freetext
+        	*/
+
+                if ( assignment != null ) {
+			String result_sourcedid = "random" + ":::" + placement.getId() + ":::" + user.getId();
+System.out.println("RSI="+result_sourcedid);
+			result_sourcedid = LinkToolUtil.encrypt("random" + ":::" + LinkToolUtil.encrypt(placement.getId() + ":::" + user.getId()));
+System.out.println("RSI="+result_sourcedid);
+			setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+
+			String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_simple_outcome_url",null);
+        		if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/outcomes/";  
+			setProperty(props,"ext_ims_lis_simple_outcome_url", outcome_url);  
+		}
 	}
 
 	String theRole = "Learner";

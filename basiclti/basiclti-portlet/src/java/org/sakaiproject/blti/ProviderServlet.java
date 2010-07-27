@@ -63,6 +63,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.basiclti.util.ShaUtil;
 
 /**
  * Notes:

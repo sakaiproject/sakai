@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+                         "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+
+  <display-name>IMS LIS SimpleOutComes Servlet</display-name>
+
+    <filter>
+        <filter-name>RemoteHostFilter</filter-name>
+        <filter-class>
+            org.sakaiproject.util.RemoteHostFilter
+        </filter-class>
+        <init-param>
+            <param-name>allow</param-name>
+            <!-- Allow "Private Use" IP addresses by default -->
+            <param-value>
+                localhost, 127\.0\.0\.1, 192\.168\.[0-9.]+, 10\.[0-9.]+,
+                172\.1[6-9]\.[0-9.]+, 172\.2[0-9]\.[0-9.]+,
+                172\.3[0-1]\.[0-9.]+, 
+		0:0:0:0:0.+  <!-- Special localhost on Mac OS/X -->
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>log-allowed</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>deny</param-name>
+            <!-- No Explicit Denials, implies deny unless allowed -->
+            <param-value></param-value>
+        </init-param>
+        <init-param>
+            <param-name>log-denied</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+  <filter-mapping>
+    <filter-name>RemoteHostFilter</filter-name>
+    <servlet-name>SimpleOutcomesServlet</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+
+  <servlet>
+    <servlet-name>SimpleOutcomesServlet</servlet-name>
+    <servlet-class>org.sakaiproject.blti.SimpleOutcomesServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>SimpleOutcomesServlet</servlet-name>
+    <url-pattern>/outcomes/*</url-pattern>
+  </servlet-mapping>
+  
+  <listener>
+    <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+  </listener>
+
+</web-app>

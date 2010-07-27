@@ -185,7 +185,7 @@ public class LinkToolUtil {
             return null;
         }
 
-        private static String decrypt (String enc) {
+        public static String decrypt (String enc) {
             LinkToolSetup();
             if ( secretKey == null ) return null;
                 if (secretKey == null)
