@@ -370,6 +370,7 @@ public class SiteHandler extends WorksiteHandler
 			// rcontext.put("siteNavSitJumpWorksite",
 			// Web.escapeHtml(rb.getString("sit_jumpworksite")));
 
+			rcontext.put("siteNavTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("siteNavLoggedIn", Boolean.valueOf(loggedIn));
 
 			try
