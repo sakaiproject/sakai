@@ -43,6 +43,12 @@
       <artifactId>saxpath</artifactId>
       <version>1.0-FCS</version>
     </dependency>
+    <dependency>
+    	<groupId>commons-logging</groupId>
+    	<artifactId>commons-logging</artifactId>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
   </dependencies>
   <build>
     <resources>
