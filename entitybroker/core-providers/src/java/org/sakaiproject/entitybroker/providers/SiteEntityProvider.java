@@ -708,6 +708,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("Cannot find site to update with id: " + siteId);
         }
 
+        boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
+
         if (entity.getClass().isAssignableFrom(Site.class)) {
             // if someone passes in a Site
             Site site = (Site) entity;
@@ -724,9 +726,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             s.setShortDescription(site.getShortDescription());
             s.setSkin(site.getSkin());
             s.setTitle(site.getTitle());
-            // put in properties
-            ResourcePropertiesEdit rpe = s.getPropertiesEdit();
-            rpe.set(site.getProperties());
+
+            // put in properties if admin, otherwise ignore
+            if (admin) {
+	            ResourcePropertiesEdit rpe = s.getPropertiesEdit();
+	            rpe.set(site.getProperties());
+            }
         } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
             // if they instead pass in the entitysite object
             EntitySite site = (EntitySite) entity;
@@ -750,12 +755,16 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 s.setSkin(site.getSkin());
             if (site.getTitle() != null)
                 s.setTitle(site.getTitle());
-            // put in properties
-            ResourcePropertiesEdit rpe = s.getPropertiesEdit();
-            for (String key : site.getProps().keySet()) {
-                String value = site.getProps().get(key);
-                rpe.addProperty(key, value);
+            
+            // put in properties if admin, otherwise ignore
+            if (admin) {
+	            ResourcePropertiesEdit rpe = s.getPropertiesEdit();
+	            for (String key : site.getProps().keySet()) {
+	                String value = site.getProps().get(key);
+	                rpe.addProperty(key, value);
+	            }
             }
+            
             // attempt to set the owner as requested
             String ownerUserId = site.getOwner();
             if (ownerUserId != null) {
