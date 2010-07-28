@@ -48,6 +48,12 @@ public class Validator
 	/** These characters are not allowed in a user id */
 	protected static final String INVALID_CHARS_IN_USER_ID = "^/\\%*?\n\r\t\b\f";
 
+	/** These characters are not allowed in a site type */
+	protected static final String INVALID_CHARS_IN_SITE_TYPE = " $&':<>[]{}#%@/;=?\\^|~\"";
+
+	/** These characters are not allowed in a site skin */
+	protected static final String INVALID_CHARS_IN_SITE_SKIN = " $&':<>[]{}#%@/;=?\\^|~\"";
+	
 	protected static final String MAP_TO_A = "âäàåÄÅáá";
 
 	protected static final String MAP_TO_B = "ßß";
@@ -559,6 +565,58 @@ public class Validator
 
 	} // checkResourceId
 
+
+	/**
+	 * Check for a syntactically valid site type.
+	 * 
+	 * @return true if valid, false if not
+	 */
+	public static boolean checkSiteType(String id)
+	{
+		// the rules:
+		// Null is accepted
+		// all blank is accepted
+		// INVALID_CHARS_IN_SITE_TYPE characters are rejected
+
+		if (id == null) return true;
+		if (id.trim().length() == 0) return false;
+
+		// reject certain characters
+		for (int i = 0; i < id.length(); i++)
+		{
+			if (INVALID_CHARS_IN_SITE_TYPE.indexOf(id.charAt(i)) != -1) return false;
+		}
+
+		return true;
+
+	} // checkSiteType
+
+	/**
+	 * Check for a syntactically valid skin name
+	 * 
+	 * @return true if valid, false if not
+	 */
+	public static boolean checkSiteSkin(String id)
+	{
+		// the rules:
+		// Null is allowed
+		// all blank is rejected
+		// INVALID_CHARS_IN_SITE_TYPE characters are rejected
+
+		if (id == null) return true;
+		if (id.trim().length() == 0) return false;
+
+		// reject certain characters
+		for (int i = 0; i < id.length(); i++)
+		{
+			if (INVALID_CHARS_IN_SITE_SKIN.indexOf(id.charAt(i)) != -1) return false;
+		}
+
+		return true;
+
+	} // checkSiteSkin
+		
+	
 	/**
 	 * Is this a valid local part of an email id?
 	 * @deprecated use commons-validator EmailValidator

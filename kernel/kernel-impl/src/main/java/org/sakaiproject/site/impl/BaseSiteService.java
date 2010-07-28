@@ -1070,11 +1070,16 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		// check for a valid site id
 		if (!Validator.checkResourceId(id)) {
-			throw new IdInvalidException("Id " + id + " is not valid");
+			throw new IdInvalidException("Id " + id + " is not a valid id format");
 		}
 
 		id = Validator.escapeResourceName(id);
 
+		// check for a valid site type
+		if (!Validator.checkSiteType(type)) {
+			throw new IdInvalidException("Type " + type + " is not a valid type format");			
+		}
+		
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_SITE, siteReference(id));
 		
