@@ -46,7 +46,6 @@ public class CourseOfferingRoleResolver extends BaseRoleResolver {
 	/**
 	 * Internal configuration.
 	 */
-	@SuppressWarnings("unchecked")
 	public void init() {
 		if (configuration != null) {
 			setRoleMap((Map<String, String>)configuration.get(COURSE_OFFERING_ROLE_TO_SITE_ROLE));
@@ -147,7 +146,7 @@ public class CourseOfferingRoleResolver extends BaseRoleResolver {
 			for(Iterator<Section> secIter = sections.iterator(); secIter.hasNext();) {
 				// Add the section EIDs and the converted *CourseOffering* role to the sectionRoles map
 				Section section = secIter.next();
-				sectionRoles.put(section.getEid().toUpperCase(), sakaiRole);
+				sectionRoles.put(section.getEid(), sakaiRole);
 			}
 		}
 		return sectionRoles;
