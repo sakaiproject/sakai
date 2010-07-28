@@ -203,6 +203,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     
         Site site = getSiteById(siteId);
 
+        List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
+        
+        boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
+
         try {
             AuthzGroup authzGroup = authzGroupService.getAuthzGroup(site.getReference());
 
@@ -223,10 +227,15 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 				}
                 String function = name.substring(name.indexOf(":") + 1);
 
-                if("true".equals(value))
-                    role.allowFunction(function);
-                else
-                    role.disallowFunction(function);
+                // Only change this function if registered as userMutable
+                 if (admin || userMutableFunctions.contains(function)) {
+                	if("true".equals(value))
+	                    role.allowFunction(function);
+	                else
+	                    role.disallowFunction(function);
+                } else {
+                	throw new SecurityException("The function " + function + " cannot be updated by the current user.");
+                }
 
                 changed = true;
             }
