@@ -47,7 +47,6 @@
     	<groupId>commons-logging</groupId>
     	<artifactId>commons-logging</artifactId>
     	<type>jar</type>
-    	<scope>compile</scope>
     </dependency>
   </dependencies>
   <build>
