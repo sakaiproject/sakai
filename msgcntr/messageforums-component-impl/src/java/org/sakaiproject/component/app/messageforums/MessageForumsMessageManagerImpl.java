@@ -802,6 +802,19 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         Message message = (Message) getMessageById(messageId);
         boolean isMessageFromForums = isMessageFromForums(message);
         if (trulyUnread) {
+        	//increment the message count 	 
+            	Integer nr = message.getNumReaders(); 	 
+            	if (nr == null) 	 
+                    nr = Integer.valueOf(0); 	 
+            	nr = Integer.valueOf(nr.intValue() + 1); 	 
+            	message.setNumReaders(nr); 	 
+            	LOG.debug("set Message readers count to: " + nr); 	 
+            	//baseForum is probably null 	 
+            	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
+                    message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
+	 
+            	this.saveMessage(message);
+
         	if (isMessageFromForums)
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));
         	else
