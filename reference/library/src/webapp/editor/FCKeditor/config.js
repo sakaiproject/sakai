@@ -288,7 +288,9 @@ FCKConfig.CoreStyles =
 		Overrides	: [ { Element : 'font', Attributes : { 'color' : null } } ]
 	},
 	
-	'BackColor'		: { Element : 'span', Styles : { 'background-color' : '#("Color","color")' } }
+	'BackColor'		: { Element : 'span', Styles : { 'background-color' : '#("Color","color")' } },
+
+	'SelectionHighlight' : { Element : 'span', Styles : { 'background-color' : 'navy', 'color' : 'white' } }
 };
 
 // The distance of an indentation step.
