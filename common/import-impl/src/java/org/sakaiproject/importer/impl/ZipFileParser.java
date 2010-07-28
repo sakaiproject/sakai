@@ -65,7 +65,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 
 	public ImportDataSource parse(byte[] fileData, String unArchiveLocation) {
 		this.localArchiveLocation = unzipArchive(fileData, unArchiveLocation);
-		this.pathToData = unArchiveLocation + "/" + localArchiveLocation;
+		this.pathToData = unArchiveLocation + File.separator + localArchiveLocation;
 		awakeFromUnzip(pathToData);
 		List categories = new ArrayList();
 		Collection items = new ArrayList();

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.importer.impl;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,6 +35,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.api.Importable;
@@ -49,6 +52,9 @@ import org.xml.sax.SAXException;
 
 public class CommonCartridgeFileParser extends IMSFileParser {
 	private static final String CC_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imscc/imscp_v1p1";
+	
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(CommonCartridgeFileParser.class);
 	
 	public CommonCartridgeFileParser() {
 		// add resource translators here
@@ -130,7 +136,9 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 			title = XPathHelper.getNodeValue("./title", itemNode);
 			if (title == null || "".equals(title)) {
 				Document descriptor = getDescriptor(resourceNode);
-				title = XPathHelper.getNodeValue("/CONTENT/TITLE",descriptor);
+				if (descriptor != null) {
+					title = XPathHelper.getNodeValue("/CONTENT/TITLE",descriptor);
+				}
 				}
 			}
 			return title;
@@ -145,26 +153,31 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		}
 		
 		public Document getDescriptor(Node resourceNode) {
-			String descriptorFilename = XPathHelper.getNodeValue("./file/@href",resourceNode);
+			String descriptorFilename = XPathHelper.getNodeValue("./file/@href",resourceNode).replaceAll("[/\\\\]+", "\\" + File.separator);
 			Document doc = null;
 			DocumentBuilder docBuilder;
 			InputStream fis = null;
+			
+			// There is no reason to attempt to parse the file for a title unless it can be parsed
+			String lowerFilename = descriptorFilename.toLowerCase();
+			if (!lowerFilename.endsWith(".xml") && !lowerFilename.endsWith(".html") &&
+					!lowerFilename.endsWith(".htm") && !lowerFilename.endsWith(".xhtml")) {
+				return doc;
+			}
+
 		    try {
-                fis = new FileInputStream(pathToData + "/" + descriptorFilename);
+                fis = new FileInputStream(pathToData + File.separator + descriptorFilename);
 				docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			    doc = (Document) docBuilder.parse(fis);
 			} catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
-                e.printStackTrace();
+                M_log.warn("getDescriptor() file not found: " + pathToData + File.separator + descriptorFilename);
             } catch (ParserConfigurationException e) {
-                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
-                e.printStackTrace();
+            	M_log.warn("getDescriptor() parser config error: " + e.getMessage()); 
             } catch (SAXException e) {
-                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
-                e.printStackTrace();
+            	M_log.warn("getDescriptor() SAX parse error on file " + pathToData + File.separator + 
+            			descriptorFilename + ": " + e.getMessage()); 
             } catch (IOException e) {
-                // TODO Auto-generated catch block (this is here since it is not clear what this should do in this case)
-                e.printStackTrace();
+            	M_log.warn("getDescriptor() file IO exception", e);
             } finally {
                 if (fis != null) {
     			    try {
