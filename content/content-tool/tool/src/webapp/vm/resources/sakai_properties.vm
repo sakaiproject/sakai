@@ -104,6 +104,7 @@
 			</label>
 			<span>
 				<input type="checkbox" name="allowHtmlInline${DOT}$i" id="allowHtmlInline${DOT}$i" value="true"#if ($model.isAllowHtmlInline()) checked="checked" #end style="border:none" />
+				<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
 			</span>
 		</p>
 	#end
