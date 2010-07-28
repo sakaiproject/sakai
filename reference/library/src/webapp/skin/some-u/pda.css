@@ -131,7 +131,8 @@
 	font-size: 110%;
 	padding-left:5px;
 	display:block;
-	margin:0
+	margin:0;
+	width: 200px;
 }	
 
 #pda-portlet-site-menu a:before, #pda-portlet-page-menu a:before{
