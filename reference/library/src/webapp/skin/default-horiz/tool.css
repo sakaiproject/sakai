@@ -380,7 +380,7 @@ table.calendar .event{
 
 /*lines - provides rules and hover effects on some tables*/
 table.lines{
-	border-collapse: collapse;
+	border-collapse: separate;
 }
 
 table.lines tr:hover{
