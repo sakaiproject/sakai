@@ -1918,6 +1918,12 @@ public String setSiteProperty(String sessionid, String siteid, String propname, 
 {
 	Session session = establishSession(sessionid);
 	
+	if (!securityService.isSuperUser())
+	{
+		LOG.warn("WS setSiteProperty(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS setSiteProperty(): Permission denied. Restricted to super users.");
+	}
+
 	try {
 		//get site handle
 		Site site = siteService.getSite(siteid);
