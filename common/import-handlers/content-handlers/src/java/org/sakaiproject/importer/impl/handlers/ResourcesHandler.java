@@ -24,6 +24,9 @@ package org.sakaiproject.importer.impl.handlers;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -141,7 +144,20 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-web-link".equals(thing.getTypeName())) {
 				title = ((WebLink)thing).getTitle();
 				description = ((WebLink)thing).getDescription();
-				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
+				
+				id = contentHostingService.getSiteCollection(siteId);
+				
+				String contextPath = thing.getContextPath();
+				if (contextPath != null && contextPath.length() > 255) {
+					// leave at least 14 characters at end for uniqueness
+					contextPath = contextPath.substring(0, (255 - 14 - id.length()));
+					// add a timestamp to differentiate it (+14 chars)
+					Format f= new SimpleDateFormat("yyyyMMddHHmmss");
+					contextPath += f.format(new Date());
+					// total new length of 32 chars
+				}
+				
+				id = id + contextPath;
 				contentType = ResourceProperties.TYPE_URL;
 				String absoluteUrl = "";
 				if (((WebLink)thing).isAbsolute()) {
