@@ -61,6 +61,17 @@
 						<input type="radio" value="false" name="popup" id="openfalse" #if (!$page || !$page.isPopUp()) checked="checked" #end /><label for="openfalse"> $tlang.getString("sitedi.no")</label>
 					</td>
 				</tr>
+				<tr>
+					<th>
+						<label for="custom">
+							$tlang.getString("sitedipag.custom")
+						</label>
+					</th>
+					<td>
+						<input type="radio" value="true" name="custom" id="customtrue" #if ($titleCustom=='true') checked="checked" #end /><label for="customtrue"> $tlang.getString("sitedi.yes") </label>
+						<input type="radio" value="false" name="custom" id="customfalse" #if (!$page || $titleCustom=='false') checked="checked" #end /><label for="customfalse"> $tlang.getString("sitedi.no")</label>
+					</td>
+				</tr>				
 			</table>
 			#if ($page)
 				<h4>

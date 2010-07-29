@@ -680,6 +680,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		context.put(Menu.CONTEXT_MENU, bar);
 
 		context.put("layouts", layoutsList());
+		context.put("titleCustom", String.valueOf( page.getTitleCustom() ) );
 
 		return "_edit_page";
 
@@ -1699,7 +1700,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		// read the form
 		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
 		page.setTitle(title);
-		page.setTitleCustom(true);
 
 		try
 		{
@@ -1714,6 +1714,9 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		boolean popup = data.getParameters().getBoolean("popup");
 		page.setPopup(popup);
+
+		boolean custom = data.getParameters().getBoolean("custom");
+		page.setTitleCustom(custom);
 
 		if (title == null)
 		{
