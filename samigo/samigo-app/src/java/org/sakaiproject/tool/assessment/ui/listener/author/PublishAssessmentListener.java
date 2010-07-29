@@ -23,7 +23,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -36,6 +38,8 @@ import javax.faces.el.ValueBinding;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,9 +65,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.SamigoEmailService;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.email.cover.EmailService;
 
 /**
  * <p>Title: Samigo</p>2
@@ -235,11 +239,14 @@ public class PublishAssessmentListener
 		  String feedbackDelivery, String feedbackDateString) {
 	  TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	  ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-
-	  ArrayList<String> toEmailAddressList = new ArrayList<String>();
+	  
 	  AgentFacade instructor = new AgentFacade();
-	  //emailBean.setFromEmailAddress(instructor.getEmail());
-	  toEmailAddressList.add(instructor.getEmail()); // send one copy to instructor
+	  InternetAddress fromIA = null;
+	  try {
+		  fromIA = new InternetAddress(instructor.getEmail(), instructor.getDisplayName());
+	  } catch (UnsupportedEncodingException e) {
+		  log.warn("UnsupportedEncodingException encountered when constructing instructor's email.");
+	  }
 
 	  boolean groupRelease = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo);
 	  if (groupRelease) {
@@ -252,11 +259,34 @@ public class PublishAssessmentListener
 	  totalScoresBean.setPublishedId(pub.getPublishedAssessmentId().toString());
 	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER); 
 	  AgentFacade agent = null;
+	  int size = useridMap.size() + 1;
+	  ArrayList<InternetAddress> toIAList = new ArrayList();
+	  try {
+		  toIAList.add(new InternetAddress(instructor.getEmail())); // send one copy to instructor
+	  } catch (AddressException e) {
+		  log.warn("AddressException encountered when constructing instructor's email.");
+	  }
 	  Iterator iter = useridMap.keySet().iterator();
+	  int i = 1;
 	  while (iter.hasNext()) {
 		  String userUid = (String) iter.next();
 		  agent = new AgentFacade(userUid);
-		  toEmailAddressList.add(agent.getEmail());
+		  InternetAddress ia = null;
+		  try {
+			  ia = new InternetAddress(agent.getEmail()); 
+		  } catch (AddressException e) {
+			  log.warn("AddressException encountered when constructing toIAList email. userUid = " + userUid);
+		  }
+		  if (ia != null) {
+			  toIAList.add(ia);
+		  }
+	  }
+	  
+	  InternetAddress[] toIA = new InternetAddress[toIAList.size()];
+	  int count = 0;
+	  Iterator iter2 = toIAList.iterator();
+	  while (iter2.hasNext()) {
+		  toIA[count++] = (InternetAddress) iter2.next();
 	  }
 
 	  String subject = publishRepublishNotification.getNotificationSubject();
@@ -299,13 +329,12 @@ public class PublishAssessmentListener
 		  message.append(rl.getString("available_immediately_2"));
 		  message.append(bold_close);
 	  }
-	  message.append(". ");
 	  message.append(newline);
 	  
 	  if ("Anonymous Users".equals(releaseTo)) {
 		  message.append(rl.getString("to_take_anonymously"));
 	  }
-	  if (AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo)) {
+	  else if (AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo)) {
 		  message.append(rl.getString("to"));
 		  message.append(" ");
 		  message.append(releaseToGroupsAsString);
@@ -430,7 +459,16 @@ public class PublishAssessmentListener
 	  message.append(newline);
 	  message.append(newline);
 
-	  SamigoEmailService emailService = new SamigoEmailService(instructor.getEmail(), toEmailAddressList, "no", subject.toString(), message.toString());
-	  emailService.sendMail();
+	  String noReplyEmaillAddress =  "no-reply@" + ServerConfigurationService.getServerName();
+      InternetAddress[] noReply = new InternetAddress[1];
+      try {
+    	  noReply[0] = new InternetAddress(noReplyEmaillAddress);
+      } catch (AddressException e) {
+              log.warn("AddressException encountered when constructing no_reply@serverName email.");
+      }
+	  
+	  List<String> headers = new  ArrayList<String>();
+	  headers.add("Content-Type: text/html");
+	  EmailService.sendMail(fromIA, toIA, subject.toString(), message.toString(), noReply, noReply, headers);
   }
 }
