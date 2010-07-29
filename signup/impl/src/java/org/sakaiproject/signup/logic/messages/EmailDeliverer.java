@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://sakai-svn.its.yale.edu/svn/signup/branches/2-6-dev/impl/src/java/org/sakaiproject/signup/logic/messages/EmailDeliverer.java $
+ * $Id: EmailDeliverer.java 4456 2009-09-28 20:51:21Z gl256 $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University

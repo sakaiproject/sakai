@@ -39,7 +39,7 @@ create table signup_site_groups (
 	signup_site_id bigint not null, 
 	title varchar(255), 
 	group_id varchar(255) not null, 
-	calendar_event_id varchar(255), 
+	calendar_event_id varchar(2000), 
 	calendar_id varchar(255), 
 	list_index integer not null, 
 	primary key (signup_site_id, list_index)
@@ -50,7 +50,7 @@ create table signup_sites (
 	version integer not null, 
 	title varchar(255), 
 	site_id varchar(255) not null, 
-	calendar_event_id varchar(255), 
+	calendar_event_id varchar(2000), 
 	calendar_id varchar(255), 
 	meeting_id bigint not null, 
 	list_index integer, 

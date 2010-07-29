@@ -148,6 +148,57 @@
 								<h:outputText value="#{msgs.event_max_attendee_each_timeslot}" styleClass="titleText" rendered="#{NewSignupMeetingBean.individualType}" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="longtext" rendered="#{NewSignupMeetingBean.individualType}" escape="false"/>																																						
 							
+								<h:outputText value="#{msgs.event_show_schedule}" styleClass="titleText" rendered="#{NewSignupMeetingBean.customTimeslotType}"/>
+								<h:panelGroup rendered="#{NewSignupMeetingBean.customTimeslotType}">
+									<h:outputLabel  id="imageOpen_schedule" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_schedule','meeting:imageClose_schedule','meeting:scheduleDetail');">
+				   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="#{msgs.title_tip_click_hide_schedule}" style="border:none;" styleClass="openCloseImageIcon"/>
+				   	    				<h:outputText value="#{msgs.event_hide_custom_ts}" escape="false" style="vertical-align: top;"/>
+			   	    				</h:outputLabel>
+			   	    				<h:outputLabel id="imageClose_schedule" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_schedule','meeting:imageClose_schedule','meeting:scheduleDetail');">
+			   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="#{msgs.title_tip_click_show_schedule}" style="border:none;vertical-align:top;" styleClass="openCloseImageIcon"/>
+			   	    					<h:outputText value="#{msgs.event_show_custom_ts}" escape="false" style="vertical-align: top;"/>
+				   	    			</h:outputLabel>
+				   	    		</h:panelGroup>
+				   	    		
+				   	    		<h:outputText id="scheduleDetail_1" value="" styleClass="titleText" rendered="#{NewSignupMeetingBean.customTimeslotType}"/>
+								<h:dataTable id="scheduleDetail_2" value="#{NewSignupMeetingBean.customTimeSlotWrpList}" var="timeSlot"
+						   			rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,assignStudentsCol" 
+						   			styleClass="signupTable"  style="display:none; width: 55%"
+						   			rendered="#{NewSignupMeetingBean.customTimeslotType}" >
+										<h:column>		   
+											<f:facet name="header">
+												<h:outputText value="#{msgs.tab_time_slot}"/>
+											</f:facet>
+											<h:panelGroup>
+									   			<h:outputText value="#{timeSlot.timeSlot.startTime}" styleClass="longtext">
+													<f:convertDateTime pattern="h:mm a"/>
+												</h:outputText>
+												<h:outputText value="#{timeSlot.timeSlot.startTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
+														<f:convertDateTime pattern=", EEE," />
+												</h:outputText>
+												<h:outputText value="#{timeSlot.timeSlot.startTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
+													<f:convertDateTime  dateStyle="short"/>
+												</h:outputText>
+												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
+												<h:outputText value="#{timeSlot.timeSlot.endTime}" styleClass="longtext">
+													<f:convertDateTime pattern="h:mm a"/>
+												</h:outputText>
+												<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
+														<f:convertDateTime pattern=", EEE," />
+												</h:outputText>
+												<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
+													<f:convertDateTime  dateStyle="short"/>
+												</h:outputText>
+											</h:panelGroup>		
+								   		</h:column>
+								   		
+								   		<h:column>		   
+											<f:facet name="header">
+												<h:outputText value="#{msgs.tab_max_attendee}"/>
+											</f:facet>
+											<h:outputText value="#{timeSlot.timeSlot.maxNoOfAttendees}"/>
+								   		</h:column>
+								</h:dataTable>
 								
 								<h:outputText value="#{msgs.event_max_attendees}" styleClass="titleText" rendered="#{NewSignupMeetingBean.groupType}" escape="false"/>
 								<h:panelGroup rendered="#{NewSignupMeetingBean.groupType}" >
@@ -232,6 +283,12 @@
 								<h:panelGroup id="otherSetting_8" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.autoReminderOptionChoice}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.autoReminder}"/>
 									<h:outputText value="#{msgs.event_yes_email_autoReminer_to_attendees}" escape="false"/>
+								</h:panelGroup>
+								
+								<h:outputText id="otherSetting_9" style="display:none" value="#{msgs.event_publish_to_calendar}" styleClass="titleText" escape="false" />
+								<h:panelGroup id="otherSetting_10" style="display:none" styleClass="longtext">
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.publishToCalendar}"/>
+									<h:outputText value="#{msgs.event_yes_publish_to_calendar}" escape="false"/>
 								</h:panelGroup>
 								
 						</h:panelGrid>

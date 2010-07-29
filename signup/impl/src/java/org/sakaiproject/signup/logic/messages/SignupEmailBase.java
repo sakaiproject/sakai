@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/impl/src/java/org/sakaiproject/signup/logic/messages/SignupEmailBase.java $
+ * $Id: SignupEmailBase.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -225,9 +225,9 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		 * it will allow user to define different 'ui.service' value */
 		if (myServiceName == null) {
 			try {
-				myServiceName = rb.getString("ui.service");
-				int index = myServiceName.indexOf("missing key");/*return value by rb if no key defined-- hard coded!!!*/
-				if (index >=0)
+				if(rb.keySet().contains("ui.service"))
+					myServiceName = rb.getString("ui.service");
+				else
 					myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
 							"Sakai Service");
 			} catch (Exception e) {

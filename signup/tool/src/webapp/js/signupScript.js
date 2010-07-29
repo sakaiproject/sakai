@@ -1,6 +1,11 @@
 	function setEndtimeMonthDateYear(){
-			var year = document.getElementById("meeting:startTime.year").value;
-			var month = document.getElementById("meeting:startTime.month").value;
+		    var yearTag = document.getElementById("meeting:startTime.year");
+		    var monthTag = document.getElementById("meeting:startTime.month");
+		    if(!yearTag || !monthTag)
+		    	return;
+		    	
+			var year = yearTag.value;
+			var month = monthTag.value;
 			var day = document.getElementById("meeting:startTime.day").value;
 			var diff = getSignupDateTime('endTime').getTime() - getSignupDateTime('startTime').getTime();
 			
@@ -156,6 +161,52 @@
               
 	 	}
 	 	
+	 function switchTsChoice(v) {
+		var userDefTS = document.getElementById("meeting:userDefTsMsgs");
+		var autoTS = document.getElementById("meeting:autoGeneration");		 	 	
+	 	 	if(!autoTS  || !userDefTS )
+	 	 		return;
+	 	 		
+	 		if(v=='true'){
+	 			userDefTS.style.display="";
+				autoTS.style.display="none";						
+	 		}else if (v=='false') { 	
+	 			userDefTS.style.display="none";
+				autoTS.style.display="";					
+	 		}
+			
+			showDetails('','','meeting:addMoreTS')
+			var tag = document.getElementById('2')
+			if (tag !=null){					
+				switchShowOrHide(tag);
+			}
+	
+			if(v=='false'){//turn off
+				var i=0;
+				while (i < 30){					
+						var tag = document.getElementById("" +i)
+					if (tag !=null){					
+						tag.style.display="none";
+
+					}
+					i++;
+				}
+			}
+		}
+
+	function addMoreTSBlock(){
+		var i=2;
+		while (i < 30){					
+				var tag = document.getElementById("" +i)
+			if (tag !=null && tag.style.display=="none"){					
+				tag.style.display="";
+				return;//done
+			}
+			i++;
+		}
+	}
+	 	
+	 	
  	function showSignupBeginDeadline(isShow){
  			var i=1;
 			while (document.getElementById("meeting:signup_beginDeadline"+"_" + i)!=null){					
@@ -213,7 +264,7 @@
 		var prev_attendeeNum=1;//default
  		function validateAttendee() {
   			var attendeeNumTag = document.getElementById("meeting:numberOfAttendees");
-  			prev_attendeeNum = signup_ValidateNumber(prev_attendeeNum,attendeeNumTag,100);   
+  			prev_attendeeNum = signup_ValidateNumber(prev_attendeeNum,attendeeNumTag,500);   
   		}            
   
 
@@ -248,7 +299,7 @@
 					if (!slotNumTag)
  						return;	
  						
-				    prev_slotNum = signup_ValidateNumber(prev_slotNum,slotNumTag,100);   
+				    prev_slotNum = signup_ValidateNumber(prev_slotNum,slotNumTag,500);   
 	                    
 				  	var slotNum = parseInt(slotNumTag.value);
 	                var duration = getSignupDateTime(endTimeTag).getTime() - getSignupDateTime(startTimeTag).getTime();
@@ -318,7 +369,98 @@
 			}
 				
 		}
-	}		
+	}
+	
+	function userDefinedTsChoice(){
+		var singleBoxTag = document.getElementById("meeting:singleCh");
+		var userDefTschoiceTag = document.getElementById("meeting:userDefTsChoice");
+		var mutiplBoxTag = document.getElementById('meeting:mutipleCh');
+		var createEditTSBttn = document.getElementById('meeting:createEditTS');
+		var isCreateTSTagExist = document.getElementById('meeting:createTS');
+		if(userDefTschoiceTag && (mutiplBoxTag || singleBoxTag)){
+			if(userDefTschoiceTag.checked){
+				if(mutiplBoxTag)
+					mutiplBoxTag.className="greyed_mi";
+				if(singleBoxTag)
+					singleBoxTag.className="greyed_si";
+				
+				if(!isCreateTSTagExist)
+					showDTimeInputFields('disabled');
+				
+				createEditTSBttn.style.display="";
+			}
+			else{
+				if(mutiplBoxTag)
+					mutiplBoxTag.className="mi";
+				if(singleBoxTag)
+					singleBoxTag.className="si";
+					
+				showDTimeInputFields('enabled');
+				createEditTSBttn.style.display="none";
+			}
+		}
+	}
+	
+	function isShowEmailChoice(){
+    	var emailChoiceTag = document.getElementById('meeting:emailChoice');
+		var emailAttendeeOnlyTag = document.getElementById('meeting:emailAttendeeOnly');				
+		if(!emailChoiceTag || !emailAttendeeOnlyTag)
+			return;
+	
+		if(emailChoiceTag.checked)
+			emailAttendeeOnlyTag.style.display = "";
+		else
+			emailAttendeeOnlyTag.style.display = "none";           	
+    }
+	
+	function showDTimeInputFields(opt){
+		var yearTag = document.getElementById("meeting:startTime.year");
+		var monthTag = document.getElementById("meeting:startTime.month");
+		var dayTag = document.getElementById("meeting:startTime.day");
+	    var hoursTag = document.getElementById("meeting:startTime.hours");
+		var minutesTag = document.getElementById("meeting:startTime.minutes");
+		var ampmTag = document.getElementById("meeting:startTime.ampm");
+
+		var yearTag2 = document.getElementById("meeting:endTime.year");
+		var monthTag2 = document.getElementById("meeting:endTime.month");
+		var dayTag2 = document.getElementById("meeting:endTime.day");
+	    var hoursTag2 = document.getElementById("meeting:endTime.hours");
+		var minutesTag2 = document.getElementById("meeting:endTime.minutes");
+		var ampmTag2 = document.getElementById("meeting:endTime.ampm");
+		
+		if(!yearTag || !yearTag2)
+			return;
+		if (opt =='disabled'){
+			yearTag.disabled=true;
+			monthTag.disabled=true;
+			dayTag.disabled=true;
+			hoursTag.disabled=true;
+			minutesTag.disabled=true;
+			ampmTag.disabled=true;	
+			yearTag2.disabled=true;
+			monthTag2.disabled=true;
+			dayTag2.disabled=true;
+			hoursTag2.disabled=true;
+			minutesTag2.disabled=true;
+			ampmTag2.disabled=true;
+		}else{
+			yearTag.disabled=false;
+			monthTag.disabled=false;
+			dayTag.disabled=false;
+			hoursTag.disabled=false;
+			minutesTag.disabled=false;
+			ampmTag.disabled=false;	
+			yearTag2.disabled=false;
+			monthTag2.disabled=false;
+			dayTag2.disabled=false;
+			hoursTag2.disabled=false;
+			minutesTag2.disabled=false;
+			ampmTag2.disabled=false;
+		}
+	}
+			
+
+
 	
 
 	

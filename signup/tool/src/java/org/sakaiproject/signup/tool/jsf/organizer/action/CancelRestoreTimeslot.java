@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/organizer/action/CancelRestoreTimeslot.java $
+ * $Id: CancelRestoreTimeslot.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -103,7 +103,7 @@ public class CancelRestoreTimeslot extends SignupAction {
 	private void cancel(SignupTimeslot timeslot, boolean cancelAction) {
 		timeslot.setCanceled(cancelAction);
 		List<SignupAttendee> attendees = timeslot.getAttendees();
-		if( cancelAction ==true && (attendees !=null || !attendees.isEmpty())){
+		if( cancelAction ==true && attendees !=null && !attendees.isEmpty()){
 			for (SignupAttendee attendee : attendees) {
 				signupEventTrackingInfo.addOrUpdateAttendeeAllocationInfo(attendee, timeslot,
 						SignupEmailFacade.SIGNUP_ATTENDEE_CANCEL, true);

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/SignupUIBaseBean.java $
+ * $Id: SignupUIBaseBean.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -68,11 +68,17 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	protected static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
 										"signup.default.email.notification", "true")) ? true : false;
 
+	protected static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
+
+	protected boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
+	
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
 	protected Log logger = LogFactoryImpl.getLog(getClass());
 
 	protected Boolean publishedSite;
+	
+	protected boolean sendEmailAttendeeOnly = false;
 
 	/**
 	 * This method will get the most updated event/meeting data and handle all
@@ -172,8 +178,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		meeting.setSignupDeadline(sDeadline);
 	}
 	
-	protected boolean isMeetingLengthOver24Hours(SignupMeeting sm){
-		long duration= sm.getEndTime().getTime()- sm.getStartTime().getTime();
+	public boolean isMeetingLengthOver24Hours(Date startTime, Date endTime){
+		long duration= endTime.getTime()- startTime.getTime();
 		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
 			return false;
 		
@@ -316,6 +322,14 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	public boolean getGroupType() {
 		return GROUP.equals(meetingWrapper.getMeeting().getMeetingType());
 	}
+	
+	/**
+	 * This is only for UI purpose to check if the event/meeting is an
+	 * individual style (manay time slots) and it requires signup.
+	 */
+	public boolean getCustomTsType() {
+		return CUSTOM_TIMESLOTS.equals(meetingWrapper.getMeeting().getMeetingType());
+	}
 
 	/**
 	 * Get a TimeslotWrapper object for UI.
@@ -427,6 +441,32 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	public void setAttachmentHandler(AttachmentHandler attachmentHandler) {
 		this.attachmentHandler = attachmentHandler;
-	}	
+	}
+	
+	protected void markerTimeslots(List<TimeslotWrapper> TimeSlotWrpList){
+		int i=0;
+		if(TimeSlotWrpList !=null){
+			for (TimeslotWrapper tsWrp : TimeSlotWrpList) {
+				tsWrp.setTsMarker(i);
+				i++;
+			}
+		}
+	}
+
+	public boolean isPublishToCalendar() {
+		return publishToCalendar;
+	}
+
+	public void setPublishToCalendar(boolean publishToCalendar) {
+		this.publishToCalendar = publishToCalendar;
+	}
+	
+	public boolean getSendEmailAttendeeOnly() {
+		return sendEmailAttendeeOnly;
+	}
+
+	public void setSendEmailAttendeeOnly(boolean sendEmailAttendeeOnly) {
+		this.sendEmailAttendeeOnly = sendEmailAttendeeOnly;
+	}
 
 }

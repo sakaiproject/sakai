@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/api/src/java/org/sakaiproject/signup/model/MeetingTypes.java $
+ * $Id: MeetingTypes.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -40,6 +40,8 @@ public interface MeetingTypes {
 	 * requires signup
 	 */
 	static final String GROUP = "group";
+	
+	static final String CUSTOM_TIMESLOTS="custom_ts";
 
 	/**
 	 * This represents an event/meeting, which is an open session and signup is

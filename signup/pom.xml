@@ -13,6 +13,13 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>signup-base</artifactId>
 	<inceptionYear>2007</inceptionYear>
+	
+	<scm>
+		<connection>scm:https://source.sakaiproject.org/contrib/signup</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/contrib/signup</developerConnection>
+		<url>https://source.sakaiproject.org/contrib/signup</url>
+	</scm>
+	
 	<packaging>pom</packaging>
 	<modules>
 		<module>api</module>

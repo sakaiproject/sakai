@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://sakai-svn.its.yale.edu/svn/signup/branches/2-6-dev/tool/src/java/org/sakaiproject/signup/tool/jsf/UserLocale.java $
+ * $Id: UserLocale.java 4350 2009-07-16 19:14:47Z gl256 $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -26,6 +26,14 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.sakaiproject.util.ResourceLoader;
+
+/**
+ * <p>
+ * This class will provides methods for manage Locale issues
+ * </P>
+ * 
+ * @author Peter Liu
+ */
 
 public class UserLocale {
 

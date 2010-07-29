@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/organizer/action/EditMeeting.java $
+ * $Id: EditMeeting.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -28,14 +28,18 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupAttachment;
+import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
+import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -95,7 +99,16 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	private List<SignupAttachment> attachsForFutureRecurrences = new ArrayList<SignupAttachment>();
 
 	private AttachmentHandler attachmentHandler;
-
+	
+	/*keep the final user-modified ts-list*/
+	private List<TimeslotWrapper> customTimeSlotWrpList = null;
+	
+	private boolean userDefinedTS=false;
+	
+	private UserDefineTimeslotBean userDefineTimeslotBean;
+	
+	private List<SignupTimeslot> toBedeletedTSList = null;
+	
 	public EditMeeting(String userId, String siteId, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler, boolean isOrganizer) {
 		super(userId, siteId, signupMeetingService, isOrganizer);
 		this.attachmentHandler = attachmentHandler;
@@ -145,9 +158,12 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				 * multiple recurring meetings.
 				 */
 				this.signupEventTrackingInfo.setMeeting(meeting);
+				//reset it
+				this.toBedeletedTSList = null;
 
 				List<SignupMeeting> sMeetings = prepareModify(meeting);
-				signupMeetingService.updateSignupMeetings(sMeetings, true);
+				signupMeetingService.updateModifiedMeetings(sMeetings, this.toBedeletedTSList, true);
+				//signupMeetingService.updateMSignupMeetings(sMeetings, this.toBedeletedTSList, true);
 				setSavedMeetings(sMeetings);// for email & postCalendar purpose
 				return;
 			} catch (OptimisticLockingFailureException oe) {
@@ -162,35 +178,37 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	}
 
 	/* put the modification into right place */
-	private List<SignupMeeting> prepareModify(SignupMeeting modifyMeeting) throws Exception {
+	private List<SignupMeeting> prepareModify(SignupMeeting userModifiedMeeting) throws Exception {
 		List<SignupMeeting> upTodateOrginMeetings = null;
 		List<SignupMeeting> newlyModifyMeetings = new ArrayList<SignupMeeting>();
 
-		Long recurrenceId = modifyMeeting.getRecurrenceId();
+		Long recurrenceId = userModifiedMeeting.getRecurrenceId();
 		if (recurrenceId != null && recurrenceId.longValue() > 0 && !isConvertToNoRecurrent()) {
 			/* only update the future recurring meeting now now today */
 			upTodateOrginMeetings = signupMeetingService.getRecurringSignupMeetings(siteId, userId, recurrenceId,
 					new Date());
 			retrieveRecurrenceData(upTodateOrginMeetings);
 		} else {
-			SignupMeeting upTodateOrginMeeting = reloadMeeting(modifyMeeting);
+			SignupMeeting upTodateOrginMeeting = reloadMeeting(userModifiedMeeting);
 			upTodateOrginMeetings = new ArrayList<SignupMeeting>();
 			upTodateOrginMeetings.add(upTodateOrginMeeting);
 		}
 
 		/*
 		 * Since recurring meetings are identical by title, location, etc. only
-		 * one will be checked here.
+		 * the corresponding one to original one will be checked here.
 		 */
 		/*
 		 * If someone has changed it before you,it should be caught by versionId
 		 * since meetings are saved as a bulk.
 		 */
-		SignupMeeting upToDateMatchOne = getCorrespondingMeeting(upTodateOrginMeetings, modifyMeeting);
-		checkPreCondition(upToDateMatchOne);
+		SignupMeeting upToDateMatchOne = getCorrespondingMeeting(upTodateOrginMeetings, userModifiedMeeting);
+		checkPreCondition(upToDateMatchOne, upTodateOrginMeetings);
 
 		Calendar calendar = Calendar.getInstance();
 		int recurNum=0;
+		//initialize to-be-removed TS list for advanced user-defined cases
+		this.toBedeletedTSList = new ArrayList<SignupTimeslot>();
 		for (SignupMeeting upTodateOrginMeeting : upTodateOrginMeetings) {
 
 			SignupMeeting newlyModifyMeeting = upTodateOrginMeeting;
@@ -199,12 +217,12 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			 * set event starting time for calendar due to multiple-recurring
 			 * meetings
 			 */
-			long startTimeChangeDiff = modifyMeeting.getStartTime().getTime()
+			long startTimeChangeDiff = userModifiedMeeting.getStartTime().getTime()
 					- getOriginalMeetingCopy().getStartTime().getTime();
 			calendar.setTimeInMillis(upTodateOrginMeeting.getStartTime().getTime() + startTimeChangeDiff);
 
 			/* pass user changes */
-			passModifiedValues(modifyMeeting, calendar, newlyModifyMeeting, recurNum);
+			passModifiedValues(userModifiedMeeting, calendar, newlyModifyMeeting, recurNum);
 			recurNum++;
 			newlyModifyMeetings.add(newlyModifyMeeting);
 		}
@@ -212,19 +230,19 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		return newlyModifyMeetings;
 	}
 
-	private void passModifiedValues(SignupMeeting modifyMeeting, Calendar calendar, SignupMeeting newlyModifyMeeting, int recurNum)
+	private void passModifiedValues(SignupMeeting modifiedMeeting, Calendar calendar, SignupMeeting newlyModifyMeeting, int recurNum)
 			throws Exception {
-		newlyModifyMeeting.setTitle(modifyMeeting.getTitle());
-		newlyModifyMeeting.setLocation(modifyMeeting.getLocation());
+		newlyModifyMeeting.setTitle(modifiedMeeting.getTitle());
+		newlyModifyMeeting.setLocation(modifiedMeeting.getLocation());
 		newlyModifyMeeting.setStartTime(calendar.getTime());
-		newlyModifyMeeting.setDescription(modifyMeeting.getDescription());
-		newlyModifyMeeting.setLocked(modifyMeeting.isLocked());
-		newlyModifyMeeting.setCanceled(modifyMeeting.isCanceled());
-		newlyModifyMeeting.setReceiveEmailByOwner(modifyMeeting.isReceiveEmailByOwner());
-		newlyModifyMeeting.setAllowWaitList(modifyMeeting.isAllowWaitList());
-		newlyModifyMeeting.setAllowComment(modifyMeeting.isAllowComment());
-		newlyModifyMeeting.setAutoReminder(modifyMeeting.isAutoReminder());
-		newlyModifyMeeting.setEidInputMode(modifyMeeting.isEidInputMode());
+		newlyModifyMeeting.setDescription(modifiedMeeting.getDescription());
+		newlyModifyMeeting.setLocked(modifiedMeeting.isLocked());
+		newlyModifyMeeting.setCanceled(modifiedMeeting.isCanceled());
+		newlyModifyMeeting.setReceiveEmailByOwner(modifiedMeeting.isReceiveEmailByOwner());
+		newlyModifyMeeting.setAllowWaitList(modifiedMeeting.isAllowWaitList());
+		newlyModifyMeeting.setAllowComment(modifiedMeeting.isAllowComment());
+		newlyModifyMeeting.setAutoReminder(modifiedMeeting.isAutoReminder());
+		newlyModifyMeeting.setEidInputMode(modifiedMeeting.isEidInputMode());
 		
 		/*new attachments changes*/
 		if(this.currentAttachList !=null){
@@ -233,7 +251,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		
 	
 
-		if (newlyModifyMeeting.getMeetingType().equals(INDIVIDUAL)) {
+		if (newlyModifyMeeting.getMeetingType().equals(INDIVIDUAL) && !isUserDefinedTS()) {
 			List<SignupTimeslot> timeslots = newlyModifyMeeting.getSignupTimeSlots();
 			/* add increased time slots */
 			int newAddTs = getCurrentNumberOfSlots() - timeslots.size();
@@ -254,6 +272,26 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 					timeslot.setWaitingList(null);
 				}
 			}
+		}
+		
+		/*process user custom-defined timeslot blocks*/
+		if (newlyModifyMeeting.getMeetingType().equals(CUSTOM_TIMESLOTS) || isUserDefinedTS()) {
+			List<SignupTimeslot> timeslots = newlyModifyMeeting.getSignupTimeSlots();
+			UserDefineTimeslotBean uBean = getUserDefineTimeslotBean();
+			if(uBean ==null || !uBean.MODIFY_MEETING.equals(uBean.getPlaceOrderBean())){
+				throw new SignupUserActionException(Utilities.rb.getString("you.have.multiple.tabs.in.browser"));
+			}
+			
+			uBean.modifyTimesSlotsWithChanges(this.customTimeSlotWrpList, timeslots, calendar, showAttendeeName, toBedeletedTSList);
+			if(recurNum ==0){
+				/*TODO currently we only notify attendee for the first event at recurrence
+				 * Need implementation for recurrence case*/
+				notifyAttendeeIndeleteTimeslots(toBedeletedTSList);
+			}
+			newlyModifyMeeting.setMeetingType(CUSTOM_TIMESLOTS);
+			/*for end time purpose*/
+			int duration = getUserDefineTimeslotBean().getEventDuration();
+			calendar.add(Calendar.MINUTE, duration);
 		}
 
 		if (newlyModifyMeeting.getMeetingType().equals(GROUP)) {
@@ -300,6 +338,18 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			newlyModifyMeeting.setRepeatUntil(getLastRecurMeetingModifyDate());
 		}
 	}
+	
+	private void notifyAttendeeIndeleteTimeslots(List<SignupTimeslot> toBedeletedTSList){
+		for (SignupTimeslot timeslot : toBedeletedTSList) {
+			List<SignupAttendee> attendees = timeslot.getAttendees();
+			if( attendees !=null && !attendees.isEmpty()){
+				for (SignupAttendee attendee : attendees) {
+					signupEventTrackingInfo.addOrUpdateAttendeeAllocationInfo(attendee, timeslot,
+							SignupEmailFacade.SIGNUP_ATTENDEE_CANCEL, true);
+				}
+			}
+		}
+	}
 
 	private SignupMeeting getCorrespondingMeeting(List<SignupMeeting> upTodateOrginMeetings, SignupMeeting modifyMeeting) {
 		for (SignupMeeting sm : upTodateOrginMeetings) {
@@ -317,6 +367,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 
 		for (SignupTimeslot timeslot : timeSlots) {
 			List attList = timeslot.getAttendees();
+			int maxNumOfAttendees = timeslot.getMaxNoOfAttendees();
 			if (attList == null)
 				continue;// nobody on wait list for sure
 
@@ -334,7 +385,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	 * Check if there is any update in DB before this one is saved into DB
 	 * storage.
 	 */
-	private void checkPreCondition(SignupMeeting upTodateMeeting) throws SignupUserActionException {
+	private void checkPreCondition(SignupMeeting upTodateMeeting, List<SignupMeeting> upTodateOrginMeetings) throws SignupUserActionException {
 		if (upTodateMeeting == null
 				|| !originalMeetingCopy.getTitle().equals(upTodateMeeting.getTitle())
 				|| !originalMeetingCopy.getLocation().equals(upTodateMeeting.getLocation())
@@ -343,6 +394,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				|| originalMeetingCopy.getSignupBegins().getTime() != upTodateMeeting.getSignupBegins().getTime()
 				|| originalMeetingCopy.getSignupDeadline().getTime() != upTodateMeeting.getSignupDeadline().getTime()
 				/* TODO more case to consider here */
+				|| !originalMeetingCopy.getMeetingType().equals(upTodateMeeting.getMeetingType())
 				|| !((originalMeetingCopy.getRecurrenceId() == null && upTodateMeeting.getRecurrenceId() == null) || (originalMeetingCopy
 						.getRecurrenceId() != null && originalMeetingCopy.getRecurrenceId().equals(
 						upTodateMeeting.getRecurrenceId())))
@@ -350,9 +402,65 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				|| !((originalMeetingCopy.getDescription() == null && upTodateMeeting.getDescription() == null) || (originalMeetingCopy
 						.getDescription() != null && upTodateMeeting.getDescription() != null)
 						&& (originalMeetingCopy.getDescription().length() == upTodateMeeting.getDescription().length()))
-				|| checkAttachmentsChanges(upTodateMeeting)) {
+				|| checkAttachmentsChanges(upTodateMeeting)
+				|| checkAdvancedUserDefinedTSCase(originalMeetingCopy,upTodateMeeting,upTodateOrginMeetings)) {
 			throw new SignupUserActionException(Utilities.rb.getString("someone.modified.event.content"));
 		}
+	}
+	
+	private boolean checkAdvancedUserDefinedTSCase(SignupMeeting originalMeetingCopy,SignupMeeting upTodateMeeting,
+			List<SignupMeeting> upTodateOrginMeetings) throws SignupUserActionException{
+		if (!upTodateMeeting.getMeetingType().equals(CUSTOM_TIMESLOTS) && !isUserDefinedTS()) {
+			return false;
+		}
+		
+		List<SignupTimeslot> origTSList = originalMeetingCopy.getSignupTimeSlots();		
+		/*any unexpected events with timeslots changes on one of the recurrences
+		 * for example, one TS is deleted via DB by other somehow.
+		 * It happens very rarely and just for data integrity issue*/
+		if(origTSList !=null){
+			int numOf_ts = origTSList.size();
+			for (SignupMeeting upMeeting : upTodateOrginMeetings) {
+				if(numOf_ts != upMeeting.getNoOfTimeSlots()){
+					throw new SignupUserActionException("One of the recurring event has been modified without synchronization with others! " +
+							"You have to disassociate it from the recurring events. The event starting date:" + upMeeting.getStartTime().toLocaleString());
+				}
+			}
+		}
+		
+		/*any changes by others*/
+		List<SignupTimeslot> upTodateTSList = upTodateMeeting.getSignupTimeSlots();
+		if(origTSList !=null && upTodateTSList !=null){
+			for (SignupTimeslot oTS : origTSList) {
+				if(oTS.getId() == null)
+					continue;
+				
+				boolean found = false;
+				for (SignupTimeslot uTS : upTodateTSList) {
+					if(oTS.getId().equals(uTS.getId())){
+						found = true;
+						if(oTS.getMaxNoOfAttendees() != uTS.getMaxNoOfAttendees()){
+							/*one of the TS Max# has been changed by others */
+							return true; 
+						}
+						if(oTS.getStartTime().getTime() != uTS.getStartTime().getTime()
+							||(oTS.getEndTime().getTime() != uTS.getEndTime().getTime())){
+							return true;
+						}
+							
+						break;
+					}
+				}
+				
+				if(!found){
+					return true;//one TS is deleted or replaced by others
+				}
+			}
+			
+			return false;
+		}
+		
+		return true;//any unexpected case
 	}
 
 	private boolean checkAttachmentsChanges(SignupMeeting latestOne){
@@ -676,6 +784,32 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		}
 		
 	}
+
+	public List<TimeslotWrapper> getCustomTimeSlotWrpList() {
+		return customTimeSlotWrpList;
+	}
+
+	public void setCustomTimeSlotWrpList(List<TimeslotWrapper> customTimeSlotWrpList) {
+		this.customTimeSlotWrpList = customTimeSlotWrpList;
+	}
+
+	public boolean isUserDefinedTS() {
+		return userDefinedTS;
+	}
+
+	public void setUserDefinedTS(boolean userDefinedTS) {
+		this.userDefinedTS = userDefinedTS;
+	}
+
+	public UserDefineTimeslotBean getUserDefineTimeslotBean() {
+		return userDefineTimeslotBean;
+	}
+
+	public void setUserDefineTimeslotBean(UserDefineTimeslotBean userDefineTimeslotBean) {
+		this.userDefineTimeslotBean = userDefineTimeslotBean;
+	}
+	
+	
 }
 
 

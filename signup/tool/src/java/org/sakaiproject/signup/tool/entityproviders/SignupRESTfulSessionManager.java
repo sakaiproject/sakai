@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/entityproviders/SignupRESTfulSessionManager.java $
+ * $Id: SignupRESTfulSessionManager.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -28,7 +28,11 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.restful.SignupEvent;
+import org.sakaiproject.signup.restful.SignupParticipant;
+import org.sakaiproject.signup.restful.SignupTimeslotItem;
+import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -49,135 +53,196 @@ public class SignupRESTfulSessionManager {
 	}
 
 	public UserSignupSessionData getStoredUserSessionData() {
-		return (UserSignupSessionData) SessionManager.getCurrentSession().getAttribute(USER_SESSION_DATA);
+		return (UserSignupSessionData) SessionManager.getCurrentSession().getAttribute(
+				USER_SESSION_DATA);
 	}
 
-	public SiteEventsCache getSiteEventsCache(String siteId) {
+	public SignupEventsCache getSignupEventsCache(String uniqueId) {
 		if (getStoredUserSessionData() == null)
 			return null;
 
-		return getStoredUserSessionData().get(siteId);
+		return getStoredUserSessionData().get(uniqueId);
 	}
 
-	public void StoreSiteEventsData(String siteId, List<SignupEvent> events, String viewRange) {
-		SiteEventsCache siteEventsCache = new SiteEventsCache(siteId, events, viewRange);
+	/**
+	 * Store the data in the cache
+	 * 
+	 * @param uniqueId
+	 *            can be unique siteId or userId
+	 * @param events
+	 *            a list of SignupEvent objects
+	 * @param viewRange
+	 *            a numeric string
+	 */
+	public void StoreSignupEventsData(String uniqueId, List<SignupEvent> events, String viewRange) {
+		SignupEventsCache signupEventsCache = new SignupEventsCache(uniqueId, events, viewRange);
 		UserSignupSessionData userDataMap = getStoredUserSessionData();
 		if (userDataMap == null) {
 			userDataMap = new UserSignupSessionData();
 		}
-		userDataMap.add(siteId, siteEventsCache);
+		userDataMap.add(uniqueId, signupEventsCache);
 		storeUserDataInSession(userDataMap);
 	}
 
-	public void StoreSiteEventsData(String siteId, SiteEventsCache cache) {
+	public void StoreSignupEventsData(String uniqueId, SignupEventsCache cache) {
 		UserSignupSessionData userDataMap = getStoredUserSessionData();
 		if (userDataMap == null) {
 			userDataMap = new UserSignupSessionData();
 		}
-		userDataMap.add(siteId, cache);
+		userDataMap.add(uniqueId, cache);
 		storeUserDataInSession(userDataMap);
 	}
 
-	public boolean isUpTodateDataAvailable(String siteId) {
-		if (this.getSiteEventsCache(siteId) != null && !isRefresh(getSiteEventsCache(siteId))) {
+	public boolean isUpTodateDataAvailable(String uniqueId) {
+		if (this.getSignupEventsCache(uniqueId) != null && !isRefresh(getSignupEventsCache(uniqueId))) {
 			return true;
 		}
 
 		return false;
 	}
 
-	public boolean isSameViewRange(String siteId, String viewRange) {
-		SiteEventsCache sec = this.getSiteEventsCache(siteId);
+	/**
+	 * See if the view range is the same for the data set
+	 * 
+	 * @param id
+	 *            can be unique siteId or userId
+	 * @param viewRange
+	 *            numeric number string
+	 * @return boolean value
+	 */
+	public boolean isSameViewRange(String id, String viewRange) {
+		SignupEventsCache sec = this.getSignupEventsCache(id);
 		if (sec != null && sec.getViewRange().equals(viewRange)) {
 			return true;
 		}
 		return false;
 	}
 
-	public SignupEvent getExistedSignupEventInCache(String siteId, Long eventId) {
-		if (this.getSiteEventsCache(siteId) != null) {
-			getSiteEventsCache(siteId).getSignupEvent(eventId);
-			return getSiteEventsCache(siteId).getSignupEvent(eventId);
+	public SignupEvent getExistedSignupEventInCache(String uniqueId, Long eventId) {
+		if (this.getSignupEventsCache(uniqueId) != null) {
+			// getSiteEventsCache(siteId).getSignupEvent(eventId);
+			return getSignupEventsCache(uniqueId).getSignupEvent(eventId);
 		}
 		return null;
 	}
 
-	public void updateSiteEventsCache(String siteId, SignupEvent event) {
-		SiteEventsCache siteECache = getSiteEventsCache(siteId);
-		if (siteECache == null) {
+	public void updateSignupEventsCache(String uniqueId, SignupEvent event) {
+		SignupEventsCache eCache = getSignupEventsCache(uniqueId);
+		if (eCache == null) {
 			return; // don't update, force it to get a new list later.
 		}
 
 		if (event == null) {
 			/* clean up and force it to get a new list later due to event-gone. */
-			cleanSiteEventsCache(siteId);
+			cleanSignupEventsCache(uniqueId);
 			return;
 		} else {
-			siteECache.updateSignupEvent(event);
+			eCache.updateSignupEvent(event);
 		}
 
-		StoreSiteEventsData(siteId, siteECache);
+		StoreSignupEventsData(uniqueId, eCache);
+	}
+	
+	public void updateMySignupEventsCache(String userId, SignupEvent event,String userAction) {
+		SignupEventsCache eCache = getSignupEventsCache(userId);
+		if (eCache == null) {
+			return; // don't update, force it to get a new list later.
+		}
+
+		if (event == null) {
+			/* clean up and force it to get a new list later due to event-gone. */
+			cleanSignupEventsCache(userId);
+			return;
+		} else {
+			if(SignupEvent.USER_CANCEL_SIGNUP.equals(userAction))
+				eCache.removeEvent(event);
+			else if (SignupEvent.USER_SIGNUP.equals(userAction)){
+				populateMySignedUpEventData(event, userId);
+				eCache.addEvent(event);
+			}
+		}
+
+		StoreSignupEventsData(userId, eCache);
+	}
+	
+	private void populateMySignedUpEventData(SignupEvent event, String userId){
+		List<SignupTimeslotItem> tsList = event.getSignupTimeSlotItems();
+		if(tsList !=null){
+			for (SignupTimeslotItem ts : tsList) {
+				List<SignupParticipant> attList = ts.getAttendees();
+				if(attList !=null){
+					for (SignupParticipant p : attList) {
+						if(p.getAttendeeUserId().equals(userId)){
+							event.setMyStartTime(ts.getStartTime());
+							event.setMyEndTime(ts.getEndTime());
+							event.setAvailableStatus(Utilities.rb.getString("event.youSignedUp"));
+							return;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void storeUserDataInSession(UserSignupSessionData userSessionData) {
 		SessionManager.getCurrentSession().setAttribute(USER_SESSION_DATA, userSessionData);
 	}
 
-	private void cleanSiteEventsCache(String siteId) {
+	private void cleanSignupEventsCache(String uniqueId) {
 		UserSignupSessionData userSnData = getStoredUserSessionData();
-		userSnData.remove(siteId);
+		userSnData.remove(uniqueId);
 		storeUserDataInSession(userSnData);
 
 	}
 
-	private boolean isRefresh(SiteEventsCache cache) {
+	private boolean isRefresh(SignupEventsCache cache) {
 		Date current = new Date();
 		return (current.getTime() - cache.getLastUpdatedTime().getTime() > TIME_INTERVAL_TO_REFRESH);
 	}
 
 	class UserSignupSessionData {
-		private Hashtable<String, SiteEventsCache> table = new Hashtable<String, SiteEventsCache>();
+		private Hashtable<String, SignupEventsCache> table = new Hashtable<String, SignupEventsCache>();
 
 		public UserSignupSessionData() {
 		}
 
-		public void add(String siteId, SiteEventsCache eCache) {
-			this.table.put(siteId, eCache);
+		public void add(String uniqueId, SignupEventsCache eCache) {
+			this.table.put(uniqueId, eCache);
 		}
 
-		public SiteEventsCache get(String siteId) {
-			return this.table.get(siteId);
+		public SignupEventsCache get(String uniqueId) {
+			return this.table.get(uniqueId);
 		}
 
-		public void remove(String siteId) {
-			this.table.remove(siteId);
+		public void remove(String uniqueId) {
+			this.table.remove(uniqueId);
 		}
 
-		public void update(String siteId, SiteEventsCache eCache) {
-			this.table.put(siteId, eCache);
+		public void update(String uniqueId, SignupEventsCache eCache) {
+			this.table.put(uniqueId, eCache);
 		}
 
 	}
 
-	class SiteEventsCache {
+	class SignupEventsCache {
 
 		private Date lastUpdatedTime;
 
-		private String siteId;
+		private String uniqueId;
 
 		private List<SignupEvent> events;
 
 		private String viewRange = "";
 
-		SiteEventsCache(String siteId, List<SignupEvent> events, String viewRange) {
-			this.siteId = siteId;
+		SignupEventsCache(String id, List<SignupEvent> events, String viewRange) {
+			this.uniqueId = id;
 			this.events = events;
 			this.viewRange = viewRange;
 			lastUpdatedTime = new Date();
 		}
 
-		SiteEventsCache(String siteId, SignupEvent event) {
-			this.siteId = siteId;
+		SignupEventsCache(String id, SignupEvent event) {
+			this.uniqueId = id;
 			events = new ArrayList<SignupEvent>();
 			events.add(event);
 			lastUpdatedTime = new Date();
@@ -208,13 +273,30 @@ public class SignupRESTfulSessionManager {
 				}
 			}
 		}
-
-		public String getSiteId() {
-			return siteId;
+		
+		public void removeEvent(SignupEvent event){
+			if (this.events != null) {
+				for (int i = 0; i < events.size(); i++) {
+					if (events.get(i).getEventId().equals(event.getEventId())) {
+						events.remove(i);
+						break;
+					}
+				}
+			}
+		}
+		
+		public void addEvent(SignupEvent event){
+			if (this.events != null){
+				events.add(event);
+			}
 		}
 
-		public void setSiteId(String siteId) {
-			this.siteId = siteId;
+		public String getUniqueId() {
+			return uniqueId;
+		}
+
+		public void setUniqueId(String uniqueId) {
+			this.uniqueId = uniqueId;
 		}
 
 		public List<SignupEvent> getEvents() {

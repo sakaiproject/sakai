@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://sakai-svn.its.yale.edu/svn/signup/branches/2-6-dev/impl/src/java/org/sakaiproject/signup/logic/messages/AutoReminderEmail.java $
+ * $Id: AutoReminderEmail.java 4554 2009-12-04 21:52:14Z gl256 $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -119,7 +119,7 @@ public class AutoReminderEmail extends SignupEmailBase {
 			message.append(newline
 					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
 		}
-
+		
 		message.append(newline
 				+ newline
 				+ MessageFormat.format(rb.getString("body.auto.reminder.check.meetingStatus"),

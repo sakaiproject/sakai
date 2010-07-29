@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://sakai-svn.its.yale.edu/svn/signup/branches/2-6-dev/tool/src/java/org/sakaiproject/signup/tool/downloadEvents/ExcelPlainTextFormat.java $
+ * $Id: ExcelPlainTextFormat.java 4519 2009-11-18 15:19:47Z gl256 $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University

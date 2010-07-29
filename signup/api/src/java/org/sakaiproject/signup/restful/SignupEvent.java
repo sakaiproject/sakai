@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/api/src/java/org/sakaiproject/signup/restful/SignupEvent.java $
+ * $Id: SignupEvent.java 59282 2009-03-25 14:05:36Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -80,6 +80,10 @@ public class SignupEvent implements Entity, MeetingTypes {
 	private Date startTime;
 
 	private Date endTime;
+	
+	private Date myStartTime;
+	
+	private Date myEndTime;
 
 	private Date signupBegins;
 
@@ -377,6 +381,29 @@ public class SignupEvent implements Entity, MeetingTypes {
 
 	public void setRepeatType(String repeatType) {
 		this.repeatType = repeatType;
+	}
+	
+	public boolean isMySignupEvents(){
+		if(myStartTime !=null && myEndTime !=null)
+			return true;
+		else
+			return false;
+	}
+
+	public Date getMyStartTime() {
+		return myStartTime;
+	}
+
+	public void setMyStartTime(Date myStartTime) {
+		this.myStartTime = myStartTime;
+	}
+
+	public Date getMyEndTime() {
+		return myEndTime;
+	}
+
+	public void setMyEndTime(Date myEndTime) {
+		this.myEndTime = myEndTime;
 	}
 
 	/**

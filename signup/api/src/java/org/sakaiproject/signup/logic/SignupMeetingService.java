@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/api/src/java/org/sakaiproject/signup/logic/SignupMeetingService.java $
+ * $Id: SignupMeetingService.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -22,12 +22,14 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.model.SignupTimeslot;
 
 /**
  * <p>
@@ -79,6 +81,62 @@ public interface SignupMeetingService {
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate);
+	
+	/**
+	 * This returns a subset list of SignupMeeting from startDate to endDate for
+	 * the site. The result might be 5 minutes old data due to ECache
+	 * 
+	 * @param siteId
+	 *            unique id which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param timeFrameInDays
+	 *            number of days ,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays);
+	
+	/**
+	 * This returns a subset list of SignupMeeting from startDate to endDate for
+	 * the sites, The result maybe 5 minutes old due to ECache
+	 * 
+	 * @param siteIds
+	 *            a collection of unique ids which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param timeFrameInDays
+	 *            number of days ,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays);
+
+	/**
+	 * This returns a subset list of SignupMeeting from startDate to endDate for
+	 * the site.
+	 * 
+	 * @param siteId
+	 *            unique id which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param endDate
+	 *            end date ,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate);	
+	
+	/**
+	 * This returns a subset list of SignupMeeting from startDate to endDate for
+	 * the sites with out cached
+	 * 
+	 * @param siteIds
+	 *            a collection of unique ids which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param endDate
+	 *            endDate ,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate);
 
 	/**
 	 * This returns a subset list of SignupMeetings with the same recurrenceId from starting date for
@@ -150,6 +208,22 @@ public interface SignupMeetingService {
 	 */
 	void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception;
 
+	/**
+	 * This updates a list of SingupMeeting objects into the database storage. If it's
+	 * an organizer, permission: signup.update is required. Otherwise
+	 * permission: signup.attend/signup.attend.all is required
+	 * 
+	 * @param meetings
+	 *            a list of SignupMeeting objects
+	 * @param removedTimeslots
+	 *            a list of SignupTimeslot objects, which will be removed from the meeting
+	 * @param isOrganizer
+	 *            true if the user is event-organizer
+	 * @throws Exception
+	 *             thrown if something goes bad
+	 */
+	void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots, boolean isOrganizer) throws Exception;
+	
 	/**
 	 * This retrieve a SignupMeeting object from database according to the
 	 * SignupMeeting Id
@@ -289,6 +363,17 @@ public interface SignupMeetingService {
 	 */
 	void removeMeetings(List<SignupMeeting> meetings);
 
+	/**
+	 * This method will remove a list of the posted Calendar for a set of modified
+	 * events/meetings in Scheduler tool
+	 * 
+	 * @param meetings
+	 *            a list of SignupMeeting objects
+	 * @throws Exception
+	 *             thrown if something goes bad
+	 */
+	void removeCalendarEventsOnModifiedMeeting(List<SignupMeeting> meetings) throws Exception;
+	
 	/**
 	 * This method will remove a list of the posted Calendar for the
 	 * events/meetings in Scheduler tool

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/entityproviders/EventProcessHandler.java $
+ * $Id: EventProcessHandler.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -73,19 +73,60 @@ public class EventProcessHandler implements SignupBeanConstants {
 		event = signupRESTfulSessionManager.getExistedSignupEventInCache(siteId, eventId);
 		if (event == null || event.getSignupSiteItems() == null || mustAccessDB) {
 			event = SignupObjectConverter.convertToSignupEventObj(getSignupMeetingService().loadSignupMeeting(eventId,
-					userId, siteId), userId, siteId, true, this.sakaiFacade);
-			signupRESTfulSessionManager.updateSiteEventsCache(siteId, event);
+					userId, siteId), userId, siteId, true,false, this.sakaiFacade);
+			signupRESTfulSessionManager.updateSignupEventsCache(siteId, event);
 		}
 
 		return event;
 	}
+	
+	public List<SignupEvent> getMySignupEvents(String userId,String viewRange){
+		viewRange = validateViewRange(viewRange);
+		if(viewRange ==null)
+			viewRange = THIRTY_DAYS;//default for my-signup
+		
+		List<SignupEvent> events = null;
+		if (signupRESTfulSessionManager.isUpTodateDataAvailable(userId)
+				&& signupRESTfulSessionManager.isSameViewRange(userId, viewRange)){
+			/*userId and siteId are both unique keys and we will treat it here the same way for the cache purpose.
+			 * Otherwise this won't work*/
+			events = signupRESTfulSessionManager.getSignupEventsCache(userId).getEvents();
+		}else {
+			//my active sites
+			List<String> siteIds = getSakaiFacade().getUserPublishedSiteIds(userId);
+			
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(new Date());
+			/* including today's day for search */
+			int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+			int currentMinutes = calendar.get(Calendar.MINUTE);
+			calendar.add(Calendar.HOUR, -1 * currentHour);
+			calendar.add(Calendar.MINUTE, -1 * currentMinutes);
+			String searchDateStr = viewRange;
+			Date startDate = calendar.getTime();
+			int timeFrameInDays = Integer.parseInt(searchDateStr);
+			
+			List<SignupMeeting> sMeetings = signupMeetingService.getSignupMeetingsInSitesWithCache(siteIds, startDate, timeFrameInDays);		
+	
+			/*filter out and output only my signed-up events*/
+			events = getMySignedUpEvents(sMeetings,userId);
+			
+			//cache this for the user, 5 minutes
+			signupRESTfulSessionManager.StoreSignupEventsData(userId, events, viewRange);
+		}
+		
+		return events;
+	}
 
 	public List<SignupEvent> getSignupEvents(String siteId, String userId, String viewRange) {
 		viewRange = validateViewRange(viewRange);
+		if(viewRange == null)
+			viewRange = VIEW_ALL;//default
+		
 		List<SignupEvent> events = null;
 		if (signupRESTfulSessionManager.isUpTodateDataAvailable(siteId)
 				&& signupRESTfulSessionManager.isSameViewRange(siteId, viewRange))
-			events = signupRESTfulSessionManager.getSiteEventsCache(siteId).getEvents();
+			events = signupRESTfulSessionManager.getSignupEventsCache(siteId).getEvents();
 		else {
 			List<SignupMeeting> sMeetings = null;
 			if (VIEW_ALL.equals(viewRange)) {// view all
@@ -108,12 +149,12 @@ public class EventProcessHandler implements SignupBeanConstants {
 			events = new ArrayList<SignupEvent>();
 			if (sMeetings != null && !sMeetings.isEmpty()) {
 				for (SignupMeeting sMeeting : sMeetings) {
-					events.add(SignupObjectConverter.convertToSignupEventObj(sMeeting, userId, siteId, false,
+					events.add(SignupObjectConverter.convertToSignupEventObj(sMeeting, userId, siteId, false,false,
 							this.sakaiFacade));
 				}
 			}
 
-			signupRESTfulSessionManager.StoreSiteEventsData(siteId, events, viewRange);
+			signupRESTfulSessionManager.StoreSignupEventsData(siteId, events, viewRange);
 		}
 
 		return events;
@@ -134,7 +175,9 @@ public class EventProcessHandler implements SignupBeanConstants {
 			logger.warn("The userAction:" + userAction + " is not defined!");
 		}
 
-		signupRESTfulSessionManager.updateSiteEventsCache(event.getSiteId(), updatedEvent);
+		/*update cache for one specific siteId: or userId: my-signed up info*/
+		signupRESTfulSessionManager.updateSignupEventsCache(event.getSiteId(), updatedEvent);
+		signupRESTfulSessionManager.updateMySignupEventsCache(getSakaiFacade().getCurrentUserId(), updatedEvent, userAction);
 
 	}
 
@@ -162,7 +205,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		}
 
 		SignupEvent evt = SignupObjectConverter.convertToSignupEventObj(meeting, getSakaiFacade().getCurrentUserId(),
-				event.getSiteId(), true, this.sakaiFacade);
+				event.getSiteId(), true, false, this.sakaiFacade);
 		evt.setUserActionWarningMsg(userActionWarningMsg);
 		return evt;
 
@@ -198,7 +241,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		}
 
 		SignupEvent evt = SignupObjectConverter.convertToSignupEventObj(meeting, getSakaiFacade().getCurrentUserId(),
-				event.getSiteId(), true, this.sakaiFacade);
+				event.getSiteId(), true, false, this.sakaiFacade);
 		evt.setUserActionWarningMsg(userActionWarningMsg);
 		return evt;
 
@@ -236,7 +279,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		}
 
 		SignupEvent evt = SignupObjectConverter.convertToSignupEventObj(meeting, getSakaiFacade().getCurrentUserId(),
-				event.getSiteId(), true, this.sakaiFacade);
+				event.getSiteId(), true, false, this.sakaiFacade);
 		evt.setUserActionWarningMsg(userActionWarningMsg);
 		return evt;
 	}
@@ -274,7 +317,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 		}
 
 		SignupEvent evt = SignupObjectConverter.convertToSignupEventObj(meeting, getSakaiFacade().getCurrentUserId(),
-				event.getSiteId(), true, this.sakaiFacade);
+				event.getSiteId(), true, false, this.sakaiFacade);
 		evt.setUserActionWarningMsg(userActionWarningMsg);
 		return evt;
 	}
@@ -299,7 +342,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 	}
 
 	private String validateViewRange(String viewRange) {
-		String vRange = VIEW_ALL;
+		String vRange = null;
 		if (viewRange != null) {
 			try {
 				Integer.parseInt(viewRange);
@@ -309,6 +352,34 @@ public class EventProcessHandler implements SignupBeanConstants {
 			}
 		}
 		return vRange;
+	}
+	
+	private List<SignupEvent> getMySignedUpEvents(List<SignupMeeting> sMeeting, String currentUserId) {
+		List<SignupEvent> events = new ArrayList<SignupEvent>();
+		
+		if (sMeeting != null && !sMeeting.isEmpty()) {
+			for (SignupMeeting m : sMeeting) {
+				List<SignupTimeslot> signupTimeSlots = m.getSignupTimeSlots();
+				for (SignupTimeslot timeslot : signupTimeSlots) {
+					List<SignupAttendee> attendees = timeslot.getAttendees();
+					for (SignupAttendee attendee : attendees) {
+						if (attendee.getAttendeeUserId().equals(currentUserId)) {
+							/*shallow copy here*/
+							SignupEvent e = SignupObjectConverter.convertToSignupEventObj(m, currentUserId, m.getCurrentSiteId(), false,
+									true, this.sakaiFacade);
+							e.setSiteId(attendee.getSignupSiteId());
+							//set up my signed up time
+							e.setMyStartTime(timeslot.getStartTime());
+							e.setMyEndTime(timeslot.getEndTime());
+							events.add(e);							
+							break;
+						}
+					}
+				}
+			}
+		}
+				
+		return events;
 	}
 
 	public SakaiFacade getSakaiFacade() {

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/organizer/CopyMeetingSignupMBean.java $
+ * $Id: CopyMeetingSignupMBean.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -41,14 +41,20 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupSiteWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
+import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.Utilities;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 /**
  * <p>
  * This JSF UIBean class will handle information exchanges between Organizer's
  * copy meeting page:<b>copyMeeting.jsp</b> and backbone system.
+ * 
+ * @author Peter Liu
+ * 
  * </P>
  */
 public class CopyMeetingSignupMBean extends SignupUIBaseBean {
@@ -75,13 +81,11 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 	private String repeatType;
 
-	private int timeSlotDuration;
+	//private int timeSlotDuration;
 
 	private int numberOfSlots;
 
 	private boolean showAttendeeName;
-
-	private boolean truncateAttendee;
 
 	private SignupSiteWrapper currentSite;
 
@@ -102,6 +106,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	private boolean repeatTypeUnknown=true;
 
 	private List<SelectItem> meetingTypeRadioBttns;
+	
+	private UserDefineTimeslotBean userDefineTimeslotBean;
+	
+	//discontinued time slots case
+	private List<TimeslotWrapper> customTimeSlotWrpList;
+	
+	private boolean userDefinedTS=false;
 
 	/**
 	 * this reset information which contains in this UIBean lived in a session
@@ -113,6 +124,8 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		keepAttendees = false;
 		assignParicitpantsToAllRecurEvents = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
+		sendEmailAttendeeOnly = false;
+		publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
 		calendar.set(Calendar.MINUTE, 0);
@@ -121,13 +134,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		repeatType = ONCE_ONLY;
 		repeatTypeUnknown=true;
 		showAttendeeName = false;
-		truncateAttendee = false;
 		missingSitGroupWarning = false;
 		
 		/*cleanup previously unused attachments in CHS*/
 		if(this.signupMeeting !=null)
 			cleanUpUnusedAttachmentCopies(this.signupMeeting.getSignupAttachments());
 
+		/*refresh copy of original*/
 		this.signupMeeting = signupMeetingService.loadSignupMeeting(meetingWrapper.getMeeting().getId(), sakaiFacade
 				.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
 		
@@ -156,6 +169,20 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		/* Initialize site/groups for current organizer */
 		initializeSitesGroups();
+		
+		/* custom-ts case */
+		this.customTimeSlotWrpList = null;
+		this.userDefinedTS = false;
+		/*populate timeslot data*/
+		updateTimeSlotWrappers(this.meetingWrapper);
+		if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
+			this.userDefinedTS=true;
+			this.customTimeSlotWrpList= getTimeslotWrappers();
+			markerTimeslots(this.customTimeSlotWrpList);
+		}
+			
+		getUserDefineTimeslotBean().init(this.signupMeeting, COPTY_MEETING_PAGE_URL, this.customTimeSlotWrpList, UserDefineTimeslotBean.COPY_MEETING);
+
 		
 	}
 
@@ -214,12 +241,21 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 			sMeeting.setRepeatUntil(getRepeatUntil());
 			sMeeting.setRepeatType(getRepeatType());
-
+			
+			if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
+				boolean multipleCalBlocks = getUserDefineTimeslotBean().getPutInMultipleCalendarBlocks();
+				sMeeting.setInMultipleCalendarBlocks(multipleCalBlocks);
+			}
+			
+			/*pass who are receiving emails*/
+			sMeeting.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
+			
 			CreateMeetings createMeeting = new CreateMeetings(sMeeting, sendEmail, keepAttendees
 					&& !assignParicitpantsToAllRecurEvents, keepAttendees && assignParicitpantsToAllRecurEvents,
 					getSignupBegins(), getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade,
 					signupMeetingService, getAttachmentHandler(), sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
+			createMeeting.setPublishToCalendar(isPublishToCalendar());
 			createMeeting.processSaveMeetings();
 			
 			/*make sure that they don't get cleaned up in CHS when saved successfully*/
@@ -237,7 +273,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
-
+		
+		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.COPY_MEETING);
+		
 		return MAIN_EVENTS_LIST_PAGE_URL;
 	}
 
@@ -249,18 +287,35 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 *            an ActionEvent object.
 	 */
 	public void validateCopyMeeting(ActionEvent e) {
-		Date endTime = signupMeeting.getEndTime();
-		Date startTime = signupMeeting.getStartTime();
-		if (endTime.before(startTime) || startTime.equals(endTime)) {
+		Date eventEndTime = signupMeeting.getEndTime();
+		Date eventStartTime = signupMeeting.getStartTime();
+		
+		/*user defined own TS case*/
+		if(isUserDefinedTS()){
+			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
+			eventStartTime = getUserDefineTimeslotBean().getEventStartTime();		
+			/*pass the value since they may be null*/
+			this.signupMeeting.setStartTime(eventStartTime);
+			this.signupMeeting.setEndTime(eventEndTime);
+			
+			if(getUserDefineTimeslotBean().getDestTSwrpList()==null || getUserDefineTimeslotBean().getDestTSwrpList().isEmpty()){
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.create_custom_defined_TS_blocks"));
+				return;
+			}
+				
+		}
+		
+		if (eventEndTime.before(eventStartTime) || eventStartTime.equals(eventEndTime)) {
 			validationError = true;
 			Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
 			return;
 		}
 
 		if (!(getRepeatType().equals(ONCE_ONLY))) {
-			int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
+			int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), eventStartTime,
 					getRepeatUntil());
-			if ((DAILY.equals(getRepeatType())|| WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(this.signupMeeting)) {
+			if ((DAILY.equals(getRepeatType())|| WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(eventStartTime, eventEndTime)) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 				return;
@@ -278,6 +333,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(Utilities.rb.getString("select.atleast.oneGroup.for.copyMeeting"));
 
 		}
+		
+		/*for custom defined time slot case*/
+		if(!validationError && isUserDefinedTS()){
+			this.signupMeeting.setStartTime(eventStartTime);
+			this.signupMeeting.setEndTime(eventEndTime);
+			this.signupMeeting.setMeetingType(CUSTOM_TIMESLOTS);
+		}
 	}
 	
 	/**
@@ -291,6 +353,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	
 	public String doCancelAction(){
 		cleanUpUnusedAttachmentCopies(this.signupMeeting.getSignupAttachments());
+		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.COPY_MEETING);
 		return ORGANIZER_MEETING_PAGE_URL;
 	}
 
@@ -314,6 +377,30 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		return "";
 
 	}
+	
+	/**
+	 * Modify the existing time slot blocks
+	 * @return String object for next page url
+	 */
+	public String editUserDefTimeSlots(){
+		if(this.customTimeSlotWrpList == null){
+			/*initialize when it comes from other meeting type*/
+			this.customTimeSlotWrpList = getTimeslotWrappers();
+			/*Mark the time slot sequence for recurring events changes issues*/
+			markerTimeslots(this.customTimeSlotWrpList);
+			
+			getUserDefineTimeslotBean().init(this.signupMeeting, COPTY_MEETING_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.COPY_MEETING);
+		}else{	
+			if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.COPY_MEETING,getUserDefineTimeslotBean())){
+				return ORGANIZER_MEETING_PAGE_URL;
+			}
+			
+			this.customTimeSlotWrpList = getUserDefineTimeslotBean().getDestTSwrpList();
+			getUserDefineTimeslotBean().init(this.signupMeeting, COPTY_MEETING_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.COPY_MEETING);
+		}
+		
+		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
+	}
 
 	private void prepareCopy(SignupMeeting meeting) throws Exception {
 
@@ -329,18 +416,20 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		boolean lockOrCanceledTimeslot = false;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(meeting.getStartTime());
-
+		
 		/* Announcement type */
 		if (getAnnouncementType() || timeslots == null || timeslots.isEmpty()) {
 			calendar.add(Calendar.MINUTE, getTimeSlotDuration());
 			meeting.setMeetingType(ANNOUNCEMENT);
 			meeting.setSignupTimeSlots(null);
 		} else {
-			if (meeting.getMeetingType().equals(INDIVIDUAL) || meeting.getMeetingType().equals(GROUP)) {
-				List<SignupTimeslot> origTsList = meeting.getSignupTimeSlots();
+			List<SignupTimeslot> cpTimeslotList = new ArrayList<SignupTimeslot>();
+			List<SignupTimeslot> origTsList=null;
+			if (!isUserDefinedTS() && (meeting.getMeetingType().equals(INDIVIDUAL) || meeting.getMeetingType().equals(GROUP))){
+				origTsList = meeting.getSignupTimeSlots();
 
 				SignupTimeslot origTs = null;
-				List<SignupTimeslot> cpTimeslotList = new ArrayList<SignupTimeslot>();
+				
 				for (int i = 0; i < getNumberOfSlots(); i++) {
 					SignupTimeslot cpTs = new SignupTimeslot();
 					int maxAttendees = (unlimited) ? SignupTimeslot.UNLIMITED : maxNumOfAttendees;
@@ -359,7 +448,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 						if (!unlimited && attList != null && attList.size() > maxAttendees) {
 							/* attendee may be truncated */
-							this.truncateAttendee = true;
+							//this.truncateAttendee = true; validate by javaScript
 							for (int j = attList.size(); j > maxAttendees; j--)
 								attList.remove(j - 1);
 						}
@@ -373,18 +462,46 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 					}
 					cpTimeslotList.add(cpTs);
 				}
-
-				meeting.setSignupTimeSlots(cpTimeslotList);// pass over
-
-				if (lockOrCanceledTimeslot)
-					Utilities.addMessage(Utilities.rb.getString("warning.some_timeslot_may_locked_canceled"));
-
-				if (origTsList.size() < getNumberOfSlots()
-						|| origTsList.get(0).getMaxNoOfAttendees() < getMaxNumOfAttendees()) {
-					this.truncateAttendee = true;// attendee may be truncated
-				}
 			}
+				
+			/*User defined time slots case*/
+			if (meeting.getMeetingType().equals(CUSTOM_TIMESLOTS) || isUserDefinedTS()){
+				UserDefineTimeslotBean uBean = getUserDefineTimeslotBean();
+				if(uBean ==null || !uBean.COPY_MEETING.equals(uBean.getPlaceOrderBean())){
+					throw new SignupUserActionException(Utilities.rb.getString("you.have.multiple.tabs.in.browser"));
+				}
+				List<TimeslotWrapper> tsWrpList = uBean.getDestTSwrpList();
+				if (tsWrpList != null){						
+					for (TimeslotWrapper wrapper : tsWrpList) {
+						SignupTimeslot slot = wrapper.getTimeSlot();
+						
+						List<SignupAttendee> attList = slot.getAttendees();
+						/* screening attendees */
+						removeNotAllowedAttedees(attList);
+						
+						if (attList != null && attList.size() > slot.getMaxNoOfAttendees()) {
+							/* attendee may be truncated */
+							for (int j = attList.size(); j > slot.getMaxNoOfAttendees(); j--)
+								attList.remove(j - 1);
+						}
+						
+						if(slot.isLocked() || slot.isCanceled())
+							lockOrCanceledTimeslot = true;
+						
+						cpTimeslotList.add(slot);
+					}
+				}
+				
+				/*for end time purpose*/
+				int duration = getUserDefineTimeslotBean().getEventDuration();
+				calendar.add(Calendar.MINUTE, duration);				
+			}
+				
 
+			meeting.setSignupTimeSlots(cpTimeslotList);// pass over
+
+			if (lockOrCanceledTimeslot)
+				Utilities.addMessage(Utilities.rb.getString("warning.some_timeslot_may_locked_canceled"));
 		}
 
 		meeting.setEndTime(calendar.getTime());
@@ -578,9 +695,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		return (int) duration;
 	}
 
-	public void setTimeSlotDuration(int timeSlotDuration) {
+	/*public void setTimeSlotDuration(int timeSlotDuration) {
 		this.timeSlotDuration = timeSlotDuration;
-	}
+	}*/
 
 	/**
 	 * This is a getter method for UI.
@@ -599,19 +716,6 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setNumberOfSlots(int numberOfSlots) {
 		this.numberOfSlots = numberOfSlots;
-	}
-
-	/**
-	 * It's a getter method for UI.
-	 * 
-	 * @return a boolean value
-	 */
-	public boolean isTruncateAttendee() {
-		return truncateAttendee;
-	}
-
-	public void setTruncateAttendee(boolean truncateAttendee) {
-		this.truncateAttendee = truncateAttendee;
 	}
 
 	/**
@@ -900,4 +1004,37 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		else
 			return false;
 	}
+
+	public UserDefineTimeslotBean getUserDefineTimeslotBean() {
+		return userDefineTimeslotBean;
+	}
+
+	public void setUserDefineTimeslotBean(UserDefineTimeslotBean userDefineTimeslotBean) {
+		this.userDefineTimeslotBean = userDefineTimeslotBean;
+	}
+
+	public boolean isUserDefinedTS() {
+		return userDefinedTS;
+	}
+
+	public void setUserDefinedTS(boolean userDefinedTS) {
+		this.userDefinedTS = userDefinedTS;
+	}
+
+	public List<TimeslotWrapper> getCustomTimeSlotWrpList() {
+		return customTimeSlotWrpList;
+	}
+
+	public void setCustomTimeSlotWrpList(List<TimeslotWrapper> customTimeSlotWrpList) {
+		this.customTimeSlotWrpList = customTimeSlotWrpList;
+	}
+	
+	/**
+	 * This is only for UI purpose to check if the event/meeting is an
+	 * custom-ts style (manay time slots) and it requires signup.
+	 */
+	public boolean getCustomTsType() {
+		return CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType());
+	}
+	
 }

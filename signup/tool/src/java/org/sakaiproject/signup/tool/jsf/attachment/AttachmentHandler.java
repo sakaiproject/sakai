@@ -324,7 +324,7 @@ public class AttachmentHandler implements Serializable {
 				attach.setResourceId(resourceId);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach.setFileSize(new Long("" + fileSizeInKB(cr.getContentLength())));
+				attach.setFileSize(new Long("" + fileSizeInKB((int)cr.getContentLength())));//2Gb??
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {

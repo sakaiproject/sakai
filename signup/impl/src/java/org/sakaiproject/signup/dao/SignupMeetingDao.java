@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/impl/src/java/org/sakaiproject/signup/dao/SignupMeetingDao.java $
+ * $Id: SignupMeetingDao.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.sakaiproject.genericdao.api.GeneralGenericDao;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.model.SignupTimeslot;
 import org.springframework.dao.DataAccessException;
 
 /**
@@ -34,6 +35,9 @@ import org.springframework.dao.DataAccessException;
  * SignupMeetingDao is an interface, which provides methods to access the
  * database storage for retrieving, creating, updating and removing
  * SignupMeeting objects.
+ * 
+ * @author Peter Liu
+ * 
  * </p>
  */
 public interface SignupMeetingDao extends GeneralGenericDao {
@@ -72,6 +76,34 @@ public interface SignupMeetingDao extends GeneralGenericDao {
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> getSignupMeetings(String siteId, Date startDate, Date endDate);
+	
+	/**
+	 * This returns a subset list of SignupMeetings from startDate to endDate for
+	 * the defined site
+	 * 
+	 * @param siteId
+	 *            a unique id which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param endDate
+	 *            date,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate);
+
+	/**
+	 * This returns a subset list of SignupMeetings from startDate to endDate for
+	 * the defined sites
+	 * 
+	 * @param siteIds
+	 *            a collection of unique ids which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param endDate
+	 *            date,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate);
 
 	/**
 	 * This returns a subset list of SignupMeetings with the same recurrenceId
@@ -146,6 +178,18 @@ public interface SignupMeetingDao extends GeneralGenericDao {
 	 *             thrown if the data is not accessible
 	 */
 	void updateMeetings(List<SignupMeeting> meetings) throws DataAccessException;
+	
+	/**
+	 * This updates a list of SignupMeeting objects in the DB
+	 * 
+	 * @param meetings
+	 *            a list of SignupMeeting objects
+	 * @param removedTimeslots
+	 *            a list of SignupTimeslot objects, which will be removed from the meeting
+	 * @throws DataAccessException
+	 *             thrown if the data is not accessible
+	 */
+	void updateModifiedMeetings(List<SignupMeeting> meetings,List<SignupTimeslot> removedTimeslots) throws DataAccessException;
 
 	/**
 	 * This deletes a list of SignupMeeting objects. It should remove all or

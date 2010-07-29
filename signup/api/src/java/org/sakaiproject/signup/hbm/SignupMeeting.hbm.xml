@@ -15,7 +15,7 @@
 		<version name="version" access="field" column="version"/>
 		
 		<property name="title" column="title" type="string" length="255" not-null="true" />
-		<property name="description" column="description" length="256" type="string" not-null="false"  />
+		<property name="description" column="description" type="text" not-null="false"  />
 		<property name="location" column="location" type="string" length="255" not-null="true" />
 		<property name="meetingType" column="meeting_type" type="string" length="50" not-null="true" />
 		<property name="creatorUserId" column="creator_user_id" type="string" length="255" not-null="true" />
@@ -65,7 +65,7 @@
 			    <property name="filename" type="string" length="255" column="file_name" not-null="false" />
 			    <property name="mimeType" type="string" length="80"  column="mime_type" not-null="false" />
 			    <property name="fileSize" type="long" column="fileSize" not-null="false" />
-			    <property name="location" type="string" length="4000" column="location" not-null="false" />
+			    <property name="location" type="string" length="255" column="location" not-null="false" />
 			    <property name="isLink" type="boolean" column="isLink" not-null="false" />
 			    <property name="timeslotId" column="timeslot_id" type="java.lang.Long" not-null="false"/>
 			    <property name="viewByAll" type="boolean" >

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/impl/src/java/org/sakaiproject/signup/logic/SignupMeetingServiceImpl.java $
+ * $Id: SignupMeetingServiceImpl.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -24,28 +24,30 @@ package org.sakaiproject.signup.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.Calendar;
-import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
+import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
+import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.util.PlainTextFormat;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
@@ -53,15 +55,20 @@ import org.springframework.dao.OptimisticLockingFailureException;
  * SignupMeetingServiceImpl is an implementation of SignupMeetingService, which
  * provides methods to manipulate the SignupMeeting object to the DB, send
  * email, post/edit Calendar and check permission.
+ * 
+ * @author Peter Liu
+ * 
  * </p>
  */
-public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
+public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes {
 
 	private static Log log = LogFactory.getLog(SignupMeetingServiceImpl.class);
 
 	private SignupMeetingDao signupMeetingDao;
 
 	private SakaiFacade sakaiFacade;
+	
+	private SignupCacheService signupCacheService;
 
 	private SignupEmailFacade signupEmailFacade;
 
@@ -93,6 +100,38 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
 		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, startDate, endDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays) {
+		List<SignupMeeting> meetings = signupCacheService.getAllSignupMeetingsInSite(siteId, startDate, timeFrameInDays);
+		return meetings;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays) {
+		List<SignupMeeting> meetings = signupCacheService.getAllSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);
+		return meetings;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
+		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetingsInSite(siteId, startDate, endDate);
+		return meetings;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
+		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetingsInSites(siteIds, startDate, endDate);
+		return meetings;
 	}
 	
 	/**
@@ -491,6 +530,45 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots,
+			boolean isOrganizer) throws Exception {
+		
+		if (meetings == null || meetings.isEmpty()) {
+			return;
+		}
+		
+		SignupMeeting oneMeeting = (SignupMeeting) meetings.get(0);
+		/* Here, assuming that organizer has the update permission for any one meeting, then he has the permissions for all */	
+		Permission permission = oneMeeting.getPermission();
+
+		/*
+		 * if null, only consider an organizer-updating case (higher requirement
+		 * level)
+		 */
+		if (permission == null) {
+			if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), oneMeeting)) {
+				signupMeetingDao.updateModifiedMeetings(meetings, removedTimeslots);
+				return;
+			}
+			throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+		}
+
+		if (isOrganizer) {
+			if (permission.isUpdate())
+				signupMeetingDao.updateModifiedMeetings(meetings, removedTimeslots);
+			else
+				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+		} else {
+			if (permission.isAttend())
+				signupMeetingDao.updateModifiedMeetings(meetings, removedTimeslots);
+			else
+				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -508,38 +586,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 	 * {@inheritDoc}
 	 */
 	public void postToCalendar(SignupMeeting meeting) throws Exception {
-		try {
-			List<SignupSite> signupSites = meeting.getSignupSites();
-			for (SignupSite site : signupSites) {
-				Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
-				if (calendar == null)// site does not have calendar tool
-					continue;
-				CalendarEvent event = calendarEvent(calendar, meeting, site);
-				if (event == null)
-					throw new Exception("TODO: A database error occured");
-
-				if (site.isSiteScope()) {
-					site.setCalendarEventId(event.getId());
-					site.setCalendarId(calendar.getId());
-					continue;
-				}
-
-				List<SignupGroup> signupGroups = site.getSignupGroups();
-				for (SignupGroup group : signupGroups) {
-					group.setCalendarEventId(event.getId());
-					group.setCalendarId(calendar.getId());
-				}
-
-			}
-			updateMeetingWithVersionHandling(meeting);
-
-		} catch (IdUnusedException e) {
-			log.info("IdUnusedException: " + e.getMessage());
-			throw e;
-		} catch (PermissionException pe) {
-			log.info("PermissionException for posting calendar: " + pe.getMessage());
-			throw pe;
-		}
+		modifyCalendar(meeting);
 	}
 
 	/**
@@ -547,53 +594,178 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 	 */
 	public void modifyCalendar(SignupMeeting meeting) throws Exception {
 		List<SignupSite> signupSites = meeting.getSignupSites();
-		for (SignupSite site : signupSites) {
-			try {
-				Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
-				if (calendar == null)// site does not have calendar tool
-					continue;
-
-				String eventId = null;
-				if (site.isSiteScope()) {
-					eventId = site.getCalendarEventId();
-				} else {
-					List<SignupGroup> signupGroups = site.getSignupGroups();
-					for (SignupGroup group : signupGroups) {
-						eventId = group.getCalendarEventId();
-						break;
+		boolean saveMeeting = false;
+		List<SignupTimeslot> calendarBlocks = scanDivideCalendarBlocks(meeting);
+		boolean hasMulptleBlock = calendarBlocks.size() > 1? true : false;
+		
+		/*we remove all the calendar events for custom-defined type to simplify process*/
+		if(CUSTOM_TIMESLOTS.equals(meeting.getMeetingType())){
+			List<SignupMeeting> smList = new ArrayList<SignupMeeting>();
+			smList.add(meeting);
+			removeCalendarEvents(smList);
+		}
+		
+		int sequence = 1;
+		boolean firstBlockLoop = true;
+		/*only custom-defined events have multiple discontinued calendar blocks*/
+		for (SignupTimeslot calendarBlock : calendarBlocks) {			
+			for (SignupSite site : signupSites) {
+				try {
+					Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
+					if (calendar == null)// site does not have calendar tool
+						continue;
+	
+					String eventId = null;
+					if (site.isSiteScope()) {
+						eventId = site.getCalendarEventId();
+					} else {
+						List<SignupGroup> signupGroups = site.getSignupGroups();
+						for (SignupGroup group : signupGroups) {
+							eventId = group.getCalendarEventId();
+							break;
+						}
 					}
+					CalendarEventEdit eventEdit = null;
+	
+					boolean isNew = true;
+					/*for custom_ts type, we have already removed old ones, no modification here*/
+					if (eventId != null && eventId.trim().length() > 1 && !CUSTOM_TIMESLOTS.equals(meeting.getMeetingType())) {
+						try {
+							eventEdit = calendar.getEditEvent(eventId,
+									org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
+							isNew = false;
+							if (!calendar.allowEditEvent(eventId))
+								continue;
+						}catch (IdUnusedException e) {
+							log.debug("IdUnusedException: " + e.getMessage());
+							// If the event was removed from the calendar.
+							eventEdit = calendarEvent(calendar, meeting, site);
+						}
+					} else {
+						eventEdit = calendarEvent(calendar, meeting, site);
+					}
+					if (eventEdit == null)
+						continue;
+	
+					/* new time frame */
+					String title_suffix = "";
+					if(hasMulptleBlock){
+						title_suffix = " (part " + sequence + ")";
+						sequence++;
+					}
+					
+					populateDataForEventEditObject(eventEdit, meeting,title_suffix, calendarBlock.getStartTime(),calendarBlock.getEndTime());
+					
+					calendar.commitEvent(eventEdit);
+					
+					if (isNew || CUSTOM_TIMESLOTS.equals(meeting.getMeetingType())) {
+						saveMeeting = true; // Need to save these back
+						if (site.isSiteScope()) {
+							if(firstBlockLoop){
+								site.setCalendarEventId(eventEdit.getId());
+								site.setCalendarId(calendar.getId());
+							}else{
+								/*only custom-defined event type could come here*/
+								String lastEventId = site.getCalendarEventId();
+								//appending new one
+								site.setCalendarEventId(lastEventId + "|" + eventEdit.getId());
+							}
+						} else {
+							List<SignupGroup> signupGroups = site.getSignupGroups();
+							for (SignupGroup group : signupGroups) {
+								if(firstBlockLoop){
+									group.setCalendarEventId(eventEdit.getId());
+									group.setCalendarId(calendar.getId());
+								}else{
+									String lastEventId = group.getCalendarEventId();
+									//appending new one
+									group.setCalendarEventId(lastEventId + "|" + eventEdit.getId());
+								}
+								
+							}
+						}
+					}
+				} catch (PermissionException pe) {
+					log.info("PermissionException for calendar-modification: " + pe.getMessage());
+					throw pe;
 				}
+			}//end-for
+			
+			firstBlockLoop = false;
+		}//end-for
+		if (saveMeeting) {
+			updateMeetingWithVersionHandling(meeting);
+		}
+		
 
-				if (eventId == null || eventId.trim().length() < 1)
-					continue;
+	}
+	
+	/**
+	 * Only custom-defined event type has discontinued calendar blocks
+	 * since the user can do anything with the time slots in discontinued way.
+	 * It will make the calendar unreadable.
+	 */
+	private void populateDataForEventEditObject(CalendarEventEdit eventEdit, SignupMeeting meeting,String title_suffix, 
+			Date startTime, Date endTime ){
+		TimeService timeService = getSakaiFacade().getTimeService();
+		Time start = timeService.newTime(startTime.getTime());
+		Time end = timeService.newTime(endTime.getTime());
+		TimeRange timeRange = timeService.newTimeRange(start, end, true, false);
+		eventEdit.setRange(timeRange);
 
-				CalendarEventEdit eventEdit = calendar.getEditEvent(eventId,
-						org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
-				if (eventEdit == null)
-					continue;
-
-				if (!calendar.allowEditEvent(eventId))
-					continue;
-
-				/* new time frame */
-				TimeRange timeRange = getSakaiFacade().getTimeService().newTimeRange(meeting.getStartTime().getTime(),
-						meeting.getEndTime().getTime() - meeting.getStartTime().getTime());
-
-				String desc = meeting.getDescription();
-				eventEdit.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(desc));
-				eventEdit.setLocation(meeting.getLocation());
-				eventEdit.setDisplayName(meeting.getTitle());
-				eventEdit.setRange(timeRange);
-				calendar.commitEvent(eventEdit);
-			} catch (IdUnusedException e) {
-				log.info("IdUnusedException: " + e.getMessage());
-				throw e;
-			} catch (PermissionException pe) {
-				log.info("PermissionException for calendar-modification: " + pe.getMessage());
-				throw pe;
+		String desc = meeting.getDescription();
+		eventEdit.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(desc));
+		eventEdit.setLocation(meeting.getLocation());
+		eventEdit.setDisplayName(meeting.getTitle() + title_suffix);
+		eventEdit.setRange(timeRange);
+	}
+	
+	private List<SignupTimeslot> scanDivideCalendarBlocks(SignupMeeting meeting){
+		final int timeApart = 2*60*60*1000; // 2 hours
+		List<SignupTimeslot> tsList = new ArrayList<SignupTimeslot>();
+		if(CUSTOM_TIMESLOTS.equals(meeting.getMeetingType()) && meeting.isInMultipleCalendarBlocks()){
+			List<SignupTimeslot> tsLs = meeting.getSignupTimeSlots();
+			if(tsLs !=null && !tsLs.isEmpty()){
+				/*The meetings timeslots are already sorted before coming here*/
+				Date startTime= tsLs.get(0).getStartTime();
+				int cursor=0;
+				for (int i = 0; i < tsLs.size()-1; i++) {
+					long firstBlockEndTime = tsLs.get(cursor).getEndTime().getTime();
+					
+					//to see if next block is within first block
+					long secondBlockEndTime = tsLs.get(i+1).getEndTime().getTime();					
+					if(secondBlockEndTime - firstBlockEndTime >= 0){
+						cursor = i+1;//advance to next block
+					}
+					
+					long nextBlockStartTime = tsLs.get(i+1).getStartTime().getTime();
+					if(nextBlockStartTime - firstBlockEndTime > timeApart){
+						SignupTimeslot newTs = new SignupTimeslot();
+						newTs.setStartTime(startTime);
+						newTs.setEndTime(tsLs.get(i).getEndTime());
+						tsList.add(newTs);
+						//reset start time
+						startTime = tsLs.get(i+1).getStartTime();
+					}
+					
+				}
+				
+				/* add last block*/
+				SignupTimeslot newTs = new SignupTimeslot();
+				newTs.setStartTime(startTime);
+				newTs.setEndTime(meeting.getEndTime());
+				tsList.add(newTs);
 			}
 		}
-
+		else{
+			/*otherwise there is only one block in calendar*/
+			SignupTimeslot newTs = new SignupTimeslot();
+			newTs.setStartTime(meeting.getStartTime());
+			newTs.setEndTime(meeting.getEndTime());
+			tsList.add(newTs);
+		}
+		
+		return tsList;
 	}
 
 	/**
@@ -615,29 +787,39 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 					if (calendar == null)// site does not have calendar tool
 						continue;
 
-					String eventId = null;
+					String eventIds = null;
 					if (site.isSiteScope()) {
-						eventId = site.getCalendarEventId();
+						eventIds = site.getCalendarEventId();
 					} else {
 						List<SignupGroup> signupGroups = site.getSignupGroups();
 						for (SignupGroup group : signupGroups) {
-							eventId = group.getCalendarEventId();
+							eventIds = group.getCalendarEventId();
 							break;
 						}
 					}
 
-					if (eventId == null || eventId.trim().length() < 1)
+					if (eventIds == null || eventIds.trim().length() < 1)
 						continue;
 
-					CalendarEventEdit eventEdit = calendar.getEditEvent(eventId,
-							org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
-					if (eventEdit == null)
-						continue;
-
-					if (!calendar.allowEditEvent(eventId))
-						continue;
-
-					calendar.removeEvent(eventEdit);
+					/*separate the eventIds token by '|' */
+					StringTokenizer token = new StringTokenizer(eventIds,"|"); 
+					List<String> evtIds = new ArrayList<String>(); 
+					while (token.hasMoreTokens()) {
+						evtIds.add(token.nextToken().trim()); 
+					}
+					
+					for (String evtId : evtIds) {
+						CalendarEventEdit eventEdit = calendar.getEditEvent(evtId,
+								org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR);
+						if (eventEdit == null)
+							continue;
+	
+						if (!calendar.allowEditEvent(evtId))
+							continue;
+	
+						calendar.removeEvent(eventEdit);
+					}
+					
 				} catch (IdUnusedException e) {
 					log.info("IdUnusedException: " + e.getMessage());
 				} catch (PermissionException e) {
@@ -647,26 +829,56 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 		}
 
 	}
-
-	/*
-	 * This method will post the event/meeting to the Calendar at Scheduler tool
-	 * in that site
+	
+	/**
+	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	private CalendarEvent calendarEvent(Calendar calendar, SignupMeeting meeting, SignupSite site)
-			throws IdUnusedException, PermissionException {
-		TimeRange timeRange = getSakaiFacade().getTimeService().newTimeRange(meeting.getStartTime().getTime(),
-				meeting.getEndTime().getTime() - meeting.getStartTime().getTime());
-		String title = meeting.getTitle();
-		Collection<Group> groups = Collections.EMPTY_LIST;
-		EventAccess eventAccess = CalendarEvent.EventAccess.SITE;
-		if (!site.isSiteScope()) {
-			groups = groupIds(site);
-			eventAccess = CalendarEvent.EventAccess.GROUPED;
+	public void removeCalendarEventsOnModifiedMeeting(List<SignupMeeting> meetings) throws Exception {
+		
+		try{
+			removeCalendarEvents(meetings);
+			
+			/*remove calendar info in the event object*/
+			for (SignupMeeting sm : meetings) {			
+				List<SignupSite> sites = sm.getSignupSites();
+				if(sites !=null && !sites.isEmpty()){
+					for (SignupSite s : sites) {
+						if(s.getCalendarEventId() !=null){
+							s.setCalendarEventId(null);
+							s.setCalendarId(null);
+						}
+						List<SignupGroup> grps = s.getSignupGroups();
+						if(grps !=null && !grps.isEmpty()){
+							for (SignupGroup g : grps) {
+								if(g.getCalendarEventId()!=null){
+									g.setCalendarEventId(null);
+									g.setCalendarId(null);
+								}
+							}
+						}
+					}
+				}
+				
+				updateMeetingWithVersionHandling(sm);
+			}
+		}catch(Exception e){
+			log.warn("Exception for removal of calendar and calendar info may not be removed from events objects: " + e.getMessage());
 		}
-		String mDescription = PlainTextFormat.convertFormattedHtmlTextToPlaintext(meeting.getDescription());
-		CalendarEvent addEvent = calendar.addEvent(timeRange, title, mDescription, "Meeting", meeting.getLocation(),
-				eventAccess, groups, Collections.EMPTY_LIST);
+	}
+
+	/*
+	 * This method will create a skeleton  event/meeting in the Scheduler tool
+	 * in that site. It still needs to be committed.
+	 */
+	private CalendarEventEdit calendarEvent(Calendar calendar, SignupMeeting meeting, SignupSite site)
+			throws IdUnusedException, PermissionException {
+		CalendarEventEdit addEvent = calendar.addEvent();
+		addEvent.setType("Meeting");
+		if (!site.isSiteScope()) {
+			List<Group> groups = groupIds(site);
+			addEvent.setGroupAccess(groups, true);
+		}
 
 		return addEvent;
 	}
@@ -770,6 +982,14 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 	 */
 	public boolean isEventExisted(Long eventId) {
 		return signupMeetingDao.isEventExisted(eventId);
+	}
+
+	public SignupCacheService getSignupCacheService() {
+		return signupCacheService;
+	}
+
+	public void setSignupCacheService(SignupCacheService signupCacheService) {
+		this.signupCacheService = signupCacheService;
 	}
 
 }

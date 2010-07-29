@@ -33,7 +33,7 @@
 			<to-view-id>/signup/signupMeetings.jsp</to-view-id>
 		</navigation-case>
 	</navigation-rule>
-
+	
     <navigation-rule>				
 		<navigation-case>
 			<from-outcome>listMeetings</from-outcome>
@@ -81,6 +81,10 @@
 		<navigation-case>
 			<from-outcome>copyMeeting</from-outcome>
 			<to-view-id>/signup/organizer/copyMeeting.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>userDefinedTsBlocks</from-outcome>
+			<to-view-id>/signup/organizer/userDefTsBlocks.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
 			<from-outcome>viewComment</from-outcome>
@@ -178,6 +182,10 @@
 			<property-name>attachmentHandler</property-name>
 			<value>#{AttachmentHandler}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>userDefineTimeslotBean</property-name>
+			<value>#{UserDefineTimeslotBean}</value>
+		</managed-property>
     </managed-bean>
     
     <managed-bean>
@@ -195,6 +203,10 @@
 		<managed-property>
 			<property-name>attachmentHandler</property-name>
 			<value>#{AttachmentHandler}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>userDefineTimeslotBean</property-name>
+			<value>#{UserDefineTimeslotBean}</value>
 		</managed-property>
     </managed-bean>
     
@@ -231,6 +243,10 @@
 		<managed-property>
 			<property-name>attachmentHandler</property-name>
 			<value>#{AttachmentHandler}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>userDefineTimeslotBean</property-name>
+			<value>#{UserDefineTimeslotBean}</value>
 		</managed-property>
     </managed-bean>
     
@@ -288,6 +304,16 @@
 			<property-name>signupMeetingService</property-name>
 			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
+		</managed-property>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>UserDefineTimeslotBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
 			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>

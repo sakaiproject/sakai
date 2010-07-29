@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/organizer/action/CreateSitesGroups.java $
+ * $Id: CreateSitesGroups.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -205,21 +205,26 @@ public class CreateSitesGroups {
 	 */
 	public static boolean isAtleastASiteOrGroupSelected(SignupSiteWrapper currentSite,
 			List<SignupSiteWrapper> otherSites) {
-		if (currentSite.isSelected())
+		if (currentSite !=null && currentSite.isSelected())
 			return true;
-		List<SignupGroupWrapper> currentGroupsW = currentSite.getSignupGroupWrappers();
-		for (SignupGroupWrapper wrapper : currentGroupsW) {
-			if (wrapper.isSelected())
-				return true;
+		
+		if(currentSite !=null){
+			List<SignupGroupWrapper> currentGroupsW = currentSite.getSignupGroupWrappers();
+			for (SignupGroupWrapper wrapper : currentGroupsW) {
+				if (wrapper.isSelected())
+					return true;
+			}
 		}
 
-		for (SignupSiteWrapper siteW : otherSites) {
-			if (siteW.isSelected())
-				return true;
-			List<SignupGroupWrapper> otherGroupsW = siteW.getSignupGroupWrappers();
-			for (SignupGroupWrapper groupW : otherGroupsW) {
-				if (groupW.isSelected())
+		if(otherSites !=null){
+			for (SignupSiteWrapper siteW : otherSites) {
+				if (siteW.isSelected())
 					return true;
+				List<SignupGroupWrapper> otherGroupsW = siteW.getSignupGroupWrappers();
+				for (SignupGroupWrapper groupW : otherGroupsW) {
+					if (groupW.isSelected())
+						return true;
+				}
 			}
 		}
 		return false;

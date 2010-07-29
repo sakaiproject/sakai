@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/impl/src/java/org/sakaiproject/signup/logic/SakaiFacadeImpl.java $
+ * $Id: SakaiFacadeImpl.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -322,6 +322,34 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			return "----------";
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getUserPublishedSiteIds(String userId){
+		List<String> siteIds = new ArrayList<String>();
+		/*all sites for current user*/
+		List<Site> tempL = siteService.getSites(SiteService.SelectionType.ACCESS, null, null, null,
+				SiteService.SortType.TITLE_ASC, null);
+		
+		for (Iterator iter = tempL.iterator(); iter.hasNext();) {
+			Site element = (Site) iter.next();
+			// exclude my workspace & admin related sites
+			if (!siteService.isUserSite(element.getId()) && !siteService.isSpecialSite(element.getId())) {
+				// if the tools is not available in the site then don't add it.
+				Collection tools = element.getTools("sakai.signup");
+				if (tools == null || tools.isEmpty())
+					continue;
+
+				if(element.isPublished()){
+					siteIds.add(element.getId());
+				}
+			}
+
+		}
+		
+		return siteIds;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -563,10 +591,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 							member.getUserId(), SIGNUP_VIEW_ALL, site.getId()))) {
 				User user = getUser(member.getUserId());
 				if (user == null) {
-					log.info("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
+					log.debug("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
+					/* will not add into the dropDown list
 					signupUser = new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
 							member.getRole(), site.getId(), site.isPublished());
 					processAddOrUpdateSignupUsers(signupUsers, signupUser);
+					*/
 					continue;
 				}
 
@@ -608,10 +638,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 							.getUserId(), SIGNUP_VIEW_ALL, site.getId()))) {
 				User user = getUser(member.getUserId());
 				if (user == null) {
-					log.info("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
+					log.debug("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
+					/* will not add into the dropDown list
 					signupUser = new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
 							member.getRole(), site.getId(), site.isPublished());
 					processAddOrUpdateSignupUsers(signupUsers, signupUser);
+					*/
 					continue;
 				}
 

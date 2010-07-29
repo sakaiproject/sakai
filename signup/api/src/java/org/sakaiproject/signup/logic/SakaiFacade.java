@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/api/src/java/org/sakaiproject/signup/logic/SakaiFacade.java $
+ * $Id: SakaiFacade.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -149,6 +149,15 @@ public interface SakaiFacade {
 	 * @return true if the user has access, false otherwise
 	 */
 	boolean isAllowedGroup(String userId, String permission, String siteId, String groupId);
+	
+	/**
+	 * get all the published sites, which user joins in
+	 * 
+	 * @param userId
+	 *            userId the internal user id (not username)
+	 * @return a list of SignupSite objects
+	 */
+	public List<String> getUserPublishedSiteIds(String userId);
 
 	/**
 	 * get all the sites, which user joins in

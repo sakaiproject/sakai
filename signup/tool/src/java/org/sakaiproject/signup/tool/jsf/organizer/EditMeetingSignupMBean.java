@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/organizer/EditMeetingSignupMBean.java $
+ * $Id: EditMeetingSignupMBean.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -36,10 +36,13 @@ import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
+import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
+import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditMeeting;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -48,6 +51,9 @@ import org.sakaiproject.tool.cover.ToolManager;
  * <p>
  * This JSF UIBean class will handle information exchanges between Organizer's
  * modify meeting page:<b>modifyMeeting.jsp</b> and backbone system.
+ * 
+ * @author Peter Liu
+ * 
  * </P>
  */
 public class EditMeetingSignupMBean extends SignupUIBaseBean {
@@ -100,6 +106,15 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	private boolean userIdInputModeOptionChoice = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.userId.inputMode.choiceOption.setting", "true")) ? true : false;
 
+	private UserDefineTimeslotBean userDefineTimeslotBean;
+	
+	//discontinued time slots case
+	private List<TimeslotWrapper> customTimeSlotWrpList;
+	
+	private boolean userDefinedTS=false;
+	
+	
+	
 	/**
 	 * This method will reset everything to orignal value and also initialize
 	 * the value to the variables in this UIBean, which lives in a session
@@ -110,17 +125,25 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		// addMoreTimeslots = 0;
 		maxNumOfAttendees = 0;
 		showAttendeeName = false;
-		sendEmail = DEFAULT_SEND_EMAIL;
+		sendEmail = DEFAULT_SEND_EMAIL;		
+		sendEmailAttendeeOnly = false;
+		
 		unlimited = false;
 
 		editMeeting = null;
 
 		convertToNoRecurrent = false;
 		
+		
+		
+		/*refresh copy of original*/
 		this.signupMeeting = reloadMeeting(meetingWrapper.getMeeting());
 		/* for check pre-condition purpose */
 		this.originalMeetingCopy = reloadMeeting(meetingWrapper.getMeeting());
 		// keep the last version need a deep copy?
+		
+		/*publish to calendar tool */
+		this.publishToCalendar= getOriginalMeetingCalendarPublishInfo(this.signupMeeting);
 
 		/*process attachments*/
 		cleanUpUnusedAttachmentCopies(this.readyToModifyAttachmentCopyList);//using browser back click
@@ -144,7 +167,20 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		populateDataForBeginDeadline(this.signupMeeting);
 		
 		/*warning organizer if someone already signed up during rescheduling event*/
-		someoneSignedUp = initSomeoneSignupInfo();
+		this.someoneSignedUp = initSomeoneSignupInfo();
+		
+		/* custom-ts case */
+		this.customTimeSlotWrpList = null;
+		this.userDefinedTS = false;
+		updateTimeSlotWrappers(this.meetingWrapper);
+		if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
+			this.userDefinedTS=true;
+			this.customTimeSlotWrpList= getTimeslotWrappers();
+			markerTimeslots(this.customTimeSlotWrpList);
+			//getUserDefineTimeslotBean().setSomeoneSignedUp(this.someoneSignedUp);
+		}
+			
+		getUserDefineTimeslotBean().init(this.signupMeeting, MODIFY_MEETING_PAGE_URL, this.customTimeSlotWrpList, UserDefineTimeslotBean.MODIFY_MEETING);
 
 	}
 
@@ -169,9 +205,12 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.deadlineTimeType = Utilities.getTimeScaleType(signupDeadLineBeforMeetingEnd);
 		this.deadlineTime = Utilities.getRelativeTimeValue(deadlineTimeType, signupDeadLineBeforMeetingEnd);
 		
-		/*user readability case for 'start now'*/
+		/*user readability case for 'start now'*/		
 		this.originalSignupBegins=this.signupBegins;
-		this.originalSignupBeginsType=this.signupBeginsType;
+		this.originalSignupBeginsType=this.signupBeginsType;		
+		if(this.signupBegins < 0)
+			this.signupBegins = 0;//negative number is not allowed
+		
 		if(MINUTES.equals(this.signupBeginsType) && sMeeting.getSignupBegins().before(new Date())
 				&& this.signupBegins > 500){
 			/*we assume it has to be 'start now' before and we convert it to round to days*/			
@@ -225,8 +264,30 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		return false;
 	}
 	
+	private boolean getOriginalMeetingCalendarPublishInfo(SignupMeeting sm){
+		this.publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
+		List<SignupSite> sites = sm.getSignupSites();
+		if(sites !=null && !sites.isEmpty()){
+			for (SignupSite s : sites) {
+				if(s.getCalendarEventId() !=null)
+					return true;
+				
+				List<SignupGroup> grps = s.getSignupGroups();
+				if(grps !=null && !grps.isEmpty()){
+					for (SignupGroup g : grps) {
+						if(g.getCalendarEventId()!=null)
+							return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	public String doCancelAction(){
 		cleanUpUnusedAttachmentCopies(this.readyToModifyAttachmentCopyList);
+		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.MODIFY_MEETING);
 		return ORGANIZER_MEETING_PAGE_URL;
 	}
 	
@@ -290,6 +351,20 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			/* disable the association with other related recurrence events */
 			editMeeting.setConvertToNoRecurrent(convertToNoRecurrent);
 			
+			/* Case: custom defined TS */
+			if(isUserDefinedTS()){
+				if(this.customTimeSlotWrpList !=null){
+					editMeeting.setUserDefinedTS(true);
+					editMeeting.setUserDefineTimeslotBean(getUserDefineTimeslotBean());
+					editMeeting.setCustomTimeSlotWrpList(getUserDefineTimeslotBean().getDestTSwrpList());
+				}else{
+					/*user never has initialized for custom-ts case(by click the edit link)
+					 * So we will treat it as original meeting type*/
+					//editMeeting.setCustomTimeSlotWrpList(getTimeslotWrappers());
+					editMeeting.setUserDefinedTS(false);
+				}
+			}
+			
 			/*set latest attachments changes*/
 			/*pre-check if there is any attachment changes*/
 			if(!areAttachmentChanges())
@@ -321,10 +396,13 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 			if (sendEmail) {
 				try {
-					signupMeetingService.sendEmail(successUpdatedMeetings.get(0), SIGNUP_MEETING_MODIFIED);
-					/* send email to promoted waiter if size increased */
+					SignupMeeting sm = successUpdatedMeetings.get(0);
+					sm.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
+					signupMeetingService.sendEmail(sm, SIGNUP_MEETING_MODIFIED);
+					/* send email to promoted waiter if size increased 
+					 * or send email to notify attedees in a deleted TS*/
 					/*
-					 * Not for recurring meetings since it's not traced for all
+					 * TODO Not for recurring meetings yet since it's not traced for all
 					 * of them yet
 					 */
 					if (successUpdatedMeetings.get(0).getRecurrenceId() == null) {
@@ -337,20 +415,31 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 				}
 			}
 
-			for (SignupMeeting savedMeeting : successUpdatedMeetings) {
-				try {
-					signupMeetingService.modifyCalendar(savedMeeting);
-
-				} catch (PermissionException pe) {
-					Utilities.addErrorMessage(Utilities.rb
-							.getString("error.calendarEvent.updated_failed_due_to_permission"));
-					logger.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
-							+ " - Meeting title:" + savedMeeting.getTitle());
-				} catch (Exception e) {
-					Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.updated_failed"));
-					logger.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
-							+ savedMeeting.getTitle());
+			if(isPublishToCalendar()){
+				for (SignupMeeting savedMeeting : successUpdatedMeetings) {
+					try {
+						if(CUSTOM_TIMESLOTS.equals(savedMeeting.getMeetingType())){
+							boolean multipleCalBlocks = getUserDefineTimeslotBean().getPutInMultipleCalendarBlocks();
+							savedMeeting.setInMultipleCalendarBlocks(multipleCalBlocks);
+						}
+						
+						signupMeetingService.modifyCalendar(savedMeeting);
+	
+					} catch (PermissionException pe) {
+						Utilities.addErrorMessage(Utilities.rb
+								.getString("error.calendarEvent.updated_failed_due_to_permission"));
+						logger.debug(Utilities.rb.getString("error.calendarEvent.updated_failed_due_to_permission")
+								+ " - Meeting title:" + savedMeeting.getTitle());
+					} catch (Exception e) {
+						Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.updated_failed"));
+						logger.warn(Utilities.rb.getString("error.calendarEvent.updated_failed") + " - Meeting title:"
+								+ savedMeeting.getTitle());
+					}
 				}
+			}
+			else{
+				/*remove calendar if any*/
+				signupMeetingService.removeCalendarEventsOnModifiedMeeting(successUpdatedMeetings);
 			}
 
 		} catch (PermissionException pe) {
@@ -367,7 +456,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		reloadMeetingWrapperInOrganizerPage();
 		
 		cleanUpUnusedAttachmentCopies(this.readyToModifyAttachmentCopyList);//using browser back click
-
+		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.MODIFY_MEETING);
+		
 		return ORGANIZER_MEETING_PAGE_URL;
 	}
 	
@@ -429,16 +519,35 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void validateModifyMeeting(ActionEvent e) {
 
-		Date endTime = this.signupMeeting.getEndTime();
-		Date startTime = this.signupMeeting.getStartTime();
-		if (endTime.before(startTime) || startTime.equals(endTime)) {
+		Date eventEndTime = this.signupMeeting.getEndTime();
+		Date eventStartTime = this.signupMeeting.getStartTime();
+		
+		/*user defined own TS case*/
+		if(isUserDefinedTS()){
+			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
+			eventStartTime = getUserDefineTimeslotBean().getEventStartTime();
+			if(getUserDefineTimeslotBean().getDestTSwrpList()==null || getUserDefineTimeslotBean().getDestTSwrpList().isEmpty()){
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.create_custom_defined_TS_blocks"));
+				return;
+			}
+				
+		}
+		
+		if (eventEndTime.before(eventStartTime) || eventStartTime.equals(eventEndTime)) {
 			validationError = true;
 			Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
 			return;
 		}
 		
-			
-		if (DAILY.equals(this.signupMeeting.getRepeatType()) && isMeetingLengthOver24Hours(this.signupMeeting)) {
+		/*for custom defined time slot case*/
+		if(!validationError && isUserDefinedTS()){
+			this.signupMeeting.setStartTime(eventStartTime);
+			this.signupMeeting.setEndTime(eventEndTime);
+			this.signupMeeting.setMeetingType(CUSTOM_TIMESLOTS);
+		}
+				
+		if (DAILY.equals(this.signupMeeting.getRepeatType()) && isMeetingLengthOver24Hours(this.signupMeeting.getStartTime(),this.signupMeeting.getEndTime())) {
 			validationError = true;
 			Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 			return;
@@ -451,6 +560,29 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			return;
 		}
 
+	}
+	
+	/**
+	 * Modify the existing time slot blocks
+	 * @return String object for next page url
+	 */
+	public String editUserDefTimeSlots(){
+		if(this.customTimeSlotWrpList == null){
+			/* need initialization when it comes from other meeting type*/
+			this.customTimeSlotWrpList = getTimeslotWrappers();
+			/*Mark the time slot sequence for recurring events changes issues*/
+			markerTimeslots(this.customTimeSlotWrpList);
+			getUserDefineTimeslotBean().init(this.signupMeeting, MODIFY_MEETING_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.MODIFY_MEETING);
+		}else{	
+			if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.MODIFY_MEETING,getUserDefineTimeslotBean())){
+				return ORGANIZER_MEETING_PAGE_URL;
+			}
+			
+			this.customTimeSlotWrpList = getUserDefineTimeslotBean().getDestTSwrpList();
+			getUserDefineTimeslotBean().init(this.signupMeeting, MODIFY_MEETING_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.MODIFY_MEETING);
+		}
+		
+		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 	}
 
 	/* overwrite the default one */
@@ -711,6 +843,38 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	public boolean getSomeoneSignedUp() {
 		return someoneSignedUp;
+	}
+	
+	/**
+	 * This is only for UI purpose to check if the event/meeting is an
+	 * custom-ts style (manay time slots) and it requires signup.
+	 */
+	public boolean getCustomTsType() {
+		return CUSTOM_TIMESLOTS.equals(this.originalMeetingCopy.getMeetingType());
+	}
+
+	public UserDefineTimeslotBean getUserDefineTimeslotBean() {
+		return userDefineTimeslotBean;
+	}
+
+	public void setUserDefineTimeslotBean(UserDefineTimeslotBean userDefineTimeslotBean) {
+		this.userDefineTimeslotBean = userDefineTimeslotBean;
+	}
+
+	public List<TimeslotWrapper> getCustomTimeSlotWrpList() {
+		return customTimeSlotWrpList;
+	}
+
+	public void setCustomTimeSlotWrpList(List<TimeslotWrapper> customTimeSlotWrpList) {
+		this.customTimeSlotWrpList = customTimeSlotWrpList;
+	}
+
+	public boolean isUserDefinedTS() {
+		return userDefinedTS;
+	}
+
+	public void setUserDefinedTS(boolean userDefinedTS) {
+		this.userDefinedTS = userDefinedTS;
 	}
 
 }

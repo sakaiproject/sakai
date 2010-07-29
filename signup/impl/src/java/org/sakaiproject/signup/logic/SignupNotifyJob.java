@@ -112,22 +112,24 @@ public class SignupNotifyJob implements Job {
 				List<SignupTimeslot> tsList = sm.getSignupTimeSlots();
 				if(tsList !=null){
 					for (SignupTimeslot tsItem : tsList) {
-						List<SignupAttendee> attendees = tsItem.getAttendees();//itsItem===null
-						if(attendees !=null){
-							for (SignupAttendee att : attendees) {
-								String userId = att.getAttendeeUserId();
-								String siteId = att.getSignupSiteId();
-								User user = null;
-								try {
-									user = userDirectoryService.getUser(userId);
-									AutoReminderEmail email = new AutoReminderEmail(user, tsItem, sm, siteId, getSakaiFacade());
-									sendEmail(user, email);
-									totalEmails++;
-									//eventTracking?
-								} catch (UserNotDefinedException e) {
-									LOGGER.warn("User is not found for userId: " + userId);
-								}							
-							}//for-loop
+						if(tsItem !=null && tsItem.getStartTime().before(searchEndDate) && tsItem.getStartTime().after(searchStarDate)){
+							List<SignupAttendee> attendees = tsItem.getAttendees();//itsItem===null
+							if(attendees !=null){
+								for (SignupAttendee att : attendees) {
+									String userId = att.getAttendeeUserId();
+									String siteId = att.getSignupSiteId();
+									User user = null;
+									try {
+										user = userDirectoryService.getUser(userId);
+										AutoReminderEmail email = new AutoReminderEmail(user, tsItem, sm, siteId, getSakaiFacade());
+										sendEmail(user, email);
+										totalEmails++;
+										//eventTracking?
+									} catch (UserNotDefinedException e) {
+										LOGGER.warn("User is not found for userId: " + userId);
+									}							
+								}//for-loop
+							}
 						}
 					}//for-loop
 				}

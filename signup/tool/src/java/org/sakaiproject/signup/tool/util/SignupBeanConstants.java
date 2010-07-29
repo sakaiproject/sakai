@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/util/SignupBeanConstants.java $
+ * $Id: SignupBeanConstants.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -37,6 +37,8 @@ public interface SignupBeanConstants {
 	public static final String ATTENDEE_USER_ID = "attendeeUserId";
 
 	public static final String THIRTY_DAYS = "30";
+	
+	public static final String SIXTY_DAYS = "60";
 
 	public static final String NINTY_DAYS = "90";
 
@@ -106,6 +108,8 @@ public interface SignupBeanConstants {
 	public static final String ADD_MEETING_STEP1_PAGE_URL = "addMeetingStep1";
 
 	public static final String ADD_MEETING_STEP2_PAGE_URL = "addMeetingStep2";
+	
+	public static final String CUSTOM_DEFINED_TIMESLOT_PAGE_URL = "userDefinedTsBlocks";
 
 	public static final String ATTACH_RECURRING = "recur";
 

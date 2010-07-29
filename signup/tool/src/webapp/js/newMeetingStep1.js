@@ -30,6 +30,12 @@
         var table = document.getElementById('meeting:meetingType');
         var rows = table.getElementsByTagName("tr");
         showSignupBeginDeadline('yes');
+        //userTsChoice
+        var userDefTsChkBxn = document.getElementById('meeting:userDefTsChoice');
+        var userDefTsTag1 = document.getElementById('meeting:userDefTsChoice_1');
+		var userDefTsTag2 = document.getElementById('meeting:userDefTsChoice_2');
+		userDefTsTag1.style.display="none";
+		userDefTsTag2.style.display="none";
         //for case: JSF page refresh due to input error by JSF phaseI checking
         for (i=0; i<rows.length; i++) {
 
@@ -50,7 +56,16 @@
                 if(str==INDIVIDUAL_TYPE && inp[0].checked) {				
                 	s.style.display="none";
                 	m.style.display="";
-
+					userDefTsTag1.style.display="";
+					userDefTsTag2.style.display="";
+                }
+                
+                if(!(str==GROUP_TYPE || str==ANNOUNCMENT_TYPE) && userDefTsChkBxn.checked){
+                  	s.style.display="none";
+                	m.style.display="";
+                	inp[0].checked=true;//check multiple bttn out.
+					userDefTsTag1.style.display="";
+					userDefTsTag2.style.display="";
                 }
                 
                 signupMeetingType=str;//control display and calc.
@@ -76,21 +91,34 @@
 		      var multipleTag = document.getElementById('multiple');
 			  var announcementTag = document.getElementById('meeting:announ');
 			  var singleTag = document.getElementById('single');
+		 	  var userDefTsTag1 = document.getElementById('meeting:userDefTsChoice_1');
+			  var userDefTsTag2 = document.getElementById('meeting:userDefTsChoice_2');
+			  var userDefTsChoiceTag = document.getElementById('meeting:userDefTsChoice');
+
 		 		
 		 	  singleTag.style.display="none";     
 		      announcementTag.style.display="none";
 		      multipleTag.style.display="none";
 		      showSignupBeginDeadline('yes');
+			  userDefTsTag1.style.display="none";
+			  userDefTsTag2.style.display="none";
 		       
-		        if (a == INDIVIDUAL_TYPE ) {               
-		        	multipleTag.style.display="";     		                         
-		        }
-		        else if (a == GROUP_TYPE ) { 
-		        	singleTag.style.display="";                                         		            	                     
+	        if (a == INDIVIDUAL_TYPE ) {               
+	        	multipleTag.style.display="";
+				userDefTsTag1.style.display="";
+				userDefTsTag2.style.display="";
+				userDefinedTsChoice();	                         
+	        }
+	        else if (a == GROUP_TYPE ) { 
+		        	singleTag.style.display="";
+		        	userDefTsChoiceTag.checked=false;
+		        	showDTimeInputFields('enabled');                                         		            	                     
 		        }    
 		        else if (a == ANNOUNCMENT_TYPE) {
 					announcementTag.style.display="";
-					showSignupBeginDeadline('no');                    		                               
+					showSignupBeginDeadline('no');
+					userDefTsChoiceTag.checked=false;
+					showDTimeInputFields('enabled');                    		                               
 		        }
 		 	
 			getSignupDuration();                

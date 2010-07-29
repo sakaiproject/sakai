@@ -25,6 +25,28 @@ table.signupTable td.titleCol{
 	padding-left:1.2em;
 }
 
+table.userDefineTsTable {
+	text-align: left;
+}
+
+table.userDefineTsTable th {
+	background-color: #ddd;
+	padding: .3em .3em;
+}
+
+table.userDefineTsTable tr.evenRow {
+	background: #f8f8f8;
+}
+
+table.userDefineTsTable td {
+	padding: .3em .3em;
+}
+
+table.userDefineTsTable td.titleCol{	
+	padding: .3em 1em;
+	padding-left:.5em;
+}
+
 .titleColumn {
 	vertical-align: top;
 	text-align: right;
@@ -88,6 +110,10 @@ table.organizerAction td {
 	padding: 0em 0em;
 }
 
+.noWrapCol{
+	white-space: nowrap;
+}
+
 .orgTimeslotCol {
 	width: 26%;
 	white-space: nowrap;
@@ -107,6 +133,7 @@ table.organizerAction td {
 
 .attendeeSignupTSCol {
 	width: 25%;
+	white-space: nowrap;
 }
 
 .attendeeSignupAvailCol {
@@ -138,6 +165,10 @@ table.organizerAction td {
 	text-align: center;
 }
 
+.editAddImages{
+	white-space: nowrap;
+}
+
 .attendee_status {
 	border: 1px solid #fff;
 	color: blue;
@@ -151,7 +182,7 @@ table.organizerAction td {
 	margin: .4em 1em;
 	border: 1px solid #fff;
 	cursor: pointer;
-	line-height: .8em;
+	line-height: 1.1em;
 	color: darkred;
 }
 
@@ -159,7 +190,7 @@ table.organizerAction td {
 	margin: .4em 1em;
 	border: 1px solid #fff;
 	cursor: pointer;
-	line-height: .8em;
+	line-height: 1.1em;
 	background: rgb(221, 221, 221);
 }
 
@@ -209,6 +240,24 @@ table.organizer td {
 	width: 350px;
 }
 
+.greyed_mi{
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	width: 350px;
+	color:#A3A3A3;
+}
+
+.longtext_red{
+	border: 0px;
+	margin: 0px;
+	color:#b11;
+}
+
+.greyed_mi input, .greyed_si label, .greyed_mi longtext_red{
+	color:#A3A3A3;
+}
+
 .si {
 	vertical-align: top;
 	margin-left: 30px;
@@ -217,8 +266,46 @@ table.organizer td {
 	width: 350px;
 }
 
+.greyed_si{
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	color: #A3A3A3;
+	width: 350px;
+}
+
+.greyed_si input, .greyed_si label {
+	color:#A3A3A3;
+}
+
+	
 .miCol1, .miCol2{
 	vertical-align: top;
+}
+
+.startTSCol, .endTSCol{
+	vertical-align:top;
+}
+
+.startTSCol td, .endTSCol td{
+	white-space: nowrap;
+ 	text-align:left;
+}
+.numAttnTSCol{
+	vertical-align:top;
+	text-align:left;
+	width:7%;
+}
+
+.delTSCol{
+	white-space:nowrap;
+	vertical-align:middle;
+	text-align:right;
+	width:5%;
+}
+
+.meetingRadioBtn{
+	white-space: nowrap;
 }
 
 .alertMessage {
@@ -343,7 +430,6 @@ table.instruction td.desc{
 }
 
 .addWaiter {
-	margin-left: 2px;
 	cursor: pointer;
 	color: #35b;
 	text-decoration: none !important;

@@ -240,8 +240,11 @@
 								<f:convertDateTime pattern="h:mm a"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-								<f:convertDateTime pattern=", EEE" />
-						</h:outputText>	
+								<f:convertDateTime pattern=", EEE," />
+							</h:outputText>
+							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+								<f:convertDateTime  dateStyle="short"/>
+							</h:outputText>	
 						</h:panelGroup>
 					</h:column>
 
@@ -281,14 +284,14 @@
 								<h:outputText value="#{msgs.tab_event_signed_attendee}" escape="false"/>
 							</f:facet>
 							<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.displayAttendees}">
-					   			<h:dataTable id="peopleOnSignup" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper">
+					   			<h:dataTable id="peopleOnSignup" value="#{timeSlotWrapper.attendeeWrappers}" var="attendeeWrapper" columnClasses="signedUpList">
 					   				<h:column>
-					   					<h:outputText value="#{attendeeWrapper.displayName}" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" title="#{msgs.event_tool_tip_on_signuplist}" styleClass="signedUpList"/>			
+					   					<h:outputText value="#{attendeeWrapper.displayName}" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" title="#{msgs.event_tool_tip_on_signuplist}"/>			
 					   				</h:column>				   		
 					   			</h:dataTable>
-					   			<h:dataTable id="peopleOnWaiting" value="#{timeSlotWrapper.waitingList}" var="attendeeWrapper" rendered="#{timeSlotWrapper.sizeOfWaitingList >0}"  styleClass="peopleOnListTable">
+					   			<h:dataTable id="peopleOnWaiting" value="#{timeSlotWrapper.waitingList}" var="attendeeWrapper" rendered="#{timeSlotWrapper.sizeOfWaitingList >0}"  styleClass="peopleOnListTable" columnClasses="waitingList">
 					   				<h:column>
-					   					<h:outputText value="#{attendeeWrapper.displayName}" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" title="#{msgs.event_tool_tip_on_waitinglist}" styleClass="waitingList"/>   					
+					   					<h:outputText value="#{attendeeWrapper.displayName}" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" title="#{msgs.event_tool_tip_on_waitinglist}" />   					
 					   				</h:column>				   		
 					   			</h:dataTable>
 					   		</h:panelGroup>	

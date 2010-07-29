@@ -36,7 +36,7 @@ create table signup_site_groups (
 	signup_site_id number(19,0) not null,
 	title varchar2(255 char),
 	group_id varchar2(255 char) not null,
-	calendar_event_id varchar2(255 char),
+	calendar_event_id varchar2(2000 char),
 	calendar_id varchar2(255 char),
 	list_index number(10,0) not null,
 	primary key (signup_site_id, list_index));
@@ -46,7 +46,7 @@ create table signup_sites (
 	version number(10,0) not null,
 	title varchar2(255 char),
 	site_id varchar2(255 char) not null,
-	calendar_event_id varchar2(255 char),
+	calendar_event_id varchar2(2000 char),
 	calendar_id varchar2(255 char),
 	meeting_id number(19,0) not null,
 	list_index number(10,0),

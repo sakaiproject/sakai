@@ -10,6 +10,7 @@
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
+		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{errorMessageUIBean.error}"/> 
@@ -17,9 +18,14 @@
 			 	<sakai:view_title value="#{msgs.event_addSignup_attendee_page_title}"/>
 				<sakai:messages />
 
-				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
-					<h:outputText value="#{msgs.event_timeslot}" escape="false"/>
+				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" style="margin-top:20px;">
+					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
+					<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>
 					
+					<h:outputText value="#{msgs.event_location}" styleClass="titleText" escape="false"/>
+					<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.location}" styleClass="longtext"/>
+					
+					<h:outputText value="#{msgs.event_timeslot}" escape="false"/>					
 					<h:panelGroup>				    
 		  		   		<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.startTime}">
 							<f:convertDateTime pattern="h:mm a" />
@@ -37,10 +43,25 @@
 						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.endTime}" styleClass="longtext">
 							<f:convertDateTime dateStyle="long"/>
 						</h:outputText>
-					</h:panelGroup>			
+					</h:panelGroup>	
+					
+					<h:outputText value="#{msgs.event_participant_name}" styleClass="titleText" escape="false"/>
+					<h:outputText value="#{AttendeeSignupMBean.curUserDisplayName}" styleClass="longtext"/>				
+					
+					<h:outputText value="&nbsp;" escape="false"/>
+					<h:outputText value="&nbsp;" escape="false"/>
+					
+					<h:outputText value="&nbsp;" escape="false"/>
+					<h:outputLabel  onclick="showDetails('','meeting:closeImagne','meeting:commentSetting');signup_resetIFrameHeight('#{AttendeeSignupMBean.iframeId}');"  styleClass="activeTag" >
+						<h:graphicImage id="closeImagne" value="/images/open.gif" alt="close" title="Click to hide comment." style="border:none;vertical-align:top;display:none;" styleClass="openCloseImageIcon"/>
+						<h:graphicImage value="/images/comments_add.png" alt="#{msgs.event_add_comment_link}" style="border:none"/>
+						<h:outputText value="&nbsp;#{msgs.event_add_comment_link}" escape="false"/>
+					</h:outputLabel>							
 				   	
-				  <h:outputText value="#{msgs.event_comments}" escape="false"/> 
-				  <sakai:rich_text_area value="#{AttendeeSignupMBean.timeslotWrapper.newAttendee.comments}" height="200" rows="5"  columns="70"/>
+				  <h:outputText id="commentSetting_1" style="display:none" value="&nbsp;" escape="false"/>
+				  <h:panelGroup id="commentSetting_2" style="display:none">		   
+				  		<sakai:rich_text_area value="#{AttendeeSignupMBean.timeslotWrapper.newAttendee.comments}" height="200" rows="5"  columns="70"/>
+				  </h:panelGroup>	
 				</h:panelGrid>
 				
 				<sakai:button_bar>

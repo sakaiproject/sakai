@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/entityproviders/SignupEventEntityProvider.java $
+ * $Id: SignupEventEntityProvider.java 59282 2009-03-25 14:05:36Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -64,7 +64,7 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 
 	public TemplateMap[] defineURLMappings() {
 		// all sign-up events in a site
-		return new TemplateMap[] { new TemplateMap("/{prefix}/site/{siteId}", "{prefix}{dot-extension}") };
+		return new TemplateMap[] { new TemplateMap("/{prefix}/site/{siteId}", "{prefix}{dot-extension}")};
 	}
 
 	/*

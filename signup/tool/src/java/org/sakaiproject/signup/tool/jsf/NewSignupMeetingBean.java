@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/NewSignupMeetingBean.java $
+ * $Id: NewSignupMeetingBean.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -49,6 +49,7 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
+import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
@@ -61,6 +62,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * This JSF UIBean class will handle the creation of different types of
  * event/meeting by Organizer It provides all the necessary business logic for
  * this process.
+ * 
+ * @author Peter Liu
+ * 
  * </P>
  */
 public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, SignupBeanConstants {
@@ -122,6 +126,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private static boolean DEFAULT_USERID_INPUT_MODE_OPTION_CHOICE = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.userId.inputMode.choiceOption.setting", "true")) ? true : false;
 	
+	private static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
+
+	private boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
+	
 	private boolean allowWaitList = DEFAULT_ALLOW_WAITLIST;
 	
 	private boolean allowComment = DEFAULT_ALLOW_COMMENT;
@@ -160,6 +168,15 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private List<SignupAttachment> attachments;
 	
 	private AttachmentHandler attachmentHandler;
+	
+	private UserDefineTimeslotBean userDefineTimeslotBean;
+	
+	//discontinued time slots case
+	private List<TimeslotWrapper> customTimeSlotWrpList;
+	
+	private boolean userDefinedTS=false;
+	
+	private boolean sendEmailAttendeeOnly = false;
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -220,15 +237,20 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		deadlineTimeType = Utilities.HOURS;
 		validationError = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
+		sendEmailAttendeeOnly = false;
 		receiveEmail = false;
 		allowComment = DEFAULT_ALLOW_COMMENT;
 		allowWaitList = DEFAULT_ALLOW_WAITLIST;
 		autoReminder = DEFAULT_AUTO_RIMINDER;
+		publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 		currentStepHiddenInfo = null;
 		eidInputMode = false;
 		repeatType = ONCE_ONLY;
 		repeatUntil = calendar.getTime();
 		this.publishedSite = null;
+		//Custom defined time slots allocation
+		userDefinedTS=false;
+		customTimeSlotWrpList=null;
 		
 		/*cleanup unused attachments in CHS*/
 		if(this.attachments !=null && this.attachments.size()>0){
@@ -253,6 +275,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		/* for main meetingpage */
 		Utilities.resetMeetingList();
 		this.eidInputByUser = null;
+		/*clean up everything in getUserDefineTimeslotBean*/
+		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
 
 	/**
@@ -273,6 +297,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			 * changes
 			 */
 			setTimeSlotDuration(0);
+			if(isUserDefinedTS()){
+				/*get the timeslots schedules for further process*/
+				if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.NEW_MEETING,getUserDefineTimeslotBean()))
+					return "";
+				
+				this.customTimeSlotWrpList=getUserDefineTimeslotBean().getDestTSwrpList();
+			}
+			
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
@@ -286,6 +318,42 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public String addRemoveAttachments(){
 		getAttachmentHandler().processAddAttachRedirect(this.attachments, this.signupMeeting,true);
 		return null;
+	}
+	
+	/**
+	 * Create a new time slot blocks
+	 * @return String object for the next page url
+	 */
+	public String createUserDefTimeSlots(){
+		/* initially get the data from automatic time-slot creation as default*/
+		this.timeSlotDuration = 0;//reset the value
+		this.customTimeSlotWrpList = timeSlotWrappers();
+		getUserDefineTimeslotBean().init(this.signupMeeting, ADD_MEETING_STEP1_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.NEW_MEETING);
+		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
+	}
+	
+	/**
+	 * Modify the existing time slot blocks
+	 * @return String object for next page url
+	 */
+	public String editUserDefTimeSlots(){
+		if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.NEW_MEETING,getUserDefineTimeslotBean())){
+			reset();
+			return ADD_MEETING_STEP1_PAGE_URL;
+		}
+		
+		this.customTimeSlotWrpList = getUserDefineTimeslotBean().getDestTSwrpList();
+		getUserDefineTimeslotBean().init(this.signupMeeting, ADD_MEETING_STEP1_PAGE_URL,this.customTimeSlotWrpList, UserDefineTimeslotBean.NEW_MEETING);
+		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
+	}
+	
+	/*Make sure the start/end time input fields have values.*/
+	public boolean getPrePopulateValues(){
+		if (this.signupMeeting.getStartTime() == null && isUserDefinedTS()){
+			this.signupMeeting.setStartTime(getUserDefineTimeslotBean().getEventStartTime());
+			this.signupMeeting.setEndTime(getUserDefineTimeslotBean().getEventEndTime());
+		}
+		return false;
 	}
 
 	/**
@@ -301,9 +369,25 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		if (step.equals("step1")) {
 
-			Date endTime = signupMeeting.getEndTime();
-			Date startTime = signupMeeting.getStartTime();
-			if (endTime.before(startTime) || startTime.equals(endTime)) {
+			Date eventEndTime = signupMeeting.getEndTime();
+			Date eventStartTime = signupMeeting.getStartTime();
+			/*user defined own TS case*/
+			if(isUserDefinedTS()){
+				eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
+				eventStartTime = getUserDefineTimeslotBean().getEventStartTime();
+				/*pass the value since they are null*/
+				this.signupMeeting.setStartTime(eventStartTime);
+				this.signupMeeting.setEndTime(eventEndTime);
+				
+				if(getUserDefineTimeslotBean().getDestTSwrpList()==null || getUserDefineTimeslotBean().getDestTSwrpList().isEmpty()){
+					validationError = true;
+					Utilities.addErrorMessage(Utilities.rb.getString("event.create_custom_defined_TS_blocks"));
+					return;
+				}
+					
+			}
+			
+			if (eventEndTime.before(eventStartTime) || eventStartTime.equals(eventEndTime)) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
 				// signupMeeting.setMeetingType(null);
@@ -312,9 +396,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 			setRecurrence(false);
 			if (!(getRepeatType().equals(ONCE_ONLY))) {
-				int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
+				int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), eventStartTime,
 						getRepeatUntil());
-				if ((DAILY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(this.signupMeeting)) {
+				if ((DAILY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(eventStartTime, eventEndTime)) {
 					validationError = true;
 					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 					return;
@@ -329,7 +413,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				setRecurrence(true);
 			}
 
-			warnMeetingAccrossTwoDates(endTime, startTime);
+			warnMeetingAccrossTwoDates(eventEndTime, eventStartTime);
 
 			if (!CreateSitesGroups.isAtleastASiteOrGroupSelected(this.getCurrentSite(), this.getOtherSites())) {
 				validationError = true;
@@ -344,15 +428,29 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 			}
 			
-			/*give warning to user in the next page if the event ending time get auto adjusted due to not even-division*/
+			/*give warning to user in the next page if the event ending time get auto adjusted due to not even-division
+			 * and it's not the case for custom defined time slot*/
 			setEndTimeAutoAdjusted(false);
-			if (isIndividualType() && getNumberOfSlots()!=0) {
-				double duration = (double)(getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
-						/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());				
-				if (duration != Math.floor(duration)){
-					setEndTimeAutoAdjusted(true);
-					Utilities.addErrorMessage(Utilities.rb.getString("event_endtime_auto_adjusted_warning"));
+			if(!isUserDefinedTS()){
+				if (isIndividualType() && getNumberOfSlots()!=0) {
+					double duration = (double)(getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
+							/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());				
+					if (duration != Math.floor(duration)){
+						setEndTimeAutoAdjusted(true);
+						Utilities.addErrorMessage(Utilities.rb.getString("event_endtime_auto_adjusted_warning"));
+					}
 				}
+			}
+			
+			/*for custom time slot case*/
+			if(!validationError && isUserDefinedTS()){
+				this.signupMeeting.setStartTime(eventStartTime);
+				this.signupMeeting.setEndTime(eventEndTime);
+				this.signupMeeting.setMeetingType(CUSTOM_TIMESLOTS);
+			}
+			/*reset meetingType for step1 */
+			if(!isUserDefinedTS() && CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
+				this.signupMeeting.setMeetingType(INDIVIDUAL);
 			}
 
 		}
@@ -377,8 +475,16 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoYears"));
 	}
 	
-	private boolean isMeetingLengthOver24Hours(SignupMeeting sm){
+	/*private boolean isMeetingLengthOver24Hours(SignupMeeting sm){
 		long duration= sm.getEndTime().getTime()- sm.getStartTime().getTime();
+		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
+			return false;
+		
+		return true;
+	}*/
+	
+	private boolean isMeetingLengthOver24Hours(Date startTime, Date endTime){
+		long duration= endTime.getTime()- startTime.getTime();
 		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
 			return false;
 		
@@ -393,6 +499,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 */
 	public String goBack() {
 		String step = (String) currentStepHiddenInfo.getValue();
+
 		if (step.equals("step2")) {
 			return ADD_MEETING_STEP1_PAGE_URL;
 		}
@@ -401,6 +508,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			assignParicitpantsToAllRecurEvents = false;
 			//reset warning for ending time auto-adjustment
 			setEndTimeAutoAdjusted(false);
+			//reset who should receive emails
+			setSendEmailAttendeeOnly(false);
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
@@ -428,6 +537,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public String processSelectedType(ValueChangeEvent vce) {
 		String newMeetingType = (String) vce.getNewValue();
 		signupMeeting.setMeetingType(newMeetingType);
+		if(!INDIVIDUAL.equals(newMeetingType)){
+			setUserDefinedTS(false);
+			//this.timeSlotWrappers = null;//reset
+		}
 
 		return "";
 
@@ -461,7 +574,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return an action outcome string.
 	 */
 	public String processSave() {
-
+		if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.NEW_MEETING,getUserDefineTimeslotBean())){
+			reset();
+			return ADD_MEETING_STEP1_PAGE_URL;
+		}
+		
 		preSaveAction();
 		processSaveMeetings();
 		reset();
@@ -514,6 +631,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return an action outcome string.
 	 */
 	public String proceesPreAssignAttendee() {
+		if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.NEW_MEETING,getUserDefineTimeslotBean())){
+			reset();
+			return ADD_MEETING_STEP1_PAGE_URL;
+		}
+		
 		preSaveAction();
 		loadAllAttendees(this.getSignupMeeting());
 		return PRE_ASSIGN_ATTENDEE_PAGE_URL;
@@ -660,6 +782,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			TimeslotWrapper wrapper = new TimeslotWrapper(slot);
 			timeSlotWrappers.add(wrapper);
 			return timeSlotWrappers;
+		}
+		
+		if(meetingType.equals(CUSTOM_TIMESLOTS)){
+			List<TimeslotWrapper> tmpTSList = new ArrayList<TimeslotWrapper>(this.customTimeSlotWrpList);
+			for (TimeslotWrapper tsWrp : tmpTSList) {
+				tsWrp.getTimeSlot().setDisplayAttendees(isShowParticipants());
+			}
+			return tmpTSList;
 		}
 		return null;
 	}
@@ -1033,7 +1163,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * 
 	 * @return true if email notification will be sent away.
 	 */
-	public boolean isSendEmail() {
+	public boolean getSendEmail() {
 		if (!getPublishedSite())
 			sendEmail = false;// no email notification
 
@@ -1248,6 +1378,15 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public boolean isIndividualType() {
 		return INDIVIDUAL.equals(getSignupMeeting().getMeetingType());
 	}
+	
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return true if it's an individual event/meeting type.
+	 */
+	public boolean isCustomTimeslotType() {
+		return CUSTOM_TIMESLOTS.equals(getSignupMeeting().getMeetingType());
+	}
 
 	/**
 	 * This is for UI purpose and it displays the meeting type, which user can
@@ -1263,6 +1402,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			mType = Utilities.rb.getString("label_group");
 		else if (isAnnouncementType())
 			mType = Utilities.rb.getString("label_announcement");
+		else if (isUserDefinedTS())
+			mType = Utilities.rb.getString("label_custom_timeslots");
 
 		return mType;
 	}
@@ -1316,13 +1457,23 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private void processSaveMeetings() {
 		signupMeeting.setRepeatUntil(getRepeatUntil());
 		signupMeeting.setRepeatType(getRepeatType());
-
+		
+		if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
+			boolean multipleCalBlocks = getUserDefineTimeslotBean().getPutInMultipleCalendarBlocks();
+			signupMeeting.setInMultipleCalendarBlocks(multipleCalBlocks);
+		}
+		
+		/*pass who should receive the emails*/
+		signupMeeting.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
+		
 		CreateMeetings createMeeting = new CreateMeetings(signupMeeting, sendEmail,
 				!assignParicitpantsToAllRecurEvents, assignParicitpantsToAllRecurEvents, getSignupBegins(),
 				getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade, signupMeetingService,
 				getAttachmentHandler(), sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
 		try {
+			/*need push to calendar tool*/
+			createMeeting.setPublishToCalendar(getPublishToCalendar());
 			createMeeting.processSaveMeetings();
 			
 			/*handle attachments and it should not be cleaned up in CHS*/
@@ -1496,6 +1647,46 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			return false;
 		else
 			return true;
+	}
+
+	public UserDefineTimeslotBean getUserDefineTimeslotBean() {
+		return userDefineTimeslotBean;
+	}
+
+	public void setUserDefineTimeslotBean(UserDefineTimeslotBean userDefineTimeslotBean) {
+		this.userDefineTimeslotBean = userDefineTimeslotBean;
+	}
+
+	public List<TimeslotWrapper> getCustomTimeSlotWrpList() {
+		return customTimeSlotWrpList;
+	}
+
+	public void setCustomTimeSlotWrpList(List<TimeslotWrapper> customTimeSlotWrpList) {
+		this.customTimeSlotWrpList = customTimeSlotWrpList;
+	}
+
+	public boolean isUserDefinedTS() {
+		return userDefinedTS;
+	}
+
+	public void setUserDefinedTS(boolean userDefinedTS) {
+		this.userDefinedTS = userDefinedTS;
+	}
+
+	public boolean getPublishToCalendar() {
+		return publishToCalendar;
+	}
+
+	public void setPublishToCalendar(boolean publishToCalendar) {
+		this.publishToCalendar = publishToCalendar;
+	}
+
+	public boolean getSendEmailAttendeeOnly() {
+		return sendEmailAttendeeOnly;
+	}
+
+	public void setSendEmailAttendeeOnly(boolean sendEmailAttendeeOnly) {
+		this.sendEmailAttendeeOnly = sendEmailAttendeeOnly;
 	}
 			
 }

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/entityproviders/SignupObjectConverter.java $
+ * $Id: SignupObjectConverter.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -55,7 +55,7 @@ public class SignupObjectConverter {
 	private static final int MAX_COMMENT_DISPLAY_LENGTH = 300;
 
 	public static SignupEvent convertToSignupEventObj(SignupMeeting sm, String userId, String currentSiteId,
-			boolean isDeepCopy, SakaiFacade sakaiFacade) {
+			boolean isDeepCopy, boolean isMySignUp, SakaiFacade sakaiFacade) {
 		if (sm == null) {
 			return null;
 		}
@@ -73,10 +73,18 @@ public class SignupObjectConverter {
 		se.setMeetingType(sm.getMeetingType());
 		se.setRecurrenceId(sm.getRecurrenceId());
 		se.setRepeatType(sm.getRepeatType());
-		se.setPermission(new Permission(sm.getPermission().isAttend(), sm.getPermission().isUpdate(), sm
-				.getPermission().isDelete()));
-		se.setSiteId(currentSiteId);// keep tracking siteId
-		se.setAvailableStatus(Utilities.retrieveAvailStatus(sm, userId, sakaiFacade));
+		
+		/*my signup need no permission part*/
+		if(isMySignUp){
+			se.setAvailableStatus(Utilities.rb.getString("event.youSignedUp"));
+		}
+		else{
+			se.setPermission(new Permission(sm.getPermission().isAttend(), sm.getPermission().isUpdate(), sm
+					.getPermission().isDelete()));
+			se.setAvailableStatus(Utilities.retrieveAvailStatus(sm, userId, sakaiFacade));
+		}
+		
+		se.setSiteId(currentSiteId);// keep tracking siteId		
 		se.setSignupSiteItems(null);
 		se.setAllowWaitList(sm.isAllowWaitList());
 		se.setAllowComment(sm.isAllowComment());

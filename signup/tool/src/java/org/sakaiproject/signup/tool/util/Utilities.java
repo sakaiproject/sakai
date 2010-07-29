@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/util/Utilities.java $
+ * $Id: Utilities.java 59241 2009-03-24 15:52:18Z guangzheng.liu@yale.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -44,11 +44,15 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.ErrorMessageUIBean;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
+import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
  * This Utility class provides the common used logic by Signup tool.
+ * 
+ * @author Peter Liu
+ * 
  * </P>
  */
 public final class Utilities implements SignupBeanConstants, MeetingTypes {
@@ -444,5 +448,13 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 
 		return myConfigValue;
 
+	}
+	
+	public static boolean isDataIntegritySafe(boolean isUserDefinedTS, String callerBeanType, UserDefineTimeslotBean uBean){
+		if(isUserDefinedTS && !callerBeanType.equals(uBean.getPlaceOrderBean())){
+			Utilities.addErrorMessage("You may have opened multiple Tabs in your browser, please close them and try again.");// Utilities.rb.getString("event_endtime_auto_adjusted_warning"));
+			return false;
+		}
+		return true;
 	}
 }

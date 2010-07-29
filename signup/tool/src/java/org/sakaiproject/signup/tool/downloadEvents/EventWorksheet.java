@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://sakai-svn.its.yale.edu/svn/signup/branches/2-6-dev/tool/src/java/org/sakaiproject/signup/tool/downloadEvents/EventWorksheet.java $
+ * $Id: EventWorksheet.java 4598 2010-01-26 18:51:33Z gl256 $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -252,13 +252,13 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 							/* attendee name */
 							cell = row.getCell(cellNum++);
-							cell.setCellValue(attendee.getDisplayName());
+							cell.setCellValue(attendee ==null? "--" :attendee.getDisplayName());
 
 							cell = row.getCell(cellNum++);
-							cell.setCellValue(attendee.getEid());
+							cell.setCellValue(attendee ==null? "--" : attendee.getEid());
 
 							cell = row.getCell(cellNum++);
-							cell.setCellValue(attendee.getEmail());
+							cell.setCellValue(attendee ==null? "--" : attendee.getEmail());
 
 							cell = row.getCell(cellNum++);
 							cell.setCellValue(getSiteTitle(att.getSignupSiteId()));
@@ -786,8 +786,10 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 		sb.append("  -  ");
 		sb.append(getTime(ts.getEndTime()).toStringLocalTime());
-		if (isCrossDay)
+		if (isCrossDay){
 			sb.append(", " + getShortWeekDayName(ts.getEndTime()));
+			sb.append(", " + getTime(ts.getEndTime()).toStringLocalShortDate());
+		}
 
 		return sb.toString();
 	}
@@ -1009,10 +1011,15 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 			suffix = " (" + serialNum + ")";
 		
 		StringBuilder escapedString = new StringBuilder();
-
+		
+		name = name.trim();
 		for (int i = 0; i < name.length(); i++) {
 			char escapedStringCur_char = name.charAt(i);
-
+			
+			/*Strip out the first single quote, which is not allowed by Excel*/
+			if(i==0 && escapedStringCur_char =='\'')
+				continue;
+				
 			if (escapedStringCur_char == ':' || escapedStringCur_char == '\\'
 					|| escapedStringCur_char == '/' || escapedStringCur_char == '?'
 					|| escapedStringCur_char == '*' || escapedStringCur_char == '['
@@ -1028,7 +1035,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		 * and add together to 31 characters (Excel sheet name limit)
 		 */
 		String validSheetName = escapedString.toString().length() <= 31-suffix.length() ? escapedString.toString() : escapedString
-				.substring(31-suffix.length());
+				.substring(0,31-suffix.length());
 		
 		validSheetName = validSheetName + suffix;
 		

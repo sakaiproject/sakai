@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://sakai-svn.its.yale.edu/svn/signup/branches/2-6-dev/tool/src/java/org/sakaiproject/signup/tool/downloadEvents/WorksheetStyleClass.java $
+ * $Id: WorksheetStyleClass.java 4491 2009-10-30 18:41:15Z gl256 $
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University

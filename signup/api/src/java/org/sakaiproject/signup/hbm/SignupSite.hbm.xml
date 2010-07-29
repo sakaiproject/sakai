@@ -16,8 +16,8 @@
 		
 		<property name="title" column="title" type="string" not-null="false" />
 		<property name="siteId" column="site_id" type="string" not-null="true"/>
-		<property name="calendarEventId" column="calendar_event_id" type="string" not-null="false"/>
-		<property name="calendarId" column="calendar_id" type="string" not-null="false"/>
+		<property name="calendarEventId" column="calendar_event_id" type="string" length="2000" not-null="false"/>
+		<property name="calendarId" column="calendar_id" type="string"  not-null="false"/>
 		
 		<list name="signupGroups" cascade="save-update,delete" table="signup_site_groups" fetch="join">
 			<key column="signup_site_id" not-null="true"/>
@@ -25,7 +25,7 @@
 			<composite-element class="org.sakaiproject.signup.model.SignupGroup">
 				<property name="title" column="title" type="string" not-null="false" />
 				<property name="groupId" column="group_id" type="string" not-null="true"/>
-				<property name="calendarEventId" column="calendar_event_id" type="string" not-null="false" />
+				<property name="calendarEventId" column="calendar_event_id" type="string" length="2000" not-null="false" />
 				<property name="calendarId" column="calendar_id" type="string" not-null="false" />
 			</composite-element>
 		</list>

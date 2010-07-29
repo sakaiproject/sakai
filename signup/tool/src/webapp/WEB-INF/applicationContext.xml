@@ -16,6 +16,17 @@
 	</bean>
 	
 	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.signup.tool.entityproviders.MySignupEventsProvider">
+		<property name="sakaiFacade"
+			ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="signupMeetingService"
+			ref="org.sakaiproject.signup.logic.SignupMeetingService" />
+			<property name="eventProcessHandler"
+			ref="org.sakaiproject.signup.tool.entityproviders.EventProcessHandler" />
+	</bean>
+	
+	<bean
 		class="org.sakaiproject.signup.tool.entityproviders.EventProcessHandler">
 		<property name="sakaiFacade"
 			ref="org.sakaiproject.signup.logic.SakaiFacade" />

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/api/src/java/org/sakaiproject/signup/model/SignupTimeslot.java $
+ * $Id: SignupTimeslot.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -32,7 +32,7 @@ import java.util.List;
  * directly to the DB storage by Hibernate
  * </p>
  */
-public class SignupTimeslot {
+public class SignupTimeslot implements Comparable{
 
 	private Long id;
 
@@ -298,6 +298,14 @@ public class SignupTimeslot {
 	 */
 	public boolean isUnlimitedAttendee() {
 		return (maxNoOfAttendees == UNLIMITED);
+	}
+	
+	public int compareTo(Object o) throws ClassCastException{
+		if(!(o instanceof SignupTimeslot))
+			throw new ClassCastException("SignupTimeslot object expected.");
+
+		int result = this.getStartTime().compareTo(((SignupTimeslot)o).getStartTime());
+		return result;
 	}
 
 }

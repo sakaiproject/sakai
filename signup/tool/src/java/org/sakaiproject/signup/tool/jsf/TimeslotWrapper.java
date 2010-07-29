@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/tool/src/java/org/sakaiproject/signup/tool/jsf/TimeslotWrapper.java $
+ * $Id: TimeslotWrapper.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
@@ -37,7 +37,7 @@ import org.sakaiproject.signup.util.SignupDateFormat;
  * This class is a wrapper class for SignupTimeslot for UI purpose
  * </P>
  */
-public class TimeslotWrapper {
+public class TimeslotWrapper implements Comparable{
 
 	private final SignupTimeslot timeSlot;
 
@@ -58,6 +58,15 @@ public class TimeslotWrapper {
 	private List<SelectItem> moveAvailableTimeSlots;
 
 	private int positionInTSlist;
+	
+	/*Mark the original timeslot sequence in the list. should not changes 
+	 * regardless of moving ts up and down the time line or deleted. It is useful 
+	 * for modifying the recurring events at custom_ts type*/
+	private int tsMarker = Integer.MAX_VALUE;
+		
+	private boolean deleted = false;
+	
+	private String errorStyle="";
 
 	/**
 	 * Constructor
@@ -152,6 +161,11 @@ public class TimeslotWrapper {
 	 */
 	public void setCurrentUserId(String currentUserId) {
 		this.currentUserId = currentUserId;
+	}
+	
+
+	public String getCurrentUserId() {
+		return currentUserId;
 	}
 
 	/**
@@ -448,4 +462,55 @@ public class TimeslotWrapper {
 		}
 	}
 
+	public int compareTo(Object o) throws ClassCastException{
+		if(!(o instanceof TimeslotWrapper))
+			throw new ClassCastException("TimeslotWrapper object expected.");
+
+		int result = this.getTimeSlot().getStartTime().compareTo(((TimeslotWrapper)o).getTimeSlot().getStartTime());
+		return result;
+	}
+
+	public int getTsMarker() {
+		return tsMarker;
+	}
+
+	public void setTsMarker(int tsMarker) {
+		this.tsMarker = tsMarker;
+	}
+
+	/*
+	 * to see if this is a newly added by user and is not in DB.
+	 */
+	public boolean getNewlyAddedTS() {
+		if(this.tsMarker == Integer.MAX_VALUE)
+			return true;
+		
+		return false;
+	}
+
+	public boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	public boolean getNewTimeslotBlock(){
+		if(this.tsMarker ==Integer.MAX_VALUE)
+			return true;
+		else
+			return false;
+	}
+
+	public String getErrorStyle() {
+		//only once
+		String style= this.errorStyle;
+		this.errorStyle = "";
+		return style;
+	}
+
+	public void setErrorStyle(String errorStyle) {
+		this.errorStyle = errorStyle;
+	}
 }
