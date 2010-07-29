@@ -30,7 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
 import org.sakaiproject.api.app.roster.Participant;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.jsf.util.LocaleUtil;
 
@@ -143,7 +143,7 @@ public class RosterStatus extends BaseRosterPageBean {
 
         String spreadsheetNameRaw = ((FilteredStatusListingBean)filter).getFirstEnrollmentSetTitle();
         String spreadsheetName = getDownloadFileName(spreadsheetNameRaw);
-        SpreadsheetUtil.downloadSpreadsheetData(spreadsheetData,spreadsheetName, new SpreadsheetDataFileWriterCsv());
+        SpreadsheetUtil.downloadSpreadsheetData(spreadsheetData,spreadsheetName, new SpreadsheetDataFileWriterXls());
 	}
 
 	/**
