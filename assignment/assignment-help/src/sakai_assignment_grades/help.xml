@@ -2,11 +2,17 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="assignmentAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argj</value></property>
+      <property name="name"><value>Assignments</value></property>
+      <property name="location"><value>/sakai_assignment_grades/argj.html</value></property>
+      <property name="defaultForTool"><value>sakai.assignment</value></property>
+   </bean>
+
    <bean id="assignmentOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardn</value></property>
       <property name="name"><value>Assignments Overview</value></property>
       <property name="location"><value>/sakai_assignment_grades/ardn.html</value></property>
-      <property name="defaultForTool"><value>sakai.assignment</value></property>
    </bean>
 
    <bean id="createAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -22,9 +28,9 @@
    </bean>
    
    <bean id="assignmentAttachment" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arda</value></property>
+      <property name="docId"><value>arfj</value></property>
       <property name="name"><value>Add Attachments</value></property>
-      <property name="location"><value>/sakai_assignment_grades/arda.html</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arfj.html</value></property>
    </bean>
   
    <bean id="reviseAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -92,6 +98,7 @@
                <property name="name"><value>Assignments</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="assignmentAbout"/>
                      <ref bean="assignmentOverview"/>
                      <ref bean="createAssignment"/>
                      <ref bean="assignmentGbMethods"/>
