@@ -139,7 +139,7 @@ public interface SecurityService
 
 	/**
 	 * Remove any SecurityAdvisors from this thread.
-	 * WARNING:This method should not be used as it removes all security advisors, not only the one from the calling thread
+	 * WARNING:This method should not be used as it removes all security advisors, not only the one from the calling method
 	 * rather use {@link #popAdvisor()} 
 	 * @deprecated
 	*/
