@@ -2,17 +2,29 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="siteInfoAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argq</value></property>
+      <property name="name"><value>Site Info</value></property>
+      <property name="location"><value>/sakai_siteinfo/argq.html</value></property>
+      <property name="defaultForTool"><value>sakai.siteinfo</value></property>
+   </bean>
+
    <bean id="siteInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqym</value></property>
       <property name="name"><value>Site Info Overview</value></property>
       <property name="location"><value>/sakai_siteinfo/aqym.html</value></property>
-      <property name="defaultForTool"><value>sakai.siteinfo</value></property>
    </bean>
    
    <bean id="editASite" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>araw</value></property>
       <property name="name"><value>Edit Site</value></property>
       <property name="location"><value>/sakai_siteinfo/araw.html</value></property>
+   </bean>
+
+   <bean id="editNoTool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arje</value></property>
+      <property name="name"><value>Edit Site from Worksite Setup</value></property>
+      <property name="location"><value>/sakai_siteinfo/arje.html</value></property>
    </bean>
    
    <bean id="editTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -108,8 +120,10 @@
                <property name="name"><value>Site Info</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="siteInfoAbout"/>
                      <ref bean="siteInfo"/>
                      <ref bean="editASite"/>
+                     <ref bean="editNoTool"/>
                      <ref bean="editTools"/>
                      <ref bean="manageGroups"/>
                      <ref bean="grantGlobalAccess"/>
