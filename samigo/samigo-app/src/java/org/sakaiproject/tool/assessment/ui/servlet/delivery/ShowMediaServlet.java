@@ -135,8 +135,8 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     }
     else {
       String displayType="inline";
-      if (mediaData.getMimeType()!=null && !(setMimeType!=null && ("false").equals(setMimeType))){
-        res.setContentType(mediaData.getMimeType());
+      if (mediaData.getMimeType()!=null && !mediaData.getMimeType().equals("application/octet-stream") && !(setMimeType!=null && ("false").equals(setMimeType))){
+          res.setContentType(mediaData.getMimeType());
       }
       else {
         displayType="attachment";
