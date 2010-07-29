@@ -91,6 +91,17 @@
       <value>/sakai_rwiki/setting_permissions.htm</value>
     </property>
   </bean>
+  <bean id="wikiContent9" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>atxq</value>
+    </property>
+    <property name="name">
+      <value>Adding the Wiki tool to your site</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/atxq.html</value>
+    </property>
+  </bean>
   <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
     <property name="name">
       <value>root</value>
@@ -111,6 +122,7 @@
               <ref bean="wikiContent6"/>
               <ref bean="wikiContent7"/>
               <ref bean="wikiContent8"/>
+              <ref bean="wikiContent9"/>
             </list>
           </property>
         </bean>
