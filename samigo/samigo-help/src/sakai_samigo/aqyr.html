@@ -23,6 +23,8 @@
 
 
 
+
+
 <p><strong>Note:</strong> To complete these procedures, you
 must be assigned a role having the necessary permissions.  To
 determine your role, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>.  For a basic understanding of roles and
@@ -49,7 +51,7 @@ click <strong><code>Tests
 <p>You can use the drop-down menu next to <strong><code>Choose
 Existing Assessment type</code></strong> to choose a template for your
 assessment. You can also import an assessment by using the
-<strong><code>Import</code></strong> feature. For more information, see <a href="content.hlp?docId=aqys">Importing or exporting an assessment</a>. </p>
+<strong><code>Import</code></strong> feature. See <a href="content.hlp?docId=aqys">Importing or exporting an assessment</a>. </p>
 
 <p>When you have made your choices, you have two options to create the
 assessment:</p>
@@ -60,7 +62,11 @@ assessment:</p>
 </li><li>The <strong><code>Create</code></strong> option takes you to the question editor. To
 begin adding questions to a new assessment, choose the type of
 question you want to add from the <strong><code>Add Question:</code></strong> drop-down
-menu. Below are instructions for each question type. </p>
+menu. Below are instructions for each question type. 
+
+<p><strong>Note:</strong> The default settings for your assessment will
+be different depending on whether you click <strong><code>Create</code></strong> or
+<strong><code>Quick Create</code></strong>; see <a href="content.hlp?docId=azms">Differences between Create and Quick Create in Tests &amp; Quizzes</a>.</p>
 
 
 
@@ -91,18 +97,16 @@ and enter or browse to a filename or enter a URL.
 
 <p>As you change the selection, the screen will
 refresh to allow or hide the requisite fields.</p>
+</li><li>In the case of a single correct answer, you'll see four text boxes for possible answers. To indicate
+which answer is the correct one, click the radio button next to it. In
+the case of multiple correct answers, check the boxes beside the
+correct responses.
 
-</li>
-
-<li>In the case of a single correct answer, you'll see four text boxes for possible answers. To indicate which answer is the correct one, click the radio button next to it. In the case of multiple correct answers, check the boxes beside the correct responses.<br /><br /> 
-
-
-You can choose to Enable Negative Marking for a single correct question. If you want to use this feature, select the <strong><code>Enable Negative Marking</code></strong> radio button and specify the negative point value for incorrect answer selection.
-<br /><br /> 
-
-To present fewer possible answers, click Remove beneath the boxes you want to remove. To present more possibilities, use the drop-down menu next to <strong><code>Insert additional answers</code></strong> to select the number of possibilities you want to add.<br /><br /> 
-</li>
-<li>If you want the possible answers to appear in a random order,
+<p>To present fewer possible answers, click
+<strong><code>Remove</code></strong> beneath the boxes you want to remove. To present more possibilities, use the drop-down menu next to
+<strong><code>Insert additional answers</code></strong> to select the number of
+possibilities you want to add.</p>
+</li><li>If you want the possible answers to appear in a random order,
 under "Randomize Answers", click <strong><code>Yes</code></strong>. To have them appear in
 the order you see in the question editing screen (the default), click
 <strong><code>No</code></strong>.<br /><br />
@@ -187,7 +191,8 @@ added to the assessment.
 <ol><li>In the Questions screen, from the <strong><code>Add Question</code></strong>
 drop-down menu, select <strong><code>Fill in the Blank</code></strong>.<br /><br />
 </li><li>In the "Answer Point Value" field, enter the point value you want
-to assign to this question. Enter <code>0</code> (zero) for an ungraded question.
+to assign to this question. Enter <code>0</code> (zero) for an
+ungraded question.
 
 <p><strong>Note:</strong> The total points you assign will be
   divided among all the blanks in the question. For example, take the
@@ -257,8 +262,7 @@ pool name. To do this, you must have created at least one question
 pool; see <a href="content.hlp?docId=arej">Adding, moving, copying, or removing a question pool or subpool</a>.<br /><br />
 </li><li>The "Correct/Incorrect answer feedback" fields allow you to set
 optional messages for students. Use the assessment's feedback settings
-to determine if and when students see these messages. For more
-information, see <a href="content.hlp?docId=arag">Assessment settings</a>.<br /><br />
+to determine if and when students see these messages. See <a href="content.hlp?docId=arag">Assessment settings</a>.<br /><br />
 </li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 Questions screen. You'll see that your new question has been
 added to the assessment.
@@ -273,7 +277,8 @@ added to the assessment.
 <ol><li>In the Questions screen, from the <strong><code>Add Question:</code></strong> drop-down
 menu, select <strong><code>Numeric Response</code></strong>.<br /><br />
 </li><li>In the "Answer Point Value" field, enter the point value you want
-to assign to this question. Enter <code>0</code> (zero) for an ungraded question.<br /><br />
+to assign to this question. Enter <code>0</code> (zero) for an
+ungraded question.<br /><br />
 </li><li>In the "Question Text" field, enter the text for the question.
 Click <strong><code>Show/Hide Rich-Text Editor</code></strong> to display the WYSIWYG
 toolbar. Place curly braces (<code> { } </code>)
@@ -327,12 +332,18 @@ pairs you've created.
 
 </li><li>From the <strong><code>Assign to Part</code></strong> drop-down menu, choose the part
 (i.e., section) to which you want to assign this question. Leave this
-as the default value if you haven't created any parts.<br /><br />
+as the default value if you haven't created any parts.
+
+<br /><br />
 </li><li>To assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
-pool name.<br /><br />
+pool name.
+
+<br /><br />
 </li><li>Under "Correct/Incorrect answer feedback", you can choose to
-provide question-level feedback.  <br /><br />
+provide question-level feedback.  
+
+<br /><br />
 </li><li>Click <strong><code>Save</code></strong> to return to the Questions screen. You'll see
 that your new question has been added to the assessment.</li></ol>
 
@@ -342,30 +353,44 @@ that your new question has been added to the assessment.</li></ol>
 
 <p>To create a true/false question:</p>
 <ol><li>In the Questions screen, from the <strong><code>Add Question:</code></strong> drop-down
-menu, select <strong><code>True False</code></strong>.<br /><br />
+menu, select <strong><code>True False</code></strong>.
+
+<br /><br />
 </li><li>In the "Answer Point Value" field, enter the point value you want
-to assign to this question. Enter <code>0</code> (zero) for an ungraded question.<br /><br />
+to assign to this question. Enter <code>0</code> (zero) for an
+ungraded question.
+
+<br /><br />
 </li><li>In the "Question Text" field, enter the text for the
 question. Click <strong><code>Show/Hide Rich-Text Editor</code></strong> to display the
 WYSIWYG toolbar.
+
 <br /><br />
 </li><li>To add an attachment, click <strong><code>Add Attachments</code></strong>
 and enter or browse to a filename or enter a URL.
+
 <br /><br />
 </li><li>In the Answer field, select either <strong><code>True</code></strong> or
-<strong><code>False</code></strong>.<br /><br />
+<strong><code>False</code></strong>.
 
-
+<br /><br />
 </li><li>Under "Required Rationale", you can choose to require an
-explanation by clicking <strong><code>Yes</code></strong>.<br /><br />
+explanation by clicking <strong><code>Yes</code></strong>.
+
+<br /><br />
 </li><li>From the <strong><code>Assign to Part</code></strong> drop-down menu, choose the part
 (i.e., section) to which you want to assign this question. Leave this
-as the default if you haven't created any parts.<br /><br />
+as the default if you haven't created any parts.
+
+<br /><br />
 </li><li>To assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
-pool name.<br /><br />
+pool name.
+
+<br /><br />
 </li><li>In the "Correct answer (optional)" and "Incorrect answer
 (optional)" fields, you can offer answer-level feedback.
+
 <br /><br />
 </li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 Questions screen. You'll see that your new question has been
@@ -432,27 +457,36 @@ a file:</p>
 <ol><li>In the Questions screen, from the <strong><code>Add Question:</code></strong> drop-down
 menu, select <strong><code>File Upload</code></strong>.<br /><br /> 
 </li><li>In the "Answer Point Value" field, enter the point value you want
-to assign to this question. Enter <code>0</code> (zero) for an ungraded question.  <br /><br />
+to assign to this question. Enter <code>0</code> (zero) for an
+ungraded question.  
+
+<br /><br />
 </li><li>In the "Question Text" field, enter the text for the
 question. Click <strong><code>Show/Hide Rich-Text Editor</code></strong> to display the
 WYSIWYG toolbar.
+
 <br /><br />
 </li><li>To add an attachment, click <strong><code>Add Attachments</code></strong>
 and enter or browse to a filename or enter a URL.
+
 <br /><br />
 </li><li>From the <strong><code>Assign to Part</code></strong> drop-down menu, choose the part
 (i.e., section) to which you want to assign this question. Leave this
-as the default if you haven't created any parts.<br /><br />
+as the default if you haven't created any parts.
+
+<br /><br />
 </li><li>To assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
-pool name.<br /><br />
+pool name.
+
+<br /><br />
 </li><li>In the "Feedback (optional)" field, you can offer question-level
 feedback.
 
-<br /><br /></li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
+<br /><br />
+</li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 assessment editing screen. You'll see that your new question has been
 added to the assessment, along with the <strong><code>Upload file</code></strong> icon.
-
 </li></ol>
 
 <p><a href="#topa">Back to top</a></p>
@@ -463,8 +497,11 @@ added to the assessment, along with the <strong><code>Upload file</code></strong
 </p>
 
 <ol><li>In the Questions screen, from the <strong><code>Add Question:</code></strong> drop-down
-menu, select <strong><code>Copy from Question Pool</code></strong>.<br /><br />
+menu, select <strong><code>Copy from Question Pool</code></strong>.
+
+<br /><br />
 </li><li>Click the name of the pool from which to import the question.
+
 <br /><br />
 </li><li>Navigate to a subpool and/or use the checkbox(es) to select
 question(s) you wish to import into the current assessment, and then
