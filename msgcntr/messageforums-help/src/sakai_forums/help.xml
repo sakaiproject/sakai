@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+    <bean id="mcAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"> <value>asbg</value> </property>
+        <property name="name"> <value>Forums</value> </property>
+        <property name="location"> <value>/sakai_forums/asbg.html</value> </property>
+		<property name="defaultForTool"> <value>sakai.forums</value> </property>
+    </bean>
     <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>asax</value>
-        </property>
-        <property name="name">
-            <value>Forums Overview</value>
-        </property>
-        <property name="location">
-            <value>/sakai_forums/asax.html</value>
-        </property>
-		<property name="defaultForTool">
-			<value>sakai.forums</value>
-		</property>
+        <property name="docId"> <value>asax</value> </property>
+        <property name="name"> <value>Forums Overview</value> </property>
+        <property name="location"> <value>/sakai_forums/asax.html</value> </property>
     </bean>
     <bean id="mcCreateForumTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
@@ -152,6 +149,7 @@
                     </property>
                     <property name="resources">
                         <list>
+                            <ref bean="mcAbout"/>
                             <ref bean="mcOverview"/>
                             <ref bean="mcCreateForumTopic"/>
                             <ref bean="mcCreateModeratedForum"/>

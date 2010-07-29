@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+    <bean id="mcAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId"> <value>avaq</value> </property>
+        <property name="name"> <value>Messages</value> </property>
+        <property name="location"> <value>/sakai_messages/avaq.html</value> </property>
+		<property name="defaultForTool"> <value>sakai.messages</value> </property>
+    </bean>
     <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>avao</value>
-        </property>
-        <property name="name">
-            <value>Messages Overview</value>
-        </property>
-        <property name="location">
-            <value>/sakai_messages/avao.html</value>
-        </property>
-		<property name="defaultForTool">
-			<value>sakai.messages</value>
-		</property>
+        <property name="docId"> <value>avao</value> </property>
+        <property name="name"> <value>Messages Overview</value> </property>
+        <property name="location"> <value>/sakai_messages/avao.html</value> </property>
     </bean>
     <bean id="mcSendPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
@@ -61,6 +58,7 @@
                     </property>
                     <property name="resources">
                         <list>
+                            <ref bean="mcAbout"/>
                             <ref bean="mcOverview"/>
                             <ref bean="mcSendPm" />
                             <ref bean="mcViewPm" />
