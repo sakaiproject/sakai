@@ -1,0 +1,24 @@
+body {
+background-color: #fff;
+color: #000;
+font-family: "Times New Roman", Garamond, serif;
+}
+
+img{
+	display: none;
+}
+
+.addAttendee, .addWaiter, .disabledAddAttendee{
+	display: none;
+}
+.instruction{
+	display:none;
+}
+.emailTable{
+	display:none;
+}
+
+table.signupTable{
+	border: solid;
+	border-width: thin;	
+}

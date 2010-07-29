@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="1.8">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Delet_groupMeeting" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Delet_groupMeeting" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1209415503000</longProp>
+        <longProp name="ThreadGroup.end_time">1209415503000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="Sakai Server Access URL Settings" enabled="true">
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.domain">academicapps1.yu.yale.edu</stringProp>
+          <stringProp name="HTTPSampler.path">/portal</stringProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+        </ConfigTestElement>
+        <hashTree/>
+        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+          <collectionProp name="CookieManager.cookies"/>
+          <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+          <stringProp name="CookieManager.policy">rfc2109</stringProp>
+        </CookieManager>
+        <hashTree/>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="site_id" elementType="Argument">
+              <stringProp name="Argument.name">site_id</stringProp>
+              <stringProp name="Argument.value">806369e0-46ea-44bb-a976-177e291e9e46</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="page_id" elementType="Argument">
+              <stringProp name="Argument.name">page_id</stringProp>
+              <stringProp name="Argument.value">af51c814-d6ed-4254-951e-609f096f68fe</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="userId" elementType="Argument">
+              <stringProp name="Argument.name">userId</stringProp>
+              <stringProp name="Argument.value">peterliu</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="password" elementType="Argument">
+              <stringProp name="Argument.name">password</stringProp>
+              <stringProp name="Argument.value">12345</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="meetingTitle" elementType="Argument">
+              <stringProp name="Argument.name">meetingTitle</stringProp>
+              <stringProp name="Argument.value">Final Exam Review</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="delete_meetingItem_RowNum_count_start_from_0" elementType="Argument">
+              <stringProp name="Argument.name">delete_meetingItem_RowNum_count_start_from_0</stringProp>
+              <stringProp name="Argument.value">1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>true</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+            <name>saveConfig</name>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Login" enabled="true"/>
+        <hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Login page" enabled="true"/>
+          <hashTree>
+            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/portal/xlogin" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/portal/xlogin</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.mimetype"></stringProp>
+              <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+              <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+              <stringProp name="HTTPSampler.monitor">false</stringProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSampler>
+            <hashTree/>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="/portal/xlogin" enabled="true"/>
+          <hashTree>
+            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/portal/xlogin" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">eid</stringProp>
+                    <stringProp name="Argument.value">${userId}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">pw</stringProp>
+                    <stringProp name="Argument.value">${password}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">submit</stringProp>
+                    <stringProp name="Argument.value">Login</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+              <stringProp name="HTTPSampler.path">/portal/xlogin</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.mimetype"></stringProp>
+              <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+              <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+              <stringProp name="HTTPSampler.monitor">false</stringProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSampler>
+            <hashTree/>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Click Test Course" enabled="true"/>
+          <hashTree>
+            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/portal/site/${site_id}" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/portal/site/${site_id}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.mimetype"></stringProp>
+              <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+              <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+              <stringProp name="HTTPSampler.monitor">false</stringProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSampler>
+            <hashTree/>
+            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/access/site/${site_id}" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/access/site/${site_id}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.mimetype"></stringProp>
+              <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+              <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+              <stringProp name="HTTPSampler.monitor">false</stringProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSampler>
+            <hashTree/>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="click sign-up tool link" enabled="true"/>
+          <hashTree>
+            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="signup main page" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/portal/site/${site_id}/page/${page_id}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.mimetype"></stringProp>
+              <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+              <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+              <stringProp name="HTTPSampler.monitor">false</stringProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSampler>
+            <hashTree>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                <stringProp name="RegexExtractor.refname">tool_id</stringProp>
+                <stringProp name="RegexExtractor.regex">/portal/tool/(.+?)\?panel=Main&quot;&gt;</stringProp>
+                <stringProp name="RegexExtractor.template">$1$</stringProp>
+                <stringProp name="RegexExtractor.default"></stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+            </hashTree>
+            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/portal/tool/${tool_id}" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.name">panel</stringProp>
+                    <stringProp name="Argument.value">Main</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/portal/tool/${tool_id}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.mimetype"></stringProp>
+              <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+              <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+              <stringProp name="HTTPSampler.monitor">false</stringProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSampler>
+            <hashTree>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                <stringProp name="RegexExtractor.refname">site_home_page_id</stringProp>
+                <stringProp name="RegexExtractor.regex">/portal/site/${site_id}/page/(.+?)&quot;&gt;&lt;span&gt;Home&lt;/span&gt;</stringProp>
+                <stringProp name="RegexExtractor.template">$1$</stringProp>
+                <stringProp name="RegexExtractor.default"></stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/portal/site/${site_id}/page/${page_id}" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/portal/site/${site_id}/page/${page_id}</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.mimetype"></stringProp>
+            <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+            <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+            <stringProp name="HTTPSampler.monitor">false</stringProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSampler>
+          <hashTree>
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+              <stringProp name="RegexExtractor.refname">tool_id</stringProp>
+              <stringProp name="RegexExtractor.regex">/portal/tool/(.+?)\?panel=Main&quot;&gt;</stringProp>
+              <stringProp name="RegexExtractor.template">$1$</stringProp>
+              <stringProp name="RegexExtractor.default"></stringProp>
+              <stringProp name="RegexExtractor.match_number">1</stringProp>
+            </RegexExtractor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="go main meetings page" enabled="true"/>
+        <hashTree>
+          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="go main meetings page" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+            <stringProp name="HTTPSampler.path">/portal/tool/${tool_id}/signupMeetings</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.mimetype"></stringProp>
+            <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+            <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+            <stringProp name="HTTPSampler.monitor">false</stringProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSampler>
+          <hashTree>
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+              <stringProp name="RegexExtractor.refname">delete_item</stringProp>
+              <stringProp name="RegexExtractor.regex">name=&quot;items:meetinglist:0:(.+?)&quot;</stringProp>
+              <stringProp name="RegexExtractor.template">$1$</stringProp>
+              <stringProp name="RegexExtractor.default"></stringProp>
+              <stringProp name="RegexExtractor.match_number">1</stringProp>
+            </RegexExtractor>
+            <hashTree/>
+            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Regular Expression Extractor" enabled="true">
+              <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+              <stringProp name="RegexExtractor.refname">formItem_id</stringProp>
+              <stringProp name="RegexExtractor.regex">onclick=&quot;document.forms[&apos;items&apos;][&apos;items:(.+?)&apos;]</stringProp>
+              <stringProp name="RegexExtractor.template">$1$</stringProp>
+              <stringProp name="RegexExtractor.default"></stringProp>
+              <stringProp name="RegexExtractor.match_number">1</stringProp>
+            </RegexExtractor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="delete meeting" enabled="true"/>
+        <hashTree>
+          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="delete meetings" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.name">items:viewByRange</stringProp>
+                  <stringProp name="Argument.value">10000</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                </elementProp>
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.name">items:meetinglist:${delete_meetingItem_RowNum_count_start_from_0}:${delete_item}</stringProp>
+                  <stringProp name="Argument.value">on</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                </elementProp>
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.name">items:removeMeetings</stringProp>
+                  <stringProp name="Argument.value">Remove Meetings</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                </elementProp>
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.name">com.sun.faces.VIEW</stringProp>
+                  <stringProp name="Argument.value">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</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                </elementProp>
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.name">items</stringProp>
+                  <stringProp name="Argument.value">items</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                </elementProp>
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.name">items:${formItem_id}</stringProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+            <stringProp name="HTTPSampler.path">/portal/tool/${tool_id}/signupMeetings</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.mimetype"></stringProp>
+            <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+            <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+            <stringProp name="HTTPSampler.monitor">false</stringProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSampler>
+          <hashTree/>
+          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="main meetings page" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+            <stringProp name="HTTPSampler.path">/portal/tool/${tool_id}/signupMeetings</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.mimetype"></stringProp>
+            <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+            <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+            <stringProp name="HTTPSampler.monitor">false</stringProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSampler>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="2140559305">${meetingTitle}</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <stringProp name="Assertion.assume_success">false</stringProp>
+              <intProp name="Assertion.test_type">6</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="logout" enabled="true"/>
+        <hashTree>
+          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="logout" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/portal/logout</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.mimetype"></stringProp>
+            <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
+            <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
+            <stringProp name="HTTPSampler.monitor">false</stringProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSampler>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
