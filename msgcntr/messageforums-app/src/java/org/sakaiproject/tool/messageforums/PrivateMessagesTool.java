@@ -2636,13 +2636,6 @@ private   int   getNum(char letter,   String   a)
     	rrepMsg.setInReplyTo(currentMessage) ;
 
 
-    	//Add the recipientList as String for display in Sent folder
-    	// Since some users may be hidden, if some of these are recipients
-    	// filter them out (already checked if no recipients)
-    	// if only 1 recipient no need to check visibility
-    	String sendToString="";
-    	String sendToHiddenString="";
-
     	//Add attachments
     	for(int i=0; i<allAttachments.size(); i++)
     	{
@@ -2694,61 +2687,78 @@ private   int   getNum(char letter,   String   a)
     		if((!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) ) )//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
     		{
     			returnSet.add(replyrecipientaddtmp);
-    			sendToStringreplyall+=replyrecipientaddtmp.getDisplayName()+"; " ;
-
     		}
 
     	}
 
+    	if(currentMessage.getRecipientsAsText() != null && !"".equals(currentMessage.getRecipientsAsText())){
+    		sendToStringreplyall += currentMessage.getRecipientsAsText() + "; ";
+    	}
     	if(returnSet.isEmpty()) {
     		returnSet.add(autheruser);
-    		sendToStringreplyall+= msgauther+"; " ;
-
-    	}
-
-    	//(2)
-    	// when clienter  want to add more recepitents
-    	User tmpusr=null;
-    	if(selectedComposeToList.size() > 0)
-    	{
-    		for (int iemb = 0; iemb < selectedComposeToList.size(); iemb++)
-    		{
-    			MembershipItem membershipItemtmp = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(iemb));
-    			tmpusr =membershipItemtmp.getUser();
-    			boolean iscontained=containedInList(tmpusr,tmpRecipList);
-    			if((tmpusr!=null)&&(!iscontained))//&&(!(tmpusr.getDisplayName()).equals(getUserName()) )) //&&(!(tmpusr.getDisplayName()).equals(msgauther)))
-    			{
-    				returnSet.add(tmpusr);
-    				sendToStringreplyall+=tmpusr.getDisplayName()+"; " ;
-
-    			}
-
-
-    			if((tmpusr!=null)&&((tmpusr.getDisplayName()).equals(getUserName())))
-    			{
-    				this.selectedComposedlistequalCurrentuser=true;
-    			}
-
-
+    		if(!sendToStringreplyall.contains(msgauther)){
+    			//only add it to the reply string if it doesn't exist
+    			sendToStringreplyall+= msgauther+"; " ;
     		}
-
+    	}
+    	if(returnSet.contains(autheruser) && !sendToStringreplyall.contains(msgauther)){
+    		sendToStringreplyall+= msgauther+"; " ;
     	}
 
-    	if((selectedComposedlistequalCurrentuser==true)&&(currentuser!=autheruser))
-    	{
-    		returnSet.add(currentuser);
-
+    	//Add the recipientList as String for display in Sent folder
+    	// Since some users may be hidden, if some of these are recipients
+    	// filter them out (already checked if no recipients)
+    	// if only 1 recipient no need to check visibility
+    	String sendToString= sendToStringreplyall;
+    	String sendToHiddenString="";
+    	
+    	if (selectedComposeToList.size() == 1) {
+    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
+    		if(membershipItem != null)
+    		{
+    			sendToString +=membershipItem.getName()+"; " ;
+    		}          
+    	}
+    	else {
+    		for (int i = 0; i < selectedComposeToList.size(); i++)
+    		{
+    			MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));
+    			if(membershipItem != null)
+    			{
+    				if(!sendToStringreplyall.contains(membershipItem.getName())){
+    					if (membershipItem.isViewable()) {
+    						sendToString +=membershipItem.getName()+"; " ;
+    					}
+    					else {
+    						sendToHiddenString += membershipItem.getName() + "; ";
+    					}
+    				}
+    			}          
+    		}
     	}
 
 
-    	if(!"".equals(sendToStringreplyall))
-    	{
-    		sendToStringreplyall=sendToStringreplyall.substring(0, sendToStringreplyall.length()-2); //remove last comma and space    
-    		rrepMsg.setRecipientsAsText(sendToStringreplyall);// + " (" + sendToHiddenString + ")");
-
+    	if (! "".equals(sendToString)) {
+    		sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
     	}
 
-
+    	if ("".equals(sendToHiddenString)) {
+    		rrepMsg.setRecipientsAsText(sendToString);
+    	}
+    	else {
+    		sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
+    		rrepMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+    	}
+    	
+    	
+    	//Add selected users to reply all list
+    	
+    	Set<User> recipients = getRecipients();
+    	for (User user : recipients) {
+			if(!returnSet.contains(user)){
+				returnSet.add(user);
+			}
+		}
     	if(!getBooleanEmailOut())
     	{
 
