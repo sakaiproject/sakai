@@ -2,11 +2,17 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="postemAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atip</value></property>
+      <property name="name"><value>Post'Em</value></property>
+      <property name="location"><value>/sakai_postem/atip.html</value></property>
+      <property name="defaultForTool"><value>sakai.postem</value></property>
+   </bean>
+
    <bean id="postemOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>athq</value></property>
       <property name="name"><value>Post'Em Overview</value></property>
       <property name="location"><value>/sakai_postem/athq.html</value></property>
-      <property name="defaultForTool"><value>sakai.postem</value></property>
    </bean>
    
    <bean id="postemUsing" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -37,6 +43,7 @@
                <property name="name"><value>Post'Em</value></property>
                <property name="resources">
                   <list>
+       			<ref bean="postemAbout"/>
        			<ref bean="postemOverview"/>
 			<ref bean="postemUsing"/>
 			<ref bean="postemUpdating"/>
