@@ -139,9 +139,11 @@ public interface SecurityService
 
 	/**
 	 * Remove any SecurityAdvisors from this thread.
-	 * NOTE: This call removes all security advisors, not only the one from the calling thread
-	 * rather use {@link #popAdvisor()}
-	 */
+	 * WARNING:This method should not be used as it removes all security advisors, not only the one from the calling thread
+	 * rather use {@link #popAdvisor()} 
+	 * @deprecated
+	*/
+	
 	void clearAdvisors();
 
 	/**
