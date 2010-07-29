@@ -2,11 +2,16 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="chatRoomAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arft</value></property>
+      <property name="name"><value>Chat Room</value></property>
+      <property name="location"><value>/sakai_chat/arft.html</value></property>
+      <property name="defaultForTool"><value>sakai.chat</value></property>
+   </bean>
    <bean id="chatRoomOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcz</value></property>
       <property name="name"><value>Chat Room Overview</value></property>
       <property name="location"><value>/sakai_chat/arcz.html</value></property>
-      <property name="defaultForTool"><value>sakai.chat</value></property>
    </bean>
 
    <bean id="useChatRoom" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -30,6 +35,7 @@
                <property name="name"><value>Chat Room</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="chatRoomAbout"/>
                      <ref bean="chatRoomOverview"/>
                      <ref bean="useChatRoom"/>
                      <ref bean="createNewChat"/>
