@@ -122,6 +122,28 @@
             <value>/sakai_forums/avai.html</value>
         </property>
     </bean>
+    <bean id="mcLinking" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>azvh</value>
+        </property>
+        <property name="name">
+            <value>Linking to a message</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/azvh.html</value>
+        </property>
+    </bean>
+    <bean id="mcEmailing" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>azve</value>
+        </property>
+        <property name="name">
+            <value>Emailing message authors</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/azve.html</value>
+        </property>
+    </bean>
     <bean id="mcNotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>auut</value>
@@ -162,6 +184,8 @@
                             <ref bean="mcGrade" />
                             <ref bean="mcStats" />
                             <ref bean="mcNotification" />
+                            <ref bean="mcLinking" />
+                            <ref bean="mcEmailing" />
                         </list>
                     </property>
                 </bean>
