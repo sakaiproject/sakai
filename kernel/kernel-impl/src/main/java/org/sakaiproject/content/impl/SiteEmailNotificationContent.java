@@ -26,12 +26,16 @@ import java.util.List;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
@@ -49,6 +53,7 @@ import org.sakaiproject.util.StringUtil;
  * 
  * @author Sakai Software Development Team
  */
+@SuppressWarnings("deprecation")
 public class SiteEmailNotificationContent extends SiteEmailNotification
 {
 	
@@ -371,7 +376,41 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		// filter down by the permission
 		if (getResourceAbility() != null)
 		{
-			List<User> allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
+			boolean hidden = false;
+			if (!ContentHostingService.isCollection(ref.getId())) {
+				try {
+					ContentResource resource = ContentHostingService.getResource(ref.getId());
+					hidden = resource.isHidden();
+					
+				    //we need to check the containing folder too
+					ContentCollection folder = resource.getContainingCollection();
+					System.out.println("folder: " + folder.getId() + " is " + folder.isHidden());
+					if (folder.isHidden()) {
+						hidden = folder.isHidden();
+						System.out.println("Folder is hidden!");
+					}
+					
+				} catch (PermissionException e) {
+					e.printStackTrace();
+				} catch (IdUnusedException e) {
+					e.printStackTrace();
+				} catch (TypeException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			List<User> allGroupUsers2 = null;
+			if (!hidden) {
+				//resource is visible get all users
+				allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
+				
+			} else {
+				allGroupUsers2 = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_HIDDEN, contextRef);
+				//we need to remove all users from the list as that is too open in this case
+				users.clear();
+				
+			}
+			
 			allGroupUsers.retainAll(allGroupUsers2);
 		}
 
