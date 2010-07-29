@@ -2,11 +2,17 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="samigoAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfu</value></property>
+      <property name="name"><value>Tests/Quizzes</value></property>
+      <property name="location"><value>/sakai_samigo/arfu.html</value></property>
+      <property name="defaultForTool"><value>sakai.samigo</value></property>
+   </bean>
+
    <bean id="samigoOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arfk</value></property>
       <property name="name"><value>Tests/Quizzes Overview</value></property>
       <property name="location"><value>/sakai_samigo/arfk.html</value></property>
-      <property name="defaultForTool"><value>sakai.samigo</value></property>
    </bean>
    
    <bean id="createAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -159,11 +165,22 @@
       <property name="location"><value>/sakai_samigo/ardi.html</value></property>
    </bean>
    
-   
    <bean id="viewScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aszx</value></property>
       <property name="name"><value>View Student Scores And Answers</value></property>
       <property name="location"><value>/sakai_samigo/aszx.html</value></property>
+   </bean>
+
+   <bean id="createQuickCreate" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>azms</value></property>
+      <property name="name"><value>Differences between Create and Quick Create</value></property>
+      <property name="location"><value>/sakai_samigo/azms.html</value></property>
+   </bean>
+
+   <bean id="scoresInGb" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arro</value></property>
+      <property name="name"><value>Send Assessment Scores to Gradebook</value></property>
+      <property name="location"><value>/sakai_samigo/arro.html</value></property>
    </bean>
 
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
@@ -175,9 +192,11 @@
                <property name="name"><value>Test and Quizzes</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="samigoAbout"/>
                      <ref bean="samigoOverview"/>
 					 <ref bean="createAssessment"/>
 					 <ref bean="createQuestions"/>
+					 <ref bean="createQuickCreate"/>
 					 <ref bean="previewAssessment"/>
 					 <ref bean="restrictAccess"/>
 					 <ref bean="orderQuestions"/>
@@ -202,8 +221,7 @@
 					 <ref bean="takeAssessment"/>
 					 <ref bean="resumeAssessment"/>
 					 <ref bean="viewScores"/>
-					 <ref bean="modifyPublishedAssessment"/>
-					 <ref bean="modifyPublishedAssessment"/>
+					 <ref bean="scoresInGb"/>
                   </list>
                </property>
             </bean>
