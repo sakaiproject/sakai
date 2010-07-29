@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="scheduleOverview"
-		class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>aray</value>
-		</property>
-		<property name="name">
-			<value>Schedule Overview</value>
-		</property>
-		<property name="location">
-			<value>/sakai_schedule/aray.html</value>
-		</property>
-		<property name="defaultForTool">
-			<value>sakai.schedule</value>
-		</property>
+	<bean id="scheduleAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId"><value>arfm</value></property>
+		<property name="name"><value>Schedule</value></property>
+		<property name="location"><value>/sakai_schedule/arfm.html</value></property>
+		<property name="defaultForTool"><value>sakai.schedule</value></property>
+	</bean>
+	<bean id="scheduleOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId"><value>aray</value></property>
+		<property name="name"><value>Schedule Overview</value></property>
+		<property name="location"><value>/sakai_schedule/aray.html</value></property>
 	</bean>
 	<bean id="scheduleSummary"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -148,6 +144,7 @@
 					</property>
 					<property name="resources">
 						<list>
+							<ref bean="scheduleAbout" />
 							<ref bean="scheduleOverview" />
 							<ref bean="scheduleSummary" />
 							<ref bean="addActivity" />
