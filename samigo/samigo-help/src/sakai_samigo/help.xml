@@ -173,8 +173,8 @@
 
    <bean id="createQuickCreate" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>azms</value></property>
-      <property name="name"><value>Differences between Create and Quick Create</value></property>
-      <property name="location"><value>/sakai_samigo/azms.html</value></property>
+      <property name="name"><value>Formatting Questions for Quick Create</value></property>
+      <property name="location"><value>/sakai_samigo/azrq.html</value></property>
    </bean>
 
    <bean id="scoresInGb" class="org.sakaiproject.component.app.help.model.ResourceBean">
