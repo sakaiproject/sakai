@@ -2,11 +2,16 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="worksiteAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argh</value></property>
+      <property name="name"><value>Home/Worksite Information</value></property>
+      <property name="location"><value>/sakai_iframe_site/argh.html</value></property>
+      <property name="defaultForTool"><value>sakai.iframe.site</value></property>
+   </bean>
    <bean id="worksiteOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqyv</value></property>
       <property name="name"><value>Home/Worksite Information Overview</value></property>
       <property name="location"><value>/sakai_iframe_site/aqyv.html</value></property>
-      <property name="defaultForTool"><value>sakai.iframe.site</value></property>
    </bean>
    
    <bean id="changeWorksiteInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -42,11 +47,10 @@
                <property name="name"><value>Worksite Info</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="worksiteAbout"/>
                      <ref bean="worksiteOverview"/>
                      <ref bean="changeWorksiteInfo"/>
                      <ref bean="addWorksiteInfo"/>
-                   <!--   <ref bean="requestProjectSite"/> -->
-                   <!--   <ref bean="courseProjectSite"/> -->
                   </list>
                </property>
             </bean>

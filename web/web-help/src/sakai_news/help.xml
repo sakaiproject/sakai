@@ -3,6 +3,13 @@
 
 <beans>
 
+   <bean id="newsAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argf</value></property>
+      <property name="name"><value>News</value></property>
+      <property name="location"><value>/sakai_news/argf.html</value></property>
+      <property name="defaultForTool"><value>sakai.news</value></property>
+   </bean>
+
    <bean id="newsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arcf</value></property>
       <property name="name"><value>News Overview</value></property>
@@ -31,8 +38,9 @@
                <property name="name"><value>News</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="newsAbout"/>
                      <ref bean="newsOverview"/>
-					 <ref bean="setupNews"/>
+                     <ref bean="setupNews"/>
                      <ref bean="viewNewsFeed"/>
                   </list>
                </property>
