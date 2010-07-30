@@ -258,6 +258,7 @@ public class UserPrefsTool
 	private String userId = "";
 
 	private String SAKAI_LOCALES = "locales";
+	private String SAKAI_LOCALES_MORE = "locales.more";
 
 	/**
 	 * SAK-11460:  With DTHML More Sites, there are potentially two
@@ -496,8 +497,14 @@ public class UserPrefsTool
 		{
 			Locale[] localeArray = null;
 			String localeString = ServerConfigurationService.getString(SAKAI_LOCALES);
+			String localeStringMore = ServerConfigurationService.getString(SAKAI_LOCALES_MORE);
+			
+			if ( localeString == null )
+				localeString = "";
+			if ( localeStringMore != null && !localeStringMore.equals("") )
+				localeString += ","+localeStringMore;
 
-			if (localeString != null && !localeString.equals(""))
+			if ( !localeString.equals("") )
 			{
 				String[] sakai_locales = localeString.split(",");
 				localeArray = new Locale[sakai_locales.length + 1];
