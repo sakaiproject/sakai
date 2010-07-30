@@ -361,12 +361,13 @@ public abstract class SakaiSecurity implements SecurityService
 	 * @param force
 	 *        if true, create if missing
 	 */
-	protected Stack getAdvisorStack(boolean force)
+	@SuppressWarnings("unchecked")
+	protected Stack<SecurityAdvisor>  getAdvisorStack(boolean force)
 	{
-		Stack advisors = (Stack) threadLocalManager().get(ADVISOR_STACK);
+		Stack<SecurityAdvisor>  advisors = (Stack<SecurityAdvisor>) threadLocalManager().get(ADVISOR_STACK);
 		if ((advisors == null) && force)
 		{
-			advisors = new Stack();
+			advisors = new Stack<SecurityAdvisor>();
 			threadLocalManager().set(ADVISOR_STACK, advisors);
 		}
 
@@ -394,7 +395,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	protected SecurityAdvisor.SecurityAdvice adviseIsAllowed(String userId, String function, String reference)
 	{
-		Stack advisors = getAdvisorStack(false);
+		Stack<SecurityAdvisor>  advisors = getAdvisorStack(false);
 		if ((advisors == null) || (advisors.isEmpty())) return SecurityAdvisor.SecurityAdvice.PASS;
 
 		// a Stack grows to the right - process from top to bottom
@@ -417,7 +418,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	public void pushAdvisor(SecurityAdvisor advisor)
 	{
-		Stack advisors = getAdvisorStack(true);
+		Stack<SecurityAdvisor>  advisors = getAdvisorStack(true);
 		advisors.push(advisor);
 	}
 
@@ -426,7 +427,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	public SecurityAdvisor popAdvisor()
 	{
-		Stack advisors = getAdvisorStack(false);
+		Stack<SecurityAdvisor> advisors = getAdvisorStack(false);
 		if (advisors == null) return null;
 
 		SecurityAdvisor rv = null;
@@ -449,7 +450,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	public boolean hasAdvisors()
 	{
-		Stack advisors = getAdvisorStack(false);
+		Stack<SecurityAdvisor>  advisors = getAdvisorStack(false);
 		if (advisors == null) return false;
 
 		return !advisors.isEmpty();
