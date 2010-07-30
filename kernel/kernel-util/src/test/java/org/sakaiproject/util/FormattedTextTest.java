@@ -191,4 +191,11 @@ public class FormattedTextTest extends TestCase {
 */
     }
 
+    public void testUnbalancedMarkup() {
+    	StringBuilder errorMessages = new StringBuilder();
+    	String strFromBrowser = "A<B Test";
+        
+    	String result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNull(result);
+    }
 }

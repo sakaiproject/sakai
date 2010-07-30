@@ -288,19 +288,20 @@ public class FormattedText
         if (val == null || val.length() == 0)
             return val;
 
-        if (replaceWhitespaceTags) {
-            // normalize all variants of the "<br>" HTML tag to be "<br />\n"
-            val = M_patternTagBr.matcher(val).replaceAll("<br />");
+        try {
+			if (replaceWhitespaceTags) {
+			    // normalize all variants of the "<br>" HTML tag to be "<br />\n"
+			    val = M_patternTagBr.matcher(val).replaceAll("<br />");
 
-            // replace "<p>" with nothing. Replace "</p>" and "<p />" HTML tags with "<br />"
-            // val = val.replaceAll("<p>", "");
-            // val = val.replaceAll("</p>", "<br />\n");
-            // val = val.replaceAll("<p />", "<br />\n");
-        }
+			    // replace "<p>" with nothing. Replace "</p>" and "<p />" HTML tags with "<br />"
+			    // val = val.replaceAll("<p>", "");
+			    // val = val.replaceAll("</p>", "<br />\n");
+			    // val = val.replaceAll("<p />", "<br />\n");
+			}
 
-        if (checkForEvilTags) {
+			if (checkForEvilTags) {
 //            if (useLegacySakaiCleaner || antiSamy == null) {
-                val = processHtml(strFromBrowser, errorMessages);
+			        val = processHtml(strFromBrowser, errorMessages);
 //            } else {
 //                // use the owasp processor
 //                if (antiSamy != null) {
@@ -323,19 +324,27 @@ public class FormattedText
 //                    }
 //                }
 //            }
-        }
+			}
 
-        // deal with hardcoded empty space character from Firefox 1.5
-        if (val.equalsIgnoreCase("&nbsp;")) {
-            val = "";
-        }
+			// deal with hardcoded empty space character from Firefox 1.5
+			if (val.equalsIgnoreCase("&nbsp;")) {
+			    val = "";
+			}
 
 //        if (useLegacySakaiCleaner || antiSamy == null) {
-            // close any open HTML tags (that the user may have accidentally left open)
-            StringBuilder buf = new StringBuilder();
-            trimFormattedText(val, Integer.MAX_VALUE, buf);
-            val = buf.toString();
+			    // close any open HTML tags (that the user may have accidentally left open)
+			    StringBuilder buf = new StringBuilder();
+			    trimFormattedText(val, Integer.MAX_VALUE, buf);
+			    val = buf.toString();
 //        }
+		} catch (Exception e) {
+			// We catch all exceptions here because doing so will usually give the user the
+			// opportunity to work around the issue, rather than causing a tool stack trace
+			
+			M_log.warn("Unexpected error processing text", e);
+			errorMessages.append("Unknown error processing text markup\n");
+			return null;
+		}
 
         // TODO: Fully parse and validate the formatted text against
         // the formatted text specification. Perhaps this could be
