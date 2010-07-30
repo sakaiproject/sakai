@@ -708,7 +708,7 @@ $(document).ready(function() {
 							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 								#set($description = "")
 								#set($description = $group.Description)
-								$!description
+								$validator.escapeHtml($!description)
 							</td>
 						</tr>
 					#end
