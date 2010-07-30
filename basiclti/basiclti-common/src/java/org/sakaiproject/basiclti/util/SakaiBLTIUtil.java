@@ -182,10 +182,13 @@ System.out.println("ASSIGN="+assignment);
 		decimal, percentage, ratio, passfail, letteraf, letterafplus, or freetext
         	*/
 
-                if ( assignment != null ) {
-			String result_sourcedid = "random" + ":::" + placement.getId() + ":::" + user.getId();
-System.out.println("RSI="+result_sourcedid);
-			result_sourcedid = LinkToolUtil.encrypt("random" + ":::" + LinkToolUtil.encrypt(placement.getId() + ":::" + user.getId()));
+		String gradeSecret = toNull(getCorrectProperty(config,"gradesecret", placement));
+System.out.println("gradeSecret="+gradeSecret);
+                if ( assignment != null && gradeSecret != null) {
+			String suffix = ":::" + placement.getId() + ":::" + user.getId();
+			String base_string = gradeSecret + suffix;
+			String signature = ShaUtil.sha1Hash(base_string);
+			String result_sourcedid = signature + suffix;
 System.out.println("RSI="+result_sourcedid);
 			setProperty(props,"lis_result_sourcedid", result_sourcedid);  
 

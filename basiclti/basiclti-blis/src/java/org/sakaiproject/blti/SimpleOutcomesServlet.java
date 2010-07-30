@@ -65,7 +65,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.basiclti.util.ShaUtil;
 
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -205,21 +204,22 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		}
 
 		String placement_id = null;
+		String signature = null;
 		String user_id = null;
 		// Attempt to parse the sourcedid, any failure,if fatal
 		try {
-                	String dec1 = LinkToolUtil.decrypt(sourcedid);
-                	int pos = dec1.indexOf(":::");
+                	int pos = sourcedid.indexOf(":::");
                 	if ( pos > 0 ) {
-                    		String dec2 = dec1.substring(pos+3);
-                    		String dec3 = LinkToolUtil.decrypt(dec2);
-		    		pos = dec3.indexOf(":::");
-                    		placement_id = dec3.substring(0,pos);
-                    		user_id = dec3.substring(pos+3);
+				signature = sourcedid.substring(0, pos);
+                    		String dec2 = sourcedid.substring(pos+3);
+		    		pos = dec2.indexOf(":::");
+                    		placement_id = dec2.substring(0,pos);
+                    		user_id = dec2.substring(pos+3);
                		}
                 } catch (Exception e) {
 			// Log some detail for ourselves
 			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
+			signature = null;
 			placement_id = null;
 			user_id = null;
                 }
@@ -230,9 +230,11 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			return;
 		}
 
+System.out.println("signature="+signature);
 System.out.println("placement_id="+placement_id);
 System.out.println("user_id="+user_id);
 
+		M_log.debug("signature="+signature);
 		M_log.debug("user_id="+user_id);
 		M_log.debug("placement_id="+placement_id);
 
@@ -256,6 +258,7 @@ System.out.println("user_id="+user_id);
 			return;
 		}
 
+		// Check the message signature using OAuth
 		String oauth_secret = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"secret", placement));
 
 		OAuthMessage oam = OAuthServlet.getMessage(request, null);
@@ -284,6 +287,19 @@ System.out.println("user_id="+user_id);
 			return;
 		}
 
+		// Check the signature of the sourcedid to make sure it was not altered
+		String grade_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"gradesecret", placement));
+		String pre_hash = grade_secret + ":::" + placement_id + ":::" + user_id;
+		String received_signature = ShaUtil.sha1Hash(pre_hash);
+System.out.println("Received signature="+signature+" received="+received_signature);
+
+		// Send a more generic message back to the caller
+		if ( ! signature.equals(received_signature) ) {
+			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		// Make sure the user exists in the site
                 boolean userExistsInSite = false;
                 try {
                         Member member = site.getMember(user_id);
@@ -294,12 +310,17 @@ System.out.println("user_id="+user_id);
                         return;
                 }
 
+		// Make sure the placement is configured to receive grades
 		String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
 System.out.println("ASSN="+assignment);
 		if ( assignment == null ) {
                         doError(request, response, "outcome.no.assignment", "", null);
                         return;
 		}
+
+		// We don't need to retrieve the assignments and check if it 
+		// is a valid column because if the column is wrong, we 
+		// will get an exception below
 
 		// Lets store it using the securityadvisor
                 pushAdvisor();

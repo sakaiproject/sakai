@@ -26,6 +26,7 @@ import java.lang.Integer;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
@@ -364,7 +365,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		pSession.setAttribute("sakai.view", "edit");
 	} else if ( action.equals("edit.reset") ) {
                 pSession.setAttribute("sakai.view","edit.reset");
-	}else if (action.equals("edit.setup")){
+	} else if (action.equals("edit.setup")){
 		pSession.setAttribute("sakai.view","edit.setup");
 	} else if ( action.equals("edit.clear") ) {
 		clearSession(request);
@@ -427,7 +428,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	return placement.getConfig();
     }
 
-    // EMpty or all whitespace properties are null
+    // Empty or all whitespace properties are null
     public String getSakaiProperty(Properties config, String key)
     {
         String propValue = config.getProperty(key);
@@ -492,9 +493,14 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
         }
 
-        // TODO: HTML Protect this stuff
+	// Prepare to store preferences
+        PortletPreferences prefs = request.getPreferences();
+        boolean changed = false;
+
         // Make Sure the Assignment is a legal one
 	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
+        String oldGradeSecret = getSakaiProperty(sakaiProperties,"imsti.gradesecret");
+System.out.println("old gradesecret="+oldGradeSecret);
         if ( assignment != null && assignment.trim().length() > 1 ) {
 	        List<String> assignments = getGradeBookAssignments();
                 boolean found = false;
@@ -505,9 +511,19 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			setErrorMessage(request, rb.getString("error.gradable.badassign") + assignment );
 			return;
 		}
+		if ( oldGradeSecret == null ) {
+                	try {
+				String uuid = UUID.randomUUID().toString();
+                        	prefs.setValue("sakai:imsti.gradesecret", uuid);
+System.out.println("gradesecret set to="+uuid);
+                        	changed = true;
+                	} catch (ReadOnlyException e) {
+                        	setErrorMessage(request, rb.getString("error.modify.prefs") );
+                	} 
+                } 
         }
 
-	String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
+        String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
         if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;
         if ( imsTIHeight != null ) {
                 try {
@@ -544,8 +560,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	}
 
         // Store preferences
-        PortletPreferences prefs = request.getPreferences();
-        boolean changed = false;
         for (String element : fieldList) {
                 String formParm  = getFormParameter(request,sakaiProperties,element);
                 if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
