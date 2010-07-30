@@ -31,6 +31,8 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -99,6 +101,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
     /** To turn on really verbose debugging */
     private static boolean verbosePrint = false;
+
+    public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
@@ -514,8 +518,12 @@ System.out.println("old gradesecret="+oldGradeSecret);
 		if ( oldGradeSecret == null ) {
                 	try {
 				String uuid = UUID.randomUUID().toString();
+				Date date = new Date();
+				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
+				String date_secret = sdf.format(date);
                         	prefs.setValue("sakai:imsti.gradesecret", uuid);
-System.out.println("gradesecret set to="+uuid);
+                        	prefs.setValue("sakai:imsti.gradesecretdate", date_secret);
+System.out.println("gradesecret set to="+uuid+" data="+date_secret);
                         	changed = true;
                 	} catch (ReadOnlyException e) {
                         	setErrorMessage(request, rb.getString("error.modify.prefs") );

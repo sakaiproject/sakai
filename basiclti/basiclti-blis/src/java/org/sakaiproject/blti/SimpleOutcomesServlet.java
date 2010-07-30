@@ -289,12 +289,28 @@ System.out.println("user_id="+user_id);
 
 		// Check the signature of the sourcedid to make sure it was not altered
 		String grade_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"gradesecret", placement));
+
+		// Send a generic message back to the caller
+		if ( grade_secret ==null ) {
+			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
 		String pre_hash = grade_secret + ":::" + placement_id + ":::" + user_id;
 		String received_signature = ShaUtil.sha1Hash(pre_hash);
 System.out.println("Received signature="+signature+" received="+received_signature);
+		boolean matched = signature.equals(received_signature);
 
-		// Send a more generic message back to the caller
-		if ( ! signature.equals(received_signature) ) {
+		String old_grade_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"oldgradesecret", placement));
+		if ( old_grade_secret != null && ! matched ) {
+			pre_hash = grade_secret + ":::" + placement_id + ":::" + user_id;
+			received_signature = ShaUtil.sha1Hash(pre_hash);
+System.out.println("Received signature II="+signature+" received="+received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		// Send a message back to the caller
+		if ( ! matched ) {
 			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
