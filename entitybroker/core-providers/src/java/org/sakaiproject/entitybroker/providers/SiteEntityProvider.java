@@ -74,6 +74,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Creates a provider for dealing with sites
@@ -605,11 +606,23 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             if (siteId == null && site.getId() != null) {
                 siteId = site.getId();
             }
+            
+            // check description
+            String description = site.getDescription();
+
+            if (description != null) {
+                StringBuilder alertMsg = new StringBuilder();
+                description = FormattedText.processFormattedText(description, alertMsg);
+                if (description == null) {
+                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                }
+            }
+
             Site s = null;
             try {
                 s = siteService.addSite(siteId, site.getType());
                 s.setCustomPageOrdered(site.isCustomPageOrdered());
-                s.setDescription(site.getDescription());
+                s.setDescription(description);
                 s.setIconUrl(site.getIconUrl());
                 s.setInfoUrl(site.getInfoUrl());
                 s.setJoinable(site.isJoinable());
@@ -643,11 +656,23 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             if (siteId == null && site.getId() != null) {
                 siteId = site.getId();
             }
+            
+            // check description
+            String description = site.getDescription();
+
+            if (description != null) {
+                StringBuilder alertMsg = new StringBuilder();
+                description = FormattedText.processFormattedText(description, alertMsg);
+                if (description == null) {
+                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                }
+            }            
+            
             Site s = null;
             try {
                 s = siteService.addSite(siteId, site.getType());
                 s.setCustomPageOrdered(site.isCustomPageOrdered());
-                s.setDescription(site.getDescription());
+                s.setDescription(description);
                 s.setIconUrl(site.getIconUrl());
                 s.setInfoUrl(site.getInfoUrl());
                 s.setJoinable(site.isJoinable());
@@ -713,8 +738,20 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         if (entity.getClass().isAssignableFrom(Site.class)) {
             // if someone passes in a Site
             Site site = (Site) entity;
+            
+            // check description
+            String description = site.getDescription();
+
+            if (description != null) {
+                StringBuilder alertMsg = new StringBuilder();
+                description = FormattedText.processFormattedText(description, alertMsg);
+                if (description == null) {
+                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                }
+            }            
+            
             s.setCustomPageOrdered(site.isCustomPageOrdered());
-            s.setDescription(site.getDescription());
+            s.setDescription(description);
             s.setIconUrl(site.getIconUrl());
             s.setInfoUrl(site.getInfoUrl());
             s.setJoinable(site.isJoinable());
@@ -735,9 +772,21 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
             // if they instead pass in the entitysite object
             EntitySite site = (EntitySite) entity;
+
+            // check description
+            String description = site.getDescription();
+
+            if (description != null) {
+                StringBuilder alertMsg = new StringBuilder();
+                description = FormattedText.processFormattedText(description, alertMsg);
+                if (description == null) {
+                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                }
+            }            
+            
             s.setCustomPageOrdered(site.isCustomPageOrdered());
-            if (site.getDescription() != null)
-                s.setDescription(site.getDescription());
+            if (description != null)
+                s.setDescription(description);
             if (site.getIconUrl() != null)
                 s.setIconUrl(site.getIconUrl());
             s.setJoinable(site.isJoinable());
