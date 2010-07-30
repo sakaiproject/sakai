@@ -295,13 +295,13 @@ function resizeFrame(){
 								</td>
 								<td headers="groupname" nowrap="nowrap">
 									<label for="group-$group.Id">
-										$group.Title
+										$validator.escapeHtml($group.Title)
 									</label>	
 								</td>
 								<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
 									#set($description = "")
 									#set($description = $group.Description)
-									$!description
+									$validator.escapeHtml($!description)
 								</td>
 							</tr>
 						#end
