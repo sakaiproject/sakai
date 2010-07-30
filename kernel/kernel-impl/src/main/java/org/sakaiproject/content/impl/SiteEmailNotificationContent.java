@@ -384,10 +384,9 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 					
 				    //we need to check the containing folder too
 					ContentCollection folder = resource.getContainingCollection();
-					System.out.println("folder: " + folder.getId() + " is " + folder.isHidden());
 					if (folder.isHidden()) {
 						hidden = folder.isHidden();
-						System.out.println("Folder is hidden!");
+						
 					}
 					
 				} catch (PermissionException e) {
