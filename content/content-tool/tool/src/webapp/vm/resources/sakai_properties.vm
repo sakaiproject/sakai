@@ -253,7 +253,7 @@
 							</td>
 							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
 								<label for="access_groups_${group.Id}${DOT}$i">
-									$group.title
+									$validator.escapeHtml($group.title)
 								</label>	
 							</td>
 							<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
@@ -261,7 +261,7 @@
 								#if($group.description)
 									#set($description = $group.Description)
 								#end
-								$!description
+								$validator.escapeHtml($!description)
 							</td>
 						</tr>
 					#end
