@@ -203,7 +203,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             throw new SecurityException("Anonymous users cannot view votes: " + ref);
         }
      
-        log.info("why are we here?");
+        
         Restriction pollRes = search.getRestrictionByProperty("pollId");
         
         if (pollRes == null || pollRes.getSingleValue() == null) {
