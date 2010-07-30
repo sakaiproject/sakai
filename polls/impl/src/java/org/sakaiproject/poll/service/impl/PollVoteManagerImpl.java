@@ -152,7 +152,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		if (voteId == null) {
 			throw new IllegalArgumentException("voteId cannot be null when getting vote");
 		}
-		Search search = new Search(new Restriction("voteId", voteId));
+		Search search = new Search(new Restriction("id", voteId));
 		Vote vote = (Vote) dao.findOneBySearch(Vote.class, search);
 		return vote;
 	}
