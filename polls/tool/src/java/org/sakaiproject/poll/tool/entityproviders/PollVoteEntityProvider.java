@@ -98,7 +98,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         }
         Vote vote = (Vote) entity;
         
-        log.info("got vote: " + vote.toString());
+        log.debug("got vote: " + vote.toString());
         
         Long pollId = null;
         try {
