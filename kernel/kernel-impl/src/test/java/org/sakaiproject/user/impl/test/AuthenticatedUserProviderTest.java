@@ -257,7 +257,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 				} catch (Exception e) {
 					log.warn(e);
 				} finally {
-					securityService.clearAdvisors();
+					securityService.popAdvisor();
 				}
 			} catch (UserNotDefinedException e) {
 				try {
@@ -274,7 +274,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 				} catch (Exception e1) {
 					log.warn(e1);
 				} finally {
-					securityService.clearAdvisors();
+					securityService.popAdvisor();
 				}
 			}
 			return user;			
