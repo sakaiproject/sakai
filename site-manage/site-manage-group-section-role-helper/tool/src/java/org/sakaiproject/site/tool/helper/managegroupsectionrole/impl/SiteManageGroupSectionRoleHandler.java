@@ -436,7 +436,6 @@ public class SiteManageGroupSectionRoleHandler {
 
     		List<String> providerCourseList = SiteParticipantHelper.getProviderCourseList(siteId);
     		Collection<Participant> rvCopy = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
-    		rv.addAll(rvCopy);
     		
     		// check with group attendents
     		if (group != null)
@@ -444,9 +443,9 @@ public class SiteManageGroupSectionRoleHandler {
     			// need to remove those inside group already
 	    		for(Participant p:rvCopy)
 	    		{
-	    			if (group.getUserRole(p.getUniqname()) != null)
+	    			if (p.getUniqname() != null && group.getMember(p.getUniqname()) == null)
 	    			{
-	    				rv.remove(p);
+	    				rv.add(p);
 	    			}
 	    		}
     		}
