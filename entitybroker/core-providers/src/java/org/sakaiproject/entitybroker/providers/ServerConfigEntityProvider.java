@@ -66,6 +66,7 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
             "version.service",
             "version.sakai",
             "version.kernel",
+            "buildTime.kernel",
             "locales",
             "force.url.secure",
             "skin.default",
