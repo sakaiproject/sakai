@@ -207,7 +207,7 @@ public abstract class SakaiSecurity implements SecurityService
 		// cache
 		if (m_callCache != null)
 		{
-			Collection azgIds = new Vector();
+			Collection<String> azgIds = new Vector<String>();
 			azgIds.add("/site/!admin");
 			m_callCache.put(command, Boolean.valueOf(rv), m_cacheMinutes * 60, null, azgIds);
 		}
@@ -248,7 +248,7 @@ public abstract class SakaiSecurity implements SecurityService
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean unlock(String userId, String function, String entityRef, Collection azgs)
+	public boolean unlock(String userId, String function, String entityRef, Collection<String> azgs)
 	{
 		// make sure we have complete parameters (azgs is optional)
 		if (userId == null || function == null || entityRef == null)
@@ -289,7 +289,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 *        The entity reference string.
 	 * @return true if allowed, false if not.
 	 */
-	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection azgs)
+	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection<String> azgs)
 	{
 		// check the cache
 		String command = "unlock@" + userId + "@" + function + "@" + entityRef;
@@ -326,6 +326,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 *        The resource reference string.
 	 * @return A List (User) of the users can unlock the lock (may be empty).
 	 */
+	@SuppressWarnings("unchecked")
 	public List<User> unlockUsers(String lock, String reference)
 	{
 		if (reference == null)
@@ -505,7 +506,7 @@ public abstract class SakaiSecurity implements SecurityService
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	
 	public void clearUserEffectiveRoles() {
 		
 		// get all the roleswaps from the session and clear them
