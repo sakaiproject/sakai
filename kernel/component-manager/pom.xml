@@ -79,7 +79,7 @@
             <phase>compile</phase>
             <configuration>
               <tasks>
-                <echo message="version.kernel=${project.version}" file="${basedir}/target/classes/org/sakaiproject/config/version.properties" />
+                <echo message="version.kernel=${project.version}" file="${project.build.outputDirectory}/org/sakaiproject/config/version.properties" />
               </tasks>
 
             </configuration>
