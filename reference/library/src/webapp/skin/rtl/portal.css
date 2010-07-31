@@ -778,15 +778,18 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 
-.portletTitle .title a:hover{
+.portletTitle .title a:hover, .portletTitle .title a:focus{
 	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .title a:focus,.portletTitle .action a:focus{ 
+	outline:black dotted thin; 
 }
 
 .portletTitle .action img{
 	margin: 0;
 	vertical-align: middle;
 	width:18px !important;
-	
 	height:18px
 }
 
@@ -795,7 +798,7 @@ below they are contextually defined depending on the column as an example,as you
 	border:1px solid #b71
 }
 
-.portletTitle .action a:hover{
+.portletTitle .action a:hover, .portletTitle .action a:focus{
 	background: url(images/help_h.gif) center right no-repeat;
 }
 

@@ -385,7 +385,7 @@ table.calendar .event{
 
 /*lines - provides rules and hover effects on some tables*/
 table.lines{
-	border-collapse: collapse;
+	border-collapse: separate;
 }
 
 table.lines tr:hover{
@@ -976,11 +976,14 @@ width:auto !important
 /*SECTION 12 PORTAL THINGS*/
 
 /*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
 .presenceList{
 	font-size: .8em;
 	list-style: none;
 	margin: 0;
-	>>> direction:rtl;
+	direction:rtl;
 	text-align:right;
 	/*padding-left: .1em*/padding-right: .1em;
 }

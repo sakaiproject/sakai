@@ -1,0 +1,61 @@
+.fl-font-size-70,.fl-font-size-70 body,.fl-font-size-70 input,.fl-font-size-70 select,.fl-font-size-70 textarea{font-size:.7em!important;line-height:1em!important;}
+.fl-font-size-80,.fl-font-size-80 body,.fl-font-size-80 input,.fl-font-size-80 select,.fl-font-size-80 textarea{font-size:.8em!important;line-height:1.1em!important;}
+.fl-font-size-90,.fl-font-size-90 body,.fl-font-size-90 input,.fl-font-size-90 select,.fl-font-size-90 textarea{font-size:.9em!important;line-height:1.2em!important;}
+.fl-font-size-100,.fl-font-size-100 body,.fl-font-size-100 input,.fl-font-size-100 select,.fl-font-size-100 textarea{font-size:1em!important;line-height:1.3em!important;}
+.fl-font-size-110,.fl-font-size-110 body,.fl-font-size-110 input,.fl-font-size-110 select,.fl-font-size-110 textarea{font-size:1.1em!important;line-height:1.4em!important;}
+.fl-font-size-120,.fl-font-size-120 body,.fl-font-size-120 input,.fl-font-size-120 select,.fl-font-size-120 textarea{font-size:1.2em!important;line-height:1.5em!important;}
+.fl-font-size-130,.fl-font-size-130 body,.fl-font-size-130 input,.fl-font-size-130 select,.fl-font-size-130 textarea{font-size:1.3em!important;line-height:1.6em!important;}
+.fl-font-size-140,.fl-font-size-140 body,.fl-font-size-140 input,.fl-font-size-140 select,.fl-font-size-140 textarea{font-size:1.4em!important;line-height:1.7em!important;}
+.fl-font-size-150,.fl-font-size-150 body,.fl-font-size-150 input,.fl-font-size-150 select,.fl-font-size-150 textarea{font-size:1.5em!important;line-height:1.8em!important;}
+@media screen and(-webkit-min-device-pixel-ratio:0){[class~='fl-font-size-70'] input[type=submit],[class~='fl-font-size-70'] input[type=button]{padding:0 1em;}
+[class~='fl-font-size-80'] input[type=submit],[class~='fl-font-size-80'] input[type=button]{font-size:.8em!important;padding:0 1em;}
+[class~='fl-font-size-90'] input[type=submit],[class~='fl-font-size-90'] input[type=button]{font-size:.9em!important;padding:0 1em;}
+[class~='fl-font-size-100'] input[type=submit],[class~='fl-font-size-100'] input[type=button]{font-size:1em!important;padding:0 1em;}
+[class~='fl-font-size-110'] input[type=submit],input[type=submit][class~='fl-font-size-110'],[class~='fl-font-size-110'] input[type=button]{background-color:#fff;font-size:1.1em!important;padding:0 1em;}
+[class~='fl-font-size-120'] input[type=submit],input[type=submit][class~='fl-font-size-120'],[class~='fl-font-size-120'] input[type=button]{background-color:#fff;font-size:1.2em!important;padding:0 1em;}
+[class~='fl-font-size-130'] input[type=submit],input[type=submit][class~='fl-font-size-130'],[class~='fl-font-size-130'] input[type=button]{background-color:#fff;font-size:1.3em!important;padding:0 1em;}
+[class~='fl-font-size-140'] input[type=submit],input[type=submit][class~='fl-font-size-140'],[class~='fl-font-size-140'] input[type=button]{background-color:#fff;font-size:1.4em!important;padding:0 1em;}
+[class~='fl-font-size-150'] input[type=submit],input[type=submit][class~='fl-font-size-150'],[class~='fl-font-size-150'] input[type=button]{background-color:#fff;font-size:1.5em!important;padding:0 1em;}
+[class~='fl-font-serif'] input[type=submit],[class~='fl-font-sans'] input[type=submit],[class~='fl-font-monospace'] input[type=submit],[class~='fl-font-arial'] input[type=submit],[class~='fl-font-verdana'] input[type=submit],[class~='fl-font-times'] input[type=submit],[class~='fl-font-courier'] input[type=submit]{background-color:#fff;padding:0 1em;}
+}
+.fl-font-serif,.fl-font-serif *{font-family:Georgia,Times,"Times New Roman","Book Antiqua",serif!important;}
+.fl-font-sans,.fl-font-sans *{font-family:Tahoma,Verdana,Helvetica,sans-serif!important;}
+.fl-font-monospace,.fl-font-monospace *{font-family:"Courier New,Courier",monospace!important;}
+.fl-font-arial,.fl-font-arial *{font-family:"Arial"!important;}
+.fl-font-verdana,.fl-font-verdana *{font-family:"Verdana"!important;}
+.fl-font-times,.fl-font-times *{font-family:Georgia,Times,"Times New Roman",serif!important;}
+.fl-font-courier,.fl-font-courier *{font-family:"Courier New",Courier,monospace!important;}
+.fl-text-align-left{text-align:left;}
+.fl-text-align-right{text-align:right;}
+.fl-text-align-center{text-align:center;}
+.fl-text-align-justify{text-align:justify;}
+.fl-font-spacing-0,.fl-font-spacing-0 body,.fl-font-spacing-0 input,.fl-font-spacing-0 select,.fl-font-spacing-0 textarea{letter-spacing:0;}
+.fl-font-spacing-1,.fl-font-spacing-1 body,.fl-font-spacing-1 input,.fl-font-spacing-1 select,.fl-font-spacing-1 textarea{letter-spacing:.1em;}
+.fl-font-spacing-2,.fl-font-spacing-2 body,.fl-font-spacing-2 input,.fl-font-spacing-2 select,.fl-font-spacing-2 textarea{letter-spacing:.2em;}
+.fl-font-spacing-3,.fl-font-spacing-3 body,.fl-font-spacing-3 input,.fl-font-spacing-3 select,.fl-font-spacing-3 textarea{letter-spacing:.3em;}
+.fl-font-spacing-4,.fl-font-spacing-4 body,.fl-font-spacing-4 input,.fl-font-spacing-4 select,.fl-font-spacing-4 textarea{letter-spacing:.4em;}
+.fl-font-spacing-5,.fl-font-spacing-5 body,.fl-font-spacing-5 input,.fl-font-spacing-5 select,.fl-font-spacing-5 textarea{letter-spacing:.5em;}
+.fl-font-spacing-6,.fl-font-spacing-6 body,.fl-font-spacing-6 input,.fl-font-spacing-6 select,.fl-font-spacing-6 textarea{letter-spacing:.6em;}
+.fl-text-aqua{color:aqua!important;}
+.fl-text-black{color:black!important;}
+.fl-text-blue{color:blue!important;}
+.fl-text-fuchsia{color:fuchsia!important;}
+.fl-text-gray{color:gray!important;}
+.fl-text-green{color:green!important;}
+.fl-text-lime{color:lime!important;}
+.fl-text-maroon{color:maroon!important;}
+.fl-text-navy{color:navy!important;}
+.fl-text-olive{color:olive!important;}
+.fl-text-purple{color:purple!important;}
+.fl-text-red{color:red!important;}
+.fl-text-silver{color:silver!important;}
+.fl-text-teal{color:teal!important;}
+.fl-text-white{color:white!important;}
+.fl-text-yellow{color:yellow!important;}
+.fl-text-underline{text-decoration:underline!important;}
+.fl-text-bold{font-weight:bold!important;}
+.fl-text-larger{font-size:125%!important;}
+.fl-input-outline{border:2px solid;}
+.fl-highlight-yellow,.fl-highlight-hover-yellow:hover,.fl-highlight-focus-yellow:focus{background-color:#FF0!important;background-image:none!important;}
+.fl-highlight-green,.fl-highlight-hover-green:hover,.fl-highlight-focus-green:focus{background-color:#0F0!important;background-image:none!important;}
+.fl-highlight-blue,.fl-highlight-hover-blue:hover,.fl-highlight-focus-blue:focus{background-color:#00F!important;background-image:none!important;}

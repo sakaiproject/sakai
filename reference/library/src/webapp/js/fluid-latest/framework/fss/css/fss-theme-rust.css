@@ -1,0 +1,30 @@
+.fl-theme-rust :focus,.fl-theme-rust .selectable{outline:.2em solid #662e0f;}
+.fl-theme-rust{color:#000!important;background-color:#F2E0B6!important;border-color:#916535;}
+.fl-theme-rust .fl-knockout{background:transparent;color:#000;}
+.fl-theme-rust a{color:#916535!important;}
+.fl-theme-rust a:hover{color:#914E38!important;}
+.fl-theme-rust h1{color:#000;border-bottom-width:1px;border-bottom-style:dotted;}
+.fl-theme-rust h2{color:#453A2E;}
+.fl-theme-rust th{border:.1em solid #453A2E;background-color:#917A61!important;color:#fff!important;}
+.fl-theme-rust td{border:.1em solid #453A2E!important;}
+.fl-theme-rust .fl-inlineEdit-edit{background-color:#dfefff;border:1px solid #5a95cf;margin:-1px;}
+.fl-theme-rust .fl-wrapper-widget{border:3px solid #dfefff;background-color:#333;color:#fff;}
+.fl-theme-rust .fl-wrapper-callout{border-color:#999;background-color:#dfefff;}
+.fl-theme-rust .fl-tabs{border-bottom-color:#916535;}
+.fl-theme-rust .fl-tabs li{background-color:#F2E0B6;}
+.fl-theme-rust .fl-tabs li,.fl-theme-rust .fl-tabs li a{font-weight:bold;border-color:#916535;border-bottom-color:#916535;text-decoration:none;}
+.fl-theme-rust .fl-tabs li:hover,.fl-theme-rust .fl-tabs li:hover a,.fl-theme-rust .fl-tabs li a:hover{background-color:#662e0f;color:#fff!important;}
+.fl-theme-rust .fl-tabs li.fl-tabs-active,.fl-theme-rust .fl-tabs li.fl-tabs-active a,.fl-theme-rust .fl-tabs li.fl-tabs-active a:hover,.fl-theme-rust .fl-tabs li.fl-activeTab,.fl-theme-rust .fl-tabs li.fl-activeTab:hover,.fl-theme-rust .fl-tabs li.fl-activeTab a,.fl-theme-rust .fl-tabs li.fl-activeTab a:hover{background-color:#FFFBC2;border-bottom-color:#FFFBC2;color:#916535!important;}
+.fl-theme-rust .fl-tab-content{background-color:#FFFBC2;color:#000;border:1px solid #916535;border-top:none;}
+.fl-theme-rust .fl-listmenu{border:1px solid #4070a1;background-color:#fff;}
+.fl-theme-rust .fl-listmenu li,.fl-theme-rust .fl-listmenu li a{font-weight:bold;color:#4070a1;background-color:#fff;border-color:#4070a1;text-decoration:none;}
+.fl-theme-rust .fl-listmenu a:hover{background-color:#5a95cf;color:#fff;}
+.fl-theme-rust .fl-listmenu .fl-activemenu,.fl-theme-rust .fl-listmenu .fl-activemenu:hover{background-color:#fff;border-bottom-color:#fff;color:#508cc9;}
+.fl-theme-rust .fl-widget{background:#662e0f url(../images/themes/rust/widget-earmark.png) no-repeat top left;}
+.fl-theme-rust .fl-widget h2{color:#FFFBC2;}
+.fl-theme-rust .grabbable{background-image:url('../images/themes/rust/gripper.png');}
+.fl-theme-rust .fl-widget-titlebar .icon{background-position:center center;}
+.fl-theme-rust .fl-widget-options li{border-left:1px solid #cf923e;}
+.fl-theme-rust .fl-widget-options a{color:#cf923e!important;}
+.fl-theme-rust .fl-widget-options a.icon:hover{background-color:#cf923e;border-color:#fffbc2;}
+.fl-theme-rust .fl-widget-content{background-color:#FFFBC2!important;}

@@ -910,6 +910,10 @@ table.checkbox label input {
 .sidebyside select{
 	width: 18em;
 }
+.sidebyside select.notsbs{
+	width: auto;
+}
+
 
 /*messagecenter stuff*/
 .msgAdvSearch {
@@ -950,3 +954,80 @@ span.nil a{
 	padding:0;
 	margin:.5em 0 ;
 } 
+
+/*styles for reorderer (content, assignments, announcements)*/
+#reorder-list-sortingToolBar{
+	font-size:.9em;
+	border:1px solid #ccc;
+	background:#ffe;
+	margin:1em 0;
+	padding:5px;
+	width:90%
+}
+#reorder-list-sortingToolBar a{
+	outline:none;
+}
+#reorder-list {
+	font-size:.9em;	
+	margin:0;
+	padding:0;
+	width:90%
+}
+#reorder-list li {
+	list-style:none;
+	padding:5px;
+	margin:5px 0;
+	background:#eee;
+	border:1px solid #ddd;
+	width: 100%;
+}
+#reorder-list li span.grabHandle{
+	display:block;
+	float:left;
+	width:5em;
+	padding-right:0;
+}
+#reorder-list li span.grabHandle input{
+	margin-top:-2px;
+}
+
+#reorder-list li .title{
+	display:block;
+	float:left;
+	width:45%;
+	}
+#reorder-list li span{
+	padding-right:2em;
+}
+
+.fl-reorderer-movable-selected{
+	border: none; outline: none
+}
+/*marks a drop zone*/
+.fl-reorderer-dropMarker {
+	/*width: 50%;*/
+	height: 30px; /*ok*/
+	background:#fff !important;
+	border:1px dashed #ccc !important
+}
+.fl-reorderer-movable-hover {
+	/*hover over a selectable item*/ 
+	cursor: move 
+}
+.fl-reorderer-movable-dragging {
+	/* item left behind */
+	background: #fff;
+	color: #555 !important;
+	border:1px dashed #ccc !important;
+	outline:none;
+}
+.fl-reorderer-avatar {
+	/*item being dragged*/ 
+	opacity: 0.55;
+	list-style:none;
+	background: #bea !important;
+	width: 50% !important
+}
+.fl-reorderer-avatar * {display: none }
+.fl-reorderer-avatar .title {display:block;margin:5px;font-weight: bold;font-size:1.2em }
+.recentMove { background: #def !important;border:1px solid #7bf !important}

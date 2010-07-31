@@ -88,7 +88,7 @@
 	width:38px;
 }
 /*put non site links to the right*/
-#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink  {
+#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink  {
 	background: none;
 	float:right;
 }
@@ -130,7 +130,8 @@
 	text-decoration:none;
 	padding-left:5px;
 	display:block;
-	margin:0
+	margin:0;
+	width: 200px;
 }	
 
 #pda-portlet-site-menu a:before, #pda-portlet-page-menu a:before{
@@ -190,3 +191,37 @@
 	float: right;
 }
 
+#presdiv {
+	position:absolute;
+	top:25px;right:5px;
+	height:75px;
+	width:150px;
+}
+#presenceIframePDA{
+	border:1px solid #000;
+	height:75px;
+	width:150px;
+	overflow:auto;
+}
+
+#pda-footer {
+	font-size: 11px !important;
+	width:100%;
+	background-color:#09C;
+	font-family: Helvetica, Arial,sans-serif;
+	margin:0;
+	clear: both;
+	overflow: hidden;
+	padding: 0;
+	padding-left: 0.5em;
+	line-height: 1.5em;
+	text-align: center;
+}
+
+.switch-link {
+	color:#fff;
+	text-decoration:none !important;
+}	
+.switch-link:hover{
+	text-decoration: underline !important;
+}

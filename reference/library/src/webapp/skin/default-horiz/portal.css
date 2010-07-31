@@ -23,9 +23,9 @@ body{
 	width: 98%;
 	margin: 1em auto 0 auto;
 	height:100%;
-	overflow:hidden;
 }
 #headerMin{
+	overflow:hidden;
 	border-bottom:2px solid #09C
 }
 
@@ -550,13 +550,17 @@ below they are contextually defined depending on the column as an example,as you
 	padding: 0;
 	color: #555;
 	font-weight: bold;
-	font-size: 1.2em;
+	font-family:'Trebuchet MS',Verdana,sans-serif;
+	font-size: 1.2em !important;
 }
 
-
-.portletTitle .title a:hover{
+.portletTitle .title a:hover, .portletTitle .title a:focus{
 	background: url(images/reload_h.gif) center left no-repeat;
 }
+
+.portletTitle .title a:focus,.portletTitle .action a:focus{ 
+	outline:black dotted thin; 
+} 
 
 .portletTitle .action{
 	padding: 2px 4px 6px 2px;
@@ -582,7 +586,7 @@ below they are contextually defined depending on the column as an example,as you
 	outline:none
 }
 
-.portletTitle .action a:hover{
+.portletTitle .action a:hover, .portletTitle .action a:focus{
 	background: url(images/help_h.gif) center right no-repeat;
 }
 
@@ -617,6 +621,7 @@ below they are contextually defined depending on the column as an example,as you
 	margin-bottom: .5em;
 	height: auto;
 	border: none;
+	margin-top:0;
 }
 
 /*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/

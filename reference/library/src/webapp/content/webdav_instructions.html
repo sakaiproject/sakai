@@ -38,166 +38,116 @@
 
 		// -->
 		</script>
+		
 	</head>
 <body onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):''">
 		<div>
-			<ul class="attachList">
-				<li><a href="#desc">Description</a></li>
-				<li><a href="#win">Setting up WebDAV for Windows XP</a></li>
-				<li><a href="#vista">Setting up WebDAV for Windows Vista</a></li>
-				<li><a href="#osx">Setting up WebDAV for Mac (OS 10.0 - 10.3)</a></li>
-				<li><a href="#osxx">Setting up WebDAV for Mac (OS 10.4)</a></li>
+		  <div id="davdocs_step2">
+			
+		    <p><strong>Step 2 - </strong>Select your operating system below and follow the setup instructions:</p>
+		    <ul>
+				<li><a href="#xp">Windows XP</a></li>
+				<li><a href="#vista_7">Windows Vista/Windows 7</a></li>
+				<li><a href="#osx">Mac OS 10.0 - 10.3</a></li>
+				<li><a href="#osx_tiger">Mac OS 10.4 and up</a></li>
 			</ul>
+	 	  </div>
+			
+		  	<div class="webdav_os">
+				<a name="xp"></a>
 
-			<a name="desc"></a>
-			<h4>Description</h4>
-			<p>
-				You can copy a file from your local system to your My Workspace or site Resources using the Add button
-				in the Resources tool. If you want to copy several files or an entire folder all at once, software called WebDAV
-				can be used to drag files or folders from your local computer to or from the site Resources folders.
-			</p>
-			<p>
-				Several setup steps are required to make your computer treat the site Resources folder
-				as another folder on your computer. Once you have set up a particular course or project resource folder using
-				WebDAV, you can drag files and folders to the course or project Resource area from your local computer and vice versa.
-				Please note that these connections are specific to the computer you are using, so if you change computers you will
-				have to set up the connection again.
-			</p>
+				<h4>Setting up WebDAV for Windows XP</h4>
+				<p><strong>Note</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.</p>
+				<ol>
+			  		<li>Double-click on the <strong>My Network Places</strong> icon on your PC desktop or click <strong>Start &gt; My Network Places</strong>.</li>
+			 	 	<li>Click <strong>Add a network place</strong> on the left menu.</li>
+			  		<li>Click <strong>Next</strong>.</li>
+			  		<li>Make sure that <em>Choose another network location</em> is selected and click <strong>Next</strong>.</li>
+				  	<li>In the <em>Internet or network address</em> field, type (or copy and paste) the URL for this site shown above and click <strong>Next</strong>.
+				  	<li>When prompted, enter your Sakai username and your password and click <strong>OK</strong>.</li>
+			  		<li>Enter a name for the course or project resources you are adding (e.g., <em>History 101 Resources)</em> and click <strong>Next</strong>.
+					<li>Click <strong>Finish</strong> to complete the set up.</li>
+				</ol>
+				<p>When the setup process is complete, the course or project resources folder will appear in your My Network Places as a folder, where it will act just like any other folder in Windows Explorer. You can now drag files and folders to and from your computer and the site's Resources folder.</p>
+			
+		   	</div>
 
-			<a name="win"></a>
 
-			<h4>Setting up WebDAV for Windows XP</h4>
-			<p>
-				Note: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the
-				setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer
-				files to and from any one site.
-			</p>
-			<ol>
-				<li>Double-click on the My Network Places icon on your PC desktop to open the Network Places folder</li>
-				<li>Double-click on the Add Network Place icon</li>
-				<li>Click Next</li>
+			<div class="webdav_os">
+				<a name="vista_7"></a>
+				<h4>Setting up WebDAV for Windows Vista/Windows 7</h4>
 
-				<li>Click on the bottom choice: &quot;Choose another network location&quot;</li>
-				<li>Click Next</li>
-				<li>
-					In the &quot;Internet or network address&quot; field, type the URL for this site shown above.<br />
-					<img src="netwkplace.jpg" width="423" height="345" style="clear:both;display:block;margin:1em 0 " alt="" />
-				</li>
-				<li>
-					Click Next<br />
-					Note: If you receive an alert such as &quot;The folder you've entered does not appear to be valid,&quot;
-					it could be there are no resources yet in your site. Go to the site and add a file to initialize the Resources
-					folder, then return to Step 1.
-				</li>
-				<li>When asked for your username and password, enter your Sakai username and your password</li>
-				<li>
-					Enter a name for the course or project resources you are adding. This name is used on your computer when
-					referencing the course or project resource folder.
-					<img src="name.jpg" width="423" height="345" alt="" style="clear:both;display:block;margin:1em 0" />
-				</li>
-				<li>Click &quot;Finish&quot; to complete the set up.</li>
-				<li>
-					When the setup is complete, the course or project resources folder will appear in your My Network Places as a folder.
-					It will also show up under My Network Places in Windows Explorer, where it will act just like any other folder
-					in Windows Explorer.
-				</li>
-				<li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
-			</ol>
+				<p><strong>Note 1</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.</p>
 
-			<a name="vista"></a>
-			<h4>Setting up WebDAV for Windows Vista</h4>
-			<p>
-				Note 1: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the
-				setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer
-				files to and from any one site.
-			</p>
-			<p>
-				Note 2: There are a number of known issues with support for WebDAV in Windows Vista. You may therefore experience difficulties using WebDAV as described below.
-However, Microsoft has a software update available that may help correct
-connection problems for some users. For information about the update
-and how to download it, see article 907306 in the Microsoft knowledge
-base at <span class="example"><a href="http://support.microsoft.com/" target="_blank">http://support.microsoft.com/</a></span>.
-</p>
-			<ol>
-			<li>From the desktop, click Computer.</li>
+				<p><strong>Note 2</strong>: Use of Sakai's WebDAV functionality on <em>Windows Vista</em> requires that you have Vista Service Pack 2 installed. If you do not yet have Service Pack 2 installed, please run Windows Update by clicking <strong>Start &gt; All Programs &gt; Windows Update</strong>.</p>
 
-			<li>Click Map Network Drive.</li>
+ 	            <ol>
+                	<li>From the desktop or the Start menu, click <strong>Computer</strong>.</li>
+                    <li>At the top of the window, click <strong>Map Network Drive</strong>.</li>
+					<li>Select a vacant drive letter (e.g., Z) from the <em>Drive</em> drop down menu.</li>
+                    <li>In the <em>Folder</em> field, type (or copy and paste) the URL for this site shown above.  Click <strong>Finish</strong>.</li>
+                    <li>When prompted, enter your Sakai username and password and click <strong>OK</strong>.</li>
+					<li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
+				</ol>
+			
+				<p>When the setup process is complete, the course or project resources folder will appear under Computer as a drive, where it will act just like any other drive in Windows Explorer. You can now drag files and folders to and from your computer and the site's Resources folder.</p>
+			
+				<h5>Alternate method of setting up WebDAV on Windows Vista/Windows 7</h5>
+			
+				<p>If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <strong>AnyClient</strong>.  Follow this process to download, install, and configure AnyClient.</p>
+			
+				<ol>
+			  		<li>Visit the VersionTracker page for the AnyClient WebDAV client at: <a href="http://www.versiontracker.com/dyn/moreinfo/win/10854857" target="_blank">http://www.versiontracker.com/dyn/moreinfo/win/10854857</a>.</li>
+			  		<li>Click the <strong>Download Now</strong> link on the right side of the page.</li>
+			  		<li>Run the <strong>install.exe</strong> file and complete the setup wizard.</li>
+			  		<li>If the installer did not automatically launch AnyClient, click <strong>Start &gt; All Programs &gt; AnyClient &gt; AnyClient</strong> to open AnyClient.</li>
+			  		<li>Click <strong>Connect</strong> at the bottom-left corner.</li>
+			  		<li>Click <strong>New</strong> at the bottom-left corner and give this connection a meaningful name on the left menu (e.g., <em>History 101 Resources</em>).</li>
+			  		<li>In the <em>Host</em> dialog box, type (or copy and paste) the path as shown above.</li>
+					<li>Type in your Sakai username and password.</li>
+			  		<li>In the <em>Connection type</em> drop box, select WebDAV.</li>
+			  		<li>Click <strong>Save</strong> at the bottom of the window to save this connection for future use and click <strong>Connect</strong>.</li>
+			  	</ol>
 
-			<li>On the Map Network Drive screen, click "Connect to a Web site
-			that you can use to store your documents and pictures", and then
-			click Next.</li>
+			</div>
 
-			<li>Click "Choose a custom network location", and then click
-			Next.</li>
+			<div class="webdav_os">
+				<a name="osx"></a>
+				<h4>Setting up WebDAV for Mac (OS 10.0 - 10.3)</h4>
 
-			<li>In the "Internet or network address" field, type the URL for this site shown above, and then click
-			Next.</li>
+				<p><strong>Note</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.</p>
 
-			<li>When prompted, enter your Sakai username and password.</li>
+				<ol>
+					<li>Download the Cyberduck WebDAV client at: <a href="http://update.cyberduck.ch/Cyberduck-2.8.5.dmg" target="_blank">http://update.cyberduck.ch/Cyberduck-2.8.5.dmg</a></li>
+					<li>Decompress the file and double-click on the .dmg file. (Depending on the configuration of your decompression software, the disk image may automatically mount.)</li>
+					<li>A disk image named <em>Cyberduck-2.8.5</em> should now be available. Simply drag and drop the folder from the disk image to your Applications folder.</li>
+					<li>Open the Cyberduck application in your Applications folder.</li>
+					<li>Click the <strong>Open Connection</strong> button.</li>
+					<li>In the <em>Server</em> dialog box, type (or copy and paste) the path as shown above.</li>
+					<li>Type in your Sakai username and password and click <strong>OK</strong>.</li>
+				</ol>
 
-			<li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
-			</ol>
+				<p>You will now see a window on your Mac screen that represents the resources that are in your site.  Simply drag and drop between this window and other Finder windows on your Mac to transfer files to and from your Sakai site's resources folder.</p>
 
-			<a name="osx"></a>
-			<h4>Setting up WebDAV for Mac (OS 10.0 - 10.3)</h4>
-			<p>
-				Note 1: These instructions include the download of a program named Goliath. Users have reported errors using this
-				program with Sakai, including the inability to create new folders or download folders to their local computer.
-			</p>
-			<p>
-				Note 2: There must be at least one object (file, folder etc.) in the course or project resource area before you begin
-				the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to
-				transfer files to and from any one site.
-			</p>
+			</div>
 
-			<ol>
-				<li>
-					Download the Goliath WebDav client at:<br />
-					<a href="http://www.webdav.org/goliath/#download" target="_blank">
-						<code>http://www.webdav.org/goliath/#download</code>
-					</a>
-				</li>
-				<li>
-					Decompress the file and double-click on the .dmg file. (Depending on your version and configuration of Stuffit,
-					the disk image may automatically mount.)
-				</li>
-				<li>
-					A disk image named "Goliath 1.0" should now be available. Simply drag and drop the Goliath folder contained
-					within in the disk image to your hard disk.
-					<img src="goliath.jpg" width="241" height="311" alt="" style="clear:both;display:block;margin:1em 0" />
-				</li>
+			<div class="webdav_os">
+				<a name="osx_tiger"></a>
+				<h4>Setting up WebDAV for Mac (OS 10.4 - 10.6)</h4>
+			
+				<p><strong>Note</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.</p>
+				
+				<ol>
+					<li>From the menu bar at the top of the screen in Finder, select <strong>Go &gt; Connect to Server...</strong></li>
+					<li>In the <em>Server Address</em> dialog box, type (or copy and paste) the path as shown above.</li>
+					<li>Press the <strong>+</strong> button to save this path for future use.</li>
+					<li>Click <strong>Connect</strong>.</li>
+					<li>Type in your username and password and click <strong>Connect</strong>.</li>
+				</ol>
 
-				<li>Open the Goliath application.  It will probably be in your Applications folder.</li>
-				<li>In the WebDav Connection dialog box, type in the path as shown above.</li>
-				<li>Type in your username and password.</li>
-				<li>Click the Advanced settings tab and check the box next to "Disable Encoding of Macintosh Recourse."</li>
-				<li>Click "OK"</li>
-				<li>
-					You will now see a window on your Mac screen that represents the resources that are in your site. You can now
-					drag and drop files into this window or use the "Web" menu to upload and download files.
-				</li>
-			</ol>
+				<p>You will now see a window on your screen that represents the resources in your site. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.</p>
 
-			<a name="osxx"></a>
-			<h4>Setting up WebDAV for Mac (OS 10.4 - 10.5)</h4>
-			<p>
-				Note: There must be at least one object (file, folder etc.) in the course or project resource area before you begin
-				the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer
-				files to and from any one site.
-			</p>
-			<ol>
-
-				<li>From the Finder, select "Go" from the menu bar and then select "Connect to Server..."</li>
-				<li>In the resulting dialog box, type in the path as shown above.</li>
-				<li>Press the "+" button to save this path for future use.</li>
-				<li>Click "Connect"</li>
-
-				<li>Type in your username and password and click "OK"</li>
-				<li>
-					You will now see a window on your Macintosh screen that represents the resources in your site.
-					You can now drag and drop files into this window and delete files by dragging them to the Trash.
-				</li>
-			</ol>
+			</div>
 
 		</div>
 

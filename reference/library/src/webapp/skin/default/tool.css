@@ -380,7 +380,7 @@ table.calendar .event{
 
 /*lines - provides rules and hover effects on some tables*/
 table.lines{
-	border-collapse: collapse;
+	border-collapse: separate;
 }
 
 table.lines tr:hover{
@@ -1040,8 +1040,10 @@ width:auto !important
 .portletTitle .action a:hover{
 	background: url(images/help_h.gif) center right no-repeat;
 }
-
 /*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
 .presenceList{
 	font-size: .8em;
 	list-style: none;

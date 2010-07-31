@@ -10,7 +10,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'asn.share.drafts') on duplica
 
 -- Here is the Jira that added the locked field: http://jira.sakaiproject.org/browse SAK-10512
 
---As such, this field is null for old profiles. Its set correctly for any new profiles but all old entries need to be converted.
+-- As such, this field is null for old profiles. Its set correctly for any new profiles but all old entries need to be converted.
 
 update SAKAI_PERSON_T set locked=false where locked=null; 
 
@@ -21,7 +21,7 @@ update SAKAI_PERSON_T set locked=false where locked=null;
 ALTER TABLE ASN_MA_ITEM_T CHANGE TEXT TEXT TEXT;
 ALTER TABLE ASN_NOTE_ITEM_T CHANGE NOTE NOTE TEXT;
 
---SAK-16548 - Incorrect internationalization showing the grade NO GRADE (Speed improved version)
+-- SAK-16548 - Incorrect internationalization showing the grade NO GRADE (Speed improved version)
 
 -- I would recommend making a backup of the ASSIGNMENT_SUBMISSION table prior to running this. I've tested it quite a bit in development, 
 -- but we only ran the Oracle version in production at Michigan.
@@ -33,37 +33,37 @@ ALTER TABLE ASN_NOTE_ITEM_T CHANGE NOTE NOTE TEXT;
 
 -- Step 1: Create table with the ids that will need to be updated
 create table ASSIGNMENT_SUBMISSION_ID_TEMP (select submission_id from ASSIGNMENT_SUBMISSION where graded='true' and (
---assignment.properties
+-- assignment.properties
 	instr(xml,'"No Grade"') != 0 or
---assignment_zh_CN.properties
+-- assignment_zh_CN.properties
 	instr(hex(xml),'22E697A0E8AF84E5888622') != 0 or
---assignment_ar.properties
+-- assignment_ar.properties
 	instr(hex(xml),'22D984D8A720D8AAD988D8ACD8AF20D8A3D98A20D8AFD8B1D8ACD8A92E22') != 0 or
---assignment_pt_BR.properties
+-- assignment_pt_BR.properties
 	instr(hex(xml),'224E656E68756D61204176616C6961C3A7C3A36F22') != 0 or
---assignment_es.properties 
+-- assignment_es.properties 
 	instr(hex(xml),'224E6F206861792063616C69666963616369C3B36E22') != 0 or
---assignment_ko.properties
+-- assignment_ko.properties
 	instr(hex(xml),'22ED9599ECA09020EC9786EC9D8C22') !=0 or 
---assignment_eu.properties
+-- assignment_eu.properties
 	instr(xml,'"Kalifikatu gabe"') != 0 or
---assignment_nl.properties
+-- assignment_nl.properties
 	instr(xml,'"Zonder beoordeling"') != 0 or
---assignment_fr_CA.properties
+-- assignment_fr_CA.properties
 	instr(xml,'"Aucune note"') != 0 or
---assignment_en_GB.properties
+-- assignment_en_GB.properties
 	instr(xml,'"No Mark"') != 0 or
---assignment_ca.properties
+-- assignment_ca.properties
 	instr(hex(xml),'224E6F206861792063616C69666963616369C3B36E22') != 0 or
---assignment_pt_PT.properties
+-- assignment_pt_PT.properties
 	instr(hex(xml),'2253656D206176616C6961C3A7C3A36F22') != 0 or
---assignment_ru.properties
+-- assignment_ru.properties
 	instr(hex(xml),'22D091D0B5D0B720D0BED186D0B5D0BDD0BAD0B822') != 0 or
---assignment_sv.properties
+-- assignment_sv.properties
 	instr(hex(xml),'22426574796773C3A474747320656A22') != 0 or
---assignment_ja.properties
+-- assignment_ja.properties
 	instr(hex(xml),'22E68EA1E782B9E38197E381AAE3818422') != 0 or
---assignment_zh_TW.properties
+-- assignment_zh_TW.properties
 	instr(hex(xml),'22E6B292E69C89E8A995E5888622') != 0 
 ));
 
@@ -72,35 +72,35 @@ create table ASSIGNMENT_SUBMISSION_ID_TEMP (select submission_id from ASSIGNMENT
 -- Ideally, the select statement would know which replacement it would need to do for each case, but that seemed difficult to write. In oracle this is accomplished with a 
 -- regular expression. The update for Michigan with 2 million rows on Oracle was still minimal.
 update ASSIGNMENT_SUBMISSION set 
---assignment.properties
+-- assignment.properties
     xml = replace(xml,'"No Grade"','"gen.nograd"'), 
---assignment_zh_CN.properties
+-- assignment_zh_CN.properties
     xml = unhex(replace(hex(xml),'22E697A0E8AF84E5888622',hex('"gen.nograd"'))), 
---assignment_ar.properties
+-- assignment_ar.properties
     xml = unhex(replace(hex(xml),'22D984D8A720D8AAD988D8ACD8AF20D8A3D98A20D8AFD8B1D8ACD8A92E22',hex('"gen.nograd"'))), 
---assignment_pt_BR.properties
+-- assignment_pt_BR.properties
     xml = unhex(replace(hex(xml),'224E656E68756D61204176616C6961C3A7C3A36F22',hex('"gen.nograd"'))),
---assignment_es.properties 
+-- assignment_es.properties 
     xml = unhex(replace(hex(xml),'224E6F206861792063616C69666963616369C3B36E22',hex('"gen.nograd"'))),
---assignment_ko.properties
+-- assignment_ko.properties
     xml = unhex(replace(hex(xml),'22ED9599ECA09020EC9786EC9D8C22',hex('"gen.nograd"'))),
---assignment_eu.properties
+-- assignment_eu.properties
     xml = replace(xml,'"Kalifikatu gabe"','"gen.nograd"'),
---assignment_eu.properties
+-- assignment_eu.properties
     xml = replace(xml,'"Zonder beoordeling"','"gen.nograd"'),
---assignment_fr_CA.properties
+-- assignment_fr_CA.properties
     xml = replace(xml,'"Aucune note"','"gen.nograd"'),
---assignment_en_GB.properties
+-- assignment_en_GB.properties
     xml = replace(xml,'"No Mark"','"gen.nograd"'),
---assignment_ca.properties
+-- assignment_ca.properties
     xml = unhex(replace(hex(xml),'224E6F206861792063616C69666963616369C3B36E22',hex('"gen.nograd"'))),
---assignment_ru.properties
+-- assignment_ru.properties
     xml = unhex(replace(hex(xml),'22D091D0B5D0B720D0BED186D0B5D0BDD0BAD0B822',hex('"gen.nograd"'))),
---assignment_sv.properties
+-- assignment_sv.properties
     xml = unhex(replace(hex(xml),'22426574796773C3A474747320656A22',hex('"gen.nograd"'))),
---assignment_ja.properties
+-- assignment_ja.properties
     xml = unhex(replace(hex(xml),'22E68EA1E782B9E38197E381AAE3818422',hex('"gen.nograd"'))),
---assignment_zh_TW.properties
+-- assignment_zh_TW.properties
     xml = unhex(replace(hex(xml),'22E6B292E69C89E8A995E5888622',hex('"gen.nograd"')))
 where submission_id in (select submission_id from ASSIGNMENT_SUBMISSION_ID_TEMP);
 

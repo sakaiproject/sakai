@@ -6,22 +6,22 @@ All of the legacy Sakai tools and many of the JSF based tools have been
 localized and internationalized. Translations are underway in many
 languages, as follows:
 
-1) Chinese (China)
-   Status: released
+1) Chinese/Simplified (China)
+   Status: released  (last update Sakai 2.5)
    Translated by: Tianhua Ding, Kun Lv (and others)
-   Contact: Beth Kirschner    beth.kirschner@umich.edu
+   Contact: n/a (unmaintained)
    Local ID: zh_CN
    
 2) Korean
-   Status: released
+   Status: released (last update Sakai 2.5)
    Translated by: Il-hwan Kim
-   Contact: Beth Kirschner    beth.kirschner@umich.edu
+   Contact: n/a (unmaintained)
    Local ID: ko_KR
    
 3) Japanese
    Status: released
-   Translated by: Tatsuki Sugura (and others)
-   Contact: Shoji Kajita   kajita@nagoya-u.jp
+   Translated by: Shoji Kajita (and others)
+   Contact: Shoji Kajita kajita@nagoya-u.jp
    Local ID: ja_JP
    
 4) Dutch
@@ -68,8 +68,8 @@ languages, as follows:
     Contact: Alex Ballesté 
     Local ID: ca_ES
     
-11) Chinese (Taiwan)
-    Status: 2.6 release pending
+11) Chinese/Traditional (Taiwan)
+    Status: 2.6 release
     Translated by: Ivan Ho
     Contact: Ivan Ho (ivan@huric.org)
     Local ID: zh_TW
@@ -160,6 +160,12 @@ languages, as follows:
    Translated by: (see files comments)
    Contact: Jean-Francois Leveque (jean-francois.leveque@upmc.fr)
    Local ID: fr_FR
+
+26) Basque
+    Status: released
+    Translated by: Daniel Merino, Pablo San Roman 
+    Contact: Daniel Merino (daniel.merino@unavarra.es), Pablo San Roman (pablo.sanroman@unavarra.es)
+    Local ID: eu
 
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
