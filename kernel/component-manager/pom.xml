@@ -84,7 +84,7 @@
                 <format property="timestamp"
                         pattern="dd/MM/yyyy HH:mm:ss Z"/>
                 </tstamp>
-                <echo message="buildTime.kernel==${timestamp}" file="${project.build.outputDirectory}/org/sakaiproject/config/version.properties" append="true"/>
+                <echo message="buildTime.kernel=${timestamp}" file="${project.build.outputDirectory}/org/sakaiproject/config/version.properties" append="true"/>
               </tasks>
 
             </configuration>
