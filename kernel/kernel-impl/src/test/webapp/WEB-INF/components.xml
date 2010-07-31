@@ -14,7 +14,7 @@
 		<property name="ignoreUnresolvablePlaceholders" value="true"/>
 	</bean>
 
-	<bean id="org.sakaiproject.component.test.ITestComponent" class="org.sakaiproject.component.test.TestComponent"
+	<bean id="org.sakaiproject.component.test.ITestComponent" class="org.sakaiproject.component.test.MockComponent"
 		init-method="init">
 		<property name="overrideString1" value="default"/>
 		<property name="placeholderString1" value="${placeholderString1.key}"/>
@@ -40,7 +40,7 @@
 		</constructor-arg>
 	</bean>
 	
-	<bean id="org.sakaiproject.component.test.ITestComponent2" class="org.sakaiproject.component.test.TestComponent"
+	<bean id="org.sakaiproject.component.test.ITestComponent2" class="org.sakaiproject.component.test.MockComponent"
 		init-method="init">
 		<property name="overrideString1" value="default"/>
 		<property name="placeholderString1" value="${stringWithNestedPlaceholders}"/>
@@ -53,9 +53,9 @@
 		<property name="stringArrayPlaceholder1" value="default1, default2"/>
 	</bean>
 	
-	<bean id="org.sakaiproject.component.test.ITestProvider" class="org.sakaiproject.component.test.TestProvider1"/>
+	<bean id="org.sakaiproject.component.test.ITestProvider" class="org.sakaiproject.component.test.MockProvider1"/>
 	
-	<bean id="org.sakaiproject.component.test.TestProvider2" class="org.sakaiproject.component.test.TestProvider2"/>
+	<bean id="org.sakaiproject.component.test.TestProvider2" class="org.sakaiproject.component.test.MockProvider2"/>
 	
 	<alias name="org.sakaiproject.component.test.ITestComponent" alias="testAliasRetention"/>
 	

@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  *
  */
-public class TestComponent implements ITestComponent {
+public class MockComponent implements ITestComponent {
 	private String overrideString1;
 	private String placeholderString1;
 	private String[] stringArrayPlaceholder1;

@@ -25,13 +25,13 @@ package org.sakaiproject.component.test;
 /**
  *
  */
-public class TestProvider2 implements ITestProvider {
+public class MockProvider1 implements ITestProvider {
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.component.test.ITestProvider#getProviderName()
 	 */
 	public String getProviderName() {
-		return "provider2";
+		return "provider1";
 	}
 
 }
