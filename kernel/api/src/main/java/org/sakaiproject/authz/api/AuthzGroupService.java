@@ -63,6 +63,8 @@ public interface AuthzGroupService extends EntityProducer
 
 	/**
 	 * Access a list of AuthzGroups that meet specified criteria, naturally sorted.
+	 * NOTE: The group objects returned will not have the associated roles loaded.
+	 * if you need to save the realm retrieve it with {@link #getAuthzGroup(String)}
 	 * 
 	 * @param criteria
 	 *        Selection criteria: AuthzGroups returned will match this string somewhere in their id, or provider group id.
