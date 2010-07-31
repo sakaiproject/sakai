@@ -339,11 +339,16 @@ System.out.println("ASSN="+assignment);
 		// will get an exception below
 
 		// Lets store it using the securityadvisor
+		Session sess = SessionManager.getCurrentSession();
                 pushAdvisor();
                 try {
-                	Session sess = SessionManager.getCurrentSession();
-                        sess.setUserId("admin");
-                        sess.setUserEid("admin");
+			// Indicate "who" is setting this grade - needs to be a real user account
+			String gb_user_id = ServerConfigurationService.getString(
+				"basiclti.outcomes.userid", "admin");
+			String gb_user_eid = ServerConfigurationService.getString(
+				"basiclti.outcomes.usereid", gb_user_id);
+                        sess.setUserId(gb_user_id);
+                        sess.setUserEid(gb_user_eid);
                 	GradebookService g = (GradebookService)  ComponentManager
                                 .get("org.sakaiproject.service.gradebook.GradebookService");
 			g.setAssignmentScoreString(siteId, assignment, user_id, result_resultscore_textstring, "External Outcome");
@@ -353,6 +358,7 @@ System.out.println("ASSN="+assignment);
                 	doError(request, response, "outcome.grade.fail", "siteId="+siteId, e);
 			return;
                 } finally {
+			sess.invalidate(); // Make sure to leave no traces
                 	popAdvisor();
                 }
 
