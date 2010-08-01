@@ -1,3 +1,0 @@
-[WARNING] DEPRECATED [aggregate]: As of version 2.5, use the goals <code>javadoc:aggregate</code> and
-[WARNING] Javadoc Warnings
-[WARNING] javadoc: warning - Multiple sources of package comments found for package "org.sakaiproject.exception"
