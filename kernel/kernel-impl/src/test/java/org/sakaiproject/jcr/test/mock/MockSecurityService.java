@@ -165,7 +165,7 @@ public class MockSecurityService implements SecurityService
 	 *      java.lang.String, java.lang.String, java.util.Collection)
 	 */
 	public boolean unlock(String userId, String lock, String reference,
-			Collection authzGroupIds)
+			Collection<String> authzGroupIds)
 	{
 		throw new RuntimeException(
 				"JCRService appearss to be going authZGroups security ");
@@ -177,7 +177,7 @@ public class MockSecurityService implements SecurityService
 	 * @see org.sakaiproject.authz.api.SecurityService#unlockUsers(java.lang.String,
 	 *      java.lang.String)
 	 */
-	public List unlockUsers(String lock, String reference)
+	public List<User> unlockUsers(String lock, String reference)
 	{
 		throw new RuntimeException(
 				"JCRService appears to be getting a list of users on a lock ");
@@ -202,5 +202,12 @@ public class MockSecurityService implements SecurityService
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public SecurityAdvisor popAdvisor(SecurityAdvisor advisor) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 
 }

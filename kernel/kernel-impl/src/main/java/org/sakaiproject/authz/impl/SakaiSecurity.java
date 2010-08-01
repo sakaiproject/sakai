@@ -426,7 +426,7 @@ public abstract class SakaiSecurity implements SecurityService
 	/**
 	 * {@inheritDoc}
 	 */
-	public SecurityAdvisor popAdvisor()
+	public SecurityAdvisor popAdvisor(SecurityAdvisor advisor)
 	{
 		Stack<SecurityAdvisor> advisors = getAdvisorStack(false);
 		if (advisors == null) return null;
@@ -435,7 +435,18 @@ public abstract class SakaiSecurity implements SecurityService
 
 		if (advisors.size() > 0)
 		{
-			rv = (SecurityAdvisor) advisors.pop();
+			if (advisor == null) 
+			{
+				rv = (SecurityAdvisor) advisors.pop();
+			}
+			else
+			{
+				SecurityAdvisor sa = advisors.firstElement();
+				if (advisor.equals(sa))
+				{
+					rv = (SecurityAdvisor) advisors.pop();
+				}
+			}
 		}
 
 		if (advisors.isEmpty())
@@ -446,6 +457,11 @@ public abstract class SakaiSecurity implements SecurityService
 		return rv;
 	}
 
+	public SecurityAdvisor popAdvisor()
+	{
+		return popAdvisor(null);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

@@ -124,11 +124,19 @@ public interface SecurityService
 	void pushAdvisor(SecurityAdvisor advisor);
 
 	/**
-	 * Remove one SecurityAdvisor from the stack for this thread, if any exist.
+	 * Remove one {@link SecurityAdvisor} from the stack for this thread, if any exist.
 	 * 
 	 * @return advisor The advisor popped of, or null if the stack is empty.
+	 * @deprecated for safety use {@link #popAdvisor(SecurityAdvisor)} to ensure you remove the correct advisor
 	 */
 	SecurityAdvisor popAdvisor();
+	
+	/**
+	 * Remove the designated {@link SecurityAdvisor} from the top of the Stack
+	 * @param advisor
+	 * @return the SecurityAdvisor or null if the passed security advisor is not at the top of the stack
+	 */
+	SecurityAdvisor popAdvisor(SecurityAdvisor advisor);
 
 	/**
 	 * Check if there are any security advisors stacked for this thread.
