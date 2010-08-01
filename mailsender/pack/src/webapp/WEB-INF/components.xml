@@ -49,27 +49,6 @@
 		<property name="configLogic" ref="org.sakaiproject.mailsender.logic.ConfigLogic" />
 	</bean>
 
-	<!--
-	This bean uses the email service for sending email rather than the built in email service.
-	This can only be used if the email service provided supports attachments.  This became available
-	around the time of K1 1.0.
-	-->
-	<!--
-	<bean id="org.sakaiproject.mailsender.logic.ExternalLogic"
-			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicEmailServiceImpl"
-			init-method="init">
-		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService" />
-
-		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-	</bean>
-	-->
-
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"
 		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
 		<property name="cacheManager">
