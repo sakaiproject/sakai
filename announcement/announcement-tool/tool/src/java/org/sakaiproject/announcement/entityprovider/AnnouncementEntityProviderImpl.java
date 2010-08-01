@@ -309,12 +309,15 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				}
 				
 				if(props != null){
-					log.debug("is normal site or super user, returning all merged channels in this site");
 
 					String mergeProp = (String)props.get(PORTLET_CONFIG_PARAM_MERGED_CHANNELS);
-					log.debug("mergeProp: " + mergeProp);
 					if(StringUtils.isNotBlank(mergeProp)) {
+						log.debug("is normal site or super user, returning all merged channels in this site");
+						log.debug("mergeProp: " + mergeProp);
 						channels = Arrays.asList(new MergedList().getChannelReferenceArrayFromDelimitedString(new AnnouncementChannelReferenceMaker().makeReference(siteId), mergeProp));
+					} else {
+						log.debug("is normal site or super user but no merged channels, using original siteId channel");
+						channels = Collections.singletonList(announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER));
 					}
 				}
 			}
