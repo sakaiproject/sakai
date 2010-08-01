@@ -640,7 +640,8 @@ public interface SiteService extends EntityProducer
 
 	/**
 	 * Access a list of Site objects that meet specified criteria.
-	 * 
+	 * NOTE: The sites returned will not have child objects loaded. If these sites need to be saved
+	 * a completely populated site should be retrieved from {@link #getSite(String)}
 	 * @param type
 	 *        The SelectionType specifying what sort of selection is intended.
 	 * @param ofType
