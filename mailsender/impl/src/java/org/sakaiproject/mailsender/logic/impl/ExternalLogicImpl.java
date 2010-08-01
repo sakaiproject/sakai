@@ -268,7 +268,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			String siteId = toolManager.getCurrentPlacement().getContext();
 			Site site = siteService.getSite(siteId);
 
-			Collection toolsInSite = site.getTools(toolid);
+			Collection<?> toolsInSite = site.getTools(toolid);
 			if (!toolsInSite.isEmpty())
 			{
 				hasEmailArchive = true;
@@ -370,9 +370,6 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		// allow sending
 		boolean allowTransport = configService.getBoolean(SAKAI_SMTP_ALLOW_TRANSPORT, true);
-
-		// to be thrown later if messages are accumulated
-		MailsenderException me = new MailsenderException();
 
 		try
 		{

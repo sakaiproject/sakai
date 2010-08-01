@@ -24,8 +24,8 @@
 		<version>1.6-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<name>Sakai Mail Sender Components Internal Pack</name>
-	<artifactId>mailsender-pack-internal</artifactId>
+	<name>Sakai Mail Sender Components Pack</name>
+	<artifactId>mailsender-pack</artifactId>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>

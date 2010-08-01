@@ -70,7 +70,6 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.impl.ComposeLogic#getEmailRoles()
 	 */
-	@SuppressWarnings("unchecked")
 	public List<EmailRole> getEmailRoles() throws GroupNotDefinedException
 	{
 		List<EmailRole> theRoles = new ArrayList<EmailRole>();
@@ -79,7 +78,7 @@ public class ComposeLogicImpl implements ComposeLogic
 		String realmId = externalLogic.getSiteRealmID();
 		AuthzGroup arole = authzGroupService.getAuthzGroup(realmId);
 
-		for (Iterator i = arole.getRoles().iterator(); i.hasNext();)
+		for (Iterator<?> i = arole.getRoles().iterator(); i.hasNext();)
 		{
 			Role r = (Role) i.next();
 			String rolename = r.getId();
@@ -210,7 +209,6 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.impl.ComposeLogic#getGroupAwareRole()
 	 */
-	@SuppressWarnings("unchecked")
 	public String getGroupAwareRole()
 	{
 		String retval = null;
@@ -221,7 +219,7 @@ public class ComposeLogicImpl implements ComposeLogic
 			String realmId = externalLogic.getSiteRealmID();
 			AuthzGroup arole = authzGroupService.getAuthzGroup(realmId);
 
-			for (Iterator i = arole.getRoles().iterator(); i.hasNext();)
+			for (Iterator<?> i = arole.getRoles().iterator(); i.hasNext();)
 			{
 				Role r = (Role) i.next();
 				String rolename = r.getId();
