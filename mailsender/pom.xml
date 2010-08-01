@@ -90,13 +90,13 @@
 			<dependency>
 				<groupId>org.sakaiproject.mailsender</groupId>
 				<artifactId>mailsender-api</artifactId>
-				<version>${pom.version}</version>
+				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.mailsender</groupId>
 				<artifactId>mailsender-impl</artifactId>
-				<version>${pom.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<!-- sakai-util -->
 
