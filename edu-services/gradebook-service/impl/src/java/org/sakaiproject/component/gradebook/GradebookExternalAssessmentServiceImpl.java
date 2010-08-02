@@ -135,8 +135,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
                 StringUtils.trimToNull(title) == null) {
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
+        
 
-        eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+title+"/"+points+"/student");
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 asn.setExternalInstructorLink(externalUrl);
@@ -245,6 +245,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             }
         };
         getHibernateTemplate().execute(hc);
+        eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+studentUid+"/"+points+"/student");
         if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
@@ -606,6 +607,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				return null;
 			}
 		};
+		if (eventTrackingService != null) {
+			eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+studentUid+"/"+points+"/student");
+		}
 		getHibernateTemplate().execute(hc);
 		if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
