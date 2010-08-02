@@ -10,10 +10,18 @@
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
-	
+		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
   		<script type="text/javascript" src="/library/js/jquery.js"></script>
   		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+ 		<sakai:script contextBase="/messageforums-tool" path="/js/jquery.tablesorter.js"/>
+ 		<sakai:script contextBase="/messageforums-tool" path="/js/forumTopicThreadsSorter.js"/>
+ 		<script language="JavaScript">
+ 		jQuery(document).ready(function(){
+ 			//sort forum threads
+ 			$('#msgForum\\:messagesInHierDataTable').threadsSorter();
+ 		});
+ 		</script>
 	<%--//
 		//plugin required below
 		<sakai:script contextBase="/messageforums-tool" path="/js/pxToEm.js"/>
