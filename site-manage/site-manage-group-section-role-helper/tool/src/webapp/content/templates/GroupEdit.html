@@ -27,21 +27,19 @@
 	opt.saveNewRightOptions("newRight");
 	</SCRIPT>
 	<script language="JavaScript" type="text/javascript">
-		<!--
-		function checkform ( form, message )
-		{
-		  // check whether the title field is null
-		
-		  // ** START **
-		  if (form.group_title.value == "") {
-		   	$('.messageValidation').show();
-		    form.group_title.focus();
-		    return false ;
-		  }
-		  // ** END **
-		  return true ;
-		}
-		//-->
+	 $(document).ready(function() {
+		$('#save').click(function() {
+			if ($('#group_title').val() == "") {
+		   		$('.messageValidation').show();
+		   		$('#group_title').focus();
+		   		return false;
+		  	}
+			else
+			{
+				return true;
+			}
+		});
+	});
 	</script>
 </head>
 <body>
@@ -50,7 +48,7 @@
 		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
 	</div>
 	
-	<form rsf:id="groups-form" onsubmit="return checkform(this);">
+	<form rsf:id="groups-form" id="groups-form">
 		<h3 rsf:id="prompt"></h3>
 		<p id="" class="messageValidation" rsf:id="emptyGroupTitleAlert" style="display:none"/>
 		<p rsf:id="instructions" class="instruction">
@@ -90,8 +88,8 @@
 		<input rsf:id="groupId" id="groupId" type="hidden"/>
 		<p class="act">
 
-			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
-			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			<input accesskey ="s" id="save" rsf:id="save" class="active" value="Save" type="submit"/>
+			<input accesskey ="x" id="cancel" rsf:id="cancel" value="Cancel" type="submit"/>
 		</p>			
 	</form>
 	<SCRIPT LANGUAGE="JavaScript">
