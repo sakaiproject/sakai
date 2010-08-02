@@ -11343,7 +11343,7 @@ public class AssignmentAction extends PagedResourceActionII
 								if (hasSubmissionAttachment)
 								{
 									// upload the submission attachment
-									String submissionFolder = "/" + rb.getString("download.submission.attachment") + "/";
+									String submissionFolder = "/" + rb.getString("stuviewsubm.submissatt") + "/";
 									if ( entryName.indexOf(submissionFolder) != -1)
 									{
 										// clear the submission attachment first
