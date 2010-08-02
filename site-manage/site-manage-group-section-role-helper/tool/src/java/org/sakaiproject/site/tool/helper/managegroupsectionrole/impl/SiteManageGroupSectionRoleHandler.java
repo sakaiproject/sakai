@@ -449,6 +449,11 @@ public class SiteManageGroupSectionRoleHandler {
 	    			}
 	    		}
     		}
+    		else
+    		{
+    			// if the group is null, add all site members
+    			rv.addAll(rvCopy);
+    		}
     	}
     	
     	return rv;
