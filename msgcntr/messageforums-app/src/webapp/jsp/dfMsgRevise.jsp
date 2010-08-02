@@ -16,16 +16,6 @@
 	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
-			<script type="text/javascript">
-				$(document).ready(function() {
-					$('#countme').click(function(e){
-						$('#counttotal').text ((countStuff()));
-						msgupdatecounts = $('.msg-updatecount').text();
-						$('#countmetitle').text(msgupdatecounts);
-						return null
-					});					
-				});
-			</script>
 
      <h3><h:outputText value="#{msgs.cdfm_revise_forum_msg}" /></h3>
 
@@ -62,9 +52,7 @@
 
 
 	            <h:outputText value="#{msgs.cdfm_message}" />
-			<a  id="countme" href="#" style="margin-left:3em"><img src="/library/image/silk/table_add.png" /> <span id="countmetitle"><h:outputText value="#{msgs.cdfm_message_count}" /></span></a>
-			<span  id="counttotal" class="highlight"> </span>
-			<h:outputText value="#{msgs.cdfm_message_count_update}" styleClass="msg-updatecount skip"/>		
+			<span style="margin-left:3em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>	
 
 	            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
 					<f:validateLength maximum="65000"/>

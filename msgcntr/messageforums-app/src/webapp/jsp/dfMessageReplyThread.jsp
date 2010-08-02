@@ -22,12 +22,6 @@
 						$('.toggleParent').toggle();					
 						resizeFrame('grow')
 				});					
-				$('#countme').click(function(e){
-					$('#counttotal').text ((countStuff()));
-					msgupdatecounts = $('.msg-updatecount').text();
-					$('#countmetitle').text(msgupdatecounts);
-					return null
-				});					
 				});
 			</script>
 	
@@ -125,9 +119,7 @@
 		<img src="/library/image/silk/paste_plain.png" />
 		<a  href="#"  onclick="InsertHTML('<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format_static}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b>');">
 		<h:outputText value="#{msgs.cdfm_message_insert}" /></a>
-			<a  id="countme" href="#" style="margin-left:3em"><img src="/library/image/silk/table_add.png" /> <span id="countmetitle"><h:outputText value="#{msgs.cdfm_message_count}" /></span></a>
-			<span  id="counttotal" class="highlight"> </span>
-			<h:outputText value="#{msgs.cdfm_message_count_update}" styleClass="msg-updatecount skip"/>		
+			<span style="margin-left:3em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>		
 			
 		</div>
             <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">

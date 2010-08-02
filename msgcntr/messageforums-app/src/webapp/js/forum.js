@@ -368,45 +368,23 @@ function printFriendly(url) {
 	if (window.focus) {newwindow.focus()}
 }
 
-function countStuff() {
-	var textInfo
-	var textareas = document.getElementsByTagName("textarea");
-	var rteId = textareas.item(0).id;
-	var oEditor = FCKeditorAPI.GetInstance(rteId) ;
-	var oDOM = oEditor.EditorDocument ;
-	var splitArray;
-	wordCount = 0;
-	
-	var newR = "";
-	var i = 0;
-	
-	if(document.all){
-		//IE
-		for(i = 0; i < oDOM.body.childNodes.length; i++){
-			//add a non-character to the end of the text to help divide <br> and other tags
-			if(oDOM.body.childNodes.item(i).nodeType == 3)
-				newR = newR + oDOM.body.childNodes.item(i).nodeValue + "&";
-		}
-	}else{
-		for(i = 0; i < oDOM.body.childNodes.length; i++){
-			//add a non-character to the end of the text to help divide <br> and other tags			
-			newR = newR + oDOM.body.childNodes[i].textContent + "&";
-		}
-	}
-	
-	if(newR.toString().length > 0){
-		splitArray = newR.split(/[^a-zA-Z']/);
-	}
+function FCKeditor_OnComplete(editorInstance) {
+	   
+    fckeditor_word_count(editorInstance);
+    editorInstance.Events.AttachEvent('OnSelectionChange', fckeditor_word_count);
+   
+}
 
-	var i = 0;
-	for(i = 0; i < splitArray.length; i++){
-		if(splitArray[i] != ''){
-			wordCount++;
-		}
-	}
-	msgupdatecounts = $('.msg-updatecount').text();
-	textInfo =  "(" + wordCount + ")";
-	return textInfo;
+function fckeditor_word_count(editorInstance) {
+
+    var matches = editorInstance.GetData().replace(/<[^<|>]+?>|&nbsp;/gi,' ').match(/\b/g);
+    var count = 0;
+    if(matches) {
+        count = matches.length/2;
+    }
+
+    document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + count + ")</span>";
+
 }
 
 function InsertHTML(header) { 
