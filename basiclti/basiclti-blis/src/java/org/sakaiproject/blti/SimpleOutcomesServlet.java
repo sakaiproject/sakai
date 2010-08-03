@@ -21,10 +21,10 @@ package org.sakaiproject.blti;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Properties;
 import java.util.Set;
 
@@ -41,6 +41,8 @@ import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
+
+import org.imsglobal.basiclti.XMLMap;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.apache.commons.logging.Log;
@@ -66,6 +68,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.ShaUtil;
+import org.sakaiproject.portlet.util.FormattedText;
 
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -127,13 +130,21 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		SecurityService.popAdvisor();
 	}
 
-	public void doError(HttpServletRequest request,HttpServletResponse response, String s, String message, Exception e) throws java.io.IOException {
+	public void doError(HttpServletRequest request,HttpServletResponse response, 
+		Map<String, String> theMap, String s, String message, Exception e) 
+		throws java.io.IOException 
+	{
 		if (e != null) {
 			M_log.error(e.getLocalizedMessage(), e);
 		}
-		M_log.info(rb.getString(s) + ": " + message);
+		theMap.put("/simpleoutcome/statusinfo/codemajor", "Fail");
+		theMap.put("/simpleoutcome/statusinfo/severity", "Error");
+		String msg = rb.getString(s) + ": " + message;
+		M_log.info(msg);
+		theMap.put("/simpleoutcome/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
+		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
-		out.println(rb.getString(s));
+		out.println(theXml);
 	}
 
 	@Override
@@ -161,6 +172,8 @@ public class SimpleOutcomesServlet extends HttpServlet {
 
 		boolean saved = false;
 		
+		Map<String,String> theMap = new TreeMap<String,String>();
+
 		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
 		for (Map.Entry<String,String[]> param : params.entrySet()) {
 			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
@@ -171,6 +184,8 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
 
+		theMap.put("/simpleoutcome/lti_message_type", lti_message_type);
+
 		//check message type
 		if( BasicLTIUtil.equals(lti_message_type, "simple-lis-replaceresult") || 
 		    BasicLTIUtil.equals(lti_message_type, "simple-lis-createresult") || 
@@ -179,27 +194,27 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		    BasicLTIUtil.equals(lti_message_type, "simple-lis-deleteresult") ) {
 			// OK
                 } else {
-			doError(request, response, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
 			return;
 		}
 		if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
-			doError(request, response, "outcomes.invalid", "lti_version="+lti_version, null);
+			doError(request, response, theMap, "outcomes.invalid", "lti_version="+lti_version, null);
 			return;
 		}
 		
 		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
-			doError(request, response, "outcomes.missing", "oauth_consumer_key", null);
+			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
 			return;
 		}
 
 		if(BasicLTIUtil.isBlank(result_resultscore_textstring)) {
-			doError(request, response, "outcomes.missing", "result_resultscore_textstring", null);
+			doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
 			return;
 		}
 
 		String sourcedid = request.getParameter("sourcedid");
 		if(BasicLTIUtil.isBlank(sourcedid)) {
-			doError(request, response, "outcomes.missing", "sourcedid", null);
+			doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
 			return;
 		}
 
@@ -226,7 +241,7 @@ public class SimpleOutcomesServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if ( placement_id == null || user_id == null ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
 
@@ -254,7 +269,7 @@ System.out.println("user_id="+user_id);
 
 		// Send a more generic message back to the caller
 		if ( placement == null || config == null || siteId == null || site == null ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
 
@@ -283,7 +298,7 @@ System.out.println("user_id="+user_id);
 			if (base_string != null) {
 				M_log.warn(base_string);
 			}
-			doError(request, response, "outcome.no.validate", oauth_consumer_key, null);
+			doError(request, response, theMap, "outcome.no.validate", oauth_consumer_key, null);
 			return;
 		}
 
@@ -292,7 +307,7 @@ System.out.println("user_id="+user_id);
 
 		// Send a generic message back to the caller
 		if ( grade_secret ==null ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
 
@@ -311,7 +326,7 @@ System.out.println("Received signature II="+signature+" received="+received_sign
 
 		// Send a message back to the caller
 		if ( ! matched ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
 
@@ -322,7 +337,7 @@ System.out.println("Received signature II="+signature+" received="+received_sign
                         if(member != null ) userExistsInSite = true;
                 } catch (Exception e) {
                         M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
-                        doError(request, response, "outcome.site.membership", "", e);
+                        doError(request, response, theMap, "outcome.site.membership", "", e);
                         return;
                 }
 
@@ -330,7 +345,7 @@ System.out.println("Received signature II="+signature+" received="+received_sign
 		String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
 System.out.println("ASSN="+assignment);
 		if ( assignment == null ) {
-                        doError(request, response, "outcome.no.assignment", "", null);
+                        doError(request, response, theMap, "outcome.no.assignment", "", null);
                         return;
 		}
 
@@ -355,15 +370,19 @@ System.out.println("ASSN="+assignment);
                 	M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
                 	saved = true;
                 } catch (Exception e) {
-                	doError(request, response, "outcome.grade.fail", "siteId="+siteId, e);
-			return;
+                	doError(request, response, theMap, "outcome.grade.fail", "siteId="+siteId, e);
                 } finally {
 			sess.invalidate(); // Make sure to leave no traces
                 	popAdvisor();
                 }
+		if ( ! saved ) return;
 
-
-
+		theMap.put("/simpleoutcome/statusinfo/codemajor", "Success");
+		theMap.put("/simpleoutcome/statusinfo/severity", "Status");
+		theMap.put("/simpleoutcome/statusinfo/codeminor", "fullsuccess");
+		String theXml = XMLMap.getXML(theMap, true);
+		PrintWriter out = response.getWriter();
+		out.println(theXml);
 	}
 
 	public void destroy() {
