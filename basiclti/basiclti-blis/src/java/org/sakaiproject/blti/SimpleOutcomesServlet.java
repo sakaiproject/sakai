@@ -170,7 +170,7 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			return;
 		}
 
-		boolean saved = false;
+		boolean success = false;
 		
 		Map<String,String> theMap = new TreeMap<String,String>();
 
@@ -182,16 +182,26 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		String lti_version = request.getParameter("lti_version");
 		String lti_message_type = request.getParameter("lti_message_type");
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
-		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
 
 		theMap.put("/simpleoutcome/lti_message_type", lti_message_type);
+
+		// Sadly not supported easily using the Gradebook API - may have to dig
+		// deeper later
+		if ( BasicLTIUtil.equals(lti_message_type, "simple-lis-deleteresult") ) {
+			theMap.put("/simpleoutcome/statusinfo/codemajor", "Unsupported");
+			theMap.put("/simpleoutcome/statusinfo/severity", "Error");
+			theMap.put("/simpleoutcome/statusinfo/codeminor", "cannotdelete");
+			String theXml = XMLMap.getXML(theMap, true);
+			PrintWriter out = response.getWriter();
+			out.println(theXml);
+			return;
+                }
 
 		//check message type
 		if( BasicLTIUtil.equals(lti_message_type, "simple-lis-replaceresult") || 
 		    BasicLTIUtil.equals(lti_message_type, "simple-lis-createresult") || 
 		    BasicLTIUtil.equals(lti_message_type, "simple-lis-updateresult") || 
-		    BasicLTIUtil.equals(lti_message_type, "simple-lis-readresult") || 
-		    BasicLTIUtil.equals(lti_message_type, "simple-lis-deleteresult") ) {
+		    BasicLTIUtil.equals(lti_message_type, "simple-lis-readresult") ) {
 			// OK
                 } else {
 			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
@@ -201,14 +211,9 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			doError(request, response, theMap, "outcomes.invalid", "lti_version="+lti_version, null);
 			return;
 		}
-		
+
 		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
 			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
-			return;
-		}
-
-		if(BasicLTIUtil.isBlank(result_resultscore_textstring)) {
-			doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
 			return;
 		}
 
@@ -349,12 +354,22 @@ System.out.println("ASSN="+assignment);
                         return;
 		}
 
+		boolean isRead = BasicLTIUtil.equals(lti_message_type, "simple-lis-readresult");
+
+		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
+
+		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
+			doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
+			return;
+		}
+
 		// We don't need to retrieve the assignments and check if it 
 		// is a valid column because if the column is wrong, we 
 		// will get an exception below
 
-		// Lets store it using the securityadvisor
+		// Lets store or retrieve the grade using the securityadvisor
 		Session sess = SessionManager.getCurrentSession();
+		String theGrade = null;
                 pushAdvisor();
                 try {
 			// Indicate "who" is setting this grade - needs to be a real user account
@@ -366,20 +381,28 @@ System.out.println("ASSN="+assignment);
                         sess.setUserEid(gb_user_eid);
                 	GradebookService g = (GradebookService)  ComponentManager
                                 .get("org.sakaiproject.service.gradebook.GradebookService");
-			g.setAssignmentScoreString(siteId, assignment, user_id, result_resultscore_textstring, "External Outcome");
-                	M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
-                	saved = true;
+			if ( isRead ) {
+				theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+				theMap.put("/simpleoutcome/result/resultscore/textstring", theGrade);
+System.out.println("HELLO READ GRADE= "+theGrade);
+			} else { 
+
+				g.setAssignmentScoreString(siteId, assignment, user_id, result_resultscore_textstring, "External Outcome");
+				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
+			}
+               		success = true;
+			theMap.put("/simpleoutcome/statusinfo/codemajor", "Success");
+			theMap.put("/simpleoutcome/statusinfo/severity", "Status");
+			theMap.put("/simpleoutcome/statusinfo/codeminor", "fullsuccess");
                 } catch (Exception e) {
                 	doError(request, response, theMap, "outcome.grade.fail", "siteId="+siteId, e);
                 } finally {
 			sess.invalidate(); // Make sure to leave no traces
                 	popAdvisor();
                 }
-		if ( ! saved ) return;
 
-		theMap.put("/simpleoutcome/statusinfo/codemajor", "Success");
-		theMap.put("/simpleoutcome/statusinfo/severity", "Status");
-		theMap.put("/simpleoutcome/statusinfo/codeminor", "fullsuccess");
+		if ( ! success ) return;
+
 		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
 		out.println(theXml);
