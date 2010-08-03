@@ -2,6 +2,7 @@ package org.sakaiproject.site.util;
 
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 
 public class SiteTextEditUtil {
 	/**
@@ -26,9 +27,9 @@ public class SiteTextEditUtil {
 		if(maxNumOfChars>text.length()){
 			maxNumOfChars=text.length();
 		}
-		String trimmedText=FormattedText.processFormattedText(text.substring(0, maxNumOfChars), new StringBuilder());
+		String trimmedText=text.substring(0, maxNumOfChars);
 		sb.setLength(0);
 		sb.append(trimmedText).append(ellipse);
-		return sb.toString();				
+		return Validator.escapeHtml(sb.toString());				
 	}
 }
