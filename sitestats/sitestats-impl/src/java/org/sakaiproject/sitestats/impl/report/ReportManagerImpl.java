@@ -102,6 +102,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -520,14 +521,20 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 					return session.load(ReportDef.class, Long.valueOf(id));
 				}
 			};
-			Object o = getHibernateTemplate().execute(hcb);
+			Object o;
+			try{
+				o = getHibernateTemplate().execute(hcb);
+			}catch(DataAccessException e){
+				o = null;
+			}
 			if(o != null) {
 				reportDef = (ReportDef) o;
 				cacheReportDef.put(String.valueOf(id), reportDef);
 			}
 		}
 		try{
-			reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
+			if(reportDef != null)
+				reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));
 		}catch(Exception e){
 			LOG.warn("getReportDefinition(): unable to parse report parameters.");
 		}

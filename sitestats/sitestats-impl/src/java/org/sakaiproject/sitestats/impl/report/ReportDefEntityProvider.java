@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -73,7 +73,13 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 	 * @see org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider#entityExists(java.lang.String)
 	 */
 	public boolean entityExists(String id) {
-		return M_rm.getReportDefinition(Long.valueOf(id)) != null;
+		long longId = 0;
+		try{
+			longId = Long.valueOf(id);
+		}catch(NumberFormatException e){
+			return false;
+		}
+		return M_rm.getReportDefinition(longId) != null;
 	}
 	
 	
@@ -83,7 +89,13 @@ public class ReportDefEntityProvider implements AutoRegisterEntityProvider, Core
 	 * @see org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable#getEntity(org.sakaiproject.entitybroker.EntityReference)
 	 */
 	public Object getEntity(EntityReference ref) {
-		return M_rm.getReportDefinition(Long.valueOf(ref.getId()));
+		long longId = 0;
+		try{
+			longId = Long.valueOf(ref.getId());
+		}catch(NumberFormatException e){
+			return null;
+		}
+		return M_rm.getReportDefinition(longId);
 	}
 	
 	
