@@ -16,6 +16,9 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -34,37 +37,22 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.util.StringUtil;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+
+
+
+
 /**
  * 
  * @author 
  *
  */
 public class SiteAddParticipantHandler {
-	
-	char[] LOWER_ALPHA_ARRAY =
-	{
-	        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p',
-	        'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-	};
-	char[] UPPER_ALPHA_ARRAY = 
-	{
-			'A', 'B', 'C', 'E', 'F',
-	        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-	        'W', 'X', 'Y', 'Z'
-	}; 
-	char[] NUMBER_ARRAY = 
-	{
-			'2', '3', '4', '5', '6', '7', '8', '9'
-	};
-	char[] SYMBOL_ARRAY = 
-	{
-			'!','@', '#', '$', '%', '^', '&', '*'
-	};
 	
     /** Our log (commons). */
     private static Log M_log = LogFactory.getLog(SiteAddParticipantHandler.class);
@@ -169,8 +157,8 @@ public class SiteAddParticipantHandler {
 	public List<Role> roles = new Vector<Role>();
 	public List<Role> getRoles()
 	{
-		if (roles.isEmpty())
-			init();
+        if (roles.isEmpty())
+        	init();
 		return roles;
 	}
 	public void setRoles (List<Role> roles)
@@ -366,7 +354,7 @@ public class SiteAddParticipantHandler {
 
 	        // if user doesn't have full rights, don't let him add one with site update
 	    	if (!authzGroupService.allowUpdate("/site/" + siteId)) {
-	    	if (realm == null)
+	    		if (realm == null)
 	    		init();
 		    Role r = realm.getRole(sameRoleChoice);
 		    if (r != null && r.isAllowed("site.upd")) {
@@ -382,10 +370,6 @@ public class SiteAddParticipantHandler {
 					entry.role = sameRoleChoice;
 				}
 			}
-	    	
-	    	// check whether there is a no or valid change to current user role
-			if (!checkCurrentUserRoleChange())
-				return null;
 	    	
 	        return "continue";
     	}
@@ -419,38 +403,8 @@ public class SiteAddParticipantHandler {
 				}
 		    }
 		}
-		
-		// check whether there is a no or valid change to current user role
-		if (!checkCurrentUserRoleChange())
-			return null;
-		
         return "continue";
     }
-
-	private boolean checkCurrentUserRoleChange() {
-		boolean rv = true;
-		
-		// check the change of roles whether it is valid: changed current user into role without "membership edit" permission? leaving the site without maintain role?
-		User currentUser = userDirectoryService.getCurrentUser();
-		String currentUserEid = currentUser != null ? currentUser.getEid():"";
-		for (UserRoleEntry entry : userRoleEntries)
-		{
-			if (currentUserEid.equals(entry.userEId))
-			{
-				String roleName = entry.role;
-				Role r = realm.getRole(roleName);
-				if (r != null && !r.isAllowed(siteService.SECURE_UPDATE_SITE_MEMBERSHIP))
-				{
-					// this seems to be down-grading current user's role from being able to update site membership into not being able to
-					// show alert message
-					targettedMessageList.addMessage(new TargettedMessage("java.roleperm.currentuser.downgrade", new Object[] {roleName}, TargettedMessage.SEVERITY_ERROR));
-					rv = false;
-				}
-			}
-			
-		}
-		return rv;
-	}
     
     /**
      * back to the first add participant page
@@ -503,21 +457,21 @@ public class SiteAddParticipantHandler {
 	 */
 	private List<String> addUsersRealm( boolean notify) {
 		// return the list of user eids for successfully added user
-		List<String> addedUserEIds = new Vector<String>();
+                List<String> addedUserEIds = new Vector<String>();
 
-		if (userRoleEntries != null && !userRoleEntries.isEmpty()) {
-			if (site == null)
-				init();
-			if (site != null) {
-				// get realm object
-				String realmId = site.getReference();
-				try {
-					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+                if (userRoleEntries != null && !userRoleEntries.isEmpty()) {
+                		if (site == null)
+                			init();
+						if (site != null) {
+                                // get realm object
+                                String realmId = site.getReference();
+                                try {
+                                        AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 					boolean allowUpdate = authzGroupService.allowUpdate(realmId);
 					Set<String>okRoles = new HashSet<String>();
-					for (UserRoleEntry entry: userRoleEntries) {
-						String eId = entry.userEId;
-						String role =entry.role;
+                                        for (UserRoleEntry entry: userRoleEntries) {
+                                                String eId = entry.userEId;
+                                                String role =entry.role;
 						// this check should never trigger, as we check it earlier
 						// however I'm worried about users manually calling this page directly
 						if (!allowUpdate && !okRoles.contains(role)) {
@@ -531,51 +485,51 @@ public class SiteAddParticipantHandler {
 						    okRoles.add(role);
 						}
 
-						try {
+                                                try {
 							User user = userDirectoryService.getUserByEid(eId);
-							if (authzGroupService.allowUpdate(realmId)
-									|| siteService.allowUpdateSiteMembership(site.getId())) 
-							{
-								realmEdit.addMember(user.getId(), role, true,
-										false);
-								addedUserEIds.add(eId);
+                                                        if (authzGroupService.allowUpdate(realmId)
+                                                                        || siteService.allowUpdateSiteMembership(site.getId()))
+                                                        {
+                                                                realmEdit.addMember(user.getId(), role, true,
+                                                                                false);
+                                                                addedUserEIds.add(eId);
 
-								// send notification
-								if (notify) {
-									// send notification email
-									notiProvider.notifyAddedParticipant(!isOfficialAccount(eId), user, site.getTitle());
-									
-								}
-							}
-						} catch (UserNotDefinedException e) {
-							targettedMessageList.addMessage(new TargettedMessage("java.account",
-					                new Object[] { eId }, 
-					                TargettedMessage.SEVERITY_INFO));
-							M_log.warn(this  + ".addUsersRealm: cannot find user with eid= " + eId);
-						} // try
-					} // for
+                                                                // send notification
+                                                                if (notify) {
+                                                                        // send notification email
+                                                                        notiProvider.notifyAddedParticipant(!isOfficialAccount(eId), user, site.getTitle());
 
-					try {
-						// post event about adding participant
-						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
-						authzGroupService.save(realmEdit);
-					} catch (GroupNotDefinedException ee) {
-						targettedMessageList.addMessage(new TargettedMessage("java.realm",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
-						M_log.warn(this + ".addUsersRealm: cannot find realm for" + realmId);
-					} catch (AuthzPermissionException ee) {
-						targettedMessageList.addMessage(new TargettedMessage("java.permeditsite",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
-						M_log.warn(this + ".addUsersRealm: don't have permission to edit realm " + realmId);
-					}
-				} catch (GroupNotDefinedException eee) {
-					targettedMessageList.addMessage(new TargettedMessage("java.realm",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
-					M_log.warn(this + ".addUsersRealm: cannot find realm for " + realmId);
-				} catch (Exception eee) {
-					M_log.warn(this + ".addUsersRealm: " + eee.getMessage() + " realmId=" + realmId);
-				}
-			}
-		}
+                                                                }
+                                                        }
+                                                } catch (UserNotDefinedException e) {
+                                                        targettedMessageList.addMessage(new TargettedMessage("java.account",
+                                                        new Object[] { eId },
+                                                        TargettedMessage.SEVERITY_INFO));
+                                                        M_log.warn(this  + ".addUsersRealm: cannot find user with eid= " + eId);
+                                                } // try
+                                        } // for
 
-		return addedUserEIds;
+                                        try {
+                                                // post event about adding participant
+                                                EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
+                                                authzGroupService.save(realmEdit);
+                                        } catch (GroupNotDefinedException ee) {
+                                                targettedMessageList.addMessage(new TargettedMessage("java.realm",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
+                                                M_log.warn(this + ".addUsersRealm: cannot find realm for" + realmId);
+                                        } catch (AuthzPermissionException ee) {
+                                                targettedMessageList.addMessage(new TargettedMessage("java.permeditsite",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
+                                                M_log.warn(this + ".addUsersRealm: don't have permission to edit realm " + realmId);
+                                        }
+                                } catch (GroupNotDefinedException eee) {
+                                        targettedMessageList.addMessage(new TargettedMessage("java.realm",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
+                                        M_log.warn(this + ".addUsersRealm: cannot find realm for " + realmId);
+                                } catch (Exception eee) {
+                                        M_log.warn(this + ".addUsersRealm: " + eee.getMessage() + " realmId=" + realmId);
+                                }
+                        }
+                }
+
+                return addedUserEIds;
 
 	} // addUsersRealm
 	
@@ -585,11 +539,21 @@ public class SiteAddParticipantHandler {
      */
     public String processConfirmContinue() {
 
+    	//Hashtable<String, String> eIdRoles = new Hashtable<String, String>();
     	resetTargettedMessageList();
+    	String firstName = null;
+    	String lastName = null;
+    	boolean updateName = false;
     	if (site == null)
     		init();
     	for (UserRoleEntry entry:userRoleEntries) {
+    		
 			String eId = entry.userEId;
+			firstName = lastName = null;
+			if (!("").equals(entry.firstName))
+				firstName = entry.firstName;
+			if (!("").equals(entry.lastName))
+				lastName = entry.lastName;
 			
 			if (isOfficialAccount(eId)) {
 				// if this is a officialAccount
@@ -608,28 +572,43 @@ public class SiteAddParticipantHandler {
 
 						// set the guest user type
 						uEdit.setType("guest");
-						
+
 						// set the guest first name
-						String firstName = entry.firstName;
+						firstName = entry.firstName;
 						if (firstName != null  && firstName.length() > 0)
 							
 							uEdit.setFirstName(entry.firstName);
 						
 						// set the guest last name
-						String lastName = entry.firstName;
+						lastName = entry.lastName;
 						if (lastName != null  && lastName.length() > 0)
 							uEdit.setLastName(entry.lastName);
-						
-						String pw = generatePassword();
-						uEdit.setPassword(pw);
 
-						// and save
+						// set password to a positive random number
+						Random generator = new Random(System
+								.currentTimeMillis());
+						Integer num = Integer.valueOf(generator
+								.nextInt(Integer.MAX_VALUE));
+						if (num.intValue() < 0)
+							num = Integer.valueOf(num.intValue() * -1);
+						String pw = num.toString();
+						uEdit.setPassword(pw);
+						// set the guest user name
+						
+                        if(firstName != null )
+                            uEdit.setFirstName(firstName);
+
+                        if(lastName != null)
+                            uEdit.setLastName(lastName);
+ 
+						// and savve
+						updateName = true;
 						userDirectoryService.commitEdit(uEdit);
 
 						boolean notifyNewUserEmail = (getServerConfigurationString("notifyNewUserEmail", Boolean.TRUE.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
 						if (notifyNewUserEmail) {    						
-								notiProvider.notifyNewUserEmail(uEdit, pw, site != null ? site.getTitle():"");
+								notiProvider.notifyNewUserEmail(uEdit, pw, site != null?site.getTitle():"");
 						}
 					} catch (UserIdInvalidException ee) {
 						targettedMessageList.addMessage(new TargettedMessage("java.isinval",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
@@ -643,8 +622,60 @@ public class SiteAddParticipantHandler {
 					}
 				}
 			}
-		}
+			if (eId.indexOf(EMAIL_CHAR) > 0 && updateName == false){
+                if (firstName != null || lastName !=null){
+                        //update the user last name and/or first name
+                        try {
+                                SecurityService securityService = new SecurityService();
 
+                                // Need: SECURE_UPDATE_USER_ANY
+                                securityService.pushAdvisor(new SecurityAdvisor() {
+                                    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+                                            if ("user.upd.any".equals(function)) {
+                                                return SecurityAdvice.ALLOWED;
+                                             }
+                                            return SecurityAdvice.PASS;
+                                         }
+                                    });
+
+                                        String uuid=userDirectoryService.getUserId(eId);
+                                        UserEdit uEdit = null;
+                                        uEdit = userDirectoryService.editUser(uuid);
+                                        if(firstName != null ){
+                                        uEdit.setFirstName(firstName);
+                                        }
+                                        if(lastName != null)
+                                                uEdit.setLastName(lastName);
+                                        userDirectoryService.commitEdit(uEdit);
+
+                                securityService.popAdvisor();
+		}catch (UserNotDefinedException e){
+			targettedMessageList.addMessage(new TargettedMessage("java.notdefined",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
+                                M_log.warn(this
+                                                + " UserDirectoryService editUser User Not Defined exception "
+                                                + e.getMessage());
+        }catch (UserPermissionException e){
+        	targettedMessageList.addMessage(new TargettedMessage("java.notdefined",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
+            
+                                        M_log.warn(this
+                                                        + " UserDirectoryService editUser Permission exception "
+                                                        + e.getMessage());
+        }catch (UserLockedException e){
+                        	targettedMessageList.addMessage(new TargettedMessage("java.rightnow",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
+            
+                                        M_log.warn(this
+                                                        + " UserDirectoryService editUser User Locked exception "
+                                                        + e.getMessage());
+        }catch (UserAlreadyDefinedException e){
+        	targettedMessageList.addMessage(new TargettedMessage("java.rightnow",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
+        	
+                                M_log.warn(this
+                                                + " UserDirectoryService editUser User Already defined exception "
+                                                + e.getMessage());
+                        }
+                }
+        }
+	}
 		// batch add and updates the successful added list
 		List<String> addedParticipantEIds = addUsersRealm(Boolean.parseBoolean(emailNotiChoice));
 
@@ -674,18 +705,10 @@ public class SiteAddParticipantHandler {
 			targettedMessageList.addMessage(new TargettedMessage("java.allusers", null, TargettedMessage.SEVERITY_INFO));
 		}
     		
-		if (targettedMessageList.size() == 0)
-		{
-			// time to reset user inputs
-			reset();
-			
-	        return "done";
-		}
-		else
-		{
-			// there is error
-			return "errorWithAddingParticipants";
-		}
+		// time to reset user inputs
+		reset();
+		
+        return "done";
     }
     
     /**
@@ -738,6 +761,7 @@ public class SiteAddParticipantHandler {
 				String officialAccount = StringUtil.trimToNull(officialAccountArray[i].replaceAll("[\t\r\n]", ""));
 				// if there is some text, try to use it
 				if (officialAccount != null) {
+				
 					// automatically add nonOfficialAccount account
 					Participant participant = new Participant();
 					User u = null;
@@ -747,8 +771,8 @@ public class SiteAddParticipantHandler {
 					if (officialAccount.indexOf(at) == -1)
 					{
 						// is not of email format, then look up by eid only
-						try {
-							// look for user based on eid first
+					try {
+						// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
 							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
@@ -760,7 +784,7 @@ public class SiteAddParticipantHandler {
 						try {
 							// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
-						} catch (UserNotDefinedException e) {
+					} catch (UserNotDefinedException e) {
 							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
 						}
 						
@@ -771,16 +795,13 @@ public class SiteAddParticipantHandler {
 						{
 							Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(officialAccount);
 							
-							if(usersWithEmail != null) {
-								if(usersWithEmail.size() == 0) {
-									// If the collection is empty, we didn't find any users with this email address
+						if(usersWithEmail != null) {
+							if(usersWithEmail.size() == 0) {
+								// If the collection is empty, we didn't find any users with this email address
 									M_log.debug("Unable to find users with email " + officialAccount);
-								} else if (usersWithEmail.size() == 1) {
-									if (u == null)
-									{
-										// We found one user with this email address.  Use it.
-										u = (User)usersWithEmail.iterator().next();
-									}
+								} else if (usersWithEmail.size() == 1 && u == null) {
+								// We found one user with this email address.  Use it.
+								u = (User)usersWithEmail.iterator().next();
 								} else if (!usersWithEmail.isEmpty()) {
 									// If we have multiple users with this email address, expand the list with all matching user's eids and let the instructor choose from them
 									M_log.debug("Found multiple user with email " + officialAccount);
@@ -823,7 +844,8 @@ public class SiteAddParticipantHandler {
 						}
 						
 						// update the userRoleTable
-						if (!getUsers().contains(officialAccount) && !existingUsers.contains(officialAccount))
+						//SAK-5800
+						 if (!getUsers().contains(officialAccount) && !existingUsers.contains(officialAccount))
 						{
 							userRoleEntries.add(new UserRoleEntry(u.getEid(), ""));
 						}
@@ -900,22 +922,32 @@ public class SiteAddParticipantHandler {
 						// must be a valid email address
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
 				                new Object[] { userEid }, 
-				                TargettedMessage.SEVERITY_ERROR));
+		                TargettedMessage.SEVERITY_ERROR));
 					} else {
 						Participant participant = new Participant();
 						try {
 							// if the nonOfficialAccount user already exists
 							User u = userDirectoryService
 									.getUserByEid(userEid);
-							if (site != null && site.getUserRole(u.getId()) != null) {
+							String uid = userDirectoryService.getUserId(userEid);
+							
+							if (site != null && site.getUserRole(u.getId()) != null){
+								String realmId = site.getReference();
+								try{
+                                    AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+                                    if(realmEdit.getMember(uid) != null) {
 								// user already exists in the site, cannot be
 								// added again
-								existingUsers.add(userEid);
-							} else {
-								participant.name = u.getDisplayName();
-								participant.uniqname = userEid;
-								participant.active = true;
-								pList.add(participant);
+                                    	existingUsers.add(userEid);
+                                    } else{
+                                    	participant.name = u.getDisplayName();
+                                    	participant.uniqname = userEid;
+                                    	participant.active = true;
+                                    	pList.add(participant);
+                                    }
+								}catch (GroupNotDefinedException e){
+									M_log.debug("no user group exception");
+								}
 							}
 						} catch (UserNotDefinedException e) {
 							M_log.debug("no user with eid: " + userEid);
@@ -943,26 +975,20 @@ public class SiteAddParticipantHandler {
 							
 							if (u == null) {
 							
-								// if the nonOfficialAccount user is not in the system
-								// yet
-								participant.name = userEid;
-								participant.uniqname = userEid; // TODO:
-								// what
-								// would
-								// the
-								// UDS
-								// case
-								// this
-								// name
-								// to?
-								// -ggolden
-								participant.active = true;
-								
-								if (!userDirectoryService.allowAddUser())
-								{
-									targettedMessageList.addMessage(new TargettedMessage("java.haveadd",new Object[] { userEid }, TargettedMessage.SEVERITY_ERROR));
-									M_log.warn(this + ".checkAddParticipant: user" + userDirectoryService.getCurrentUser()!= null ? userDirectoryService.getCurrentUser().getEid():"" + " don't have permission to add " + userEid);
-								}
+							// if the nonOfficialAccount user is not in the system
+							// yet
+							participant.name = userEid;
+							participant.uniqname = userEid; // TODO:
+							// what
+							// would
+							// the
+							// UDS
+							// case
+							// this
+							// name
+							// to?
+							// -ggolden
+							participant.active = true;
 							} else  {
 								M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
 								participant.name = u.getDisplayName();
@@ -974,7 +1000,9 @@ public class SiteAddParticipantHandler {
 						}
 						
 						// update the userRoleTable
+						//SAK-5800
 						if (!getUsers().contains(userEid) && !existingUsers.contains(userEid))
+						
 						{
 							userRoleEntries.add(new UserRoleEntry(userEid, "", userFirstName, userLastName));
 						}
@@ -1007,16 +1035,7 @@ public class SiteAddParticipantHandler {
 			}
 
 			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.1", new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
-			if (!pList.isEmpty())
-			{
-				// continue add
-				targettedMessageList.addMessage(new TargettedMessage("add.existingpart.2", null, TargettedMessage.SEVERITY_INFO));
-			}
-			else
-			{
-				// no valid user input left, prompt for more
-				targettedMessageList.addMessage(new TargettedMessage("java.guest", null, TargettedMessage.SEVERITY_ERROR));
-			}
+			targettedMessageList.addMessage(new TargettedMessage("add.existingpart.2", null, TargettedMessage.SEVERITY_INFO));
 		}
 
 		return;
@@ -1039,8 +1058,6 @@ public class SiteAddParticipantHandler {
 			}
 		}
 		return true;
-		
-		
 	}
     
 	private boolean isValidMail(String email) {
@@ -1082,7 +1099,11 @@ public class SiteAddParticipantHandler {
 				}
 				count++;
 			}
-			targettedMessageList.addMessage(new TargettedMessage(count==1?"add.duplicatedpart.single":"add.duplicatedpart",new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
+			if (count == 1) {
+				targettedMessageList.addMessage(new TargettedMessage("add.duplicatedpart.single",new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
+			} else {
+				targettedMessageList.addMessage(new TargettedMessage("add.duplicatedpart", new Object[]{accounts}, TargettedMessage.SEVERITY_INFO));
+			}
 		}
 
 		return rv;
@@ -1090,10 +1111,10 @@ public class SiteAddParticipantHandler {
 	
 	private void reset()
 	{
-		site = null;
-		siteId = null;
-		realm = null;
-		roles.clear();
+        site = null;
+        siteId = null;
+        realm = null;
+        roles.clear();
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new Vector<String>();
 		nonOfficialAccountParticipant = null;
@@ -1124,37 +1145,6 @@ public class SiteAddParticipantHandler {
 		
 		// replace the original official account entry with eids from all matches.
 		officialAccountParticipant = officialAccountParticipant.replaceAll(officialAccount, eidsForAllMatches);
-	}
-	
-	/**
-	 * generate a 9 digit password. Chars are randomly picked from lower-case/upper-case alpha lists, a numerical list, and a symbol list
-	 * @return
-	 */
-	protected String generatePassword()
-	{
-		// set random password
-		int length = 9;
-		StringBuffer rndbuf = new StringBuffer(length);
-		for (int i = 0; i < length; ++i){
-			int chooseArray = (int) (4 * Math.random());
-		    switch (chooseArray) {
-		    	case 0: 
-		    		rndbuf.append(LOWER_ALPHA_ARRAY[(int) ( LOWER_ALPHA_ARRAY.length * Math.random())-1]);
-		    		break;
-		    	case 1:
-		    		rndbuf.append(UPPER_ALPHA_ARRAY[(int) ( UPPER_ALPHA_ARRAY.length * Math.random())]);
-		    		break;
-		    	case 2:
-		    		rndbuf.append(NUMBER_ARRAY[(int) ( NUMBER_ARRAY.length * Math.random())]);
-		    		break;
-		    	case 3:
-		    		rndbuf.append(SYMBOL_ARRAY[(int) ( SYMBOL_ARRAY.length * Math.random())]);
-		    		break;
-		    	default:
-		    		break;
-		    }
-		}
-		return rndbuf.toString();
 	}
 }
 
