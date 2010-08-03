@@ -21,44 +21,32 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.impl;
 
 // imports
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.util.SiteConstants;
 
 /**
 * <p>RoleGroupEventWatcher is for </p>
@@ -127,7 +115,7 @@ public class RoleGroupEventWatcher implements Observer
 			
 			log.info(this +".init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			log.warn(this +".init(): ", t);
 		}
@@ -206,7 +194,9 @@ public class RoleGroupEventWatcher implements Observer
 					{
 						// not for group realm update, only for site realm updates
 						String siteId = realmId.replace(SiteService.REFERENCE_ROOT + "/", "");
-						AuthzGroup r = m_authzGroupService.getAuthzGroup(realmId);
+						AuthzGroup r;
+						
+							r = m_authzGroupService.getAuthzGroup(realmId);
 						Site site = m_siteService.getSite(siteId);
 						
 						// whether saving site is needed because some groups need updates
@@ -242,10 +232,17 @@ public class RoleGroupEventWatcher implements Observer
 							m_siteService.saveGroupMembership(site);
 						}
 					}
+				} catch (GroupNotDefinedException e) {
+					log.warn("update: " + e + ": " + event.getResource());
+				} catch (IdUnusedException e) {
+					log.warn("update: " + e + ": " + event.getResource());
+				} catch (PermissionException e) {
+					log.warn("update: " + e + ": " + event.getResource());
 				}
 				catch (Exception e)
 				{
-					log.warn(this + ".update:" + e.getMessage() + ": " + event.getResource());
+					log.warn(this + ".update:" + e + ": " + event.getResource());
+					e.printStackTrace();
 				}
 				
 				SecurityService.popAdvisor();
