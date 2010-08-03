@@ -31,11 +31,11 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -44,9 +44,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.SiteConstants;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 /**
 * <p>RoleGroupEventWatcher is for </p>
@@ -98,11 +96,30 @@ public class RoleGroupEventWatcher implements Observer
 	{
 		m_authzGroupService = service;
 	}
+	
+	
+	protected EntityManager entityManager;	
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	protected SecurityService securityService;
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+	
+	protected ThreadLocalManager threadLocalManager;
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
+	}
+	
 
 	/*******************************************************************************
 	* Init and Destroy
 	*******************************************************************************/
 	
+
+
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
@@ -154,14 +171,14 @@ public class RoleGroupEventWatcher implements Observer
 		if (!(arg instanceof Event))
 			return;
 		Event event = (Event) arg;
-		Session session = SessionManager.getCurrentSession();
+		
 		
 		// check the event function against the functions we have notifications watching for
 		String function = event.getEvent();
 
 		if (function.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP) || function.equals(AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP))
 		{
-			Reference ref = EntityManager.newReference(event.getResource());
+			Reference ref = entityManager.newReference(event.getResource());
 			
 			// look for group reference. Need to replace it with parent site reference
 			String refId = ref.getId();
@@ -169,17 +186,17 @@ public class RoleGroupEventWatcher implements Observer
 			if (refId.indexOf(groupType) != -1)
 			{
 				refId = refId.substring(0, refId.indexOf(groupType));
-				ref = EntityManager.newReference(refId);
+				ref = entityManager.newReference(refId);
 			}
 			
 			// this is the current realm reference
-			if (ThreadLocalManager.get("current.event.resource.ref") == null)
+			if (threadLocalManager.get("current.event.resource.ref") == null)
 			{
-				ThreadLocalManager.set("current.event.resource.ref", ref);
+				threadLocalManager.set("current.event.resource.ref", ref);
 				
 				// importing from template, bypass the permission checking:
 				// temporarily allow the user to read and write to site, authzgroup, etc.
-		        SecurityService.pushAdvisor(new SecurityAdvisor()
+		        securityService.pushAdvisor(new SecurityAdvisor()
 	            {
 	                public SecurityAdvice isAllowed(String userId, String function, String reference)
 	                {
@@ -245,10 +262,10 @@ public class RoleGroupEventWatcher implements Observer
 					e.printStackTrace();
 				}
 				
-				SecurityService.popAdvisor();
+				securityService.popAdvisor();
 				
 				// reset
-				ThreadLocalManager.set("current.event.resource.ref", null);
+				threadLocalManager.set("current.event.resource.ref", null);
 			}
 		}
 	} // update
