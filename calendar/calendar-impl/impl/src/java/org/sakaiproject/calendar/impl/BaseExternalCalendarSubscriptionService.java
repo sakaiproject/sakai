@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1142,12 +1144,36 @@ public class BaseExternalCalendarSubscriptionService implements
 			boolean unique = false;
 			while (!unique)
 			{
-				byte[] encoded = CommonsCodecBase64.encodeBase64(key.getBytes());
-				key += n++;
-				id = new String(encoded);
+				byte[] bytes = key.getBytes();
+				try{
+					MessageDigest digest = MessageDigest.getInstance("SHA-1");
+					digest.update(bytes);
+					bytes = digest.digest(); 
+					id = getHexStringFromBytes(bytes);
+				}catch(NoSuchAlgorithmException e){
+					// fall back to Base64
+					byte[] encoded = CommonsCodecBase64.encodeBase64(bytes);
+					id = new String(encoded);
+				}
 				if (!m_storage.containsKey(id)) unique = true;
+				else key += n++;
 			}
 			return id;
+		}
+		
+		protected String getHexStringFromBytes(byte[] raw) 
+		{
+			final String HEXES = "0123456789ABCDEF";
+			if(raw == null)
+			{
+				return null;
+			}
+			final StringBuilder hex = new StringBuilder(2 * raw.length);
+			for(final byte b : raw)
+			{
+				hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
+			}
+			return hex.toString();
 		}
 
 		/**
