@@ -372,17 +372,18 @@ jQuery.fn.threadsSorter = function() {
 
 		$(this).find("th:eq(0)").click(function(e){
 			flip++;
-
+			var imageObj = $(e.target).is("img")?$(e.target):$(e.target).find("img");
+			
 			if(flip %2 == 0){
 				$($this[0].tBodies[0].rows).not(".hierItemBlock").hide();
 				//Sync icons showing consitent for collapsing 
-				$(e.target).attr({'src': imageExpandCollapseUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
+				imageObj.attr({'src': imageExpandCollapseUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
 				$("tr.hierItemBlock td:first-child img").attr({'src': imageCollapseUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'})
 			}
 			else {
 				$($this[0].tBodies[0].rows).not(".hierItemBlock").show();
 				//Sync icons showing consitent for expanding 
-				$(e.target).attr({'src': imageCollapseExpandUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
+				imageObj.attr({'src': imageCollapseExpandUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
 				$("tr.hierItemBlock td:first-child img").attr({'src': imageExpandUrl, 'alt':'Expand/Collapse', 'title':'Expand/Collapse'});
 			}
 			mySetMainFrameHeight($('iframe',parent.document).filter('iframe.portletMainIframe')[0].id);
