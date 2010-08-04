@@ -160,12 +160,12 @@ $(document).ready(function() {
 					#if($item.isLast())
 						$validator.escapeHtml("$item.name")
 						#if($upOneLevel)
-							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
+							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
 								<img src="/library/image/sakai/onelevelup.gif" border="0" alt ="$tlang.getString('sh.one')"/>
 							</a>
 						#end
 					#else
-						<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
+						<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
 							$validator.escapeHtml("$item.name")
 						</a> /
 						#set($upOneLevel = $item)
@@ -236,7 +236,7 @@ $(document).ready(function() {
 								<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
 								$validator.escapeHtml(${item.name})
 							#elseif ($item.canRead())
-								#if (!$expandedCollections.containsKey($item.Id))
+								#if (!$item.isExpanded())
 									<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 										<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 										$validator.escapeHtml(${item.name})
@@ -424,7 +424,7 @@ $(document).ready(function() {
 										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
 										$validator.escapeHtml(${item.name})
 									#elseif ($item.canRead())
-										#if (!$expandedCollections.containsKey($item.Id))
+										#if (!$item.isExpanded())
 											<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 												<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 												$validator.escapeHtml(${item.name})
