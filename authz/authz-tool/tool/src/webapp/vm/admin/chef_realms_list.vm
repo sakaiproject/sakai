@@ -12,11 +12,9 @@
 		</div>
 				
 		<div class="listNav">
-						#if($totalNumber>0)
-						<div class="instruction">	
-						$tlang.getString("realm.list.youare") $startNumber - $endNumber $tlang.getString("realm.list.of") $totalNumber $tlang.getString("realm.list.results")
+						<div class="instruction">
+						$tlang.getString("realm.list.youare") $topMsgPos - $btmMsgPos $tlang.getString("realm.list.of") $allMsgNumber $tlang.getString("realm.list.results")
 						</div>
-						#end
 						#if ($pagesize != 0)
 							#if ($goFPButton == "true")
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">

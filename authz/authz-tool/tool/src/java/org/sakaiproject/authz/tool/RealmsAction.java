@@ -200,29 +200,7 @@ public class RealmsAction extends PagedResourceActionII
 
 		// put all realms into the context
 		context.put("realms", realms);
-
-		// defaults to page size of 20
-		int pageSize = state.getAttribute(STATE_PAGESIZE) != null ? Integer.valueOf(state.getAttribute(STATE_PAGESIZE).toString()).intValue() : 20;
 		
-		// defaults to page 1
-		int currentPageNubmer = state.getAttribute(STATE_CURRENT_PAGE) != null ? Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue() : 1;
-		
-		int startNumber = pageSize * (currentPageNubmer - 1) + 1;
-		int endNumber = pageSize * currentPageNubmer;
-
-		int totalNumber = 0;
-		try
-		{
-			totalNumber = Integer.valueOf(state.getAttribute(STATE_NUM_MESSAGES).toString()).intValue();
-		}
-		catch (java.lang.NullPointerException ignore) {}
-		catch (java.lang.NumberFormatException ignore) {}
-
-		if (totalNumber < endNumber) endNumber = totalNumber;
-
-		context.put("startNumber", Integer.valueOf(startNumber));
-		context.put("endNumber", Integer.valueOf(endNumber));
-		context.put("totalNumber", Integer.valueOf(totalNumber));
 		pagingInfoToContext(state, context);
 
 		// build the menu
