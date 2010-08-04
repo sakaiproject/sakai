@@ -67,6 +67,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.portlet.util.FormattedText;
 
@@ -108,8 +109,8 @@ public class SimpleOutcomesServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static Log M_log = LogFactory.getLog(SimpleOutcomesServlet.class);
-	private static ResourceLoader rb = new ResourceLoader("basiclti");
-	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
+	private static ResourceLoader rb = new ResourceLoader("blis");
+
 	/**
 	 * Setup a security advisor.
 	 */
@@ -179,8 +180,8 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
 		}
 
-		String lti_version = request.getParameter("lti_version");
-		String lti_message_type = request.getParameter("lti_message_type");
+		String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
+		String lti_message_type = request.getParameter(BasicLTIConstants.LTI_MESSAGE_TYPE);
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 
 		theMap.put("/simpleoutcome/lti_message_type", lti_message_type);
