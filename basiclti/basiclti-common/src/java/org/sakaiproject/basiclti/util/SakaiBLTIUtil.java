@@ -53,6 +53,8 @@ public class SakaiBLTIUtil {
 
     public static final boolean verbosePrint = false;
 
+    public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
+
     public static void dPrint(String str)
     {
         if ( verbosePrint ) System.out.println(str);
@@ -171,20 +173,14 @@ public class SakaiBLTIUtil {
 			setProperty(props,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 			setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 		}
-
+ 
 	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
 System.out.println("ASSIGN="+assignment);
 
-        	/*
-		lis_result_sourcedid=
-		ext_ims_lis_simple_outcome_url=
-		ext_ims_lis_resultvalue_sourcedids=
-		decimal, percentage, ratio, passfail, letteraf, letterafplus, or freetext
-        	*/
-
 		String gradeSecret = toNull(getCorrectProperty(config,"gradesecret", placement));
 System.out.println("gradeSecret="+gradeSecret);
-                if ( assignment != null && gradeSecret != null) {
+                String enabled = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, null);
+                if ( "true".equals(enabled) && assignment != null && gradeSecret != null) {
 			String suffix = ":::" + placement.getId() + ":::" + user.getId();
 			String base_string = gradeSecret + suffix;
 			String signature = ShaUtil.sha1Hash(base_string);

@@ -164,7 +164,7 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		M_log.debug("Basic LTI Outcome request from IP=" + ipAddress);
 
 		String enabled = ServerConfigurationService.getString(
-				"basiclti.outcomes.enabled", null);
+				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 		if (enabled == null || !("true".equals(enabled))) {
 			M_log.warn("Basic LTI Outcomes are Disabled IP=" + ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);

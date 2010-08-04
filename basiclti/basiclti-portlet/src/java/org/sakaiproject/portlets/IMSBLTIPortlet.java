@@ -70,6 +70,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -231,8 +232,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	request.setAttribute("imsti.oldvalues", oldValues);
   
-	List<String> assignments = getGradeBookAssignments();
-        if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
+        String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+	if ( "true".equals(enabled) ) {
+	  	List<String> assignments = getGradeBookAssignments();
+        	if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
+	}
     }
 
     public void addProperty(Properties values, RenderRequest request,
@@ -504,8 +508,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
         // Make Sure the Assignment is a legal one
 	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
         String oldGradeSecret = getSakaiProperty(sakaiProperties,"imsti.gradesecret");
+        String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 System.out.println("old gradesecret="+oldGradeSecret);
-        if ( assignment != null && assignment.trim().length() > 1 ) {
+	if ( "true".equals(enabled) && assignment != null && assignment.trim().length() > 1 ) {
 	        List<String> assignments = getGradeBookAssignments();
                 boolean found = false;
                 if ( assignments != null ) for ( String assn : assignments ) {
