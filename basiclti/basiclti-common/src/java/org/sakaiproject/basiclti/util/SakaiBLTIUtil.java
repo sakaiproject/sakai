@@ -181,9 +181,9 @@ System.out.println("ASSIGN="+assignment);
 System.out.println("gradeSecret="+gradeSecret);
                 String enabled = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, null);
                 if ( "true".equals(enabled) && assignment != null && gradeSecret != null) {
-			String suffix = ":::" + placement.getId() + ":::" + user.getId();
+			String suffix = ":::" +  user.getId() + ":::" + placement.getId();
 			String base_string = gradeSecret + suffix;
-			String signature = ShaUtil.sha1Hash(base_string);
+			String signature = ShaUtil.sha256Hash(base_string);
 			String result_sourcedid = signature + suffix;
 System.out.println("RSI="+result_sourcedid);
 			setProperty(props,"lis_result_sourcedid", result_sourcedid);  

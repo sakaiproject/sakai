@@ -40,6 +40,20 @@ public class ShaUtil {
 		return byteToHex(b);
 	}
 
+	public static String sha256Hash(final String tohash) {
+		byte[] b = null;
+		try {
+			b = tohash.getBytes("UTF-8");
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			b = sha256.digest(b);
+		} catch (UnsupportedEncodingException e) {
+			throw new Error(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new Error(e);
+		}
+		return byteToHex(b);
+	}
+
 	public static String byteToHex(final byte[] base) {
 		if (base != null) {
 			char[] c = new char[base.length * 2];

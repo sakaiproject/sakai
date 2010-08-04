@@ -224,6 +224,9 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			return;
 		}
 
+		// Truncate this to the maximum length to insure no cruft at the end
+		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
+
 		String placement_id = null;
 		String signature = null;
 		String user_id = null;
@@ -234,8 +237,8 @@ public class SimpleOutcomesServlet extends HttpServlet {
 				signature = sourcedid.substring(0, pos);
                     		String dec2 = sourcedid.substring(pos+3);
 		    		pos = dec2.indexOf(":::");
-                    		placement_id = dec2.substring(0,pos);
-                    		user_id = dec2.substring(pos+3);
+                    		user_id = dec2.substring(0,pos);
+                    		placement_id = dec2.substring(pos+3);
                		}
                 } catch (Exception e) {
 			// Log some detail for ourselves
@@ -317,15 +320,15 @@ System.out.println("user_id="+user_id);
 			return;
 		}
 
-		String pre_hash = grade_secret + ":::" + placement_id + ":::" + user_id;
-		String received_signature = ShaUtil.sha1Hash(pre_hash);
+		String pre_hash = grade_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = ShaUtil.sha256Hash(pre_hash);
 System.out.println("Received signature="+signature+" received="+received_signature);
 		boolean matched = signature.equals(received_signature);
 
 		String old_grade_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"oldgradesecret", placement));
 		if ( old_grade_secret != null && ! matched ) {
-			pre_hash = grade_secret + ":::" + placement_id + ":::" + user_id;
-			received_signature = ShaUtil.sha1Hash(pre_hash);
+			pre_hash = grade_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = ShaUtil.sha256Hash(pre_hash);
 System.out.println("Received signature II="+signature+" received="+received_signature);
 			matched = signature.equals(received_signature);
 		}
