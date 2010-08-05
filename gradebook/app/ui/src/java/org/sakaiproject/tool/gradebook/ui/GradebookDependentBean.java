@@ -23,16 +23,21 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.text.DateFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
+
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
@@ -129,6 +134,15 @@ public abstract class GradebookDependentBean extends InitializableBean {
      */
     public String getLocalizedString(String key, String[] params) {
     	return FacesUtil.getLocalizedString(key, params);
+    }
+    
+    /**
+     * Gets a localized percent input symbol based on the locale determined by FacesContext.
+     */
+    public String getLocalizedPercentInput() {
+    	Locale locale = LocaleUtil.getLocale(FacesContext.getCurrentInstance());
+    	DecimalFormatSymbols dfs = new DecimalFormatSymbols(locale);
+    	return String.valueOf(dfs.getPercent());
     }
 
     // Still more convenience methods, hiding the bean configuration details.

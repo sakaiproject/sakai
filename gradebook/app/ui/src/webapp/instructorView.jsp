@@ -227,7 +227,7 @@
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
                                 
-                <h:outputText value="#{msgs.inst_view_input_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}"
+                <h:outputText value="#{instructorViewBean.localizedPercentInput}" rendered="#{instructorViewBean.gradeEntryByPercent}"
                   style="margin-left: 5px;" />
 								
 								<h:inputText id="LetterScore" value="#{row.letterScore}" size="4" 
@@ -241,7 +241,7 @@
     							<h:outputText value="#{row.score}">
     								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
     							</h:outputText>
-                  <h:outputText value="#{msgs.inst_view_input_percent}" rendered="#{instructorViewBean.gradeEntryByPercent && row.score != null}" />
+                  <h:outputText value="#{instructorViewBean.localizedPercentInput}" rendered="#{instructorViewBean.gradeEntryByPercent && row.score != null}" />
               </h:panelGroup>
 							
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
