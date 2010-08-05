@@ -702,7 +702,7 @@ $(document).ready(function() {
 							</td>
 							<td headers="name" class="checkbox" style="white-space:nowrap">
 								<label for="id-$group.Id">
-									$validator.escapeHtml($validator.escapeHtml($group.Title))
+									$validator.escapeHtml($group.Title)
 								</label>	
 							</td>
 							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
