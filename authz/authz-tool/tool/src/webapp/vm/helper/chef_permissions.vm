@@ -34,7 +34,7 @@
 						#set($groupCount=0)
 						 #foreach ($group in $!groups)
 							#set($groupCount=$groupCount + 1)
-							<option value ="$group.Reference" #if ($!viewRealmId.equals($group.Reference)) selected = "selected" #end>$group.Title</option>
+							<option value ="$group.Reference" #if ($!viewRealmId.equals($group.Reference)) selected = "selected" #end>$validator.escapeHtml($group.Title)</option>
 				     	#end
 						## end 	for each group
 					</select>
