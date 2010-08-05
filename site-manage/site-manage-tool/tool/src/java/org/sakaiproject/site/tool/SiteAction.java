@@ -4734,11 +4734,11 @@ public class SiteAction extends PagedResourceActionII {
 				multipleToolConfiguration.put(tr.getId(), toolConfigurations);
 				
 				// reset tool title if there is a different title config setting
-				String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + originalToolId);
+				/*String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + originalToolId);
 				if (titleConfig != null && titleConfig.length() > 0 )
 				{
 					newTool.title = titleConfig;
-				}
+				}*/
 			}
 			tools.add(newTool);
 		}
