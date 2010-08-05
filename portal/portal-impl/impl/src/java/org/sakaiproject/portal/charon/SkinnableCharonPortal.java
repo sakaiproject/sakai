@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.wurfl.core.Device;
+import net.sourceforge.wurfl.core.DeviceNotDefinedException;
 import net.sourceforge.wurfl.core.WURFLHolder;
 import net.sourceforge.wurfl.core.WURFLManager;
 
@@ -732,12 +733,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			return null;
 		}
 		
+		Device device = null;
+		try {
+			device = wurfl.getDeviceForRequest(req);
+		} catch (DeviceNotDefinedException e) {
+			//this will be hit a lot, so its at debug level to reduce log traffic
+			M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
+			return null;
+		}
 		
-		Device device = wurfl.getDeviceForRequest(req);
 		String deviceName = device.getId();
 
 		// Not a device recognised by WURFL
-		if ( deviceName == null || deviceName.length() < 1 || deviceName.startsWith("generic") ) { 
+		if (StringUtils.isBlank(deviceName) || deviceName.startsWith("generic") ) { 
 			return null;
 		} else {
 			//if this is a mobile device 
@@ -748,6 +756,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			return null;
 		}
+		
 	}
 
 
