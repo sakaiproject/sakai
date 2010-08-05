@@ -1361,6 +1361,46 @@ public String addConfigPropertyToTool( String sessionid, String siteid, String p
 }
 
 /**
+ * Add a property to a page in a site
+ *
+ * @param   sessionid       the id of a valid session
+ * @param   siteid          the id of the site to add the page to
+ * @param   pagetitle       the title of the page the tool exists in
+ * @param   propname        the name of the property
+ * @param   propvalue       the value of the property
+ * @return                  success or exception message
+ *
+ * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
+ */
+public String addConfigPropertyToPage( String sessionid, String siteid, String pagetitle, String propname, String propvalue) throws AxisFault
+{
+    Session session = establishSession(sessionid);
+
+    try {
+
+        Site siteEdit = siteService.getSite(siteid);
+        List pageEdits = siteEdit.getPages();
+        for (Iterator i = pageEdits.iterator(); i.hasNext();)
+        {
+            SitePage pageEdit = (SitePage) i.next();
+            if (pageEdit.getTitle().equals(pagetitle))
+            {   
+                ResourcePropertiesEdit propsedit = pageEdit.getPropertiesEdit();
+                propsedit.addProperty(propname, propvalue); // is_home_page = true
+            }
+        }
+        siteService.save(siteEdit);
+
+    }
+    catch (Exception e) {
+        LOG.error("WS addConfigPropertyToPage(): " + e.getClass().getName() + " : " + e.getMessage());
+        return e.getClass().getName() + " : " + e.getMessage();
+    }
+    return "success";
+}
+
+
+/**
  * Check if a user exists (either as an account in Sakai or in any external provider)
  *
  * @param 	sessionid 		the id of a valid session
