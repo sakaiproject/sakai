@@ -988,7 +988,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if ( wurflHolder == null || wurfl == null ) return;
 		
 		
-		Device device = wurfl.getDeviceForRequest(req);
+		Device device = null;
+		try {
+			device = wurfl.getDeviceForRequest(req);
+		} catch (DeviceNotDefinedException e) {
+			//this will be hit a lot, so its at debug level to reduce log traffic
+			M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
+			return;
+		}
+		
 		M_log.debug("device=" + device.getId() + " agent=" + req.getHeader("user-agent"));
 
 		// Not a mobile device
