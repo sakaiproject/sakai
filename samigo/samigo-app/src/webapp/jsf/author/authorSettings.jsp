@@ -337,7 +337,7 @@ function setBlockDivs()
 <h:outputText value="#{templateMessages.allMenus}"/>
 
 </p>
-<h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate}" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_template_information}" >
 <f:verbatim> <div class="tier2"></f:verbatim>
  <h:panelGrid columns="2" columnClasses="shorttext">

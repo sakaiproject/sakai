@@ -77,7 +77,8 @@ public class AuthorActionListener
 
     //#1 - prepare active template list. Note that we only need the title. We don't need the
     // full template object - be cheap.
-    author.setShowTemplateList(true);
+    String showAssessmentTypes = ServerConfigurationService.getString("samigo.showAssessmentTypes");
+    author.setShowTemplateList(Boolean.parseBoolean(showAssessmentTypes));
     ArrayList templateList = assessmentService.getTitleOfAllActiveAssessmentTemplates();
     // get the managed bean, author and set the list
     if (templateList.size()==1){   //<= only contains Default Template

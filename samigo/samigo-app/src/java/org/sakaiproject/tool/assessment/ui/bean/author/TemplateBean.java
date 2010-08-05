@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>  JSF backing bean for Template pages
@@ -77,7 +78,7 @@ public class TemplateBean implements Serializable
   private String lastModified;
   private String lastModifiedBy;
   private Date modifiedDate;
-    private String outcome;
+  private String outcome;
   
   /**
    * This just sets some defaults.
@@ -937,10 +938,6 @@ public class TemplateBean implements Serializable
   {
     return typeId;
   }
-
-  
-  
-  
   
   protected String groups[] = {"Group 1", "Group 2", "Group 3"};
   protected String selectedGroups[] = new String[0];
@@ -961,6 +958,9 @@ public class TemplateBean implements Serializable
 	  this.selectedGroups = selectedGroups;
   }
   
-  
-  
+  public boolean getShowAssessmentTypes() {
+	  String showAssessmentTypes = ServerConfigurationService.getString("samigo.showAssessmentTypes");
+	  return Boolean.parseBoolean(showAssessmentTypes);
+  }
+
 }

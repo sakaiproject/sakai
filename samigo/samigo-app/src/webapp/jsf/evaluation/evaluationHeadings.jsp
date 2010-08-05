@@ -31,15 +31,17 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
       <h:outputText value="#{generalMessages.assessment}" />
     </h:commandLink>
 
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
+<f:verbatim></span></li></f:verbatim>
+<h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
+<f:verbatim><li role="menuitem" ><span></f:verbatim>
 
-    <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true" rendered="#{authorization.adminTemplate}">
+    <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
       <h:outputText value="#{generalMessages.template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
  
-<f:verbatim></span></li>
+<f:verbatim></span></li></f:verbatim>
+</h:panelGroup>
 <li role="menuitem" ><span></f:verbatim>
 
     <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true"  rendered="#{authorization.adminQuestionPool}">
