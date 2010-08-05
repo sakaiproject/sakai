@@ -2,21 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-    <bean id="org.sakaiproject.roster.api.SakaiProxy"
-		class="org.sakaiproject.roster.impl.SakaiProxyImpl">
-		
-		<!-- <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" /> -->
-		<!-- <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" /> -->
-		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-		<!-- <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />-->
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-		
-	</bean>
-	
 	<bean id="org.sakaiproject.api.app.roster.RosterManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager">
