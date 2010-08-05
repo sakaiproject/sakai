@@ -187,7 +187,7 @@
 			#if ($!groupRange && !($!groupRange == ""))
 			<tr>
 				<th class="chefLabel">$tlang.getString("groups")</th>
-				<td>$!groupRange</td>
+				<td>$validator.escapeHtml($!groupRange)</td>
 			</tr>
 			#end
 			#if($assignmenturl && $assignmenturl !="")
