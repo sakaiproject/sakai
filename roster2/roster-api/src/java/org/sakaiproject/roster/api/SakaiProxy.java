@@ -54,6 +54,7 @@ public interface SakaiProxy {
 	 */
 	public List<RosterMember> getMembership(String siteId, String groupId);
 
+	public RosterSite getSiteDetails(String siteId);
 	
 	public String getCurrentSessionUserId();
 	

@@ -31,7 +31,9 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.roster.api.RosterGroup;
 import org.sakaiproject.roster.api.RosterMember;
+import org.sakaiproject.roster.api.RosterSite;
 import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.site.api.Group;
@@ -180,7 +182,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 				while (groupIterator.hasNext()) {
 					Group group = groupIterator.next();
-
+					
 					rosterMember.addGroup(group.getId(), group.getTitle());
 				}
 
@@ -194,6 +196,49 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 
 		return rosterMembers;
+	}
+	
+	public RosterSite getSiteDetails(String siteId) {
+		
+		String currentUserId = getCurrentSessionUserId();
+		if (null == currentUserId) {
+			return null;
+		}
+		
+		Site site = getSite(siteId);
+		// only if user is a site member
+		if (null == site.getMember(currentUserId)) {
+			return null;
+		}
+		
+		if (null == site) {
+			return null;
+		}
+		
+		RosterSite rosterSite = new RosterSite();
+		
+		rosterSite.setId(site.getId());
+		rosterSite.setTitle(site.getTitle());
+		
+		List<RosterGroup> siteGroups = new ArrayList<RosterGroup>();
+		
+		for (Group group : site.getGroups()) {
+			RosterGroup rosterGroup = new RosterGroup();
+			rosterGroup.setId(group.getId());
+			rosterGroup.setTitle(group.getTitle());
+			
+			List<String> userIds = new ArrayList<String>();
+			for (Member member : group.getMembers()) {
+				userIds.add(member.getUserId());
+			}
+			
+			rosterGroup.setUserIds(userIds);
+			
+			siteGroups.add(rosterGroup);
+		}
+		
+		rosterSite.setSiteGroups(siteGroups);
+		return rosterSite;
 	}
 
 	/**
