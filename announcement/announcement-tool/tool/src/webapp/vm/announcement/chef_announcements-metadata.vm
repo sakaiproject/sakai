@@ -57,7 +57,7 @@
 		#if ($!range)
 			<tr>
 				<th>$tlang.getString("meta.groups")</th>
-				<td>$!range</td>
+				<td>$validator.escapeHtml($!range)</td>
 			</tr>
 		#end
 		#if($assignmenturl && $assignmenturl !="")
