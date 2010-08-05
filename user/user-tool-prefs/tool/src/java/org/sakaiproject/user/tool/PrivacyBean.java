@@ -67,6 +67,9 @@ public class PrivacyBean {
 	private String changeAllMsg;
 	private boolean noSiteProcessErr = false;
 
+    //my code
+    private boolean updateMessage = false;
+
 	private SelectItem[] sites;
 
 	/** * Resource bundle messages */
@@ -258,14 +261,17 @@ public class PrivacyBean {
 	public String processUpdate() {
 		if (isMyWorkspace() && ! siteSelected) {
 			noSiteProcessErr = true;
-			
+			//setUpdateMessage(true);
 			return "main";
 		}
 		
 		if (!privacyStatus.equals("")){
 			processChoice(isMyWorkspace() ? curSite : getContextId(), privacyStatus.equals(HIDDEN) ? false : true);
+            setUpdateMessage(true);
 		}
 		displayPopup = false;
+
+
 
 		/**
 		// if user checked the checkbox
@@ -391,4 +397,12 @@ public class PrivacyBean {
 		return SessionManager.getCurrentSessionUserId();
 	}
 
+
+    public boolean isUpdateMessage() {
+        return updateMessage;
+    }
+
+    public void setUpdateMessage(boolean updateMessage) {
+        this.updateMessage = updateMessage;
+    }
 }

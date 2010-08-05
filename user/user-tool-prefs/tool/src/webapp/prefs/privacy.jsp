@@ -8,6 +8,14 @@
 <f:view> 
   <sakai:view> 
     <h:form>
+      <!--SAK-18566 -->
+     <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				setupPrefsGen();
+			})
+	 </script>   
 
 	<!-- *********** Tool rendering top of page if on MyWorkspace home page *********** --> 
    	<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
@@ -48,7 +56,14 @@
      
      	<h:outputText value="#{msgs.privacy_title}" rendered="#{privacyBean.myWorkspace}" />
 
-     	<f:verbatim></h3></div><br /></f:verbatim>
+         <!--SAK-18566 -->
+        <h3>
+		 <h:panelGroup rendered="#{privacyBean.updateMessage}" style="margin:0 3em;font-weight:normal">
+		 <jsp:include page="prefUpdatedMsg.jsp"/>
+		 </h:panelGroup>
+	   </h3>
+
+        <f:verbatim></h3></div><br /></f:verbatim>
 	  
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
