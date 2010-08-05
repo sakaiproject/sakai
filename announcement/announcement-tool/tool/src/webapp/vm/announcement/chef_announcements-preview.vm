@@ -30,7 +30,7 @@
 			</tr>
 			<tr>
 			<th>$tlang.getString("groups")</th>
-			<td>$annToGroups</td>				
+			<td>$validator.escapeHtml($annToGroups)</td>				
 			#end
 		</tr>
 		</tr>

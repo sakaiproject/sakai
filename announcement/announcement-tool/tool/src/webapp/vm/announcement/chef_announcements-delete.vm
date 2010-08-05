@@ -43,7 +43,7 @@
 									#set($allGroupString = $aGroup.getTitle())
 								#end
 							#end
-							$allGroupString
+							$validator.escapeHtml($allGroupString)
 						#end
 					</td>
 				</tr>
