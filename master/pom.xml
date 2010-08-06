@@ -197,20 +197,15 @@
     </repositories>
     
     <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.sakaiproject.kernel</groupId>
-                <artifactId>sakai-kernel-api</artifactId>
-                <version>${sakai.kernel.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.kernel</groupId>
-                <artifactId>sakai-component-manager</artifactId>
-                <version>${sakai.kernel.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
+	<dependencies>
+		<dependency>
+			<artifactId>kernel</artifactId>
+			<groupId>org.sakaiproject</groupId>
+			<version>${sakai.kernel.version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		 <dependency>
                 <groupId>org.sakaiproject.kernel</groupId>
                 <artifactId>sakai-kernel-util</artifactId>
                 <version>${sakai.kernel.version}</version>
@@ -241,223 +236,21 @@
                 provided by the JDK, here to ensure its not packaged in
                 child poms child poms may still override if necessary
             -->
-            <dependency>
-                <groupId>xalan</groupId>
-                <artifactId>xalan</artifactId>
-                <version>2.6.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>2.6.2</version>
-                <scope>provided</scope>
-            </dependency>
+
             <!-- common/lib -->
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>${sakai.servletapi.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-el</groupId>
-                <artifactId>commons-el</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>sakai-dav-common</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <!-- parser API inconsistancies -->
-            <!-- force this version where used  -->
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xmlParserAPIs</artifactId>
-                <version>2.6.2</version>
-            </dependency>
-            <!--
-                block these versions if the user really wants them they
-                will have to be specific
-            -->
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>1.0.b2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xmlParserAPIs</artifactId>
-                <version>2.0.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.8</version>
-                <scope>provided</scope>
-            </dependency>
-            
+
             <!-- shared/lib -->
-            <!-- 3rd party APIs/Implementations -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${sakai.spring.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-webmvc</artifactId>
-                <version>${sakai.spring.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.1.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>antlr</groupId>
-                <artifactId>antlr</artifactId>
-                <version>2.7.6</version>
-                <scope>provided</scope>
-            </dependency>
+
             <dependency>
                 <groupId>castor</groupId>
                 <artifactId>castor</artifactId>
                 <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>2.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.2.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${sakai.commons.fileupload.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>1.4</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${sakai.commons.lang.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-math</groupId>
-                <artifactId>commons-math</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-pool</groupId>
-                <artifactId>commons-pool</artifactId>
-                <version>1.5.4</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>zing</groupId>
-                <artifactId>cql-java-0.7</artifactId>
-                <version>0.7</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>1.6.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>${sakai.ehcache.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate</artifactId>
-                <version>${sakai.hibernate.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>1.8.0.7</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>1.1-beta-10</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>jdbc</groupId>
-                <artifactId>jdbc2_0-stdext</artifactId>
-                <version>h2.1.8</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>jdom</groupId>
-                <artifactId>jdom</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jstl</artifactId>
-                <version>1.1.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>jta</groupId>
-                <artifactId>jta</artifactId>
-                <version>h2.1.8</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.4.3</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
