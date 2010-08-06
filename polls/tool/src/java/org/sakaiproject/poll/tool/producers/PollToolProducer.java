@@ -23,7 +23,6 @@ package org.sakaiproject.poll.tool.producers;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -213,6 +212,7 @@ DefaultView,NavigationCaseReporter {
 		
 		for (int i = 0 ; i < polls.size(); i++) {
 			Poll poll = (Poll)polls.get(i);
+			
 			boolean canVote = pollVoteManager.pollIsVotable(poll);
 			UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
 					canVote ? "poll-row:votable"
@@ -226,6 +226,9 @@ DefaultView,NavigationCaseReporter {
 				voteLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_vote_title") +":" + poll.getText()));
 
 			} else {
+				//the poll is lazily loaded so get the options
+				poll.setOptions(pollListManager.getOptionsForPoll(poll.getPollId()));
+				
 				//is this not votable because of no options?
 				if (poll.getPollOptions().size() == 0 )
 					UIOutput.make(pollrow,"poll-text",poll.getText() + " (" + messageLocator.getMessage("poll_no_options") + ")");
