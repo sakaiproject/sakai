@@ -42,6 +42,7 @@ import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 
 /**
@@ -179,11 +180,15 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         Long pollId = poll.getPollId();
         String currentUserId = developerHelperService.getCurrentUserId();
+        
         boolean allowedManage = false;
         if (! developerHelperService.isEntityRequestInternal(ref+"")) {
             // not an internal request so we require user to be logged in
             if (currentUserId == null) {
-                throw new SecurityException("User must be logged in in order to access poll data: " + ref);
+            	//is this a public poll? (ie .anon role has poll.vote)
+            	if(!pollListManager.isPollPublic(poll)){
+            		throw new SecurityException("User must be logged in in order to access poll data: " + ref);
+            	}
             } else {
                 String userReference = developerHelperService.getCurrentUserReference();
 		System.out.println("access from : " + userReference);
@@ -192,7 +197,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 if (!allowedManage && !allowedVote) {
                     throw new SecurityException("User ("+userReference+") not allowed to access poll data: " + ref);
                 }
-            }
+           }
         }
 	System.out.println("Here we are!");
         Boolean includeVotes = requestStorage.getStoredValueAsType(Boolean.class, "includeVotes");

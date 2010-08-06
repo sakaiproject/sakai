@@ -654,4 +654,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
 		return false;
 	}
+	
+	public boolean isPollPublic(Poll poll) {
+		//can the anonymous user vote?
+		if(externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getSiteRefFromId(poll.getSiteId()))){
+			return true;
+		}
+		return false;
+	}
 }

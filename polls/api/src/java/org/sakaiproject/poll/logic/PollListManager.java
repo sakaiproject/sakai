@@ -170,4 +170,10 @@ public interface PollListManager extends EntityProducer {
      */
     public boolean savePoll(Poll t) throws SecurityException, IllegalArgumentException;
 
+    /**
+     * Is this poll public?
+     * @param poll
+     * @return
+     */
+    public boolean isPollPublic(Poll poll);
 }
