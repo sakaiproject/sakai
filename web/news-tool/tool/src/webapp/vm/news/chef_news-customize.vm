@@ -52,7 +52,7 @@
 					type="text" 
 					name="$formfield_channel_url" 
 					id="$formfield_channel_url" 
-					value="$!current_channel_url"
+					value="$validator.escapeHtml($!current_channel_url)"
 					size="50" />
 			</p>
 			<p class="act">
