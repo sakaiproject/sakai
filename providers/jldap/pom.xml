@@ -52,7 +52,7 @@
     <dependency>
       <groupId>openldap</groupId>
       <artifactId>ldap</artifactId>
-      <version>2005.03.29</version>
+      <version>2009.10.07</version>
     </dependency>
     <dependency>
       <groupId>jmock</groupId>
