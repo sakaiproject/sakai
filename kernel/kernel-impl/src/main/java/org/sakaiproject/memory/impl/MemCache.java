@@ -174,9 +174,6 @@ public class MemCache implements Cache, Observer
 		m_memoryService = memoryService;
 		m_eventTrackingService = eventTrackingService;
 		this.cache = cache;
-
-		// register as a cacher
-		m_memoryService.registerCacher(this);
 	}
 
 	/**
@@ -291,9 +288,6 @@ public class MemCache implements Cache, Observer
 		// if we are not in a global shutdown
 		if (!ComponentManager.hasBeenClosed())
 		{
-			// remove my registration
-			m_memoryService.unregisterCacher(this);
-	
 			// remove my event notification registration
 			m_eventTrackingService.deleteObserver(this);
 		}
