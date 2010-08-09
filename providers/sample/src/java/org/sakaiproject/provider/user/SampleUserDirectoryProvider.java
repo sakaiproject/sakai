@@ -98,7 +98,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			};
 			
 			// fill a set of users
-			m_info = new Hashtable();
+			m_info = new Hashtable<String, Info>();
 			m_info.put("user1", new Info("user1", "One", "User", "user1@local.host"));
 			m_info.put("user2", new Info("user2", "Two", "User", "user2@local.host"));
 			m_info.put("user3", new Info("user3", "Three", "User", "user3@local.host"));
@@ -148,7 +148,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** A collection of user ids/names. */
-	protected Hashtable m_info = null;
+	protected Hashtable<String, Info> m_info = null;
 
 	protected class Info
 	{
