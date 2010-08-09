@@ -52,6 +52,13 @@ public interface AuthzGroupService extends EntityProducer
 	/** Name for the event of updating an AuthzGroup. */
 	static final String SECURE_UPDATE_AUTHZ_GROUP = "realm.upd";
 
+	/** Name for the event of joining an AuthzGroup. */
+	static final String SECURE_JOIN_AUTHZ_GROUP = "realm.join";
+
+	/** Name for the event of unjoining an AuthzGroup. */
+	static final String SECURE_UNJOIN_AUTHZ_GROUP = "realm.unjoin";
+
+	
 	/** Name for the event of updating ones own relationship in an AuthzGroup. */
 	static final String SECURE_UPDATE_OWN_AUTHZ_GROUP = "realm.upd.own";
 

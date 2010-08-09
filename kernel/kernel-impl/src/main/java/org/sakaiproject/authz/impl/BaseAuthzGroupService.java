@@ -635,7 +635,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 
 		// track it
 		String event = ((BaseAuthzGroup) azGroup).getEvent();
-		if (event == null) event = SECURE_UPDATE_AUTHZ_GROUP;
+		if (event == null) event = SECURE_JOIN_AUTHZ_GROUP;
 		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
 
 		// close the azGroup object
@@ -665,7 +665,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 
 		// track it
 		String event = ((BaseAuthzGroup) azGroup).getEvent();
-		if (event == null) event = SECURE_UPDATE_AUTHZ_GROUP;
+		if (event == null) event = SECURE_UNJOIN_AUTHZ_GROUP;
 		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
 
 		// close the azGroup object
