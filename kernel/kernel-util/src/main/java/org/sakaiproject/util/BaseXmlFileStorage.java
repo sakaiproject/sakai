@@ -119,13 +119,6 @@ public class BaseXmlFileStorage
 		m_user = user;
 	}
 
-	/**
-	 * Clean up.
-	 */
-	protected void finalize()
-	{
-		m_user = null;
-	}
 
 	/**
 	 * Load the Xml Document

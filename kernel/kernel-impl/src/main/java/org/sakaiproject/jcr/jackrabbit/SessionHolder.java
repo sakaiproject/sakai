@@ -46,7 +46,6 @@ public class SessionHolder implements ThreadBound
 		{
 			if ( session != null ) {
 				session.logout();
-				session = null;
 			}
 		}
 		catch (Throwable t)
