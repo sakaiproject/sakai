@@ -40,6 +40,7 @@
 	    	            id="selectType"
 			           	immediate="true"
 			           	value="#{UserListBean.selectedUserType}"
+			           	title="#{msgs.combo_user_type_title}"
 			       		style="width: 160px;">
 	    	        <f:selectItems value="#{UserListBean.userTypes}"/> 
 		        </t:selectOneMenu> 	
@@ -48,6 +49,7 @@
 	    	           	id="selectAuthority"
 			       		immediate="true"
 			       		value="#{UserListBean.selectedAuthority}"
+			       		title="#{msgs.combo_user_ext_title}"
 			       		style="width: 160px;">
 	    	        <f:selectItems value="#{UserListBean.userAuthorities}"/> 
 		        </t:selectOneMenu>
@@ -56,7 +58,7 @@
 			<t:div styleClass="act" style="padding: 0em;">
 				<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}"
 					onclick="this.value=''" valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
-					size="20"
+					size="20" title="#{msgs.bar_input_search_title}"
 					onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"/>
 				<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
 					onkeypress="document.forms[0].submit;" value="#{msgs.bar_search}"
