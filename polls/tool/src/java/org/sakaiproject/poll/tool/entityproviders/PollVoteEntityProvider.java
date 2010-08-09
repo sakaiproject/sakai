@@ -105,7 +105,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         	pollId = Long.valueOf((String)params.get("pollId"));
         }
         catch (Exception e) {
-			e.printStackTrace();
+			log.warn(e);
 		}
         
         if (pollId == null) {
@@ -119,7 +119,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         	optionId = Long.valueOf((String)params.get("pollOption"));
         }
         catch (Exception e) {
-			e.printStackTrace();
+        	log.warn(e);
 		}
         
         if (optionId == null) {
