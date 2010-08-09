@@ -339,22 +339,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean loggedIn = session.getUserId() != null;
 			boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
-			String siteNavUrl = null;
-			int height = 0;
-			String siteNavClass = null;
-
-			if (loggedIn)
-			{
-				siteNavUrl = Web.returnUrl(req, "/site_tabs/" + Web.escapeUrl(siteId));
-				height = 104;
-				siteNavClass = "sitenav-max";
-			}
-			else
-			{
-				siteNavUrl = Web.returnUrl(req, "/nav_login/" + Web.escapeUrl(siteId));
-				height = 80;
-				siteNavClass = "sitenav-log";
-			}
 
 			String accessibilityURL = ServerConfigurationService
 					.getString("accessibility.url");

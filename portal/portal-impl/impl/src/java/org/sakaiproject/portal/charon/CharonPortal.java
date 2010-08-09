@@ -1830,19 +1830,7 @@ public class CharonPortal extends HttpServlet
 			Session session, String siteId)
 	{
 		boolean loggedIn = session.getUserId() != null;
-		boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
-		String siteNavUrl = null;
-
-		if (loggedIn)
-		{
-			siteNavUrl = Web.returnUrl(req, "/gallery_tabs/" + Web.escapeUrl(siteId));
-		}
-		else
-		{
-			siteNavUrl = Web
-					.returnUrl(req, "/nav_login_gallery/" + Web.escapeUrl(siteId));
-		}
 
 		// outer blocks and jump-to links
 		out.println("	<div id=\"portalOuterContainer\">");
@@ -2324,24 +2312,7 @@ public class CharonPortal extends HttpServlet
 			Session session, String siteId)
 	{
 		boolean loggedIn = session.getUserId() != null;
-		boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
-		String siteNavUrl = null;
-		int height = 0;
-		String siteNavClass = null;
-
-		if (loggedIn)
-		{
-			siteNavUrl = Web.returnUrl(req, "/site_tabs/" + Web.escapeUrl(siteId));
-			height = 104;
-			siteNavClass = "sitenav-max";
-		}
-		else
-		{
-			siteNavUrl = Web.returnUrl(req, "/nav_login/" + Web.escapeUrl(siteId));
-			height = 80;
-			siteNavClass = "sitenav-log";
-		}
 
 		// outer blocks and jump to links
 		out.println("	<div id=\"portalOuterContainer\">");
