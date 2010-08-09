@@ -24,6 +24,7 @@ package org.sakaiproject.portal.charon.handlers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
@@ -56,15 +57,28 @@ public abstract class StaticHandler extends BasePortalHandler
 	public StaticHandler()
 	{
 		contentTypes = new Properties();
+		InputStream stream = null;
 		try
 		{
-			contentTypes.load(this.getClass().getResourceAsStream(
-					"/org/sakaiproject/portal/charon/staticcontenttypes.config"));
+			stream = this.getClass().getResourceAsStream(
+			"/org/sakaiproject/portal/charon/staticcontenttypes.config");
+			contentTypes.load(stream);
 		}
 		catch (IOException e)
 		{
 			throw new RuntimeException(
 					"Failed to load Static Content Types (staticcontenttypes.config) ", e);
+		}
+		finally
+		{
+			if (stream != null) 
+			{
+				try {
+					stream.close();
+				} catch (IOException e) {
+					//nothing to be done here
+				}
+			}
 		}
 
 	}
