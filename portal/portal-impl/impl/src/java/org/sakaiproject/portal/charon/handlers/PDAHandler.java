@@ -359,10 +359,10 @@ public class PDAHandler extends PageHandler
 		// bypass)
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
-			Site site = null;
+			
 			try
 			{
-				site = SiteService.getSiteVisit(siteTool.getSiteId());
+				SiteService.getSiteVisit(siteTool.getSiteId());
 			}
 			catch (IdUnusedException e)
 			{

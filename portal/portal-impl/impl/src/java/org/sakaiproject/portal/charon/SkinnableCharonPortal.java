@@ -127,8 +127,14 @@ import org.sakaiproject.util.Web;
  * @version $Rev$
  * 
  */
+@SuppressWarnings("deprecation")
 public class SkinnableCharonPortal extends HttpServlet implements Portal
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2645929710236293089L;
+
 	/**
 	 * Our log (commons).
 	 */
@@ -477,13 +483,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 		}
 
-		// Get the user's My WorkSpace and its ID
-		Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
-		String myWorkspaceSiteId = null;
-		if (myWorkspaceSite != null)
-		{
-			myWorkspaceSiteId = myWorkspaceSite.getId();
-		}
 
 		// form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service");
@@ -997,10 +996,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			return;
 		}
 		
-		M_log.debug("device=" + device.getId() + " agent=" + req.getHeader("user-agent"));
-
 		// Not a mobile device
 		if ( device == null || device.getId().length() < 1 || device.getId().startsWith("generic") ) return;
+
+		M_log.debug("device=" + device.getId() + " agent=" + req.getHeader("user-agent"));
 		rcontext.put("wurflDevice",device.getId());
 
 		// Check to see if we have too few columns of text
@@ -1557,8 +1556,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				// find the login tool
-				Tool loginTool = ToolManager.getTool("sakai.login");
 				String eidWording = null;
 				String pwWording = null;
 				eidWording = StringUtil.trimToNull(rloader.getString("log.userid"));

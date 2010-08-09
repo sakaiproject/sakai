@@ -517,7 +517,7 @@ public class SiteHandler extends WorksiteHandler
             	{
 		            String switchRoleUrl = "";
 		            Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
-		            if (roleswitchvalue != null && !userRole.equals(roleswitchvalue))
+		            if (roleswitchvalue != null && !userRole.getId().equals(roleswitchvalue))
 		            {
 		            	switchRoleUrl = ServerConfigurationService.getPortalUrl()
 						+ "/role-switch-out/"

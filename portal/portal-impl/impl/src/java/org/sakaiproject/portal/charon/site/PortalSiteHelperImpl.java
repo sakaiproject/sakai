@@ -80,7 +80,7 @@ import org.sakaiproject.util.Web;
  * @since Sakai 2.4
  * @version $Rev$
  */
-
+@SuppressWarnings("deprecation")
 public class PortalSiteHelperImpl implements PortalSiteHelper
 {
 	// Alias prefix for page aliases. Use Entity.SEPARATOR as IDs shouldn't contain it.
@@ -90,7 +90,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
-	private final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
+	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
@@ -264,7 +264,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// The first site is the current site
 			if (currentSiteId == null) currentSiteId = s.getId();
 
-			Integer cDepth = new Integer(0);
+			Integer cDepth =  Integer.valueOf(0);
 			if ( computeDepth )
 			{
 				ResourceProperties rp = s.getProperties();

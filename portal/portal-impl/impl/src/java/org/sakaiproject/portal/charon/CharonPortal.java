@@ -1518,10 +1518,10 @@ public class CharonPortal extends HttpServlet
 		// bypass)
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
-			Site site = null;
+			
 			try
 			{
-				site = SiteService.getSiteVisit(siteTool.getSiteId());
+				SiteService.getSiteVisit(siteTool.getSiteId());
 			}
 			catch (IdUnusedException e)
 			{
@@ -2026,8 +2026,6 @@ public class CharonPortal extends HttpServlet
 		// else put out the fields that will send to the login interface
 		else
 		{
-			// find the login tool
-			Tool loginTool = ToolManager.getTool("sakai.login");
 			String eidWording = null;
 			String pwWording = null;
 			eidWording = StringUtil.trimToNull(rb.getString("log.userid"));
