@@ -106,10 +106,10 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public void init()
 	{
-		// Initalise the providerID as a random Long. SecureRandom is guareneed to 
-		// to give a seperate id, however its not entirely thread safe, so I've reused
+		// Initialize the providerID as a random Long. SecureRandom is guaranteed to 
+		// to give a separate id, however its not entirely thread safe, so I've reused
 		// the thread local. It gets thrown away on the first auth attempt, so the
-		// secure random wont hand arround in production.
+		// secure random wont hand around in production.
 		
 		SecureRandom sr = (SecureRandom)authenticatedProvider.get();
 		if ( sr == null ) {
