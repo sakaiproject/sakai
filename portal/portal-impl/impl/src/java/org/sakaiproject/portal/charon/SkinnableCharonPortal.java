@@ -797,6 +797,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// recognize what to do from the path
 			String option = req.getPathInfo();
 
+			//TODO this looks like its no longer used dhorwitz
 			String[] parts = {};
 
 			if (option == null || "/".equals(option))
