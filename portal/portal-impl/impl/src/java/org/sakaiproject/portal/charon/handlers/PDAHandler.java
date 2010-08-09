@@ -37,7 +37,6 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -47,7 +46,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -58,6 +56,7 @@ import org.sakaiproject.util.Web;
  * @version $Rev$
  * 
  */
+@SuppressWarnings("deprecation")
 public class PDAHandler extends PageHandler
 {
 	/**
@@ -72,7 +71,7 @@ public class PDAHandler extends PageHandler
 
 	private static final String URL_FRAGMENT = "pda";
 	private static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain"; //RequestFilter.SAKAI_COOKIE_DOMAIN
-	
+
 
 	public PDAHandler()
 	{
@@ -82,7 +81,7 @@ public class PDAHandler extends PageHandler
 	@Override
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
-	{
+			{
 
 		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
@@ -94,14 +93,14 @@ public class PDAHandler extends PageHandler
 				//check if we want to force back to the classic view
 				String forceClassic = req.getParameter(Portal.FORCE_CLASSIC_REQ_PARAM);
 				if(StringUtils.equals(forceClassic, "yes")){
-					
+
 					log.debug("PDAHandler - force.classic");
-					
+
 					//set the portal mode cookie to force classic
 					Cookie c = new Cookie(Portal.PORTAL_MODE_COOKIE_NAME, Portal.FORCE_CLASSIC_COOKIE_VALUE);
 					c.setPath("/");
 					c.setMaxAge(-1);
-					
+
 					//need to set domain and https as per RequestFilter
 					if (System.getProperty(SAKAI_COOKIE_DOMAIN) != null) {
 						c.setDomain(System.getProperty(SAKAI_COOKIE_DOMAIN));
@@ -110,12 +109,12 @@ public class PDAHandler extends PageHandler
 						c.setSecure(true);
 					}
 					res.addCookie(c);
-					
+
 					//redirect to classic view
 					res.sendRedirect(req.getContextPath());
 				}
-				
-				
+
+
 				// /portal/pda/site-id
 				String siteId = null;
 				if (parts.length >= 3)
@@ -129,7 +128,7 @@ public class PDAHandler extends PageHandler
 				if ( siteId == null && session.getUserId() == null) 
 				{
 					String siteList = ServerConfigurationService
-						.getString("gatewaySiteList");
+					.getString("gatewaySiteList");
 					String gatewaySiteId = ServerConfigurationService.getGatewaySiteId();
 					if ( siteList.trim().length() == 0  && gatewaySiteId.trim().length() != 0 ) {
 						siteId = gatewaySiteId;
@@ -158,7 +157,7 @@ public class PDAHandler extends PageHandler
 				{
 					toolId = parts[4];
 					String toolUrl = req.getContextPath() + "/pda/" + siteId + "/tool"
-							+ Web.makePath(parts, 4, parts.length);
+					+ Web.makePath(parts, 4, parts.length);
 					String queryString = Validator.generateQueryString(req);
 					if (queryString != null)
 					{
@@ -204,8 +203,8 @@ public class PDAHandler extends PageHandler
 				//  TODO: Should this be a property?  Probably because it does cause an 
 				// uncached SQL query
 				portal.includeSubSites(rcontext, req, session,
-                        		siteId,  req.getContextPath() + req.getServletPath(), "pda",
-                        		/* resetTools */ true );
+						siteId,  req.getContextPath() + req.getServletPath(), "pda",
+						/* resetTools */ true );
 
 				// Add any device specific information to the context
 				portal.setupMobileDevice(req, rcontext);
@@ -225,7 +224,7 @@ public class PDAHandler extends PageHandler
 		{
 			return NEXT;
 		}
-	}
+			}
 
 	/*
 	 * Optionally actually grab the tool's output and include it in the same
@@ -238,7 +237,7 @@ public class PDAHandler extends PageHandler
 		if (toolId == null) return;
 
 		String tidAllow = ServerConfigurationService
-				.getString("portal.pda.iframesuppress");
+		.getString("portal.pda.iframesuppress");
 
 		if (tidAllow.indexOf(":none:") >= 0) return;
 
@@ -262,15 +261,16 @@ public class PDAHandler extends PageHandler
 		// Produce the buffered response
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
 
-		try
-		{
-                	boolean retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
-				req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5), 
-				Web.makePath(parts, 5, parts.length));
+
+		boolean retval;
+		try {
+			retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
+					req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5), 
+					Web.makePath(parts, 5, parts.length));
 			if ( ! retval ) return;
-		}
-		catch (Exception e)
-		{
+		} catch (ToolException e) {
+			return;
+		} catch (IOException e) {
 			return;
 		}
 
@@ -328,7 +328,7 @@ public class PDAHandler extends PageHandler
 	public boolean doToolBuffer(HttpServletRequest req, HttpServletResponse res,
 			Session session, String placementId, String toolContextPath,
 			String toolPathInfo) throws ToolException, IOException
-	{
+			{
 
 		if (portal.redirectIfLoggedOut(res)) return false;
 
@@ -359,7 +359,7 @@ public class PDAHandler extends PageHandler
 		// bypass)
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
 		{
-			
+
 			try
 			{
 				SiteService.getSiteVisit(siteTool.getSiteId());
@@ -381,5 +381,5 @@ public class PDAHandler extends PageHandler
 				toolPathInfo);
 
 		return true;
-	}
+			}
 }
