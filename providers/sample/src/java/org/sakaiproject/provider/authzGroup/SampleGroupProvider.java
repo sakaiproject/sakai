@@ -119,16 +119,16 @@ public class SampleGroupProvider implements GroupProvider
 		try
 		{
 			// users: 1 is 'a', 2 is both, 3 is 'm'
-			m_usersa = new HashSet();
+			m_usersa = new HashSet<String>();
 			m_usersa.add("user1");
 			m_usersa.add("user2");
 
-			m_usersm = new HashSet();
+			m_usersm = new HashSet<String>();
 			m_usersm.add("user2");
 			m_usersm.add("user3");
 			
 			// the instructor and ta and some students
-			m_usersc = new HashSet();
+			m_usersc = new HashSet<String>();
 			if ((m_courseStudents > 0) && (m_courseExternalId != null))
 			{
 				m_usersc.add("instructor");
@@ -161,13 +161,13 @@ public class SampleGroupProvider implements GroupProvider
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** A collection of user ids. */
-	protected HashSet m_usersa = null;
+	protected HashSet<String> m_usersa = null;
 
-	protected HashSet m_usersm = null;
+	protected HashSet<String> m_usersm = null;
 
 	protected Properties m_usersx = null;
 	
-	protected HashSet m_usersc = null;
+	protected HashSet<String> m_usersc = null;
 
 	/**
 	 * Construct.
@@ -242,7 +242,7 @@ public class SampleGroupProvider implements GroupProvider
 	{
 		update();
 
-		Map rv = new HashMap();
+		Map<String, String> rv = new HashMap<String, String>();
 
 		// responds properly to a null id - with an empty map
 		if (id == null) return rv;
@@ -254,7 +254,7 @@ public class SampleGroupProvider implements GroupProvider
 			if ("sakai.access".equals(ids[i]))
 			{
 				// put each user in the map as "access", unless they are already there (as maintain perhaps)
-				for (Iterator it = m_usersa.iterator(); it.hasNext();)
+				for (Iterator<String> it = m_usersa.iterator(); it.hasNext();)
 				{
 					String userId = (String) it.next();
 					if (!("maintain".equals(rv.get(userId))))
@@ -267,7 +267,7 @@ public class SampleGroupProvider implements GroupProvider
 			if ("sakai.maintain".equals(ids[i]))
 			{
 				// put each user in the map as "maintain", even if they are there (as access perhaps)
-				for (Iterator it = m_usersm.iterator(); it.hasNext();)
+				for (Iterator<String> it = m_usersm.iterator(); it.hasNext();)
 				{
 					String userId = (String) it.next();
 					rv.put(userId, "maintain");
@@ -289,7 +289,7 @@ public class SampleGroupProvider implements GroupProvider
 			
 			if ((m_courseExternalId != null) && (m_courseExternalId.equals(ids[i])))
 			{
-				for (Iterator it = m_usersc.iterator(); it.hasNext();)
+				for (Iterator<String> it = m_usersc.iterator(); it.hasNext();)
 				{
 					String userId = (String) it.next();
 					if ("instructor".equals(userId))
