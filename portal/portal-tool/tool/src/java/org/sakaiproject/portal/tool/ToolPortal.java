@@ -139,7 +139,7 @@ public class ToolPortal extends HttpServlet
 					+ req.getServletPath() + "/" + placementId, toolPath);
 
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			doError(req, res, t);
 		}
