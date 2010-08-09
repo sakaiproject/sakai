@@ -11,6 +11,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -116,6 +117,12 @@ public class SiteAddParticipantHandler {
 		this.nonOfficialAccountParticipant = nonOfficialAccountParticipant;
 	}
 	
+	
+	ValidationLogic validationLogic;
+	public void setValidationLogic(ValidationLogic validationLogic) {
+		this.validationLogic = validationLogic;
+	}
+
 	// for eids inside this list, don't look them up as email ids
 	public List<String> officialAccountEidOnly = new Vector<String>();
 	public List<String> getOfficialAccountEidOnly()
@@ -628,8 +635,11 @@ public class SiteAddParticipantHandler {
 
 						boolean notifyNewUserEmail = (getServerConfigurationString("notifyNewUserEmail", Boolean.TRUE.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
-						if (notifyNewUserEmail) {    						
+						boolean validateUsers = true;
+						if (notifyNewUserEmail && !validateUsers) {    						
 								notiProvider.notifyNewUserEmail(uEdit, pw, site != null ? site.getTitle():"");
+						} else if (notifyNewUserEmail && validateUsers) {
+							validationLogic.createValidationAccount(uEdit.getId(), true);
 						}
 					} catch (UserIdInvalidException ee) {
 						targettedMessageList.addMessage(new TargettedMessage("java.isinval",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));

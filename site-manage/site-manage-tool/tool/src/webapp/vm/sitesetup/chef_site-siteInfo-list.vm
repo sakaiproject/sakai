@@ -509,6 +509,13 @@ function printPreview(target){
 							#set($description = "")
 							#if ($role.Description)
 								#set($description = $role.Description)
+							#else
+								#set($propertiesKey = "sitegen.roledescription.")
+								#set($roleDesc="${propertiesKey}${role.Id}")
+								#set($description = $tlang.getString($roleDesc))
+								#if ($description.contains("missing key"))
+									#set($description = "")
+								#end
 							#end
 							$validator.escapeHtml($!description)
 
