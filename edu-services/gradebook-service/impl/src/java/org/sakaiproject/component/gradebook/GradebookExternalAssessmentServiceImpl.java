@@ -245,7 +245,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             }
         };
         getHibernateTemplate().execute(hc);
-        eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+studentUid+"/"+points+"/student");
+        if (eventTrackingService != null) {
+            eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+studentUid+"/"+points+"/student");
+        }
         if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}

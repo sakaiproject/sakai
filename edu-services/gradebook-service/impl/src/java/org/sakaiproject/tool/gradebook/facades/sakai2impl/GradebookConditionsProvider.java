@@ -1,5 +1,6 @@
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,13 @@ public class GradebookConditionsProvider implements ConditionProvider {
 		for (Assignment asn : assignments) {
 			String assignmentName = asn.getName();
 			String assignmentPoints = asn.getPoints().toString();
-			rv.put("/gradebook/"+ gradebookUid + "/" + assignmentName + "/" + assignmentPoints, assignmentName + " (" + assignmentPoints + " points)");
+			boolean isReleasedToStudents = asn.isReleased();
+			boolean isUsedInGradeCalculation = asn.isCounted();
+			Date dueDate = asn.getDueDate();
+			long dueDateMillis = 0;
+			if (dueDate != null) dueDateMillis = dueDate.getTime();
+			// event resource of the form: /gradebook/[gradebook id]/[assignment name]/[points possible]/[due date millis]/[is released]/[is included in course grade]/[has authz]
+			rv.put("/gradebook/"+ gradebookUid + "/" + assignmentName + "/" + assignmentPoints + "/" + dueDateMillis + "/" + isReleasedToStudents + "/" + isUsedInGradeCalculation , assignmentName + " (" + assignmentPoints + " points)");
 		}
 		return rv;
 	}
