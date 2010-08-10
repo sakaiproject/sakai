@@ -329,6 +329,11 @@ public class SelectActionListener
 			lastPublishedAssessmentId = db.getAssessmentId(); 
 			totalScores = Float.parseFloat(db.getFinalScore());
 			totalSubmissions = 1;
+			
+			if (i == averageScoreAssessmentGradingList.size() - 1) {
+				averageScore = totalScores/totalSubmissions;
+				averageScoreMap.put(db.getAssessmentId(), Float.valueOf(averageScore));
+			}
 		}
 	}
     
