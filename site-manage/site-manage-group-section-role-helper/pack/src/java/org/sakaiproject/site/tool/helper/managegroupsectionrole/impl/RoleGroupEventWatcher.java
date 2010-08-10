@@ -176,7 +176,8 @@ public class RoleGroupEventWatcher implements Observer
 		// check the event function against the functions we have notifications watching for
 		String function = event.getEvent();
 
-		if (function.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP) || function.equals(AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP))
+		if (function.equals(AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP) || function.equals(AuthzGroupService.SECURE_REMOVE_AUTHZ_GROUP)
+				|| AuthzGroupService.SECURE_JOIN_AUTHZ_GROUP.equals(function) || AuthzGroupService.SECURE_UNJOIN_AUTHZ_GROUP.equals(function))
 		{
 			Reference ref = entityManager.newReference(event.getResource());
 			
