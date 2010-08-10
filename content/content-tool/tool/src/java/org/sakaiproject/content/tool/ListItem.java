@@ -1451,7 +1451,8 @@ public class ListItem
 			
 			String submittedResourceFilter = params.get("selectResource" + index);
 			// the number of grade points are tagging along for the ride. chop this off.
-			this.conditionAssignmentPoints = submittedResourceFilter.substring(submittedResourceFilter.lastIndexOf("/") + 1);
+			String[] resourceTokens = submittedResourceFilter.split("/");
+			this.conditionAssignmentPoints = resourceTokens[4];
 			Double assignmentPoints = Double.valueOf(conditionAssignmentPoints);
 			if ((argument > assignmentPoints) || (argument < 0)) {
 				this.numberFieldIsOutOfRange = true;
