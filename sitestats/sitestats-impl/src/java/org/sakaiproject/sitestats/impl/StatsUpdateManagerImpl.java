@@ -1069,22 +1069,31 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(objects == null) return;
 		Iterator<SitePresenceConsolidation> i = objects.iterator();
 		while(i.hasNext()){
-			SitePresenceConsolidation spc = i.next();
-			SitePresence sp = spc.sitePresence;
-			SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
-			if(spExisting == null) {
-				session.save(sp);
-			}else{
-				long previousTotalPresence = spExisting.getDuration();
-				long previousPresence = 0;
-				long newTotalPresence = 0;
-				if(spc.firstEventIsPresEnd) {
-					previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
-				} 
-				newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
-				spExisting.setDuration(newTotalPresence);				
-				spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
-				session.update(spExisting);
+			try{
+				SitePresenceConsolidation spc = i.next();
+				SitePresence sp = spc.sitePresence;
+				SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
+				if(spExisting == null) {
+					session.save(sp);
+				}else{
+					long previousTotalPresence = spExisting.getDuration();
+					long previousPresence = 0;
+					long newTotalPresence = 0;
+					if(spc.firstEventIsPresEnd) {
+						if(spExisting.getLastVisitStartTime() != null)
+							previousPresence = spc.firstPresEndDate.getTime() - spExisting.getLastVisitStartTime().getTime();
+						else
+							throw new Exception("No initial visit start time found - skipping");
+					} 
+					newTotalPresence = previousTotalPresence + previousPresence + sp.getDuration();
+					spExisting.setDuration(newTotalPresence);				
+					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
+					session.update(spExisting);
+				}
+			}catch(HibernateException e){
+				LOG.debug("Probably ddbb error when loading data at java object", e);
+			}catch(Exception e){
+				LOG.debug("Unknow error while consolidating presence events", e);
 			}
 		}
 	}
