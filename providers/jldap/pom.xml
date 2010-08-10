@@ -50,8 +50,8 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-      <groupId>openldap</groupId>
-      <artifactId>ldap</artifactId>
+      <groupId>com.novell.ldap</groupId>
+      <artifactId>jldap</artifactId>
       <version>2009.10.07</version>
     </dependency>
     <dependency>
