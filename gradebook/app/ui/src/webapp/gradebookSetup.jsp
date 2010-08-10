@@ -71,7 +71,7 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="#{msgs.grade_scale_percent}"/>
+							<h:outputText value="#{gradebookSetupBean.localizedPercentInput}"/>
 						</f:facet>
 						<h:inputText id="percentGrade" value="#{gradeRow.mappingValue}" rendered="#{gradeRow.editable}" style="text-align:right;" size="6"/>
 						<h:message for="percentGrade" styleClass="alertMessageInline" />

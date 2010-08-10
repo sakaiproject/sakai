@@ -30,7 +30,7 @@
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_list_weight}" />
+						<h:outputText value="#{gradebookSetupBean.localizedPercentInput}" />
 					</f:facet>
 					<h:inputText value="#{category.weight}" size="5" maxlength="6" id="weightInput"
 							onchange="javascript:updateRunningTotal(this.form);"  styleClass="catWeightInput">
@@ -68,7 +68,7 @@
 					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}">
 					    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					</h:outputText>
-					<h:outputText value="#{msgs.cat_percent}" />
+					<h:outputText value="#{gradebookSetupBean.localizedPercentInput}" />
 				</h:panelGroup>
 
 				<h:outputText value="#{msgs.needed_total}"/>
@@ -76,7 +76,7 @@
 					<h:outputText id="neededTotalVal" value="#{gradebookSetupBean.neededTotal}" >
 					    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
                     </h:outputText>
-					<h:outputText value="#{msgs.cat_percent}"/>
+					<h:outputText value="#{gradebookSetupBean.localizedPercentInput}"/>
 				</h:panelGroup>
 			</h:panelGrid>
 		
