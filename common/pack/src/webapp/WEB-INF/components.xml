@@ -111,6 +111,7 @@
    	<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
    	<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
    	<property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
+   	<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
    </bean>
   
 

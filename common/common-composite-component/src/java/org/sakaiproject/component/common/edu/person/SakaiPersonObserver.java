@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
@@ -59,9 +60,17 @@ public class SakaiPersonObserver implements Observer {
 		this.entityManager = entityManager;
 	}
 
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
 	public void init() {
 		log.info("init()");
-		eventTrackingService.addObserver(this);
+		if (serverConfigurationService.getBoolean("profile.autoCleanUp", true)) {
+			eventTrackingService.addObserver(this);
+		}
 	}
 	
 	public void destroy() {
