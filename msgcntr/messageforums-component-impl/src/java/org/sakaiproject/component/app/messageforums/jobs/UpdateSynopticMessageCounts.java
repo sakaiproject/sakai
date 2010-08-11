@@ -238,7 +238,7 @@ public class UpdateSynopticMessageCounts implements Job{
 		ResultSet usersMap = null;
 
 		try{
-			getAllUsersInSiteQuery = clConnection.prepareStatement("select USER_ID from sakai_site_user where SITE_ID = ?");
+			getAllUsersInSiteQuery = clConnection.prepareStatement("select USER_ID from SAKAI_SITE_USER where SITE_ID = ?");
 			getAllUsersInSiteQuery.setString(1, siteId);
 
 			usersMap = getAllUsersInSiteQuery.executeQuery();
