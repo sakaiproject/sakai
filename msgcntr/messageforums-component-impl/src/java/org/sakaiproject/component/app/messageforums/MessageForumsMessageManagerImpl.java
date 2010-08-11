@@ -813,7 +813,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
                     message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
 	 
-            	this.saveMessage(message);
+            	this.saveMessage(message, true, toolId, userId, context);
 
         	if (isMessageFromForums)
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));
@@ -1024,6 +1024,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public void saveMessage(Message message, boolean logEvent) {
+    	saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    }
+    
+    public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
         boolean isNew = message.getId() == null;
         
         if (!(message instanceof PrivateMessage)){                  
@@ -1056,14 +1060,14 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         if (logEvent) {
         	if (isNew) {
         		if (isMessageFromForums(message))
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message), false));
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message, toolId, userId, contextId), false));
         		else
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message), false));
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message, toolId, userId, contextId), false));
         	} else {
         		if (isMessageFromForums(message))
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventMessage(message), false));
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
         		else
-        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message), false));
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message, toolId, userId, contextId), false));
         	}
             
         	//we don't need to do this on non log events
