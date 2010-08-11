@@ -90,7 +90,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	
 	
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
-	public Object getProfileImage(OutputStream out, EntityView view, EntityReference ref) {
+	public Object getProfileImage(OutputStream out, EntityView view, Map<String,Object> params, EntityReference ref) {
 		
 		//convert input to uuid
 		String uuid = sakaiProxy.ensureUuid(ref.getId());
@@ -101,11 +101,17 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		ProfileImage image = new ProfileImage();
 		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
 		
+		//optional siteid
+		String siteId = (String)params.get("siteId");
+		if(StringUtils.isNotBlank(siteId) && !sakaiProxy.checkForSite(siteId)){
+			throw new EntityNotFoundException("Invalid siteId: " + siteId, ref.getReference());
+		}
+		
 		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
 		} else {
-			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
+			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
 		}
 		
 		if(image == null) {

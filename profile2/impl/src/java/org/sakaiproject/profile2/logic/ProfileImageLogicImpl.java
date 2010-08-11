@@ -35,6 +35,13 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
  	 * {@inheritDoc}
  	 */
 	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size) {
+		return getProfileImage(userUuid, prefs, privacy, size, null);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, String siteId) {
 		
 		ProfileImage image = new ProfileImage();
 		boolean allowed = false;
@@ -68,6 +75,15 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		//check if same user
 		if(isSameUser){
 			allowed = true;
+		}
+		
+		
+		//if we have a siteId and it's not a my workspace site, check if the current user has permissions to view the image
+		if(StringUtils.isNotBlank(siteId)){
+			if(!sakaiProxy.isUserMyWorkspace(siteId)) {
+				log.debug("checking if user: " + currentUserUuid + " has permissions in site: " + siteId);
+				allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId);
+			}
 		}
 		
 		//if not allowed yet, check we have a privacy record, if not, get one
@@ -157,7 +173,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
  	 * {@inheritDoc}
  	 */
 	public ProfileImage getProfileImage(Person person, int size) {
-		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size);
+		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size, null);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImage getProfileImage(Person person, int size, String siteId) {
+		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size, siteId);
 	}
 	
 	

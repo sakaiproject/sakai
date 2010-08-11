@@ -47,12 +47,34 @@ public interface ProfileImageLogic {
 	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size);
 	
 	/**
+	 * Get the profile image for a user. Takes into account all global settings, user preferences, privacy and permissions in the given site.
+	 * See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
+	 * @param userUuid
+	 * @param prefs
+	 * @param privacy
+	 * @param size
+	 * @param siteId - optional siteid to check if the current user has permissions in this site to see the target user's image (PRFL-411)
+	 * @return
+	 */
+	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, String siteId);
+
+	
+	/**
 	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
 	 * @param person	Person object that contains all info about a user
 	 * @param size		size of image to return.
 	 * @return
 	 */
 	public ProfileImage getProfileImage(Person person, int size);
+	
+	/**
+	 * Get the profile image for a user. See getProfileImage(String, ProfilePreferences, ProfilePrivacy, int);
+	 * @param person	Person object that contains all info about a user
+	 * @param size		size of image to return.
+	 * @param siteId - optional siteid to check if the current user has permissions in this site to see the target user's image (PRFL-411)
+	 * @return
+	 */
+	public ProfileImage getProfileImage(Person person, int size, String siteId);
 	
 	/**
 	 * Update the profile image for a user given the byte[] of the image.

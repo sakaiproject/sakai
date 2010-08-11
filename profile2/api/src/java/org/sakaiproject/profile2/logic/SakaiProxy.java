@@ -679,4 +679,11 @@ public interface SakaiProxy {
 	 */
 	public boolean isUserAllowedInSite(String userId, String permission, String siteId);
 	
+	/**
+	 * Check if the given siteid is valid
+	 * @param siteId
+	 * @return
+	 */
+	public boolean checkForSite(String siteId);
+	
 }

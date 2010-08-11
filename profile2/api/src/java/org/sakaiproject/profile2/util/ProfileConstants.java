@@ -350,4 +350,10 @@ public class ProfileConstants {
 	public static final int ONLINE_STATUS_AWAY = 2;
 
 	public static final long ONLINE_INACTIVITY_INTERVAL = 5000000; // 5 minutes between events  = online -> away
+	
+	/*
+	 * PERMISSIONS
+	 */
+	
+	public static final String ROSTER_VIEW_PHOTO = "roster.viewofficialphoto";
 }

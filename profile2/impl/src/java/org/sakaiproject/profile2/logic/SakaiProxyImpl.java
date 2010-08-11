@@ -1296,6 +1296,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean checkForSite(String siteId) {
+		return siteService.siteExists(siteId);
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
