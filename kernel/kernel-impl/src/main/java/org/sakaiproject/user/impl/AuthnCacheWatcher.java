@@ -24,6 +24,8 @@ package org.sakaiproject.user.impl;
 import java.util.Observable;
 import java.util.Observer;
 
+import net.sf.ehcache.Cache;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.EntityManager;
@@ -51,6 +53,16 @@ public class AuthnCacheWatcher implements Observer {
 	
 	private EntityManager entityManager;
 	
+	//Copied from DbUserService as they are private
+	private static final String EIDCACHE = "eid:";
+	private static final String IDCACHE = "id:";
+	
+	private Cache userCache = null;
+		public void setUserCache(Cache userCache) {
+		this.userCache = userCache;
+	}
+
+
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
@@ -99,11 +111,12 @@ public class AuthnCacheWatcher implements Observer {
 			
 			// look for group reference. Need to replace it with parent site reference
 			String refId = ref.getId();
-			log.info("going to bump " + refId);
 			try {
 				String eid = userDirectoryService.getUserEid(refId);
 				log.debug("removing " + eid + " from cache");
 				authenticationCache.removeAuthentification(eid);
+				userCache.remove(EIDCACHE + eid);
+				userCache.remove(IDCACHE + refId);
 			} catch (UserNotDefinedException e) {
 				//not sure how we'd end up here
 				log.warn(e);

@@ -140,6 +140,7 @@
 		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		<property name="userCache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.cache" /></property>
 	</bean>  
 
 </beans>
