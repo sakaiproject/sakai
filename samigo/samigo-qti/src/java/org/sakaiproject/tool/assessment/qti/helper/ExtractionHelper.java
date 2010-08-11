@@ -111,6 +111,7 @@ public class ExtractionHelper
       "extractAssessment.xsl";
   private static final String SECTION_TRANSFORM = "extractSection.xsl";
   private static final String ITEM_TRANSFORM = "extractItem.xsl";
+  public static final String REMOVE_NAMESPACE_TRANSFORM = "removeDefaultNamespaceFromQTI.xsl";
   private static Log log = LogFactory.getLog(ExtractionHelper.class);
 
   private int qtiVersion = QTIVersion.VERSION_1_2;
@@ -400,7 +401,8 @@ public class ExtractionHelper
   {
     return (ASSESSMENT_TRANSFORM.equals(transform)) ||
             SECTION_TRANSFORM.equals(transform) ||
-            ITEM_TRANSFORM.equals(transform) ? true : false;
+            ITEM_TRANSFORM.equals(transform) ||
+            REMOVE_NAMESPACE_TRANSFORM.equals(transform) ? true : false;
   }
 
   /**

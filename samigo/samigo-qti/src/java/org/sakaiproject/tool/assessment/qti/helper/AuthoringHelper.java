@@ -506,7 +506,10 @@ public class AuthoringHelper
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
       exHelper.setUnzipLocation(unzipLocation);
       ItemService itemService = new ItemService();
-      Assessment assessmentXml = new Assessment(document);
+      // we need to remove a default namespace if present
+      Document removeNamespace = exHelper.getTransformDocument(exHelper.REMOVE_NAMESPACE_TRANSFORM);
+      Document flatNamespaceXml = XmlUtil.transformDocument(document, removeNamespace);
+      Assessment assessmentXml = new Assessment(flatNamespaceXml);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
       String description = (String) assessmentMap.get("description");
       String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) assessmentMap.get("title"));
