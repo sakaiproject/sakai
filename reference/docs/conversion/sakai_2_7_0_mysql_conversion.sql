@@ -20,7 +20,7 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES ('~admin','~admin-400','sitePage.cus
 ALTER TABLE SAM_PUBLISHEDASSESSMENT_T ADD LASTNEEDRESUBMITDATE datetime NULL;
 
 -- SAK-16880 collaborative portfolio editing
-ALTER TABLE osp_presentation ADD isCollab bit DEFAULT '0';
+ALTER TABLE osp_presentation ADD isCollab bit DEFAULT 0;
 
 -- SAK-16984 new column in sakai-Person
 alter table SAKAI_PERSON_T add column NORMALIZEDMOBILE varchar(255);
