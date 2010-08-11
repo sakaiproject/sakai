@@ -529,10 +529,6 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 // get the tool from column 0 for this tool config (if there is one)
                 Tool tool = tc.getTool();
                 if (tool != null) {
-                    if (! admin) {
-                        // TODO check extra permissions? probably not necessary
-                    }
-
                     HashMap<String, Object> toolData = new HashMap<String, Object>();
                     tools.add(toolData);
                     // back to normal stuff again
@@ -547,7 +543,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                     toolData.put("pageId", tc.getPageId());
                     toolData.put("pageOrder", tc.getPageOrder());
                     toolData.put("siteId", tc.getSiteId());
-                    if (includeConfig) {
+                    if (includeConfig && admin) {
                         toolData.put("config", tc.getConfig());
                         toolData.put("registeredConfig", tool.getRegisteredConfig());
                         toolData.put("mutableConfig", tool.getMutableConfig());
