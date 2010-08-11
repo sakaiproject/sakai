@@ -26,20 +26,21 @@ package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 
 // from navigo
 
@@ -113,7 +114,15 @@ public class QuestionPoolShareBean implements Serializable
   	public String sharePool() {
 
   		QuestionPoolService delegate = new QuestionPoolService();
-	  
+  		Tree tree = null;
+  		try { 		
+  			tree= new QuestionPoolTreeImpl((QuestionPoolIteratorFacade) delegate.getAllPoolsWithAccess(AgentFacade.getAgentString()));
+  		}
+  		catch(Exception e) {
+  			e.printStackTrace();
+  			throw new RuntimeException(e);
+  		}
+  		
   		ArrayList<String> revoke = ContextUtil.paramArrayValueLike("revokeCheckbox");
  	
   		Iterator<String> iter = revoke.iterator();
@@ -121,7 +130,7 @@ public class QuestionPoolShareBean implements Serializable
   			String agentId = (String) iter.next();
           
   			try {
-  				delegate.removeQuestionPoolAccess(agentId, getQuestionPoolId(), QuestionPoolData.READ_COPY);
+  				delegate.removeQuestionPoolAccess(tree, agentId, getQuestionPoolId(), QuestionPoolData.READ_COPY);
   			}
   			catch(Exception e) {
   				e.printStackTrace();
@@ -136,7 +145,7 @@ public class QuestionPoolShareBean implements Serializable
   			String agentId = (String) iter.next();
           
   			try {
-  				delegate.addQuestionPoolAccess(agentId, this.getQuestionPoolId(), QuestionPoolData.READ_COPY);
+  				delegate.addQuestionPoolAccess(tree, agentId, this.getQuestionPoolId(), QuestionPoolData.READ_COPY);
   			}
   			catch(Exception e) {
   				e.printStackTrace();

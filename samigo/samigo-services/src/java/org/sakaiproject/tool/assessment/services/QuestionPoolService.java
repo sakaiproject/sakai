@@ -537,19 +537,19 @@ public class QuestionPoolService
   /**
    * Shared Pools with other user
    */
-  public void addQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+  public void addQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId) {
 	  try {
 		  PersistenceService.getInstance().
-		  getQuestionPoolFacadeQueries().addQuestionPoolAccess(user, questionPoolId, accessTypeId);
+		  getQuestionPoolFacadeQueries().addQuestionPoolAccess(tree, user, questionPoolId, accessTypeId);
 	  } catch (Exception e) {
 		  log.error(e);
 	  }
   }
 
-  public void removeQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId) {
+  public void removeQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId) {
 	  try {
 		  PersistenceService.getInstance().
-		  getQuestionPoolFacadeQueries().removeQuestionPoolAccess(user, questionPoolId, accessTypeId);
+		  getQuestionPoolFacadeQueries().removeQuestionPoolAccess(tree, user, questionPoolId, accessTypeId);
 	  } catch (Exception e) {
 		  log.error(e);
 	  }

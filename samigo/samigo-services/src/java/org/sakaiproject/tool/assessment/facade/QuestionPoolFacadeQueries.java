@@ -1409,48 +1409,26 @@ public class QuestionPoolFacadeQueries
   /**
    * Shared Pools with other user
    */
-  public void addQuestionPoolAccess(String user, final Long questionPoolId, Long accessTypeId) {	  
+  public void addQuestionPoolAccess(Tree tree, String user, final Long questionPoolId, Long accessTypeId) {	  
 	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
 
 	  getHibernateTemplate().saveOrUpdate(qpad);
-	  // We need to share all subpools of the shared pool
-	  final HibernateCallback hcb = new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws
-		  HibernateException, SQLException {
-			  Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.parentPoolId= ?");
-			  q.setLong(0, questionPoolId.longValue());
-			  return q.list();
-		  };
-	  };
-	  List<QuestionPoolData> qpList =
-		  getHibernateTemplate().executeFind(hcb);
-	  for (QuestionPoolData pool : qpList) {
-		  qpad = new QuestionPoolAccessData(pool.getQuestionPoolId(),
-				  user, accessTypeId);
-		  getHibernateTemplate().saveOrUpdate(qpad);
+	  Iterator citer = (tree.getChildList(questionPoolId)).iterator();
+	  while (citer.hasNext()) {
+		  Long childPoolId = (Long) citer.next();
+	      addQuestionPoolAccess(tree, user, childPoolId, accessTypeId);
 	  }
   }
 
-  public void removeQuestionPoolAccess(String user, final Long questionPoolId, Long accessTypeId) {	  
+  public void removeQuestionPoolAccess(Tree tree, String user, final Long questionPoolId, Long accessTypeId) {	  
 	  QuestionPoolAccessData qpad = new QuestionPoolAccessData(questionPoolId, user, accessTypeId);
 
 	  getHibernateTemplate().delete(qpad);
 
-	  // We need to remove all subpools of the shared pool
-	  final HibernateCallback hcb = new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws
-		  HibernateException, SQLException {
-			  Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.parentPoolId= ?");
-			  q.setLong(0, questionPoolId.longValue());
-			  return q.list();
-		  };
-	  };
-	  List<QuestionPoolData> qpList =
-		  getHibernateTemplate().executeFind(hcb);
-	  for (QuestionPoolData pool : qpList) {
-		  qpad = new QuestionPoolAccessData(pool.getQuestionPoolId(),
-				  user, accessTypeId);
-		  getHibernateTemplate().delete(qpad);
+	  Iterator citer = (tree.getChildList(questionPoolId)).iterator();
+	  while (citer.hasNext()) {
+		  Long childPoolId = (Long) citer.next();
+		  removeQuestionPoolAccess(tree, user, childPoolId, accessTypeId);
 	  }
   }
 

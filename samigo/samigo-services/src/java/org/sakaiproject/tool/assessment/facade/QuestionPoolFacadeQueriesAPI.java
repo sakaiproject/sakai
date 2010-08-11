@@ -216,10 +216,10 @@ public interface QuestionPoolFacadeQueriesAPI
   /**
    * Shared Pools with other user
    */
-  public void addQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId);
-  
-  public void removeQuestionPoolAccess(String user, Long questionPoolId, Long accessTypeId);
-  
+  public void addQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId);
+     
+  public void removeQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId);   
+
   public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId);
 
 }
