@@ -1232,6 +1232,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)){
 						int index = Integer.parseInt(parserTip.getIndex());
 						return eventRef.split(parserTip.getSeparator())[index];
+					}else if(M_sm.isEventContextSupported()) {
+						LOG.info("Context information unavailable for event: " + eventId + " (ignoring)");
 					}else{
 						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
