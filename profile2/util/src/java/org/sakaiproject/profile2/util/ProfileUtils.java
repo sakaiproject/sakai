@@ -43,7 +43,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
-import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -405,41 +404,6 @@ public class ProfileUtils {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
-	
-	
-	/**
-	 * Decrypt the string
-	 * @param encryptedText
-	 * @return
-	 */
-	public static String decrypt(final String encryptedText) {
-		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
-		return(textEncryptor.decrypt(encryptedText));
-	}
-	
-	/**
-	 * Encrypt the string
-	 * @param plainText
-	 * @return
-	 */
-	public static String encrypt(final String plainText) {
-		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
-		return(textEncryptor.encrypt(plainText));
-	}
-	
-	
-	/**
-	 * The user's password needs to be decrypted and sent to Twitter for updates
-	 * so we can't just one-way encrypt it. 
-	 * 
-	 * Note to casual observers:
-	 * Having just this key won't allow you to decrypt a password. 
-	 * No two encryptions are the same using the encryption method that Profile2 uses 
-	 * but they decrypt to the same value which is why we can use it.
-	 */
-	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123";
 	
 	/**
 	 * Returns the Facebook user profile URL for the specified Facebook

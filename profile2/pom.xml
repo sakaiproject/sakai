@@ -148,8 +148,6 @@
     	<log4j.version>1.2.14</log4j.version>
     	<slf4j.version>1.4.2</slf4j.version>
     	<twitter4j.version>2.1.2</twitter4j.version>
-    	<jasypt.version>1.5</jasypt.version>
-    	<icu4j.version>3.8</icu4j.version>
     	<stax.api.version>1.0.1</stax.api.version>
     	<stax.version>1.2.0</stax.version>
     	<!-- <tinyurl.version>1.0</tinyurl.version>-->
@@ -233,16 +231,6 @@
   				<artifactId>objectautocomplete</artifactId>
   				<version>${wicketstuff.objectautocomplete.version}</version>
   			</dependency>
-	    	<dependency>
-	      		<groupId>org.jasypt</groupId>
-	      		<artifactId>jasypt</artifactId>
-	      		<version>${jasypt.version}</version>
-	    	</dependency>
-	    	<dependency>
-				<groupId>com.ibm.icu</groupId>
-				<artifactId>icu4j</artifactId>
-				<version>${icu4j.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>quartz</groupId>
 				<artifactId>quartz</artifactId>
