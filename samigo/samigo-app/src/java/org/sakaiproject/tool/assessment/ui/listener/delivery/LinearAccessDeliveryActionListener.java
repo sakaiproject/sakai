@@ -163,14 +163,30 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
 	  GradingService gradingService = new GradingService();
 	  AssessmentGradingData assessmentGradingData = delivery.getAssessmentGrading();
 	  log.debug("assessmentGradingData.getAssessmentGradingId() = " + assessmentGradingData.getAssessmentGradingId());
-	  ArrayList alist = gradingService.getLastItemGradingDataPosition(assessmentGradingData.getAssessmentGradingId(), assessmentGradingData.getAgentId());
-	  int partIndex = ((Integer)alist.get(0)).intValue();
-	  if (partIndex == 0) {
-		  delivery.setPartIndex(0);
+	  if (assessmentGradingData.getLastVisitedPart() != null && assessmentGradingData.getLastVisitedQuestion() != null) {
+		  delivery.setPartIndex(assessmentGradingData.getLastVisitedPart().intValue());
+		  delivery.setQuestionIndex(assessmentGradingData.getLastVisitedQuestion().intValue());
 	  }
 	  else {
-		  delivery.setPartIndex(partIndex - 1);
+		  // For backward compatible
+		  ArrayList alist = gradingService.getLastItemGradingDataPosition(assessmentGradingData.getAssessmentGradingId(), assessmentGradingData.getAgentId());
+		  int partIndex = ((Integer)alist.get(0)).intValue();
+		  if (partIndex == 0) {
+			  delivery.setPartIndex(0);
+		  }
+		  else {
+			  delivery.setPartIndex(partIndex - 1);
+		  }
+		  delivery.setQuestionIndex(((Integer)alist.get(1)).intValue());
 	  }
-	  delivery.setQuestionIndex(((Integer)alist.get(1)).intValue());
+  }
+  
+  public void saveLastVisitedPosition(DeliveryBean delivery, int partNumber, int questionNumber) {
+	  GradingService gradingService = new GradingService();
+	  AssessmentGradingData assessmentGradingData = delivery.getAssessmentGrading();
+	  assessmentGradingData.setStatus(2);
+	  assessmentGradingData.setLastVisitedPart(partNumber);
+	  assessmentGradingData.setLastVisitedQuestion(questionNumber);
+	  gradingService.saveOrUpdateAssessmentGradingOnly(assessmentGradingData);
   }
 }

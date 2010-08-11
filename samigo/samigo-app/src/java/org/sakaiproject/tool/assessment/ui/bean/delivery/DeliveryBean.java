@@ -70,6 +70,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -1450,6 +1451,10 @@ public class DeliveryBean
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
+    if ("1".equals(navigation)) {
+    	LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
+    	linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
+    }
     reload = false;
     return "takeAssessment";
   }

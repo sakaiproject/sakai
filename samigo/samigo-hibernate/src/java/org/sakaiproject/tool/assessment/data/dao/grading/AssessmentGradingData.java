@@ -65,6 +65,8 @@ public class AssessmentGradingData
   private Long publishedAssessmentId;
   private String publishedAssessmentTitle;
   private Boolean isAutoSubmitted;
+  private Integer lastVisitedPart = 0;
+  private Integer lastVisitedQuestion = 0;
   
   public AssessmentGradingData() {
   }
@@ -328,4 +330,23 @@ public class AssessmentGradingData
   public void setIsAutoSubmitted(Boolean isAutoSubmitted) {
 	this.isAutoSubmitted = isAutoSubmitted;
   }
+  
+  public Integer getLastVisitedPart()
+  {
+    return lastVisitedPart;
+  }
+
+  public void setLastVisitedPart(Integer lastVisitedPart) {
+    this.lastVisitedPart = lastVisitedPart;
+  }
+  
+  public Integer getLastVisitedQuestion()
+  {
+    return lastVisitedQuestion;
+  }
+
+  public void setLastVisitedQuestion(Integer lastVisitedQuestion) {
+    this.lastVisitedQuestion = lastVisitedQuestion;
+  }
+
 }

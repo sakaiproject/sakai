@@ -20,3 +20,6 @@ update SAM_ITEMGRADING_T SET TEMP_CLOB_TEXT = ANSWERTEXT;
 alter table SAM_ITEMGRADING_T drop column ANSWERTEXT;
 alter table SAM_ITEMGRADING_T rename column TEMP_CLOB_TEXT to ANSWERTEXT;
 
+alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDPART number(10,0) default null;
+alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDQUESTION number(10,0) default null;
+
