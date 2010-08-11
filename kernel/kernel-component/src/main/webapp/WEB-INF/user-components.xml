@@ -134,6 +134,12 @@
         class="org.sakaiproject.user.impl.PasswordService">
     </bean>
 
-  
+	<!-- the authCache Watcher -->
+	<bean class="org.sakaiproject.user.impl.AuthnCacheWatcher" init-method="init" destroy-method="destroy">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+	</bean>  
 
 </beans>

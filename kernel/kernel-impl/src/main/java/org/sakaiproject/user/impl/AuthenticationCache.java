@@ -105,6 +105,11 @@ public class AuthenticationCache {
 		putAuthenticationRecord(authenticationId, password, null);
 	}
 
+	
+	public void removeAuthentification(String authentificationId) {
+		authCache.remove(authentificationId);
+	}
+	
 	protected void putAuthenticationRecord(String authenticationId, String password,
 			Authentication authentication) {
 		if (authCache.isKeyInCache(authenticationId)) {
