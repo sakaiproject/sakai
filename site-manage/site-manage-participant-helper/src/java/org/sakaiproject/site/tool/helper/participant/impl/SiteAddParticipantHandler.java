@@ -326,7 +326,7 @@ public class SiteAddParticipantHandler {
     	// reset user list
     	resetUserRolesEntries();
     	checkAddParticipant();
-    	if (targettedMessageList != null && targettedMessageList.size() > 0 && targettedMessageList.isError())
+    	if (targettedMessageList != null && targettedMessageList.size() > 0)
     	{
     		
     		// there is error, remain on the same page
@@ -795,6 +795,11 @@ public class SiteAddParticipantHandler {
 										// this is to mark the eid so that it won't be used again for email lookup in the future
 										officialAccountEidOnly.add(eid);
 									}
+									// trim the alert message
+									if (eidsForAllMatchesAlert.endsWith(", "))
+									{
+										eidsForAllMatchesAlert = eidsForAllMatchesAlert.substring(0, eidsForAllMatchesAlert.length()-2);
+									}
 									
 									// update ui input
 									updateOfficialAccountParticipant(officialAccount, u, eidsForAllMatches);
@@ -802,7 +807,7 @@ public class SiteAddParticipantHandler {
 									// show alert message
 									targettedMessageList.addMessage(new TargettedMessage("java.username.multiple", 
 											new Object[] { officialAccount, eidsForAllMatchesAlert }, 
-							                TargettedMessage.SEVERITY_ERROR));
+							                TargettedMessage.SEVERITY_INFO));
 								}
 							}
 						}
