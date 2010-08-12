@@ -30,7 +30,7 @@ alter table PROFILE_PREFERENCES_T drop TWITTER_USERNAME;
 alter table PROFILE_PREFERENCES_T drop TWITTER_PASSWORD;
 
 -- PRFL-94 add external integration table
-create table PROFILE_EXTERNAL_INTEGRATION_T (
+create table if not exists PROFILE_EXTERNAL_INTEGRATION_T (
 	USER_UUID varchar(99) not null,
 	TWITTER_TOKEN varchar(255),
 	TWITTER_SECRET varchar(255),
