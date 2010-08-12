@@ -33,11 +33,7 @@ permissions, see <a href="content.hlp?docId=arax">Permissions and roles: Overvie
 <p>Creating questions is only one of the steps involved in creating an
 assessment; see also:</p>
 
-<ul><li><a href="content.hlp?docId=ardm">Creating a new assessment</a></li><li><a href="content.hlp?docId=arag">Assessment settings</a></li><li><a href="content.hlp?docId=arej">Adding, moving, copying, or removing a question pool or subpool</a>
-</li></ul>
-
-<p>You can choose from several types of questions when building an
-assessment; see <a href="content.hlp?docId=argy">Types of questions available for assessments</a>.</p>
+<ul><li><a href="content.hlp?docId=ardm">Creating a new assessment</a></li><li><a href="content.hlp?docId=arag">Assessment settings</a></li><li><a href="content.hlp?docId=argy">Types of questions available for assessments</a></li><li><a href="content.hlp?docId=arej">Adding, moving, copying, or removing a question pool or subpool</a></li></ul>
 
 
 
@@ -57,16 +53,18 @@ assessment. You can also import an assessment by using the
 assessment:</p>
 
 
-<ul><li>The <strong><code>Quick Create</code></strong> option allows you to generate questions for your assessment by typing them in a particular format or copying and pasting them from an appropriately formatted text file.  Formatting instructions are available on the bottom of the page under <strong><code>Instructions &amp; Examples</code></strong>.
+<ul><li>The <strong><code>Create using markup text</code></strong> option allows you to
+generate questions for your assessment by typing them in a particular
+format or copying and pasting them from an appropriately formatted
+text file.  Formatting instructions are available on the bottom of the
+page under <strong><code>Instructions &amp; Examples</code></strong>, or in <a href="content.hlp?docId=azrq">Formatting questions with markup text</a>.  <br /><br />
+</li><li>The <strong><code>Create using assessment builder</code></strong> option takes you to
+the question editor. To begin adding questions to a new assessment,
+choose the type of question you want to add from the <strong><code>Add
+Question:</code></strong> drop-down menu. Below are instructions for each
+question type.
+
 <br /><br />
-</li><li>The <strong><code>Create</code></strong> option takes you to the question editor. To
-begin adding questions to a new assessment, choose the type of
-question you want to add from the <strong><code>Add Question:</code></strong> drop-down
-menu. Below are instructions for each question type. 
-
-
-
-
 
 <ul><li><a href="#multa">Multiple Choice</a></li><li><a href="#surveya">Survey</a></li><li><a href="#essaya">Short Answer/Essay</a></li><li><a href="#fiba">Fill in the Blank</a></li><li><a href="#numerica">Numeric Response</a></li><li><a href="#mata">Matching</a></li><li><a href="#truea">True/False</a></li><li><a href="#audioa">Audio Recording</a></li><li><a href="#filea">File Upload</a></li><li><a href="#uploada">Copy from Question Pool</a></li></ul></li></ul>
 
@@ -78,45 +76,52 @@ menu, select <strong><code>Multiple Choice</code></strong>. This takes you to th
 screen.
 <br /><br />
 </li><li>In the "Answer Point Value" field, enter the point value you want
-to assign to this question. Enter <code>0</code> (zero) for an ungraded question.
+to assign to this question. Enter <code>0</code> (zero) for an
+ungraded question.  <br /><br />
+</li><li>In the "Answer" section, choose between the following: 
 <br /><br />
+<ul><li><strong><code>Single correct</code></strong> (the default)</li><li><strong><code>Multiple Correct, Single Selection</code></strong></li><li><strong><code>Multiple Correct, Multiple Selection</code></strong></li></ul>
+<br />
 </li><li>In the "Question Text" field, enter the text for the
 question. Click <strong><code>Show/Hide Rich-Text Editor</code></strong> to display the
 WYSIWYG toolbar.<br /><br />
 </li><li>To add an attachment, click <strong><code>Add Attachments</code></strong>
-and enter or browse to a filename or enter a URL.
+and enter or browse to a filename or enter a URL. 
+
 <br /><br />
 
-</li><li>In the "Answer" section, choose between the following: 
-<br /><br />
-<ul><li><strong><code>Single correct</code></strong> (the default)</li><li><strong><code>Multiple Correct, Single Selection</code></strong></li><li><strong><code>Multiple Correct, Multiple Selection</code></strong></li></ul>
+</li><li>You'll see four text boxes
+for possible answers.  To indicate the correct answer(s), click the 
+radio button (for single correct answers) or check the boxes (for multiple
+correct answers) next to the answers.
 
-<p>As you change the selection, the screen will
-refresh to allow or hide the requisite fields.</p>
-</li><li>In the case of a single correct answer, you'll see four text boxes for possible answers. To indicate
-which answer is the correct one, click the radio button next to it. In
-the case of multiple correct answers, check the boxes beside the
-correct responses.
-
-<p>To present fewer possible answers, click
-<strong><code>Remove</code></strong> beneath the boxes you want to remove. To present more possibilities, use the drop-down menu next to
-<strong><code>Insert additional answers</code></strong> to select the number of
-possibilities you want to add.</p>
+<p>To present fewer possible answers, click <strong><code>Remove</code></strong> beneath
+the boxes you want to remove. To present more possibilities, use the
+drop-down menu next to <strong><code>Insert additional answers</code></strong> to select
+the number of possibilities you want to add.</p>
 </li><li>To penalize students for incorrect answers, 
 select <strong><code>Enable Negative Marking</code></strong>, and specify the negative point value
 for incorrect answers.  (You can only use this option on questions with a 
 single correct answer.)
 
 <br /><br />
+</li><li>To allow partial credit for incorrect answers (if available at your
+institution), select <strong><code>Enable Partial
+Credit</code></strong>. (You can only use this option on questions with a single
+correct answer.)
+
+
+<p><strong>Note:</strong> To remove negative marking or partial credit,
+click <strong><code>Reset to Default Grading Logic</code></strong>; this will default back
+to the single correct selection.</p>
 </li><li>If you want the possible answers to appear in a random order,
 under "Randomize Answers", click <strong><code>Yes</code></strong>. To have them appear in
 the order you see in the question editing screen (the default), click
 <strong><code>No</code></strong>.<br /><br />
 </li><li>Under "Require Rationale", choose <strong><code>Yes</code></strong> or <strong><code>No</code></strong> (the
-default) depending on whether you want to require users to provide a
+default). Choosing <strong><code>Yes</code></strong> requires students to provide a
 rationale for choosing an answer.
 <br /><br />
-
 </li><li>From the <strong><code>Assign to Part</code></strong> drop-down menu, choose the part
 (i.e., section) to which you want to assign this question. Leave this
 as the default value if you haven't created any parts.<br /><br />
@@ -142,9 +147,8 @@ the following differences:</p>
 (zero). <br /><br />
 
 </li><li>For the text of possible answers, you must choose from a
-predefined set of scales commonly used for survey reporting. To select
-the scale you want to use, click its corresponding radio button. The
-choices are:<br /><br />
+predefined set of scales commonly used for survey reporting.  (Click
+the corresponding radio button.) The choices are:<br /><br />
 
 <ul><li><strong><code>Yes, No</code></strong></li><li><strong><code>Disagree, Agree</code></strong></li><li><strong><code>Disagree, Undecided, Agree</code></strong></li><li><strong><code>Below Average -&gt; Above Average</code></strong></li><li><strong><code>Strongly Disagree -&gt; Strongly Agree</code></strong></li><li><strong><code>Unacceptable -&gt; Excellent</code></strong></li><li><strong><code>1 -&gt; 5</code></strong></li><li><strong><code>1 -&gt; 10</code></strong></li></ul><br />
 </li><li>You do not have the option to randomize answers or require a
@@ -177,8 +181,8 @@ as the default value if you haven't created any parts.<br /><br />
 </li><li>To assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
 pool name.<br /><br />
-</li><li>In the "Answer:" section, you can opt to provide a model short
-answer or question-level feedback by typing it in the provided
+</li><li>In the "Answer:" section, you can opt to provide question-level
+feedback or a model short answer by typing it in the provided
 fields.<br /><br />
 </li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 assessment editing screen. You'll see that your new question has been
@@ -424,11 +428,11 @@ WYSIWYG toolbar.
 and enter or browse to a filename or enter a URL.
 
 <br /><br />
-</li><li>Under "Time allowed (seconds):" enter the number of seconds the
+</li><li>Under "Time allowed (seconds):", enter the number of seconds the
 student can take to record the answer.  
 
 <br /><br />
-</li><li>Under <strong><code>Number of attempts:</code></strong> choose the number of times a
+</li><li>Under "Number of attempts:", choose the number of times a
 student can re-record the answer from the drop-down menu.  
 
 <br /><br />
