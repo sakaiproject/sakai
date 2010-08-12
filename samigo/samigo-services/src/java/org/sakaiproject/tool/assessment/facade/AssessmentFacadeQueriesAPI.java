@@ -107,8 +107,15 @@ public interface AssessmentFacadeQueriesAPI {
 	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
 			String description, Long typeId, Long templateId) throws Exception;
 
+	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
+			String description, Long typeId, Long templateId, String siteId) throws Exception;
+
+
 	public AssessmentFacade createAssessment(String title, String description,
 			Long typeId, Long templateId) throws Exception;
+
+	public AssessmentFacade createAssessment(String title, String description,
+			Long typeId, Long templateId, String siteId) throws Exception;
 
 	public ArrayList getAllAssessments(String orderBy);
 

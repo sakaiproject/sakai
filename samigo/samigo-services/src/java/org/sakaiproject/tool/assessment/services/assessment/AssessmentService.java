@@ -221,6 +221,11 @@ public class AssessmentService {
 
 	public AssessmentFacade createAssessment(String title, String description,
 			String typeId, String templateId) throws Exception {
+		return createAssessment(title, description, typeId, templateId, null);
+	}
+
+	public AssessmentFacade createAssessment(String title, String description,
+			String typeId, String templateId, String siteId) throws Exception {
 		AssessmentFacade assessment = null;
 		try {
 			AssessmentTemplateFacade assessmentTemplate = null;
@@ -238,7 +243,7 @@ public class AssessmentService {
 					.getInstance().getAssessmentFacadeQueries();
 			log.debug("**** AssessmentFacadeQueries=" + queries);
 			assessment = queries.createAssessment(title, description,
-					typeIdLong, templateIdLong);
+					typeIdLong, templateIdLong, siteId);
 		} catch (Exception e) {
 			log.error(e);
 			throw new Exception(e);
@@ -362,8 +367,13 @@ public class AssessmentService {
 	}
 
 	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
-			String description, String typeId, String templateId)
-			throws Exception {
+			String description, String typeId, String templateId) throws Exception {
+		return createAssessmentWithoutDefaultSection(title, description, typeId, templateId, null);
+	}
+
+
+	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
+			String description, String typeId, String templateId, String siteId) throws Exception {
 		AssessmentFacade assessment = null;
 		try {
 			AssessmentTemplateFacade assessmentTemplate = null;
@@ -380,7 +390,7 @@ public class AssessmentService {
 			AssessmentFacadeQueriesAPI queries = PersistenceService
 					.getInstance().getAssessmentFacadeQueries();
 			assessment = queries.createAssessmentWithoutDefaultSection(title,
-					description, typeIdLong, templateIdLong);
+					description, typeIdLong, templateIdLong, siteId);
 		} catch (Exception e) {
 			log.error(e);
 			throw new Exception(e);

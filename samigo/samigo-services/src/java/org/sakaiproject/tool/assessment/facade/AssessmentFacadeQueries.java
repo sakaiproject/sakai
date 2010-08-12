@@ -585,11 +585,18 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	 */
 	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
 			String description, Long typeId, Long templateId) throws Exception {
+		return createAssessmentWithoutDefaultSection(title, description, typeId, templateId, null);
+	}
+
+
+	public AssessmentFacade createAssessmentWithoutDefaultSection(String title,
+			String description, Long typeId, Long templateId, String siteId) throws Exception {
+
 		// this assessment came with one default section
 		AssessmentData assessment = null;
 		try {
 			assessment = prepareAssessment(title, description, typeId,
-					templateId);
+					templateId, siteId);
 		} catch (Exception e) {
 			throw new Exception(e);
 		}
@@ -597,12 +604,17 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		getHibernateTemplate().save(assessment);
 
 		// register assessmnet with current site
-		registerWithCurrentSite(assessment.getAssessmentId().toString());
+		registerWithSite(assessment.getAssessmentId().toString(), siteId);
 		return new AssessmentFacade(assessment);
 	}
 
 	private AssessmentData prepareAssessment(String title, String description,
 			Long typeId, Long templateId) throws Exception {
+		return prepareAssessment(title, description, typeId, templateId, null);
+	}
+
+	private AssessmentData prepareAssessment(String title, String description,
+			Long typeId, Long templateId, String siteId) throws Exception {
 		// #1 - get the template (a facade) and create Assessment based on it
 		AssessmentTemplateFacade template = getAssessmentTemplate(templateId);
 		AssessmentData assessment = cloneAssessmentFromTemplate((AssessmentTemplateData) template
@@ -611,18 +623,22 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		assessment.setDescription(description);
 		assessment.setTypeId(typeId);
 		AssessmentAccessControl control = (AssessmentAccessControl) assessment
-				.getAssessmentAccessControl();
+			.getAssessmentAccessControl();
 		if (control == null) {
 			control = new AssessmentAccessControl();
 		}
 
 		// set accessControl.releaseTo based on default setting in metaData
 		String defaultReleaseTo = template
-				.getAssessmentMetaDataByLabel("releaseTo");
+			.getAssessmentMetaDataByLabel("releaseTo");
 		if (("ANONYMOUS_USERS").equals(defaultReleaseTo)) {
 			control.setReleaseTo("Anonymous Users");
 		} else {
-			control.setReleaseTo(AgentFacade.getCurrentSiteName());
+			if (siteId == null || siteId.length() == 0) {
+				control.setReleaseTo(AgentFacade.getCurrentSiteName());
+			} else {
+				control.setReleaseTo(AgentFacade.getSiteName(siteId));
+			}
 		}
 
 		/*
@@ -631,13 +647,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		 * control.setReleaseTo(AgentFacade.getCurrentSiteName());
 		 */
 		EvaluationModel evaluation = (EvaluationModel) assessment
-				.getEvaluationModel();
+			.getEvaluationModel();
 		if (evaluation == null) {
 			evaluation = new EvaluationModel();
 		}
 		GradebookService g = null;
 		boolean integrated = IntegrationContextFactory.getInstance()
-				.isIntegrated();
+			.isIntegrated();
 		try {
 			if (integrated) {
 				g = (GradebookService) SpringBeanLocator.getInstance().getBean(
@@ -645,17 +661,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
-					.getInstance().getGradebookServiceHelper();
+			.getInstance().getGradebookServiceHelper();
 			if (!gbsHelper
-					.gradebookExists(GradebookFacade.getGradebookUId(), g))
+					.gradebookExists(GradebookFacade.getGradebookUId(siteId), g))
 				evaluation
-						.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE
-								.toString());
+					.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE
+						.toString());
 		} catch (HibernateQueryException e) {
 			log.warn("Gradebook Error: " + e.getMessage());
 			evaluation
-					.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE
-							.toString());
+				.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
 			throw new Exception(e);
 		}
 
@@ -664,12 +679,17 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public AssessmentFacade createAssessment(String title, String description,
 			Long typeId, Long templateId) throws Exception {
+		return createAssessment(title, description, typeId, templateId, null);
+	}
+
+	public AssessmentFacade createAssessment(String title, String description,
+			Long typeId, Long templateId, String siteId) throws Exception {
 
 		// this assessment comes with a default section
 		AssessmentData assessment = null;
 		try {
 			assessment = prepareAssessment(title, description, typeId,
-					templateId);
+					templateId, siteId);
 		} catch (Exception e) {
 			throw new Exception(e);
 		}
@@ -687,14 +707,25 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 		}
 		// register assessmnet with current site
-		registerWithCurrentSite(assessment.getAssessmentId().toString());
+		registerWithSite(assessment.getAssessmentId().toString(), siteId);
 		return new AssessmentFacade(assessment);
 	}
 
+	private void registerWithSite(String qualifierIdString, String siteId) {
+		if (siteId == null || siteId.length() == 0) {
+			PersistenceService.getInstance().getAuthzQueriesFacade()
+			.createAuthorization(AgentFacade.getCurrentSiteId(),
+					"EDIT_ASSESSMENT", qualifierIdString);
+		} else {
+
+			PersistenceService.getInstance().getAuthzQueriesFacade()
+			.createAuthorization(siteId,
+					"EDIT_ASSESSMENT", qualifierIdString);
+		}
+	}
+
 	private void registerWithCurrentSite(String qualifierIdString) {
-		PersistenceService.getInstance().getAuthzQueriesFacade()
-				.createAuthorization(AgentFacade.getCurrentSiteId(),
-						"EDIT_ASSESSMENT", qualifierIdString);
+		registerWithSite(qualifierIdString, null);
 	}
 
 	public ArrayList getAllAssessments(String orderBy) {

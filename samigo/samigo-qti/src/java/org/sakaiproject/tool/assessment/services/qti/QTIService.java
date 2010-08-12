@@ -70,16 +70,20 @@ public class QTIService
       throw new QTIServiceException(ex);
     }
   }
- 
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId) {
-    testQtiVersion(qtiVersion);
 
-    try {
-      AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.createImportedAssessment(document, unzipLocation, templateId);
-    } catch (Exception ex) {
-      throw new QTIServiceException(ex);
-    }
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId) {
+	  return createImportedAssessment(document, qtiVersion, unzipLocation, templateId, null);
+  }
+
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, String templateId, String siteId) {  
+	  testQtiVersion(qtiVersion);
+
+	  try {
+		  AuthoringHelper helper = new AuthoringHelper(qtiVersion);
+		  return helper.createImportedAssessment(document, unzipLocation, templateId, siteId);
+	  } catch (Exception ex) {
+		  throw new QTIServiceException(ex);
+	  }
   }
 
   /**
