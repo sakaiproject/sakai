@@ -44,6 +44,7 @@ import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.common.edu.person.PhotoService;
@@ -589,6 +590,12 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			LOG.debug("delete(SakaiPerson " + sakaiPerson + ")");
 		}
 		if (sakaiPerson == null) throw new IllegalArgumentException("Illegal sakaiPerson argument passed!");
+		
+		//only owner or superUser can delete
+		if(!StringUtils.equals(SessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid()) && !SecurityService.isSuperUser()){
+			throw new SecurityException("You do not have permission to delete this sakaiPerson.");
+		}
+		
 		String ref =  getReference(sakaiPerson);
 		LOG.debug("getHibernateTemplate().delete(sakaiPerson);");
 		getHibernateTemplate().delete(sakaiPerson);
