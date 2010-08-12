@@ -91,7 +91,6 @@
                 <module>citations</module>
                 <module>config</module>
                 <module>content</module>
-                <module>content-review</module>
                 <module>courier</module>
                 <module>dav</module>
                 <module>gradebook</module>
@@ -148,7 +147,6 @@
                 <module>citations</module>
                 <module>config</module>
                 <module>content</module>
-                <module>content-review</module>
                 <module>courier</module>
                 <module>dav</module>
                 <module>gradebook</module>
