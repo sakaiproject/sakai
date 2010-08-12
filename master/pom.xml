@@ -109,8 +109,8 @@
         <sakai.scheduler.version>2.8-SNAPSHOT</sakai.scheduler.version>
         <sakai.search.version>1.3.0-SNAPSHOT</sakai.search.version>
         <sakai.sitestats.version>2.2-SNAPSHOT</sakai.sitestats.version>
-		<sakai.webservices.version>1.0-SNAPSHOT</sakai.webservices.version>
-	
+	<sakai.webservices.version>1.0-SNAPSHOT</sakai.webservices.version>
+	<sakai.contentreview.version>2.8-SNAPSHOT</sakai.contentreview.version>
 	<!-- Set the source encoding to avoid maven warnings -->
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
     </properties>
@@ -479,7 +479,7 @@
             <dependency>
                 <groupId>org.sakaiproject.contentreview</groupId>
                 <artifactId>contentreview-model-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.contentreview.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
