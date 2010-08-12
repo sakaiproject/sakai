@@ -62,8 +62,6 @@ public class SakaiScript {
 	
 private static final Log LOG = LogFactory.getLog(SakaiScript.class);
 
-private static final String TOOL_CONFIG_FUNCTIONS = "functions.require";
-
 private static final String ADMIN_SITE_REALM = "/site/!admin";
 
 private AuthzGroupService authzGroupService;
