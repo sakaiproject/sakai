@@ -20,6 +20,7 @@
 	<modules>
 		<module>content-review-api/model</module>
 		<module>content-review-api/public</module>
+		<module>assembly</module>
 	</modules>
 
 	<dependencyManagement>
