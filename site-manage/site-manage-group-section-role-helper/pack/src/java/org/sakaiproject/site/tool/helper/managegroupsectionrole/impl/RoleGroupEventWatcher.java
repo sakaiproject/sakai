@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -228,18 +229,25 @@ public class RoleGroupEventWatcher implements Observer
 								needSave = true;
 								
 								// this is a role provided group, need to sync with realm user now.
-								String role = properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+								String roleString = properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
 								
 								// clean the group list first
 								((Group) g).removeMembers();
 								
-								// update the group member with current realm users
-								Set roleUserSet = r.getUsersHasRole(role);
-								if (roleUserSet != null)
+								if (roleString != null && roleString.length() > 0)
 								{
-									for(Object userId:roleUserSet)
+									String[] roles = StringUtils.split(roleString, "+");
+									for (String role : roles)
 									{
-										((Group) g).addMember((String) userId, role, true, false);
+										// update the group member with current realm users
+										Set roleUserSet = r.getUsersHasRole(role.trim());
+										if (roleUserSet != null && !roleUserSet.isEmpty())
+										{
+											for(Object userId:roleUserSet)
+											{
+												((Group) g).addMember((String) userId, role.trim(), true, false);
+											}
+										}
 									}
 								}
 							}	
