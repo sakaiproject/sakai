@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>base</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-standard-tool</artifactId>
+		<groupId>org.sakaiproject.purepoms</groupId>
 		<version>2.8-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>org.sakaiproject.contentreview</groupId>
 	<artifactId>contentreview</artifactId>
 	<name>Sakai Content Review API</name>
+	<version>2.8-SNAPSHOT</version>
 	<scm>
 		<connection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</connection>
 		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</developerConnection>
@@ -20,6 +20,20 @@
 		<module>content-review-api/model</module>
 		<module>content-review-api/public</module>
 	</modules>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.sakaiproject.contentreview</groupId>
+				<artifactId>contentreview-model-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		
+		</dependencies>
+	
+	</dependencyManagement>
+	
+	
 <distributionManagement>
 	  <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
 		<snapshotRepository>
