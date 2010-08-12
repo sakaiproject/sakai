@@ -314,7 +314,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("<script type=\"text/javascript\" src=\"javascript/profile-eb.js\"></script>");
+		sb.append("<script type=\"text/javascript\" src=\"/profile2-tool/javascript/profile2-eb.js\"></script>");
 		
 		sb.append("<div class=\"profile2-profile\">");
 		
