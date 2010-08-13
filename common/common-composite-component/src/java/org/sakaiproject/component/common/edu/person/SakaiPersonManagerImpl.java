@@ -593,9 +593,8 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		
 		String ref =  getReference(sakaiPerson);
 		
-		//only owner or someone with the appropriate permissions can delete
-		if(!StringUtils.equals(SessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid()) && 
-				!SecurityService.unlock("user.del", ref)){
+		//only someone with the appropriate permissions can delete
+		if(!SecurityService.unlock("user.del", ref)){
 			throw new SecurityException("You do not have permission to delete this sakaiPerson.");
 		}
 		
