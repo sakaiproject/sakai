@@ -21,6 +21,8 @@
 
 package org.sakaiproject.alias.api;
 
+import java.util.Date;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
@@ -44,13 +46,27 @@ public interface Alias extends Entity, Comparable
 
 	/**
 	 * @return the time created.
+	 * @deprecated see {@link #getDateCreated()}
 	 */
 	Time getCreatedTime();
 
 	/**
 	 * @return the time last modified.
+	 * @deprecated see {@link #getDateModified()}
 	 */
 	Time getModifiedTime();
+	
+	/**
+	 * Date Alias last modified
+	 * @return
+	 */
+	Date getDateModified();
+	
+	/**
+	 * Date Alias Created
+	 * @return
+	 */
+	Date getDateCreated();
 
 	// TODO:
 
