@@ -137,7 +137,7 @@ LOG-LOG-LOG-LOG-LOG
 <li  class="firstToolBarItem"  role="menuitem"><span>
 <a href="${util.escapeHtml($homeBean.getHomeLinkUrl())}"
 	id="homeLink"  
-	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${resourceLoaderBean.getString("jsp_wiki_home")}</a>
+	title="${resourceLoaderBean.getString("jsp_wiki_home_title")}" >${resourceLoaderBean.getString("jsp_wiki_home")}<span class="skip"> ${resourceLoaderBean.getString("jsp_wiki_home_sc")}</a> 
 </span></li>
 #end
 #if ($useViewLink)
