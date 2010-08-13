@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.mock.domain;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -259,6 +260,11 @@ public class AuthzGroup implements org.sakaiproject.authz.api.AuthzGroup {
 	public Time getModifiedTime() {
 		return modifiedTime;
 	}
+	
+	
+	public Date getModifiedDate() {
+		return new Date(modifiedTime.getTime());
+	}
 
 	public void setModifiedTime(Time modifiedTime) {
 		this.modifiedTime = modifiedTime;
@@ -319,4 +325,6 @@ public class AuthzGroup implements org.sakaiproject.authz.api.AuthzGroup {
 	public void setId(String id) {
 		this.id = id;
 	}
+
+
 }
