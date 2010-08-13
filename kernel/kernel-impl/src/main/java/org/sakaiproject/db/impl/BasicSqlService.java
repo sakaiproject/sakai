@@ -2125,6 +2125,13 @@ public abstract class BasicSqlService implements SqlService
 					sqlServiceSql.setTimestamp(pstmt, new Timestamp(t.getTime()), m_cal, pos);
 					pos++;
 				}
+				//KNL-558 an obvious one
+				else if (fields[i] instanceof java.util.Date)
+				{
+					java.util.Date d = (java.util.Date) fields[i];
+					sqlServiceSql.setTimestamp(pstmt, new Timestamp(d.getTime()), m_cal, pos);
+					pos++;
+				}
 				else if (fields[i] instanceof Long)
 				{
 					long l = ((Long) fields[i]).longValue();
