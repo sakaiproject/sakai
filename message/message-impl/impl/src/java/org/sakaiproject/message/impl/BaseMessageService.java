@@ -1270,6 +1270,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					String title = ref.getDescription();
 					MessageHeader messageHead = message.getHeader();
 					String date = messageHead.getDate().toStringLocalFullZ();
+					Integer message_order=messageHead.getMessage_order();
 					String from = messageHead.getFrom().getDisplayName();
 					String groups = "";
 					Collection gr = messageHead.getGroups();
@@ -2589,6 +2590,46 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			return msg;
 
 		} // editMessage
+		
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public void commitMessage_order(MessageEdit edit)
+		{
+			
+			/* TO DO- Set permission to reorder announcement
+			if (edit.getHeaderEdit().getMessage_order()!=this.)
+			{
+				try
+				{
+					throw new Exception();
+				}
+				catch (Exception e)
+				{
+					M_log.warn("commitEdit(): closed MessageEdit", e);
+				}
+				return;
+			}
+			*/
+			
+			int priority=NotificationService.NOTI_OPTIONAL;
+			
+			// complete the edit
+		m_storage.commitMessage(this, edit);
+
+		// clear out any thread local caching of this message, since it has just changed
+		m_threadLocalManager.set(edit.getReference(), null);
+
+		// track event
+		Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
+					priority);
+		m_eventTrackingService.post(event);
+
+		
+		// close the edit object
+		((BaseMessageEdit) edit).closeEdit();
+	}
 
 		/**
 		 * {@inheritDoc}
@@ -3922,6 +3963,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 		/** The date/time the message was sent to the channel. */
 		protected Time m_date = null;
+		
+
+		/** The message order the message was sent to the channel. */
+		protected Integer m_message_order = 0;
 
 		/** The User who sent the message to the channel. */
 		protected User m_from = null;
@@ -3951,6 +3996,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		{
 			m_message = msg;
 			m_id = id;
+			m_message_order=0;
 			m_date = m_timeService.newTime();
 			try
 			{
@@ -3980,6 +4026,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			m_from = other.getFrom();
 			m_draft = other.getDraft();
 			m_access = other.getAccess();
+			m_message_order=other.getMessage_order();
 
 			m_attachments = m_entityManager.newReferenceList();
 			replaceAttachments(other.getAttachments());
@@ -4007,6 +4054,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				m_from = m_userDirectoryService.getAnonymousUser();
 			}
 			m_date = m_timeService.newTimeGmt(el.getAttribute("date"));
+			m_message_order=Integer.parseInt(el.getAttribute("message_order"));
 			try
 			{
 				m_draft = new Boolean(el.getAttribute("draft")).booleanValue();
@@ -4071,6 +4119,17 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			return m_date;
 
 		} // getDate
+		
+		/**
+		 * Access the message order the message was sent to the channel.
+		 * 
+		 * @return The message order the message was sent to the channel.
+		 */
+		public Integer getMessage_order()
+		{
+			return m_message_order;
+
+		} // getMessage_order
 
 		/**
 		 * Access the User who sent the message to the channel.
@@ -4258,6 +4317,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			header.setAttribute("id", getId());
 			header.setAttribute("from", getFrom().getId());
 			header.setAttribute("date", getDate().toString());
+			if(getMessage_order()==null){
+				header.setAttribute("message_order", "0");
+			}
+			else{
+			header.setAttribute("message_order", getMessage_order().toString());
+			}
 			if ((m_attachments != null) && (m_attachments.size() > 0))
 			{
 				for (int i = 0; i < m_attachments.size(); i++)
@@ -4302,6 +4367,21 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			}
 
 		} // setDate
+		
+		/**
+		 * Set the message_order the message was sent to the channel.
+		 * 
+		 * @param date
+		 *        The message_order the message was sent to the channel.
+		 */
+		public void setMessage_order(Integer message_order)
+		{
+			if (!message_order.equals(m_message_order))
+			{
+				m_message_order=message_order;
+			}
+
+		} // setMessage_order
 
 		/**
 		 * Set the User who sent the message to the channel.

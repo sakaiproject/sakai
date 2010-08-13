@@ -44,6 +44,14 @@ public interface MessageHeaderEdit extends MessageHeader, AttachmentContainerEdi
 	 *        The date/time the message was sent to the channel.
 	 */
 	void setDate(Time date);
+	
+	/**
+	 * Set the message order the message was sent to the channel.
+	 * 
+	 * @param message order
+	 *        The message order the message was sent to the channel.
+	 */
+	void setMessage_order(Integer message_order);
 
 	/**
 	 * Set the User who sent the message to the channel.

@@ -195,6 +195,15 @@ public interface MessageChannel extends Entity
 	 *            if the message is locked for edit by someone else.
 	 */
 	MessageEdit editMessage(String messageId) throws IdUnusedException, PermissionException, InUseException;
+	
+	/**
+	 * Commit the changes made to a MessageEdit object for announcement reorder, and release the lock. The MessageEdit is disabled, and not to be used after this call. If the message is in a form that the user has no permission to store, a PermissionException is thrown, and the
+	 * edit is canceled.
+	 * 
+	 * @param user
+	 *        The UserEdit object to commit.
+	 */
+	void commitMessage_order(MessageEdit edit);
 
 	/**
 	 * Commit the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call. If the message is in a form that the user has no permission to store, a PermissionException is thrown, and the
