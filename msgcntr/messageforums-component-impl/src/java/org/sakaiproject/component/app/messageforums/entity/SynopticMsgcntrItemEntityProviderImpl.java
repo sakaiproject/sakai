@@ -102,7 +102,11 @@ implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEn
 			return null;
 		}
 		
-		return synopticMsgcntrManager.getSiteSynopticMsgcntrItem(userId, siteId);		
+		SynopticMsgcntrItem smi = synopticMsgcntrManager.getSiteSynopticMsgcntrItem(userId, siteId); 
+		if (smi == null) {
+			smi = synopticMsgcntrManager.createSynopticMsgcntrItem(null, null, null);
+		}
+		return smi;		
 	}
 
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
