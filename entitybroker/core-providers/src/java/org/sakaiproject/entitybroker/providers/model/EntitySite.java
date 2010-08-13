@@ -21,6 +21,7 @@
 package org.sakaiproject.entitybroker.providers.model;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -477,6 +478,14 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
+    
+    public Date getModifiedDate() {
+    	if (site != null) {
+            return site.getModifiedDate();
+        }
+        throw new UnsupportedOperationException();
+	}
+    
     public List getOrderedPages() {
         if (site != null) {
             return site.getOrderedPages();

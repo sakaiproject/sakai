@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.providers.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -193,6 +194,8 @@ public class EntityGroup implements Group {
         return lastModified;
     }
 
+	
+    
     public void setLastModified(long lastModified) {
         throw new UnsupportedOperationException("Cannot set the last modified time manually");
     }
@@ -290,6 +293,14 @@ public class EntityGroup implements Group {
         }
         throw new UnsupportedOperationException();
     }
+    
+    
+    public Date getModifiedDate() {
+    	if (group != null) {
+            return group.getModifiedDate();
+        }
+        throw new UnsupportedOperationException();
+	}
 
     public ResourcePropertiesEdit getPropertiesEdit() {
         if (group != null) {
