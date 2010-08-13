@@ -15,3 +15,21 @@ create index MFR_UNREAD_MESSAGE_C_ID on MFR_UNREAD_STATUS_T (MESSAGE_C);
 create index MFR_UNREAD_TOPIC_C_ID on MFR_UNREAD_STATUS_T (TOPIC_C);
 create index MFR_UNREAD_USER_C_ID on MFR_UNREAD_STATUS_T (USER_C);
 create index MFR_UNREAD_READ_C_ID on MFR_UNREAD_STATUS_T (READ_C);
+
+-- SAK-14482 update Mercury site to use new assignments tool
+-- The 'mercury' site has the old sakai.assignment tool which is not available in 2.5
+-- (and thus has no icon and clicking on it has no effect). This replaces it with the sakai.assignment.grades tool 
+-- as well as patches the !worksite which suffers from the same problem.
+
+-- NOTE: while provided in the sakai_2_5_0-2_5_x_oracle_conversion005_SAK-14482.sql on 12 Jan 2009 
+-- this change was not included in a 2.5 rollup conversion script until sakai_2_5_5-2_5_6_oracle_conversion.sql
+-- and was only added to the 2.6.x branch on 2 Feb 2010 as sakai_2_6_0-2_6_x_oracle_conversion005_SAK-14482.sql 
+-- AFTER sakai-2.6.2 was released on 29 Jan 2010.  There is a chance then that deployers may have missed this update
+-- and we are including it for the sake of consistency.  Running the two update statements against an already 
+-- updated SAKAI_SITE_TOOL table will affect 0 rows and do no harm.
+
+-- update Mercury site
+UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.assignment.grades' WHERE REGISTRATION='sakai.assignment' AND SITE_ID='mercury';
+
+-- update !worksite site
+UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.assignment.grades' WHERE REGISTRATION='sakai.assignment' AND SITE_ID='!worksite';
