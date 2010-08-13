@@ -84,6 +84,7 @@ public class XMLImportBean implements Serializable
   private ItemAuthorBean itemAuthorBean;
   private QuestionPoolBean questionPoolBean;
   private boolean isCP;
+  private String importType2;
   
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
@@ -106,7 +107,7 @@ public class XMLImportBean implements Serializable
   {
 	  String sourceType = ContextUtil.lookupParam("sourceType");
 	  String uploadFile = (String) e.getNewValue();
-	  if ("respondus".equals(sourceType)) {
+	  if ("2".equals(sourceType)) {
 		  if(uploadFile.toLowerCase().endsWith(".zip")) {
 			  isCP = true;
 			  importAssessment(uploadFile, true, true);
@@ -144,7 +145,7 @@ public class XMLImportBean implements Serializable
 	}
     try
     {
-      processFile(filename, isRespondus);
+      processFile(filename, uploadFile, isRespondus);
     }
     catch (FileNotFoundException fnfex)
     {
@@ -229,8 +230,22 @@ public class XMLImportBean implements Serializable
   {
     this.importType = importType;
   }
+  
+  public String getImportType2()
+  {
+    return importType2;
+  }
 
-  private void processFile(String fileName, boolean isRespondus) throws Exception, RespondusMatchingException
+  /**
+   * A, S, I
+   * @param importType A, S, or I
+   */
+  public void setImportType2(String importType2)
+  {
+    this.importType2 = importType2;
+  }
+
+  private void processFile(String fileName, String uploadFile, boolean isRespondus) throws Exception, RespondusMatchingException
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
 
@@ -240,14 +255,21 @@ public class XMLImportBean implements Serializable
     AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus, failedMatchingQuestions);
     if (failedMatchingQuestions.size() > 0)
     {
+      String importedFilename = getImportedFilename(uploadFile);	
       ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
-      StringBuffer sb = new StringBuffer(rb.getString("respondus_matching_err"));
+      StringBuffer sb = new StringBuffer("\"");
+      sb.append(importedFilename);
+      sb.append("\" ");
+      sb.append(rb.getString("respondus_matching_err_1"));
+      sb.append(" ");
       for(int i = 0; i < failedMatchingQuestions.size() - 1; i++) {
     	  sb.append(" ");
     	  sb.append(failedMatchingQuestions.get(i));
     	  sb.append(", ");
       }
       sb.append(failedMatchingQuestions.get(failedMatchingQuestions.size() - 1));
+      sb.append(". ");
+      sb.append(rb.getString("respondus_matching_err_2"));
       FacesMessage message = new FacesMessage(sb.toString());
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
@@ -296,6 +318,13 @@ public class XMLImportBean implements Serializable
     authorBean.setAssessments(list);
   }
   
+  private String getImportedFilename(String filename) {
+	  String temp_filename_1 = filename.substring(filename.lastIndexOf("/") + 1);
+	  String temp_filename_2 = temp_filename_1.substring(temp_filename_1.indexOf("."));
+	  String temp_filename_3 = temp_filename_1.substring(0, temp_filename_1.substring(0, temp_filename_1.indexOf(".")).lastIndexOf("_"));
+	  String final_filename = temp_filename_3 + temp_filename_2;
+	  return final_filename;
+  }
   private void deleteDirectory(File directory) {
 	  if(directory.exists()) {
 		  File[] files = directory.listFiles();

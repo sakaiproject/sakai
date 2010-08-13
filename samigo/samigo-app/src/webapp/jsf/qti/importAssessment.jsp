@@ -35,20 +35,9 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
-<!-- content... -->
-<script language="javascript" style="text/JavaScript">
-function samigo(){
-  document.getElementById("importAssessmentForm:sourceType").value = "samigo";
-}
-
-function respondus(){
-  document.getElementById("importAssessmentForm:sourceType").value = "respondus";
-}
-</script>
-
+ <!-- content... -->
  <h:form id="importAssessmentForm" enctype="multipart/form-data">
-   <h:inputHidden id="sourceType" value=""/>
-   <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
+    <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
     <div class="tier1">
      <div class="form_label">
       <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
@@ -56,19 +45,30 @@ function respondus(){
     </div>
     <br />
    <div class="tier2">
-   <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file}"/>
-    <%-- target represents location where import will be temporarily stored
-        check valueChangeListener for final destination --%>
-    <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
-      valueChangeListener="#{xmlImport.importAssessment}"/>
+   <h:panelGrid columns="1">
+     <h:panelGroup>
+       <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file} "/>
+       <%-- target represents location where import will be temporarily stored
+            check valueChangeListener for final destination --%>
+       <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}" valueChangeListener="#{xmlImport.importAssessment}"/>
+     </h:panelGroup>
+     <f:verbatim>&nbsp;</f:verbatim>
+     <h:panelGrid columns="1">
+       <h:outputText value="#{authorImportExport.file_is}"/>
+       <h:panelGrid columns="2">
+         <f:verbatim>&nbsp;</f:verbatim>
+         <h:selectOneRadio id="sourceType" layout="pageDirection" value="1">
+           <f:selectItem itemLabel="#{authorImportExport.from_samigo}" itemValue="1"/>
+           <f:selectItem itemLabel="#{authorImportExport.from_respondus}" itemValue="2"/>
+         </h:selectOneRadio>
+       </h:panelGrid>
+     </h:panelGrid>
+   </h:panelGrid>
    </div>
     <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
-     <h:commandButton value="#{authorImportExport.import_action}" type="submit" onclick="samigo();"
-       style="act" action="author"/>
-	<h:commandButton value="#{authorImportExport.import_action} 2" type="submit" onclick="respondus();"
-       style="act" action="author"/>
+     <h:commandButton value="#{authorImportExport.import_action}" type="submit" style="act" action="author"/>
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.import_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
@@ -80,3 +80,4 @@ function respondus(){
       </body>
     </html>
   </f:view>
+  
