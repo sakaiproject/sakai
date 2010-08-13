@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.test.mocks;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +154,12 @@ public class FakeSite implements Site {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public Date getModifiedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 	public List getOrderedPages() {
 		// TODO Auto-generated method stub
@@ -490,5 +497,6 @@ public class FakeSite implements Site {
 		// TODO Auto-generated method stub
 
 	}
+
 
 }
