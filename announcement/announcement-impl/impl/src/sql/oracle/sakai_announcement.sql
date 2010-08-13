@@ -27,7 +27,8 @@ CREATE TABLE ANNOUNCEMENT_MESSAGE (
                                    CHECK (PUBVIEW IN (1, 0)),
        OWNER                VARCHAR2(99) NULL,
        MESSAGE_DATE         DATE NOT NULL,
-       XML                  LONG NULL
+       XML                  LONG NULL,
+	   MESSAGE_ORDER		INT
 );
 
 
@@ -60,5 +61,6 @@ CREATE INDEX ANNOUNCEMENT_MESSAGE_CDD ON ANNOUNCEMENT_MESSAGE
 (
 	CHANNEL_ID,
 	MESSAGE_DATE,
+	MESSAGE_ORDER,
 	DRAFT
 );

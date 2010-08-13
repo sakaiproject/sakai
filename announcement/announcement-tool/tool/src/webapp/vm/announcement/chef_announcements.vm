@@ -413,7 +413,7 @@
 									<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
 									##if ($!groups)
 										<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
-									##end 
+										##end 
 								</select>
 							</form>
 						</div>

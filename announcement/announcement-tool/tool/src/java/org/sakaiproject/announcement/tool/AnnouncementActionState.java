@@ -623,10 +623,10 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 
 	// ********* for sorting *********
 	// the current sorted by property name
-	private String m_currentSortedBy = "date";
+	private String m_currentSortedBy = "message_order";
 
 	// the current sort sequence: ture - acscending/false - descending
-	private boolean m_currentSortAsc = false;
+	private boolean m_currentSortAsc = true;
 
 	// ********* for sorting *********
 

@@ -9,6 +9,7 @@
 
 		<configuration name="channel" value="" />
 		<configuration name="pagesize" value="10" />
+		<configuration name="enableReorder" />
 
 		<category name="course" />
 		<category name="project" />

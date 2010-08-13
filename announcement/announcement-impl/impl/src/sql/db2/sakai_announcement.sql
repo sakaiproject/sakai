@@ -27,7 +27,8 @@ CREATE TABLE ANNOUNCEMENT_MESSAGE (
                                    CHECK (PUBVIEW IN ('1', '0')),
        OWNER                VARCHAR (99),
        MESSAGE_DATE         TIMESTAMP NOT NULL,
-       XML                  CLOB
+       XML                  CLOB,
+	   MESSAGE_ORDER		INT
 ) ORGANIZE BY DIMENSIONS (DRAFT, PUBVIEW);
 
 

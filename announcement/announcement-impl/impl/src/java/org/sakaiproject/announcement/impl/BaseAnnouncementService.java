@@ -401,11 +401,12 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	 */
 	public Object[] storageFields(Entity r)
 	{
-		Object[] rv = new Object[4];
+		Object[] rv = new Object[5];
 		rv[0] = ((Message) r).getHeader().getDate();
 		rv[1] = ((Message) r).getHeader().getFrom().getId();
 		rv[2] = ((AnnouncementMessage) r).getAnnouncementHeader().getDraft() ? "1" : "0";
 		rv[3] = r.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ? "0" : "1";
+		rv[4] = ((Message) r).getHeader().getMessage_order();
 		// rv[3] = ((AnnouncementMessage) r).getAnnouncementHeader().getAccess() == MessageHeader.MessageAccess.PUBLIC ? "1" : "0";
 
 		return rv;
@@ -445,6 +446,18 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	public Time getDate(Entity r)
 	{
 		return ((Message) r).getHeader().getDate();
+	}
+	
+	/**
+	 * Access the resource Message Order.
+	 * 
+	 * @param r
+	 *        The resource.
+	 * @return The resource order.
+	 */
+	public Integer getMessage_order(Entity r)
+	{
+		return ((Message) r).getHeader().getMessage_order();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -751,6 +764,10 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			
 			el = doc.createElement("pubDate");
 			el.appendChild(doc.createTextNode( msg.getHeader().getDate().toStringLocalFullZ() ));
+			item.appendChild(el);
+			
+			el = doc.createElement("message_order");
+			el.appendChild(doc.createTextNode( msg.getHeader().getMessage_order().toString()));
 			item.appendChild(el);
 			
 			// attachments
@@ -1091,6 +1108,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 						// message header
 						AnnouncementMessageHeaderEdit nMessageHeader = (AnnouncementMessageHeaderEdit) nMessage.getHeaderEdit();
 						nMessageHeader.setDate(oMessageHeader.getDate());
+						nMessageHeader.setMessage_order(oMessageHeader.getMessage_order());
 						// when importing, refer to property to determine draft status
 						if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
 						{

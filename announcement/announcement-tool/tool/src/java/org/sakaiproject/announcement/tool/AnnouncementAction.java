@@ -138,6 +138,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String CANCEL_STATUS = "cancel";
 
 	private static final String MERGE_STATUS = "merge";
+	
+	private static final String REORDER_STATUS = "reorder";
 
 	private static final String OPTIONS_STATUS = "options";
 
@@ -146,6 +148,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String SSTATE_PUBLICVIEW_VALUE = "public_view_value";
 
 	private static final String SORT_DATE = "date";
+	
+	private static final String SORT_MESSAGE_ORDER = "message_order";
 	
 	private static final String SORT_RELEASEDATE = "releasedate";
 	
@@ -170,6 +174,10 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String VELOCITY_DISPLAY_OPTIONS = CONTEXT_VAR_DISPLAY_OPTIONS;
 
 	private static final String PERMISSIONS_BUTTON_HANDLER = "doPermissions";
+	
+	private static final String REORDER_BUTTON_HANDLER = "doReorder";
+	
+	private static final String REFRESH_BUTTON_HANDLER = "doCancel";
 
 	private static final String MERGE_BUTTON_HANDLER = "doMerge";
 
@@ -223,6 +231,8 @@ public class AnnouncementAction extends PagedResourceActionII
    private ContentHostingService contentHostingService = null;
    
    private EntityBroker entityBroker;
+   
+   private static int MaxNoOfAnn =0;
 
 	/**
 	 * Used by callback to convert channel references to channels.
@@ -800,6 +810,19 @@ public class AnnouncementAction extends PagedResourceActionII
 		String template = (String) getContext(runData).get("template");
 		return template + "-merge";
 	}
+	
+	/**
+	 * Build the context for showing merged view
+	 */
+	public String buildReorderContext(VelocityPortlet portlet, Context context, RunData runData, AnnouncementActionState state,
+			SessionState sstate)
+	{
+
+		context.put("tlang", rb);		
+
+		String template = (String) getContext(runData).get("template");
+		return template + "-reorder";
+	}
 
 	/**
 	 * This is a cover to return the right config parameter name, regardless of whether the parameter is using an older, deprecated name or the newer version.
@@ -896,7 +919,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		boolean menu_new = true;
 		boolean menu_delete = true;
 		boolean menu_revise = true;
-
+		boolean menu_reorder = true;
+ 
 		try
 		{
 			if (AnnouncementService.allowGetChannel(channelId) && isOkayToDisplayMessageMenu(state))
@@ -1255,6 +1279,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			template = buildOptionsPanelContext(portlet, context, rundata, sstate);
 		}
+		else if (statusName.equals(REORDER_STATUS))
+		{
+			template = buildReorderContext(portlet, context, rundata, state, sstate);
+		}
 		return template;
 
 	} // getTemplate
@@ -1501,6 +1529,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		messageList = getViewableMessages(messageList, ToolManager.getCurrentPlacement().getContext());
 		
 		messageList = trimListToMaxNumberOfAnnouncements(messageList, state.getDisplayOptions());
+		MaxNoOfAnn=messageList.size();
 
 		return messageList;
 	}
@@ -2765,6 +2794,12 @@ public class AnnouncementAction extends PagedResourceActionII
 				msg.setBody(body);
 				AnnouncementMessageHeaderEdit header = msg.getAnnouncementHeaderEdit();
 				header.setSubject(subject);
+				
+				//set the order of the announcement messages
+				MaxNoOfAnn=MaxNoOfAnn+1;
+				header.setMessage_order(MaxNoOfAnn);
+				//msg.getPropertiesEdit().addProperty("MESSAGE_ORDER", "22");
+				
 //				header.setDraft(!post);
 				// v2.4: Hidden in UI becomes Draft 'behind the scenes'
 				header.setDraft(tempHidden);
@@ -2939,9 +2974,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setMessageReference("");
 			state.setTempAnnounceTo(null);
 			state.setTempAnnounceToGroups(null);
-			state.setCurrentSortedBy(SORT_DATE);
+			state.setCurrentSortedBy(SORT_MESSAGE_ORDER);
 			//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
-			sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_DATE);
+			sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_MESSAGE_ORDER);
 			sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
 
 			// make sure auto-updates are enabled
@@ -3028,7 +3063,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus("FinishDeleting");
 
 	} // doDelete
-
+	
 	/**
 	 * Action is to use when doDeleteannouncement requested, corresponding to chef_announcements or chef_announcements-metadata menu "Delete"
 	 */
@@ -3137,7 +3172,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		// disable auto-updates while in confirm mode
 		disableObservers(sstate);
 
-	} // doDeleteannouncement
+	} // doDeleteannouncement	
 
 	/**
 	 * Action is to use when doDelete_announcement_link requested, corresponding to chef_announcements the link of deleting announcement item
@@ -3497,9 +3532,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus(CANCEL_STATUS);
 		state.setTempAnnounceTo(null);
 		state.setTempAnnounceToGroups(null);
-		state.setCurrentSortedBy(SORT_DATE);
+		state.setCurrentSortedBy(SORT_MESSAGE_ORDER);
 		//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
-		sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_DATE);
+		sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_MESSAGE_ORDER);
 		//sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
 
 		sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
@@ -3635,6 +3670,11 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		setupSort(rundata, context, SORT_DATE);
 	} // doSortbydate
+	
+	public void doSortbymessage_order(RunData rundata, Context context)
+	{
+		setupSort(rundata, context, SORT_MESSAGE_ORDER);
+	} // doSortbymessage_order
 
 	public void doSortbyreleasedate(RunData rundata, Context context)
 	{
@@ -3727,6 +3767,19 @@ public class AnnouncementAction extends PagedResourceActionII
 				// sorted by the discussion message date
 				if (((AnnouncementMessage) o1).getAnnouncementHeader().getDate().before(
 						((AnnouncementMessage) o2).getAnnouncementHeader().getDate()))
+				{
+					result = -1;
+				}
+				else
+				{
+					result = 1;
+				}
+			}
+			else if (m_criteria.equals(SORT_MESSAGE_ORDER))
+			{
+				// sorted by the message order
+				if ((((AnnouncementMessage) o1).getAnnouncementHeader().getMessage_order()) <
+						(((AnnouncementMessage) o2).getAnnouncementHeader().getMessage_order()))
 				{
 					result = -1;
 				}
@@ -3919,6 +3972,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		Menu bar = new MenuImpl(portlet, rundata, "AnnouncementAction");
 		boolean buttonRequiringCheckboxesPresent = false;
+		Properties placementProperties = ToolManager.getCurrentPlacement().getPlacementConfig();
+		String sakaiReorderProperty= ServerConfigurationService.getString("sakai.announcement.reorder", "false");
 
 		//if (!displayOptions.isShowOnlyOptionsButton()) ##SAK-13434
 		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
@@ -3945,6 +4000,10 @@ public class AnnouncementAction extends PagedResourceActionII
 							"doDeleteannouncement"));
 					buttonRequiringCheckboxesPresent = true;
 				}
+				else if (statusName.equals("reorder"))
+				{
+					bar.add(new MenuEntry(rb.getString("java.refresh"), REFRESH_BUTTON_HANDLER));
+				}
 				else
 				{
 					bar.add(new MenuEntry(rb.getString("gen.new"), null, menu_new, MenuItem.CHECKED_NA, "doNewannouncement"));
@@ -3964,6 +4023,19 @@ public class AnnouncementAction extends PagedResourceActionII
 				bar.add(new MenuEntry(rb.getString("java.merge"), MERGE_BUTTON_HANDLER));
 			}
 		} // if-else (!displayOptions.isShowOnlyOptionsButton())
+		
+		//re-orderer link in the announcementlist view
+		if ((placementProperties.containsKey("enableReorder") && placementProperties.getProperty("enableReorder").equalsIgnoreCase("true")) 
+				&& menu_new && state.getStatus()!="reorder" && state.getStatus()!="showMetadata")
+		{
+			bar.add(new MenuEntry(rb.getString("java.reorder"), REORDER_BUTTON_HANDLER));
+		}
+		else if ((!placementProperties.containsKey("enableReorder")|| !placementProperties.getProperty("enableReorder").equalsIgnoreCase("false")) && menu_new && state.getStatus()!="reorder" && state.getStatus()!="showMetadata")
+		{			
+			if (sakaiReorderProperty.equalsIgnoreCase("true")){
+				bar.add(new MenuEntry(rb.getString("java.reorder"), REORDER_BUTTON_HANDLER));
+			}
+		}
 
 		// add options if allowed
 		if (menu_options)
@@ -3980,7 +4052,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				bar.add(new MenuEntry(rb.getString("java.permissions"), PERMISSIONS_BUTTON_HANDLER));
 			}
 		}
-
+		
 		// Set menu state attribute
 		SessionState stateForMenus = ((JetspeedRunData) rundata).getPortletSessionState(portlet.getID());
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
@@ -4281,6 +4353,26 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		state.setStatus(MERGE_STATUS);
 	} // doMerge
+	
+	/**
+	 * Handle the "Reorder" button on the toolbar
+	 */
+	public void doReorder(RunData runData, Context context)
+	{
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, runData, AnnouncementActionState.class);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState sstate = ((JetspeedRunData) runData).getPortletSessionState(peid);
+
+		//doOptions(runData, context);
+
+		// if we didn't end up in options mode, bail out
+		//if (!MODE_OPTIONS.equals(sstate.getAttribute(STATE_MODE))) return;
+
+		// Disable the observer
+		//enableObserver(sstate, false);
+
+		state.setStatus(REORDER_STATUS);
+	} // doMerge
 
 	/**
 	 * Handles the user clicking on the save button on the page to specify which calendars will be merged into the present schedule.
@@ -4303,6 +4395,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		else if (state.getStatus().equals(OPTIONS_STATUS))
 		{
 			doOptionsUpdate(runData, context);
+		}
+		else if (state.getStatus().equals(REORDER_STATUS))
+		{
+			doReorderUpdate(runData, context);
 		}
 		else
 		{
@@ -4367,6 +4463,70 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus(CANCEL_STATUS); //SAK-14001	It goes to the main page after saving the merge options.
 		
 	}
+	
+	
+	/**
+	 * This handles the "doUpdate" if we're processing an update from the "reorder" page.
+	 */
+	public void doReorderUpdate(RunData rundata, Context context)
+	{
+		// retrieve the state from state object
+		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
+
+		String peid = ((JetspeedRunData) rundata).getJs_peid();
+		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+		// get the channel and message id information from state object
+		String messageReference = state.getMessageReference();
+		
+		// Storing the re-ordered sequence of the announcements
+		if (state.getIsListVM())
+		{
+			// then, read in the selected announcment items
+			String[] messageReferences2 = rundata.getParameters().getStrings("selectedMembers2");
+			if (messageReferences2 != null)
+			{
+				Vector v2 = new Vector();
+				for (int i = 0; i < messageReferences2.length; i++)
+				{
+					// get the message object through service
+					try
+					{
+						// get the channel id throught announcement service
+						AnnouncementChannel channel2 = AnnouncementService.getAnnouncementChannel(this
+								.getChannelIdFromReference(messageReferences2[i]));
+						// get the message object through service
+						AnnouncementMessage message2 = channel2.getAnnouncementMessage(this
+								.getMessageIDFromReference(messageReferences2[i]));
+						AnnouncementMessageEdit msg =(AnnouncementMessageEdit)message2;
+						AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
+						header2.setMessage_order(i+1);						
+						channel2.commitMessage_order(msg);
+
+						//v2.addElement(message2);
+					}
+					catch (IdUnusedException e)
+					{
+						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+						// addAlert(sstate, e.toString());
+					}
+					catch (PermissionException e)
+					{
+						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
+						addAlert(sstate, rb.getString("java.alert.youdelann")	+ messageReferences2[i]);
+					}
+				}
+			}
+		}
+
+		state.setStatus(null);
+
+		sstate.removeAttribute(STATE_MODE);
+		
+		state.setStatus(CANCEL_STATUS); 
+
+	} // doReorderUpdate
+	
 
 	/**
 	 * This handles the "doUpdate" if we're in a processing an update from the options page.
@@ -4555,7 +4715,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		if ((sortedBy == null) || sortedBy.equals(""))
 		{
-			sortedBy = "date";
+			//sortedBy = "message order";
+			sortedBy="message_order";
 			asc = false;
 		}
 		SortedIterator rvSorted = new SortedIterator(rv.iterator(), new AnnouncementComparator(sortedBy, asc));
