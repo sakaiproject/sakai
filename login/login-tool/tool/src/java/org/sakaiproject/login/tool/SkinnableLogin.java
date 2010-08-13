@@ -167,9 +167,20 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				return;
 			}
 		}
+		
+		// PDA or not?
+		String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+		boolean isPDA = false;
+		if ( portalUrl != null ) {
+			isPDA = (portalUrl.indexOf (PDA_PORTAL_SUFFIX) > 0);
+		}
+		log.debug("isPDA: " + isPDA);
 
 		// Present the xlogin template
 		LoginRenderContext rcontext = startPageContext("", req, res);
+		
+		rcontext.put("isPDA", isPDA);
+		
 		sendResponse(rcontext, res, "xlogin", null);
 	}
 	

@@ -9,6 +9,9 @@
 	    <title>${uiService}</title>
 		<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
 		<meta name="viewport" content="width=320, user-scalable=no"/>
+		#if ( $isPDA )
+    		<link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" />
+		#end
 	</head>
 	<body onload="if ((document.getElementById('pw').passwordfocus != true)) document.getElementById('eid').focus() ;parent.updCourier(doubleDeep, ignoreCourier);">
 		<script type="text/javascript" language="JavaScript">
