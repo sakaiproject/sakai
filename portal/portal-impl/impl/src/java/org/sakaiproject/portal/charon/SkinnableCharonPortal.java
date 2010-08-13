@@ -1126,7 +1126,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			PortalHandler ph;
 			String requestHandler = getRequestHandler(req);
-			if (requestHandler != null){
+			// SAK-18955: do not use PDAHandler for relogin
+			if ((! parts[1].equals("relogin")) && (requestHandler!=null)){
 				//Mobile access
 				ph = handlerMap.get("pda");
 				parts[1] = "pda";
