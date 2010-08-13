@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.api;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
@@ -125,8 +126,15 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 
 	/**
 	 * @return the time last modified.
+	 * @deprecated see {@link #getModifiedDate()}
 	 */
 	Time getModifiedTime();
+	
+	/**
+	 * Get date last modified
+	 * @return
+	 */
+	Date getModifiedDate();
 
 	/**
 	 * Access the group id for the GroupProvider for this AuthzGroup.

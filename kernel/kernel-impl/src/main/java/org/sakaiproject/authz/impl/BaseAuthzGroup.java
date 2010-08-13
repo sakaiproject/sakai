@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.impl;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -734,6 +735,12 @@ public class BaseAuthzGroup implements AuthzGroup
 		return m_lastModifiedTime;
 	}
 
+	
+
+	public Date getModifiedDate() {
+		return new Date(m_lastModifiedTime.getTime());
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1239,4 +1246,5 @@ public class BaseAuthzGroup implements AuthzGroup
 	{
 		m_active = false;
 	}
+
 }

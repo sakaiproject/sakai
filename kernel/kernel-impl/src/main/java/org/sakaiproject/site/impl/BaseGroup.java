@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.Stack;
 
@@ -422,6 +423,11 @@ public class BaseGroup implements Group, Identifiable
 	public Time getModifiedTime()
 	{
 		return getAzg().getModifiedTime();
+	}
+	
+	public Date getModifiedDate() {
+		
+		return getAzg().getModifiedDate();
 	}
 
 	public String getProviderGroupId()

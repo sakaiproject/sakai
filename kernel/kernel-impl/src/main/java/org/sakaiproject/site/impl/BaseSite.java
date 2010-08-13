@@ -23,6 +23,7 @@ package org.sakaiproject.site.impl;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -702,6 +703,9 @@ public class BaseSite implements Site
 		return m_lastModifiedTime;
 	}
 
+	public Date getModifiedDate() {
+		return new Date(m_lastModifiedTime.getTime());
+	}
 	/**
 	 * @inheritDoc
 	 */
@@ -1668,4 +1672,6 @@ public class BaseSite implements Site
 		if (changed) m_azgChanged = true;
 		return changed;
 	}
+
+
 }
