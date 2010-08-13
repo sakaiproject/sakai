@@ -1174,7 +1174,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 			{
 				Set fromSyDataSet = syllabusManager
 						.getSyllabiForSyllabusItem(fromSyllabusItem);
-				if (fromSyDataSet != null && fromSyDataSet.size() > 0) 
+				if ((fromSyDataSet != null && fromSyDataSet.size() > 0) || fromSyllabusItem.getRedirectURL() != null) 
 				{
 					String toPage = addSyllabusToolToPage(toContext, SiteService
 							.getSite(toContext).getTitle());
