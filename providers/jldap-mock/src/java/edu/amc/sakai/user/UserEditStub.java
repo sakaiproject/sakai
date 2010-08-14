@@ -21,6 +21,7 @@
 
 package edu.amc.sakai.user;
 
+import java.util.Date;
 import java.util.Stack;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -281,6 +282,16 @@ class UserEditStub implements UserEdit {
 
 	public void setPropertiesEdit(ResourcePropertiesEdit properties) {
 		this.properties = properties;
+	}
+
+	public Date getCreatedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getModifiedDate() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
