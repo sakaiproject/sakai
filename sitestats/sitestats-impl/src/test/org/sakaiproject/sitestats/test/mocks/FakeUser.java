@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -18,6 +18,7 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.Date;
 import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -130,6 +131,16 @@ public class FakeUser implements User {
 	public int compareTo(Object o) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public Date getCreatedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getModifiedDate() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
