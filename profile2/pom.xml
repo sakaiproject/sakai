@@ -44,22 +44,110 @@
 		<contributor>
 			<name>Mark Breuker</name>
 			<email>mbreuker@loi.nl</email>
+			<roles>
+				<role>Translation - Dutch (nl)</role>
+				<role>Issue reporting</role>
+			</roles>
 		</contributor>
 		<contributor>
 			<name>Mike Ozornin</name>
 			<email>mike.ozornin@gmail.com</email>
+			<roles>
+				<role>Translation - Russian (ru)</role>
+			</roles>
 		</contributor>
 		<contributor>
 			<name>Nuno Fernandes</name>
 			<email>nuno@ufp.edu.pt</email>
+			<roles>
+				<role>Translation - Portuguese (pt_PT)</role>
+				<role>Contributed patches</role>
+			</roles>
 		</contributor>
 		<contributor>
 			<name>Yuanhua Qu</name>
 			<email>yq12@txstate.edu</email>
+			<roles>
+				<role>Contributed patches</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Shoji Kajita</name>
+			<email>kajita@nagoya-u.jp</email>
+			<roles>
+				<role>Translation - Japanese (ja)</role>
+			</roles>
 		</contributor>
 		<contributor>
 			<name>Denny</name>
 			<email>denny.denny@anu.edu.au</email>
+			<roles>
+				<role>Translation - Indonesian (in_ID)</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Gao Jun</name>
+			<email>gaojun@fudan.edu.cn</email>
+			<roles>
+				<role>Translation - Simplified Chinese (zh_CN)</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Jean-Fran\u00E7ois L\u00E9v\u00EAque</name>
+			<email>jean-francois.leveque@upmc.fr</email>
+			<roles>
+				<role>Translation - French (zh_CN)</role>
+				<role>Issue reporting</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Fr\u00E9d\u00E9ric Dooremont</name>
+			<email>Frederic.Dooremont@univ-littoral.fr</email>
+			<roles>
+				<role>Translation - French (zh_CN)</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Laure Alba</name>
+			<email>laure.alba@univ-littoral.fr</email>
+			<roles>
+				<role>Translation - French (zh_CN)</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Thierry Peze</name>
+			<email>tierry.peze@univ-littoral.fr</email>
+			<roles>
+				<role>Translation - French (zh_CN)</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Brain Richwine</name>
+			<email>brichwin@indiana.edu</email>
+			<roles>
+				<role>Accessibility Review</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Mary Stores</name>
+			<email>stores@indiana.edu</email>
+			<roles>
+				<role>Accessibility Review</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Seth Theriault</name>
+			<email>slt@columbia.edu</email>
+			<roles>
+				<role>Issue reporting</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Chris Dunstall</name>
+			<email>cdunstall@csu.edu.au</email>
+			<roles>
+				<role>Testing</role>
+			</roles>
 		</contributor>
 	</contributors>
 
