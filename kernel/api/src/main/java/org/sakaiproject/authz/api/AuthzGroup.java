@@ -88,8 +88,15 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 
 	/**
 	 * @return the time created.
+	 * @deprecated use {#link {@link #getCreatedDate()}
 	 */
 	Time getCreatedTime();
+	
+	/**
+	 * Get the date created
+	 * @return
+	 */
+	Date getCreatedDate();
 
 	/**
 	 * @return a description of the item this realm applies to.

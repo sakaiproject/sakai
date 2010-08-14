@@ -54,11 +54,6 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 */
 	Time getCreatedTime();
 	
-	/**
-	 * Get the date created
-	 * @return
-	 */
-	Date getCreatedDate();
 	
 
 	/**

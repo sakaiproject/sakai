@@ -730,6 +730,13 @@ public class BaseAuthzGroup implements AuthzGroup
 	/**
 	 * {@inheritDoc}
 	 */
+	public Date getCreatedDate()
+	{
+		return new Date(m_createdTime.getTime());
+	}
+	/**
+	 * {@inheritDoc}
+	 */
 	public Time getModifiedTime()
 	{
 		return m_lastModifiedTime;

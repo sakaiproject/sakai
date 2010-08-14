@@ -399,6 +399,12 @@ public class BaseGroup implements Group, Identifiable
 	{
 		return getAzg().getCreatedTime();
 	}
+	
+	public Date getCreatedDate()
+	{
+		return getAzg().getCreatedDate();
+	}
+
 
 	public String getMaintainRole()
 	{
