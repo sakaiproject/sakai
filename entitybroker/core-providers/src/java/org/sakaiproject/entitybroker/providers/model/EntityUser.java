@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.providers.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -225,6 +226,13 @@ public class EntityUser implements User {
         }
         throw new UnsupportedOperationException();
     }
+    
+    public Date getCreatedDate() {
+        if (user != null) {
+            return user.getCreatedDate();
+        }
+        throw new UnsupportedOperationException();
+    }
 
     public String getDisplayId() {
         if (user != null) {
@@ -247,6 +255,13 @@ public class EntityUser implements User {
         throw new UnsupportedOperationException();
     }
 
+    public Date getModifiedDate() {
+        if (user != null) {
+            return user.getModifiedDate();
+        }
+        throw new UnsupportedOperationException();
+    }
+    
     public String getSortName() {
         String sortName = null;
         if (user != null) {
