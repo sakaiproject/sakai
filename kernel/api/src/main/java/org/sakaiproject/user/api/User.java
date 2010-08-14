@@ -21,6 +21,8 @@
 
 package org.sakaiproject.user.api;
 
+import java.util.Date;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 
@@ -43,14 +45,28 @@ public interface User extends Entity, Comparable
 
 	/**
 	 * @return the time created.
+	 * @deprecated see {link {@link #getCreatedDate()}
+	 * 
 	 */
 	Time getCreatedTime();
+	
+	/**
+	 * @return the time created.
+	 */
+	Date getCreatedDate();
+
+	/**
+	 * @return the time last modified.
+	 * @deprecated see {link {@link #getModifiedDate()}
+	 */
+	Time getModifiedTime();
 
 	/**
 	 * @return the time last modified.
 	 */
-	Time getModifiedTime();
+	Date getModifiedDate();
 
+	
 	/**
 	 * Access the email address.
 	 * 

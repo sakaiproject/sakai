@@ -21,6 +21,7 @@
 
 package org.sakaiproject.jcr.test.mock;
 
+import java.util.Date;
 import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -267,6 +268,16 @@ public class MockTestUser implements User
 	public int compareTo(Object o)
 	{
 		return 0;
+	}
+
+	public Date getCreatedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getModifiedDate() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

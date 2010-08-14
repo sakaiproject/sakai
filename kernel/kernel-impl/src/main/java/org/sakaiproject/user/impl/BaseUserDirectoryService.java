@@ -24,6 +24,7 @@ package org.sakaiproject.user.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -2223,11 +2224,26 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		/**
 		 * @inheritDoc
 		 */
+		public Date getCreatedDate()
+		{
+			return new Date(m_createdTime.getTime());
+		}
+		/**
+		 * @inheritDoc
+		 */
 		public Time getModifiedTime()
 		{
 			return m_lastModifiedTime;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public Date getModifiedDate()
+		{
+			return new Date(m_lastModifiedTime.getTime());
+		}
+		
 		/**
 		 * @inheritDoc
 		 */
