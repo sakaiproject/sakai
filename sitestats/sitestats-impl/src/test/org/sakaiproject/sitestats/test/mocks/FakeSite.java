@@ -91,6 +91,11 @@ public class FakeSite implements Site {
 	public Time getCreatedTime() {
 		return createdTime;
 	}
+	
+	public Date getCreatedDate() {
+		return new Date(createdTime.getTime());
+	}
+	
 	public void setCreatedTime(Time time) {
 		createdTime = time;
 	}
