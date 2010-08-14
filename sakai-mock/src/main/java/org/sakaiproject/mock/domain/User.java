@@ -219,6 +219,10 @@ public class User implements org.sakaiproject.user.api.UserEdit {
 	public Time getCreatedTime() {
 		return createdTime;
 	}
+	
+	public Date getCreatedDate() {
+		return new Date(createdTime.getTime());
+	}
 
 	public void setCreatedTime(Time createdTime) {
 		this.createdTime = createdTime;
@@ -226,6 +230,10 @@ public class User implements org.sakaiproject.user.api.UserEdit {
 
 	public Time getModifiedTime() {
 		return modifiedTime;
+	}
+	
+	public Date getModifiedDate() {
+		return new Date(modifiedTime.getTime());
 	}
 
 	public void setModifiedTime(Time modifiedTime) {
