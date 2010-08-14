@@ -429,6 +429,14 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
+    public Date getCreatedDate() {
+        if (site != null) {
+            return site.getCreatedDate();
+        }
+        throw new UnsupportedOperationException();
+    }
+    
+    
     public Group getGroup(String arg0) {
         if (site != null) {
             return site.getGroup(arg0);

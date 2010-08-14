@@ -279,7 +279,13 @@ public class EntityGroup implements Group {
         }
         throw new UnsupportedOperationException();
     }
-
+    
+    public Date getCreatedDate() {
+        if (group != null) {
+            return group.getCreatedDate();
+        }
+        throw new UnsupportedOperationException();
+    }
     public User getModifiedBy() {
         if (group != null) {
             return group.getModifiedBy();
