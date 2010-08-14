@@ -19,43 +19,23 @@
  *
  **********************************************************************************/
 
-import java.io.*;
-import java.security.*;
-import java.security.interfaces.*;
-import java.security.spec.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import javax.crypto.*;
-import javax.crypto.interfaces.*;
-import javax.crypto.spec.*;
+import java.io.FileInputStream;
+
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.Xml;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 public class SakaiSigning {
 
@@ -67,7 +47,22 @@ public class SakaiSigning {
 	private static SecretKey salt;
 	private static SecretKey privateKey;
 	
-	private static boolean verify(String data, String sign) throws Exception {
+	private EventTrackingService eventTrackingService;
+	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
+	private UserDirectoryService userDirectoryService;
+	
+	/**
+	 * Setup dependencies
+	 */
+	public SakaiSigning() {
+		eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class.getName());
+		serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+		sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+		userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+	}
+	
+	private boolean verify(String data, String sign) throws Exception {
 		if (salt == null)
 			salt = readSecretKey("salt", "HmacSHA1");
 		Mac sig = Mac.getInstance("HmacSHA1");
@@ -76,20 +71,20 @@ public class SakaiSigning {
 	}
 	
 	private Session establishSession(String id) throws AxisFault {
-		Session s = SessionManager.getSession(id);
+		Session s = sessionManager.getSession(id);
 		
 		if (s == null)
 		{
 			throw new AxisFault("Session "+id+" is not active");
 		}
 		s.setActive();
-		SessionManager.setCurrentSession(s);
+		sessionManager.setCurrentSession(s);
 		return s;
 	}
 	
 	public String testsign(String data) throws AxisFault {
 		
-		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+		if (!"true".equals(serverConfigurationService.getString("linktool.enabled", "false")))
 			return "not enabled";
 		
 		int i = data.indexOf("&time=");
@@ -102,14 +97,14 @@ public class SakaiSigning {
 		
 		// post the event
 		LOG.debug("testsign request: " + data);
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_TESTSIGN, null, true));
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_TESTSIGN, null, true));
 		
 		return verifysign(data);
 	}
 	
 	public String verifysign(String data) throws AxisFault {
 		
-		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+		if (!"true".equals(serverConfigurationService.getString("linktool.enabled", "false")))
 			return "false";
 		
 		int i = data.lastIndexOf("&");
@@ -135,17 +130,17 @@ public class SakaiSigning {
 	
 	public String getSessionToServer(String object) throws AxisFault {
 		return getsession(null, object) + "," + 
-			ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+			serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));
 	}
 	
 	public String getSessionToServer(String data, String object) throws AxisFault {
 		return getsession(data, object) + "," + 
-			ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+			serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));
 	}
 	
 	public String getsession(String data, String object) throws AxisFault {
 		
-		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+		if (!"true".equals(serverConfigurationService.getString("linktool.enabled", "false")))
 			throw new AxisFault("not enabled");
 		
 		LOG.debug("getsession request");
@@ -188,11 +183,11 @@ public class SakaiSigning {
 		if (s != null) {
 			sessionid = s.getId();
 			String userid = s.getUserId(); 
-			userref = (userid != null) ? UserDirectoryService.userReference(userid) : null;
+			userref = (userid != null) ? userDirectoryService.userReference(userid) : null;
 		}
 		
 		// post the login event
-		EventTrackingService.post(EventTrackingService.newEvent(EVENT_GETSESSION, userref, true));
+		eventTrackingService.post(eventTrackingService.newEvent(EVENT_GETSESSION, userref, true));
 		
 		return sessionid;
 	}
@@ -216,12 +211,12 @@ public class SakaiSigning {
 		
 		User user = null;
 		try{
-			user = UserDirectoryService.getUser(spec);
+			user = userDirectoryService.getUser(spec);
 		} catch (Exception e) {
 			throw new AxisFault(e.getClass().getName() + " : " + e.getMessage());
 		}
 		
-		Session s = SessionManager.startSession();
+		Session s = sessionManager.startSession();
 		if (s == null)
 			throw new AxisFault("Unable to establish session");
 		
@@ -236,7 +231,7 @@ public class SakaiSigning {
 		// no security; you can't do anything damaging with this
 		// you just prevent a session from timing out
 		
-		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+		if (!"true".equals(serverConfigurationService.getString("linktool.enabled", "false")))
 			return "not enabled";
 		
 		int i;
@@ -257,7 +252,7 @@ public class SakaiSigning {
 			String sessionid = decrypt(esession);
 			
 			if (sessionid != null)
-				s = SessionManager.getSession(sessionid);
+				s = sessionManager.getSession(sessionid);
 			
 			if (s == null)
 				throw new AxisFault("Session "+esession+" is not active");
@@ -268,7 +263,7 @@ public class SakaiSigning {
 		return "success";
 	}
 	
-	private static String decrypt (String enc) {
+	private String decrypt (String enc) {
 		if (privateKey == null)
 			privateKey = readSecretKey("privkey", "Blowfish");
 		
@@ -286,9 +281,9 @@ public class SakaiSigning {
 		return null;
 	}
 	
-	private static SecretKey readSecretKey(String name, String alg) {
+	private SecretKey readSecretKey(String name, String alg) {
 		try {
-			String homedir = ServerConfigurationService.getString("linktool.home", ServerConfigurationService.getSakaiHomePath());
+			String homedir = serverConfigurationService.getString("linktool.home", serverConfigurationService.getSakaiHomePath());
 			if (homedir == null)
 				homedir = "/etc/";
 			if (!homedir.endsWith("/"))
@@ -320,7 +315,7 @@ public class SakaiSigning {
 	 * @throws Exception.
 	 */
 	
-	private static String byteArray2Hex(byte[] ba){
+	private String byteArray2Hex(byte[] ba){
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < ba.length; i++){
 			int hbits = (ba[i] & 0x000000f0) >> 4;
@@ -330,7 +325,7 @@ public class SakaiSigning {
 		return sb.toString();
 	}
 	
-	public static byte[] hex2byte(String strhex) {
+	public byte[] hex2byte(String strhex) {
 		if(strhex==null) return null;
 		int l = strhex.length();
 		

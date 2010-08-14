@@ -12,7 +12,7 @@ import java.text.DateFormat;
 import org.theospi.portfolio.presentation.model.Presentation;
 import org.theospi.portfolio.presentation.PresentationManager;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.metaobj.shared.mgt.IdManager;
 
 import org.apache.axis.AxisFault;
@@ -28,12 +28,18 @@ import org.w3c.dom.Node;
 public class Portfolio
 {
    private static final Log logger = LogFactory.getLog(Portfolio.class);
-   private PresentationManager presentationManager = (org.theospi.portfolio.presentation.PresentationManager)ComponentManager.get("presentationManager");
-   private IdManager idManager  = (org.sakaiproject.metaobj.shared.mgt.IdManager)ComponentManager.get("idManager");
-
-   private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-   private String serverUrl = ServerConfigurationService.getServerUrl();
-
+   
+   private PresentationManager presentationManager;
+   private IdManager idManager;
+   private ServerConfigurationService serverConfigurationService;
+   
+   public Portfolio() {
+	   presentationManager = (PresentationManager)ComponentManager.get("presentationManager");
+	   idManager = (IdManager)ComponentManager.get("idManager");
+	   serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+   }
+   
+   
    /** Return XML document string listing all public portfolios in all worksites
     **
     ** @return XML document string
@@ -86,7 +92,10 @@ public class Portfolio
     **/   
    private String formatResults( Collection presResults )
    {
-      Document doc = Xml.createDocument();
+	   String serverUrl = serverConfigurationService.getServerUrl();
+	   DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+	   
+	  Document doc = Xml.createDocument();
       Node results = doc.createElement("results");
       doc.appendChild(results);
 
