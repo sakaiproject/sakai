@@ -228,6 +228,11 @@ public class AuthzGroup implements org.sakaiproject.authz.api.AuthzGroup {
 	public Time getCreatedTime() {
 		return createdTime;
 	}
+	
+	
+	public Date getCreatedDate() {
+		return new Date(createdTime.getTime());
+	}
 
 	public void setCreatedTime(Time createdTime) {
 		this.createdTime = createdTime;
