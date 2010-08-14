@@ -695,6 +695,10 @@ public class BaseSite implements Site
 		return m_createdTime;
 	}
 
+	public Date getCreatedDate() {
+		return new Date(m_createdTime.getTime());
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

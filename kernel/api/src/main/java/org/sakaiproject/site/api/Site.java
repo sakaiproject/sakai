@@ -23,6 +23,7 @@ package org.sakaiproject.site.api;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -49,11 +50,20 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 
 	/**
 	 * @return the time created.
+	 * @deprecated use {@link #getCreatedDate()}
 	 */
 	Time getCreatedTime();
+	
+	/**
+	 * Get the date created
+	 * @return
+	 */
+	Date getCreatedDate();
+	
 
 	/**
 	 * @return the time last modified.
+	 * @deprecated use {@link #getModifiedTime()}
 	 */
 	Time getModifiedTime();
 
