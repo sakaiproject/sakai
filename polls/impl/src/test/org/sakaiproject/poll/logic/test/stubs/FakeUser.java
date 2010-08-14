@@ -21,6 +21,7 @@
 
 package org.sakaiproject.poll.logic.test.stubs;
 
+import java.util.Date;
 import java.util.Stack;
 
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -188,6 +189,16 @@ public class FakeUser implements User {
 	}
 
 	public Time getModifiedTime() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getCreatedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getModifiedDate() {
 		// TODO Auto-generated method stub
 		return null;
 	}
