@@ -100,7 +100,7 @@
         <sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>
         <sakai.entitybroker.version>1.4.0-SNAPSHOT</sakai.entitybroker.version>
         <sakai.jsf.version>2.8-SNAPSHOT</sakai.jsf.version>
-        <sakai.msgcntr.version>2.8-SNAPSHOT</sakai.msgcntr.version>
+        <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
         <sakai.polls.version>1.4-SNAPSHOT</sakai.polls.version>
         <sakai.profile.version>2.8-SNAPSHOT</sakai.profile.version>
         <sakai.profile2.version>1.4-SNAPSHOT</sakai.profile2.version>
