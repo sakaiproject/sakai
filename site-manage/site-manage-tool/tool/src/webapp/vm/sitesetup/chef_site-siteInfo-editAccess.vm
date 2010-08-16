@@ -100,7 +100,7 @@
 		#if ($!publicChangeable && $published) 
 			#set($publicChangeableDivDisplay='style="display:block"')
 			#set($publicChangeableNoDivDisplay='style="display:none"')
-			#set($publicChangeableNoUnpublishedDivDisplay='style="display:none"')
+			#set($publicChangeableNoUnpublishDivDisplay='style="display:none"')
 		#else 
 			#set($publicChangeableDivDisplay='style="display:none"')
 			## show different divs for unpublished site or unchangeable site
