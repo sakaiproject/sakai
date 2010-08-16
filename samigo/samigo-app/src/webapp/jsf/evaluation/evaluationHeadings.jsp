@@ -42,7 +42,7 @@ $Id: evaluationHeadings.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
  
 <f:verbatim></span></li></f:verbatim>
 </h:panelGroup>
-<li role="menuitem" ><span></f:verbatim>
+<f:verbatim><li role="menuitem" ><span></f:verbatim>
 
     <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true"  rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{generalMessages.questionPool}" />
