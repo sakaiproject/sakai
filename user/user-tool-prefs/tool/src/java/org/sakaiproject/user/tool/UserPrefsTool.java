@@ -810,7 +810,7 @@ public class UserPrefsTool
 	public int getTab_selection()
 	{
 		//Loading the data for customize tab in the refresh mode
-		if (tab_selection==1 && refreshMode==true)
+		if (tab_selection==1 && (refreshMode==true|| (prefOrderItems.isEmpty() && prefExcludeItems.isEmpty()) )) //SAK-16572
 		{
 			processActionEdit();
 		}
