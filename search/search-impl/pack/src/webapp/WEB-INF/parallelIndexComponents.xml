@@ -385,6 +385,7 @@
     		<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
 			<property name="sequence"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.itemQueueLock"/></property>
 			<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+			<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
     
 	<bean 
