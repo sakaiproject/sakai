@@ -803,9 +803,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			//how long and how often should we sleep?
 			long sleepTime = 1000*60;
 			long sleepInterval = 1000;
-			long itemCount = 0;
-			long itemCountTotal = 0;
-			long itemSleepInterval = 100000;
 			long count = 0;
 			long totalCount = 0;
 			//Iterate through each site
