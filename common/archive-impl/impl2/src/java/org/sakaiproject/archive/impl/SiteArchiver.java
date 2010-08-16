@@ -22,8 +22,12 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
+
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +53,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class SiteArchiver {
 	
@@ -240,6 +245,38 @@ public class SiteArchiver {
 		stack.push(element);
 		
 		Element siteNode = site.toXml(doc, stack);
+
+		// By default, do not include fields that have secret or password in the name
+                String filter = m_serverConfigurationService.getString("archive.toolproperties.excludefilter","password|secret");
+		Pattern pattern = null;
+                if ( ( ! "none".equals(filter) ) && filter.length() > 0 ) {
+			try { 
+				pattern = Pattern.compile(filter);
+			}
+			catch (Exception e) {
+				pattern = null;
+			}
+		}
+
+                if ( pattern != null ) {
+			NodeList nl = siteNode.getElementsByTagName("property");
+			List<Element> toRemove = new ArrayList<Element>();
+
+			for(int i = 0; i < nl.getLength(); i++) {
+				Element proptag = (Element)nl.item(i);
+				String propname = proptag.getAttribute("name");
+				if ( propname == null ) continue;
+				propname = propname.toLowerCase();
+				Matcher matcher = pattern.matcher(propname);
+				if ( matcher.find() ) {
+					toRemove.add(proptag);
+				}
+			}
+			for(Element proptag : toRemove ) {
+				proptag.getParentNode().removeChild(proptag);
+			}
+		}
+	
 		stack.push(siteNode);	
 		
 		// to add the realm node with user list into site
