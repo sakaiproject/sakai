@@ -1435,7 +1435,11 @@ public class ItemBean
 		// checking whether the answer is correct simply leads to NPE.
 		while (iter.hasNext()) {
 			AnswerBean answerBean = (AnswerBean) iter.next();
-			if (answerBean.getPartialCredit().floatValue() < 100.00) {
+			// if (answerBean.getPartialCredit().floatValue() < 100.00) {
+			if (answerBean.getLabel().equals(corrAnswer)) {
+				answerBean.setPartialCredit(100f);
+			}
+			else {
 				answerBean.setPartialCredit(0f);
 			}
 		}
