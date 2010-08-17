@@ -144,7 +144,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	public String getUploadDirectory()
 	{
-		String uploadDir = "/tmp/";
+		String uploadDir = System.getProperty("java.io.tmpdir");
 		String ud = serverConfigurationService.getString(UPLOAD_DIRECTORY_PROP);
 		ud = StringUtil.trimToNull(ud);
 		if (ud != null)
