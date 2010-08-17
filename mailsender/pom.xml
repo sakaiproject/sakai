@@ -51,6 +51,7 @@
 		<module>impl</module>
 		<module>tool</module>
 		<module>pack</module>
+		<module>assembly</module>
 	</modules>
 	<repositories>
         <repository>

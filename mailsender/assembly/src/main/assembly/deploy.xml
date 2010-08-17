@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+	<id>tomcat-overlay</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		
+		<!-- shared -->
+		<dependencySet>
+			<outputDirectory>shared/lib</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.mailsender:mailsender-api:jar:*</include>
+				<include>org.sakaiproject.mailsender:mailsender-help:jar:*</include>
+			</includes>
+		</dependencySet>
+		
+		<!-- components -->
+		<dependencySet>
+			<outputDirectory>components/mailsender-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.mailsender:mailsender-pack:war:*</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		
+		<!-- webapps -->
+		<dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.mailsender:mailsender-tool:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+        
+	</dependencySets>
+	<!-- additional files -->
+	<fileSets>
+		<fileSet>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>${project.basedir}/README*</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>
