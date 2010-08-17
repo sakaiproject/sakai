@@ -22,12 +22,14 @@ import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_SEN
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_TIMEOUT;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_ALLOW_TRANSPORT;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_CONNECTION_TIMEOUT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_DEBUG;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_HOST;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_PASSWORD;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_PORT;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_TIMEOUT;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_USER;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_USE_SSL;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_USE_TLS;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +95,12 @@ public class ExternalLogicImpl implements ExternalLogic
 
 	/** Defaut value for use of ssl */
 	boolean DEFAULT_USE_SSL = false;
+
+	/** Defaut value for use of ssl */
+	boolean DEFAULT_USE_TLS = false;
+
+	/** Defaut value for smtp debugging */
+	boolean DEFAULT_SMTP_DEBUG = false;
 
 	private FunctionManager functionManager;
 	private ToolManager toolManager;
@@ -370,6 +378,8 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		// allow sending
 		boolean allowTransport = configService.getBoolean(SAKAI_SMTP_ALLOW_TRANSPORT, true);
+		
+		boolean smtpDebug = configService.getBoolean(SAKAI_SMTP_DEBUG, DEFAULT_SMTP_DEBUG);
 
 		try
 		{
@@ -411,6 +421,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			emailMsg.setHostName(smtpHost);
 			emailMsg.setSmtpPort(smtpPort);
 			emailMsg.setSubject(subject);
+			emailMsg.setDebug(smtpDebug);
 
 			// gather the sender
 			setFrom(config, fromEmail, fromName, emailMsg);
@@ -456,6 +467,9 @@ public class ExternalLogicImpl implements ExternalLogic
 
 				boolean useSsl = configService.getBoolean(SAKAI_SMTP_USE_SSL, DEFAULT_USE_SSL);
 				emailMsg.setSSL(useSsl);
+
+				boolean useTls = configService.getBoolean(SAKAI_SMTP_USE_TLS, DEFAULT_USE_TLS);
+				emailMsg.setTLS(useTls);
 
 				// set some properties used during sending (partial send, connection timeout,
 				// timeout)

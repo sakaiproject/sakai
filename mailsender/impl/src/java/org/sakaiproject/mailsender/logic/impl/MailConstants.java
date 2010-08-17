@@ -39,8 +39,14 @@ public interface MailConstants
 	/** Property name of email service smtp ssl usage flag */
 	String SAKAI_SMTP_USE_SSL = "smtpUseSSL@org.sakaiproject.email.api.EmailService";
 
+	/** Property name of email service smtp ssl usage flag */
+	String SAKAI_SMTP_USE_TLS = "smtpUseTLS@org.sakaiproject.email.api.EmailService";
+
 	/** Property name of email service flag to enable/disable transport "send" call */
 	String SAKAI_SMTP_ALLOW_TRANSPORT = "allowTransport@org.sakaiproject.email.api.EmailService";
+
+	/** Property name of the email service flag to enable/disable smtp debugging */
+	String SAKAI_SMTP_DEBUG = "smtpDebug@org.sakaiproject.email.api.EmailService";
 
 	/**
 	 * Property name to set partial sending of message. If set to true, and a message has some valid
