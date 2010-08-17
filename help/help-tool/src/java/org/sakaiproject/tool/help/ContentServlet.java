@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -42,6 +44,11 @@ import org.sakaiproject.component.cover.ComponentManager;
  */
 public class ContentServlet extends HttpServlet
 {
+
+  private static final long serialVersionUID = 1L;
+	
+  /** Our log (commons). */
+  private static Log M_log = LogFactory.getLog(ContentServlet.class);
 
   private static final String DOC_ID = "docId";
   private static final String TEXT_HTML = "text/html; charset=UTF-8";
@@ -82,17 +89,21 @@ public class ContentServlet extends HttpServlet
                           url = HelpManager.class.getResource(resource.getLocation());
                       }
 
-                      BufferedReader br = new BufferedReader(
-                              new InputStreamReader(url.openStream(),"UTF-8"));
-                      try {
-                          String sbuf;
-                          while ((sbuf = br.readLine()) != null)
-                          {
-                              writer.write( sbuf );
-                              writer.write( System.getProperty("line.separator") );
-                          }
-                      } finally {
-                          br.close();
+                      if (url == null) {
+                    	  M_log.warn("Help document " + docId + " not found at: " + resource.getLocation());
+                      } else {
+	                      BufferedReader br = new BufferedReader(
+	                              new InputStreamReader(url.openStream(),"UTF-8"));
+	                      try {
+	                          String sbuf;
+	                          while ((sbuf = br.readLine()) != null)
+	                          {
+	                              writer.write( sbuf );
+	                              writer.write( System.getProperty("line.separator") );
+	                          }
+	                      } finally {
+	                          br.close();
+	                      }
                       }
                   }
                   else
