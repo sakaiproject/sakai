@@ -201,7 +201,7 @@ public class DeliveryActionListener
               
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
-                if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() || delivery.getFeedbackComponent().getShowGraderComment())
+                if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore())
                 	itemGradingHash = service.getSubmitData(id, agent, scoringoption, assessmentGradingId);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
