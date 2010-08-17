@@ -273,64 +273,140 @@ function mySetMainFrameHeight(id)
 }
 
 
+
+var instrumentThreads = function(target){
+    var threadCount = 0;
+    $('#' + target).children('tbody').children('tr').each(function(index){
+        //remove "New messages" message if this is the only message in the thread
+        if (($(this).prev('.hierItemBlock').size() === 1) & ($(this).attr('class') !== undefined)) {
+            $(this).prev().find('span.childrenNewThread').remove();
+        }
+        if (($(this).next('.hierItemBlock').size() === 1) & ($(this).attr('class') !== undefined)) {
+            $(this).find('span.childrenNewThread').remove();
+        }
+        if ($(this).next().size() === 0) {
+            $(this).find('span.childrenNewThread').remove();
+        }
+        
+        //add same class to all messg. in a thread so we can remove the "New messages" message in
+        //thread seed after all of the messgs in the thread have been marked as read (in doAjax)
+        if ($(this).attr('class') === "hierItemBlock") {
+            threadCount = threadCount + 1;
+        }
+        $(this).addClass('thread' + threadCount)
+    });
+}
+
 function setupMessageNav(messageType){
-  	if ($("." + messageType).size() >= 1) {
-		if (messageType =="messageNew"){
-			tofirst=$("#firstNewItemTitleHolder").text();
-			tonext=$("#nextNewItemTitleHolder").text();
-			last=$("#lastNewItemTitleHolder").text();
-		}
-		else{
-			tofirst=$("#firstPendingItemTitleHolder").text();
-			tonext=$("#nextPendingItemTitleHolder").text();
-			last=$("#lastPendingItemTitleHolder").text();
-		}
-		$('#messNavHolder').append("<span class='jumpToNew specialLink'><a href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
-  		$("." + messageType).each(function(intIndex){
-  			$(this).after("<a name='" + messageType + "newMess" + intIndex + "'></a>");
-  			if (intIndex !== ($("." + messageType).size() - 1)) {
-  				$(this).css({
-  					cursor: "pointer"
-  				});
-					$(this).attr("title",tonext);
-  					$(this).click(function(){
-  					document.location = "#" + messageType + "newMess" + (intIndex + 1);
-  				});
-  			}
-				else{
-					$(this).attr("title",last);
-				}
-  		});
-  	}
-  	if ($(".messageNew").size() < 1 && $(".messagePending").size() < 1) {
-		$('#messNavHolder').remove()
-	}
-  }
+	$('.messagesThreaded tr').each(function(rowIndex){
+		$(this).attr('rowCount',rowIndex)
+		});
+    if ($("." + messageType).size() >= 1) {
+        if (messageType == "messageNew") {
+            tofirst = $("#firstNewItemTitleHolder").text();
+            tonext = $("#nextNewItemTitleHolder").text();
+            last = $("#lastNewItemTitleHolder").text();
+        }
+        else {
+            tofirst = $("#firstPendingItemTitleHolder").text();
+            tonext = $("#nextPendingItemTitleHolder").text();
+            last = $("#lastPendingItemTitleHolder").text();
+        }
+		//go to first new or pending message
+        $('#messNavHolder').append("<span class='jumpToNew specialLink'><a href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
+        //instrument link targets (clicking on "New" goes to next one, same with "Pending")
+		$("." + messageType).each(function(intIndex){
+            var parentRow = $(this).parents('tr');
+			var parentTable = $(this).parents('table');
+			var totalTableRows =$(parentTable).find('tr').size()
+            $(parentRow).addClass(messageType + 'Next');
+            $(this).after("<a class=\"messageNewAnchor\" name='" + messageType + "newMess" + intIndex + "'> </a>");
+            if (intIndex !== ($("." + messageType).size() - 1)) {
+                $(this).css({
+                    cursor: "pointer"
+                });
+                $(this).attr("title", tonext);
+                $(this).click(function(){
+					//in message type is "New" find next new by crawling the DOM
+					// (real next one may have been marked as read, so no longer news)
+					if (messageType === 'messageNew') {
+						//var thisIndex = $('tr').index(parentRow);
+						var thisIndex = parseInt($(parentRow).attr('rowCount')) + 1;
+						// jq1.2 version 
+						//document.location = "#" + $(parentRow).nextAll('.' + messageType + 'Next').eq(0).find('a.messageNewAnchor').attr('name');
+						//jq1.1 version
+						document.location = "#" + $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).find('a.messageNewAnchor').attr('name');
+					}
+					// if "Pending" just link directly to next one
+					else{
+						document.location = "#" + messageType + "newMess" + (intIndex + 1);
+					}
+                });
+            }
+            else {
+                $(this).attr("title", last);
+            }
+        });
+    }
+    if ($(".messageNew").size() < 1 && $(".messagePending").size() < 1) {
+        $('#messNavHolder').remove()
+    }
+}
 
 
 function doAjax(messageId, topicId, self){
- 	$(self).attr('src', '/library/image/sakai/spinner.gif');
-	$.ajax({ type: "GET", url: document.forms[0].action , data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
-      success: function(msg){
-         if(msg.match(/SUCCESS/)){
-     		setTimeout(function(){
-							$(self).parents("tr").children("td").children("span").children("span.messageNew").hide();
-							$(self).parents("div").parents("div").children("span.messageNew").hide();
-              $(self).remove();
-               $("#" + messageId).parents("tr:first").children("td").each(function(){this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus'); });
-            }, 500);
-         } else {
+    $(self).attr('src', '/library/image/sakai/spinner.gif');
+    $.ajax({
+        type: "GET",
+        url: document.forms[0].action,
+        data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
+        success: function(msg){
+            if (msg.match(/SUCCESS/)) {
+                setTimeout(function(){
+                    var thisRow = $(self).parents('tr');
+                    //only do this if in subject only view
+                    if ($(self).parent('td').size() === 1) {
+                        var thisTheadClassArr = $(thisRow).attr('class').split(' ');
+                        var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
+                        $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
+						//hide "New Messages" in thread seed if all messages have been marked as "read"
+                        if ($('.' + thisThread).find('span.messageNew').size() === 1) {
+                            $('.' + thisThread).find('span.childrenNewThread').css('visibility', 'hidden');
+                        }
+						// remove this "New" flag if this message has been marked as read
+                        $(thisRow).children("td").children("span").children("span.messageNew").remove();
+                    }
+                    else {
+						//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
+						$(self).parents('tr').removeClass('messageNewNext')
+                        $(self).parents("div").parents("div").children('a.messageNewAnchor').remove()
+                        $(self).parents("div").parents("div").children("span.messageNew").remove()
+						// remove "Go to first new message" link if all messages have been marked as "read"
+                        if ($('.messagesThreaded').find('a.messageNewAnchor').size() === 0) {
+                            $('.jumpToNew').remove();
+                        }
+                    }
+                    
+                    
+                    //remove at end after references are not needed
+                    $(self).remove();
+                    $("#" + messageId).parents("tr:first").children("td").each(function(){
+                        this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus');
+                    });
+                }, 500);
+            }
+            else {
+                $(self).remove();
+                $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
+            }
+        },
+        error: function(){
             $(self).remove();
-            $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");         
-         }
-      },
-      error: function(){
-         $(self).remove();
-         $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
-      }
-   });
-	//$.ajax({type: "GET", url: location.href, data: ""});
-	return false;
+            $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
+        }
+    });
+    //$.ajax({type: "GET", url: location.href, data: ""});
+    return false;
 }
 
 // This will display/hide extended description for an element
