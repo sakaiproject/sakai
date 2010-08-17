@@ -64,11 +64,6 @@ public class EmailEntry
 			{
 				this.otherRecipients.add(rcpt.trim());
 			}
-
-			if (this.otherRecipients.size() == 0)
-			{
-				this.otherRecipients.add(otherRecipients.trim());
-			}
 		}
 	}
 

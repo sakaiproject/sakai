@@ -16,7 +16,6 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.logic.impl;
 
-import net.htmlparser.jericho.Source;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_CONNECTIONTIMEOUT;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_SENDPARTIAL;
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_TIMEOUT;
@@ -41,11 +40,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
+import net.htmlparser.jericho.Source;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -378,7 +380,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		// allow sending
 		boolean allowTransport = configService.getBoolean(SAKAI_SMTP_ALLOW_TRANSPORT, true);
-		
+
 		boolean smtpDebug = configService.getBoolean(SAKAI_SMTP_DEBUG, DEFAULT_SMTP_DEBUG);
 
 		try

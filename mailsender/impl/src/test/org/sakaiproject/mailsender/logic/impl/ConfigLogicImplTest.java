@@ -16,6 +16,7 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.logic.impl;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 import java.util.Properties;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
+import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.tool.api.ToolManager;
 
 @RunWith(value = MockitoJUnitRunner.class)
@@ -59,6 +61,7 @@ public class ConfigLogicImplTest {
 
 	@Test
 	public void getConfig() {
-		logic.getConfig();
+		ConfigEntry config = logic.getConfig();
+		assertNotNull(config);
 	}
 }

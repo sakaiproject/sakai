@@ -99,7 +99,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see org.sakaiproject.mailsender.logic.ConfigLogic#allowSubjectPrefixChange()
 	 */
 	public boolean allowSubjectPrefixChange()
@@ -176,7 +176,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Retrieve the display invalid email addresses option from the tool config
-	 * 
+	 *
 	 * @param props
 	 *            The tool config properties
 	 * @return
@@ -191,7 +191,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Retrieve the display empty groups option from the tool config.
-	 * 
+	 *
 	 * @param props
 	 *            The tool config properties
 	 * @return
@@ -213,7 +213,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Retrieve the editor type from the tool configuration, lastly checking the system config
-	 * 
+	 *
 	 * @see org.sakaiproject.mailsender.model.ConfigEntry.EditorType
 	 * @return
 	 */
@@ -238,7 +238,7 @@ public class ConfigLogicImpl implements ConfigLogic
 	 * The original implementation of mailsender used yes/no instead of sender/no_reply_to. Rather
 	 * than run a db conversion to the new values, the below checks are made to slowly migrate the
 	 * data
-	 * 
+	 *
 	 * @param props
 	 * @see org.sakaiproject.mailsender.model.ConfigEntry.ReplyTo
 	 * @return
@@ -260,7 +260,7 @@ public class ConfigLogicImpl implements ConfigLogic
 	/**
 	 * Determines the type of subject prefix by comparing the prefix to null and to the default,
 	 * system wide prefix.
-	 * 
+	 *
 	 * @param props
 	 * @return {@link SubjectPrefixType.system} if null or matches default,
 	 *         {@link SubjectPrefixType.custom} otherwise
@@ -284,13 +284,13 @@ public class ConfigLogicImpl implements ConfigLogic
 	/**
 	 * <p>
 	 * Retrieves the subject prefix from the tool configuration. If no locally set prefix, the
-	 * system default prefix is uesd (property: mailsender.subjectprefix). If no system default
+	 * system default prefix is used (property: mailsender.subjectprefix). If no system default
 	 * prefix found, "%site_tite%: " is used.
 	 * </p>
 	 * <p>
 	 * %site_title% is a special term that is replaced with the current site title.
 	 * </p>
-	 * 
+	 *
 	 * @param props
 	 *            The tool config properties
 	 * @return
@@ -319,7 +319,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Retrieve the send me a copy option from the tool configuration
-	 * 
+	 *
 	 * @param props
 	 *            The tool config properties
 	 * @return
@@ -333,7 +333,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Retrieve the add to email archive option from the tool configuration
-	 * 
+	 *
 	 * @param props
 	 *            The tool config properties
 	 * @return
@@ -348,7 +348,7 @@ public class ConfigLogicImpl implements ConfigLogic
 	/**
 	 * The original implementation of mailsender used yes/no instead of true/false, so rather than
 	 * run a db conversion to the new values, the conversion is made as the data is accessed
-	 * 
+	 *
 	 * @param val
 	 * @return
 	 */
@@ -368,7 +368,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Get properties associated with the current placement and registration of this tool.
-	 * 
+	 *
 	 * @return Read-only copy of registration and placement properties.
 	 */
 	private Properties combinedProps()
@@ -379,7 +379,7 @@ public class ConfigLogicImpl implements ConfigLogic
 
 	/**
 	 * Get the placement properties for this tool.
-	 * 
+	 *
 	 * @return Writable properties for this tool.
 	 */
 	private Properties writableProps()
