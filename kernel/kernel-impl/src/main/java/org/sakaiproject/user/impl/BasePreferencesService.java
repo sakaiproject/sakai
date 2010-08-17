@@ -334,7 +334,10 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 
 			// update the properties
 			// addLiveUpdateProperties(user.getPropertiesEdit());
-
+			
+			//invalidate the cache
+			m_cache.remove(edit.getId());
+				
 			// complete the edit
 			m_storage.commit(edit);
 		
@@ -415,6 +418,8 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 
 		// complete the edit
 		m_storage.remove(edit);
+		
+		m_cache.remove(edit.getId());
 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
