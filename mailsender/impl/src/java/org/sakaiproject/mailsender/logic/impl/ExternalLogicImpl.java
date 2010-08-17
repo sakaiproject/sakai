@@ -467,6 +467,9 @@ public class ExternalLogicImpl implements ExternalLogic
 
 				boolean useSsl = configService.getBoolean(SAKAI_SMTP_USE_SSL, DEFAULT_USE_SSL);
 				emailMsg.setSSL(useSsl);
+				if (useSsl) {
+					emailMsg.setSslSmtpPort(Integer.toString(smtpPort));
+				}
 
 				boolean useTls = configService.getBoolean(SAKAI_SMTP_USE_TLS, DEFAULT_USE_TLS);
 				emailMsg.setTLS(useTls);
