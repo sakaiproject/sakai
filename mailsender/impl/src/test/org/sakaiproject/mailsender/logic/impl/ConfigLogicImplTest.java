@@ -16,9 +16,13 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.logic.impl;
 
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -28,6 +32,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.tool.api.ToolManager;
@@ -63,5 +68,54 @@ public class ConfigLogicImplTest {
 	public void getConfig() {
 		ConfigEntry config = logic.getConfig();
 		assertNotNull(config);
+	}
+
+	@Test
+	public void allowSubjectPrefixChange() {
+		assertFalse(logic.allowSubjectPrefixChange());
+
+		when(
+				configService.getBoolean(ConfigLogic.ALLOW_PREFIX_CHANGE_PROP,
+						false)).thenReturn(true);
+		assertTrue(logic.allowSubjectPrefixChange());
+	}
+
+	@Test
+	public void useRTE() {
+		assertTrue(logic.useRichTextEditor());
+
+		when(configService.getString(ConfigLogic.WSYIWYG_EDITOR_PROP))
+				.thenReturn("htmlarea");
+		assertFalse(logic.useRichTextEditor());
+	}
+
+	@Test
+	public void isEmailTestMode() {
+		assertFalse(logic.isEmailTestMode());
+
+		when(configService.getBoolean(ConfigLogic.EMAIL_TEST_MODE_PROP, false))
+				.thenReturn(true);
+		assertTrue(logic.isEmailTestMode());
+	}
+
+	@Test
+	public void getUploadDirectory() {
+		String tmp = System.getProperty("java.io.tmpdir");
+		String newDir = tmp + "/configLogicImplTest";
+		File f = new File(newDir);
+		if (!f.exists()) {
+			if (f.mkdir()) {
+				f.deleteOnExit();
+			} else {
+				System.err.println("Unable to create test directory.");
+			}
+		}
+
+		assertEquals(tmp, logic.getUploadDirectory());
+
+		when(configService.getString(ConfigLogic.UPLOAD_DIRECTORY_PROP))
+				.thenReturn("/missing/dir").thenReturn(newDir);
+		assertEquals(tmp, logic.getUploadDirectory());
+		assertEquals(newDir, logic.getUploadDirectory());
 	}
 }
