@@ -6483,7 +6483,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						catch (SocketException e)
 						{
 							//a socket exception usualy means the client aborted the connection or similar
-							M_log.warn("Socket exception: " + e);
 							if (M_log.isDebugEnabled())
 							{
 								M_log.debug("SocketExcetion", e);
@@ -6542,7 +6541,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						catch (SocketException e)
 						{
 							//a socket exception usualy means the client aborted the connection or similar
-							M_log.warn("Socket exception: " + e);
 							if (M_log.isDebugEnabled())
 							{
 								M_log.debug("SocketExcetion", e);
