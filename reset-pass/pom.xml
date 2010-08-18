@@ -11,6 +11,13 @@
   <groupId>org.sakaiproject.reset-pass</groupId>
   <artifactId>reset-pass</artifactId>
   <packaging>pom</packaging>
+  <properties>
+        <!--
+            <url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>
+        -->
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/reset-pass/${project.version}</url.localsite>
+	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+    </properties>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
@@ -20,4 +27,58 @@
     <module>reset-pass</module>
     <module>reset-pass-help</module>
   </modules>
+  
+      <licenses>
+        <license>
+            <name>Educational Community License, Version 2.0</name>
+            <url>http://www.osedu.org/licenses/ECL-2.0/ecl2.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+            <developer>
+            <id>david.horwitz@uct.ac.za</id>
+            <name>David Horwitz</name>
+            <email>david.horwitz@uct.ac.za</email>
+            <url>http://blogs.uct.ac.za/blog/daves-blog</url>
+            <organization>
+                Centre for Educational Technology, University of Cape
+                Town
+            </organization>
+            <organizationUrl>http://www.cet.uct.ac.za</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>branch manager</role>
+            </roles>
+            <timezone>+2</timezone>
+            <properties>
+                <picUrl>
+                    http://www.sakaiproject.org/access/content/group/sakai-community/images/people/horwitzdavid_sakaigers_100x80.jpg
+                </picUrl>
+            </properties>
+        </developer>
+      </developers>
+     <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+  
 </project>
