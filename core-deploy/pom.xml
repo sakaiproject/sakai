@@ -59,7 +59,8 @@
                     components/scheduler-component;
                     components/search-pack;
                     components/sections-pack;
-                    components/sitestats-component
+                    components/sitestats-component;
+		    components/accountvalidator-pack
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
@@ -169,6 +170,11 @@
 		  <classifier>tomcat-overlay</classifier>
                   <type>zip</type>
 		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.reset-pass</groupId>
+		  <artifactId>reset-pass-assembly</artifactId>
+		  <version>${sakai.resetpass.version}</version>
+		  </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -194,6 +200,7 @@
                     components/search-pack;
                     components/sections-pack;
                     components/sitestats-component
+		    components/accountvalidator-pack
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
@@ -302,6 +309,11 @@
 		  <version>${sakai.contentreview.version}</version>
 		  <classifier>tomcat-overlay</classifier>
                   <type>zip</type>
+		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.reset-pass</groupId>
+		  <artifactId>reset-pass-assembly</artifactId>
+		  <version>${sakai.resetpass.version}</version>		  
 		</dependency>
             </dependencies>
         </profile>
