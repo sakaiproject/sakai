@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <name>Sakai AccountValidator API</name>
+   <groupId>org.sakaiproject.accountvalidator</groupId>
+   <artifactId>accountvalidator-api</artifactId>
+   <organization>
+      <name>Sakai Project</name>
+      <url>http://sakaiproject.org/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+   <description>Qna interfaces (API)</description>
+   <packaging>jar</packaging>
+   <properties>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <!-- the base is parent -->
+   <parent>
+     <groupId>org.sakaiproject.accountvalidator</groupId>
+	<artifactId>account-validator</artifactId>
+	<version>0.6-SNAPSHOT</version>
+   </parent>
+
+   <dependencies>
+	
+
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
+      </dependency>
+      <dependency>
+      	<groupId>org.sakaiproject.entitybroker</groupId>
+      	<artifactId>entitybroker-api</artifactId>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <resources>
+         <resource>
+            <directory>${basedir}/src/java</directory>
+            <includes>
+               <include>**/*.xml</include>
+            </includes>
+            <filtering>false</filtering>
+         </resource>
+     </resources>
+   </build>
+
+</project>

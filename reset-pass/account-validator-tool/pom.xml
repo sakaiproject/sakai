@@ -1,0 +1,138 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <name>Sakai Account Validator Tool</name>
+  <groupId>org.sakaiproject.accountvalidator</groupId>
+   <artifactId>accountvalidator</artifactId>
+   <organization>
+      <name>Sakai Project</name>
+      <url>http://sakaiproject.org/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+   <description>Qna webapp (tool)</description>
+   <packaging>war</packaging>
+
+   <!-- the base is parent -->
+   <parent>
+     <groupId>org.sakaiproject.accountvalidator</groupId>
+	<artifactId>account-validator</artifactId>
+	<version>0.6-SNAPSHOT</version>
+   </parent>
+
+   <properties>
+      <rsfutil.version>0.7.3</rsfutil.version>
+      <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+      <deploy.webappname>Qna</deploy.webappname>
+      <appserver.id>${sakai.appserver.id}</appserver.id>
+   </properties>
+
+   <dependencies>
+      <!-- internal dependencies -->
+      <dependency>
+         <groupId>org.sakaiproject.accountvalidator</groupId>
+         <artifactId>accountvalidator-api</artifactId>
+      </dependency>
+	
+	  <!--  Spring dependency -->	
+	  <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring</artifactId>
+      </dependency>
+	
+	  <dependency>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+      </dependency>
+      <dependency>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-utils</artifactId>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-api</artifactId>
+      </dependency>
+      <dependency>
+      	<groupId>org.sakaiproject.kernel</groupId>
+      	<artifactId>sakai-component-manager</artifactId>
+      </dependency>
+      <dependency>
+      	<groupId>org.sakaiproject.kernel</groupId>
+      	<artifactId>sakai-kernel-util</artifactId>
+      </dependency>
+      <!-- Sakai RSF dependency -->
+      <dependency>
+         <groupId>uk.org.ponder.sakairsf</groupId>
+         <artifactId>sakairsf</artifactId>
+         <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+         <type>jar</type>
+      </dependency>
+
+      <dependency>
+         <groupId>uk.org.ponder.sakairsf</groupId>
+         <artifactId>SakaiRSFComponents-evolvers</artifactId>
+         <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+         <type>jar</type>
+      </dependency>
+
+      <dependency>
+         <groupId>uk.org.ponder.sakairsf</groupId>
+         <artifactId>SakaiRSFComponents-templates</artifactId>
+         <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+         <type>war</type>
+      </dependency>
+	  
+      <!-- apache commons logging -->
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
+      </dependency>
+
+    
+      
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>3.8.1</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+      	<groupId>javax.servlet</groupId>
+      	<artifactId>servlet-api</artifactId>
+      </dependency>
+
+   </dependencies>
+<pluginRepositories>
+      <pluginRepository>
+         <id>CARET-Maven2</id>
+         <name>CARET Maven 2 Repository</name>
+         <url>http://www2.caret.cam.ac.uk/maven2</url>
+      </pluginRepository>
+   </pluginRepositories>
+   
+   <build>
+      <!-- unit testing -->
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <!--
+               By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
+               "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
+               "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
+               "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
+            -->
+         </plugin>
+      </plugins>
+      <testResources>
+      </testResources>
+      <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+	</build>
+
+</project>
