@@ -26,6 +26,7 @@
   <modules>
     <module>reset-pass</module>
     <module>reset-pass-help</module>
+    <module>assembly</module>
   </modules>
   
       <licenses>

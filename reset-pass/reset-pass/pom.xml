@@ -8,7 +8,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Reset pass</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.reset-pass</groupId>
   <artifactId>sakai-reset-pass</artifactId>
   <organization>
     <name>Sakai Foundation</name>
