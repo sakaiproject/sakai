@@ -5654,13 +5654,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							AssignmentContent oContent = getAssignmentContent(oContentReference);
 							nContent = addAssignmentContent(toContext);
 							// attributes
-
 							nContent.setAllowAttachments(oContent.getAllowAttachments());
 							nContent.setContext(toContext);
 							nContent.setGroupProject(oContent.getGroupProject());
 							nContent.setHonorPledge(oContent.getHonorPledge());
 							nContent.setIndividuallyGraded(oContent.individuallyGraded());
-							nContent.setInstructions(oContent.getInstructions());
+							// replace all occurrence of old context with new context inside instruction text
+							String instructions = oContent.getInstructions();
+							if (instructions.indexOf(fromContext) != -1)
+							{
+								instructions = instructions.replaceAll(fromContext, toContext);
+							}
+							nContent.setInstructions(instructions);
 							nContent.setMaxGradePoint(oContent.getMaxGradePoint());
 							nContent.setReleaseGrades(oContent.releaseGrades());
 							nContent.setTimeLastModified(oContent.getTimeLastModified());
