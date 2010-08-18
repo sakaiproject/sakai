@@ -12,18 +12,18 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.reset-pass:reset-pass*:jar:*</include>
+                <include>org.sakaiproject.accountvalidator:accountvalidator-api:jar:*</include>
             </includes>
         </dependencySet>
         <!-- stuff that goes into components -->
-	<!--
-        <dependencySet>
-            <outputDirectory>components/polls-pack</outputDirectory>
+	    <dependencySet>
+            <outputDirectory>components/accountvalidator-pack</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.polls:polls-pack:war:*</include>
+                <include>org.sakaiproject.accountvalidator:accountvalidator-pack:war:*</include>
             </includes>
             <unpack>true</unpack>
-        </dependencySet>-->
+        </dependencySet>
         <!-- stuff that goes into webapps -->
         <dependencySet>
             <outputDirectory>webapps</outputDirectory>
@@ -31,6 +31,7 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.reset-pass:sakai-reset-pass:war:*</include>
+                <include>org.sakaiproject.accountvalidator:accountvalidator:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
