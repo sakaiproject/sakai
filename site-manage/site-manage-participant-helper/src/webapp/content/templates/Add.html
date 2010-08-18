@@ -61,6 +61,21 @@
 					</td>		
 				</tr>
 			</table>
+			
+			<!--  choose active/inactive status -->
+			<h4 class="instruction" rsf:id="msg=participant.status"></h4> 
+			<span rsf:id="select-status"></span>
+			<table class="listHier lines nolines" style="width:auto" summary="">
+				<tr rsf:id="status-row:">
+					<td>
+					  <input rsf:id="status-select" title="Select status type" type="radio" id="radio" name="statusChoice" value=""/>
+					  <label rsf:id="status-label" for = "status-select">
+					  	label
+					  </label>
+					</td>		
+				</tr>
+			</table>
+			
 			<p class="act">
 				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit"/>
 				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>

@@ -150,6 +150,17 @@ public class SiteAddParticipantHandler {
 		this.sameRoleChoice = sameRoleChoice;
 	}
 	
+	/*status choice */
+	public String statusChoice = "active";
+	
+    public String getStatusChoice() {
+		return statusChoice;
+	}
+
+	public void setStatusChoice(String sChoice) {
+		this.statusChoice = sChoice;
+	}
+	
 	/* the email notification setting */
 	public String emailNotiChoice = Boolean.FALSE.toString();
 	
@@ -536,7 +547,7 @@ public class SiteAddParticipantHandler {
 							if (authzGroupService.allowUpdate(realmId)
 									|| siteService.allowUpdateSiteMembership(site.getId())) 
 							{
-								realmEdit.addMember(user.getId(), role, true,
+								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"),
 										false);
 								addedUserEIds.add(eId);
 
@@ -1103,6 +1114,7 @@ public class SiteAddParticipantHandler {
 		officialAccountEidOnly = new Vector<String>();
 		nonOfficialAccountParticipant = null;
 		roleChoice = "sameRole";
+		statusChoice = "active";
 		sameRoleChoice = null;
 		emailNotiChoice = Boolean.FALSE.toString();
 		userRoleEntries = new Vector<UserRoleEntry>();

@@ -134,6 +134,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
             UIOutput.make(userRow, "user-name", userName);
             UIOutput.make(userRow, "user-eid", userEId);
             UIOutput.make(userRow, "user-role", userRoleEntry.role);
+            UIOutput.make(userRow, "user-status", handler.statusChoice.equals("active") ? messageLocator.getMessage("sitegen.siteinfolist.active") : messageLocator.getMessage("sitegen.siteinfolist.inactive"));
         }
         
     	UICommand.make(confirmForm, "continue", messageLocator.getMessage("gen.finish"), "#{siteAddParticipantHandler.processConfirmContinue}");
