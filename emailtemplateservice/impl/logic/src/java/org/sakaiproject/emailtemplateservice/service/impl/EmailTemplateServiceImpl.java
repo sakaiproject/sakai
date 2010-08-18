@@ -31,8 +31,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import java.io.InputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
@@ -50,6 +54,10 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Session;
+
+import org.simpleframework.xml.core.Persister;
 
 public class EmailTemplateServiceImpl implements EmailTemplateService {
 
@@ -75,6 +83,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       serverConfigurationService = scs;
    }
 
+   private SessionManager sessionManager;
+   public void setSessionManager(SessionManager sm) {
+      sessionManager = sm;
+   }
 
    public EmailTemplate getEmailTemplateById(Long id) {
 	   if (id == null) {
@@ -367,5 +379,58 @@ private List<User> getUsersEmail(List<String> userIds) {
 	}
 	return userDirectoryService.getUsers(ids);
 }
+	public void processEmailTemplates(List<String> templatePaths) {
 
+		final String ADMIN = "admin";
+
+		Persister persister = new Persister();
+		for(String templatePath : templatePaths) {
+			InputStream in = getClass().getClassLoader().getResourceAsStream(templatePath);
+
+			if(in == null) {
+				log.warn("Could not load resource from '" + templatePath + "'. Skipping ...");
+				continue;
+			}
+
+			EmailTemplate template = null;
+			try {
+				template = persister.read(EmailTemplate.class,in);
+			}
+			catch(Exception e) {
+				continue;
+			}
+
+			//check if we have an existing template of this key and locale
+			EmailTemplate existingTemplate = getEmailTemplate(template.getKey(), new Locale(template.getLocale()));
+			if(existingTemplate == null) {
+				//no existing, save this one
+				Session sakaiSession = sessionManager.getCurrentSession();
+				sakaiSession.setUserId(ADMIN);
+				sakaiSession.setUserEid(ADMIN);
+				saveTemplate(template);
+				sakaiSession.setUserId(null);
+				sakaiSession.setUserId(null);
+				log.info("Saved email template: " + template.getKey() + " with locale: " + template.getLocale());
+				return;
+			} 
+		
+			//check version, if local one newer than persisted, update it - SAK-17679
+			int existingTemplateVersion = existingTemplate.getVersion() != null ? existingTemplate.getVersion().intValue() : 0;
+			if(template.getVersion() > existingTemplateVersion) {
+				existingTemplate.setSubject(template.getSubject());
+				existingTemplate.setMessage(template.getMessage());
+				existingTemplate.setHtmlMessage(template.getHtmlMessage());
+				existingTemplate.setVersion(template.getVersion());
+				existingTemplate.setOwner(template.getOwner());
+
+				Session sakaiSession = sessionManager.getCurrentSession();
+				sakaiSession.setUserId(ADMIN);
+				sakaiSession.setUserEid(ADMIN);
+				updateTemplate(existingTemplate);
+				sakaiSession.setUserId(null);
+				sakaiSession.setUserId(null);
+				log.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
+			}
+		}
+	}
 }

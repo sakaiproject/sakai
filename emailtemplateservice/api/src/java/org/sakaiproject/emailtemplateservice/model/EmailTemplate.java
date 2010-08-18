@@ -23,10 +23,14 @@ package org.sakaiproject.emailtemplateservice.model;
 
 import java.util.Date;
 
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Element;
+
 /**
  * EmailTemplate is an email template, though it could actually be used for anything,
  * identified by a unique key and set to be locale specific if desired
  */
+@Root
 public class EmailTemplate implements java.io.Serializable {
 
 	// Fields
@@ -40,18 +44,25 @@ public class EmailTemplate implements java.io.Serializable {
 
 	private Date lastModified;
 
+	@Element
 	private String key;
 
+	@Element
 	private String locale;
 
+	@Element
 	private String owner;
 
+	@Element
 	private String subject;
 
+	@Element
 	private String message;
 
+	@Element
 	private String htmlMessage;
 
+	@Element
 	private Integer version;
 
 	private String from;

@@ -148,6 +148,12 @@ public interface EmailTemplateService {
     * @param replacementValues
     */
    public void sendRenderedMessages(String key, List<String> userReferences, Map<String, String> replacementValues, String from, String fromName);
-   
+
+   /**
+    * Takes the list of paths supplied and looks up the XML files using the services classloader. Each file is parsed
+	* into an EmailTemplate and saved.
+    * @param templatePaths A List of template path Strings
+    */
+   public void processEmailTemplates(List<String> templatePaths);
    
 }
