@@ -9,7 +9,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
     
-    <name>Reset Pass Assembly (polls-assembly)</name>
+    <name>Reset Pass Assembly</name>
     <groupId>org.sakaiproject.reset-pass</groupId>
     <artifactId>rest-pass-assembly</artifactId>
     <organization>
