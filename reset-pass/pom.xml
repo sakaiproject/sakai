@@ -7,7 +7,7 @@
     <version>2.8-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Reset Password & Account Validator</name>
+  <name>Reset Password and Account Validator</name>
   <groupId>org.sakaiproject.reset-pass</groupId>
   <artifactId>reset-pass</artifactId>
   <packaging>pom</packaging>
