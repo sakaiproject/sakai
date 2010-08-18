@@ -11,7 +11,7 @@
 
 	<name>Reset Pass Assembly</name>
 	<groupId>org.sakaiproject.reset-pass</groupId>
-	<artifactId>rest-pass-assembly</artifactId>
+	<artifactId>reset-pass-assembly</artifactId>
 	<organization>
 		<name>Sakai Foundation</name>
 		<url>http://sakaiproject.org/</url>
