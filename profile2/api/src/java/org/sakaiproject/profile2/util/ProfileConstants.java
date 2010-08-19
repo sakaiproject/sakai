@@ -239,7 +239,7 @@ public class ProfileConstants {
 	public static final int MAX_CONNECTIONS_PER_PAGE = 15;
 	
 	//record limits used in searchUsers (could we combine with above?)
-	public static final int FIRST_RECORD = 0;		
+	public static final int FIRST_RECORD = 1;		
 	public static final int MAX_RECORDS = 99;
 	
 	//tool id
