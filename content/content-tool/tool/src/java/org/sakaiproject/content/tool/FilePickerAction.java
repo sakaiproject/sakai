@@ -26,10 +26,12 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,20 +63,23 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.tool.ResourcesAction.ChefPathItem;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -837,7 +842,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		context.put("expandallflag", toolSession.getAttribute(STATE_EXPAND_ALL_FLAG));
 		state.removeAttribute(STATE_NEED_TO_EXPAND_ALL);
-
+        List cPath = getCollectionPath(state);
+        context.put ("collectionPath", cPath);
 		// inform the observing courier that we just updated the page...
 		// if there are pending requests to do so they can be cleared
 		// justDelivered(state);
@@ -3177,7 +3183,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			state.setAttribute(STATE_COLLECTION_ID, collectionId);
+            SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			if(currentMap == null)
 			{
 				currentMap = new TreeSet();
@@ -3249,5 +3256,117 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		return true;
 	}
+
+    // ---------------------------
+
+    /** The collection id being browsed. */
+    private static final String STATE_COLLECTION_ID = PREFIX /*+ REQUEST */+ "collection_id";
+
+    /**
+     * @param state
+     * @param homeCollectionId
+     * @param currentCollectionId
+     * @return
+     */
+    public static List getCollectionPath(SessionState state)
+    {
+        logger.debug("ResourcesAction.getCollectionPath()");
+        org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+        // make sure the channedId is set
+        String currentCollectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+        String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+        String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+
+        LinkedList collectionPath = new LinkedList();
+
+        String previousCollectionId = "";
+        List pathitems = new ArrayList();
+        while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId))
+                && !(contentService.ROOT_COLLECTIONS.contains(currentCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
+        {
+            pathitems.add(currentCollectionId);
+            previousCollectionId = currentCollectionId;
+            currentCollectionId = contentService.getContainingCollectionId(currentCollectionId);
+        }
+
+        if(navRoot != null && (pathitems.isEmpty() || (! navRoot.equals(previousCollectionId) && ! navRoot.equals(currentCollectionId))))
+        {
+            pathitems.add(navRoot);
+
+        }
+        if(homeCollectionId != null && (pathitems.isEmpty() || (!homeCollectionId.equals(navRoot) && ! homeCollectionId.equals(previousCollectionId) && ! homeCollectionId.equals(currentCollectionId))))
+        {
+            pathitems.add(homeCollectionId);
+        }
+
+        Iterator items = pathitems.iterator();
+        while(items.hasNext())
+        {
+            String id = (String) items.next();
+            try
+            {
+                ResourceProperties props = contentService.getProperties(id);
+                String name = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+                String containingCollectionId = contentService.getContainingCollectionId(id);
+                if(contentService.COLLECTION_DROPBOX.equals(containingCollectionId))
+                {
+                    Reference ref = EntityManager.newReference(contentService.getReference(id));
+                    Site site = SiteService.getSite(ref.getContext());
+                    String[] args = {site.getTitle()};
+                    name = trb.getFormattedMessage("title.dropbox", args);
+                }
+                else if(contentService.COLLECTION_SITE.equals(containingCollectionId))
+                {
+                    Reference ref = EntityManager.newReference(contentService.getReference(id));
+                    Site site = SiteService.getSite(ref.getContext());
+                    String[] args = {site.getTitle()};
+                    name = trb.getFormattedMessage("title.resources", args);
+                }
+
+                ChefPathItem item = new ChefPathItem(id, name);
+
+                boolean canRead = contentService.allowGetCollection(id) || contentService.allowGetResource(id);
+                item.setCanRead(canRead);
+
+                if(canRead)
+                {
+                    String url = contentService.getUrl(id);
+                    item.setUrl(url);
+                }
+
+                item.setLast(collectionPath.isEmpty());
+                if(id.equals(homeCollectionId))
+                {
+                    item.setRoot(homeCollectionId);
+                }
+                else
+                {
+                    item.setRoot(navRoot);
+                }
+
+                try
+                {
+                    boolean isFolder = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+                    item.setIsFolder(isFolder);
+                }
+                catch (EntityPropertyNotDefinedException e1)
+                {
+                }
+                catch (EntityPropertyTypeException e1)
+                {
+                }
+
+                collectionPath.addFirst(item);
+
+            }
+            catch (PermissionException e)
+            {
+            }
+            catch (IdUnusedException e)
+            {
+            }
+        }
+        return collectionPath;
+    }
 	
 }	// class FilePickerAction 

@@ -48,6 +48,10 @@
 		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
 		<input type="hidden" name="from" value="list" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
+        <input type="hidden" name="navRoot" id="navRoot" value="" />
+		<input type="hidden" name="criteria" id="criteria" value="title" />
+ 		<input type="hidden" name="rt_action" id="rt_action" value="" />
+		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
 		#if($attached.isEmpty())
 		#else
 			<table class="listHier lines" cellspacing="0" cellpadding="0" summary="$tlang.getString("att.sellistsum")">
@@ -101,6 +105,16 @@
 		</div>	
 
 		<hr class="itemSeparator" />
+        ###################### Find top level
+        #set($topItem = "")
+        #set($collectionPathSize = 0)
+        #foreach ($item in $collectionPath)
+            #set($collectionPathSize = $collectionPathSize + 1)
+        #end
+        #if($collectionPathSize > 1)
+            #set($topItem = $collectionPath.get(1).id)
+        #end
+        
 		######################  Page Title / Breadcrumbs  ##############
 		<div class="highlightPanel">
 			<h4>
