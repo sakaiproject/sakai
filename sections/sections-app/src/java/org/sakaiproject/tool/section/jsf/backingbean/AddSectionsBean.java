@@ -22,7 +22,9 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 import java.sql.Time;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Controls the add sections page.
@@ -57,7 +60,8 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	private String rowStyleClasses;
 	private 	String elementToFocus;
 	private transient boolean sectionsChanged;
-	
+    private String[] daysOfWeek = null;
+
 	/**
 	 * @inheritDoc
 	 */
@@ -82,6 +86,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				categoryItems.add(new SelectItem(cat, getCategoryName(cat)));
 			}
 		}
+        initDaysOfWeek();
 	}
 
 	/**
@@ -449,4 +454,38 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 	public void setElementToFocus(String scrollDepth) {
 		this.elementToFocus = scrollDepth;
 	}
+
+    public String getMonday() {
+        return daysOfWeek[Calendar.MONDAY];
+    }
+
+    public String getTuesday() {
+        return daysOfWeek[Calendar.TUESDAY];
+    }
+
+    public String getWednesday() {
+        return daysOfWeek[Calendar.WEDNESDAY];
+    }
+
+    public String getThursday () {
+        return daysOfWeek[Calendar.THURSDAY];
+    }
+
+    public String getFriday() {
+        return daysOfWeek[Calendar.FRIDAY];
+    }
+
+    public String getSaturday() {
+        return daysOfWeek[Calendar.SATURDAY];
+    }
+
+    public String getSunday() {
+        return daysOfWeek[Calendar.SUNDAY];
+    }
+
+    protected void initDaysOfWeek(){
+       ResourceLoader rl = new ResourceLoader();
+       DateFormatSymbols dfs = new DateFormatSymbols(rl.getLocale());
+       daysOfWeek = dfs.getWeekdays();
+    }
 }

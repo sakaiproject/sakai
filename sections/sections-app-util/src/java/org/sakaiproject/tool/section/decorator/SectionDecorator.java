@@ -23,8 +23,10 @@ package org.sakaiproject.tool.section.decorator;
 import java.io.Serializable;
 import java.sql.Time;
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -37,7 +39,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.RowGroupable;
-
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Decorates a CourseSection for use in the instructor's (and TA's) page views.
@@ -455,20 +457,23 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
 
         private List<String> getAbbreviatedDayList() {
             List<String> list = new ArrayList<String>();
+            ResourceLoader rl = new ResourceLoader();
+            DateFormatSymbols dfs = new DateFormatSymbols(rl.getLocale());
+            String[] daysOfWeek = dfs.getShortWeekdays();
             if(meeting.isMonday())
-                list.add("day_of_week_monday_abbrev");
+                list.add(daysOfWeek[Calendar.MONDAY]);
             if(meeting.isTuesday())
-                list.add("day_of_week_tuesday_abbrev");
+                list.add(daysOfWeek[Calendar.TUESDAY]);
             if(meeting.isWednesday())
-                list.add("day_of_week_wednesday_abbrev");
+                list.add(daysOfWeek[Calendar.WEDNESDAY]);
             if(meeting.isThursday())
-                list.add("day_of_week_thursday_abbrev");
+                list.add(daysOfWeek[Calendar.THURSDAY]);
             if(meeting.isFriday())
-                list.add("day_of_week_friday_abbrev");
+                list.add(daysOfWeek[Calendar.FRIDAY]);
             if(meeting.isSaturday())
-                list.add("day_of_week_saturday_abbrev");
+                list.add(daysOfWeek[Calendar.SATURDAY]);
             if(meeting.isSunday())
-                list.add("day_of_week_sunday_abbrev");
+                list.add(daysOfWeek[Calendar.SUNDAY]);
             return list;
         }
 
@@ -503,7 +508,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
             StringBuilder sb = new StringBuilder();
             for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
                 String day = (String)iter.next();
-                sb.append(JsfUtil.getLocalizedMessage(day));
+                sb.append(day);
                 if(iter.hasNext()) {
                     sb.append(daySepChar);
                 }
@@ -518,7 +523,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
             StringBuilder sb = new StringBuilder();
             for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
                 String day = (String)iter.next();
-                sb.append(JsfUtil.getLocalizedMessage(day));
+                sb.append(day);
                 if(iter.hasNext()) {
                     sb.append(daySepChar);
                 }

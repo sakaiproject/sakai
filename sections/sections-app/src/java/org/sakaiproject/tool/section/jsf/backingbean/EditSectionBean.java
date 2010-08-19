@@ -21,7 +21,9 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 	private String sectionUuid;
 	private LocalSectionModel section;
 	private transient String elementToFocus;
-	
+
 	/** A list composed of a single section.  This is used so we can share UI code with AddSections */
 	private List<CourseSection> sections;
 	
@@ -68,6 +70,7 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 			sections = new ArrayList<CourseSection>();
 			sections.add(section);
 		}
+        initDaysOfWeek();
 	}
 
 	public void processAddMeeting(ActionEvent action) {
