@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -245,32 +246,32 @@ public class BaseSite implements Site
 		m_groups = new ResourceVector();
 
 		m_id = el.getAttribute("id");
-		m_title = StringUtil.trimToNull(el.getAttribute("title"));
+		m_title = StringUtils.trimToNull(el.getAttribute("title"));
 
 		// description might be encripted
-		m_description = StringUtil.trimToNull(el.getAttribute("description"));
+		m_description = StringUtils.trimToNull(el.getAttribute("description"));
 		if (m_description == null)
 		{
-			m_description = StringUtil.trimToNull(Xml.decodeAttribute(el,
+			m_description = StringUtils.trimToNull(Xml.decodeAttribute(el,
 					"description-enc"));
 		}
 
 		// short description might be encripted
-		m_shortDescription = StringUtil.trimToNull(el.getAttribute("short-description"));
+		m_shortDescription = StringUtils.trimToNull(el.getAttribute("short-description"));
 		if (m_shortDescription == null)
 		{
-			m_shortDescription = StringUtil.trimToNull(Xml.decodeAttribute(el,
+			m_shortDescription = StringUtils.trimToNull(Xml.decodeAttribute(el,
 					"short-description-enc"));
 		}
 
 		m_joinable = Boolean.valueOf(el.getAttribute("joinable")).booleanValue();
-		m_joinerRole = StringUtil.trimToNull(el.getAttribute("joiner-role"));
+		m_joinerRole = StringUtils.trimToNull(el.getAttribute("joiner-role"));
 
-		String published = StringUtil.trimToNull(el.getAttribute("published"));
+		String published = StringUtils.trimToNull(el.getAttribute("published"));
 		if (published == null)
 		{
 			// read the old "status" (this file 1.42 and before) 1-un 2-pub
-			published = StringUtil.trimToNull(el.getAttribute("status"));
+			published = StringUtils.trimToNull(el.getAttribute("status"));
 			if (published != null)
 			{
 				published = Boolean.valueOf("2".equals(published)).toString();
@@ -279,26 +280,26 @@ public class BaseSite implements Site
 
 		m_published = Boolean.valueOf(published).booleanValue();
 
-		m_icon = StringUtil.trimToNull(el.getAttribute("icon"));
-		m_info = StringUtil.trimToNull(el.getAttribute("info"));
-		m_skin = StringUtil.trimToNull(el.getAttribute("skin"));
+		m_icon = StringUtils.trimToNull(el.getAttribute("icon"));
+		m_info = StringUtils.trimToNull(el.getAttribute("info"));
+		m_skin = StringUtils.trimToNull(el.getAttribute("skin"));
 
-		m_createdUserId = StringUtil.trimToNull(el.getAttribute("created-id"));
-		m_lastModifiedUserId = StringUtil.trimToNull(el.getAttribute("modified-id"));
+		m_createdUserId = StringUtils.trimToNull(el.getAttribute("created-id"));
+		m_lastModifiedUserId = StringUtils.trimToNull(el.getAttribute("modified-id"));
 
-		String time = StringUtil.trimToNull(el.getAttribute("created-time"));
+		String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 		if (time != null)
 		{
 			m_createdTime = TimeService.newTimeGmt(time);
 		}
 
-		time = StringUtil.trimToNull(el.getAttribute("modified-time"));
+		time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 		if (time != null)
 		{
 			m_lastModifiedTime = TimeService.newTimeGmt(time);
 		}
 
-		String customOrder = StringUtil.trimToNull(el.getAttribute("customPageOrdered"));
+		String customOrder = StringUtils.trimToNull(el.getAttribute("customPageOrdered"));
 		if (customOrder == null)
 		{
 			m_customPageOrdered = false;
@@ -310,11 +311,11 @@ public class BaseSite implements Site
 
 		// get pubView setting - but old versions (pre 1.42 of this file) won't
 		// have it and will have a property instead
-		String pubViewValue = StringUtil.trimToNull(el.getAttribute("pubView"));
+		String pubViewValue = StringUtils.trimToNull(el.getAttribute("pubView"));
 
 		// get the type - but old versions (pre 1.42 of this file) won't have it
 		// and will have a property instead
-		String typeValue = StringUtil.trimToNull(el.getAttribute("type"));
+		String typeValue = StringUtils.trimToNull(el.getAttribute("type"));
 
 		// the children (properties and page list)
 		NodeList children = el.getChildNodes();
@@ -1244,7 +1245,7 @@ public class BaseSite implements Site
 	 */
 	public void setTitle(String title)
 	{
-		m_title = StringUtil.trimToNull(title);
+		m_title = StringUtils.trimToNull(title);
 	}
 
 	/**
@@ -1252,7 +1253,7 @@ public class BaseSite implements Site
 	 */
 	public void setShortDescription(String shortDescripion)
 	{
-		m_shortDescription = StringUtil.trimToNull(shortDescripion);
+		m_shortDescription = StringUtils.trimToNull(shortDescripion);
 	}
 
 	/**
@@ -1260,7 +1261,7 @@ public class BaseSite implements Site
 	 */
 	public void setDescription(String description)
 	{
-		m_description = StringUtil.trimToNull(description);
+		m_description = StringUtils.trimToNull(description);
 	}
 
 	/**
@@ -1303,7 +1304,7 @@ public class BaseSite implements Site
 	 */
 	public void setIconUrl(String url)
 	{
-		m_icon = StringUtil.trimToNull(url);
+		m_icon = StringUtils.trimToNull(url);
 	}
 
 	/**
@@ -1311,7 +1312,7 @@ public class BaseSite implements Site
 	 */
 	public void setInfoUrl(String url)
 	{
-		m_info = StringUtil.trimToNull(url);
+		m_info = StringUtils.trimToNull(url);
 	}
 
 	/**

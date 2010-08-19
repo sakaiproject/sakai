@@ -36,6 +36,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ResourceType;
@@ -398,11 +399,11 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 				{
 
 					String name = attributes.getValue("name");
-					String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+					String enc = StringUtils.trimToNull(attributes.getValue("enc"));
 					String value = null;
 					if ("BASE64".equalsIgnoreCase(enc))
 					{
-						String charset = StringUtil.trimToNull(attributes
+						String charset = StringUtils.trimToNull(attributes
 								.getValue("charset"));
 						if (charset == null) charset = "UTF-8";
 
@@ -449,7 +450,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 				else if ("resource".equalsIgnoreCase(qName))
 				{
 					id = attributes.getValue("id");
-					contentType = StringUtil.trimToNull(attributes
+					contentType = StringUtils.trimToNull(attributes
 							.getValue("content-type"));
 					contentLength = 0;
 					try
@@ -460,7 +461,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 					catch (Exception ignore)
 					{
 					}
-					resourceType = StringUtil.trimToNull(attributes
+					resourceType = StringUtils.trimToNull(attributes
 							.getValue("resource-type"));
 					
 					if(resourceType == null)
@@ -468,7 +469,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 						resourceType = ResourceType.TYPE_UPLOAD;
 					}
 
-					String enc = StringUtil.trimToNull(attributes.getValue("body"));
+					String enc = StringUtils.trimToNull(attributes.getValue("body"));
 					if (enc != null)
 					{
 						byte[] decoded = null;
@@ -484,7 +485,7 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 						System.arraycopy(decoded, 0, body, 0, (int) contentLength);
 					}
 
-					filePath = StringUtil.trimToNull(attributes.getValue("filePath"));
+					filePath = StringUtils.trimToNull(attributes.getValue("filePath"));
 					accessMode = AccessMode.INHERITED;
 					String access_mode = attributes.getValue("sakai:access_mode");
 					if (access_mode != null && !access_mode.trim().equals(""))

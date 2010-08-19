@@ -28,6 +28,7 @@ import java.util.Observer;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -1010,13 +1011,13 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			m_id = el.getAttribute("id");
 
 			// the first function
-			String func = StringUtil.trimToNull(el.getAttribute("function"));
+			String func = StringUtils.trimToNull(el.getAttribute("function"));
 			if (func != null)
 			{
 				m_functions.add(func);
 			}
 
-			m_filter = StringUtil.trimToNull(el.getAttribute("filter"));
+			m_filter = StringUtils.trimToNull(el.getAttribute("filter"));
 
 			// the children (properties, action helper)
 			NodeList children = el.getChildNodes();
@@ -1038,7 +1039,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 				else if (element.getTagName().equals("action"))
 				{
 					// the class name
-					String className = StringUtil.trimToNull(element.getAttribute("class"));
+					String className = StringUtils.trimToNull(element.getAttribute("class"));
 					if (className != null)
 					{
 						// create the class
@@ -1068,7 +1069,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 				}
 				else if (element.getTagName().equals("function"))
 				{
-					func = StringUtil.trimToNull(element.getAttribute("id"));
+					func = StringUtils.trimToNull(element.getAttribute("id"));
 					m_functions.add(func);
 				}
 			}

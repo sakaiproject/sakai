@@ -11314,7 +11314,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			m_properties = new BaseResourcePropertiesEdit();
 
 			m_id = el.getAttribute("id");
-			String contentType = StringUtil.trimToNull(el.getAttribute("content-type"));
+			String contentType = StringUtils.trimToNull(el.getAttribute("content-type"));
 			setContentType(contentType);
 			m_contentLength = 0;
 			try
@@ -11325,7 +11325,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 			}
 			ResourceTypeRegistry registry = getResourceTypeRegistry();
-			String typeId = StringUtil.trimToNull(el.getAttribute("resource-type"));
+			String typeId = StringUtils.trimToNull(el.getAttribute("resource-type"));
 			if(typeId == null || registry.getType(typeId) == null)
 			{
 				typeId = registry.mimetype2resourcetype(contentType);
@@ -11334,7 +11334,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 			if (m_contentLength <= Integer.MAX_VALUE)
 			{
-				String enc = StringUtil.trimToNull(el.getAttribute("body"));
+				String enc = StringUtils.trimToNull(el.getAttribute("body"));
 				if (enc != null)
 				{
 					byte[] decoded = null;
@@ -11352,7 +11352,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 			}
 
-			m_filePath = StringUtil.trimToNull(el.getAttribute("filePath"));
+			m_filePath = StringUtils.trimToNull(el.getAttribute("filePath"));
 
 			// the children (properties)
 			NodeList children = el.getChildNodes();
@@ -11452,7 +11452,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						if ("resource".equals(qName) && entity == null)
 						{
 							m_id = attributes.getValue("id");
-							String contentType = StringUtil.trimToNull(attributes
+							String contentType = StringUtils.trimToNull(attributes
 									.getValue("content-type"));
 							setContentType(contentType);
 							m_contentLength = 0;
@@ -11465,7 +11465,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							{
 							}
 							ResourceTypeRegistry registry = getResourceTypeRegistry();
-							String typeId = StringUtil.trimToNull(attributes
+							String typeId = StringUtils.trimToNull(attributes
 									.getValue("resource-type"));
 							if (typeId == null || registry.getType(typeId) == null)
 							{
@@ -11475,7 +11475,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 							if (m_contentLength <= Integer.MAX_VALUE)
 							{
-								String enc = StringUtil.trimToNull(attributes
+								String enc = StringUtils.trimToNull(attributes
 										.getValue("body"));
 								if (enc != null)
 								{
@@ -11493,7 +11493,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								}
 							}
 
-							m_filePath = StringUtil.trimToNull(attributes
+							m_filePath = StringUtils.trimToNull(attributes
 									.getValue("filePath"));
 							AccessMode access = AccessMode.INHERITED;
 							String access_mode = attributes.getValue(ACCESS_MODE);
@@ -11633,7 +11633,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if (rootProperty == null) return "";
 
 			// find the property - "" if not found
-			String alternateRoot = StringUtil.trimToNull(getProperties().getProperty(PROP_ALTERNATE_REFERENCE));
+			String alternateRoot = StringUtils.trimToNull(getProperties().getProperty(PROP_ALTERNATE_REFERENCE));
 			if (alternateRoot == null) return "";
 
 			// make sure it start with a separator and does not end with one

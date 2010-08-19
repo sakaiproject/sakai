@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -288,10 +289,10 @@ public class BaseSitePage implements SitePage, Identifiable
 		m_tools = new ResourceVector();
 
 		m_id = el.getAttribute("id");
-		m_title = StringUtil.trimToNull(el.getAttribute("title"));
+		m_title = StringUtils.trimToNull(el.getAttribute("title"));
 		try
 		{
-			m_layout = Integer.parseInt(StringUtil.trimToNull(el.getAttribute("layout")));
+			m_layout = Integer.parseInt(StringUtils.trimToNull(el.getAttribute("layout")));
 		}
 		catch (Exception e)
 		{
@@ -516,7 +517,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public void setTitle(String title)
 	{
-		m_title = StringUtil.trimToNull(title);
+		m_title = StringUtils.trimToNull(title);
 	}
 
 	/**

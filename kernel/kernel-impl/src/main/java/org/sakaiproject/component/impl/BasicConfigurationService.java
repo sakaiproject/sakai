@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -412,7 +413,7 @@ public class BasicConfigurationService implements ServerConfigurationService
 	}
 	
 	private String getString(String name, String dflt, Properties fromProperties) {
-		String rv = StringUtil.trimToNull((String) fromProperties.get(name));
+		String rv = StringUtils.trimToNull((String) fromProperties.get(name));
 		if (rv == null) rv = dflt;
 
 		return rv;
@@ -592,7 +593,7 @@ public class BasicConfigurationService implements ServerConfigurationService
 			// look for "category" elements
 			if (rootElement.getTagName().equals("category"))
 			{
-				String name = StringUtil.trimToNull(rootElement.getAttribute("name"));
+				String name = StringUtils.trimToNull(rootElement.getAttribute("name"));
 				if (name != null)
 				{
 					// form a list for this category
@@ -674,19 +675,19 @@ public class BasicConfigurationService implements ServerConfigurationService
    }
 
    private String processTool(Element element, List order, List required, List defaultTools) {
-								String id = StringUtil.trimToNull(element.getAttribute("id"));
+								String id = StringUtils.trimToNull(element.getAttribute("id"));
 								if (id != null)
 								{
 									order.add(id);
 								}
 
-								String req = StringUtil.trimToNull(element.getAttribute("required"));
+								String req = StringUtils.trimToNull(element.getAttribute("required"));
 								if ((req != null) && (Boolean.TRUE.toString().equalsIgnoreCase(req)))
 								{
 									required.add(id);
 								}
 
-								String sel = StringUtil.trimToNull(element.getAttribute("selected"));
+								String sel = StringUtils.trimToNull(element.getAttribute("selected"));
 								if ((sel != null) && (Boolean.TRUE.toString().equalsIgnoreCase(sel)))
 								{
 									defaultTools.add(id);

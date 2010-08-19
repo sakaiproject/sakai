@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -104,12 +105,12 @@ public class BaseRole implements Role
 	public BaseRole(Element el, AuthzGroup azGroup)
 	{
 		m_locks = new HashSet();
-		m_id = StringUtil.trimToNull(el.getAttribute("id"));
+		m_id = StringUtils.trimToNull(el.getAttribute("id"));
 
-		m_description = StringUtil.trimToNull(el.getAttribute("description"));
+		m_description = StringUtils.trimToNull(el.getAttribute("description"));
 		if (m_description == null)
 		{
-			m_description = StringUtil.trimToNull(Xml.decodeAttribute(el, "description-enc"));
+			m_description = StringUtils.trimToNull(Xml.decodeAttribute(el, "description-enc"));
 		}
 		
 		if("true".equalsIgnoreCase(el.getAttribute("provider-only"))) m_providerOnly = true;
@@ -126,8 +127,8 @@ public class BaseRole implements Role
 			// look for role | lock ability
 			if (element.getTagName().equals("ability"))
 			{
-				String roleId = StringUtil.trimToNull(element.getAttribute("role"));
-				String lock = StringUtil.trimToNull(element.getAttribute("lock"));
+				String roleId = StringUtils.trimToNull(element.getAttribute("role"));
+				String lock = StringUtils.trimToNull(element.getAttribute("lock"));
 
 				if (roleId != null)
 				{

@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -320,7 +321,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			tool.setDescription(rootElement.getAttribute("description").trim());
 		}
 		
-		tool.setHome(StringUtil.trimToNull(rootElement.getAttribute("home")));
+		tool.setHome(StringUtils.trimToNull(rootElement.getAttribute("home")));
 
 		if ("tool".equals(rootElement.getAttribute("accessSecurity")))
 		{

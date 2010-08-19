@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Stack;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -299,13 +300,13 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_page = page;
 
 		m_id = el.getAttribute("id");
-		m_toolId = StringUtil.trimToNull(el.getAttribute("toolId"));
+		m_toolId = StringUtils.trimToNull(el.getAttribute("toolId"));
 		if (m_toolId != null)
 		{
 			m_tool = ActiveToolManager.getTool(m_toolId);
 		}
-		m_title = StringUtil.trimToNull(el.getAttribute("title"));
-		m_layoutHints = StringUtil.trimToNull(el.getAttribute("layoutHints"));
+		m_title = StringUtils.trimToNull(el.getAttribute("title"));
+		m_layoutHints = StringUtils.trimToNull(el.getAttribute("layoutHints"));
 		m_custom_title = getTitleCustom(page);
 
 		// the children (properties)

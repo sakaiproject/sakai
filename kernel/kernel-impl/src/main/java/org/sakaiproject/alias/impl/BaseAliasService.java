@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -1122,16 +1123,16 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			m_id = el.getAttribute("id");
 			m_target = el.getAttribute("target");
 
-			m_createdUserId = StringUtil.trimToNull(el.getAttribute("created-id"));
-			m_lastModifiedUserId = StringUtil.trimToNull(el.getAttribute("modified-id"));
+			m_createdUserId = StringUtils.trimToNull(el.getAttribute("created-id"));
+			m_lastModifiedUserId = StringUtils.trimToNull(el.getAttribute("modified-id"));
 
-			String time = StringUtil.trimToNull(el.getAttribute("created-time"));
+			String time = StringUtils.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
 			{
 				m_createdTime = timeService().newTimeGmt(time);
 			}
 
-			time = StringUtil.trimToNull(el.getAttribute("modified-time"));
+			time = StringUtils.trimToNull(el.getAttribute("modified-time"));
 			if (time != null)
 			{
 				m_lastModifiedTime = timeService().newTimeGmt(time);

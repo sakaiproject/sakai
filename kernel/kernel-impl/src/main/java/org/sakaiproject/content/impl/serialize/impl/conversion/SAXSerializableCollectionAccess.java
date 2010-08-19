@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ResourceType;
@@ -277,11 +278,11 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 				{
 
 					String name = attributes.getValue("name");
-					String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+					String enc = StringUtils.trimToNull(attributes.getValue("enc"));
 					String value = null;
 					if ("BASE64".equalsIgnoreCase(enc))
 					{
-						String charset = StringUtil.trimToNull(attributes
+						String charset = StringUtils.trimToNull(attributes
 								.getValue("charset"));
 						if (charset == null) charset = "UTF-8";
 
