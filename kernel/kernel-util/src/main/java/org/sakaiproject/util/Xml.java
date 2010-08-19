@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -372,10 +373,10 @@ public class Xml
 	 */
 	public static String decodeAttribute(Element el, String tag)
 	{
-		String charset = StringUtil.trimToNull(el.getAttribute("charset"));
+		String charset = StringUtils.trimToNull(el.getAttribute("charset"));
 		if (charset == null) charset = "UTF-8";
 
-		String body = StringUtil.trimToNull(el.getAttribute(tag));
+		String body = StringUtils.trimToNull(el.getAttribute(tag));
 		if (body != null)
 		{
 			try
@@ -401,7 +402,7 @@ public class Xml
 	 */
 	public static String decode(String charset, String value)
 	{
-		String body = StringUtil.trimToNull(value);
+		String body = StringUtils.trimToNull(value);
 		if (body != null)
 		{
 			try
@@ -485,7 +486,7 @@ public class Xml
 			if (element.getTagName().equals("property"))
 			{
 				String name = element.getAttribute("name");
-				String enc = StringUtil.trimToNull(element.getAttribute("enc"));
+				String enc = StringUtils.trimToNull(element.getAttribute("enc"));
 				String value = null;
 				if ("BASE64".equalsIgnoreCase(enc))
 				{

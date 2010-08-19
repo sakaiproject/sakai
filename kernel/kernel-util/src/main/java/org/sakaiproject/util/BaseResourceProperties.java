@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -104,7 +105,7 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 			if (element.getTagName().equals("property"))
 			{
 				String name = element.getAttribute("name");
-				String enc = StringUtil.trimToNull(element.getAttribute("enc"));
+				String enc = StringUtils.trimToNull(element.getAttribute("enc"));
 				String value = null;
 				if ("BASE64".equalsIgnoreCase(enc))
 				{
@@ -944,11 +945,11 @@ public class BaseResourceProperties implements ResourceProperties, SerializableP
 				{
 					
 					String name = attributes.getValue("name");
-					String enc = StringUtil.trimToNull(attributes.getValue("enc"));
+					String enc = StringUtils.trimToNull(attributes.getValue("enc"));
 				 	String value = null;
 					if ("BASE64".equalsIgnoreCase(enc))
 					{
-						String charset = StringUtil.trimToNull(attributes.getValue("charset"));
+						String charset = StringUtils.trimToNull(attributes.getValue("charset"));
 						if (charset == null) charset = "UTF-8";
 
 						value = Xml.decode(charset,attributes.getValue("value"));

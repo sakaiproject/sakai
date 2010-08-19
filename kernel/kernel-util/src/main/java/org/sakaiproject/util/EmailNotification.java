@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.DigestService;
 import org.sakaiproject.email.cover.EmailService;
@@ -102,7 +103,7 @@ public class EmailNotification implements NotificationAction
 	 */
 	public void set(Element el)
 	{
-		m_siteId = StringUtil.trimToNull(el.getAttribute("site"));
+		m_siteId = StringUtils.trimToNull(el.getAttribute("site"));
 	}
 
 	/**
