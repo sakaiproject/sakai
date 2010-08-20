@@ -175,17 +175,14 @@ public class SakaiBLTIUtil {
 		}
  
 	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
-System.out.println("ASSIGN="+assignment);
 
 		String gradeSecret = toNull(getCorrectProperty(config,"gradesecret", placement));
-System.out.println("gradeSecret="+gradeSecret);
                 String enabled = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, null);
                 if ( "true".equals(enabled) && assignment != null && gradeSecret != null) {
 			String suffix = ":::" +  user.getId() + ":::" + placement.getId();
 			String base_string = gradeSecret + suffix;
 			String signature = ShaUtil.sha256Hash(base_string);
 			String result_sourcedid = signature + suffix;
-System.out.println("RSI="+result_sourcedid);
 			setProperty(props,"lis_result_sourcedid", result_sourcedid);  
 
 			String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_simple_outcome_url",null);

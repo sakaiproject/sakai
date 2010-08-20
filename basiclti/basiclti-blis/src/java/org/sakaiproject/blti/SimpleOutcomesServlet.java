@@ -254,10 +254,6 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			return;
 		}
 
-System.out.println("signature="+signature);
-System.out.println("placement_id="+placement_id);
-System.out.println("user_id="+user_id);
-
 		M_log.debug("signature="+signature);
 		M_log.debug("user_id="+user_id);
 		M_log.debug("placement_id="+placement_id);
@@ -322,14 +318,14 @@ System.out.println("user_id="+user_id);
 
 		String pre_hash = grade_secret + ":::" + user_id + ":::" + placement_id;
 		String received_signature = ShaUtil.sha256Hash(pre_hash);
-System.out.println("Received signature="+signature+" received="+received_signature);
+		M_log.debug("Received signature="+signature+" received="+received_signature);
 		boolean matched = signature.equals(received_signature);
 
 		String old_grade_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"oldgradesecret", placement));
 		if ( old_grade_secret != null && ! matched ) {
 			pre_hash = grade_secret + ":::" + user_id + ":::" + placement_id;
 			received_signature = ShaUtil.sha256Hash(pre_hash);
-System.out.println("Received signature II="+signature+" received="+received_signature);
+			M_log.debug("Received signature II="+signature+" received="+received_signature);
 			matched = signature.equals(received_signature);
 		}
 
@@ -352,7 +348,7 @@ System.out.println("Received signature II="+signature+" received="+received_sign
 
 		// Make sure the placement is configured to receive grades
 		String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
-System.out.println("ASSN="+assignment);
+		M_log.debug("ASSN="+assignment);
 		if ( assignment == null ) {
                         doError(request, response, theMap, "outcome.no.assignment", "", null);
                         return;
@@ -388,7 +384,6 @@ System.out.println("ASSN="+assignment);
 			if ( isRead ) {
 				theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
 				theMap.put("/simpleoutcome/result/resultscore/textstring", theGrade);
-System.out.println("HELLO READ GRADE= "+theGrade);
 			} else { 
 
 				g.setAssignmentScoreString(siteId, assignment, user_id, result_resultscore_textstring, "External Outcome");

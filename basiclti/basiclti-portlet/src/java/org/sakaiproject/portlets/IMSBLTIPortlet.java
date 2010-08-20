@@ -509,7 +509,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
         String oldGradeSecret = getSakaiProperty(sakaiProperties,"imsti.gradesecret");
         String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-System.out.println("old gradesecret="+oldGradeSecret);
+	// System.out.println("old gradesecret="+oldGradeSecret);
 	if ( "true".equals(enabled) && assignment != null && assignment.trim().length() > 1 ) {
 	        List<String> assignments = getGradeBookAssignments();
                 boolean found = false;
@@ -528,7 +528,7 @@ System.out.println("old gradesecret="+oldGradeSecret);
 				String date_secret = sdf.format(date);
                         	prefs.setValue("sakai:imsti.gradesecret", uuid);
                         	prefs.setValue("sakai:imsti.gradesecretdate", date_secret);
-System.out.println("gradesecret set to="+uuid+" data="+date_secret);
+				// System.out.println("gradesecret set to="+uuid+" data="+date_secret);
                         	changed = true;
                 	} catch (ReadOnlyException e) {
                         	setErrorMessage(request, rb.getString("error.modify.prefs") );
