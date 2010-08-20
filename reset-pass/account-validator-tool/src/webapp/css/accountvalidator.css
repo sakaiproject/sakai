@@ -28,7 +28,7 @@ width:43em;
 }
 
 .header {
-background:url("../images/loginLogo.gif") no-repeat scroll left top;
+background:url("/library/skin/default/images/logo_inst.gif") no-repeat scroll left top;
 padding: 5px 0 20px 120px;
 border-bottom: 1px solid #E4E4E4;
 margin-bottom: 10px;
