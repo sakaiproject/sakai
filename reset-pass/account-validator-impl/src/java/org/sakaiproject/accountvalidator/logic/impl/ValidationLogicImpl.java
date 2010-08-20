@@ -26,7 +26,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -81,9 +83,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final String TEMPLATE_KEY_EXISTINGUSER = "validate.existinguser";
 	private static final String TEMPLATE_KEY_NEW_USER = "validate.newUser";
 	private static final String TEMPLATE_KEY_LEGACYUSER = "validate.legacyuser";
-	private static final int VALIDATION_PERIOD = 1000*60*60*24*30*6;
+	private static final String TEMPLATE_KEY_PASSWORDRESET = "validate.passwordreset";
+	
+	private static final int VALIDATION_PERIOD_MONTHS = -36;
 	private static Log log = LogFactory.getLog(ValidationLogicImpl.class);
 	private static final String ADMIN = "admin";
+	
 	
 	
 	public void init(){
@@ -219,7 +224,10 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		
 		ValidationAccount va = this.getVaLidationAcountByUserId(userId);
-		Date validationDeadline = new Date(new Date().getTime() - Long.valueOf(VALIDATION_PERIOD));
+		Calendar cal = new GregorianCalendar();
+		cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS);
+		//a time validation time in the past
+		Date validationDeadline = cal.getTime();
 		if (va == null) {
 			return false;
 		} else {
@@ -371,17 +379,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 			
 		}
 		replacementValues.put("memberSites", sb.toString());
+		replacementValues.put("displayName", userDisplayName);
+		replacementValues.put("userEid", userEid);
 		
-		String templateKey = TEMPLATE_KEY_NEW_USER;
-		if ( (ValidationAccount.ACCOUNT_STATUS_EXISITING == accountStatus.intValue())) {
-			replacementValues.put("displayName", userDisplayName);
-			replacementValues.put("userEid", userEid);
-			templateKey  = TEMPLATE_KEY_EXISTINGUSER;
-		} else if ( (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus.intValue())) {
-			replacementValues.put("displayName", userDisplayName);
-			replacementValues.put("userEid", userEid);
-			templateKey  = TEMPLATE_KEY_LEGACYUSER;
-		}
+		
+		String templateKey = getTemplateKey(accountStatus);
 		
 		
 		
@@ -393,6 +395,21 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		dao.save(v);
 		return v;
+	}
+
+	private String getTemplateKey(Integer accountStatus) {
+		log.info("getTemplateKey( " + accountStatus.intValue());
+		
+		String templateKey = TEMPLATE_KEY_NEW_USER;
+		
+		if ( (ValidationAccount.ACCOUNT_STATUS_EXISITING == accountStatus.intValue())) {
+			templateKey  = TEMPLATE_KEY_EXISTINGUSER;
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus.intValue())) {
+			templateKey  = TEMPLATE_KEY_LEGACYUSER;
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue())) {
+			templateKey  = TEMPLATE_KEY_PASSWORDRESET;
+		}
+		return templateKey;
 	}
 
 	
@@ -550,7 +567,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 		account.setValidationSent(new Date());
 		account.setValidationsSent(account.getValidationsSent() + 1);
 		account.setStatus(ValidationAccount.STATUS_RESENT);
-		account.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_EXISITING);
 		save(account);
 		
 		//new send the validation
@@ -594,6 +610,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 			User added = u.getCreatedBy();
 			replacementValues.put("addedBy", added.getDisplayName());
 			replacementValues.put("addedByEmail", added.getEmail());
+			replacementValues.put("displayName", userDisplayName);
+			replacementValues.put("userEid", userEid);
 			
 		} catch (UserNotDefinedException e) {
 			// TODO Auto-generated catch block
@@ -605,7 +623,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		//information about the site(s) they have been added to
 		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
-		log.info("got a list of: " + groups.size());
+		log.debug("got a list of: " + groups.size());
 		Iterator<String> itg = groups.iterator();
 		StringBuilder sb = new StringBuilder();
 		int siteCount = 0;
@@ -617,7 +635,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 				if (siteCount > 0) {
 					sb.append(", ");
 				}
-				log.info("adding site: " + s.getTitle());
+				log.debug("adding site: " + s.getTitle());
 				sb.append(s.getTitle());
 				siteCount++;
 			} catch (IdUnusedException e) {
@@ -628,7 +646,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		}
 		replacementValues.put("memberSites", sb.toString());
 		
-		String templateKey = TEMPLATE_KEY_NEW_USER;
+		String templateKey = getTemplateKey(account.getAccountStatus());
 		
 		
 		

@@ -37,6 +37,11 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>org.sakaiproject.accountvalidator</groupId>
+    	<artifactId>accountvalidator-api</artifactId>
+    	<version>${project.version}</version>
+    </dependency>
 <!-- RSF dependencies -->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>

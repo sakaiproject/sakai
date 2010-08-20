@@ -29,6 +29,8 @@ public class ValidationAccount {
 	public static final Integer STATUS_CONFIRMED = 2;
 	public static final Integer STATUS_EXPIRED = 3;
 	
+
+	
 	/**
 	 * This is a token for a new account
 	 */
@@ -43,7 +45,14 @@ public class ValidationAccount {
 	 * A token for the special case of an account that existed
 	 * prior to the deployment of the service
 	 */
-	public static final int ACCOUNT_STATUS_LEGACY = 2;
+	public static final int ACCOUNT_STATUS_LEGACY = 3;
+	
+	
+	
+	/**
+	 * Status for a password reset
+	 */
+	public static final int ACCOUNT_STATUS_PASSWORD_RESET = 3;
 	
 	
 	
