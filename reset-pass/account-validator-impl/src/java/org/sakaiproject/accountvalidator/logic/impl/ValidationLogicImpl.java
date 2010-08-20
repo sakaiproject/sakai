@@ -381,13 +381,13 @@ public class ValidationLogicImpl implements ValidationLogic {
 		replacementValues.put("memberSites", sb.toString());
 		replacementValues.put("displayName", userDisplayName);
 		replacementValues.put("userEid", userEid);
-		
-		
+		replacementValues.put("support.email", serverConfigurationService.getString("support.email"));
+		replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 		String templateKey = getTemplateKey(accountStatus);
 		
 		
 		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, "help@vula.uct.ac.za", "Vula");
+		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
 		v.setValidationSent(new Date());
 		v.setStatus(ValidationAccount.STATUS_SENT);
 		v.setFirstName(userFirstName);
@@ -589,18 +589,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 		replacementValues.put("url", url);
 		//add some details about the user
 		String userId = EntityReference.getIdFromRef(account.getUserId());
-		String userFirstName = "";
-		String userLastName = "";
 		String userDisplayName = "";
 		String userEid = "";
 			
 		try {
 			User u = userDirectoryService.getUser(userId);
-			if (u.getFirstName() != null)
-				userFirstName = u.getFirstName();
-			
-			if (u.getLastName() != null)
-				userLastName = u.getLastName();
 			
 			
 			userDisplayName = u.getDisplayName();
@@ -612,6 +605,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 			replacementValues.put("addedByEmail", added.getEmail());
 			replacementValues.put("displayName", userDisplayName);
 			replacementValues.put("userEid", userEid);
+			replacementValues.put("support.email", serverConfigurationService.getString("support.email"));
+			replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 			
 		} catch (UserNotDefinedException e) {
 			// TODO Auto-generated catch block
@@ -650,7 +645,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		
 		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, "help@vula.uct.ac.za", "Vula");
+		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
 	}
 
 

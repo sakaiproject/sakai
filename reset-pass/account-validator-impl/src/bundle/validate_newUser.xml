@@ -2,38 +2,38 @@
 <emailTemplates>
 	<emailTemplate>
 		<subject> Welcome To ${localSakaiName}!</subject>
-		<message>${addedBy} (${addedByEmail}) has invited you to join the ${memberSites} site on Vula.
+		<message>${addedBy} (${addedByEmail}) has invited you to join the ${memberSites} site on ${localSakaiName}.
 
 Accept this invitation ${url}
 
-What is Vula?
-Vula is the University of Cape Town’s web-based content management system. It is home to many course sites, as well as a host of other sites including those used for administration, research and project groups, libraries and student societies. As a guest user, you have been invited to join a Vula site. On the site you will have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).
+What is ${localSakaiName}?
+${localSakaiName} is the ${institution}’s web-based content management system. It is home to many course sites, as well as a host of other sites including those used for administration, research and project groups, libraries and student societies. As a guest user, you have been invited to join a ${localSakaiName} site. On the site you will have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).
 
-What if I already have a Vula account?
-If you have used Vula in the past then you already have a Vula account, in
+What if I already have a ${localSakaiName} account?
+If you have used ${localSakaiName} in the past then you already have a ${localSakaiName} account, in
 which case we strongly suggest that you accept the above invitation and then
-indicate which existing Vula account you wish to use to access this site. This
+indicate which existing ${localSakaiName} account you wish to use to access this site. This
 will avoid you having multiple accounts, each with a different set of
 associated sites. If you do not choose to associate this site with an existing
 account, a new guest account will be created for you using this email
-address. And in the future to access the site you must login to Vula using the
+address. And in the future to access the site you must login to ${localSakaiName} using the
 guest account username and its associated password.</message>
-		<messagehtml>&lt;p&gt;${addedBy} (${addedByEmail}) has invited you to join the &lt;strong&gt;${memberSites}&lt;/strong&gt; site on Vula.&lt;/p&gt;
+		<messagehtml>&lt;p&gt;${addedBy} (${addedByEmail}) has invited you to join the &lt;strong&gt;${memberSites}&lt;/strong&gt; site on ${localSakaiName}.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=${url}&gt;Accept this invitation ${url}&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2&gt;What is Vula?&lt;/h2&gt;
-&lt;p&gt;Vula is the University of Cape Town’s web-based content management system. It is home to many course sites, as well as a host of other sites including those used for administration, research and project groups, libraries and student societies. As a guest user, you have been invited to join a Vula site. On the site you will have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).&lt;/p&gt;
+&lt;h2&gt;What is ${localSakaiName}?&lt;/h2&gt;
+&lt;p&gt;${localSakaiName} is the ${institution}’s web-based content management system. It is home to many course sites, as well as a host of other sites including those used for administration, research and project groups, libraries and student societies. As a guest user, you have been invited to join a ${localSakaiName} site. On the site you will have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).&lt;/p&gt;
 
 
-&lt;h2&gt;What if I already have a Vula account?&lt;/h2&gt;
-&lt;p&gt;If you have used Vula in the past then you already have a Vula account, in
+&lt;h2&gt;What if I already have a ${localSakaiName} account?&lt;/h2&gt;
+&lt;p&gt;If you have used ${localSakaiName} in the past then you already have a ${localSakaiName} account, in
 which case we strongly suggest that you accept the above invitation and then
-indicate which existing Vula account you wish to use to access this site. This
+indicate which existing ${localSakaiName} account you wish to use to access this site. This
 will avoid you having multiple accounts, each with a different set of
 associated sites. If you do not choose to associate this site with an existing
 account, a new guest account will be created for you using this email
-address. And in the future to access the site you must login to Vula using the
+address. And in the future to access the site you must login to ${localSakaiName} using the
 guest account username and its associated password.&lt;/p&gt;</messagehtml>
  <locale></locale>
 </emailTemplate>
