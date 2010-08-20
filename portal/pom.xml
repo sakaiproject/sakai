@@ -20,7 +20,9 @@
     <module>portal-api/api</module>
     <module>portal-charon/charon</module>
     <module>portal-impl/impl</module>
-    <module>portal-mercury/mercury</module>
+    <!-- As of 2.8, mercury is no longer included 
+        http://jira.sakaiproject.org/browse/SAK-19001
+    <module>portal-mercury/mercury</module>  -->
     <module>portal-render-api/api</module>
     <module>portal-render-impl/impl</module>
     <module>portal-render-impl/pack</module>
