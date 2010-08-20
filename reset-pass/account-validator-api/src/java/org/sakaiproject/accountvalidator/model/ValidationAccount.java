@@ -47,12 +47,17 @@ public class ValidationAccount {
 	 */
 	public static final int ACCOUNT_STATUS_LEGACY = 3;
 	
+	/**
+	 * An un-validated legacy account that does not know their password
+	 */
+	public static final int ACCOUNT_STATUS_LEGACY_NOPASS = 4;
+	
 	
 	
 	/**
 	 * Status for a password reset
 	 */
-	public static final int ACCOUNT_STATUS_PASSWORD_RESET = 3;
+	public static final int ACCOUNT_STATUS_PASSWORD_RESET = 5;
 	
 	
 	

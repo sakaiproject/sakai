@@ -207,9 +207,9 @@ public class AcountValidationLocator implements BeanLocator  {
 				
 				
 				//if this is a new account set the password
-				if (ValidationAccount.ACCOUNT_STATUS_NEW == item.getAccountStatus()) {
+				if (ValidationAccount.ACCOUNT_STATUS_NEW == item.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == item.getAccountStatus()) {
 					if (item.getPassword() == null || !item.getPassword().equals(item.getPassword2())) {
-						//abandone the edit
+						//Abandon the edit
 						userDirectoryService.cancelEdit(u);
 						tml.addMessage(new TargettedMessage("validate.passNotMatch", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 						return "error!";
@@ -228,7 +228,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				developerHelperService.fireEvent("accountvalidation.validated", u.getReference());
 				
 				validationLogic.save(item);
-				securityService.popAdvisor();
+				
 				
 				//log the user in
 				Evidence e = new ExternalTrustedEvidence(u.getEid());

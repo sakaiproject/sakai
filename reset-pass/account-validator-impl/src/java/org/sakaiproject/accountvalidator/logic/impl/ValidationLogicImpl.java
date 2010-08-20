@@ -92,11 +92,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 	
 	
 	public void init(){
-		log.info(this + "init");
+		log.info("init()");
 		//need to populate the templates
 		loadTemplate("validate_newUser.xml", TEMPLATE_KEY_NEW_USER);
 		loadTemplate("validate_existingUser.xml", TEMPLATE_KEY_EXISTINGUSER);
-		
+		loadTemplate("validate_legacyUser.xml", TEMPLATE_KEY_LEGACYUSER);
+		loadTemplate("validate_newPassword.xml", TEMPLATE_KEY_PASSWORDRESET);
 		
 		//seeing the GroupProvider is optional we need to load it here
 		if (groupProvider == null) {
@@ -111,6 +112,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 			sakaiSession.setUserId(ADMIN);
 		    sakaiSession.setUserEid(ADMIN);
 			InputStream in = ValidationLogicImpl.class.getClassLoader().getResourceAsStream(fileName);
+			if(in == null) {
+				log.warn("Could not load resource from '" + fileName + "'. Skipping ...");
+				return;
+			}
+			
 			Document document = new SAXBuilder(  ).build(in);
 			List<Element> it = document.getRootElement().getChildren("emailTemplate");
 			
@@ -229,6 +235,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		//a time validation time in the past
 		Date validationDeadline = cal.getTime();
 		if (va == null) {
+			log.debug("no account found!");
 			return false;
 		} else {
 			
@@ -236,15 +243,18 @@ public class ValidationLogicImpl implements ValidationLogic {
 				log.debug("validation sent still awaiting reply");
 				return true;
 			} else if (va.getValidationReceived() == null && va.getValidationSent().before(validationDeadline)) {
-				log.info("validation sent but no reply received");
+				log.debug("validation sent but no reply received");
 				//what should we do in this case?
 				return true;
 			}
-		
-			if (va.getValidationReceived().after(va.getValidationSent())) {
+			log.debug("got an item of staus " + va.getStatus());
+			if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
+				log.info("account is validated");
 				return true;
 			}
 		}
+		
+		log.debug("no conditions met assuming account is not validated");
 		return false;
 	}
 
@@ -295,6 +305,10 @@ public class ValidationLogicImpl implements ValidationLogic {
 	public ValidationAccount createValidationAccount(String userRef,
 			Integer accountStatus) {
 		log.debug("createValidationAccount(" + userRef + ", " + accountStatus);
+		
+		
+		//TODO creating a new Validation should clear old ones for the user
+		
 		ValidationAccount v = new ValidationAccount();
 		v.setUserId(userRef);
 		v.setValidationToken(idManager.createUuid());
@@ -302,9 +316,9 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		if (accountStatus == null) {
 			accountStatus = ValidationAccount.ACCOUNT_STATUS_NEW;
+		} else {
+			v.setAccountStatus(accountStatus);
 		}
-		
-		v.setAccountStatus(accountStatus);
 		
 		
 		//new send the validation
@@ -389,7 +403,13 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
 		v.setValidationSent(new Date());
-		v.setStatus(ValidationAccount.STATUS_SENT);
+		
+		if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue()) {
+			//A password reset doesn't invalidate confirmation
+			v.setStatus(ValidationAccount.STATUS_CONFIRMED);
+		} else { 
+			v.setStatus(ValidationAccount.STATUS_SENT);
+		}
 		v.setFirstName(userFirstName);
 		v.setSurname(userLastName);
 		
@@ -404,7 +424,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		if ( (ValidationAccount.ACCOUNT_STATUS_EXISITING == accountStatus.intValue())) {
 			templateKey  = TEMPLATE_KEY_EXISTINGUSER;
-		} else if ( (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus.intValue())) {
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus.intValue() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus.intValue())) {
 			templateKey  = TEMPLATE_KEY_LEGACYUSER;
 		} else if ( (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue())) {
 			templateKey  = TEMPLATE_KEY_PASSWORDRESET;

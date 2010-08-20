@@ -85,7 +85,7 @@ public class FormHandler {
 			if (va == null) {
 				//we need to validate the account.
 				m_log.info("This is a legacy user to validate!");
-				validationLogic.createValidationAccount(userBean.getUser().getId(), ValidationAccount.ACCOUNT_STATUS_LEGACY);
+				validationLogic.createValidationAccount(userBean.getUser().getId(), ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS);
 			} else {
 				m_log.info("resending validation");
 				validationLogic.resendValidation(va.getValidationToken());
@@ -98,10 +98,13 @@ public class FormHandler {
 			ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
 			if (va == null ) {
 				//the account is validated we need to send a password reset
+				m_log.info("no account found!");
 				validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 			} else if (va.getValidationReceived() == null) {
+				m_log.info("no response on validation!");
 				validationLogic.resendValidation(va.getValidationToken());
 			} else {
+				m_log.info("creating a new validation for password reset");
 				validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 			}
 			return "Success";

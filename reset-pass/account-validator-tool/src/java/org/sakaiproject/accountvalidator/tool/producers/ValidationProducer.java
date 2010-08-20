@@ -195,7 +195,8 @@ ViewParamsReporter, ActionResultInterceptor {
 			
 			log.debug("account status: " + va.getAccountStatus());	
 			
-			if (ValidationAccount.ACCOUNT_STATUS_NEW == va.getAccountStatus()) {
+			if (ValidationAccount.ACCOUNT_STATUS_NEW == va.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == va.getAccountStatus()
+					|| ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getAccountStatus()) {
 				log.debug("this is a new account render the second password box");
 				UIBranchContainer row2 = UIBranchContainer.make(detailsForm, "passrow2:");
 				UIInput.make(row2, "password2", otp + ".password2");

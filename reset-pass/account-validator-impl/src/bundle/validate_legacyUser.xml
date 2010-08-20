@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject> Please verify your details</subject>
+		<message>
+Dear ${displayName}		
+
+${addedBy} (${addedByEmail}) invited you to join ${localSakaiName}.
+
+Please confirm your details on ${url}
+
+What is ${localSakaiName}?
+${localSakaiName} is the ${institution}’s web-based content management system. It is home to many course sites, as well as a host of other sites including those used for administration, research and project groups, libraries and student societies. As a guest user, you have been invited to join a ${localSakaiName} site. On the site you will have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).
+
+What if I already have another ${localSakaiName} account?
+If you have used${localSakaiName} with another ${localSakaiName} account, we strongly suggest that you accept the above invitation and then
+indicate which existing ${localSakaiName} account you wish to use to access this site. This will avoid you having multiple accounts, each with a different set of
+associated sites. If you do not choose to associate this site with an existing account, a new guest account will be created for you using this email
+address. And in the future to access the site you must login to ${localSakaiName} using the guest account username and its associated password.
+</message>
+		
+ <locale></locale>
+</emailTemplate>
+	
+
+</emailTemplates>
