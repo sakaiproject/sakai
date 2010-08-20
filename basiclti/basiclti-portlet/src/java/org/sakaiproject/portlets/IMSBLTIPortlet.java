@@ -677,7 +677,7 @@ System.out.println("gradesecret set to="+uuid+" data="+date_secret);
                                 .get("org.sakaiproject.service.gradebook.GradebookService");
 
 	        String gradebookUid = getContext();
-                if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid))) ) return null;
+                if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
                 List gradebookAssignments = g.getAssignments(gradebookUid);
                 List gradebookAssignmentsExceptSamigo = new ArrayList();
 
