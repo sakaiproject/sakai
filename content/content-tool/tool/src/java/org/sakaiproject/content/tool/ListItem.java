@@ -2331,6 +2331,13 @@ public class ListItem
     public boolean isGroupPossible()
     {
     	boolean rv = false;
+    	
+    	//SAK-18986 do we have any possible groups? if so, groups are possible.
+    	//each of the possible groups are checked later.
+    	if(getPossibleGroups().size() > 0) {
+    		return true;
+    	}
+    	
     	if(this.accessMode == AccessMode.INHERITED && parent != null)
     	{
     		rv = parent.isGroupPossible();
