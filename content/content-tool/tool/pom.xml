@@ -60,11 +60,6 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
-      <version>4.2.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
       <version>1.1.6</version>

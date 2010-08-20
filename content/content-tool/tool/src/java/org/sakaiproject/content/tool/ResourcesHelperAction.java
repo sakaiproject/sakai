@@ -77,8 +77,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
-import com.ibm.icu.text.CharsetDetector;
-
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
 	/** the logger for this class */
@@ -1013,30 +1011,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		else if (fileitem.getFileName().length() > 0)
 		{
 			String filename = Validator.getFileName(fileitem.getFileName());
-			 CharsetDetector detector = new CharsetDetector();
-			 String encoding = "UTF-8";
 			InputStream stream;
-			stream = fileitem.getInputStream();
+				stream = fileitem.getInputStream();
 				if(stream == null)
 				{
 					byte[] bytes = fileitem.get();
 					pipe.setRevisedContent(bytes);
-					 try{
-						 detector.setText(bytes);
-						 encoding = detector.detect().getName();
-					 }catch(Exception e){
-						 encoding ="UTF-8";
-					 }
 				}
 				else
 				{
 					 pipe.setRevisedContentStream(stream);
-					 try{
-						 detector.setText(stream);
-						 encoding = detector.detect().getName();
-					 }catch(Exception e){
-						 encoding ="UTF-8";
-					 }
 				}
 				String contentType = fileitem.getContentType();
 				//pipe.setRevisedContent(bytes);
@@ -1045,7 +1029,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				
 				if(ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
 				{
-					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
+					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
 				}
 				else if(pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null)
 				{
@@ -1390,7 +1374,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			catch(Exception e)
 			{
 				logger.warn("Exception ", e);
-				e.printStackTrace();
 			}
 			
 			if(fileitem == null)
@@ -1424,41 +1407,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				pipe.setRevisedContentStream( fileitem.getInputStream() );
 				String contentType = fileitem.getContentType();
 				pipe.setRevisedMimeType(contentType);
-
 				
-				if  (ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
+				// If no encoding specified, default to UTF-8 encoding
+				if ( (ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType)) &&
+						pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) == null)
 				{
-					//Authomatic charset detection
-					InputStream stream;
-					stream = fileitem.getInputStream();
-					CharsetDetector detector = new CharsetDetector();
-					String encoding = "UTF-8";
-
-					if(stream == null)
-					{
-						byte[] bytes = fileitem.get();
-						 try{
-							 detector.setText(bytes);
-							 encoding = detector.detect().getName();
-						 }catch(Exception e){
-							 encoding ="UTF-8";
-						 }
-					}
-					else
-					{
-						 try{
-							 detector.setText(stream);
-							 encoding = detector.detect().getName();
-						 }catch(Exception e){
-							 encoding ="UTF-8";
-						 }
-					}
-	//Authomatic charset detection - end
-
-//					String encoding="UTF-8";
-					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
+						pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
 				}
-				
 				
 				pipe.setFileName(filename);
 					 
