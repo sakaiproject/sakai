@@ -48,31 +48,31 @@ public class TestTextTemplateLogicUtils extends TestCase {
 
       // make sure that a plain template remains unchanged
       replacementValues = rVals;
-      result = TextTemplateLogicUtils.processTextTemplate(plainTemplate, replacementValues);
+      result = TextTemplateLogicUtils.processTextTemplate(plainTemplate, replacementValues, "test");
       assertNotNull(result);
       assertEquals(plainTemplate, result);
 
       // make sure that a plain template works with null replacement values
       replacementValues = null;
-      result = TextTemplateLogicUtils.processTextTemplate(plainTemplate, replacementValues);
+      result = TextTemplateLogicUtils.processTextTemplate(plainTemplate, replacementValues, "test");
       assertNotNull(result);
       assertEquals(plainTemplate, result);
 
       // make sure a plain template works ok with empty replacement values
       replacementValues = new HashMap<String, String>();
-      result = TextTemplateLogicUtils.processTextTemplate(plainTemplate, replacementValues);
+      result = TextTemplateLogicUtils.processTextTemplate(plainTemplate, replacementValues, "test");
       assertNotNull(result);
       assertEquals(plainTemplate, result);
 
       // make sure a normal replacement works
       replacementValues = rVals;
-      result = TextTemplateLogicUtils.processTextTemplate(sample1, replacementValues);
+      result = TextTemplateLogicUtils.processTextTemplate(sample1, replacementValues, "test");
       assertNotNull(result);
       assertEquals(result1, result);
 
       // check for expected failures
       try {
-         result = TextTemplateLogicUtils.processTextTemplate(null, replacementValues);
+         result = TextTemplateLogicUtils.processTextTemplate(null, replacementValues, "test");
          fail("Should not have gotten here");
       } catch (IllegalArgumentException e) {
          assertNotNull(e.getMessage());
@@ -80,7 +80,7 @@ public class TestTextTemplateLogicUtils extends TestCase {
 
       // processing template with a missing replacement value causes failure
       try {
-         result = TextTemplateLogicUtils.processTextTemplate(sample2, replacementValues);
+         result = TextTemplateLogicUtils.processTextTemplate(sample2, replacementValues, "test");
          fail("Should not have gotten here");
       } catch (RuntimeException e) {
          assertNotNull(e.getMessage());

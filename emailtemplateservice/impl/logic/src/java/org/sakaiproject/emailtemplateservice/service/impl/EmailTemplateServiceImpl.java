@@ -153,11 +153,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       replacementValues.putAll(userVals);
       log.debug("got replacement values");
 
-      ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues));
-      ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues));
+      ret.setRenderedSubject(this.processText(ret.getSubject(), replacementValues, key));
+      ret.setRenderedMessage(this.processText(ret.getMessage(), replacementValues, key));
       //HTML component might be null
       if (ret.getHtmlMessage() != null)
-    	  ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessage(), replacementValues));
+    	  ret.setRenderedHtmlMessage(this.processText(ret.getHtmlMessage(), replacementValues, key));
       return ret;
    }
 
@@ -213,8 +213,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
 
-   protected String processText(String text, Map<String, String> values) {
-      return TextTemplateLogicUtils.processTextTemplate(text, values);
+   protected String processText(String text, Map<String, String> values, String templateName) {
+      return TextTemplateLogicUtils.processTextTemplate(text, values, templateName);
    }
 
    protected Map<String, String> getCurrentUserFields() {

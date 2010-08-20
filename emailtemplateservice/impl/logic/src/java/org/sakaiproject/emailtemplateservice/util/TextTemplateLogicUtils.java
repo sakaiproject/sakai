@@ -56,7 +56,7 @@ public class TextTemplateLogicUtils {
     * course_title => Math 1001 Differential Equations<br/>
     * @return the processed template
     */
-   public static String processTextTemplate(String textTemplate, Map<String, String> replacementValues) {
+   public static String processTextTemplate(String textTemplate, Map<String, String> replacementValues, String templateName) {
       if (replacementValues == null || replacementValues.size() == 0) {
          return textTemplate;
       }
@@ -75,7 +75,7 @@ public class TextTemplateLogicUtils {
       // get the template
       Template template;
       try {
-         template = new Template("sakai-eval", new StringReader(textTemplate), cfg);
+         template = new Template(templateName, new StringReader(textTemplate), cfg);
       } catch (IOException e) {
          throw new RuntimeException("Failure while creating freemarker template", e);
       }
