@@ -239,14 +239,17 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
             rv.put(CURRENT_USER_DISPLAY_NAME, user.getDisplayName());
             rv.put(CURRENT_USER_DISPLAY_ID, user.getDisplayId());
             rv.put("currentUserDispalyId", user.getDisplayId());
-            rv.put(LOCAL_SAKAI_NAME, serverConfigurationService.getString("ui.service", "Sakai"));
-            rv.put(LOCAL_SAKAI_SUPPORT_MAIL,serverConfigurationService.getString("support.email","help@"+ serverConfigurationService.getServerUrl()));
-            rv.put(LOCAL_SAKAI_URL,serverConfigurationService.getServerUrl());
-
+            
          } catch (Exception e) {
             log.warn("Failed to get current user replacements: " + userRef, e);
          }
       }
+      /*NoN user fields */
+      rv.put(LOCAL_SAKAI_NAME, serverConfigurationService.getString("ui.service", "Sakai"));
+      rv.put(LOCAL_SAKAI_SUPPORT_MAIL,serverConfigurationService.getString("support.email","help@"+ serverConfigurationService.getServerUrl()));
+      rv.put(LOCAL_SAKAI_URL,serverConfigurationService.getServerUrl());
+
+      
       return rv;
    }
 
