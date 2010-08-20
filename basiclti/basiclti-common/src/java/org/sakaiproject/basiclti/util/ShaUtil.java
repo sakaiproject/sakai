@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.blti;
+package org.sakaiproject.basiclti.util;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -32,6 +32,20 @@ public class ShaUtil {
 			b = tohash.getBytes("UTF-8");
 			MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
 			b = sha1.digest(b);
+		} catch (UnsupportedEncodingException e) {
+			throw new Error(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new Error(e);
+		}
+		return byteToHex(b);
+	}
+
+	public static String sha256Hash(final String tohash) {
+		byte[] b = null;
+		try {
+			b = tohash.getBytes("UTF-8");
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			b = sha256.digest(b);
 		} catch (UnsupportedEncodingException e) {
 			throw new Error(e);
 		} catch (NoSuchAlgorithmException e) {

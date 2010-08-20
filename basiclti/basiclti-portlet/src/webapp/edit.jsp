@@ -25,7 +25,9 @@
 <%@ page import="javax.portlet.PortletMode" %>
 <%@ page import="javax.portlet.PortletSession" %>
 <%@ page import="java.util.Properties" %>
+<%@ page import="java.util.List" %>
 <%@ page import="org.sakaiproject.util.ResourceLoader" %>
+<%@ page import="org.sakaiproject.util.Validator" %>
 
 <%@ page session="false" %>
 <%!
@@ -66,6 +68,8 @@ if ( errorOutput != null ) out.println(errorOutput);
 Properties ov = (Properties) rReq.getAttribute("imsti.oldvalues");
 
 Properties sp = (Properties) rReq.getAttribute("imsti.properties");
+
+List<String> assignments = (List<String>) rReq.getAttribute("assignments");
 
 %>
 <portlet:defineObjects/>
@@ -163,6 +167,28 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 </fieldset>
 <% } %>
+
+<% if ( allow(sp,"gradable") && assignments != null ) { %>
+<fieldset>
+<legend><%=rb.getString("gradable.information") %></legend>
+<p>
+<%=rb.getString("gradable.title") %>
+<select name="imsti.assignment">
+  <option value=""><%=rb.getString("gradable.nograde") %></option>
+<% for ( String assn : assignments ) { 
+     if ( assn.equals(ov.getProperty("imsti.assignment")) ) { %>
+       <option selected="selected" value="<%=Validator.escapeHtml(assn) %>"><%=Validator.escapeHtml(assn) %></option>
+<%   } else { %>
+       <option value="<%=Validator.escapeHtml(assn) %>"><%=Validator.escapeHtml(assn) %></option>
+<%   }
+   } %>
+</select>
+<%=rb.getString("gradable.detail") %>
+</p>
+</fieldset>
+<% } %>
+
+
 <% if ( allow(sp,"frameheight") || allow(sp, "debug") ) { %>
 <fieldset>
 <legend><%=rb.getString("launch.information") %></legend>

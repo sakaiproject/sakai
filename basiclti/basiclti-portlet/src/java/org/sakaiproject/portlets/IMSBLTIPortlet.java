@@ -26,8 +26,13 @@ import java.lang.Integer;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 import java.util.Properties;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -50,6 +55,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.portlet.util.PortletHelper;
 
 // Sakai APIs
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -64,6 +70,15 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 
 
 /**
@@ -88,6 +103,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
     /** To turn on really verbose debugging */
     private static boolean verbosePrint = false;
 
+    public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
+
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
 
@@ -105,6 +122,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("custom");
         fieldList.add("releasename");
         fieldList.add("releaseemail");
+        fieldList.add("assignment");
     }
 
     // Simple Debug Print Mechanism
@@ -213,6 +231,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
         }
 
 	request.setAttribute("imsti.oldvalues", oldValues);
+  
+        String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+	if ( "true".equals(enabled) ) {
+	  	List<String> assignments = getGradeBookAssignments();
+        	if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
+	}
     }
 
     public void addProperty(Properties values, RenderRequest request,
@@ -349,7 +373,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		pSession.setAttribute("sakai.view", "edit");
 	} else if ( action.equals("edit.reset") ) {
                 pSession.setAttribute("sakai.view","edit.reset");
-	}else if (action.equals("edit.setup")){
+	} else if (action.equals("edit.setup")){
 		pSession.setAttribute("sakai.view","edit.setup");
 	} else if ( action.equals("edit.clear") ) {
 		clearSession(request);
@@ -412,7 +436,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	return placement.getConfig();
     }
 
-    // EMpty or all whitespace properties are null
+    // Empty or all whitespace properties are null
     public String getSakaiProperty(Properties config, String key)
     {
         String propValue = config.getProperty(key);
@@ -477,7 +501,42 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		}
         }
 
-	String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
+	// Prepare to store preferences
+        PortletPreferences prefs = request.getPreferences();
+        boolean changed = false;
+
+        // Make Sure the Assignment is a legal one
+	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
+        String oldGradeSecret = getSakaiProperty(sakaiProperties,"imsti.gradesecret");
+        String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+	// System.out.println("old gradesecret="+oldGradeSecret);
+	if ( "true".equals(enabled) && assignment != null && assignment.trim().length() > 1 ) {
+	        List<String> assignments = getGradeBookAssignments();
+                boolean found = false;
+                if ( assignments != null ) for ( String assn : assignments ) {
+                      if ( assn.equals(assignment) ) found = true;
+                }
+                if ( ! found ) {
+			setErrorMessage(request, rb.getString("error.gradable.badassign") + assignment );
+			return;
+		}
+		if ( oldGradeSecret == null ) {
+                	try {
+				String uuid = UUID.randomUUID().toString();
+				Date date = new Date();
+				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
+				String date_secret = sdf.format(date);
+                        	prefs.setValue("sakai:imsti.gradesecret", uuid);
+                        	prefs.setValue("sakai:imsti.gradesecretdate", date_secret);
+				// System.out.println("gradesecret set to="+uuid+" data="+date_secret);
+                        	changed = true;
+                	} catch (ReadOnlyException e) {
+                        	setErrorMessage(request, rb.getString("error.modify.prefs") );
+                	} 
+                } 
+        }
+
+        String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
         if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;
         if ( imsTIHeight != null ) {
                 try {
@@ -514,8 +573,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	}
 
         // Store preferences
-        PortletPreferences prefs = request.getPreferences();
-        boolean changed = false;
         for (String element : fieldList) {
                 String formParm  = getFormParameter(request,sakaiProperties,element);
                 if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
@@ -608,6 +665,36 @@ public class IMSBLTIPortlet extends GenericPortlet {
     {
             String retval = ToolManager.getCurrentPlacement().getContext();
             return retval;
+    }
+
+    // get all assignments from the Gradebook
+    protected List<String> getGradeBookAssignments()
+    {
+        List<String> retval = new ArrayList<String>();
+        try
+        {
+                GradebookService g = (GradebookService)  ComponentManager
+                                .get("org.sakaiproject.service.gradebook.GradebookService");
+
+	        String gradebookUid = getContext();
+                if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
+                List gradebookAssignments = g.getAssignments(gradebookUid);
+                List gradebookAssignmentsExceptSamigo = new ArrayList();
+
+                // filtering out anything externally provided
+                for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+                {
+                        org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+                         if ( gAssignment.isExternallyMaintained() ) continue;
+                         retval.add(gAssignment.getName());
+                }
+                return retval;
+        }
+        catch (GradebookNotFoundException e)
+        {
+                dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+                return null;
+        }
     }
 
 }

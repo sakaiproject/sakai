@@ -53,6 +53,8 @@ public class SakaiBLTIUtil {
 
     public static final boolean verbosePrint = false;
 
+    public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
+
     public static void dPrint(String str)
     {
         if ( verbosePrint ) System.out.println(str);
@@ -170,6 +172,22 @@ public class SakaiBLTIUtil {
 		if ( "on".equals(releaseemail) ) {
 			setProperty(props,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 			setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+		}
+ 
+	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
+
+		String gradeSecret = toNull(getCorrectProperty(config,"gradesecret", placement));
+                String enabled = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, null);
+                if ( "true".equals(enabled) && assignment != null && gradeSecret != null) {
+			String suffix = ":::" +  user.getId() + ":::" + placement.getId();
+			String base_string = gradeSecret + suffix;
+			String signature = ShaUtil.sha256Hash(base_string);
+			String result_sourcedid = signature + suffix;
+			setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+
+			String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_simple_outcome_url",null);
+        		if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/outcomes/";  
+			setProperty(props,"ext_ims_lis_simple_outcome_url", outcome_url);  
 		}
 	}
 
