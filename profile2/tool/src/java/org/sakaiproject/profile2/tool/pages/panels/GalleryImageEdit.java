@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -60,7 +59,7 @@ public class GalleryImageEdit extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
 	private ProfilePreferencesLogic preferencesLogic;
 	
-	public GalleryImageEdit(String id, final ModalWindow mainImageWindow,
+	public GalleryImageEdit(String id,
 			final String userId, final GalleryImage image,
 			final int galleryPageIndex) {
 
@@ -115,7 +114,7 @@ public class GalleryImageEdit extends Panel {
 		removeConfirmContainer.add(removeConfirmLabel);
 
 		AjaxFallbackButton removeConfirmButton = createRemoveConfirmButton(
-				mainImageWindow, userId, image, galleryPageIndex, formFeedback,
+				userId, image, galleryPageIndex, formFeedback,
 				imageEditForm);
 		removeConfirmButton.add(new FocusOnLoadBehaviour());
 		removeConfirmContainer.add(removeConfirmButton);
@@ -136,7 +135,7 @@ public class GalleryImageEdit extends Panel {
 
 		
 		AjaxFallbackButton setProfileImageConfirmButton = createSetProfileImageConfirmButton(
-				mainImageWindow, userId, image, galleryPageIndex, formFeedback,
+				userId, image, galleryPageIndex, formFeedback,
 				imageEditForm);
 		
 		setProfileImageConfirmButton.add(new FocusOnLoadBehaviour());
@@ -148,20 +147,20 @@ public class GalleryImageEdit extends Panel {
 		setProfileImageConfirmContainer.setVisible(false);
 		imageEditForm.add(setProfileImageConfirmContainer);
 		
-		add(new GalleryImageRenderer("galleryImageMainRenderer", true, image
+		add(new GalleryImageRenderer("galleryImageMainRenderer", image
 				.getMainResource()));
 		
 		// make sure remove confirm container not displayed when reopening
-		mainImageWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-			public void onClose(AjaxRequestTarget target) {
-
-				imageOptionsContainer.setVisible(true);
-				removeConfirmContainer.setVisible(false);
-				target.addComponent(imageOptionsContainer);
-			}
-			
-		});
+//		mainImageWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+//
+//			public void onClose(AjaxRequestTarget target) {
+//
+//				imageOptionsContainer.setVisible(true);
+//				removeConfirmContainer.setVisible(false);
+//				target.addComponent(imageOptionsContainer);
+//			}
+//			
+//		});
 	}
 
 	private AjaxFallbackButton createRemoveCancelButton(Form imageEditForm) {
@@ -185,7 +184,7 @@ public class GalleryImageEdit extends Panel {
 	}
 
 	private AjaxFallbackButton createRemoveConfirmButton(
-			final ModalWindow mainImageWindow, final String userId,
+			final String userId,
 			final GalleryImage image, final int galleryPageIndex,
 			final Label formFeedback, Form imageEditForm) {
 		AjaxFallbackButton removeConfirmButton = new AjaxFallbackButton(
@@ -196,9 +195,6 @@ public class GalleryImageEdit extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				if (imageLogic.removeGalleryImage(
 						userId, image.getId())) {
-
-					// close modal window
-					mainImageWindow.close(target);
 
 					setResponsePage(new MyPictures(galleryPageIndex));
 					
@@ -281,8 +277,7 @@ public class GalleryImageEdit extends Panel {
 	}
 	
 	private AjaxFallbackButton createSetProfileImageConfirmButton(
-
-			final ModalWindow mainImageWindow, final String userId,
+			final String userId,
 			final GalleryImage image, final int galleryPageIndex,
 			final Label formFeedback, Form imageEditForm) {
 
@@ -303,9 +298,6 @@ public class GalleryImageEdit extends Panel {
 					sakaiProxy.postEvent(
 							ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD,
 							"/profile/" + userId, true);
-
-					// close modal window
-					mainImageWindow.close(target);
 
 					if (sakaiProxy.isSuperUserAndProxiedToUser(
 							userId)) {

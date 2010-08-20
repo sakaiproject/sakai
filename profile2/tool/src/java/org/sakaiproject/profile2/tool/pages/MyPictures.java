@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.feedback.FeedbackMessage;
@@ -51,9 +50,9 @@ import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
+import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
-import org.sakaiproject.profile2.tool.pages.panels.GalleryImagePanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -181,20 +180,20 @@ public class MyPictures extends BasePage {
 			@Override
 			protected void populateItem(Item item) {
 
-				GalleryImage image = (GalleryImage) item.getModelObject();
+				final GalleryImage image = (GalleryImage) item.getModelObject();
 
-				final GalleryImagePanel imagePanel = new GalleryImagePanel(
-						"galleryImage", userUuid, true, true, image, gridView
-								.getCurrentPage());
+				final GalleryImageRenderer galleryImageThumbnailRenderer = new GalleryImageRenderer(
+						"galleryImageThumbnailRenderer", image
+								.getThumbnailResource());
 
 				AjaxLink galleryImageLink = new AjaxLink("galleryItem") {
 
 					public void onClick(AjaxRequestTarget target) {
-						imagePanel.displayGalleryImage(target);
+						setResponsePage(new MyPicture(userUuid, image, getCurrentPage()));
 					}
 
 				};
-				galleryImageLink.add(imagePanel);
+				galleryImageLink.add(galleryImageThumbnailRenderer);
 
 				item.add(galleryImageLink);
 			}
@@ -209,7 +208,7 @@ public class MyPictures extends BasePage {
 					}
 				};
 
-				galleryImageLink.add(new Label("galleryImage"));
+				galleryImageLink.add(new Label("galleryImageThumbnailRenderer"));
 				item.add(galleryImageLink);
 			}
 		};

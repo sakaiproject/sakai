@@ -31,8 +31,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
+import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
+import org.sakaiproject.profile2.tool.pages.MyPicture;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
+import org.sakaiproject.profile2.tool.pages.ViewPicture;
 import org.sakaiproject.profile2.tool.pages.ViewPictures;
 
 /**
@@ -83,7 +86,7 @@ public class GalleryFeed extends Panel {
 
 				};
 
-				Label galleryFeedPicture = new Label("galleryFeedPicture", "");
+				Label galleryFeedPicture = new Label("galleryImageThumbnailRenderer", "");
 				emptyImageLink.add(galleryFeedPicture);
 
 				item.add(emptyImageLink);
@@ -92,20 +95,25 @@ public class GalleryFeed extends Panel {
 			@Override
 			protected void populateItem(Item item) {
 
-				GalleryImage image = (GalleryImage) item.getModelObject();
+				final GalleryImage image = (GalleryImage) item.getModelObject();
 
-				// view-only (i.e. no edit functionality)
-				final GalleryImagePanel imagePanel = new GalleryImagePanel(
-						"galleryFeedPicture", ownerUserId, false, true, image, 0);
-				
+				GalleryImageRenderer galleryImageThumbnailRenderer = new GalleryImageRenderer(
+						"galleryImageThumbnailRenderer", image
+								.getThumbnailResource());
+
 				AjaxLink galleryFeedItem = new AjaxLink("galleryFeedItem") {
 
-							@Override
-							public void onClick(AjaxRequestTarget target) {
-								imagePanel.displayGalleryImage(target);	
-							}
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// view-only (i.e. no edit functionality)
+						if (viewingUserId.equals(ownerUserId)) {
+							setResponsePage(new MyPicture(viewingUserId, image, getCurrentPage()));
+						} else {
+							setResponsePage(new ViewPicture(image));
+						}
+					}
 				};
-				galleryFeedItem.add(imagePanel);
+				galleryFeedItem.add(galleryImageThumbnailRenderer);
 
 				item.add(galleryFeedItem);
 

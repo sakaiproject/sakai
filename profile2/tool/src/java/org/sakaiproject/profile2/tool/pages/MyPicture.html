@@ -22,35 +22,22 @@
 	xml:lang="en" lang="en">
 
 <body>
+<wicket:extend>
+	<div id="pageWrapper">
+		<div id="fullWidth">
+			<div wicket:id="feedback"></div>
 
-<wicket:panel>
-
-	<div class="side-widget-heading" wicket:id="heading">[My pictures]</div>
-	<div class="side-widget-content">
-
-	<div class="side-widget-labels">
-		<span class="side-widget-item-count" wicket:id="numPicturesLabel">[Num pictures]</span>
-		<a class="side-widget-more-link" wicket:id="viewPicturesLink">
-		<span wicket:id="viewPicturesLabel">[View pictures]</span>
-		</a>
+			<!-- main image form -->
+			<div class="mainSectionContentForm">
+				<h3 wicket:id="galleryImageHeading" class="header icon picture">[galleryHeading]</h3>
+				
+				<form wicket:id="galleryImageForm" class="gallery-image-form">
+					<div wicket:id="galleryImageEdit"></div>
+				</form>
+			</div>
+		</div>
 	</div>
-
-	<div id="gallery-feed">
-	<table id="galleryFeed">
-		<tbody>
-			<tr wicket:id="rows" class="even">
-				<td wicket:id="cols">
-				<div class="gallery-feed-item" wicket:id="galleryFeedItem">
-					<div wicket:id="galleryImageThumbnailRenderer" />
-				</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	</div>
-	</div>
-</wicket:panel>
-
+	
+</wicket:extend>
 </body>
 </html>
-

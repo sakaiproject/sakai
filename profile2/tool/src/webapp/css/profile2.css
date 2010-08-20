@@ -206,6 +206,9 @@ h2 {
 .profile {
 	background-image: url(/library/image/silk/vcard.png);
 }
+.picture {
+	background-image: url(/library/image/silk/picture.png);
+}
 .pictures {
 	background-image: url(/library/image/silk/pictures.png);
 }

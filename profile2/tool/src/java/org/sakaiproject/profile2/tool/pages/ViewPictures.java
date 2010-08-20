@@ -31,8 +31,8 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
-import org.sakaiproject.profile2.tool.pages.panels.GalleryImagePanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -83,20 +83,20 @@ public class ViewPictures extends BasePage {
 			@Override
 			protected void populateItem(Item item) {
 
-				GalleryImage image = (GalleryImage) item.getModelObject();
+				final GalleryImage image = (GalleryImage) item.getModelObject();
 
-				final GalleryImagePanel imagePanel = new GalleryImagePanel(
-						"galleryImage", userUuid, false, true, image, gridView
-								.getCurrentPage());
+				final GalleryImageRenderer galleryImageThumbnailRenderer = new GalleryImageRenderer(
+						"galleryImageThumbnailRenderer", image
+								.getThumbnailResource());
 
 				AjaxLink galleryImageLink = new AjaxLink("galleryItem") {
 
 					public void onClick(AjaxRequestTarget target) {
-						imagePanel.displayGalleryImage(target);
+						setResponsePage(new ViewPicture(image));
 					}
 
 				};
-				galleryImageLink.add(imagePanel);
+				galleryImageLink.add(galleryImageThumbnailRenderer);
 
 				item.add(galleryImageLink);
 			}
@@ -111,7 +111,7 @@ public class ViewPictures extends BasePage {
 					}
 				};
 
-				galleryImageLink.add(new Label("galleryImage"));
+				galleryImageLink.add(new Label("galleryImageThumbnailRenderer"));
 				item.add(galleryImageLink);
 			}
 		};

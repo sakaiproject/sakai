@@ -22,13 +22,22 @@
 	xml:lang="en" lang="en">
 
 <body>
-<wicket:panel>
+<wicket:extend>
+	<div id="pageWrapper">
+		<div id="fullWidth">
+			<div wicket:id="feedback"></div>
 
-	<div id="galleryImagePanel" class="gallery-image-panel hover">
-	<div wicket:id="galleryImageThumbnailRenderer" />
-	<div wicket:id="galleryMainImageWindow"></div>
+			<!-- main image form -->
+			<div class="mainSectionContentForm">
+				<h3 wicket:id="galleryImageHeading" class="header icon picture">[galleryHeading]</h3>
+				
+				<form wicket:id="galleryImageForm" class="gallery-image-form">
+					<div wicket:id="galleryImageRenderer"></div>
+				</form>
+			</div>
+		</div>
 	</div>
-
-</wicket:panel>
+	
+</wicket:extend>
 </body>
 </html>

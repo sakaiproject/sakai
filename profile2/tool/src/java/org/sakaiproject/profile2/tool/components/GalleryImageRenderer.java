@@ -38,8 +38,7 @@ public class GalleryImageRenderer extends Panel {
 	/**
 	 * Creates a new instance of <code>GalleryImageRenderer</code>.
 	 */
-	public GalleryImageRenderer(String id, boolean cacheable,
-			String imageResourceId) {
+	public GalleryImageRenderer(String id, String imageResourceId) {
 		super(id);
 		
 		if (imageResourceId == null) {
