@@ -59,8 +59,12 @@
 					<td>
 						<label for="home">
 							$tlang.getString("java.home")
+							## only show when title is customized
 							#if ($!allowPageOrderHelper)
-								($validator.escapeHtml($!toolRegistrationTitleList.get($!homeToolId)))
+								#set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($!homeToolId)))
+								#if (!$currentTitle.equals($tlang.getString("java.home")))
+									($currentTitle)
+								#end
 							#end
 						</label>
 					</td>	
@@ -100,12 +104,17 @@
 						<td>
 								<label for="$toolId">
 									#if ($!multipleToolIdTitleMap.containsKey($toolId))
-										$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))
+										#set($title = $validator.escapeHtml($!multipleToolIdTitleMap.get($toolId)))
 									#else
-										$validator.escapeHtml($tool.getTitle())
+										#set($title=$validator.escapeHtml($tool.getTitle()))
 									#end
+									$title
+									## only shown then title is customized
 									#if ($!allowPageOrderHelper)
-										($validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
+										#set($currentTitle = $validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
+										#if (!$currentTitle.equals($title))
+											($currentTitle)
+										#end
 									#end
 								</label>
 						</td>
@@ -113,9 +122,12 @@
 								$tool.getDescription()
 								#if ($!multipleToolIdTitleMap.containsKey($toolId))
 									#set($properties = $!multipleToolConfiguration.get($toolId))
-									(#foreach ($property in $!properties.keySet())
-										$property = $validator.escapeHtml($properties.get($property)) 
-									#end)
+									#if (!$properties.isEmpty())
+										## show configurations
+										(#foreach ($property in $!properties.keySet())
+											$property = $validator.escapeHtml($properties.get($property)) 
+										#end)
+									#end
 								#end
 						</td>
 					</tr>	
