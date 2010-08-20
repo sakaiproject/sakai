@@ -1,118 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	Copyright (c) 2003-2009 The Sakai Foundation.
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	Licensed under the Educational Community License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
+    <parent>
+        <groupId>org.sakaiproject.mailsender</groupId>
+        <artifactId>mailsender-base</artifactId>
+        <version>1.6-SNAPSHOT</version>
+    </parent>
 
-	http://www.opensource.org/licenses/ecl2.php
+    <name>Sakai Mail Sender Impl</name>
+    <groupId>org.sakaiproject.mailsender</groupId>
+    <artifactId>mailsender-impl</artifactId>
+    <description>Mail Sender Internal Implementation (uses internal mail service)</description>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+    <packaging>jar</packaging>
 
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>mailsender-base</artifactId>
-		<groupId>org.sakaiproject.mailsender</groupId>
-		<version>1.6-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<name>Sakai Mail Sender Impl</name>
-	<artifactId>mailsender-impl</artifactId>
-	<description>Mail Sender Internal Implementation (uses internal mail service)</description>
-	<packaging>jar</packaging>
-	
     <dependencies>
-    	<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-component-manager</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
 
         <dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-		</dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
 
-<!-- java mail -->
-		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-email</artifactId>
-			<version>1.2</version>
-		</dependency>
+        <!-- java mail -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.2</version>
+        </dependency>
 
-<!-- internal -->
-		<dependency>
-			<groupId>org.sakaiproject.mailsender</groupId>
-			<artifactId>mailsender-api</artifactId>
-		</dependency>
+        <!-- internal -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mailsender-api</artifactId>
+        </dependency>
 
-<!-- provided -->
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-		</dependency>
+        <!-- provided -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
 
-<!-- parse html to text -->
-		<dependency>
-			<groupId>net.htmlparser.jericho</groupId>
-			<artifactId>jericho-html</artifactId>
-			<version>3.1</version>
-		</dependency>
+        <!-- parse html to text -->
+        <dependency>
+            <groupId>net.htmlparser.jericho</groupId>
+            <artifactId>jericho-html</artifactId>
+            <version>3.1</version>
+        </dependency>
 
-<!-- sakai -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-mailarchive-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-message-api</artifactId>
-		</dependency>
+        <!-- sakai -->
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-mailarchive-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-message-api</artifactId>
+        </dependency>
 
-<!-- testing -->
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.subethamail</groupId>
-			<artifactId>subethasmtp-wiser</artifactId>
-			<version>1.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-		</dependency>
-	</dependencies>
+        <!-- testing -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.subethamail</groupId>
+            <artifactId>subethasmtp-wiser</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+    </dependencies>
 </project>
 
