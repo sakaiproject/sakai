@@ -337,7 +337,7 @@ public interface UserDirectoryService extends EntityProducer
 	 * Find all the users within the record range given (sorted by sort name).
 	 * 
 	 * @param first
-	 *        The first record position to return.
+	 *        The first record position to return. (Note: the first record is 1 not 0)
 	 * @param last
 	 *        The last record position to return.
 	 * @return A list (User) of all the users within the record range given (sorted by sort name).
@@ -383,7 +383,7 @@ public interface UserDirectoryService extends EntityProducer
 	 * @param criteria
 	 *        The search criteria.
 	 * @param first
-	 *        The first record position to return.
+	 *        The first record position to return. (Note: the first record is 1 not 0)
 	 * @param last
 	 *        The last record position to return.
 	 * @return A list (User) of all the aliases matching the criteria, within the record range given (sorted by sort name).
