@@ -1,5 +1,6 @@
 package org.sakaiproject.site.tool.helper.participant.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -116,6 +118,12 @@ public class SiteAddParticipantHandler {
 		this.nonOfficialAccountParticipant = nonOfficialAccountParticipant;
 	}
 	
+	
+	ValidationLogic validationLogic;
+	public void setValidationLogic(ValidationLogic validationLogic) {
+		this.validationLogic = validationLogic;
+	}
+
 	// for eids inside this list, don't look them up as email ids
 	public List<String> officialAccountEidOnly = new Vector<String>();
 	public List<String> getOfficialAccountEidOnly()
@@ -595,7 +603,8 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processConfirmContinue() {
-
+    	
+    	List<String> validationUsers = new ArrayList<String>();
     	resetTargettedMessageList();
     	if (site == null)
     		init();
@@ -639,8 +648,11 @@ public class SiteAddParticipantHandler {
 
 						boolean notifyNewUserEmail = (getServerConfigurationString("notifyNewUserEmail", Boolean.TRUE.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
-						if (notifyNewUserEmail) {    						
+						boolean validateUsers = serverConfigurationService.getBoolean("siteManage.validateNewUsers", false);
+						if (notifyNewUserEmail && !validateUsers) {    						
 								notiProvider.notifyNewUserEmail(uEdit, pw, site != null ? site.getTitle():"");
+						} else if (notifyNewUserEmail && validateUsers) {
+							validationUsers.add(uEdit.getId());
 						}
 					} catch (UserIdInvalidException ee) {
 						targettedMessageList.addMessage(new TargettedMessage("java.isinval",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
@@ -678,6 +690,13 @@ public class SiteAddParticipantHandler {
 			}
 		}
 
+		//finally send any account validations
+		for (int i = 0; i < validationUsers.size(); i++) {
+			String userId = validationUsers.get(i);
+			validationLogic.createValidationAccount(userId, true);
+		}
+		
+		
 		if (addedParticipantEIds.size() != 0
 				&& (!"".equals(notAddedOfficialAccounts) || !"".equals(notAddedNonOfficialAccounts))) {
 			// at lease one officialAccount account or an nonOfficialAccount
