@@ -248,7 +248,7 @@ sakai.siteTypeSetup = function(){
         $('#submitBuildOwn').attr('disabled', '');
         
     });
-}
+};
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
     // toggler=class of click target
@@ -278,6 +278,13 @@ sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
 /*
  initialize a jQuery-UI dialog
  */
+
+utils.setupUtils= function(){
+    $('.revealInstructions').click(function(e){
+		e.preventDefault();
+        $(this).hide().next().fadeIn('fast');
+    });
+}; 
 utils.startDialog = function(dialogTarget){
     $("#" + dialogTarget).dialog({
         close: function(event, ui){

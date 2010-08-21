@@ -12,6 +12,7 @@
 		sakai.getGroupInfo('moreInfoGroups','dialog','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','&nbsp;');
 		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
 //    	sakai.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+		utils.setupUtils();
 		$("#accordion").accordion({
 			header: 'h4',
 			active: false,
@@ -146,13 +147,13 @@ function printPreview(target){
 				<td>
 					#if ($!published)
 						#if ($!siteJoinable)
-							$tlang.getString("sitegen.siteinfolist.sitecan")
+							<span class="highlight">$tlang.getString("sitegen.siteinfolist.sitecan")</span>
 						#else
 							$tlang.getString("sitegen.siteinfolist.sitepar")
 						#end
 					#else
 						## unpublished site
-						$tlang.getString("sitegen.siteinfolist.siteown")
+							<span class="highlight">$tlang.getString("sitegen.siteinfolist.siteown")</span>
 					#end
 				</td>
 			</tr>
@@ -162,10 +163,12 @@ function printPreview(target){
 				</th>
 				<td>
 					#if ($!published && $!include)
-						$tlang.getString("sitegen.siteinfolist.yes")
+						<span class="highlight">$tlang.getString("sitegen.siteinfolist.yes")</span>
 					#else
 						$tlang.getString("sitegen.siteinfolist.no")
 					#end
+					<a href="#" id="displayPublicInfo" class="revealInstructions">$tlang.getString("ediacc.dismysit.h.a")</a>
+					<span class="instruction textPanelFooter" id="displayPublicInfoText" style="display:none">$tlang.getString("ediacc.dismysit.h")</span>
 				</td>
 			</tr>
 			<tr>
