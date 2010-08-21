@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/api/src/main/java/org/sakaiproject/antivirus/api/VirusFoundException.java $
- * $Id: VirusFoundException.java 68335 2009-10-29 08:18:43Z david.horwitz@uct.ac.za $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
+ * Copyright (c) 2008, 2009, 2010 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +36,16 @@ import org.sakaiproject.conditions.api.ConditionTemplateSet;
 import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.conditions.api.Rule.Conjunction;
 
-
 public class BaseConditionService implements ConditionService, Observer {
 
-	
 	private static Log log = LogFactory.getLog(BaseConditionService.class);
 	
 	private Map<String, String> eventLookup = new HashMap<String, String>();
 	private Map<String, ConditionProvider> registeredProviders = new HashMap<String, ConditionProvider>();
 	
-	public void init() { }
+	public void init() { 
+		log.info("init()");
+	}
 
 	public String addRule(String eventType, Rule rule) {
 		return "foo";
@@ -53,7 +53,6 @@ public class BaseConditionService implements ConditionService, Observer {
 
 	public ConditionTemplateSet getConditionTemplateSetForService(
 			String serviceId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -62,18 +61,20 @@ public class BaseConditionService implements ConditionService, Observer {
 	}
 
 	public void registerConditionTemplates(
-			ConditionTemplateSet conditionTemplateSet) {
-		// TODO Auto-generated method stub
-		
+			ConditionTemplateSet conditionTemplateSet) {		
 	}
 
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
+	public void update(Observable o, Object arg) {		
 	}
 	
 	public Map<String, String> getEntitiesForServiceAndContext(String serviceName, String contextId) {
-		return registeredProviders.get(serviceName).getEntitiesForContext(contextId);
+		ConditionProvider provider = registeredProviders.get(serviceName);
+		
+		if (provider == null) {
+			return new HashMap<String,String>();
+		}
+		
+		return provider.getEntitiesForContext(contextId);
 	}
 
 	public String getClassNameForEvent(String event) {
