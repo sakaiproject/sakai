@@ -21,10 +21,8 @@
 
 package org.sakaiproject.portal.charon.site;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -485,8 +483,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String iconUrl = "";
 		try { 
 			if (site.getIconUrlFull() != null)
-				iconUrl = new URL(site.getIconUrlFull()).toString();
-		} catch (MalformedURLException e) {
+				iconUrl = new URI(site.getIconUrlFull()).toString();
+		} catch (URISyntaxException uex) {
 			log.debug("Icon URL is invalid: " + site.getIconUrlFull());
 		}
 
