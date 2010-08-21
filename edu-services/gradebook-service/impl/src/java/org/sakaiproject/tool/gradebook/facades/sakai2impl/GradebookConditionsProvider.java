@@ -31,7 +31,13 @@ public class GradebookConditionsProvider implements ConditionProvider {
 	}
 
 	public Map<String, String> getEntitiesForContext(String gradebookUid) {
+
 		Map<String, String> rv = new HashMap<String, String>();
+
+		if (!gbs.isGradebookDefined(gradebookUid)) {
+			return rv;
+		}
+		
 		List<Assignment> assignments = gbs.getAssignments(gradebookUid);
 		for (Assignment asn : assignments) {
 			String assignmentName = asn.getName();
