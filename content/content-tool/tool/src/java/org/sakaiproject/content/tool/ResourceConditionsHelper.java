@@ -159,7 +159,8 @@ public class ResourceConditionsHelper {
 
 	
 	private static boolean conditionsEnabled() {
-		return ServerConfigurationService.getBoolean("conditions.service.enabled", Boolean.FALSE);
+		return ServerConfigurationService.getBoolean("conditions.service.enabled", Boolean.FALSE)
+			&& conditionService != null && !conditionService.getRegisteredServiceNames().isEmpty();
 	}
 
 
