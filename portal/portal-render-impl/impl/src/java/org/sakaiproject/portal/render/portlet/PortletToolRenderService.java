@@ -61,6 +61,7 @@ import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder
 import org.sakaiproject.portal.render.portlet.servlet.BufferedServletResponse;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletActionRequest;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 
@@ -365,6 +366,10 @@ public class PortletToolRenderService implements ToolRenderService
 
 	private static boolean isIn168TestMode(HttpServletRequest request)
 	{
+		if ( ! "true".equals(ServerConfigurationService.getString("portal.allow.test168", null)) ) 
+		{
+			return false;
+		}
 		HttpSession session = request.getSession(true);
 		if (session.getAttribute("test168") != null
 				|| request.getParameter("test168") != null)
