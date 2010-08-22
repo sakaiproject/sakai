@@ -265,6 +265,8 @@ public class ToolPortal extends HttpServlet
 	 * @param skin
 	 * @throws ToolException
 	 */
+	// NOTE: This code is duplicated in SkinnableCharonPortal.java
+	// make sure to change code both places
 	protected void setupForward(HttpServletRequest req, HttpServletResponse res,
 			Placement p, String skin) throws ToolException
 	{

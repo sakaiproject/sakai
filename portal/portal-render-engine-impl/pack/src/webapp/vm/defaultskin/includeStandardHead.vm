@@ -5,19 +5,12 @@
 <!-- START from includeStandardHead.vm -->
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<!-- this caises problems for layout nneds investihating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
-<!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
-<![endif]><![endif]-->
-<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
-
-    <meta http-equiv="Content-Style-Type" content="text/css" />
+        <meta http-equiv="Content-Style-Type" content="text/css" />
 #if (! $currentPlacement && $isPDA )
     <meta name="viewport" content="width=320, user-scalable=no" />
 #end
 #if ( ${bufferedResponse} && ${responseHead} ) 
-<!-- Head material from Tool (will include title and headscripts) -->
+<!-- Head material from Tool in PDA mode (will include title and headscripts) -->
 ${responseHead}
 <!-- End of Head material from Tool -->
 	#if (  $pageColumn0Tools )
@@ -42,9 +35,18 @@ ${tool.toolRenderResult.getTitle()}
 	#end
 #else 
     <title>${pageTitle}</title>
+${sakai_html_head_css_base}
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
 #end
+
+<!-- this caises problems for layout nneds investihating -->
+    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
+<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 <script type="text/javascript" language="JavaScript">
 	var portal = { // SAK-16484 Allow Javascript to easily get at user details.

@@ -1069,6 +1069,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSiteType", siteType);
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
+                // Get the tool header properties
+                Properties props = toolHeaderProperties(skin);
+                for(Object okey : props.keySet() ) 
+                {
+                        String key = (String) okey;
+			String keyund = key.replace('.','_');
+                        rcontext.put(keyund,props.getProperty(key));
+                }
+
 		return rcontext;
 	}
 
@@ -1188,7 +1197,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public String getPlacement(HttpServletRequest req, HttpServletResponse res,
 			Session session, String placementId, boolean doPage) throws ToolException
-			{
+	{
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
 		if (siteId == null) return placementId; // Standard placement
 
@@ -1229,11 +1238,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			return toolConfig.getId();
 		}
 
-			}
+	}
 
-	public void setupForward(HttpServletRequest req, HttpServletResponse res,
-			Placement p, String skin) throws ToolException
-			{
+	// NOTE: This code is duplicated in ToolPortal.java - make sure to change 
+	// both places
+	public Properties toolHeaderProperties(String skin) 
+	{
+		Properties retval = new Properties();
 		// setup html information that the tool might need (skin, body on load,
 		// js includes, etc).
 		if (skin == null || skin.length() == 0)
@@ -1246,7 +1257,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
+		// TODO: Should we include jquery here?  See includeStandardHead.vm
 		String head = headCss + headJs;
+
+		retval.setProperty("sakai.html.head", head);
+		retval.setProperty("sakai.html.head.css", headCss);
+		retval.setProperty("sakai.html.head.css.base", headCssToolBase);
+		retval.setProperty("sakai.html.head.css.skin", headCssToolSkin);
+		retval.setProperty("sakai.html.head.js", headJs);
+
+		return retval;
+	}
+
+	public void setupForward(HttpServletRequest req, HttpServletResponse res,
+			Placement p, String skin) throws ToolException
+        {
+		// Get the tool header properties
+		Properties props = toolHeaderProperties(skin);
+		for(Object okey : props.keySet() ) 
+		{
+			String key = (String) okey;
+			req.setAttribute(key,props.getProperty(key));
+		}
+
 		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)
 		{
@@ -1254,24 +1287,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			bodyonload.append("setMainFrameHeight('" + element + "');");
 		}
 		bodyonload.append("setFocus(focus_path);");
-
-		// to force all non-legacy tools to use the standard css
-		// to help in transition (needs corresponding entry in properties)
-		// if
-		// ("true".equals(ServerConfigurationService.getString("skin.force")))
-		// {
-		// headJs = headJs + headCss;
-		// }
-
-		req.setAttribute("sakai.html.head", head);
-		req.setAttribute("sakai.html.head.css", headCss);
-		req.setAttribute("sakai.html.head.css.base", headCssToolBase);
-		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
-		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
 
 		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
-			}
+	}
 
 	/**
 	 * Forward to the tool - but first setup JavaScript/CSS etc that the tool
