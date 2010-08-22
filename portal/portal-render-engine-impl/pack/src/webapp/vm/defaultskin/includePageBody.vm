@@ -74,7 +74,7 @@
 							<div class="portletMainWrap">
 								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
 									class ="portletMainIframe"
-									height="50"
+									height="475"
 									width="100%"
 									frameborder="0"
 									marginwidth="0"
@@ -154,7 +154,7 @@
 							<div class="portletMainWrap">
 								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
 									class ="portletMainIframe"
-									height="50"
+									height="475"
 									width="100%"
 									frameborder="0"
 									marginwidth="0"
