@@ -149,18 +149,6 @@ public class GalleryImageEdit extends Panel {
 		
 		add(new GalleryImageRenderer("galleryImageMainRenderer", image
 				.getMainResource()));
-		
-		// make sure remove confirm container not displayed when reopening
-//		mainImageWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-//
-//			public void onClose(AjaxRequestTarget target) {
-//
-//				imageOptionsContainer.setVisible(true);
-//				removeConfirmContainer.setVisible(false);
-//				target.addComponent(imageOptionsContainer);
-//			}
-//			
-//		});
 	}
 
 	private AjaxFallbackButton createRemoveCancelButton(Form imageEditForm) {
