@@ -1176,16 +1176,21 @@ div.wicket-aa ul li.selected {
 	position: relative;
 }
 
-.gallery-item {
-	
+.gallery-item img {
+
 }
 
 .gallery-image-panel {
 	cursor: pointer;
 }
 
-.gallery-main-image-form {
+.gallery-image-form {
 	position: relative;
+}
+
+.gallery-image-form img {
+	width: expression(Math.min(parseInt(this.offsetWidth),575) + "px");
+	max-width: 575px;
 }
 
 /* spacing between gallery images in grid */

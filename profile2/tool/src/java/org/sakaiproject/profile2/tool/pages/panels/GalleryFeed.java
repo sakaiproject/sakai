@@ -106,11 +106,7 @@ public class GalleryFeed extends Panel {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						// view-only (i.e. no edit functionality)
-						if (viewingUserId.equals(ownerUserId)) {
-							setResponsePage(new MyPicture(viewingUserId, image, getCurrentPage()));
-						} else {
-							setResponsePage(new ViewPicture(image));
-						}
+						setResponsePage(new ViewPicture(image));
 					}
 				};
 				galleryFeedItem.add(galleryImageThumbnailRenderer);
