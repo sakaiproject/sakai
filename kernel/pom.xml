@@ -626,9 +626,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>commons-math</groupId>
+                <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math</artifactId>
-                <version>1.2</version>
+                <version>2.1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
