@@ -20,22 +20,22 @@ hr.itemSeparator{
 /*SECTION 2 LINKS*/
 a:link{
 	color: #35b;
-	text-decoration: underline !important;
+	text-decoration: underline;
 }
 
 a:visited{
 	color: #53b;
-	text-decoration: underline !important;
+	text-decoration: underline;
 }
 
 a:hover,a:active{
 	color: #33f;
-	text-decoration: underline !important;
+	text-decoration: underline;
 }
 
 a:focus{
 	color: #33f;
-	text-decoration: underline !important;
+	text-decoration: underline;
 }
 
 /*links inside the calendar tool tables*/
