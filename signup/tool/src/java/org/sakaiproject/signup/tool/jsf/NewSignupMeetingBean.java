@@ -94,6 +94,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private String repeatType;
 
 	private Date repeatUntil;
+	
+	/* 0 for num of repeat, 1 for date choice*/
+	private String recurLengthChoice;
+	
+	private int occurrences;
 
 	private boolean assignParicitpantsToAllRecurEvents = false;
 
@@ -247,6 +252,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		eidInputMode = false;
 		repeatType = ONCE_ONLY;
 		repeatUntil = calendar.getTime();
+		recurLengthChoice="1";//0 for num of repeat, 1 for date choice
+		occurrences=0;
 		this.publishedSite = null;
 		//Custom defined time slots allocation
 		userDefinedTS=false;
@@ -396,18 +403,38 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 			setRecurrence(false);
 			if (!(getRepeatType().equals(ONCE_ONLY))) {
-				int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), eventStartTime,
+				int repeatNum = getOccurrences();
+				if("1".equals(getRecurLengthChoice())){
+					repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), eventStartTime,
 						getRepeatUntil());
-				if ((DAILY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(eventStartTime, eventEndTime)) {
+				}
+					
+				if ((DAILY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType())) && isMeetingOverRepeatPeriod(eventStartTime, eventEndTime, 1)) {
 					validationError = true;
 					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
+					return;
+				}
+				
+				if (WEEKLY.equals(getRepeatType()) && isMeetingOverRepeatPeriod(eventStartTime, eventEndTime, 7)) {
+					validationError = true;
+					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.weekly.problem"));
+					return;
+				}
+				
+				if (BIWEEKLY.equals(getRepeatType()) && isMeetingOverRepeatPeriod(eventStartTime, eventEndTime, 14)) {
+					validationError = true;
+					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.biweekly.problem"));
 					return;
 				}
 				// TODO need to check for weekly too?
 
 				if (repeatNum < 1) {
 					validationError = true;
-					Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
+					if("1".equals(getRecurLengthChoice()))
+						Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
+					else
+						Utilities.addErrorMessage(Utilities.rb.getString("event.repeatNnum.bigger.than.one"));
+					
 					return;
 				}
 				setRecurrence(true);
@@ -467,12 +494,19 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		int endYear = calendar.get(Calendar.YEAR);
 		int endMonth = calendar.get(Calendar.MONTH);
 		int endDay = calendar.get(Calendar.DATE);
-		if (startDay != endDay)
-			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoDays"));
-		if (startMonth != endMonth)
-			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoMonths"));
-		if (startYear != endYear)
+		if (startYear != endYear){
 			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoYears"));
+			return;
+		}
+		if (startMonth != endMonth){
+			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoMonths"));
+			return;
+		}
+		if (startDay != endDay){
+			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoDays"));
+			return;
+		}
+		
 	}
 	
 	/*private boolean isMeetingLengthOver24Hours(SignupMeeting sm){
@@ -483,9 +517,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		return true;
 	}*/
 	
-	private boolean isMeetingLengthOver24Hours(Date startTime, Date endTime){
+	private boolean isMeetingOverRepeatPeriod(Date startTime, Date endTime, int repeatPeriodInDays){
 		long duration= endTime.getTime()- startTime.getTime();
-		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
+		if( 24*repeatPeriodInDays - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
 			return false;
 		
 		return true;
@@ -1456,6 +1490,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private void processSaveMeetings() {
 		signupMeeting.setRepeatUntil(getRepeatUntil());
+		int repeatNum = getOccurrences();
+		if("1".equals(getRecurLengthChoice())){
+			repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
+				getRepeatUntil());
+		}
+		signupMeeting.setRepeatNum(repeatNum);		
 		signupMeeting.setRepeatType(getRepeatType());
 		
 		if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
@@ -1468,7 +1508,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		
 		CreateMeetings createMeeting = new CreateMeetings(signupMeeting, sendEmail,
 				!assignParicitpantsToAllRecurEvents, assignParicitpantsToAllRecurEvents, getSignupBegins(),
-				getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade, signupMeetingService,
+				getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), getRecurLengthChoice(), sakaiFacade, signupMeetingService,
 				getAttachmentHandler(), sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
 		try {
@@ -1687,6 +1727,22 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setSendEmailAttendeeOnly(boolean sendEmailAttendeeOnly) {
 		this.sendEmailAttendeeOnly = sendEmailAttendeeOnly;
+	}
+
+	public String getRecurLengthChoice() {
+		return recurLengthChoice;
+	}
+
+	public void setRecurLengthChoice(String recurLengthChoice) {
+		this.recurLengthChoice = recurLengthChoice;
+	}
+
+	public int getOccurrences() {
+		return occurrences;
+	}
+
+	public void setOccurrences(int occurrences) {
+		this.occurrences = occurrences;
 	}
 			
 }

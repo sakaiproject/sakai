@@ -43,7 +43,7 @@
 											<h:outputText value="&nbsp;" escape="false"/>
 									</f:facet>
 										<h:commandLink action="#{UserDefineTimeslotBean.deleteTSblock}" rendered="#{tsWrapper.newlyAddedTS || UserDefineTimeslotBean.placeOrderBean == UserDefineTimeslotBean.copyBeanOrderName}">
-											<h:graphicImage value="/images/new.png" alt="New time slot" title="#{msgs.title_tip_delete_this_ts}"  styleClass="openCloseImageIcon" rendered="#{tsWrapper.newTimeslotBlock}"/>
+											<h:graphicImage value="/images/new.png" alt="New time slot" title="#{msgs.title_tip_delete_this_ts}"  styleClass="openCloseImageIcon" rendered="#{tsWrapper.newTimeslotBlock && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.newMeetingBeanOrderName}"/>
 							        		<h:graphicImage value="/images/ts_delete.png" alt="delete slot" title="#{msgs.title_tip_delete_this_ts}" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon"/>
 							        	</h:commandLink>
 							        	<h:commandLink action="#{UserDefineTimeslotBean.deleteTSblock}" rendered="#{!tsWrapper.newlyAddedTS && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.copyBeanOrderName }" onmousedown="confirmTsCancel(this,'#{msgs.confirm_cancel}');">
@@ -86,16 +86,11 @@
 					    </t:dataTable>
 					    
 					    <h:outputText id="addMoreTS_1" value ="&nbsp;" escape="false" styleClass="titleText" />
-					    <h:panelGrid columns="2" id="addMoreTS_2">
+					    <h:panelGrid columns="1" id="addMoreTS_2">
 					    	<h:commandLink action="#{UserDefineTimeslotBean.addOneTSBlock}" styleClass="activeTag" actionListener="#{UserDefineTimeslotBean.validateTimeslots}">
 					    		<h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" />
 					    	 	<h:outputLabel value="#{msgs.add_more_ts}"  style="font-weight:bold" styleClass="activeTag"/>
-					    	 </h:commandLink>
-					    	  
-					    	 <h:selectOneRadio layout="lineDirection" value="#{UserDefineTimeslotBean.bottom}" styleClass="meetingRadioBtn">
-					    	 	<f:selectItem itemValue="#{false}" itemLabel="#{msgs.add_to_top}"/>                    
-								<f:selectItem itemValue="#{true}" itemLabel="#{msgs.add_to_bottom}"/>   
-					    	 </h:selectOneRadio>
+					    	 </h:commandLink>					    	  
 					    </h:panelGrid>
 					    
 					    <h:outputText value="&nbsp;" escape="false"/>
@@ -136,8 +131,10 @@
 				var endmonth = document.getElementById(prefix + pos + ":endTime.month").value;
 				var endday = document.getElementById(prefix + pos + ":endTime.day").value;
 						
-				if (endyear >= year && endmonth >=month && endday >= day)
-					return;//don't modify
+				if (endyear > year 
+						||(endyear == year) && ( endmonth > month) 
+						||(endyear == year) && ( endmonth == month)&&( endday >= day) )
+						return;//don't modify
 					
 				document.getElementById(prefix + pos + ":endTime.year").value=year;	
 				document.getElementById(prefix + pos + ":endTime.month").value=month;

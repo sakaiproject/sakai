@@ -178,9 +178,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		meeting.setSignupDeadline(sDeadline);
 	}
 	
-	public boolean isMeetingLengthOver24Hours(Date startTime, Date endTime){
+	public boolean isMeetingOverRepeatPeriod(Date startTime, Date endTime, int repeatPeriodInDays){
 		long duration= endTime.getTime()- startTime.getTime();
-		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
+		if( 24*repeatPeriodInDays - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
 			return false;
 		
 		return true;

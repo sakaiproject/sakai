@@ -126,7 +126,10 @@
 							<h:outputText id="recurWarnLabel_1" value="" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
 							<h:outputText id="recurWarnLabel_2" value="#{msgs.warn_copy_recurred_event}" styleClass="alertMessage" style="width:95%" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
 							
-							<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />                                          
+							 <h:panelGroup>
+		                     	<h:outputText value="#{msgs.star_character}" style="color:#B11;" />  
+		                     	<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />  
+		                     </h:panelGroup>  
 		                     <h:panelGroup>                            
 		                            <h:selectOneMenu id="recurSelector" value="#{CopyMeetingSignupMBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); isShowAssignToAllChoice(); isCopyRecurEvents(value); return false;">
 		                                <f:selectItem itemValue="no_repeat" itemLabel="#{msgs.label_once}"/>
@@ -135,13 +138,31 @@
 		                                <f:selectItem itemValue="weekly" itemLabel="#{msgs.label_weekly}"/>
 		                                <f:selectItem itemValue="biweekly" itemLabel="#{msgs.label_biweekly}"/>                           
 		                             </h:selectOneMenu>
-		                                                
-		                            <h:panelGroup id="utilCalendar" style="margin-left:35px; display:none;">
-		                            	<h:outputText value="#{msgs.star_character}" style="color:#B11;" />                    
-		                            	<h:outputText value="#{msgs.event_until}" style="font-weight:bold;" styleClass="titleText"/>
-		                                <t:inputDate id="until" type="date"  value="#{CopyMeetingSignupMBean.repeatUntil}"  popupCalendar="true"   styleClass="untilCalendar"/>                                  	         	 
-		                		        <h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
-		                           </h:panelGroup>                    
+		                            
+			                         <h:panelGroup id="utilCalendar" style="margin-left:35px;display:none;">
+				                           <h:panelGrid columns="2" >
+				                               <h:outputText value="#{msgs.event_end_after}" style="margin-left:5px" />
+				                           
+					                           <h:panelGrid columns="2">
+					                            	<h:selectOneRadio id="recurNumDateChoice" value="#{CopyMeetingSignupMBean.recurLengthChoice}" styleClass="titleText" layout="pageDirection" >
+						                                <f:selectItem itemValue="0" />
+						                                <f:selectItem itemValue="1" />
+					                               </h:selectOneRadio>
+					                               <h:panelGrid columns="1">
+						                                <h:panelGroup id="numOfRepeat" style="margin-left:3px;">
+							                                <h:inputText id="numRepeat"  value="#{CopyMeetingSignupMBean.occurrences}" maxlength="2" size="1" onkeyup="validateRecurNum();" styleClass="untilCalendar" /> 
+							                                <h:outputText value="#{msgs.event_occurrences}" style="margin-left:10px" />
+						                		        </h:panelGroup>
+						                                <h:panelGroup id="endOfDate" style="margin-left:3px;">
+							                            	 <!-- t:inputCalendar id="ex" value=""  renderAsPopup="true" monthYearRowClass="" renderPopupButtonAsImage="true" dayCellClass=""   styleClass="untilCalendar"/ -->             					
+							                                <t:inputDate id="until" type="date"  value="#{CopyMeetingSignupMBean.repeatUntil}"  popupCalendar="true"   styleClass="untilCalendar"/>
+							                		        <h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
+						                		        </h:panelGroup>
+					                		        </h:panelGrid>
+					                		      </h:panelGrid> 
+					                		  </h:panelGrid>
+				                       </h:panelGroup>
+			                       
 		                	 </h:panelGroup>
 														
 							<h:outputText value="#{msgs.event_signup_start}" rendered="#{!CopyMeetingSignupMBean.announcementType}" escape="false"/>

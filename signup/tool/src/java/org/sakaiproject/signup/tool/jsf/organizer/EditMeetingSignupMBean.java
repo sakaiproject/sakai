@@ -547,11 +547,23 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			this.signupMeeting.setMeetingType(CUSTOM_TIMESLOTS);
 		}
 				
-		if (DAILY.equals(this.signupMeeting.getRepeatType()) && isMeetingLengthOver24Hours(this.signupMeeting.getStartTime(),this.signupMeeting.getEndTime())) {
+		if ((DAILY.equals(this.signupMeeting.getRepeatType())|| WEEKDAYS.equals(this.signupMeeting.getRepeatType())) && isMeetingOverRepeatPeriod(this.signupMeeting.getStartTime(),this.signupMeeting.getEndTime(), 1)) {
 			validationError = true;
 			Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 			return;
-		}		
+		}
+		
+		if (WEEKLY.equals(this.signupMeeting.getRepeatType()) && isMeetingOverRepeatPeriod(this.signupMeeting.getStartTime(), this.signupMeeting.getEndTime(), 7)) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.weekly.problem"));
+			return;
+		}
+		
+		if (BIWEEKLY.equals(this.signupMeeting.getRepeatType()) && isMeetingOverRepeatPeriod(this.signupMeeting.getStartTime(), this.signupMeeting.getEndTime(), 14)) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.biweekly.problem"));
+			return;
+		}
 		
 		int timeduration = getTimeSlotDuration();
 		if (timeduration < 1) {

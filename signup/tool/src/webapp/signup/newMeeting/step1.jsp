@@ -100,8 +100,10 @@
 							</h:panelGroup>
 							
 		                 	         
-		                                               
-		                     <h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />                                          
+		                     <h:panelGroup>
+		                     	<h:outputText value="#{msgs.star_character}" style="color:#B11;" />  
+		                     	<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />  
+		                     </h:panelGroup>                          
 		                     <h:panelGroup>                            
 		                            <h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); return false;">
 		                                <f:selectItem itemValue="no_repeat" itemLabel="#{msgs.label_once}"/>
@@ -110,14 +112,31 @@
 		                                <f:selectItem itemValue="weekly" itemLabel="#{msgs.label_weekly}"/>
 		                                <f:selectItem itemValue="biweekly" itemLabel="#{msgs.label_biweekly}"/>                           
 		                             </h:selectOneMenu>
-		                                                
-		                            <h:panelGroup id="utilCalendar" style="margin-left:35px;">
-		                            	<h:outputText value="#{msgs.star_character}" style="color:#B11;" />                    
-		                            	<h:outputText value="#{msgs.event_until}" style="font-weight:bold;" styleClass="titleText"/>
-		                            	 <!-- t:inputCalendar id="ex" value=""  renderAsPopup="true" monthYearRowClass="" renderPopupButtonAsImage="true" dayCellClass=""   styleClass="untilCalendar"/ -->             					
-		                                <t:inputDate id="until" type="date"  value="#{NewSignupMeetingBean.repeatUntil}"  popupCalendar="true"   styleClass="untilCalendar"/>                                  	         	 
-		                		        <h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
-		                           </h:panelGroup>                    
+		                            
+			                         <h:panelGroup id="utilCalendar" style="margin-left:35px;">
+			                           <h:panelGrid columns="2" >
+			                               <h:outputText value="#{msgs.event_end_after}" style="margin-left:5px" />
+			                           
+				                           <h:panelGrid columns="2">
+				                            	<h:selectOneRadio id="recurNumDateChoice" value="#{NewSignupMeetingBean.recurLengthChoice}" styleClass="titleText" layout="pageDirection" >
+					                                <f:selectItem itemValue="0" />
+					                                <f:selectItem itemValue="1" />
+				                               </h:selectOneRadio>
+				                               <h:panelGrid columns="1">
+					                                <h:panelGroup id="numOfRepeat" style="margin-left:3px;">
+						                                <h:inputText id="numRepeat"  value="#{NewSignupMeetingBean.occurrences}" maxlength="2" size="1" onkeyup="validateRecurNum();" styleClass="untilCalendar" /> 
+						                                <h:outputText value="#{msgs.event_occurrences}" style="margin-left:10px" />
+					                		        </h:panelGroup>
+					                                <h:panelGroup id="endOfDate" style="margin-left:3px;">
+						                            	 <!-- t:inputCalendar id="ex" value=""  renderAsPopup="true" monthYearRowClass="" renderPopupButtonAsImage="true" dayCellClass=""   styleClass="untilCalendar"/ -->             					
+						                                <t:inputDate id="until" type="date"  value="#{NewSignupMeetingBean.repeatUntil}"  popupCalendar="true"   styleClass="untilCalendar"/>
+						                		        <h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
+					                		        </h:panelGroup>
+				                		        </h:panelGrid>
+				                		      </h:panelGrid> 
+				                		     </h:panelGrid>
+			                       </h:panelGroup>
+		                                              
 		                	 </h:panelGroup>
 		                	 
 				    		<%-- signup begin_deadline --%>
@@ -233,7 +252,7 @@
 											                        <h:outputText value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" escape="false"/>                    
 													                <h:inputText id="numberOfAttendees" value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" />
 											                    	<h:outputText value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" escape="false"/>
-																	<h:inputText id='currentTimeslotDuration' value="0" styleClass='longtext_red' size="2" onkeyup="this.blur();" onmouseup="this.blur();" />             
+																	<h:inputText id='currentTimeslotDuration' value="0" styleClass='longtext_red' size="2" onkeyup="this.blur();" style="margin-left:12px" onmouseup="this.blur();" />             
 								                			</h:panelGrid>          
 						                         
 						                        		<h:outputText value="</div>" escape="false" />

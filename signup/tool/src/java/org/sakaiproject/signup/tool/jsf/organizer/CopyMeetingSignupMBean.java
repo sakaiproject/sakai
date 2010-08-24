@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -80,6 +81,11 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	private Date repeatUntil;
 
 	private String repeatType;
+	
+	/* 0 for num of repeat, 1 for date choice*/
+	private String recurLengthChoice;
+	
+	private int occurrences;
 
 	//private int timeSlotDuration;
 
@@ -131,6 +137,8 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		calendar.set(Calendar.MINUTE, 0);
 		calendar.set(Calendar.SECOND, 0);
 		repeatUntil = calendar.getTime();
+		recurLengthChoice="1";//0 for num of repeat, 1 for date choice
+		occurrences=0;
 		repeatType = ONCE_ONLY;
 		repeatTypeUnknown=true;
 		showAttendeeName = false;
@@ -240,6 +248,12 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			prepareCopy(sMeeting);
 
 			sMeeting.setRepeatUntil(getRepeatUntil());
+			int repeatNum = getOccurrences();
+			if("1".equals(getRecurLengthChoice())){
+				repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), sMeeting.getStartTime(),
+					getRepeatUntil());
+			}
+			sMeeting.setRepeatNum(repeatNum);
 			sMeeting.setRepeatType(getRepeatType());
 			
 			if(CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType())){
@@ -252,7 +266,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			
 			CreateMeetings createMeeting = new CreateMeetings(sMeeting, sendEmail, keepAttendees
 					&& !assignParicitpantsToAllRecurEvents, keepAttendees && assignParicitpantsToAllRecurEvents,
-					getSignupBegins(), getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade,
+					getSignupBegins(), getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), getRecurLengthChoice(), sakaiFacade,
 					signupMeetingService, getAttachmentHandler(), sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
 			createMeeting.setPublishToCalendar(isPublishToCalendar());
@@ -313,17 +327,37 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 
 		if (!(getRepeatType().equals(ONCE_ONLY))) {
-			int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), eventStartTime,
+			int repeatNum = getOccurrences();
+			if("1".equals(getRecurLengthChoice())){
+				repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), eventStartTime,
 					getRepeatUntil());
-			if ((DAILY.equals(getRepeatType())|| WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(eventStartTime, eventEndTime)) {
+			}
+
+			if ((DAILY.equals(getRepeatType())|| WEEKDAYS.equals(getRepeatType())) && isMeetingOverRepeatPeriod(eventStartTime, eventEndTime, 1)) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
+				return;
+			}
+			
+			if (WEEKLY.equals(getRepeatType()) && isMeetingOverRepeatPeriod(eventStartTime, eventEndTime, 7)) {
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.weekly.problem"));
+				return;
+			}
+			
+			if (BIWEEKLY.equals(getRepeatType()) && isMeetingOverRepeatPeriod(eventStartTime, eventEndTime, 14)) {
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.biweekly.problem"));
 				return;
 			}
 
 			if (repeatNum < 1) {
 				validationError = true;
-				Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
+				if("1".equals(getRecurLengthChoice()))
+					Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
+				else
+					Utilities.addErrorMessage(Utilities.rb.getString("event.repeatNnum.bigger.than.one"));
+				
 				return;
 			}
 		}
@@ -468,7 +502,8 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			if (meeting.getMeetingType().equals(CUSTOM_TIMESLOTS) || isUserDefinedTS()){
 				UserDefineTimeslotBean uBean = getUserDefineTimeslotBean();
 				if(uBean ==null || !uBean.COPY_MEETING.equals(uBean.getPlaceOrderBean())){
-					throw new SignupUserActionException(Utilities.rb.getString("you.have.multiple.tabs.in.browser"));
+					throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("you.have.multiple.tabs.in.browser"),
+							new Object[]{getSakaiFacade().getServerConfigurationService().getServerName()}));
 				}
 				List<TimeslotWrapper> tsWrpList = uBean.getDestTSwrpList();
 				if (tsWrpList != null){						
@@ -1036,5 +1071,21 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	public boolean getCustomTsType() {
 		return CUSTOM_TIMESLOTS.equals(this.signupMeeting.getMeetingType());
 	}
+
+	public String getRecurLengthChoice() {
+		return recurLengthChoice;
+	}
+
+	public void setRecurLengthChoice(String recurLengthChoice) {
+		this.recurLengthChoice = recurLengthChoice;
+	}
+
+	public int getOccurrences() {
+		return occurrences;
+	}
+
+	public void setOccurrences(int occurrences) {
+		this.occurrences = occurrences;
+	}	
 	
 }

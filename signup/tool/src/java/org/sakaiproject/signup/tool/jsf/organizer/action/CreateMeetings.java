@@ -83,6 +83,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 
 	private String signupBeginType;
 	
+	private String recurLengthDataType;
+	
 	private boolean publishToCalendar = true;
 
 	/**
@@ -119,7 +121,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	 */
 	public CreateMeetings(SignupMeeting signupMeeting, boolean sendEmail, boolean assignParticatpantsToFirstOne,
 			boolean assignParicitpantsToAllEvents, int signupBegin, String signupBeginType, int signupDeadline,
-			String signupDeadlineType, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler,
+			String signupDeadlineType, String recurLengthDataType, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler,
 			String currentUserId, String currentSiteId, boolean isOrganizer) {
 		super(currentUserId, currentSiteId, signupMeetingService, isOrganizer);
 		this.signupMeeting = signupMeeting;
@@ -131,6 +133,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		this.signupBeginType = signupBeginType;
 		this.deadlineTime = signupDeadline;
 		this.deadlineTimeType = signupDeadlineType;
+		this.recurLengthDataType = recurLengthDataType;
 		this.sakaiFacade = sakaiFacade;
 		this.signupMeetings = new ArrayList<SignupMeeting>();
 		this.attachmentHandler = attachmentHandler;
@@ -149,8 +152,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		int numOfRecurs = 0;// once Only
 		/* For recurrence case */
 		if (!ONCE_ONLY.equals(signupMeeting.getRepeatType())) {
-			numOfRecurs = getNumOfRecurrence(signupMeeting.getRepeatType(), signupMeeting.getStartTime(), signupMeeting
-					.getRepeatUntil());
+			numOfRecurs = signupMeeting.getRepeatNum(); 
+			//getNumOfRecurrence(signupMeeting.getRepeatType(), signupMeeting.getStartTime(), signupMeeting.getRepeatUntil());
 		}
 		calendar.setLenient(true);
 		calendar.setTime(signupMeeting.getStartTime());
@@ -220,10 +223,15 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	private void createRecurMeetings(Calendar calendar, long numOfRecurs, int intervalOfRecurs) {
 		int eday, sday, sdday, edday;
 
+		
+		
 		if (!ONCE_ONLY.equals(signupMeeting.getRepeatType()) && numOfRecurs < 1) {
 			Utilities.addErrorMessage(Utilities.rb.getString("event.repeatbeforestart"));
 			return;
 		}
+		
+		if(!ONCE_ONLY.equals(signupMeeting.getRepeatType()) && "0".equals(this.recurLengthDataType))
+			numOfRecurs = numOfRecurs - 1;
 
 		for (int i = 0; i <= numOfRecurs; i++) {
 			SignupMeeting beta = new SignupMeeting();
@@ -232,6 +240,17 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			sday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, sday);
 			beta.setStartTime(calendar.getTime());
+			
+			/*add lost event due to weekend*/
+			int makeupOnceDueToWeekend=0;
+			if(WEEKDAYS.equals(signupMeeting.getRepeatType()) && "0".equals(this.recurLengthDataType)){
+				//only makeup for user, who has select repeat-numbers option
+				int dayOfweek = calendar.get(Calendar.DAY_OF_WEEK);
+				if(dayOfweek == Calendar.SATURDAY || dayOfweek == Calendar.SUNDAY)
+					makeupOnceDueToWeekend = 1;
+				
+			}
+			
 			calendar.setTime(this.signupMeeting.getEndTime());
 			eday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, eday);
@@ -265,6 +284,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			}
 
 			this.signupMeetings.add(beta);
+			/*add lost events due to weekend when user want 5 occurrences for example*/
+			numOfRecurs += makeupOnceDueToWeekend;
 		}
 	}
 	

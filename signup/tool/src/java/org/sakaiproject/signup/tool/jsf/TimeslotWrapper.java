@@ -467,6 +467,10 @@ public class TimeslotWrapper implements Comparable{
 			throw new ClassCastException("TimeslotWrapper object expected.");
 
 		int result = this.getTimeSlot().getStartTime().compareTo(((TimeslotWrapper)o).getTimeSlot().getStartTime());
+		
+		if(result == 0){
+			result=this.getTimeSlot().getEndTime().compareTo(((TimeslotWrapper)o).getTimeSlot().getEndTime());
+		}
 		return result;
 	}
 

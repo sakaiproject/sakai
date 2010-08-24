@@ -20,7 +20,6 @@ import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 
-import sun.misc.Sort;
 
 public class UserDefineTimeslotBean implements SignupBeanConstants {
 
@@ -34,8 +33,6 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 
 	//for create new meeting step 1 case
 	private boolean userEverCreateCTS = false;
-
-	private boolean bottom = true;
 
 	private SignupMeeting signupMeeting;
 
@@ -96,7 +93,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		if(MODIFY_MEETING.equals(getPlaceOrderBean())){
 			this.someoneSignedUp=true;
 		}
-		this.bottom = true;
+		
 		this.validationError = false;
 		setPositionIndex(this.timeSlotWrpList);
 
@@ -310,12 +307,8 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		ts.setEndTime(calendar.getTime());
 		ts.setMaxNoOfAttendees(MAX_NUM_PARTICIPANTS);
 		TimeslotWrapper tsWrp = new TimeslotWrapper(ts);
-		if (getBottom()) {
-			getTimeSlotWrpList().add(tsWrp);
-		} else {
-			getTimeSlotWrpList().add(0, tsWrp);// first one
-		}
 
+		getTimeSlotWrpList().add(tsWrp);
 		setPositionIndex(this.timeSlotWrpList);
 
 		return "";
@@ -410,7 +403,6 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	private void clear() {
 		this.someoneSignedUp=false;
 		this.timeSlotWrpList = null;
-		this.bottom = true;
 		this.gobackURL = "";
 		this.putInMultipleCalendarBlocks = true;
 	}
@@ -423,7 +415,6 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		if (whoCalled.equals(this.placeOrderBean)) {
 			this.timeSlotWrpList = null;
 			this.destTSwrpList = null;
-			this.bottom = true;
 			//this.dataTsUpdated = false;
 			this.validationError = false;
 			this.placeOrderBean = "";
@@ -503,14 +494,6 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	}
 
 
-	public boolean getBottom() {
-		return bottom;
-	}
-
-	public void setBottom(boolean bottom) {
-		this.bottom = bottom;
-	}
-
 	/**
 	 * This is a getter method which provide current Iframe id for refresh
 	 * IFrame purpose.
@@ -585,9 +568,9 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	 * @return int value for duration in minutes
 	 */
 	public int getEventDuration() {
-		int duration = (int) (getEventEndTime().getTime() - getEventStartTime().getTime())
+		long duration =  (getEventEndTime().getTime() - getEventStartTime().getTime())
 				/ MINUTE_IN_MILLISEC;
-		return duration;
+		return (int) duration;
 	}
 
 	private Date getUpdatedTime(Calendar newEventStartDate, Date origEventDate, Date d) {
@@ -616,6 +599,10 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 
 	public String getCopyBeanOrderName() {
 		return COPY_MEETING;
+	}
+	
+	public String getNewMeetingBeanOrderName() {
+		return NEW_MEETING;
 	}
 	
 	public boolean getWarnUserModify(){

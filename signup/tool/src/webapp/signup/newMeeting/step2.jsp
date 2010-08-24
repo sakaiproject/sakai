@@ -98,11 +98,12 @@
 								<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/> 
 								<h:outputText value="#{NewSignupMeetingBean.eventFreqType}" rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>
 								 
-								<h:outputText value="#{msgs.event_repeat_until}" styleClass="titleText"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>
-								<h:outputText value="#{NewSignupMeetingBean.repeatUntil}" rendered="#{NewSignupMeetingBean.recurrence}">
+								<h:outputText value="#{msgs.event_repeat_until}" styleClass="titleText"  rendered="#{NewSignupMeetingBean.recurrence && NewSignupMeetingBean.recurLengthChoice=='1'}" escape="false"/>
+								<h:outputText value="#{NewSignupMeetingBean.repeatUntil}" rendered="#{NewSignupMeetingBean.recurrence && NewSignupMeetingBean.recurLengthChoice=='1'}">
 									<f:convertDateTime dateStyle="full" />
 								</h:outputText>
-								
+								<h:outputText value="#{msgs.event_repeat_num}" styleClass="titleText"  rendered="#{NewSignupMeetingBean.recurrence && NewSignupMeetingBean.recurLengthChoice=='0'}" escape="false"/>
+								<h:outputText value="#{NewSignupMeetingBean.occurrences}" rendered="#{NewSignupMeetingBean.recurrence && NewSignupMeetingBean.recurLengthChoice=='0'}" />
 								
 								<h:outputText value="#{msgs.event_location}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.location}" styleClass="longtext" escape="false"/>

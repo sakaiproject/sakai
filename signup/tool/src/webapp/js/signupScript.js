@@ -458,6 +458,15 @@
 			ampmTag2.disabled=false;
 		}
 	}
+	
+	var prev_recurNum=0;//default
+	function validateRecurNum(){
+		var recurNumTag = document.getElementById("meeting:numRepeat");
+		if(recurNumTag){
+			prev_recurNum = signup_ValidateNumber(prev_recurNum,recurNumTag,100);
+		}
+
+	}
 			
 
 

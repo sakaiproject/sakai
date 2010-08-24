@@ -577,6 +577,16 @@ public class SignupMeeting implements MeetingTypes {
 	public void setRepeatUntil(Date r) {
 		repeatUntil = r;
 	}
+	
+	//numbers of occurrences
+	private int repeatNum;	
+	public int getRepeatNum() {
+		return repeatNum;
+	}
+
+	public void setRepeatNum(int repeatNum) {
+		this.repeatNum = repeatNum;
+	}
 
 	/**
 	 * It's a getter for UI or email part.

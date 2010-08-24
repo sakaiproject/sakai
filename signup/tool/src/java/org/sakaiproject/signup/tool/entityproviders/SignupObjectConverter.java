@@ -176,7 +176,7 @@ public class SignupObjectConverter {
 				if (comment != null && comment.length() > MAX_COMMENT_DISPLAY_LENGTH)
 					comment = comment.subSequence(0, MAX_COMMENT_DISPLAY_LENGTH) + ".....";
 				sp.setComments(comment);
-				if (showAttendeeName) {
+				if (showAttendeeName || isOrganizer) {
 					sp.setDisplayName(sakaiFacade.getUserDisplayName(one.getAttendeeUserId()));
 				}
 

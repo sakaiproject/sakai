@@ -22,12 +22,14 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -279,7 +281,8 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			List<SignupTimeslot> timeslots = newlyModifyMeeting.getSignupTimeSlots();
 			UserDefineTimeslotBean uBean = getUserDefineTimeslotBean();
 			if(uBean ==null || !uBean.MODIFY_MEETING.equals(uBean.getPlaceOrderBean())){
-				throw new SignupUserActionException(Utilities.rb.getString("you.have.multiple.tabs.in.browser"));
+				throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("you.have.multiple.tabs.in.browser"),
+						new Object[]{ServerConfigurationService.getServerName()}));
 			}
 			
 			uBean.modifyTimesSlotsWithChanges(this.customTimeSlotWrpList, timeslots, calendar, showAttendeeName, toBedeletedTSList);

@@ -137,12 +137,12 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 	 */
 	@SuppressWarnings("unchecked")
 	public List<SignupMeeting> getRecurringSignupMeetings(String siteId,
-			Long recurrenceId, Date startDate) {
+			Long recurrenceId, Date currentTime) {
 		DetachedCriteria criteria = DetachedCriteria.forClass(
 				SignupMeeting.class).setResultTransformer(
 				Criteria.DISTINCT_ROOT_ENTITY).add(
 				Restrictions.eq("recurrenceId", recurrenceId)).add(
-				Restrictions.gt("startTime", startDate)).addOrder(
+				Restrictions.gt("endTime", currentTime)).addOrder(
 				Order.asc("startTime")).createCriteria("signupSites").add(
 				Restrictions.eq("siteId", siteId));
 

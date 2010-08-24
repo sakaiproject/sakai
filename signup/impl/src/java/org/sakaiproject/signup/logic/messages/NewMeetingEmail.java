@@ -121,7 +121,6 @@ public class NewMeetingEmail extends SignupEmailBase {
 		if(meeting.getMeetingType().equals(CUSTOM_TIMESLOTS)){
 			List<SignupTimeslot> tsList = meeting.getSignupTimeSlots();
 			message.append(newline +newline + rb.getString("body.meeting.timeslot.detail.title"));
-			message.append(newline);
 			if(tsList !=null){
 				int i = 1;
 				for (SignupTimeslot ts : tsList) {
@@ -129,9 +128,9 @@ public class NewMeetingEmail extends SignupEmailBase {
 						Object[] oneTsDateParam = new Object[] {
 								getTime(ts.getStartTime()).toStringLocalTime(),
 								getTime(ts.getEndTime()).toStringLocalTime()};
-						message.append(newline +MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot"), new Object[]{i}) );
-						message.append(newline +MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.timeframe"), oneTsDateParam) );
-						message.append(newline +MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.max.participants"), new Object[]{ts.getMaxNoOfAttendees()}) );
+						message.append(newline + newline + MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot"), new Object[]{i}) );
+						message.append(newline + MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.timeframe"), oneTsDateParam) );
+						message.append(newline + MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.max.participants"), new Object[]{ts.getMaxNoOfAttendees()}) );
 						//message.append(newline);
 						i++;
 					}
@@ -141,9 +140,9 @@ public class NewMeetingEmail extends SignupEmailBase {
 								getTime(ts.getStartTime()).toStringLocalShortDate(),
 								getTime(ts.getEndTime()).toStringLocalTime(),
 								getTime(ts.getEndTime()).toStringLocalShortDate()};
-						message.append(newline +MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot"), new Object[]{i}) );
-						message.append(newline +MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.timeframe.crossdays"), oneTsDateParam) );
-						message.append(newline +MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.max.participants"), new Object[]{ts.getMaxNoOfAttendees()}) );
+						message.append(newline + newline + MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot"), new Object[]{i}) );
+						message.append(newline + MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.timeframe.crossdays"), oneTsDateParam) );
+						message.append(newline + MessageFormat.format(rb.getString("body.attendee.custom.defined.meeting.timeslot.max.participants"), new Object[]{ts.getMaxNoOfAttendees()}) );
 						//message.append(newline);
 						i++;
 					}
