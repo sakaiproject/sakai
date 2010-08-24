@@ -164,7 +164,22 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		ActionReturn actionReturn = new ActionReturn(connections);
 		return actionReturn;
 	}
-	
+		
+	@EntityCustomAction(action="friendStatus",viewKey=EntityView.VIEW_SHOW)
+	public Object getConnectionStatus(EntityReference ref, Map<String, Object> parameters) {
+		
+		//convert input to uuid (user making query)
+		String uuid = sakaiProxy.ensureUuid(ref.getId());
+		if(StringUtils.isBlank(uuid)) {
+			throw new EntityNotFoundException("Invalid user.", ref.getId());
+		}
+		
+		if (false == parameters.containsKey("friendId")) {
+			throw new EntityNotFoundException("Parameter must be specified: friendId", ref.getId());
+		}
+		
+		return connectionsLogic.getConnectionStatus(uuid, parameters.get("friendId").toString());
+	}
 	
 	
 	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
