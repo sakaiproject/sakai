@@ -61,6 +61,7 @@
 			<email>nuno@ufp.edu.pt</email>
 			<roles>
 				<role>Translation - Portuguese (pt_PT)</role>
+				<role>Issue reporting</role>
 				<role>Contributed patches</role>
 			</roles>
 		</contributor>
@@ -138,6 +139,13 @@
 		<contributor>
 			<name>Seth Theriault</name>
 			<email>slt@columbia.edu</email>
+			<roles>
+				<role>Issue reporting</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Robert Long</name>
+			<email>relong@svsu.edu</email>
 			<roles>
 				<role>Issue reporting</role>
 			</roles>
