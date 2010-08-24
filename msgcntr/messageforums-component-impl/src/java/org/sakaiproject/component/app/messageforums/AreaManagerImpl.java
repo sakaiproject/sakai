@@ -36,8 +36,11 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.ForumScheduleNotification;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
+import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.exception.IdUnusedException;
@@ -69,8 +72,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private SessionManager sessionManager;
 
     private MessageForumsTypeManager typeManager;
-
-
 
     private ServerConfigurationService serverConfigurationService;
     private Boolean DEFAULT_AUTO_MARK_READ = false;    
@@ -164,6 +165,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setModerated(Boolean.FALSE);
             area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
 	    area.setSendEmailOut(Boolean.TRUE);
+	    	area.setAvailabilityRestricted(Boolean.FALSE);
             saveArea(area);
             //if set populate the default Forum and topic
             if  (serverConfigurationService.getBoolean("forums.setDefault.forum", true)) {
@@ -239,10 +241,15 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
      * @param area Area to save
      */
     public void saveArea(Area area) {
+    	String currentUser = getCurrentUser();
+    	saveArea( area, currentUser);
+    }
+    
+    public void saveArea(Area area, String currentUser){
         boolean isNew = area.getId() == null;
 
         area.setModified(new Date());
-        area.setModifiedBy(getCurrentUser());
+        area.setModifiedBy(currentUser);
         
         boolean someForumHasZeroSortIndex = false;
 
@@ -265,9 +272,14 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
               }
            }
         }
-        
-        
+        boolean origVal = area.getAvailability();
+        area.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(area.getAvailabilityRestricted(), area.getOpenDate(), area.getCloseDate()));
         getHibernateTemplate().saveOrUpdate(area);
+        if(origVal != area.getAvailability()){
+        	//update synoptic info
+        	SynopticMsgcntrManagerCover.resetAllUsersSynopticInfoInSite(area.getContextId());
+        }
+        ForumScheduleNotificationCover.scheduleAvailability(area);
 
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
@@ -362,5 +374,4 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     	
     }
 
-    
 }

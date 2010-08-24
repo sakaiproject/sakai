@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.OpenForum;
@@ -33,7 +35,16 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     private Boolean locked;
     private String defaultAssignName;
     private DBMembershipItem membershipItem;
-    
+    private Date openDate;
+    private Date closeDate;
+    /**
+     * availabilityRestricted: this is the radio button the users turns on or off this feature with
+     */
+    private Boolean availabilityRestricted = false;
+    /**
+     * if availabilityRestricted, then this determines whether the forum is disabled or not
+     */
+    private Boolean availability = true;
     // indecies for hibernate
     //protected int areaindex;
 
@@ -83,4 +94,36 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 		this.membershipItem = membershipItem;
 	}
 
+	public Boolean getAvailabilityRestricted() {
+		return availabilityRestricted;
+	}
+	
+	public void setAvailabilityRestricted(Boolean restricted) {
+		this.availabilityRestricted = restricted;
+		
+	}
+
+	public Date getOpenDate() {
+		return openDate;
+	}
+
+	public void setOpenDate(Date openDate) {
+		this.openDate = openDate;
+	}
+
+	public Date getCloseDate() {
+		return closeDate;
+	}
+
+	public void setCloseDate(Date closeDate) {
+		this.closeDate = closeDate;
+	}
+
+	public Boolean getAvailability() {
+		return availability;
+	}
+
+	public void setAvailability(Boolean availability) {
+		this.availability = availability;
+	}
 }

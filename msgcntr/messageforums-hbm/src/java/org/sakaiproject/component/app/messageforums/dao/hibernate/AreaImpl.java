@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +63,17 @@ public class AreaImpl extends MutableEntityImpl implements Area
   private Set privateForumsSet;// = new HashSet();
   private Set discussionForumsSet;// = new HashSet();
   private Set membershipItemSet;
+  private Date openDate;
+  private Date closeDate;
+  
+  /**
+   * availabilityRestricted: this is the radio button the users turns on or off this feature with
+   */
+  private Boolean availabilityRestricted = false;
+  /**
+   * if availabilityRestricted, then this determines whether the area is disabled or not
+   */
+  private Boolean availability = true;
   
   public void setVersion(Integer version)
   {
@@ -337,5 +349,38 @@ public Set getDiscussionForumsSet() {
         
     membershipItemSet.remove(item);
   }
+
+	public Boolean getAvailabilityRestricted() {
+		return availabilityRestricted;
+	}
+	
+	public void setAvailabilityRestricted(Boolean restricted) {
+		this.availabilityRestricted = restricted;
+		
+	}
+
+	public Date getOpenDate() {
+		return openDate;
+	}
+
+	public void setOpenDate(Date openDate) {
+		this.openDate = openDate;
+	}
+
+	public Date getCloseDate() {
+		return closeDate;
+	}
+
+	public void setCloseDate(Date closeDate) {
+		this.closeDate = closeDate;
+	}
+
+	public Boolean getAvailability() {
+		return availability;
+	}
+
+	public void setAvailability(Boolean availability) {
+		this.availability = availability;
+	}
 
 }

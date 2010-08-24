@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
  
@@ -96,4 +97,20 @@ public interface Topic extends MutableEntity {
     public Boolean getAutoMarkThreadsRead();
     
     public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
+    
+    public Boolean getAvailabilityRestricted();
+    
+    public void setAvailabilityRestricted(Boolean restricted);
+      
+    public Date getOpenDate();
+
+	public void setOpenDate(Date openDate);
+	
+    public Date getCloseDate();
+    
+	public void setCloseDate(Date closeDate);
+	
+	public Boolean getAvailability();
+    
+    public void setAvailability(Boolean restricted);
 }

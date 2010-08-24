@@ -74,4 +74,10 @@ public class SynopticMsgcntrManagerCover {
 		if(service != null)			
 			service.updateSynopticMessagesForForumComparingOldMessagesCount(siteId, forumId, topicId, previousCountHM);
 	}
+	
+	public static void resetAllUsersSynopticInfoInSite(String siteId){
+		SynopticMsgcntrManager service = getInstance();
+		if(service != null)			
+			service.resetAllUsersSynopticInfoInSite(siteId);
+	}
 }

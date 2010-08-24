@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Date;
+
 
 public interface OpenForum extends BaseForum {
 
@@ -34,5 +36,21 @@ public interface OpenForum extends BaseForum {
     public String getDefaultAssignName();
 
     public void setDefaultAssignName(String defaultAssignName);
+    
+    public Boolean getAvailabilityRestricted();
+    
+    public void setAvailabilityRestricted(Boolean restricted);
+      
+    public Date getOpenDate();
+
+	public void setOpenDate(Date openDate);
+	
+    public Date getCloseDate();
+    
+	public void setCloseDate(Date closeDate);
+	
+	public Boolean getAvailability();
+    
+    public void setAvailability(Boolean restricted);
 
 }

@@ -20,7 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -76,7 +79,12 @@ public class DiscussionTopicBean
   private String moderated = "";
   private String mustRespondBeforeReading = "";
   private String parentForumId = "";
+  
+  private String openDate = "";
+  private String closeDate = "";
 
+  private SimpleDateFormat datetimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+  
   private List messages = new ArrayList();
 
   public DiscussionTopicBean(DiscussionTopic topic, DiscussionForum forum,
@@ -830,5 +838,107 @@ public class DiscussionTopicBean
 	public void setSorted(boolean sorted)
 	{
 		this.sorted = sorted;
+	}
+	
+	public String getAvailabilityRestricted()
+	  {
+		  LOG.debug("getAvailabilityRestricted()");
+		  if (topic == null || topic.getAvailabilityRestricted() == null || 
+				  topic.getAvailabilityRestricted().booleanValue() == false)
+		  {
+			  return Boolean.FALSE.toString();
+		  }
+
+		  return Boolean.TRUE.toString();
+	  }
+	  
+	  /**
+	   * Set the "availabilityRestricted" setting for the forum
+	   * @param restricted
+	   */
+	  public void setAvailabilityRestricted(String restricted)
+	  {
+		  LOG.debug("setAvailabilityRestricted()");
+		  if (restricted.equals(Boolean.TRUE.toString()))
+		  {
+			  topic.setAvailabilityRestricted(Boolean.valueOf(true));
+		  }
+		  else
+		  {
+			  topic.setAvailabilityRestricted(Boolean.valueOf(false));
+		  }
+	  }
+	
+	public String getAvailability()
+	{
+		LOG.debug("getAvailability()");
+		if (topic == null || topic.getAvailability() == null || 
+				topic.getAvailability().booleanValue() == false)
+		{
+			return Boolean.FALSE.toString();
+		}
+
+		return Boolean.TRUE.toString();
+	}
+
+	/**
+	 * Set the "Availability" setting for the forum
+	 * @param restricted
+	 */
+	public void setAvailability(String restricted)
+	{
+		LOG.debug("setAvailability()");
+		if (restricted.equals(Boolean.TRUE.toString()))
+		{
+			topic.setAvailability(Boolean.valueOf(true));
+		}
+		else
+		{
+			topic.setAvailability(Boolean.valueOf(false));
+		}
+	}
+
+	public String getOpenDate(){
+		if(topic == null || topic.getOpenDate() == null){
+			return "";
+		}else{
+			StringBuilder dateTimeOpenDate = new StringBuilder( datetimeFormat.format( topic.getOpenDate() ) );			
+			return dateTimeOpenDate.toString();
+		}
+	}	  
+
+	public void setOpenDate(String openDateStr){
+		if(!"".equals(openDateStr) && openDateStr != null){
+			try{
+				Date openDate = (Date) datetimeFormat.parse(openDateStr);
+				topic.setOpenDate(openDate);
+			}catch (ParseException e) {
+				LOG.error("Couldn't convert open date", e);
+			}
+		}else{
+			topic.setOpenDate(null);
+		}
+	}
+
+	public String getCloseDate(){
+		if(topic == null || topic.getCloseDate() == null){
+			return "";
+		}else{
+			StringBuilder dateTimeCloseDate = new StringBuilder( datetimeFormat.format( topic.getCloseDate() ) );
+			return dateTimeCloseDate.toString();
+		}
+	}	  
+
+	public void setCloseDate(String closeDateStr){
+		if(!"".equals(closeDateStr) && closeDateStr != null){
+			try{
+				Date CloseDate = (Date) datetimeFormat.parse(closeDateStr);
+				topic.setCloseDate(CloseDate);
+			}catch (ParseException e) {
+				LOG.error("Couldn't convert Close date", e);
+			}
+		}else{
+			topic.setCloseDate(null);
+		}
 	}
 }

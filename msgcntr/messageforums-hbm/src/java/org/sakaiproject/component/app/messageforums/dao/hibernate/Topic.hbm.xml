@@ -88,6 +88,15 @@
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
     
+    <property name="availabilityRestricted">
+      <column name="AVAILABILITY_RESTRICTED" not-null="true" default="false"/>
+    </property>
+    <property name="availability">
+      <column name="AVAILABILITY" not-null="true" default="true" />
+    </property>
+    <property name="openDate" column="OPEN_DATE" type="timestamp" />
+    <property name="closeDate" column="CLOSE_DATE" type="timestamp" /> 
+    
     <many-to-one name="openForum" column="of_surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
       not-null="false" index="MFR_TOPIC_PARENT_I1" cascade="none" />

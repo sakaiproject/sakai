@@ -92,6 +92,7 @@
 					  	  <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				  	  </h:commandLink>
 				  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				  	<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{ForumTool.selectedTopic.availability == 'false'}" style="margin-right:.5em"/>
 				  	<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" 
 						 rendered="#{ForumTool.selectedTopic.locked =='true'}" style="margin-right:.5em"/>
 				  	  <h:outputText value="#{ForumTool.selectedThreadHead.message.title}" />

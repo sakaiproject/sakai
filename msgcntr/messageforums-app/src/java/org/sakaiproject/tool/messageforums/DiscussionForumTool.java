@@ -232,6 +232,7 @@ public class DiscussionForumTool
   private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
   private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE = "cdfm_insufficient_privileges_delete_msg";
+  private static final String END_DATE_BEFORE_OPEN_DATE = "endDateBeforeOpenDate";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
@@ -331,7 +332,6 @@ public class DiscussionForumTool
   
   // email notification options
   private EmailNotificationBean watchSettingsBean;
-   
 
    /**
    * 
@@ -494,170 +494,189 @@ public class DiscussionForumTool
 	     if (forums != null && forums.size() > 0) {
 	       return forums;
 	     }
-	 
-	     // query the database for all of the forums that are associated with the current site
-	     List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
-	     if (tempForums == null || tempForums.size() < 1) {	    	 
-	    	 if(SecurityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
-	    		 //initialize area:
-	    		 forumManager.getDiscussionForumArea();
-	    		 //try again:
-		    	 tempForums = forumManager.getForumsForMainPage();
-			     if (tempForums == null || tempForums.size() < 1) {
-			    	 return null;
-			     }
-	    	 }else{	    		 
-	    		 return null;
-	    	 }
-	     }
-	 
-	     // establish some values that we will check multiple times to shave a few processing cycles
-	     boolean readFullDescription = "true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription"));
-	     userId = getUserId();
-	     // run through the topics once to get their parent forums, create the decorated topics that will be used later, and
-	     // possibly set the message count
-	     SortedSet<DiscussionForum> tempSortedForums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
-	     Map<Long, DiscussionTopicBean> topicBeans = new HashMap<Long, DiscussionTopicBean>();
-	     Set<Long> topicIdsForCounts = new HashSet<Long>();
-	     for (DiscussionForum forum: tempForums) {
-	       if (!forum.getDraft()
-	           || SecurityService.isSuperUser()
-	           || isInstructor()
-	           || forum.getCreatedBy().equals(getUserId()))
-	       { // this is the start of the big forum if
-	 
-	         tempSortedForums.add(forum);
-	 
-	         for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
-	           DiscussionTopic currTopic = (DiscussionTopic)itor.next();
-	 
-	           if (currTopic.getDraft().equals(Boolean.FALSE)
-	               || isInstructor()
-	               || SecurityService.isSuperUser()
-	               || currTopic.getCreatedBy().equals(getUserId()))
-	           { // this is the start of the big topic if
-	             DiscussionTopicBean decoTopic = new DiscussionTopicBean(currTopic, (DiscussionForum)currTopic.getOpenForum(), uiPermissionsManager, forumManager);
-	             if (readFullDescription) decoTopic.setReadFullDesciption(true);
-	 
-	             // set the message count for moderated topics, otherwise it will be set later
-	             if(uiPermissionsManager.isRead(decoTopic.getTopic(), (DiscussionForum)currTopic.getOpenForum(), userId)){
-	            	 if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum())) {
-	            		 decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(currTopic));
-	            		 decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(currTopic));
-	            	 } else {
-	            		 topicIdsForCounts.add(currTopic.getId());
-	            	 }
-	             }else{
-	            	 decoTopic.setTotalNoMessages(0);
-	            	 decoTopic.setUnreadNoMessages(0);
-	             }
-	 
-	             topicBeans.put(currTopic.getId(), decoTopic);
-	           } // end the big topic if
-	         }
-	       } // end the big forum if
-	     }
-	     
-	     
-
-	     // get the total message count of non-moderated topics and add them to the discussion topic bean and
-	     // initialize the unread number of messages to all of them.
-	     List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
-	     for (Object[] counts: topicMessageCounts) {
-	    	 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    	 decoTopic.setTotalNoMessages((Integer)counts[1]);
-	    	 decoTopic.setUnreadNoMessages((Integer)counts[1]);
-	     }
-
-	     // get the total read message count for the current user of non-moderated and add them to the discussion
-	     // topic bean as the number of unread messages.  I could've combined this with the previous query but
-	     // stupid Hibernate (3.x) won't let us properly outer join mapped entitys that do not have a direct
-	     // association.  BLURG!  Any topic not in the returned list means the user hasn't read any of the messages
-	     // in that topic which is why I set the default unread message count to all the messages in the previous
-	     // loop.
-	     topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
-	     for (Object[] counts: topicMessageCounts) {
-	    	 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    	 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
-	     }
-
-	     // get the assignments for use later
-	     try {
-	       assignments = new ArrayList<SelectItem>();
-	       assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
-	 
-	       //Code to get the gradebook service from ComponentManager
-
-	       GradebookService gradebookService = getGradebookService();
-
-	       if(getGradebookExist()) {
-	         List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
-	         for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
-	           Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
-	           if(!thisAssign.isExternallyMaintained()) {
-	             try {
-	               assignments.add(new SelectItem(Integer.toString(assignments.size()), thisAssign.getName()));
-	             } catch(Exception e) {
-	               LOG.error("DiscussionForumTool - processDfMsgGrd:" + e);
-	               e.printStackTrace();
-	             }
-	           }
-	         }
-	       }
-	     } catch(SecurityException se) {
-	       LOG.debug("SecurityException caught while getting assignments.", se);
-	     } catch(Exception e1) {
-	       LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1);
-	       e1.printStackTrace();
-	     }
-	 
-	     // now loop through the forums that we found earlier and turn them into forums ready to be displayed to the end user
+	     	
 	     forums = new ArrayList<DiscussionForumBean>();
-	     int sortIndex = 1;
 	     int unreadMessagesCount = 0;
+	     userId = getUserId();
 	     
-
-	     for (DiscussionForum forum: tempSortedForums) {
-	       // manually set the sort index now that the list is sorted
-	       forum.setSortIndex(Integer.valueOf(sortIndex));
-	       sortIndex++;
-	 
-	       DiscussionForumBean decoForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
-	       if (readFullDescription) decoForum.setReadFullDesciption(true);
-	 
-	       if (forum.getTopics() != null) {
-	         for (Iterator itor = forum.getTopics().iterator(); itor.hasNext(); ) {
-	           DiscussionTopic topic = (DiscussionTopic) itor.next();
-	           DiscussionTopicBean decoTopic = topicBeans.get(topic.getId());
-	           if (decoTopic != null) decoForum.addTopic(decoTopic);
-	         }   	
-	         
-	         //itterate over all topics in the decoratedForum to add the unread message
-	         //counts to update the sypnoptic tool
-
-	         for (Iterator iterator = decoForum.getTopics().iterator(); iterator.hasNext();) {
-	        	 DiscussionTopicBean dTopicBean = (DiscussionTopicBean) iterator.next();
-	        	 //if user can read this forum topic, count the messages as well
-	        	 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){        			
-	        		 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
-	        	 }
-	         }
-
-	       }
-	 
-	       decoForum.setGradeAssign(DEFAULT_GB_ITEM);
-	       for(int i=0; i<assignments.size(); i++) {
-	         if (assignments.get(i).getLabel().equals(forum.getDefaultAssignName())) {
-	           decoForum.setGradeAssign(Integer.valueOf(i).toString());
-	           break;
-	         }
-	       }
-	       forums.add(decoForum);
+	     boolean hasOverridingPermissions = false;
+	     if(SecurityService.isSuperUser()
+	           || isInstructor()){
+	    	 hasOverridingPermissions = true;
 	     }
-	 
+	     boolean isAreaAvailable = true;
+	     if(!hasOverridingPermissions){
+	    	//grab area to check that is it available:
+	    	 Area area = forumManager.getDiscussionForumArea();
+	    	 if(area != null){
+	    		 isAreaAvailable = area.getAvailability();
+	    	 }	    	 
+	     }
+	     
+	     if(isAreaAvailable){
+	    	 // query the database for all of the forums that are associated with the current site
+	    	 List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
+	    	 if (tempForums == null || tempForums.size() < 1) {	    	 
+	    		 if(SecurityService.isSuperUser() && ServerConfigurationService.getBoolean("forums.setDefault.forum", true)){
+	    			 //initialize area:
+	    			 forumManager.getDiscussionForumArea();
+	    			 //try again:
+	    			 tempForums = forumManager.getForumsForMainPage();
+	    			 if (tempForums == null || tempForums.size() < 1) {
+	    				 return null;
+	    			 }
+	    		 }else{	    		 
+	    			 return null;
+	    		 }
+	    	 }
+
+	    	 // establish some values that we will check multiple times to shave a few processing cycles
+	    	 boolean readFullDescription = "true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription"));
+	    	 
+	    	 // run through the topics once to get their parent forums, create the decorated topics that will be used later, and
+	    	 // possibly set the message count
+	    	 SortedSet<DiscussionForum> tempSortedForums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
+	    	 Map<Long, DiscussionTopicBean> topicBeans = new HashMap<Long, DiscussionTopicBean>();
+	    	 Set<Long> topicIdsForCounts = new HashSet<Long>();
+	    	 for (DiscussionForum forum: tempForums) {
+	    		 if ((!forum.getDraft() && forum.getAvailability())
+	    				 || hasOverridingPermissions
+	    				 || forum.getCreatedBy().equals(getUserId()))
+	    		 { // this is the start of the big forum if
+
+	    			 tempSortedForums.add(forum);
+
+	    			 for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
+	    				 DiscussionTopic currTopic = (DiscussionTopic)itor.next();
+
+	    				 if ((currTopic.getDraft().equals(Boolean.FALSE) && currTopic.getAvailability())
+	    						 || isInstructor()
+	    						 || SecurityService.isSuperUser()
+	    						 || currTopic.getCreatedBy().equals(getUserId()))
+	    				 { // this is the start of the big topic if
+	    					 DiscussionTopicBean decoTopic = new DiscussionTopicBean(currTopic, (DiscussionForum)currTopic.getOpenForum(), uiPermissionsManager, forumManager);
+	    					 if (readFullDescription) decoTopic.setReadFullDesciption(true);
+
+	    					 // set the message count for moderated topics, otherwise it will be set later
+	    					 if(uiPermissionsManager.isRead(decoTopic.getTopic(), (DiscussionForum)currTopic.getOpenForum(), userId)){
+	    						 if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum())) {
+	    							 decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(currTopic));
+	    							 decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(currTopic));
+	    						 } else {
+	    							 topicIdsForCounts.add(currTopic.getId());
+	    						 }
+	    					 }else{
+	    						 decoTopic.setTotalNoMessages(0);
+	    						 decoTopic.setUnreadNoMessages(0);
+	    					 }
+
+	    					 topicBeans.put(currTopic.getId(), decoTopic);
+	    				 } // end the big topic if
+	    			 }
+	    		 } // end the big forum if
+	    	 }
+
+
+
+	    	 // get the total message count of non-moderated topics and add them to the discussion topic bean and
+	    	 // initialize the unread number of messages to all of them.
+	    	 List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
+	    	 for (Object[] counts: topicMessageCounts) {
+	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
+	    		 decoTopic.setTotalNoMessages((Integer)counts[1]);
+	    		 decoTopic.setUnreadNoMessages((Integer)counts[1]);
+	    	 }
+
+	    	 // get the total read message count for the current user of non-moderated and add them to the discussion
+	    	 // topic bean as the number of unread messages.  I could've combined this with the previous query but
+	    	 // stupid Hibernate (3.x) won't let us properly outer join mapped entitys that do not have a direct
+	    	 // association.  BLURG!  Any topic not in the returned list means the user hasn't read any of the messages
+	    	 // in that topic which is why I set the default unread message count to all the messages in the previous
+	    	 // loop.
+	    	 topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
+	    	 for (Object[] counts: topicMessageCounts) {
+	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
+	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
+	    	 }
+
+	    	 // get the assignments for use later
+	    	 try {
+	    		 assignments = new ArrayList<SelectItem>();
+	    		 assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
+
+	    		 //Code to get the gradebook service from ComponentManager
+
+	    		 GradebookService gradebookService = getGradebookService();
+
+	    		 if(getGradebookExist()) {
+	    			 List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+	    			 for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
+	    				 Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+	    				 if(!thisAssign.isExternallyMaintained()) {
+	    					 try {
+	    						 assignments.add(new SelectItem(Integer.toString(assignments.size()), thisAssign.getName()));
+	    					 } catch(Exception e) {
+	    						 LOG.error("DiscussionForumTool - processDfMsgGrd:" + e);
+	    						 e.printStackTrace();
+	    					 }
+	    				 }
+	    			 }
+	    		 }
+	    	 } catch(SecurityException se) {
+	    		 LOG.debug("SecurityException caught while getting assignments.", se);
+	    	 } catch(Exception e1) {
+	    		 LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1);
+	    		 e1.printStackTrace();
+	    	 }
+
+	    	 // now loop through the forums that we found earlier and turn them into forums ready to be displayed to the end user
+	    	 
+	    	 int sortIndex = 1;
+	    	 
+
+
+	    	 for (DiscussionForum forum: tempSortedForums) {
+	    		 // manually set the sort index now that the list is sorted
+	    		 forum.setSortIndex(Integer.valueOf(sortIndex));
+	    		 sortIndex++;
+
+	    		 DiscussionForumBean decoForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+	    		 if (readFullDescription) decoForum.setReadFullDesciption(true);
+
+	    		 if (forum.getTopics() != null) {
+	    			 for (Iterator itor = forum.getTopics().iterator(); itor.hasNext(); ) {
+	    				 DiscussionTopic topic = (DiscussionTopic) itor.next();
+	    				 DiscussionTopicBean decoTopic = topicBeans.get(topic.getId());
+	    				 if (decoTopic != null) decoForum.addTopic(decoTopic);
+	    			 }   	
+
+	    			 //itterate over all topics in the decoratedForum to add the unread message
+	    			 //counts to update the sypnoptic tool
+
+	    			 for (Iterator iterator = decoForum.getTopics().iterator(); iterator.hasNext();) {
+	    				 DiscussionTopicBean dTopicBean = (DiscussionTopicBean) iterator.next();
+	    				 //if user can read this forum topic, count the messages as well
+	    				 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){        			
+	    					 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
+	    				 }
+	    			 }
+
+	    		 }
+
+	    		 decoForum.setGradeAssign(DEFAULT_GB_ITEM);
+	    		 for(int i=0; i<assignments.size(); i++) {
+	    			 if (assignments.get(i).getLabel().equals(forum.getDefaultAssignName())) {
+	    				 decoForum.setGradeAssign(Integer.valueOf(i).toString());
+	    				 break;
+	    			 }
+	    		 }
+	    		 forums.add(decoForum);
+	    	 }
+
+	    	 
+	     }
 	     //update synotpic info for forums only:
-		 setForumSynopticInfoHelper(userId, getSiteId(), unreadMessagesCount, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-		   
+    	 setForumSynopticInfoHelper(userId, getSiteId(), unreadMessagesCount, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 	     return forums;
   }
   
@@ -823,11 +842,19 @@ public class DiscussionForumTool
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
       return gotoMain();
-    }    
+    }  
+    
+    if(template.getArea().getOpenDate() != null && template.getArea().getCloseDate() != null
+    		&& template.getArea().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(template.getArea().getOpenDate().after(template.getArea().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
+    }
     
     setObjectPermissions(template.getArea());
-    areaManager.saveArea(template.getArea());
-    
+    areaManager.saveArea(template.getArea());    
     return gotoMain();
   }
 
@@ -1172,6 +1199,16 @@ public class DiscussionForumTool
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return FORUM_SETTING_REVISE;
     }
+    
+    if(selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
+    		&& selectedForum.getForum().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(selectedForum.getForum().getOpenDate().after(selectedForum.getForum().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
+    }
+    
     if(selectedForum !=null && selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
@@ -1233,6 +1270,16 @@ public class DiscussionForumTool
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return FORUM_SETTING_REVISE;
     }
+    
+    if(selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
+    		&& selectedForum.getForum().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(selectedForum.getForum().getOpenDate().after(selectedForum.getForum().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
+    }
+    
     if(selectedForum !=null && selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
@@ -1274,6 +1321,15 @@ public class DiscussionForumTool
     if(forumClickCount != 0 || topicClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return FORUM_SETTING_REVISE;
+    }
+    
+    if(selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
+    		&& selectedForum.getForum().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(selectedForum.getForum().getOpenDate().after(selectedForum.getForum().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
     }
     
     if(selectedForum !=null && selectedForum.getForum()!=null &&
@@ -1397,7 +1453,10 @@ public class DiscussionForumTool
    */
   public DiscussionAreaBean getTemplate()
   {	
-    return template;
+	  if(template == null){
+		  template = new DiscussionAreaBean(areaManager.getDiscusionArea());
+	  }
+	  return template;
   }
 
   
@@ -1498,6 +1557,16 @@ public class DiscussionForumTool
   public String processActionSaveTopicAndAddTopic()
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
+    
+    if(selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
+    		&& selectedTopic.getTopic().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(selectedTopic.getTopic().getOpenDate().after(selectedTopic.getTopic().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
+    }
+    
     if(topicClickCount != 0 || forumClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return TOPIC_SETTING_REVISE;
@@ -1558,6 +1627,16 @@ public class DiscussionForumTool
   public String processActionSaveTopicSettings()
   {
     LOG.debug("processActionSaveTopicSettings()");
+    
+    if(selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
+    		&& selectedTopic.getTopic().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(selectedTopic.getTopic().getOpenDate().after(selectedTopic.getTopic().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
+    }
+    
     if(topicClickCount != 0 || forumClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return TOPIC_SETTING_REVISE;
@@ -1624,6 +1703,16 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
+    
+    if(selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
+    		&& selectedTopic.getTopic().getAvailabilityRestricted()){
+    	//check whether the close date is after the open date or not:
+    	if(selectedTopic.getTopic().getOpenDate().after(selectedTopic.getTopic().getCloseDate())){
+    		setErrorMessage(getResourceBundleString(END_DATE_BEFORE_OPEN_DATE));
+    		return null;
+    	}
+    }
+    
     if(topicClickCount != 0 || forumClickCount != 0) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return TOPIC_SETTING_REVISE;

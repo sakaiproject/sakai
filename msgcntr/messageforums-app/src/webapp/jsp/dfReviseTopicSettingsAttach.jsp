@@ -14,6 +14,28 @@
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+	
+	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>             		             		
+	
+	<script type="text/javascript">
+	function setDatesEnabled(radioButton){
+		if(radioButton.value == "true"){
+			document.getElementById("revise:openDateSpan").style.display='';
+			document.getElementById("revise:closeDateSpan").style.display='';
+		}else{
+			document.getElementById("revise:openDateSpan").style.display='none';
+			document.getElementById("revise:closeDateSpan").style.display='none';
+		}
+	}
+
+	function openDateCal(){
+		NewCal('revise:openDate','MMDDYYYY',true,12);
+	}
+
+	function closeDateCal(){
+		NewCal('revise:closeDate','MMDDYYYY',true,12);	
+	}
+	</script>
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
     <h:form id="revise">
@@ -146,6 +168,37 @@
   					</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
+				<h:panelGrid columns="1" columnClasses="longtext,checkbox">
+              <h:panelGroup>
+                 <h:selectOneRadio layout="pageDirection" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedTopic.availabilityRestricted}">
+                  <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_forum_avail_show}"/>
+                  <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}"/>
+               </h:selectOneRadio>
+               </h:panelGroup>
+               <h:panelGroup id="openDateSpan" styleClass="indnt2" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+               	   <h:outputText value="#{msgs.openDate}: "/>
+	               <h:inputText id="openDate" value="#{ForumTool.selectedTopic.openDate}"/>
+	               <f:verbatim>
+	               	<a id="openCal" href="javascript:openDateCal();">
+	               </f:verbatim>
+	               <h:graphicImage url="/images/calendar.png" title="#{msgs.pickDate}" alt="#{msgs.pickDate}"/>
+	               <f:verbatim>
+	               </a>
+	               </f:verbatim>
+              	</h:panelGroup>
+              	<h:panelGroup id="closeDateSpan" styleClass="indnt2" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+              		<h:outputText value="#{msgs.closeDate}: "/>
+	               <h:inputText id="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
+	               <f:verbatim>
+	               	<a id="closeCal" href="javascript:closeDateCal();">
+	               </f:verbatim>
+	               <h:graphicImage url="/images/calendar.png" title="#{msgs.pickDate}" alt="#{msgs.pickDate}"/>
+	               <f:verbatim>
+	               </a>
+	               </f:verbatim>
+              	</h:panelGroup>
+           </h:panelGrid>
+
 			</div>
 		<%--
 		   <h4><h:outputText  value="Confidential Responses"/></h4>

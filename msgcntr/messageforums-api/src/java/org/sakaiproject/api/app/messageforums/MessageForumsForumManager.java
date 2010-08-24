@@ -93,6 +93,8 @@ public interface MessageForumsForumManager {
     public void saveDiscussionForum(DiscussionForum forum);
     public void saveDiscussionForum(DiscussionForum forum, boolean draft);
     public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent);
+    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser);
+
 
     /**
      * Create and save an empty discussion forum topic
@@ -104,7 +106,7 @@ public interface MessageForumsForumManager {
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic);
     public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus);
-    
+    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus, String currentUser, boolean logEvent);
     /**
      * Create and save an empty private discussion forum topic
      */

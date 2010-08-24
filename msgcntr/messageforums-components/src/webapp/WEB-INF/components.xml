@@ -202,7 +202,7 @@
 		        </property>	
 		        <property name="serverConfigurationService">
 		        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-		        </property>	       
+		        </property>     
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -543,6 +543,20 @@
             </props>
         </property> 
     </bean>
+ 		
+	<bean id="org.sakaiproject.api.app.messageforums.ForumScheduleNotification" class="org.sakaiproject.component.app.messageforums.ForumScheduleNotificationImpl">
+ 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+		<property name="typeManager">
+          <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        </property>
+        <property name="areaManager">
+  	        <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        </property>      
+        <property name="forumManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+         </property>  
+	</bean>
     
     <bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"     
  		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">

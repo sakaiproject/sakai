@@ -12,10 +12,30 @@
    <sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">           
       <h:form id="revise">
              		<script type="text/javascript" src="/library/js/jquery.js"></script>
+		<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>             		             		
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 
+<script type="text/javascript">
+	function setDatesEnabled(radioButton){
+		if(radioButton.value == "true"){
+			document.getElementById("revise:openDateSpan").style.display='';
+			document.getElementById("revise:closeDateSpan").style.display='';
+		}else{
+			document.getElementById("revise:openDateSpan").style.display='none';
+			document.getElementById("revise:closeDateSpan").style.display='none';
+		}
+	}
+
+	function openDateCal(){
+			NewCal('revise:openDate','MMDDYYYY',true,12);
+	}
+
+	function closeDateCal(){
+			NewCal('revise:closeDate','MMDDYYYY',true,12);
+	}
+</script>
 
 <!--jsp/discussionForum/area/dfTemplateSettings.jsp-->
 
@@ -24,7 +44,7 @@
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
 				</div>
-				
+				<h:messages styleClass="messageAlert" id="errorMessages"  />
 				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}" /></h4>
 				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
 				  <h:panelGroup><h:outputText id="outputLabel4"   value="#{msgs.cdfm_moderate_forums}"/>	</h:panelGroup>
@@ -36,6 +56,38 @@
   					</h:selectOneRadio>
 				  </h:panelGroup>
 			  </h:panelGrid>
+			  
+			  <h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>
+            <h:panelGrid columns="1" columnClasses="longtext,checkbox">
+              <h:panelGroup>
+                 <h:selectOneRadio layout="pageDirection" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.template.availabilityRestricted}">
+                  <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_forum_avail_show}"/>
+                  <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}" />
+               </h:selectOneRadio>
+               </h:panelGroup>
+               <h:panelGroup id="openDateSpan" styleClass="indnt2" style="display: #{ForumTool.template.availabilityRestricted ? '' : 'none'}">
+               	   <h:outputText value="#{msgs.openDate}: "/>
+	               <h:inputText id="openDate" value="#{ForumTool.template.openDate}"/>
+	               <f:verbatim>
+	               	<a id="openCal" href="javascript:openDateCal();">
+	               </f:verbatim>
+	               <h:graphicImage url="/images/calendar.png" title="#{msgs.pickDate}" alt="#{msgs.pickDate}"/>
+	               <f:verbatim>
+	               </a>
+	               </f:verbatim>
+              	</h:panelGroup>
+              	<h:panelGroup id="closeDateSpan" styleClass="indnt2" style="display: #{ForumTool.template.availabilityRestricted ? '' : 'none'}">
+              		<h:outputText value="#{msgs.closeDate}: "/>
+	               <h:inputText id="closeDate" value="#{ForumTool.template.closeDate}"/>
+	               <f:verbatim>
+	               	<a id="closeCal" href="javascript:closeDateCal();">
+	               </f:verbatim>
+	               <h:graphicImage url="/images/calendar.png" title="#{msgs.pickDate}" alt="#{msgs.pickDate}"/>
+	               <f:verbatim>
+	               </a>
+	               </f:verbatim>
+              	</h:panelGroup>              	
+           </h:panelGrid>
 
 				<div class="instruction" style="padding: 0.5em;"><h4>
 					<h:outputText  value="#{msgs.cdfm_forum_mark_read}" />

@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -98,5 +99,20 @@ public interface Area extends MutableEntity {
     public void addMembershipItem(DBMembershipItem item);      
 
     public void removeMembershipItem(DBMembershipItem item);
+    
+    public Boolean getAvailabilityRestricted();
+    
+    public void setAvailabilityRestricted(Boolean restricted);
       
+    public Date getOpenDate();
+
+	public void setOpenDate(Date openDate);
+	
+    public Date getCloseDate();
+    
+	public void setCloseDate(Date closeDate);
+	
+	public Boolean getAvailability();
+    
+    public void setAvailability(Boolean restricted);
 }

@@ -56,6 +56,7 @@ import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
+import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -65,6 +66,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
@@ -993,6 +995,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private String getCurrentContext() {
       return ToolManager.getCurrentPlacement().getContext();
   }
+  
+  private String getCurrentUser() {
+      return sessionManager.getCurrentSessionUserId();
+  }
 
   /**
    * @param forumManager
@@ -1062,7 +1068,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("saveForum(DiscussionForum" + forum + ")");
     }
-    saveForum(forum, false, getCurrentContext());
+    saveForum(forum, false, getCurrentContext(), true, getCurrentUser());
   }
   
   public void saveForum(String contextId, DiscussionForum forum) {
@@ -1072,7 +1078,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
           throw new IllegalArgumentException("Null contextId or forum passed to saveForum. contextId:" + contextId);
       }
       
-      saveForum(forum, forum.getDraft(), contextId);
+      saveForum(forum, forum.getDraft(), contextId, true, getCurrentUser());
   }
 
   /*
@@ -1086,10 +1092,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("saveForumAsDraft(DiscussionForum" + forum + ")");
     }
-    saveForum(forum, true, getCurrentContext());
+    saveForum(forum, true, getCurrentContext(), true, getCurrentUser());
   }
 
-  private void saveForum(DiscussionForum forum, boolean draft, String contextId)
+  public void saveForum(DiscussionForum forum, boolean draft, String contextId, boolean logEvent, String currentUser)
   {
     if (LOG.isDebugEnabled())
     {
@@ -1137,8 +1143,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 //      }
 //    }
     
-    
-    forumManager.saveDiscussionForum(forum, draft);
+    forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate()));
+    forumManager.saveDiscussionForum(forum, draft, logEvent, currentUser);
+    ForumScheduleNotificationCover.scheduleAvailability(forum);
     //set flag to false since permissions could have changed.  This will force a clearing and resetting
     //of the permissions cache.
     ThreadLocalManager.set("message_center_permission_set", Boolean.valueOf(false));
@@ -1150,7 +1157,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forum.setArea(area);
       forum.setSortIndex(Integer.valueOf(0));
       area.addDiscussionForum(forum);
-      areaManager.saveArea(area);
+      areaManager.saveArea(area, currentUser);
     }
   }
 
@@ -1184,25 +1191,49 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   private void saveTopic(DiscussionTopic topic, boolean draft)
   {
+	  saveTopic(topic, draft, true);
+  }
+  
+  public void saveTopic(DiscussionTopic topic, boolean draft, boolean logEvent)
+  {
+	  saveTopic(topic, draft, logEvent, getCurrentUser());
+  }
+
+  public void saveTopic(DiscussionTopic topic, boolean draft, boolean logEvent, String currentUser)
+  {
     LOG
         .debug("saveTopic(DiscussionTopic " + topic + ", boolean " + draft
             + ")");
 
     boolean saveForum = topic.getId() == null;
+    topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
     topic.setDraft(Boolean.valueOf(draft));
-    forumManager.saveDiscussionForumTopic(topic);
+    forumManager.saveDiscussionForumTopic(topic, false, currentUser, logEvent);
+    Long topicId = topic.getId();
+    if(topicId == null){
+    	Topic topicTmp = forumManager.getTopicByUuid(topic.getUuid());
+    	if(topicTmp != null){
+    		topicId = topicTmp.getId();
+    	}
+    }
+    if(topicId != null){
+    	ForumScheduleNotificationCover.scheduleAvailability(topic);
+    }
+    
     if (saveForum)
     {
       DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
       forum.addTopic(topic);
-      forumManager.saveDiscussionForum(forum, forum.getDraft().booleanValue());
+      forumManager.saveDiscussionForum(forum, forum.getDraft().booleanValue(), logEvent, currentUser);
       //sak-5146 forumManager.saveDiscussionForum(forum);
     }
     
-    if (topic.getId() == null) {
-        EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
-    } else {
-        EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
+    if(logEvent){
+    	if (topic.getId() == null) {
+    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
+    	} else {
+    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
+    	}
     }
 
   }

@@ -316,7 +316,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 														"where READ_STATUS = 0 and CONTEXT_ID = ? " +
 														"Group By USER_ID";
 		
-		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy  " +
+		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy, forum.AVAILABILITY as forumAvailability, topic.AVAILABILITY as topicAvailability  " +
 														"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
 														"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
 														"and area.CONTEXT_ID = ?";
@@ -401,7 +401,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	 */
 	public HashMap<String, Integer> getUserToNewMessagesForForumMap(String siteId, Long forumId, Long topicId){
 		HashMap<String, Integer> returnHM = new HashMap<String, Integer>();
-		String RETURN_ALL_TOPICS_FOR_FORUM_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy  " +
+		String RETURN_ALL_TOPICS_FOR_FORUM_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy, forum.AVAILABILITY as forumAvailability, topic.AVAILABILITY as topicAvailability  " +
 													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
 													"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
 													"and area.CONTEXT_ID = ? and forum.ID = ?";
@@ -563,52 +563,68 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				//site has forums added to the tool
 				dfKeySet = dfHM.keySet();
 
+				boolean isInstructor = getForumManager().isInstructor(userId, "/site/" + siteId);
+				
+				boolean hasOverridingPermission = false;
+				if(isInstructor
+						|| isSuperUser){
+					hasOverridingPermission = true;
+				}
+				boolean isAreaAvailable = true;
+				if(!hasOverridingPermission){
+					//need to check that the area hasn't been disabled:
+					Area area = forumManager.getDiscussionForumArea(siteId);
+					if(area != null){
+						isAreaAvailable = area.getAvailability();
+					}
+				}
+					
+				if(isAreaAvailable){
+					for (Iterator iterator = dfKeySet.iterator(); iterator.hasNext();) {
+						Long dfId = (Long) iterator.next();
 
-				for (Iterator iterator = dfKeySet.iterator(); iterator.hasNext();) {
-					Long dfId = (Long) iterator.next();
-
-					DecoratedForumInfo dForum = dfHM.get(dfId);
-					boolean isInstructor = getForumManager().isInstructor(userId, "/site/" + siteId);
-
-					// Only count unread messages for forums the user can view:
-					if (dForum.getIsDraft().equals(Boolean.FALSE)
-							||isInstructor
-							|| isSuperUser
-							||forumManager.isForumOwner(dfId, dForum.getCreator(), userId, "/site/" + siteId))
-					{ 
+						DecoratedForumInfo dForum = dfHM.get(dfId);
 
 
-						final Iterator<DecoratedTopicsInfo> topicIter = dForum.getTopics().iterator();
 
-						while (topicIter.hasNext()) 
-						{
-							DecoratedTopicsInfo topic = (DecoratedTopicsInfo) topicIter.next();
+						// Only count unread messages for forums the user can view:
+						if ((dForum.getIsDraft().equals(Boolean.FALSE) && dForum.getAvailability()) ||
+								hasOverridingPermission ||
+								forumManager.isForumOwner(dfId, dForum.getCreator(), userId, "/site/" + siteId))
+						{ 
 
-							Long topicId = topic.getTopicId();
-							Boolean isTopicDraft = topic.getIsDraft();
-							Boolean isTopicModerated = topic.getIsModerated();
-							Boolean isTopicLocked = topic.getIsLocked();
-							String topicOwner = topic.getCreator();
+							final Iterator<DecoratedTopicsInfo> topicIter = dForum.getTopics().iterator();
 
-							//Only count unread messages for topics the user can view:
-							if (isTopicDraft.equals(Boolean.FALSE)
-									|| isInstructor
-									|| isSuperUser
-									||forumManager.isTopicOwner(topicId, topicOwner, userId, "/site/" + siteId)){ 
+							while (topicIter.hasNext()) 
+							{
+								DecoratedTopicsInfo topic = (DecoratedTopicsInfo) topicIter.next();
 
-								if (getUiPermissionsManager().isRead(topicId, isTopicDraft, dForum.getIsDraft(), userId, siteId))
-								{
-									if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() && 
-											getUiPermissionsManager().isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
+								Long topicId = topic.getTopicId();
+								Boolean isTopicDraft = topic.getIsDraft();
+								Boolean isTopicModerated = topic.getIsModerated();
+								Boolean isTopicLocked = topic.getIsLocked();
+								String topicOwner = topic.getCreator();
+
+								//Only count unread messages for topics the user can view:
+								if ((isTopicDraft.equals(Boolean.FALSE) && topic.getAvailability())
+										|| isInstructor
+										|| isSuperUser
+										||forumManager.isTopicOwner(topicId, topicOwner, userId, "/site/" + siteId)){ 
+
+									if (getUiPermissionsManager().isRead(topicId, isTopicDraft, dForum.getIsDraft(), userId, siteId))
 									{
-										unreadForum += getMessageManager().findUnreadMessageCountByTopicIdByUserId(topicId, userId);
-									}
-									else
-									{	
-										// b/c topic is moderated and user does not have mod perm, user may only
-										// see approved msgs or pending/denied msgs authored by user
-										unreadForum += getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topicId, userId);
+										if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() && 
+												getUiPermissionsManager().isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
+										{
+											unreadForum += getMessageManager().findUnreadMessageCountByTopicIdByUserId(topicId, userId);
+										}
+										else
+										{	
+											// b/c topic is moderated and user does not have mod perm, user may only
+											// see approved msgs or pending/denied msgs authored by user
+											unreadForum += getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topicId, userId);
 
+										}
 									}
 								}
 							}
@@ -638,7 +654,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 										"where READ_STATUS = 0 and USER_ID = ? and CONTEXT_ID = ? " +
 										"Group By USER_ID";
 		
-		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy  " +
+		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy, forum.AVAILABILITY as forumAvailability, topic.AVAILABILITY as topicAvailability  " +
 													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
 													"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
 													"and area.CONTEXT_ID = ?";
@@ -717,7 +733,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		try {
 			String FORUM_CREATED_BY, TOPIC_CREATED_BY;
 			Long FORUM_ID, TOPIC_ID;
-			Boolean IS_TOPIC_DRAFT, IS_FORUM_DRAFT, IS_TOPIC_MODERATED, IS_FORUM_LOCKED, IS_TOPIC_LOCKED;
+			Boolean IS_TOPIC_DRAFT, IS_FORUM_DRAFT, IS_TOPIC_MODERATED, IS_FORUM_LOCKED, IS_TOPIC_LOCKED, FORUM_AVAILABILITY, TOPIC_AVAILABILITY;
 
 			while(rs.next()){
 				FORUM_ID = rs.getLong("FORUM_ID");
@@ -729,16 +745,18 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				IS_TOPIC_LOCKED = rs.getBoolean("isTopicLocked");
 				FORUM_CREATED_BY = rs.getString("forumCreatedBy");
 				TOPIC_CREATED_BY = rs.getString("topicCreatedBy");
+				FORUM_AVAILABILITY = rs.getBoolean("forumAvailability");
+				TOPIC_AVAILABILITY = rs.getBoolean("topicAvailability");
 
 
 				//hashmap already has this site id, now look for forum id:
 				if(returnHM.containsKey(FORUM_ID)){						
-					DecoratedTopicsInfo dTopic = new DecoratedTopicsInfo(TOPIC_ID, IS_TOPIC_LOCKED, IS_TOPIC_DRAFT, IS_TOPIC_MODERATED, TOPIC_CREATED_BY);
+					DecoratedTopicsInfo dTopic = new DecoratedTopicsInfo(TOPIC_ID, IS_TOPIC_LOCKED, IS_TOPIC_DRAFT, TOPIC_AVAILABILITY, IS_TOPIC_MODERATED, TOPIC_CREATED_BY);
 					returnHM.get(FORUM_ID).addTopic(dTopic);
 				}else{
 					//this is a new forum, so add it to the list						
-					DecoratedTopicsInfo dTopic = new DecoratedTopicsInfo(TOPIC_ID, IS_TOPIC_LOCKED, IS_TOPIC_DRAFT, IS_TOPIC_MODERATED, TOPIC_CREATED_BY);
-					DecoratedForumInfo dForum = new DecoratedForumInfo(FORUM_ID, IS_FORUM_LOCKED, IS_FORUM_DRAFT, FORUM_CREATED_BY);
+					DecoratedTopicsInfo dTopic = new DecoratedTopicsInfo(TOPIC_ID, IS_TOPIC_LOCKED, IS_TOPIC_DRAFT, TOPIC_AVAILABILITY, IS_TOPIC_MODERATED, TOPIC_CREATED_BY);
+					DecoratedForumInfo dForum = new DecoratedForumInfo(FORUM_ID, IS_FORUM_LOCKED, IS_FORUM_DRAFT, FORUM_AVAILABILITY, FORUM_CREATED_BY);
 					dForum.addTopic(dTopic);
 
 					returnHM.put(FORUM_ID, dForum);
@@ -998,15 +1016,16 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 public class DecoratedForumInfo{
 		
 		private Long forumId;
-		private Boolean isLocked, isDraft;
+		private Boolean isLocked, isDraft, availability;
 		private String creator;
 		private ArrayList<DecoratedTopicsInfo> topics = new ArrayList<DecoratedTopicsInfo>();
 		
-		public DecoratedForumInfo(Long forumId, Boolean isLocked, Boolean isDraft, String creator){
+		public DecoratedForumInfo(Long forumId, Boolean isLocked, Boolean isDraft, Boolean availability, String creator){
 			this.forumId = forumId;
 			this.isLocked = isLocked;
 			this.isDraft = isDraft;
 			this.creator = creator;
+			this.availability = availability;
 		}
 
 		public Long getForumId() {
@@ -1048,20 +1067,29 @@ public class DecoratedForumInfo{
 		public ArrayList<DecoratedTopicsInfo> getTopics(){
 			return topics;
 		}
+
+		public Boolean getAvailability() {
+			return availability;
+		}
+
+		public void setAvailability(Boolean availability) {
+			this.availability = availability;
+		}
 	}
 
 	public class DecoratedTopicsInfo{
 		
 		private Long topicId;
-		private Boolean isLocked, isDraft, isModerated;
+		private Boolean isLocked, isDraft, isModerated, availability;
 		private String creator;
 		
-		public DecoratedTopicsInfo(Long topicId, Boolean isLocked, Boolean isDraft, Boolean isModerated, String creator){
+		public DecoratedTopicsInfo(Long topicId, Boolean isLocked, Boolean isDraft, Boolean availability, Boolean isModerated, String creator){
 			this.topicId = topicId;
 			this.isLocked = isLocked;
 			this.isDraft = isDraft;
 			this.isModerated = isModerated;
 			this.creator = creator;
+			this.availability = availability;
 		}
 
 		public Long getTopicId() {
@@ -1102,6 +1130,14 @@ public class DecoratedForumInfo{
 
 		public void setCreator(String creator) {
 			this.creator = creator;
+		}
+
+		public Boolean getAvailability() {
+			return availability;
+		}
+
+		public void setAvailability(Boolean availability) {
+			this.availability = availability;
 		}
 	}
 

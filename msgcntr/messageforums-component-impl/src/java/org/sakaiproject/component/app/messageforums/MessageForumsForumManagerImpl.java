@@ -832,7 +832,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	saveDiscussionForum(forum, draft, false);
     }
     
-    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) { 
+    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent) {
+    	String currentUser = getCurrentUser();
+    	saveDiscussionForum(forum, draft, logEvent, currentUser);
+    }
+    
+    public void saveDiscussionForum(DiscussionForum forum, boolean draft, boolean logEvent, String currentUser) {
+    
         boolean isNew = forum.getId() == null;
 
         if (forum.getSortIndex() == null) {
@@ -846,10 +852,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         forum.setDraft(Boolean.valueOf(draft));
         forum.setModified(new Date());
-        if(getCurrentUser()!=null){
-        forum.setModifiedBy(getCurrentUser());
+        if(currentUser!=null){
+        forum.setModifiedBy(currentUser);
         }
-        else if(getCurrentUser()==null){
+        else if(currentUser==null){
         	 forum.setModifiedBy(forum.getCreatedBy());
         }
         
@@ -915,6 +921,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * Save a discussion forum topic
      */
     public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus) {
+    	saveDiscussionForumTopic(topic, parentForumDraftStatus, getCurrentUser(), true);
+    }
+    
+    public void saveDiscussionForumTopic(DiscussionTopic topic, boolean parentForumDraftStatus, String currentUser, boolean logEvent) {
         boolean isNew = topic.getId() == null;
 
         if (topic.getMutable() == null) {
@@ -924,8 +934,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             topic.setSortIndex(Integer.valueOf(0));
         }
         topic.setModified(new Date());
-        if(getCurrentUser()!=null){
-        topic.setModifiedBy(getCurrentUser());
+        if(currentUser!=null){
+        topic.setModifiedBy(currentUser);
         }
         
         if (topic.getModerated() == null) {
@@ -940,10 +950,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
                                   
           if(topic.getDraft().equals(Boolean.TRUE))
           {        	  
-	  	    saveDiscussionForum(discussionForum, discussionForum.getDraft().booleanValue());
+	  	    saveDiscussionForum(discussionForum, discussionForum.getDraft().booleanValue(), logEvent, currentUser);
           }
           else
-            saveDiscussionForum(discussionForum, parentForumDraftStatus, false);
+            saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
           //sak-5146 saveDiscussionForum(discussionForum, parentForumDraftStatus);
             
         } else {

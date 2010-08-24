@@ -20,6 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,6 +41,7 @@ public class DiscussionAreaBean
 	 
 	 private Area area;
 	 private int numPendingMsgs;
+	 private SimpleDateFormat datetimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 	 
 	 public DiscussionAreaBean(Area area)
 	 {
@@ -145,5 +151,108 @@ public class DiscussionAreaBean
 	  public void setNumPendingMsgs(int numPendingMsgs)
 	  {
 		  this.numPendingMsgs = numPendingMsgs;
+	  }
+	  
+	  public String getAvailabilityRestricted()
+	  {
+		  LOG.debug("getAvailabilityRestricted()");
+		  if (area == null || area.getAvailabilityRestricted() == null || 
+			  area.getAvailabilityRestricted().booleanValue() == false)
+		  {
+			  return Boolean.FALSE.toString();
+		  }
+
+		  return Boolean.TRUE.toString();
+	  }
+	  
+	  /**
+	   * Set the "availabilityRestricted" setting for the forum
+	   * @param restricted
+	   */
+	  public void setAvailabilityRestricted(String restricted)
+	  {
+		  LOG.debug("setAvailabilityRestricted()");
+		  if (restricted.equals(Boolean.TRUE.toString()))
+		  {
+			  area.setAvailabilityRestricted(Boolean.valueOf(true));
+		  }
+		  else
+		  {
+			  area.setAvailabilityRestricted(Boolean.valueOf(false));
+		  }
+	  }
+	  
+	  public String getAvailability()
+	  {
+		  LOG.debug("getAvailability()");
+		  if (area == null || area.getAvailability() == null || 
+			  area.getAvailability().booleanValue() == false)
+		  {
+			  return Boolean.FALSE.toString();
+		  }
+
+		  return Boolean.TRUE.toString();
+	  }
+	  
+	  /**
+	   * Set the "Availability" setting for the area
+	   * @param restricted
+	   */
+	  public void setAvailability(String restricted)
+	  {
+		  LOG.debug("setAvailability()");
+		  if (restricted.equals(Boolean.TRUE.toString()))
+		  {
+			  area.setAvailability(Boolean.valueOf(true));
+		  }
+		  else
+		  {
+			  area.setAvailability(Boolean.valueOf(false));
+		  }
+	  }
+
+	  
+	  public String getOpenDate(){
+		  if(area == null || area.getOpenDate() == null){
+			  return "";
+		  }else{
+			  StringBuilder dateTimeOpenDate = new StringBuilder( datetimeFormat.format( area.getOpenDate() ) );			
+			  return dateTimeOpenDate.toString();
+		  }
+	  }	  
+	  
+	  public void setOpenDate(String openDateStr){
+		  if(!"".equals(openDateStr) && openDateStr != null){
+			  try{
+				  Date openDate = (Date) datetimeFormat.parse(openDateStr);
+				  area.setOpenDate(openDate);
+			  }catch (ParseException e) {
+				  LOG.error("Couldn't convert open date", e);
+			}
+		  }else{
+			  area.setOpenDate(null);
+		  }
+	  }
+	  
+	  public String getCloseDate(){
+		  if(area == null || area.getCloseDate() == null){
+			  return "";
+		  }else{
+			  StringBuilder dateTimeCloseDate = new StringBuilder( datetimeFormat.format( area.getCloseDate() ) );
+			  return dateTimeCloseDate.toString();
+		  }
+	  }	  
+	  
+	  public void setCloseDate(String closeDateStr){
+		  if(!"".equals(closeDateStr) && closeDateStr != null){
+			  try{
+				  Date CloseDate = (Date) datetimeFormat.parse(closeDateStr);
+				  area.setCloseDate(CloseDate);
+			  }catch (ParseException e) {
+				  LOG.error("Couldn't convert Close date", e);
+			}
+		  }else{
+			  area.setCloseDate(null);
+		  }
 	  }
 }
