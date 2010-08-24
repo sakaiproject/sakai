@@ -49,6 +49,10 @@ import org.apache.pluto.spi.optional.PortletInvokerService;
 import org.apache.pluto.spi.optional.PortletPreferencesService;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.apache.pluto.spi.optional.UserInfoService;
+// This new service is added in Pluto 1.1.6 and later
+// https://issues.apache.org/jira/browse/PLUTO-489
+// http://jira.sakaiproject.org/browse/SAK-19011
+import org.apache.pluto.spi.optional.RequestAttributeService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -107,6 +111,13 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
 	public PortletInfoService getPortletInfoService()
 	{
+		return null;
+	}
+
+	// This new service is added in Pluto 1.1.6 and later
+	// https://issues.apache.org/jira/browse/PLUTO-489
+        // http://jira.sakaiproject.org/browse/SAK-19011
+	public RequestAttributeService getRequestAttributeService() {
 		return null;
 	}
 
