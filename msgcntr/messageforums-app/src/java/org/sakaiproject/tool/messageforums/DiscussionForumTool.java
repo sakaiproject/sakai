@@ -1454,7 +1454,7 @@ public class DiscussionForumTool
   public DiscussionAreaBean getTemplate()
   {	
 	  if(template == null){
-		  template = new DiscussionAreaBean(areaManager.getDiscusionArea());
+		  template = new DiscussionAreaBean(forumManager.getDiscussionForumArea());
 	  }
 	  return template;
   }
