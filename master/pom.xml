@@ -83,7 +83,7 @@
         <sakai.hibernate.artifactId>hibernate</sakai.hibernate.artifactId>
         <sakai.hibernate.version>3.2.7.ga</sakai.hibernate.version>
         <sakai.jcr.version>1.0</sakai.jcr.version>
-        <sakai.pluto.version>1.1.2</sakai.pluto.version>
+        <sakai.pluto.version>1.1.7</sakai.pluto.version>
         <sakai.servletapi.version>2.4</sakai.servletapi.version>
         <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
         <sakai.spring.artifactId>spring</sakai.spring.artifactId>
