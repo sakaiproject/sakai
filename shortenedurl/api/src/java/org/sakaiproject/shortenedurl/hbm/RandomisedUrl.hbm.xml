@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	
+	<class name="org.sakaiproject.shortenedurl.model.RandomisedUrl" table="URL_RANDOMISED_MAPPINGS_T">
+
+		<id name="id">
+			<column name="ID" not-null="true" length="19" />
+			<generator class="native">
+        		<param name="sequence">URL_RANDOMISED_MAPPINGS_S</param>
+      		</generator>
+	    </id>
+		
+		<property name="key" column="KEY" type="string" not-null="true" index="KEY_INDEX" />
+		<property name="url" column="URL" type="string" length="4000" not-null="true" index="URL_INDEX" />
+		
+	</class>
+	
+	<!-- get the url given a key -->
+	<query name="getUrl">
+    	<![CDATA[from RandomisedUrl rdm WHERE rdm.key = :key]]>
+	</query>
+	
+	<!-- get a key given a url, used to determine if one exists already for this url -->
+	<query name="getKey">
+    	<![CDATA[from RandomisedUrl rdm WHERE rdm.url = :url]]>
+	</query>
+	
+			
+</hibernate-mapping>

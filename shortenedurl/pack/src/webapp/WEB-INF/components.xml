@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Base ShortenedUrlService bean - inject this into your app -->
+	<bean id="org.sakaiproject.shortenedurl.api.ShortenedUrlService"
+    	class="org.sakaiproject.shortenedurl.impl.BaseShortenedUrlService"
+    	singleton="true"
+    	init-method="init">
+    	<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+	
+	<!-- NoOpUrlService config -->
+	<bean id="org.sakaiproject.shortenedurl.api.NoOpUrlService"
+    	class="org.sakaiproject.shortenedurl.impl.NoOpUrlService"
+    	singleton="true"
+    	init-method="init">
+	</bean>
+
+
+	<!--  RandomisedUrlService config -->
+	<!-- 
+	<bean id="org.sakaiproject.shortenedurl.api.RandomisedUrlServiceBean"
+    	class="org.sakaiproject.shortenedurl.impl.RandomisedUrlService"
+    	singleton="true"
+    	init-method="init">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+	</bean>
+	<bean id="org.sakaiproject.shortenedurl.api.RandomisedUrlService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="org.sakaiproject.shortenedurl.api.RandomisedUrlServiceBean" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>	
+	-->
+	
+	
+	<!-- Add our HBM files to the Sakai global session factory -->
+	<!--
+	<bean id="org.sakaiproject.tinyurl.hbm.HBMMappingList"
+    	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+
+	    <property name="mappingResources">
+	      <list>
+	      	<value>org/sakaiproject/tinyurl/hbm/TinyUrl.hbm.xml</value>
+	      </list>
+	    </property>
+
+  	</bean>
+  	-->
+	
+
+</beans>
