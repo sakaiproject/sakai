@@ -105,7 +105,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 			srchControls.setReturningAttributes(returnAttribute);
 			srchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String searchFilter = "(&(objectclass=person)(uid=" + userLogin + "))";
+			String searchFilter = "(&(objectclass=person)(uid=" + escapeSearchFilterTerm(userLogin) + "))";
 
 			try
 			{
@@ -165,7 +165,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 
 		env.put(Context.SECURITY_PRINCIPAL, "");
 		env.put(Context.SECURITY_CREDENTIALS, "");
-		String filter = "(&(objectclass=person)(mail=" + email + "))";
+		String filter = "(&(objectclass=person)(mail=" + escapeSearchFilterTerm(email) + "))";
 		return getUserInf(edit, filter);
 	}
 
@@ -176,7 +176,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 
 		env.put(Context.SECURITY_PRINCIPAL, "");
 		env.put(Context.SECURITY_CREDENTIALS, "");
-		String filter = "(&(objectclass=person)(uid=" + edit.getEid() + "))";
+		String filter = "(&(objectclass=person)(uid=" + escapeSearchFilterTerm(edit.getEid()) + "))";
 		return getUserInf(edit, filter);
 	}
 
@@ -217,7 +217,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 			 * Setup the directory entry attributes we want to search for. In this case it is the user's ID.
 			 */
 
-			String filter = "(&(objectclass=person)(uid=" + id + "))";
+			String filter = "(&(objectclass=person)(uid=" + escapeSearchFilterTerm(id) + "))";
 
 			/* Execute the search, starting at the directory level of Users */
 
@@ -365,4 +365,20 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider
 	{
 		return false;
 	}
+	
+	/**
+	 * Borrowed from the jldap provider
+	 */
+    public String escapeSearchFilterTerm(String term) {
+        if (term == null) return null;
+        //From RFC 2254
+        String escapedStr = new String(term);
+        escapedStr = escapedStr.replaceAll("\\\\","\\\\5c");
+        escapedStr = escapedStr.replaceAll("\\*","\\\\2a");
+        escapedStr = escapedStr.replaceAll("\\(","\\\\28");
+        escapedStr = escapedStr.replaceAll("\\)","\\\\29");
+        escapedStr = escapedStr.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
+        return escapedStr;
+    }
+    
 }
