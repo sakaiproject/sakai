@@ -128,10 +128,6 @@
   
   	<modules>
     	<module>axis</module>
-    	<!--  
-    		removed axis2 from deployment, SAK-18658
-    		<module>axis2</module>
-    	-->
     	<module>util</module>
 		<module>assembly</module>
   	</modules>
