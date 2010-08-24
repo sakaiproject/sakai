@@ -55,10 +55,10 @@
       <column name="AUTO_MARK_THREADS_READ" not-null="true" />
     </property>
     <property name="availabilityRestricted">
-      <column name="AVAILABILITY_RESTRICTED" not-null="true" default="false"/>
+      <column name="AVAILABILITY_RESTRICTED" not-null="true" default="0"/>
     </property>
     <property name="availability">
-      <column name="AVAILABILITY" not-null="true" default="true" />
+      <column name="AVAILABILITY" not-null="true" default="1" />
     </property>
     <property name="openDate" column="OPEN_DATE" type="timestamp" />
     <property name="closeDate" column="CLOSE_DATE" type="timestamp" />
