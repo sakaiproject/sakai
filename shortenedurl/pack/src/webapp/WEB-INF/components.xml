@@ -21,7 +21,6 @@
 
 
 	<!--  RandomisedUrlService config -->
-	<!-- 
 	<bean id="org.sakaiproject.shortenedurl.api.RandomisedUrlServiceBean"
     	class="org.sakaiproject.shortenedurl.impl.RandomisedUrlService"
     	singleton="true"
@@ -40,22 +39,19 @@
 			</props>
 		</property>
 	</bean>	
-	-->
+	
 	
 	
 	<!-- Add our HBM files to the Sakai global session factory -->
-	<!--
-	<bean id="org.sakaiproject.tinyurl.hbm.HBMMappingList"
+	<bean id="org.sakaiproject.shortenedurl.hbm.HBMMappingList"
     	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-
 	    <property name="mappingResources">
 	      <list>
-	      	<value>org/sakaiproject/tinyurl/hbm/TinyUrl.hbm.xml</value>
+	      	<value>org/sakaiproject/shortenedurl/hbm/RandomisedUrl.hbm.xml</value>
 	      </list>
 	    </property>
-
   	</bean>
-  	-->
+  	
 	
 
 </beans>
