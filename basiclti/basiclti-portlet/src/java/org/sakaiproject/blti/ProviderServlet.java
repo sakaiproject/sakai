@@ -151,32 +151,38 @@ public class ProviderServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
-		M_log.debug("Basic LTI Provider request from IP=" + ipAddress);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("Basic LTI Provider request from IP=" + ipAddress);
+		}
 
 		String enabled = ServerConfigurationService.getString(
 				"basiclti.provider.enabled", null);
 		if (enabled == null || !("true".equals(enabled))) {
 			M_log.warn("Basic LTI Provider is Disabled IP=" + ipAddress);
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_FORBIDDEN,
+					"Basic LTI Provider is Disabled");
 			return;
 		}
 
 		boolean saved = false;
 		
-		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
-		for (Map.Entry<String,String[]> param : params.entrySet()) {
-			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
+		if (M_log.isDebugEnabled()) {
+			Map<String, String[]> params = (Map<String, String[]>) request
+					.getParameterMap();
+			for (Map.Entry<String, String[]> param : params.entrySet()) {
+				M_log.debug(param.getKey() + ":" + param.getValue()[0]);
+			}
 		}
 
-		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
-		String user_id = request.getParameter("user_id");
+		final String oauth_consumer_key = request.getParameter("oauth_consumer_key");
+		final String user_id = request.getParameter("user_id");
 		String context_id = request.getParameter("context_id");
 		String fname = request.getParameter("lis_person_name_given");
 		String lname = request.getParameter("lis_person_name_family");
-		String email = request.getParameter("lis_person_contact_email_primary");
-		String resource_link_id = request.getParameter("resource_link_id");
-		String lti_message_type = request.getParameter("lti_message_type");
-		String lti_version = request.getParameter("lti_version");
+		final String email = request.getParameter("lis_person_contact_email_primary");
+		final String resource_link_id = request.getParameter("resource_link_id");
+		final String lti_message_type = request.getParameter("lti_message_type");
+		final String lti_version = request.getParameter("lti_version");
 
 		//check parameters
 		if(!BasicLTIUtil.equals(lti_message_type, "basic-lti-launch-request")) {
@@ -203,7 +209,9 @@ public class ProviderServlet extends HttpServlet {
 			doError(request, response, "launch.missing", "user_id", null);
 			return;
 		}
-		M_log.debug("user_id="+user_id);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("user_id=" + user_id);
+		}
 
 		//check tool_id
 		String tool_id = request.getPathInfo();
@@ -214,17 +222,19 @@ public class ProviderServlet extends HttpServlet {
 
 		// Trim off the leading slash and any trailing space
 		tool_id = tool_id.substring(1).trim();
-		M_log.debug("tool_id="+tool_id);
-		String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", null);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("tool_id=" + tool_id);
+		}
+		final String allowedToolsConfig = ServerConfigurationService.getString("basiclti.provider.allowedtools", null);
 		
-		String[] allowedTools = allowedToolsConfig.split(":");
-		List<String> allowedToolsList = Arrays.asList(allowedTools);
+		final String[] allowedTools = allowedToolsConfig.split(":");
+		final List<String> allowedToolsList = Arrays.asList(allowedTools);
 
 		if (allowedTools != null && !allowedToolsList.contains(tool_id)) {
 			doError(request, response, "launch.tool.notallowed", tool_id, null);
 			return;
 		}
-		Tool toolCheck = ToolManager.getTool(tool_id);
+		final Tool toolCheck = ToolManager.getTool(tool_id);
 		if (toolCheck == null) {
 			doError(request, response, "launch.tool.notfound", tool_id, null);
 			return;
@@ -235,7 +245,8 @@ public class ProviderServlet extends HttpServlet {
 		// ie without prefixing them with the oauth_consumer_key first.
 		// We also don't both checking their roles in the site.
 		boolean isTrustedConsumer = false;
-		String trustedConsumersConfig = ServerConfigurationService.getString("basiclti.provider.highly.trusted.consumers", null);
+		final String trustedConsumersConfig = ServerConfigurationService
+				.getString("basiclti.provider.highly.trusted.consumers", null);
 		if(BasicLTIUtil.isNotBlank(trustedConsumersConfig)) {
 			String[] trustedConsumers = trustedConsumersConfig.split(":");
 			List<String> trustedConsumersList = Arrays.asList(trustedConsumers);
@@ -245,9 +256,10 @@ public class ProviderServlet extends HttpServlet {
 			}
 		}
 		
-		M_log.debug("Consumer=" + oauth_consumer_key);
-		M_log.debug("Trusted=" + isTrustedConsumer);
-		
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("Consumer=" + oauth_consumer_key);
+			M_log.debug("Trusted=" + isTrustedConsumer);
+		}		
 		
 		// Contextualize the context_id with the OAuth consumer key
 		// Also use the resource_link_id for the context_id if we did not get a context_id
@@ -267,20 +279,22 @@ public class ProviderServlet extends HttpServlet {
 		} else {	
 			siteId = ShaUtil.sha1Hash(oauth_consumer_key + ":" + context_id);
 		}
-		M_log.debug("siteId="+siteId);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("siteId=" + siteId);
+		}
 
 		// Lookup the secret
-		String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
-		String oauth_secret = ServerConfigurationService.getString(configPrefix+ "secret", null);
+		final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
+		final String oauth_secret = ServerConfigurationService.getString(configPrefix+ "secret", null);
 		if (oauth_secret == null) {
 			doError(request, response, "launch.key.notfound",oauth_consumer_key, null);
 			return;
 		}
-		OAuthMessage oam = OAuthServlet.getMessage(request, null);
-		OAuthValidator oav = new SimpleOAuthValidator();
-		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
+		final OAuthMessage oam = OAuthServlet.getMessage(request, null);
+		final OAuthValidator oav = new SimpleOAuthValidator();
+		final OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
 
-		OAuthAccessor acc = new OAuthAccessor(cons);
+		final OAuthAccessor acc = new OAuthAccessor(cons);
 
 		String base_string = null;
 		try {
@@ -302,14 +316,14 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 
-		Session sess = SessionManager.getCurrentSession();
+		final Session sess = SessionManager.getCurrentSession();
 		if (sess == null) {
 			doError(request, response, "launch.no.session", context_id, null);
 			return;
 		}
 
 		// If we did not get first and last name, split lis_person_name_full
-		String fullname = request.getParameter("lis_person_name_full");
+		final String fullname = request.getParameter("lis_person_name_full");
 		if (fname == null && lname == null && fullname != null) {
 			int ipos = fullname.trim().lastIndexOf(' ');
 			if (ipos == -1) {
@@ -344,8 +358,9 @@ public class ProviderServlet extends HttpServlet {
 		} else {
 			eid = oauth_consumer_key + ":" + user_id;
 		}
-		M_log.debug("eid="+eid);
-
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("eid=" + eid);
+		}
 
 		// If trusted consumer, login, otherwise check for existing user and create one if required
 		if(isTrustedConsumer) {
@@ -359,7 +374,9 @@ public class ProviderServlet extends HttpServlet {
 			try {
 				user = UserDirectoryService.getUserByEid(eid);
 			} catch (Exception e) {
-				M_log.debug(e.getLocalizedMessage(), e);
+				if (M_log.isDebugEnabled()) {
+					M_log.debug(e.getLocalizedMessage(), e);
+				}
 				user = null;
 			}
 
@@ -390,7 +407,9 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			site = SiteService.getSite(siteId);
 		} catch (Exception e) {
-			M_log.debug(e.getLocalizedMessage(), e);
+			if (M_log.isDebugEnabled()) {
+				M_log.debug(e.getLocalizedMessage(), e);
+			}
 		}
 
 		// If trusted and site does not exist, error, otherwise, create the site
@@ -399,13 +418,13 @@ public class ProviderServlet extends HttpServlet {
 				doError(request, response, "launch.site.invalid", "siteId="+siteId, null);
 				return;
 			} else {
-				String context_type = request.getParameter("context_type");
+				final String context_type = request.getParameter("context_type");
 				String sakai_type = "project";
 				if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
 					sakai_type = "course";
 				}
-				String context_title = request.getParameter("context_title");
-				String context_label = request.getParameter("context_label");
+				final String context_title = request.getParameter("context_title");
+				final String context_label = request.getParameter("context_label");
 				try {
 
 					Site siteEdit = null;
@@ -457,8 +476,9 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 		
-		M_log.debug("userExistsInSite="+userExistsInSite);
-		
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("userExistsInSite=" + userExistsInSite);
+		}		
 		
 		// If not a member of the site, and we are a trusted consumer, error
 		// Otherwise, add them to the site
@@ -550,8 +570,9 @@ public class ProviderServlet extends HttpServlet {
 			return;
 		}
 		
-		M_log.debug("toolPlacementId="+toolPlacementId);
-
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("toolPlacementId=" + toolPlacementId);
+		}
 		
 		// If tool not in site, and we are a trusted consumer, error
 		// Otherwise, add tool to the site
@@ -612,8 +633,9 @@ public class ProviderServlet extends HttpServlet {
 			url.append(toolPlacementId);
 			url.append("?panel=Main");
 
-		M_log.debug("url="+url.toString());
-			
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("url=" + url.toString());
+		}			
 			
 		//String toolLink = ServerConfigurationService.getPortalUrl()+ "/tool-reset/" + placement_id + "?panel=Main";
 		// Compensate for bug in getPortalUrl()
