@@ -1810,7 +1810,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			log.debug("****protocol:"
 					+ ServerConfigurationService.getServerUrl());
 			AssessmentData new_a = prepareAssessment(a,
-					ServerConfigurationService.getServerUrl());
+					ServerConfigurationService.getServerUrl(), toContext);
 			newList.add(new_a);
 		}
 		getHibernateTemplate().saveOrUpdateAll(newList); // write
@@ -1944,7 +1944,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
     	return newAssessmentTitle;
     }
     
-	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
+    public AssessmentData prepareAssessment(AssessmentData a, String protocol, String toContext) {
 		AssessmentData newAssessment = new AssessmentData(new Long("0"), a
 				.getTitle(), a.getDescription(), a.getComments(), a.getAssessmentTemplateId(),
 				TypeFacade.HOMEWORK, a.getInstructorNotification(), a
@@ -1953,7 +1953,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 						AgentFacade.getAgentString(), new Date());
 		// section set
 		Set newSectionSet = prepareSectionSet(newAssessment, a.getSectionSet(),
-				protocol);
+				protocol, toContext);
 		newAssessment.setSectionSet(newSectionSet);
 		// access control
 		AssessmentAccessControl newAccessControl = prepareAssessmentAccessControl(
@@ -1995,12 +1995,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		newAssessment.setSecuredIPAddressSet(newIPSet);
 		// attachmentSet
 		Set newAssessmentAttachmentSet = prepareAssessmentAttachmentSet(
-				newAssessment, a.getAssessmentAttachmentSet(), protocol);
+				newAssessment, a.getAssessmentAttachmentSet(), protocol, toContext);
 		newAssessment.setAssessmentAttachmentSet(newAssessmentAttachmentSet);
 
 		return newAssessment;
 	}
 
+	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
+		return prepareAssessment(a, protocol, null);
+	}
+	
 	public AssessmentFeedback prepareAssessmentFeedback(AssessmentData p,
 			AssessmentFeedback a) {
 		if (a == null) {
@@ -2081,7 +2085,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public Set prepareSectionSet(AssessmentData newAssessment, Set sectionSet,
-			String protocol) {
+			String protocol, String toContext) {
 		log.debug("new section size = " + sectionSet.size());
 		HashSet h = new HashSet();
 		Iterator i = sectionSet.iterator();
@@ -2099,10 +2103,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 							.getCreatedDate(), section.getLastModifiedBy(),
 					section.getLastModifiedDate());
 			Set newSectionAttachmentSet = prepareSectionAttachmentSet(
-					newSection, section.getSectionAttachmentSet(), protocol);
+					newSection, section.getSectionAttachmentSet(), protocol, toContext);
 			newSection.setSectionAttachmentSet(newSectionAttachmentSet);
 			Set newItemSet = prepareItemSet(newSection, section.getItemSet(),
-					protocol);
+					protocol, toContext);
 			newSection.setItemSet(newItemSet);
 			Set newMetaDataSet = prepareSectionMetaDataSet(newSection, section
 					.getSectionMetaDataSet());
@@ -2111,6 +2115,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			h.add(newSection);
 		}
 		return h;
+	}
+	
+	public Set prepareSectionSet(AssessmentData newAssessment, Set sectionSet,
+			String protocol) {
+		return prepareSectionSet(newAssessment, sectionSet, protocol, null);
 	}
 
 	public Set prepareSectionMetaDataSet(SectionData newSection, Set metaDataSet) {
@@ -2127,7 +2136,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public Set prepareItemSet(SectionData newSection, Set itemSet,
-			String protocol) {
+			String protocol, String toContext) {
 		log.debug("new item size = " + itemSet.size());
 		HashSet h = new HashSet();
 		Iterator j = itemSet.iterator();
@@ -2150,7 +2159,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			Set newItemFeedbackSet = prepareItemFeedbackSet(newItem, item
 					.getItemFeedbackSet());
 			Set newItemAttachmentSet = prepareItemAttachmentSet(newItem, item
-					.getItemAttachmentSet(), protocol);
+					.getItemAttachmentSet(), protocol, toContext);
 			newItem.setItemTextSet(newItemTextSet);
 			newItem.setItemMetaDataSet(newItemMetaDataSet);
 			newItem.setItemFeedbackSet(newItemFeedbackSet);
@@ -2159,7 +2168,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		}
 		return h;
 	}
-
+	
+	public Set prepareItemSet(SectionData newSection, Set itemSet,
+			String protocol) {
+		return prepareItemSet(newSection, itemSet, protocol, null);
+	}
+	
 	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet) {
 		log.debug("new item text size = " + itemTextSet.size());
 		HashSet h = new HashSet();
@@ -2203,7 +2217,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	}
 
 	public Set prepareItemAttachmentSet(ItemData newItem,
-			Set itemAttachmentSet, String protocol) {
+			Set itemAttachmentSet, String protocol, String toContext) {
 		HashSet h = new HashSet();
 		Iterator o = itemAttachmentSet.iterator();
 		while (o.hasNext()) {
@@ -2213,7 +2227,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				AssessmentService service = new AssessmentService();
 				ContentResource cr_copy = service.createCopyOfContentResource(
 						itemAttachment.getResourceId(), itemAttachment
-								.getFilename());
+								.getFilename(), toContext);
 				// get relative path
 				String url = getRelativePath(cr_copy.getUrl(), protocol);
 
@@ -2235,8 +2249,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return h;
 	}
 
+	public Set prepareItemAttachmentSet(ItemData newItem,
+			Set itemAttachmentSet, String protocol) {
+		return prepareItemAttachmentSet(newItem, itemAttachmentSet, protocol, null);
+	}
 	public Set prepareSectionAttachmentSet(SectionData newSection,
-			Set sectionAttachmentSet, String protocol) {
+			Set sectionAttachmentSet, String protocol, String toContext) {
 		HashSet h = new HashSet();
 		Iterator o = sectionAttachmentSet.iterator();
 		while (o.hasNext()) {
@@ -2245,7 +2263,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			AssessmentService service = new AssessmentService();
 			ContentResource cr_copy = service.createCopyOfContentResource(
 					sectionAttachment.getResourceId(), sectionAttachment
-							.getFilename());
+							.getFilename(), toContext);
 
 			// get relative path
 			String url = getRelativePath(cr_copy.getUrl(), protocol);
@@ -2265,8 +2283,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return h;
 	}
 
+	public Set prepareSectionAttachmentSet(SectionData newSection,
+			Set sectionAttachmentSet, String protocol) {
+		return prepareSectionAttachmentSet(newSection, sectionAttachmentSet, protocol, null);
+	}
+	
 	public Set prepareAssessmentAttachmentSet(AssessmentData newAssessment,
-			Set assessmentAttachmentSet, String protocol) {
+			Set assessmentAttachmentSet, String protocol, String toContext) {
 		HashSet h = new HashSet();
 		Iterator o = assessmentAttachmentSet.iterator();
 		while (o.hasNext()) {
@@ -2276,7 +2299,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			AssessmentService service = new AssessmentService();
 			ContentResource cr_copy = service.createCopyOfContentResource(
 					assessmentAttachment.getResourceId(), assessmentAttachment
-							.getFilename());
+							.getFilename(), toContext);
 
 			// get relative path
 			String url = getRelativePath(cr_copy.getUrl(), protocol);
@@ -2296,6 +2319,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return h;
 	}
 
+	public Set prepareAssessmentAttachmentSet(AssessmentData newAssessment,
+			Set assessmentAttachmentSet, String protocol) {
+		return prepareAssessmentAttachmentSet(newAssessment, assessmentAttachmentSet, protocol, null);
+	}
 	public Set prepareAnswerSet(ItemText newItemText, Set answerSet) {
 		log.debug("new answer size = " + answerSet.size());
 		HashSet h = new HashSet();

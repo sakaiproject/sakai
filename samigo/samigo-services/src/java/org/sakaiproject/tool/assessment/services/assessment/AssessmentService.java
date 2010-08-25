@@ -605,7 +605,7 @@ public class AssessmentService {
 	}
 
 	public ContentResource createCopyOfContentResource(String resourceId,
-			String filename) {
+			String filename, String toContext) {
 		// trouble using Validator, so use string replacement instead
 		// java.lang.NoClassDefFoundError: org/sakaiproject/util/Validator
 		filename = filename.replaceAll("http://","http:__");
@@ -614,10 +614,18 @@ public class AssessmentService {
 			// create a copy of the resource
 			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			String escapedName = escapeResourceName(filename);
-			cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
-					ToolManager.getCurrentPlacement().getContext(), 
-					ToolManager.getTool("sakai.samigo").getTitle(), cr
-					.getContentType(), cr.getContent(), cr.getProperties());
+			if (toContext != null && !toContext.equals("")) {
+				cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
+						toContext, 
+						ToolManager.getTool("sakai.samigo").getTitle(), cr
+						.getContentType(), cr.getContent(), cr.getProperties());
+			}
+			else {
+				cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
+						ToolManager.getCurrentPlacement().getContext(), 
+						ToolManager.getTool("sakai.samigo").getTitle(), cr
+						.getContentType(), cr.getContent(), cr.getProperties());
+			}
 		} catch (IdInvalidException e) {
 			log.warn(e.getMessage());
 		} catch (PermissionException e) {
@@ -636,6 +644,11 @@ public class AssessmentService {
 			log.warn(e.getMessage());
 		}
 		return cr_copy;
+	}
+	
+	public ContentResource createCopyOfContentResource(String resourceId,
+			String filename) {
+		return createCopyOfContentResource(resourceId, filename, null);
 	}
 
 	/** These characters are not allowed in a resource id */
