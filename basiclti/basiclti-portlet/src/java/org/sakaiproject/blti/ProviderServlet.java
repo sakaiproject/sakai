@@ -44,6 +44,7 @@ import net.oauth.signature.OAuthSignatureMethod;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -122,7 +123,7 @@ public class ProviderServlet extends HttpServlet {
 			M_log.error(e.getLocalizedMessage(), e);
 		}
 		M_log.info(rb.getString(s) + ": " + message);
-		String return_url = request.getParameter("launch_presentation_return_url");
+		String return_url = request.getParameter(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 		if (return_url != null && return_url.length() > 1) {
 			if (return_url.indexOf('?') > 1) {
 				return_url += "&lti_msg=" + URLEncoder.encode(rb.getString(s), "UTF-8");
@@ -175,14 +176,14 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		final String oauth_consumer_key = request.getParameter("oauth_consumer_key");
-		final String user_id = request.getParameter("user_id");
-		String context_id = request.getParameter("context_id");
-		String fname = request.getParameter("lis_person_name_given");
-		String lname = request.getParameter("lis_person_name_family");
-		final String email = request.getParameter("lis_person_contact_email_primary");
-		final String resource_link_id = request.getParameter("resource_link_id");
-		final String lti_message_type = request.getParameter("lti_message_type");
-		final String lti_version = request.getParameter("lti_version");
+		final String user_id = request.getParameter(BasicLTIConstants.USER_ID);
+		String context_id = request.getParameter(BasicLTIConstants.CONTEXT_ID);
+		String fname = request.getParameter(BasicLTIConstants.LIS_PERSON_NAME_GIVEN);
+		String lname = request.getParameter(BasicLTIConstants.LIS_PERSON_NAME_FAMILY);
+		final String email = request.getParameter(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
+		final String resource_link_id = request.getParameter(BasicLTIConstants.RESOURCE_LINK_ID);
+		final String lti_message_type = request.getParameter(BasicLTIConstants.LTI_MESSAGE_TYPE);
+		final String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
 
 		//check parameters
 		if(!BasicLTIUtil.equals(lti_message_type, "basic-lti-launch-request")) {
@@ -323,7 +324,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		// If we did not get first and last name, split lis_person_name_full
-		final String fullname = request.getParameter("lis_person_name_full");
+		final String fullname = request.getParameter(BasicLTIConstants.LIS_PERSON_NAME_FULL);
 		if (fname == null && lname == null && fullname != null) {
 			int ipos = fullname.trim().lastIndexOf(' ');
 			if (ipos == -1) {
@@ -337,7 +338,7 @@ public class ProviderServlet extends HttpServlet {
 		// Setup role in the site. If trusted, we don't need this as the user already has a role in the site
 		String userrole = null;
 		if(!isTrustedConsumer) {
-			userrole = request.getParameter("roles");
+			userrole = request.getParameter(BasicLTIConstants.ROLES);
 			if (userrole == null) {
 				userrole = "";
 			} else {
@@ -418,13 +419,13 @@ public class ProviderServlet extends HttpServlet {
 				doError(request, response, "launch.site.invalid", "siteId="+siteId, null);
 				return;
 			} else {
-				final String context_type = request.getParameter("context_type");
+				final String context_type = request.getParameter(BasicLTIConstants.CONTEXT_TYPE);
 				String sakai_type = "project";
 				if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
 					sakai_type = "course";
 				}
-				final String context_title = request.getParameter("context_title");
-				final String context_label = request.getParameter("context_label");
+				final String context_title = request.getParameter(BasicLTIConstants.CONTEXT_TITLE);
+				final String context_label = request.getParameter(BasicLTIConstants.CONTEXT_LABEL);
 				try {
 
 					Site siteEdit = null;
