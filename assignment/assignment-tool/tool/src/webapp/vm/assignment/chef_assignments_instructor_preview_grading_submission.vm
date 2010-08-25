@@ -215,10 +215,13 @@
 				#end	
 			<div class="highlightPanel">
 				$tlang.getString("gen.gra2")
-				#if ($!grade && $grade.length()>0 && $grade!="ungraded")
-					<span class="highlight">$grade</span>
+				#set ($gradeType = $assignment.getContent().TypeOfGrade)
+				#if ($gradeType == 1)
+					<span class="highlight"> $tlang.getString("gen.nograd")</span>	
+				#elseif ($!grade && $grade.length()>0)
+					$grade
 				#else
-					<span class="highlight">$tlang.getString("ungra")</span>
+					$tlang.getString("ungra")
 				#end
 			</div>
 			<br />
