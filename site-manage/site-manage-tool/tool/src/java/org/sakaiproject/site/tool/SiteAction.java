@@ -8473,8 +8473,6 @@ public class SiteAction extends PagedResourceActionII {
 			List<ToolConfiguration> toolList = page.getTools();
 			// get tool id set for Home page from configuration
 			List<String> homeToolIds = getHomeToolIds(state, !homeInWSetupPageList, page);
-			// order the tool id list
-			homeToolIds = orderToolIds(state, siteType, homeToolIds, true);
 			
 			// count
 			int nonSynopticToolIndex=0, synopticToolIndex = 0;
@@ -8524,9 +8522,9 @@ public class SiteAction extends PagedResourceActionII {
 								}
 							}
 						}
-						else{
-							// update position
-							page.setPosition(synopticToolIndex++);
+						else
+						{
+							synopticToolIndex++;
 						}
 					}
 					
@@ -8537,7 +8535,7 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							// use value from map to find an internationalized tool title
 							String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
-							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex);
+							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex++);
 						} catch (Exception e) {
 							M_log.warn(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
 						}
