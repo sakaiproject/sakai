@@ -168,6 +168,9 @@
   					</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
+			</div>
+			<h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>
+			<div style="padding-left:1em">
 				<h:panelGrid columns="1" columnClasses="longtext,checkbox">
               <h:panelGroup>
                  <h:selectOneRadio layout="pageDirection" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedTopic.availabilityRestricted}">
