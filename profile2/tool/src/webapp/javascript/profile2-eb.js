@@ -13,8 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- function requestFriend(requestorId,friendId) {
+
+var CONNECTION_NONE = 0;
+var CONNECTION_REQUESTED = 1;
+var CONNECTION_INCOMING = 2;
+var CONNECTION_CONFIRMED = 3;
+	
+function friendStatus(requestorId,friendId) {
+	
+	var status = null;
+	
+	jQuery.ajax({
+    	url : "/direct/profile/" + requestorId + "/friendStatus.json?friendId=" + friendId,
+      	dataType : "json",
+       	async : false,
+		cache: false,
+	   	success : function(data) {
+			status = data.data;
+		},
+		error : function() {
+			status = -1;
+		}
+	});
+	
+	return status;
+}
+
+function requestFriend(requestorId,friendId) {
 
     jQuery.ajax( {
         url : "/direct/profile/" + requestorId + "/requestFriend?friendId=" + friendId,
