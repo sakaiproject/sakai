@@ -78,10 +78,11 @@
         </init-param>
         <load-on-startup> 1 </load-on-startup>
     </servlet>	  	            	  	
-    
+
+<!--
     <error-page>
         <exception-type>java.lang.Exception</exception-type>
         <location>/scheduler/error.jsp</location>
     </error-page>
-    
+-->    
 </web-app>

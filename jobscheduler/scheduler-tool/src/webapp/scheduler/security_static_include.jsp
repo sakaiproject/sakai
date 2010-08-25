@@ -1,7 +1,8 @@
 <%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.component.*, org.sakaiproject.authz.api.*"
+                 javax.faces.el.*, org.sakaiproject.component.*, org.sakaiproject.authz.api.*" %>
+<%--
          errorPage="error.jsp" %>
-                 
+--%>                 
 <%!
   FacesContext context = FacesContext.getCurrentInstance();
   Application app = context.getApplication();

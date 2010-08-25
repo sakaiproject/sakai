@@ -21,7 +21,7 @@
      	  </sakai:tool_bar>           
       	
   	    <sakai:panel_titled title="#{msgs.event_log}">   	      
-  	      <h:dataTable value="#{schedulerTool.schedulerManager.globalTriggerListener.triggerEvents}" var="event" styleClass="chefFlatListViewTable">
+  	      <h:dataTable value="#{schedulerTool.schedulerManager.globalTriggerListener.triggerEvents}" var="event" styleClass="listHier lines">
   	        <h:column>
     	        <f:facet name="header">
     	          <h:outputText value="#{msgs.job_name}"/>
