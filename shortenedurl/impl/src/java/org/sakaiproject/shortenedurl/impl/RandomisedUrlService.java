@@ -41,7 +41,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * An implementation of {@link org.sakaiproject.shortenedurl.api.ShortenedUrlService} to provide randomised URLs
  * 
- * @author Steve Swinsburg (s.swinsburg@gmail.com)
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
 public class RandomisedUrlService extends HibernateDaoSupport implements ShortenedUrlService {

@@ -7,7 +7,7 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 /**
  * This is the default implementation of {@link org.sakaiproject.shortenedurl.api.ShortenedUrlService}. It returns the original URL unchanged.
  *
- * @author Steve Swinsburg (s.swinsburg@gmail.com)
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 public class NoOpUrlService implements ShortenedUrlService {

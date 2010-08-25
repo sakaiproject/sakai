@@ -18,15 +18,14 @@ public class BaseShortenedUrlService implements ShortenedUrlService {
 	private static Log log = LogFactory.getLog(BaseShortenedUrlService.class.getName());
 	private ShortenedUrlService service;
 	
-	
 	/**
 	 * This init method sets up the implementing class that will be used.
 	 */
 	public void init() {
 		log.info("BaseShortenedUrlService init()");
-		String implementingClass = serverConfigurationService.getString("shortenedurl.implementation", ShortenedUrlService.DEFAULT_IMPLEMENTATION);
+		String implementingClass = serverConfigurationService.getString(ShortenedUrlService.IMPLEMENTATION_PROP_NAME, ShortenedUrlService.DEFAULT_IMPLEMENTATION);
 		service = (ShortenedUrlService) ComponentManager.get(implementingClass);
-		log.info("BaseShortenedUrlService init(): Registered implementing class: " + implementingClass);
+		log.info("BaseShortenedUrlService init(): Registered implementation: " + implementingClass);
 	}
 	
 	/**

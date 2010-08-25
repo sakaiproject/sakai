@@ -49,6 +49,12 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         
+        <!-- bundled dependencies -->
+        <dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+        
 	</dependencies>
    
     <build />

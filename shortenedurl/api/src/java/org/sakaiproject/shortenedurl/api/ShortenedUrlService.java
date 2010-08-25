@@ -58,6 +58,11 @@ public interface ShortenedUrlService {
 	public final String EVENT_CREATE_COLLISION = "shortenedurl.create.collision";
 	
 	/**
+	 * The name of the property in sakai.properties. THe value of this is the implementation which is used preferentially
+	 */
+	public final String IMPLEMENTATION_PROP_NAME = "shortenedurl.implementation";
+	
+	/**
 	 * The default implementation of this service as a Spring bean reference 
 	 */
 	public final String DEFAULT_IMPLEMENTATION = "org.sakaiproject.shortenedurl.api.NoOpUrlService";

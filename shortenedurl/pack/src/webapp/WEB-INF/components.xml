@@ -12,7 +12,7 @@
     	<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 	
-	<!-- NoOpUrlService config -->
+	<!-- NoOpUrlService config, default -->
 	<bean id="org.sakaiproject.shortenedurl.api.NoOpUrlService"
     	class="org.sakaiproject.shortenedurl.impl.NoOpUrlService"
     	singleton="true"
@@ -21,6 +21,10 @@
 
 
 	<!--  RandomisedUrlService config -->
+	<!--  
+	To configure this implementation, set the following in sakai.properties:
+	shortenedurl.implementation=org.sakaiproject.shortenedurl.api.RandomisedUrlService
+	-->
 	<bean id="org.sakaiproject.shortenedurl.api.RandomisedUrlServiceBean"
     	class="org.sakaiproject.shortenedurl.impl.RandomisedUrlService"
     	singleton="true"
@@ -39,6 +43,24 @@
 			</props>
 		</property>
 	</bean>	
+	
+	<!-- BitlyUrlService config -->
+	<!--  
+	To configure this implementation, set the following in sakai.properties:
+	shortenedurl.implementation=org.sakaiproject.shortenedurl.api.BitlyUrlService
+	
+	You must also have a bitly account. Signup, navigate to http://bit.ly/a/your_api_key, retrieve your details and set the following:
+	shortenedurl.implementation.bitly.login=johnsmith
+	shortenedurl.implementation.bitly.key=123qwe456asd789zxc
+	-->
+	<bean id="org.sakaiproject.shortenedurl.api.BitlyUrlService"
+    	class="org.sakaiproject.shortenedurl.impl.BitlyUrlService"
+    	singleton="true"
+    	init-method="init">
+    	<property name="login"><value>${shortenedurl.implementation.bitly.login}</value></property>
+    	<property name="apiKey"><value>${shortenedurl.implementation.bitly.key}</value></property>
+	</bean>
+	
 	
 	
 	
