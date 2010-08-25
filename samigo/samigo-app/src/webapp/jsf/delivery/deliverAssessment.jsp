@@ -65,7 +65,7 @@
 		}		
       </script>
       
-      <div id="timer-warning">
+      <div id="timer-warning" style="display:none;">
       	<h3><h:outputText value="#{deliveryMessages.five_minutes_left1}" /></h3>
       	<p><h:outputText value="#{deliveryMessages.five_minutes_left2}" /></p>
       </div>
