@@ -266,8 +266,8 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		String friendId = (String) params.get("friendId");
 		
-		//get list of connections
-		if(!connectionsLogic.ignoreFriendRequest(uuid, friendId)) {
+		//we're ignoring a request FROM the friendId TO the uuid
+		if(!connectionsLogic.ignoreFriendRequest(friendId, uuid)) {
 			throw new EntityException("Error ignoring friend connection for " + ref.getId(), ref.getReference());
 		}
 		else
