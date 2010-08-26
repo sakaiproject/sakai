@@ -93,7 +93,7 @@ public class ExternalLogicImpl implements ExternalLogic
 	private static final String DEFAULT_SMTP_HOST = "localhost";
 
 	/** Default value of smtp port */
-	private static final int DEFAULT_SMTP_PORT = -1;
+	private static final int DEFAULT_SMTP_PORT = 25;
 
 	/** Defaut value for use of ssl */
 	boolean DEFAULT_USE_SSL = false;
