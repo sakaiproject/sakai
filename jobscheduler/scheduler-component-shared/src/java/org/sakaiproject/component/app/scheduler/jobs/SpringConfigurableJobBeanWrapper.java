@@ -25,6 +25,8 @@ public class SpringConfigurableJobBeanWrapper
         rb;
     private String
         resourceBundleBase;
+    private ConfigurableJobPropertyValidator
+        validator = DEFAULT_VALIDATOR;
     private static final DefaultJobPropertyValidator
         DEFAULT_VALIDATOR = new DefaultJobPropertyValidator();
 
@@ -59,8 +61,12 @@ public class SpringConfigurableJobBeanWrapper
         return jobProperties;
     }
 
+    public void setConfigurableJobPropertyValidator(ConfigurableJobPropertyValidator validator)
+    {
+        this.validator = validator;
+    }
     public ConfigurableJobPropertyValidator getConfigurableJobPropertyValidator()
     {
-        return DEFAULT_VALIDATOR;
+        return validator;
     }
 }
