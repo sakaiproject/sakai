@@ -107,3 +107,7 @@ div.profile2-profile-content-thumb {
 .connection-confirmed {
 	background-image: url(/library/image/silk/group_link.png);
 }
+
+.connection-self {
+	background-image: url(/library/image/silk/vcard.png);
+}
