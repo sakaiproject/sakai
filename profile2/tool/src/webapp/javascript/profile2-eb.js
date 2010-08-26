@@ -61,9 +61,10 @@ function confirmFriendRequest(requestorId,friendId) {
         url : "/direct/profile/" + requestorId + "/confirmFriendRequest?friendId=" + friendId,
         dataType : "text",
         cache: false,
-        success : function(text,status) {
+        success : function(text,status) {            
+            var link = "<a href=\"javascript:;\" onClick=\"return removeFriend('" + requestorId + "','" + friendId + "');\">" + text + "</a>";
             var div = $('#profile_friend_' + friendId);
-            div.html(text);
+            div.html(link);
             div.attr('class','icon connection-confirmed');
         }
     });
