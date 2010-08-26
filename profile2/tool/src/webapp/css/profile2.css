@@ -714,6 +714,8 @@ h2 {
 .connection-info-name, .search-result-info-name {
 	display: inline;
 	font-weight: bold;
+	word-break:break-all;
+	word-wrap:break-word;
 }
 
 .connection-status-msg, .search-result-status-msg {
@@ -736,8 +738,8 @@ h2 {
 .connection-actions-wrap, .search-result-actions-wrap {
 	position: absolute;
 	top: 5px;
-	left: 345px;
-	width: 150px;
+	left: 300px;
+	width: 250px;
 	font-size: 90%;
 	padding: 0;
 }
@@ -754,7 +756,6 @@ h2 {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
-	margin-left: -40px;
 	padding-left: 5px;
 	list-style-type: none !important;
 	vertical-align: top;
