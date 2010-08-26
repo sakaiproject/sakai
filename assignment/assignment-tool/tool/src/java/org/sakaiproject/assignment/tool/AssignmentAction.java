@@ -7830,13 +7830,14 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @return
 	 */
 	public boolean readGradeForm(RunData data, SessionState state, String gradeOption)
-	{
+	{	
 		// whether user has changed anything from previous grading information
 		boolean hasChange = false;
 		
 		ParameterParser params = data.getParameters();
 		String sId = params.getString("submissionId");
-
+		AssignmentSubmission submission = getSubmission(sId, "readGradeForm", state);
+		
 		// security check for allowing grading submission or not
 		if (AssignmentService.allowGradeSubmission(sId))
 		{
@@ -7848,7 +7849,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
 					checkForFormattingErrors);
 			// comment value changed?
-			hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackComment, GRADE_SUBMISSION_FEEDBACK_COMMENT):hasChange;
+			hasChange = !hasChange && submission != null ? valueDiffFromStateAttribute(state, feedbackComment, submission.getFeedbackComment()):hasChange;
 			if (feedbackComment != null)
 			{
 				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
@@ -7857,17 +7858,17 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
 			// feedbackText value changed?
-			hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackText, GRADE_SUBMISSION_FEEDBACK_TEXT):hasChange;
+			hasChange = !hasChange && submission != null ? valueDiffFromStateAttribute(state, feedbackText, submission.getFeedbackText()):hasChange;
 			if (feedbackText != null)
 			{
 				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
 			}
 			
 			// any change inside attachment list?
-			if (!hasChange)
+			if (!hasChange && submission != null)
 			{
-				List stateAttachments = state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT) == null?null:((List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT)).isEmpty()?null:(List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
-				List inputAttachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+				List stateAttachments = submission.getFeedbackAttachments();
+				List inputAttachments = (List) state.getAttribute(ATTACHMENTS);
 				
 				if (stateAttachments == null && inputAttachments != null
 					|| stateAttachments != null && inputAttachments == null	
@@ -7880,7 +7881,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String g = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
 
-			AssignmentSubmission submission = getSubmission(sId, "readGradeForm", state);
 			if (submission != null)
 			{
 				Assignment a = submission.getAssignment();
@@ -7889,7 +7889,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (withGrade)
 				{
 					// any change in grade. Do not check for ungraded assignment type
-					hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), GRADE_SUBMISSION_GRADE):valueDiffFromStateAttribute(state, g, GRADE_SUBMISSION_GRADE)):hasChange;
+					hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), scalePointGrade(state, submission.getGrade())):valueDiffFromStateAttribute(state, g, submission.getGrade())):hasChange;
 					if (g != null)
 					{
 						state.setAttribute(GRADE_SUBMISSION_GRADE, g);
@@ -7982,20 +7982,20 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	/**
-	 * whether the current input value is different from existing session state value
+	 * whether the current input value is different from existing oldValue
 	 * @param state
 	 * @param value
-	 * @param stateAttribute
+	 * @param oldValue
 	 * @return
 	 */
-	private boolean valueDiffFromStateAttribute(SessionState state, String value, String stateAttribute)
+	private boolean valueDiffFromStateAttribute(SessionState state, String value, String oldValue)
 	{
 		boolean rv = false;
 		value = StringUtils.trimToNull(value);
-		String stateAttributeValue = state.getAttribute(stateAttribute) == null?null:StringUtils.trimToNull((String) state.getAttribute(stateAttribute));
-		if (stateAttributeValue == null && value != null 
-				|| stateAttributeValue != null && value == null
-				|| stateAttributeValue != null && value != null && !stateAttributeValue.equals(value))
+		oldValue = StringUtils.trimToNull(oldValue);
+		if (oldValue == null && value != null 
+				|| oldValue != null && value == null
+				|| oldValue != null && value != null && !oldValue.equals(value))
 		{
 			rv = true;
 		}
