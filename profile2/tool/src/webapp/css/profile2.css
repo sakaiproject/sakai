@@ -735,10 +735,19 @@ h2 {
 
 
 /* action styles */
-.connection-actions-wrap, .search-result-actions-wrap {
+.connection-actions-wrap {
 	position: absolute;
 	top: 5px;
-	left: 300px;
+	left: 245px;
+	width: 250px;
+	font-size: 90%;
+	padding: 0;
+}
+
+.search-result-actions-wrap {
+	position: absolute;
+	top: 5px;
+	left: 270px;
 	width: 250px;
 	font-size: 90%;
 	padding: 0;
