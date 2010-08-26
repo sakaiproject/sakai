@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIUtils;
@@ -54,11 +55,13 @@ public class BitlyUrlService implements ShortenedUrlService {
 		params.put("longUrl", url);
 		
 		//do it
-		String response = this.doGet(BITLY_API_URL, params);
+		String response = doGet(BITLY_API_URL, params);
+		
+		//TODO add caching since the bitly API is rate limited and we want to store the key and original URL for future lookups
+
 		
 		return response;
 		
-		//TODO add caching since the bitly API is rate limited
 		
 	}
 
@@ -115,8 +118,15 @@ public class BitlyUrlService implements ShortenedUrlService {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(address);
 			HttpResponse response = httpclient.execute(httpget);
-			HttpEntity entity = response.getEntity();
 			
+			//check reponse code
+			StatusLine status = response.getStatusLine();
+			if(status.getStatusCode() != 200) {
+				log.error("Error shortening URL. Status: " + status.getStatusCode() + ", reason: " + status.getReasonPhrase());
+				return null;
+			}
+			
+			HttpEntity entity = response.getEntity();
 			if (entity != null) {
 			    return EntityUtils.toString(entity);
 			}
