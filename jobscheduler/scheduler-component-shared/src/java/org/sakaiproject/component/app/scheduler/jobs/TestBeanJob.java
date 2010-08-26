@@ -21,7 +21,6 @@
 package org.sakaiproject.component.app.scheduler.jobs;
 
 import org.quartz.Job;
-import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -37,14 +36,6 @@ public class TestBeanJob implements Job {
    private String configMessage;
 
    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-       JobDataMap
-           map = jobExecutionContext.getTrigger().getJobDataMap();
-
-       String
-           val1 = (String)map.get("property1"),
-           val2 = (String) map.get("property2");
-
-       System.out.println ("Configuration - (property1,\"" + val1 + "\"), (property2, \"" + val2 + "\")");
       System.out.println("Test bean job trigger with message: " + getConfigMessage());   
    }
 
