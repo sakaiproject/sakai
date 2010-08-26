@@ -21,6 +21,7 @@ package org.sakaiproject.accountvalidator.tool.producers;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -186,7 +187,7 @@ ViewParamsReporter, ActionResultInterceptor {
 			UIMessage.make(detailsForm, "claim", "validate.claim", args);
 			String otp =  "accountValidationLocator." + va.getId();
 			
-			UIInput.make(detailsForm, "eid", otp + ".eid", u.getDisplayId());
+			UIOutput.make(detailsForm, "eid", u.getDisplayId());
 			UIInput.make(detailsForm, "firstName", otp + ".firstName", u.getFirstName());
 			UIInput.make(detailsForm, "surName", otp + ".surname", u.getLastName());
 		

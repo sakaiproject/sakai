@@ -87,7 +87,10 @@
 
 		<form rsf:id="setDetailsForm" id="form" name="form" method="post">
 		<p rsf:id="claim">Claim your new Vula account.</p>
-		<label rsf:id="msg=username">Username</label><input type="text" class="inputBox" rsf:id="eid" disabled="disabled"/>
+		<div class="usernameParent">
+			<span rsf:id="msg=username.new" class="info">Your new username will be:</span>
+			<span rsf:id="eid" class="username">User ID</span>
+		</div>
 		<label rsf:id="msg=firstname">First name</label> <input type="text" class="inputBox required"
 			rsf:id="firstName" id="firstName" /> 
 		<label rsf:id="msg=lastname">Last name</label> <input
