@@ -48,7 +48,7 @@ public class TestConfigurableJobPropertyValidator implements ConfigurableJobProp
     private void assertBooleanValid(String value)
         throws ConfigurableJobPropertyValidationException
     {
-        if (!VALID_BOOLEAN_VALUES.contains(value))
+        if (value != null && value.trim().length() > 0 && !VALID_BOOLEAN_VALUES.contains(value))
         {
             throw new ConfigurableJobPropertyValidationException("boolean.value.invalid");
         }

@@ -133,7 +133,7 @@ D. AbstractConfigurableJob
 
 When a configured job executes it must be supplied the configuration parameters the user has specified during job
 creation or scheduling. These are generally available to the job from the Map of values obtained via a call to
-JobExecutionEnvironment.getTrigger().getJobDataMap(). AbstractConfigurableJob provides a convenience method for
+JobExecutionEnvironment.getMergedJobDataMap(). AbstractConfigurableJob provides a convenience method for
 obtaining values from that map:
 
    String getConfiguredProperty(String key);
