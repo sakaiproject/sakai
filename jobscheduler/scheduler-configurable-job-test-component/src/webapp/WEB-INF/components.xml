@@ -20,7 +20,7 @@
                <bean id="integer.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
                     <property name="required" value="true"/>
                     <property name="labelResourceKey" value="integer.property"/>
-                    <property name="descriptionResourceKey" value="interger.property.description"/>
+                    <property name="descriptionResourceKey" value="integer.property.description"/>
                     <property name="defaultValue" value="1"/>
                </bean>
                <bean id="string.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">

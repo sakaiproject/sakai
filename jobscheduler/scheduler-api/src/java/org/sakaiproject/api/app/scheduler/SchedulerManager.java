@@ -20,10 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.scheduler;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
+
+import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.TriggerListener;
 
@@ -34,15 +37,35 @@ public interface SchedulerManager
 {
 
   /**
+   * @deprecated use {@link #getGlobalTriggerListeners()}
    * @return Returns the globalTriggerListener.
    */
   public TriggerListener getGlobalTriggerListener();
 
   /**
+   * @deprecated use {@link #setGlobalTriggerListeners(List<TriggerListener>)}
    * @param globalTriggerListener The globalTriggerListener to set.
    */
   public void setGlobalTriggerListener(TriggerListener globalTriggerListener);
 
+    /**
+     * Registers a List of TriggerListeners which will be registered to respond to events on all Triggers
+     * 
+     * @param globalTriggerListeners
+     */
+  public void setGlobalTriggerListeners(List<TriggerListener> globalTriggerListeners);
+
+  public List<TriggerListener> getGlobalTriggerListeners();
+
+    /**
+     * Registers a List of JobListeners which will be registered to respond to events on all Triggers
+     * 
+     * @param globalJobListeners
+     */
+  public void setGlobalJobListeners(List<JobListener> globalJobListeners);
+
+  public List<JobListener> getGlobalJobListeners();
+  
   /**
    * @return Returns the serverId.
    */

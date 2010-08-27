@@ -29,7 +29,7 @@ public abstract class AbstractConfigurableJob implements Job
 
     public String getConfiguredProperty (String key)
     {
-        return getJobExecutionContext().getTrigger().getJobDataMap().get(key).toString();
+        return getJobExecutionContext().getMergedJobDataMap().get(key).toString();
     }
 
     public final void execute(JobExecutionContext jobExecutionContext)

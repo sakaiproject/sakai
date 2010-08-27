@@ -30,6 +30,7 @@
                 <module>scheduler-assembly</module>
                 <module>scheduler-component</module>
                 <module>scheduler-component-shared</module>
+                <module>scheduler-events-model</module>
                 <module>scheduler-tool</module>
             </modules>
          </profile>
@@ -45,9 +46,10 @@
                 <module>scheduler-assembly</module>
                 <module>scheduler-component</module>
                 <module>scheduler-component-shared</module>
-                <module>scheduler-tool</module>
                 <module>scheduler-configurable-job-test-component</module>
                 <module>scheduler-configurable-job-test-component-shared</module>
+                <module>scheduler-events-model</module>
+                <module>scheduler-tool</module>
             </modules>
          </profile>
     </profiles>

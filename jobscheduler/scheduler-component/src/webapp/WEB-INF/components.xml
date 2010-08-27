@@ -2,7 +2,38 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-                                                  
+
+    <bean id="org.sakaiproject.yourapp.hibernate.AdditionalHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/scheduler/events/hibernate/TriggerEventHibernateImpl.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager.wrapped"
+          class="org.sakaiproject.component.app.scheduler.events.hibernate.TriggerEventManagerHibernateImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager.wrapped"/>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="navigableLogListener" class="org.sakaiproject.component.app.scheduler.NavigableEventLogListener"/>
+
     <bean id="org.sakaiproject.api.app.scheduler.SchedulerManager"
         class="org.sakaiproject.component.app.scheduler.SchedulerManagerImpl"
         init-method="init" destroy-method="destroy">        
@@ -17,8 +48,23 @@
             <value>quartz.properties</value>
         </property>    
         <property name="globalTriggerListener">
-            <bean class="org.sakaiproject.component.app.scheduler.GlobalTriggerListener"/>
-        </property> 
+            <bean class="org.sakaiproject.component.app.scheduler.GlobalTriggerListener">
+                <property name="triggerEventManager">
+                    <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"/>
+                    <!--bean class="org.sakaiproject.component.app.scheduler.events.TriggerEventManagerImpl"/-->
+                </property>
+            </bean>
+        </property>
+        <property name="globalTriggerListeners">
+            <set>
+                <ref bean="navigableLogListener"/>
+            </set>
+        </property>
+        <property name="globalJobListeners">
+            <set>
+                <ref bean="navigableLogListener"/>
+            </set>
+        </property>
         <property name="dataSource">
           <ref bean="javax.sql.DataSource"/>    
         </property>

@@ -21,22 +21,31 @@
 
 package org.sakaiproject.component.app.scheduler;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.TriggerListener;
+import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
+import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 
 public class GlobalTriggerListener implements TriggerListener
 {
 
-  private List<TriggerEvent> triggerEvents = new ArrayList<TriggerEvent>();
-  private List<TriggerEvent> todaysTriggerEvents = new ArrayList<TriggerEvent>();
   private boolean isViewAllSelected = false;
+  private TriggerEventManager eventManager = null;
+
+  public void setTriggerEventManager (TriggerEventManager eMgr)
+  {
+      eventManager = eMgr;
+  }
+
+  public TriggerEventManager getTriggerEventManager()
+  {
+      return eventManager;
+  }
 
   public String getName()
   {
@@ -46,11 +55,7 @@ public class GlobalTriggerListener implements TriggerListener
   public void triggerFired(Trigger trigger,
       JobExecutionContext jobExecutionContext)
   {
-    TriggerEvent te = new TriggerEvent();
-    te.setEventType(TriggerEvent.TRIGGER_FIRED);
-    te.setJobName(jobExecutionContext.getJobDetail().getName());
-    te.setTime(new Date());
-    triggerEvents.add(0, te);
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.FIRED, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger fired");
   }
 
   public boolean vetoJobExecution(Trigger trigger,
@@ -66,11 +71,7 @@ public class GlobalTriggerListener implements TriggerListener
   public void triggerComplete(Trigger trigger,
       JobExecutionContext jobExecutionContext, int triggerInstructionCode)
   {
-    TriggerEvent te = new TriggerEvent();
-    te.setEventType(TriggerEvent.TRIGGER_COMPLETE);
-    te.setJobName(jobExecutionContext.getJobDetail().getName());
-    te.setTime(new Date());
-    triggerEvents.add(0, te);
+      eventManager.createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE, jobExecutionContext.getJobDetail().getName(), trigger.getName(), new Date(), "Trigger complete");
   }
 
   /**
@@ -80,36 +81,30 @@ public class GlobalTriggerListener implements TriggerListener
   {
     if (isViewAllSelected)
     {
-      return triggerEvents;
+      return eventManager.getTriggerEvents();
     }
     else
     {
-      todaysTriggerEvents = new ArrayList<TriggerEvent>();      
       Calendar cal = Calendar.getInstance();
       cal.set(Calendar.HOUR_OF_DAY, 0);
       cal.set(Calendar.MINUTE, 0);
       cal.set(Calendar.SECOND, 0);
       
       Date midnightToday = new Date(cal.getTimeInMillis());      
-      
-      for (Iterator<TriggerEvent> i = triggerEvents.iterator(); i.hasNext();)
+
+      return eventManager.getTriggerEvents (midnightToday, null, null, null, null);
+/*
+      for (Iterator<TriggerEventImpl> i = triggerEvents.iterator(); i.hasNext();)
       {
-        TriggerEvent te = (TriggerEvent) i.next();
+        TriggerEventImpl te = (TriggerEventImpl) i.next();
         if (te.getTime().after(midnightToday))
         {
           todaysTriggerEvents.add(te);
         }
       }
       return todaysTriggerEvents;
+*/
     }
-  }
-
-  /**
-   * @param triggerEvents The triggerEvents to set.
-   */
-  public void setTriggerEvents(List<TriggerEvent> triggerEvents)
-  {
-    this.triggerEvents = triggerEvents;
   }
 
   /**
