@@ -1,5 +1,14 @@
 var serializationChanged = new Boolean(false);
 
+// stop propagation of keypress on edit_title fields (SAK-19026)
+// some get handled by a keyboard navigation function
+$(document).ready(function(){
+    $('.new_title').keypress(function(e){
+        e.stopPropagation();
+    });
+})
+
+
 function serialize(s)
 {
 	//kill the unsaved changes message
