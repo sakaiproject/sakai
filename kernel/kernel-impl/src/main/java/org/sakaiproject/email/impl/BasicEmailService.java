@@ -335,6 +335,14 @@ public class BasicEmailService implements EmailService
 		m_smtpLocalhost = value;
 	}
 
+	/** Configuration: send partial email or fail on any errors */
+	protected boolean m_sendPartial = true;
+
+	public void setSendPartial(boolean sendPartial)
+	{
+		m_sendPartial = sendPartial;
+	}
+
 	/** Configuration: Socket connection timeout value in milliseconds. Default is infinite timeout. */
 	protected String m_smtpConnectionTimeout = null;
 	
@@ -877,7 +885,7 @@ public class BasicEmailService implements EmailService
 			props.put(propName(MAIL_LOCALHOST_T), m_smtpLocalhost);
 		if (m_smtpPort != null) props.put(propName(MAIL_PORT_T), m_smtpPort);
 		props.put(propName(MAIL_FROM_T), m_smtpFrom);
-		props.put(propName(MAIL_SENDPARTIAL_T), Boolean.TRUE.toString());
+		props.put(propName(MAIL_SENDPARTIAL_T), Boolean.valueOf(m_sendPartial));
 		if (m_smtpConnectionTimeout != null) props.put(propName(MAIL_CONNECTIONTIMEOUT_T), m_smtpConnectionTimeout);
 		if (m_smtpTimeout != null) props.put(propName(MAIL_TIMEOUT_T), m_smtpTimeout);
 
