@@ -1,7 +1,9 @@
 package org.sakaiproject.component.app.scheduler.events.hibernate;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl;
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
@@ -41,7 +43,14 @@ public class TriggerEventManagerHibernateImpl
 
     public List<TriggerEvent> getTriggerEvents()
     {
-        return getHibernateTemplate().loadAll(TriggerEventHibernateImpl.class);
+        final Session
+            session = this.getSession();
+        final Criteria
+            criteria = session.createCriteria(TriggerEventHibernateImpl.class);
+
+        criteria.addOrder(Order.asc("time"));
+
+        return criteria.list();
     }
 
     public List<TriggerEvent> getTriggerEvents(Date after, Date before, String jobName, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types)
@@ -51,6 +60,8 @@ public class TriggerEventManagerHibernateImpl
         final Criteria
             criteria = session.createCriteria(TriggerEventHibernateImpl.class);
 
+        criteria.addOrder(Order.asc("time"));
+        
         if (after != null)
         {
             criteria.add(Restrictions.gt("time", after));
@@ -77,5 +88,11 @@ public class TriggerEventManagerHibernateImpl
 
     public void purgeEvents(Date before)
     {
+        Query
+            q = getSession().getNamedQuery("purgeEventsBefore");
+
+        q.setDate(0, before);
+
+        q.executeUpdate();
     }
 }

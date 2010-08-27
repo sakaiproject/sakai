@@ -20,8 +20,19 @@
 			      value="#{msgs.bar_jobs}"/>		            		      
      	  </sakai:tool_bar>           
       	
-  	    <sakai:panel_titled title="#{msgs.event_log}">   	      
-  	      <h:dataTable value="#{schedulerTool.schedulerManager.globalTriggerListener.triggerEvents}" var="event" styleClass="listHier lines">
+  	    <sakai:panel_titled title="#{msgs.event_log}">
+          <sakai:pager totalItems="#{schedulerTool.eventPager.totalItems}"
+                       firstItem="#{schedulerTool.eventPager.firstItem}"
+                       pageSize="#{schedulerTool.eventPager.pageSize}"
+                       valueChangeListener="#{schedulerTool.eventPager.handleValueChange}"
+                       textItem="events"
+                       accesskeys="true"
+                       immediate="true"/>
+              
+  	      <h:dataTable
+                    first="#{schedulerTool.eventPager.firstItem}"
+                    rows="#{schedulerTool.eventPager.pageSize}"
+                    value="#{schedulerTool.eventPager.events}" var="event" styleClass="listHier lines">
   	        <h:column>
     	        <f:facet name="header">
     	          <h:outputText value="#{msgs.job_name}"/>

@@ -29,7 +29,12 @@
 			<property-name>schedulerManager</property-name>
 			<value>#{Components["org.sakaiproject.api.app.scheduler.SchedulerManager"]}</value>
 		</managed-property>							    
-	</managed-bean>			
+        <managed-property>
+            <description>triggerEventManager</description>
+            <property-name>triggerEventManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.scheduler.events.TriggerEventManager"]}</value>
+        </managed-property>
+	</managed-bean>
 		
 	<navigation-rule>
     	<from-view-id>/scheduler/main.jsp</from-view-id>

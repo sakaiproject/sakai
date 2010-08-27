@@ -47,6 +47,7 @@ import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 import org.sakaiproject.component.app.scheduler.JobDetailWrapperImpl;
 import org.sakaiproject.component.app.scheduler.TriggerWrapperImpl;
 
@@ -80,10 +81,31 @@ public class SchedulerTool
   private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.scheduler.bundle.Messages");
   private TriggerWrapper triggerWrapper = null;
 
+  private TriggerEventManager
+      triggerEventManager = null;
+  private EventPager evtPager = new EventPager();
+
   public SchedulerTool()
   {
   }
 
+  public void setTriggerEventManager (TriggerEventManager tem)
+  {
+      triggerEventManager = tem;
+
+      evtPager.setTriggerEventManager(triggerEventManager);
+  }
+
+  public TriggerEventManager getTriggerEventManager()
+  {
+      return triggerEventManager;
+  }
+
+  public EventPager getEventPager()
+  {
+      return evtPager;
+  }
+    
   /**
    * @return Returns the filteredTriggersWrapperList.
    */
