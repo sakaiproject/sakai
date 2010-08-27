@@ -62,7 +62,10 @@ public class ContentReviewItem {
 	private Date dateSubmitted;
 	private Date dateReportReceived;
 	private Date nextRetryTime;
+	private Integer errorCode;
 	
+
+
 	private Long status;
 	private Integer reviewScore;
 	private String lastError;
@@ -256,5 +259,21 @@ public class ContentReviewItem {
 
 	public void setNextRetryTime(Date nextRetryTime) {
 		this.nextRetryTime = nextRetryTime;
+	}
+	
+	/**
+	 * Get the errorCode returned by the Service 
+	 * @return the error code, null if none
+	 */
+	public Integer getErrorCode() {
+		return errorCode;
+	}
+
+	/**
+	 * Set the error code for this submission
+	 * @param errorCode
+	 */
+	public void setErrorCode(Integer errorCode) {
+		this.errorCode = errorCode;
 	}
 }
