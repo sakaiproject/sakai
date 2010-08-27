@@ -52,6 +52,12 @@ public class PrivateMessageDecoratedBean
   //This string is for display of recipients in Received folder- comman separated list of users
   private String sendToStringDecorated=""; 
   
+  private boolean isPreview = false;
+  private boolean isPreviewReply = false;
+  private boolean isPreviewReplyAll = false;
+  private boolean isPreviewForward = false;
+  private PrivateMessageDecoratedBean previewReplyTmpMsg;
+  
   public PrivateMessage getMsg()
   {
     return msg;
@@ -175,6 +181,37 @@ public class PrivateMessageDecoratedBean
 
   public String getAuthor() {
 	  return msg.getAuthor();
+  }
+  
+  public boolean getIsPreview() {
+	  return isPreview;
+  }
+  public void setIsPreview(boolean isPreview) {
+	  this.isPreview = isPreview;
+  }
+  public boolean getIsPreviewReply() {
+	  return isPreviewReply;
+  }
+  public void setIsPreviewReply(boolean isPreviewReply) {
+	  this.isPreviewReply = isPreviewReply;
+  }
+  public boolean getIsPreviewReplyAll() {
+	  return isPreviewReplyAll;
+  }
+  public void setIsPreviewReplyAll(boolean isPreviewReplyAll) {
+	  this.isPreviewReplyAll = isPreviewReplyAll;
+  }
+  public PrivateMessageDecoratedBean getPreviewReplyTmpMsg() {
+	  return previewReplyTmpMsg;
+  }
+  public void setPreviewReplyTmpMsg(PrivateMessageDecoratedBean previewReplyTmpMsg) {
+	  this.previewReplyTmpMsg = previewReplyTmpMsg;
+  }
+  public boolean getIsPreviewForward() {
+	  return isPreviewForward;
+  }
+  public void setIsPreviewForward(boolean isPreviewForward) {
+	  this.isPreviewForward = isPreviewForward;
   }
 }
 
