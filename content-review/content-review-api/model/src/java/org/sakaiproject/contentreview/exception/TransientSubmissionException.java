@@ -23,6 +23,21 @@ package org.sakaiproject.contentreview.exception;
 
 public class TransientSubmissionException extends Exception {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private Integer errorCode = null;
+	
+	public Integer getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(Integer errorCode) {
+		this.errorCode = errorCode;
+	}
+
 	public TransientSubmissionException() {
 		super();
 	}
@@ -39,4 +54,9 @@ public class TransientSubmissionException extends Exception {
 		super(s);
 	}
 
+	public TransientSubmissionException(String s, Integer error) {
+		super(s);
+		errorCode = error;
+	}
+	
 }

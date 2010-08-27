@@ -23,6 +23,13 @@ package org.sakaiproject.contentreview.exception;
 
 public class SubmissionException extends Exception {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6999476384352973366L;
+	
+	private Integer errorCode = null;
+	
 	public SubmissionException() {
 		super();
 	}
@@ -39,4 +46,18 @@ public class SubmissionException extends Exception {
 		super(s);
 	}
 
+	public SubmissionException(String s, Integer code) {
+		super(s);
+		errorCode = code;
+	}
+
+	public Integer getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(Integer errorCode) {
+		this.errorCode = errorCode;
+	}
+	
+	
 }
