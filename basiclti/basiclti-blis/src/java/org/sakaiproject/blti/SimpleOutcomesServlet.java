@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Iterator;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -78,6 +79,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  * Notes:
@@ -354,6 +356,34 @@ public class SimpleOutcomesServlet extends HttpServlet {
                         return;
 		}
 
+		// Look up the assignment so we can find the max points
+               	GradebookService g = (GradebookService)  ComponentManager
+                            .get("org.sakaiproject.service.gradebook.GradebookService");
+
+               	Assignment assignmentObject = null;
+                pushAdvisor();
+                try {
+			List gradebookAssignments = g.getAssignments(siteId);
+			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if ( gAssignment.isExternallyMaintained() ) continue;
+				if ( assignment.equals(gAssignment.getName()) ) { 
+					assignmentObject = gAssignment;
+					break;
+				}
+			}
+                } catch (Exception e) {
+			assignmentObject = null; // Just to make double sure
+                } finally {
+                        popAdvisor();
+                }
+
+		if ( assignmentObject == null ) {
+                        doError(request, response, theMap, "outcome.no.assignment", "", null);
+                        return;
+		}
+
+		// Things look good - time to process the grade
 		boolean isRead = BasicLTIUtil.equals(lti_message_type, "simple-lis-readresult");
 
 		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
@@ -379,14 +409,14 @@ public class SimpleOutcomesServlet extends HttpServlet {
 				"basiclti.outcomes.usereid", gb_user_id);
                         sess.setUserId(gb_user_id);
                         sess.setUserEid(gb_user_eid);
-                	GradebookService g = (GradebookService)  ComponentManager
-                                .get("org.sakaiproject.service.gradebook.GradebookService");
 			if ( isRead ) {
 				theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
 				theMap.put("/simpleoutcome/result/resultscore/textstring", theGrade);
 			} else { 
+				Double dGrade = new Double(result_resultscore_textstring);
+				dGrade = dGrade * assignmentObject.getPoints();
+				g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
 
-				g.setAssignmentScoreString(siteId, assignment, user_id, result_resultscore_textstring, "External Outcome");
 				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
 			}
                		success = true;
