@@ -820,6 +820,10 @@ placeholder till more standard way of doing it*/
 	float: right;
 }
 
+.loginform td .loginsubmit {
+        color:#09C;
+}
+
 /*
 Buttons dont have hover anymore
 .loginform td #submit:hover{
