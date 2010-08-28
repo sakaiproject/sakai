@@ -45,7 +45,7 @@
 					#end
 					<tr>
 						#if (${doCancel})
-						<td colspan="2"><span id="submit"><input name="submit" type="submit" value="${loginWording}"/> <input name="cancel" type="submit" value="${cancelWording}"/></span></td>
+						<td colspan="2"><span id="submit"><input name="submit" type="submit" class="loginsubmit" value="${loginWording}"/> <input name="cancel" type="submit" class="loginsubmit" value="${cancelWording}"/></span></td>
 						#else
 						<td colspan="2"><input name="submit" type="submit" id="submit" value="${loginWording}"/></td>
 						#end
