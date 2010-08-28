@@ -233,7 +233,6 @@ public class PDAHandler extends PageHandler
 	public void bufferContent(HttpServletRequest req, HttpServletResponse res,
 			Session session, String[] parts, String toolId, PortalRenderContext rcontext)
 	{
-
 		if (toolId == null) return;
 
 		String tidAllow = ServerConfigurationService
@@ -243,6 +242,9 @@ public class PDAHandler extends PageHandler
 
 		ToolConfiguration siteTool = SiteService.findTool(toolId);
 		if (siteTool == null) return;
+
+		// JSR-168 portlets do not operate in iframes
+		if ( portal.isPortletPlacement(siteTool) ) return;
 
 		// If the property is set and :all: is not specified, then the 
 		// tools in the list are the ones that we accept
@@ -328,7 +330,7 @@ public class PDAHandler extends PageHandler
 	public boolean doToolBuffer(HttpServletRequest req, HttpServletResponse res,
 			Session session, String placementId, String toolContextPath,
 			String toolPathInfo) throws ToolException, IOException
-			{
+	{
 
 		if (portal.redirectIfLoggedOut(res)) return false;
 
@@ -381,5 +383,5 @@ public class PDAHandler extends PageHandler
 				toolPathInfo);
 
 		return true;
-			}
+	}
 }
