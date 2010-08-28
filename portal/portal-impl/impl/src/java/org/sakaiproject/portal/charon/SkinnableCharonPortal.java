@@ -232,7 +232,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public void doError(HttpServletRequest req, HttpServletResponse res, Session session,
 			int mode) throws ToolException, IOException
-			{
+	{
 		if (ThreadLocalManager.get(ATTR_ERROR) == null)
 		{
 			ThreadLocalManager.set(ATTR_ERROR, ATTR_ERROR);
@@ -278,7 +278,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		showSnoop(rcontext, true, getServletConfig(), req);
 
 		sendResponse(rcontext, res, "error", null);
-			}
+	}
 
 	private void showSnoop(PortalRenderContext rcontext, boolean b,
 			ServletConfig servletConfig, HttpServletRequest req)
@@ -400,9 +400,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		if ( site == null ) return;
 
-
-
-
 		ResourceProperties rp = site.getProperties();
 		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
 		// System.out.println("Checking subsite pref:"+site.getTitle()+" pref="+pref+" show="+showSub);
@@ -433,7 +430,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			HttpServletResponse res, Session session, String siteId, String toolId,
 			String toolContextPath, String prefix, boolean doPages, boolean resetTools,
 			boolean includeSummary, boolean expandSite) throws ToolException, IOException
-			{
+	{
 
 		String errorMessage = null;
 
@@ -550,7 +547,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		includeBottom(rcontext);
 
 		return rcontext;
-			}
+	}
 
 	public boolean isPortletPlacement(Placement placement)
 	{
@@ -565,7 +562,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
 			ToolConfiguration placement) throws IOException
-			{
+	{
 
 		// find the tool registered for this
 		ActiveTool tool = ActiveToolManager.getActiveTool(placement.getToolId());
@@ -713,10 +710,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolHelpActionUrl", helpActionUrl);
 		toolMap.put("toolId", toolId);
 		return toolMap;
-			}
+	}
 
 
-	private String getRequestHandler(HttpServletRequest req){
+	private String getRequestHandler(HttpServletRequest req)
+	{
 		setupWURFL();
 		if ( wurflHolder == null || wurfl == null ) return null;
 		
@@ -881,7 +879,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
 			String returnPath, boolean skipContainer) throws ToolException
-			{
+	{
 		try
 		{
 			if (basicAuth.doAuth(req, res))
@@ -920,7 +918,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
 		tool.help(req, res, context, loginPath);
-			}
+	}
 
 	/**
 	 * Process a logout
@@ -939,7 +937,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	public void doLogout(HttpServletRequest req, HttpServletResponse res,
 			Session session, String returnPath) throws ToolException
-			{
+	{
 		String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
 		if ( returnPath != null ) 
 		{
@@ -950,7 +948,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/logout";
 		tool.help(req, res, context, "/logout");
-			}
+	}
 
 	/** Set up the WURFL objects - to use most classes will
 	 *  extend the register method and call this setup.
@@ -1344,8 +1342,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			HttpServletResponse res, ToolConfiguration p, String skin,
 			String toolContextPath, String toolPathInfo) throws ToolException,
 			IOException
-			{
-        String portalPath = ServerConfigurationService.getString("portalPath", "/portal");
+	{
+		String portalPath = ServerConfigurationService.getString("portalPath", "/portal");
 
 		// if there is a stored request state, and path, extract that from the
 		// session and reinstance it
@@ -1354,8 +1352,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String portalPlacementUrl = portalPath + getPortalPageUrl(p);
 		res.sendRedirect(portalPlacementUrl);
 		return;
-
-			}
+	}
 
 	public String getPortalPageUrl(ToolConfiguration p)
 	{
@@ -1623,10 +1620,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
 			String toolContextPath, String portalPrefix) throws IOException
-			{
+	{
 		worksiteHandler.includeWorksite(rcontext, res, req, session, site, page,
 				toolContextPath, portalPrefix);
-			}
+	}
 
 	/**
 	 * Initialize the servlet.
@@ -1726,11 +1723,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	protected void postLogin(HttpServletRequest req, HttpServletResponse res,
 			Session session, String loginPath) throws ToolException
-			{
+	{
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/" + loginPath;
 		tool.help(req, res, context, "/" + loginPath);
-			}
+	}
 
 	/**
 	 * Output some session information
@@ -1751,7 +1748,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public void sendResponse(PortalRenderContext rcontext, HttpServletResponse res,
 			String template, String contentType) throws IOException
-			{
+	{
 		// headers
 		if (contentType == null)
 		{
@@ -1782,7 +1779,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			throw new RuntimeException("Failed to render template ", e);
 		}
 
-			}
+	}
 
 	/**
 	 * Returns the type ("course", "project", "workspace", "mySpecialSiteType",
@@ -1921,8 +1918,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 *        The cookie name
 	 * @return The cookie of this name in the request, or null if not found.
 	 */
-	public Cookie findCookie(HttpServletRequest req, String name) {
-		
+	public Cookie findCookie(HttpServletRequest req, String name) 
+	{
 		Cookie[] cookies = req.getCookies();
 		if (cookies != null) {
 			for (int i = 0; i < cookies.length; i++) {
@@ -1933,6 +1930,5 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		return null;
 	}
-
 
 }
