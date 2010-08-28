@@ -1921,7 +1921,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 *        The cookie name
 	 * @return The cookie of this name in the request, or null if not found.
 	 */
-	private Cookie findCookie(HttpServletRequest req, String name) {
+	public Cookie findCookie(HttpServletRequest req, String name) {
 		
 		Cookie[] cookies = req.getCookies();
 		if (cookies != null) {

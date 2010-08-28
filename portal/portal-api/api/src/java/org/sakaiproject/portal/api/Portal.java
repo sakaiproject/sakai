@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -139,6 +140,11 @@ public interface Portal
 	 * Value that this cookie will have if we are forcing classic mode
 	 */
 	public static final String FORCE_CLASSIC_COOKIE_VALUE = "classic";
+	
+	/**
+	 * Name of cookie that is set to signal that the user wants us to start minimized
+	 */
+	public static final String SAKAI_NAV_MIMIMIZED = "sakai_nav_mimimized";
 	
 	/**
 	 * prepare the response and send it to the render engine
@@ -419,5 +425,16 @@ public interface Portal
 	 * @return
 	 */
         public boolean isPortletPlacement(Placement placement);
+
+        /**
+         * Find a cookie by this name from the request
+         * 
+         * @param req
+         *        The servlet request.
+         * @param name
+         *        The cookie name
+         * @return The cookie of this name in the request, or null if not found.
+         */
+        public Cookie findCookie(HttpServletRequest req, String name);
 
 }

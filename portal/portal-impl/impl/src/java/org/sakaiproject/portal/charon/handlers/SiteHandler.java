@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Cookie;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -223,6 +224,12 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
 		
+		// Have we been requested to start minimized?
+		Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MIMIMIZED);
+                if ( c != null && "true".equals(c.getValue()) ) {
+			rcontext.put(portal.SAKAI_NAV_MIMIMIZED, Boolean.TRUE);
+		}
+
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 		
