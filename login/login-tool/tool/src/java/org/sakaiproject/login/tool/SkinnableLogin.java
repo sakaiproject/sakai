@@ -180,6 +180,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		LoginRenderContext rcontext = startPageContext("", req, res);
 		
 		rcontext.put("isPDA", isPDA);
+
+		// Decide whether or not to put up the Cancel
+		String actualPortal = ServerConfigurationService.getPortalUrl();
+                if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
+			rcontext.put("doCancel", Boolean.TRUE);
+		}
 		
 		sendResponse(rcontext, res, "xlogin", null);
 	}
@@ -215,6 +221,13 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 			// get the session info complete needs, since the logout will invalidate and clear the session
 			String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+
+			// Trim off the force.login parameter from return URL if present
+			if ( returnUrl != null )
+			{
+				int where = returnUrl.indexOf("?force.login");
+				if ( where > 0 ) returnUrl = returnUrl.substring(0,where);
+			}
 
 			// TODO: send to the cancel URL, cleanup session
 			complete(returnUrl, session, tool, res);
@@ -256,6 +269,13 @@ public class SkinnableLogin extends HttpServlet implements Login {
 						log.debug("Returning login advice");
 						rcontext.put("loginAdvice", loginAdvice);
 					}
+				}
+
+				// Decide whether or not to put up the Cancel
+				String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+				String actualPortal = ServerConfigurationService.getPortalUrl();
+                		if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
+					rcontext.put("doCancel", Boolean.TRUE);
 				}
 				
 				sendResponse(rcontext, res, "xlogin", null);
@@ -312,6 +332,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		String pwWording = rb.getString("log.pass");
 		String loginRequired = rb.getString("log.logreq");
 		String loginWording = rb.getString("log.login");
+		String cancelWording = rb.getString("log.cancel");
 		
 		rcontext.put("action", response.encodeURL(Web.returnUrl(request, null)));
 		rcontext.put("pageSkinRepo", skinRepo);
@@ -322,6 +343,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("loginPwWording", pwWording);
 		rcontext.put("loginRequired", loginRequired);
 		rcontext.put("loginWording", loginWording);
+		rcontext.put("cancelWording", cancelWording);
 			
 		String eid = request.getParameter("eid");
 		String pw = request.getParameter("pw");
