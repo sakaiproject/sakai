@@ -31,22 +31,22 @@ public class BaseShortenedUrlService implements ShortenedUrlService {
 	/**
 	 * @{inheritDoc}
 	 */
-	public String generateShortUrl(String url) {
-		return service.generateShortUrl(url);
+	public String shorten(String url) {
+		return service.shorten(url);
 	}
 
 	/**
 	 * @{inheritDoc}
 	 */
-	public String generateShortUrl(String url, boolean secure) {
-		return service.generateShortUrl(url, secure);
+	public String shorten(String url, boolean secure) {
+		return service.shorten(url, secure);
 	}
 
 	/**
 	 * @{inheritDoc}
 	 */
-	public String getUrl(String key) {
-		return service.getUrl(key);
+	public String resolve(String key) {
+		return service.resolve(key);
 	}
 	
 	private ServerConfigurationService serverConfigurationService;

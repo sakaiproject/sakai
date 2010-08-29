@@ -41,6 +41,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * An implementation of {@link org.sakaiproject.shortenedurl.api.ShortenedUrlService} to provide randomised URLs
  * 
+ * <p>This implementation stores the shortened key and original URL in a local database table, and uses the resolver servlet to
+ * translate the key back to it's original URL.</p>
+ * 
+ * <p>URLs created are of the form: http://your.sakai.server/x/1w2Kb8
+ * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
@@ -59,7 +64,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	/**
 	 * The prefix for URLs created
 	 */
-	public final String PREFIX = "/s/";
+	public final String PREFIX = "/x/";
 	
 	/**
 	 * Length of a short key
@@ -78,15 +83,15 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 * 
 	 * <p>
 	 * Defaults to short mode where keys are 6 characters long. This should be sufficient for most since the authentication is handled by the container.<br />
-	 * If you are passing sensitive information on an unauthenticated URL, you can use {@link #generateShortUrl(String url, boolean secure)} to create a longer key.
+	 * If you are passing sensitive information on an unauthenticated URL, you can use {@link #shorten(String url, boolean secure)} to create a longer key.
 	 * </p>
 	 * 
 	 * @param url - the long URL
 	 * @return	the shortened URL, or null if errors.
 	 */
-	public String generateShortUrl(String url) {
+	public String shorten(String url) {
 		
-		return generateShortUrl(url, false);
+		return shorten(url, false);
 	}
 	
 	/**
@@ -97,7 +102,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 * @param secure - if a longer key is required.
 	 * @return the shortened URL, or null if errors.
 	 */
-	public String generateShortUrl(String url, boolean secure) {
+	public String shorten(String url, boolean secure) {
 		
 		//check values
 		if(StringUtils.isBlank(url)){
@@ -157,7 +162,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 * @param key - the key value, eg 6whjq
 	 * @return the original URL mapped to this record or null if errors
 	 */
-	public String getUrl(final String key) {
+	public String resolve(final String key) {
 		
 		RandomisedUrl randomisedUrl = null;
 		

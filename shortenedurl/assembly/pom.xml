@@ -37,7 +37,7 @@
       	</dependency>
    		<dependency>
    			<groupId>org.sakaiproject.shortenedurl</groupId>
-   			<artifactId>s</artifactId>
+   			<artifactId>x</artifactId>
    			<version>${project.version}</version>
    			<scope>compile</scope>
    			<type>war</type>

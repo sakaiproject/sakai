@@ -32,7 +32,7 @@
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.shortenedurl:s:war:*</include>
+                 <include>org.sakaiproject.shortenedurl:x:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

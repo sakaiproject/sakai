@@ -14,17 +14,17 @@ public class NoOpUrlService implements ShortenedUrlService {
 
 	private static Log log = LogFactory.getLog(NoOpUrlService.class);
 	
-	public String generateShortUrl(String url) {
+	public String shorten(String url) {
 		log.info("NoOpUrlService returning original url");
 		return url;
 	}
 
-	public String generateShortUrl(String url, boolean secure) {
+	public String shorten(String url, boolean secure) {
 		log.info("NoOpUrlService returning original url");
 		return url;
 	}
 
-	public String getUrl(String key) {
+	public String resolve(String key) {
 		log.info("NoOpUrlService - no implementation, returning null");
 		return null;
 	}

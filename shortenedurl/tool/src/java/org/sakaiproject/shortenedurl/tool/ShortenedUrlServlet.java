@@ -33,7 +33,8 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
 /**
- * This is the request servlet for the ShortenedUrlService which parses the path and gets the url for redirection, then redirects to the original URL.
+ * This is the request servlet for the ShortenedUrlService which parses the path, resolves the key to it's original URL,
+ * then redirects to the that URL.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -68,7 +69,7 @@ public class ShortenedUrlServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed URL for ShortenedUrlService");
 		} else {
 			String id = parts[1]; //always,
-			String url = service.getUrl(id);
+			String url = service.resolve(id);
 			
 			if (url == null) {
 				response.sendError(HttpServletResponse.SC_NOT_FOUND, "No resource found matching " + id);

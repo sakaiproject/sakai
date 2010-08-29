@@ -41,7 +41,7 @@ public class BitlyUrlService implements ShortenedUrlService {
 	/**
 	 * Shorten the give URL using the bit.ly service
 	 */
-	public String generateShortUrl(String url) {
+	public String shorten(String url) {
 		
 		//check auth params are set
 		checkAuth();
@@ -67,14 +67,14 @@ public class BitlyUrlService implements ShortenedUrlService {
 	/**
 	 * Not implemented, simply calls generateShortUrl(String url)
 	 */
-	public String generateShortUrl(String url, boolean secure) {
-		return generateShortUrl(url);
+	public String shorten(String url, boolean secure) {
+		return shorten(url);
 	}
 
 	/**
 	 * Not implemented and not needed. The short URL will be a bit.ly URL that will resolve to the original URL.
 	 */
-	public String getUrl(String key) {
+	public String resolve(String key) {
 		return null;
 	}
 	

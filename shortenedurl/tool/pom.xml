@@ -4,8 +4,8 @@
 	
 	<name>Sakai Shortened URL Service Resolver Servlet</name>
 	<groupId>org.sakaiproject.shortenedurl</groupId>
-	<!-- maps to webapps/s -->
-	<artifactId>s</artifactId>
+	<!-- maps to webapps/x -->
+	<artifactId>x</artifactId>
 
 	<packaging>war</packaging>
 	

@@ -72,7 +72,7 @@ public interface ShortenedUrlService {
 	 * @param url
 	 * @return the full shortened URL
 	 */
-	public String generateShortUrl(String url);
+	public String shorten(String url);
 	
 	
 	/**
@@ -81,7 +81,7 @@ public interface ShortenedUrlService {
 	 * @param url
 	 * @return the full shortened URL
 	 */
-	public String generateShortUrl(String url, boolean secure);
+	public String shorten(String url, boolean secure);
 	
 	
 	/**
@@ -90,7 +90,7 @@ public interface ShortenedUrlService {
 	 * @param key - the shortened key
 	 * @return the original URL that maps to this key
 	 */
-	public String getUrl(String key);
+	public String resolve(String key);
 	
 	
 	
