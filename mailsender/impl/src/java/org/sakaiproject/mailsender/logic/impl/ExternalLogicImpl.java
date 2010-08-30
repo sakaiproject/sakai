@@ -540,7 +540,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 			try
 			{
-				if (entry.getKey() != null)
+				if (name != null)
 				{
 					emailMsg.addBcc(email, name);
 				}
