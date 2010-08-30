@@ -40,4 +40,15 @@ public interface ClusterEventTrackingServiceSql
 	 * returns the sql statement which retrieves the largest event id from the sakai_event table.
 	 */
 	String getMaxEventIdSql();
+
+    /**
+     * returns the sql statement which counts the number of events in the event table
+     */
+    String getEventsCountSql();
+
+    /**
+     * returns the sql statement which counts the number of sessions in the sessions table
+     */
+    String getSessionsCountSql();
+
 }

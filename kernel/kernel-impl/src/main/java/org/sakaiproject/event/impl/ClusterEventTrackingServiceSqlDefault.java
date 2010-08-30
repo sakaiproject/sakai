@@ -20,9 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.event.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * methods for accessing cluster event tracking data in a database.
  */
@@ -59,4 +56,19 @@ public class ClusterEventTrackingServiceSqlDefault implements ClusterEventTracki
 	{
 		return "select MAX(EVENT_ID) from SAKAI_EVENT";
 	}
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.impl.ClusterEventTrackingServiceSql#getEventsCountSql()
+     */
+    public String getEventsCountSql() {
+        return "select COUNT(*) from SAKAI_EVENT";
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.event.impl.ClusterEventTrackingServiceSql#getSessionsCountSql()
+     */
+    public String getSessionsCountSql() {
+        return "select COUNT(*) from SAKAI_SESSION";
+    }
+
 }

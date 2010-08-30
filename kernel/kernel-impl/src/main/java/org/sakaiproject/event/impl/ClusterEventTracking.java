@@ -49,7 +49,16 @@ import org.sakaiproject.util.StringUtil;
  */
 public abstract class ClusterEventTracking extends BaseEventTrackingService implements Runnable
 {
-	/** Our logger. */
+
+    // see http://jira.sakaiproject.org/browse/SAK-3793 for more info about these numbers
+    private static final long WARNING_SAFE_EVENTS_TABLE_SIZE = 18000000l;
+    private static final long MAX_SAFE_EVENTS_TABLE_SIZE = 20000000l;
+
+    private static final long WARNING_SAFE_SESSIONS_TABLE_SIZE = 1750000l;
+    private static final long MAX_SAFE_SESSIONS_TABLE_SIZE = 2000000l;
+
+
+    /** Our logger. */
 	private static Log M_log = LogFactory.getLog(ClusterEventTracking.class);
 
 	/** String used to identify this service in the logs */
@@ -63,6 +72,10 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 	/** Last event code read from the db */
 	protected long m_lastEventSeq = 0;
+
+    protected long m_totalEventsCount = 0;
+
+    protected long m_totalSessionsCount = 0;
 
 	/** Queue of events to write if we are batching. */
 	protected Collection m_eventQueue = null;
@@ -208,6 +221,34 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				start();
 			}
 
+            // do the check for event oversizing and output log warning if needed - SAK-3793
+			long totalEventsCount = getEventsCount();
+            if (totalEventsCount > WARNING_SAFE_EVENTS_TABLE_SIZE) {
+                M_log.info("The SAKAI_EVENT table size ("+totalEventsCount+") is approaching the point at which " +
+                		"performance will begin to degrade ("+MAX_SAFE_EVENTS_TABLE_SIZE+
+                		"), we recommend you archive older events over to another table, " +
+                		"remove older rows, or truncate this table before it reaches a size of "+MAX_SAFE_EVENTS_TABLE_SIZE);
+            } else if (totalEventsCount > MAX_SAFE_EVENTS_TABLE_SIZE) {
+                M_log.warn("The SAKAI_EVENT table size ("+totalEventsCount+") has passed the point at which " +
+                        "performance will begin to degrade ("+MAX_SAFE_EVENTS_TABLE_SIZE+
+                        "), we recommend you archive older events over to another table, " +
+                        "remove older rows, or truncate this table to ensure that performance is not affected negatively");
+			}
+
+            long totalSessionsCount = getSessionsCount();
+            if (totalSessionsCount > WARNING_SAFE_SESSIONS_TABLE_SIZE) {
+                M_log.info("The SAKAI_SESSIONS table size ("+totalSessionsCount+") is approaching the point at which " +
+                        "performance will begin to degrade ("+MAX_SAFE_SESSIONS_TABLE_SIZE+
+                        "), we recommend you archive older sessions over to another table, " +
+                        "remove older rows, or truncate this table before it reaches a size of "+MAX_SAFE_SESSIONS_TABLE_SIZE);
+            } else if (totalSessionsCount > MAX_SAFE_SESSIONS_TABLE_SIZE) {
+                M_log.warn("The SAKAI_SESSIONS table size ("+totalSessionsCount+") has passed the point at which " +
+                        "performance will begin to degrade ("+MAX_SAFE_SESSIONS_TABLE_SIZE+
+                        "), we recommend you archive older events over to another table, " +
+                        "remove older rows, or truncate this table to ensure that performance is not affected negatively");
+            }
+            // end SAK-3793
+
 			M_log.info(this + ".init() - period: " + m_period / 1000 + " batch: " + m_batchWrite + " checkDb: " + m_checkDb);
 
 			this.post(this.newEvent("server.start", serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown"), false));
@@ -218,6 +259,52 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			M_log.warn(this + ".init(): ", t);
 		}
 	}
+
+    /**
+     * @return the current total number of events in the events table (data storage)
+     */
+    protected long getEventsCount() {
+        /*
+         * NOTE: this is a weird way to get the value out but it matches the existing code
+         * added for SAK-3793
+         */
+        m_totalEventsCount = 0;
+        final String eventCountStmt = clusterEventTrackingServiceSql.getEventsCountSql();
+        sqlService().dbRead(eventCountStmt, null, new SqlReader() {
+            public Object readSqlResultRecord(ResultSet result) {
+                try {
+                    m_totalEventsCount = result.getLong(1);
+                } catch (SQLException ignore) {
+                    M_log.warn("Could not get count of events table using SQL: " + eventCountStmt);
+                }
+                return new Long(m_totalEventsCount);
+            }
+        });
+        return m_totalEventsCount;
+    }
+
+    /**
+     * @return the current total number of sessions in the sessions table (data storage)
+     */
+    protected long getSessionsCount() {
+        /*
+         * NOTE: this is a weird way to get the value out but it matches the existing code
+         * added for SAK-3793
+         */
+        m_totalSessionsCount = 0;
+        final String sessionCountStmt = clusterEventTrackingServiceSql.getSessionsCountSql();
+        sqlService().dbRead(sessionCountStmt, null, new SqlReader() {
+            public Object readSqlResultRecord(ResultSet result) {
+                try {
+                    m_totalSessionsCount = result.getLong(1);
+                } catch (SQLException ignore) {
+                    M_log.warn("Could not get count of sessions table using SQL: " + sessionCountStmt);
+                }
+                return new Long(m_totalSessionsCount);
+            }
+        });
+        return m_totalSessionsCount;
+    }
 
 	/**
 	 * Final cleanup.
