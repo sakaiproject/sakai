@@ -28,7 +28,7 @@
 	<sakai:view title="#{msgs.pvtarea_name}">
 <!--jsp/privateMsg/pvtMsg.jsp-->
 		<h:form id="prefs_pvt_form">
-		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+		       		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
 			

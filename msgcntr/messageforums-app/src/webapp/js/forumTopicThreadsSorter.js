@@ -61,7 +61,11 @@ $.tablesorter.addParser({
 		return /^<(a|A)/.test(s);
 	},
 	format: function(s) {
-	return jQuery.trim($(s).parent().find('a').text().toLowerCase());
+		var title = jQuery.trim($(s).filter("a").filter(function(){return this.text!=""}).text().toLowerCase());
+		if(title ==""){
+			title = jQuery.trim($(s).find('a').text().toLowerCase());
+		}
+		return title;	
 	},
 	type: "text"
 });
@@ -71,14 +75,14 @@ jQuery.fn.threadsSorter = function() {
 	
 		/* util */
 		function isParent(node){
-			if (node.className == "hierItemBlock")
+			if (node.className.match(new RegExp('hierItemBlock'))!= null)
 				return true;
 			else
 				return false;
 		}
 		
 		function isDescendant(node){
-			if (node.id.match(new RegExp('_id_[0-9]+__hide_division_')))
+				if (node.id.match(new RegExp('_id_[0-9]+__hide_division_')) != null)
 				return true;
 			else 
 				return false;  
@@ -171,14 +175,16 @@ jQuery.fn.threadsSorter = function() {
 						//For css style 'padding-left: 1em', firefox returns pixels like 16px or else ; safari and IE returns 1em;
 						
 						leftpadding = $(row).find("td").eq(1).css("padding-left");
-						if(leftpadding.indexOf("px") >= 0){
-							var pixels = parseInt(leftpadding.replace("px", ""));
-							paddingDigitValue = parseInt($(pixels).toEm().replace("em",""));
-						}
-						else{
-							paddingDigitValue = parseInt(leftpadding.replace("em",""));
-						}
-						
+						if(leftpadding != null){
+							if(leftpadding.indexOf("px") >= 0){
+								var pixels = parseInt(leftpadding.replace("px", ""));
+								paddingDigitValue = parseInt($(pixels).toEm().replace("em",""));
+							}
+							else{
+								paddingDigitValue = parseInt(leftpadding.replace("em",""));
+							}
+ 						}						
+
 						//  while (next ) is a grandchild, save the array index in the originalCacheTable for the row;
 						while(paddingDigitValue > 1){
 							grandChildrenCount++;
