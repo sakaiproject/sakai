@@ -22,18 +22,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Assert;
+import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -42,6 +42,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
+import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -49,6 +50,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author chall
@@ -58,8 +60,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class ExternalLogicImplTest {
 	ExternalLogicImpl impl;
 
-	@Mock
-	ConfigLogic configLogic;
+	ConfigLogicImpl configLogic;
 	@Mock
 	FunctionManager functionManager;
 	@Mock
@@ -101,6 +102,11 @@ public class ExternalLogicImplTest {
 		when(userDirectoryService.getUser(USER_ID)).thenReturn(user);
 		when(user.getDisplayName()).thenReturn(USER_DISPLAY_NAME);
 
+		configLogic = new ConfigLogicImpl();
+		configLogic.setExternalLogic(impl);
+		configLogic.setServerConfigurationService(serverConfigurationService);
+		configLogic.setToolManager(toolManager);
+
 		impl = new ExternalLogicImpl();
 		impl.setConfigLogic(configLogic);
 		impl.setFunctionManager(functionManager);
@@ -111,11 +117,19 @@ public class ExternalLogicImplTest {
 		impl.setSiteService(siteService);
 		impl.setToolManager(toolManager);
 		impl.setUserDirectoryService(userDirectoryService);
+
+		when(serverConfigurationService.getString(MailConstants.SAKAI_HOST,
+				ExternalLogicImpl.DEFAULT_SMTP_HOST)).thenReturn(
+						ExternalLogicImpl.DEFAULT_SMTP_HOST);
+		when(serverConfigurationService.getInt(MailConstants.SAKAI_PORT,
+				ExternalLogicImpl.DEFAULT_SMTP_PORT)).thenReturn(
+						ExternalLogicImpl.DEFAULT_SMTP_PORT);
+
+		impl.init();
 	}
 
 	@Test
 	public void init() throws Exception {
-		impl.init();
 		verify(functionManager).registerFunction(ExternalLogic.PERM_ADMIN);
 		verify(functionManager).registerFunction(ExternalLogic.PERM_SEND);
 	}
@@ -231,5 +245,19 @@ public class ExternalLogicImplTest {
 		when(securityService.isSuperUser(isA(String.class))).thenReturn(true).thenReturn(false);
 		assertTrue(impl.isUserAdmin(USER_ID));
 		assertFalse(impl.isUserAdmin(USER_ID));
+	}
+
+	@Test
+	public void sendMail() throws Exception {
+		ConfigEntry config = configLogic.getConfig();
+		String fromEmail = "from@example.com";
+		String fromName = "From Example";
+		HashMap<String, String> to = new HashMap<String, String>();
+		to.put("to@example.com", null);
+		String subject = "That thing I sent you";
+		String content = "Did you get that thing I sent you?";
+		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
+
+		impl.sendEmail(config, fromEmail, fromName, to, subject, content, attachments);
 	}
 }

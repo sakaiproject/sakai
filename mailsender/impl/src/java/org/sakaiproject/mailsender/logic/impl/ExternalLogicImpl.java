@@ -16,19 +16,21 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.logic.impl;
 
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_CONNECTIONTIMEOUT;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_SENDPARTIAL;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SMTP_TIMEOUT;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_ALLOW_TRANSPORT;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_CONNECTION_TIMEOUT;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_DEBUG;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_HOST;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_PASSWORD;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_PORT;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_TIMEOUT;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_USER;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_USE_SSL;
-import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_SMTP_USE_TLS;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_CONNECTIONTIMEOUT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_SENDPARTIAL;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.MAIL_TIMEOUT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.PROTOCOL_SMTP;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.PROTOCOL_SMTPS;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_ALLOW_TRANSPORT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_CONNECTION_TIMEOUT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_DEBUG;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_HOST;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_PASSWORD;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_PORT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_TIMEOUT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_USER;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_USE_SSL;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_USE_TLS;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,10 +42,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
@@ -87,23 +91,37 @@ public class ExternalLogicImpl implements ExternalLogic
 {
 	private static Log log = LogFactory.getLog(ExternalLogicImpl.class);
 
-    private static final String UTF_8 = "UTF-8";
+    static final String UTF_8 = "UTF-8";
 
 	/** Default value of smtp host */
-	private static final String DEFAULT_SMTP_HOST = "localhost";
+	static final String DEFAULT_SMTP_HOST = "localhost";
 
 	/** Default value of smtp port */
-	private static final int DEFAULT_SMTP_PORT = 25;
+	static final int DEFAULT_SMTP_PORT = 25;
 
 	/** Defaut value for use of ssl */
-	boolean DEFAULT_USE_SSL = false;
+	static final boolean DEFAULT_USE_SSL = false;
 
 	/** Defaut value for use of ssl */
-	boolean DEFAULT_USE_TLS = false;
+	static final boolean DEFAULT_USE_TLS = false;
 
 	/** Defaut value for smtp debugging */
-	boolean DEFAULT_SMTP_DEBUG = false;
+	static final boolean DEFAULT_SMTP_DEBUG = false;
 
+	private String protocol;
+	private String smtpHost;
+	private int smtpPort;
+	private String smtpUser;
+	private String smtpPassword;
+	private boolean allowTransport;
+	private boolean smtpDebug;
+	private boolean useSsl;
+	private boolean useTls;
+	private String connectionTimeout;
+	private String timeout;
+	private boolean sendPartial;
+
+	// external service references
 	private FunctionManager functionManager;
 	private ToolManager toolManager;
 	private SecurityService securityService;
@@ -123,6 +141,50 @@ public class ExternalLogicImpl implements ExternalLogic
 		// register Sakai permissions for this tool
 		functionManager.registerFunction(PERM_ADMIN);
 		functionManager.registerFunction(PERM_SEND);
+
+		useSsl = configService.getBoolean(SAKAI_USE_SSL, DEFAULT_USE_SSL);
+		if (useSsl) {
+			protocol = "smtps";
+		} else {
+			protocol = "smtp";
+		}
+		useTls = configService.getBoolean(SAKAI_USE_TLS, DEFAULT_USE_TLS);
+		sendPartial = configService.getBoolean(MailConstants.SAKAI_SENDPARTIAL, Boolean.TRUE);
+
+		smtpHost = configService.getString(SAKAI_HOST, DEFAULT_SMTP_HOST);
+		smtpPort = configService.getInt(SAKAI_PORT, DEFAULT_SMTP_PORT);
+		smtpUser = configService.getString(SAKAI_USER);
+		smtpPassword = configService.getString(SAKAI_PASSWORD);
+		allowTransport = configService.getBoolean(SAKAI_ALLOW_TRANSPORT, Boolean.TRUE);
+		smtpDebug = configService.getBoolean(SAKAI_DEBUG, DEFAULT_SMTP_DEBUG);
+
+		// set the protocol to be used
+		if (useSsl) {
+			protocol = PROTOCOL_SMTPS;
+		} else {
+			protocol = PROTOCOL_SMTP;
+		}
+
+		// initialize timeout values
+		connectionTimeout = configService.getString(SAKAI_CONNECTION_TIMEOUT, null);
+		if (connectionTimeout == null) {
+			connectionTimeout = configService.getString(propName(MAIL_CONNECTIONTIMEOUT), null);
+		}
+		
+		timeout = configService.getString(SAKAI_TIMEOUT);
+		if (connectionTimeout == null) {
+			connectionTimeout = configService.getString(propName(MAIL_CONNECTIONTIMEOUT), null);
+		}
+
+		// check for smtp protocol labeled values for backwards compatibility
+		if (PROTOCOL_SMTPS.equals(protocol))
+		{
+			if (connectionTimeout == null)
+				connectionTimeout = configService.getString(propName(MAIL_CONNECTIONTIMEOUT, PROTOCOL_SMTP), null);
+		
+			if (timeout == null)
+				timeout = configService.getString(propName(MailConstants.MAIL_TIMEOUT, PROTOCOL_SMTP), null);
+		}
 	}
 
 	/**
@@ -368,21 +430,6 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		ArrayList<String> invalids = new ArrayList<String>();
 
-		// host
-		String smtpHost = configService.getString(SAKAI_SMTP_HOST, DEFAULT_SMTP_HOST);
-
-		// port
-		int smtpPort = configService.getInt(SAKAI_SMTP_PORT, DEFAULT_SMTP_PORT);
-
-		// authentication
-		String smtpUser = configService.getString(SAKAI_SMTP_USER);
-		String smtpPassword = configService.getString(SAKAI_SMTP_PASSWORD);
-
-		// allow sending
-		boolean allowTransport = configService.getBoolean(SAKAI_SMTP_ALLOW_TRANSPORT, true);
-
-		boolean smtpDebug = configService.getBoolean(SAKAI_SMTP_DEBUG, DEFAULT_SMTP_DEBUG);
-
 		try
 		{
 			// gather attachments first to help determine the type of message to create
@@ -467,18 +514,26 @@ public class ExternalLogicImpl implements ExternalLogic
 					emailMsg.setAuthentication(smtpUser, smtpPassword);
 				}
 
-				boolean useSsl = configService.getBoolean(SAKAI_SMTP_USE_SSL, DEFAULT_USE_SSL);
 				emailMsg.setSSL(useSsl);
 				if (useSsl) {
 					emailMsg.setSslSmtpPort(Integer.toString(smtpPort));
 				}
 
-				boolean useTls = configService.getBoolean(SAKAI_SMTP_USE_TLS, DEFAULT_USE_TLS);
 				emailMsg.setTLS(useTls);
 
 				// set some properties used during sending (partial send, connection timeout,
 				// timeout)
-				setSendProperites();
+				Session session = emailMsg.getMailSession();
+				Properties sessionProps = session.getProperties();
+				if (connectionTimeout != null) {
+					sessionProps.put(propName(MAIL_CONNECTIONTIMEOUT), Integer.valueOf(connectionTimeout));
+				}
+
+				if (timeout != null) {
+					sessionProps.put(propName(MAIL_TIMEOUT), Integer.valueOf(timeout));
+				}
+
+				sessionProps.put(propName(MAIL_SENDPARTIAL), Boolean.valueOf(sendPartial));
 
 				// send if transport is allowed
 				if (allowTransport)
@@ -512,23 +567,6 @@ public class ExternalLogicImpl implements ExternalLogic
 			log.error(ie.getMessage(), ie);
 			throw new MailsenderException("exception.generic", msg);
 		}
-	}
-
-	private void setSendProperites()
-	{
-		String connectionTimeout = configService.getString(SAKAI_SMTP_CONNECTION_TIMEOUT);
-		if (connectionTimeout != null)
-		{
-			System.setProperty(MAIL_SMTP_CONNECTIONTIMEOUT, connectionTimeout);
-		}
-
-		String timeout = configService.getString(SAKAI_SMTP_TIMEOUT);
-		if (timeout != null)
-		{
-			System.setProperty(MAIL_SMTP_TIMEOUT, timeout);
-		}
-
-		System.setProperty(MAIL_SMTP_SENDPARTIAL, Boolean.TRUE.toString());
 	}
 
 	private void setRecipients(Map<String, String> to, ArrayList<String> invalids, Email emailMsg)
@@ -806,5 +844,16 @@ public class ExternalLogicImpl implements ExternalLogic
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
+	}
+
+	public String propName(String propNameTemplate)
+	{
+		return propName(propNameTemplate, PROTOCOL_SMTP);
+	}
+
+	public String propName(String propNameTemplate, String protocol)
+	{
+		String formattedName = String.format(propNameTemplate, protocol);
+		return formattedName;
 	}
 }
