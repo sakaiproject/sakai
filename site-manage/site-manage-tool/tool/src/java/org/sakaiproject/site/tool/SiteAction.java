@@ -21,27 +21,21 @@ package org.sakaiproject.site.tool;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
@@ -64,7 +58,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -80,22 +73,15 @@ import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
-import org.sakaiproject.coursemanagement.api.Enrollment;
-import org.sakaiproject.coursemanagement.api.EnrollmentSet;
-import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -107,9 +93,8 @@ import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.ImportException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
@@ -121,9 +106,8 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.sitemanage.api.model.*;
-import org.sakaiproject.site.util.ActionLinkItem;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
+import org.sakaiproject.site.util.ActionLinkItem;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteConstants;
@@ -132,6 +116,11 @@ import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
+import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
+import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
+import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
+import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
@@ -141,16 +130,13 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
@@ -370,12 +356,10 @@ public class SiteAction extends PagedResourceActionII {
 	/** %%% in transition from putting all form variables in state */
 	private final static String FORM_TITLE = "form_title";
 
-	private final static String FORM_URL_BASE = "form_url_base";
+	private final static String FORM_SITE_URL_BASE = "form_site_url_base";
 	
-	private final static String FORM_URL_ALIAS = "form_url_alias";
-
-	private final static String FORM_URL_ALIAS_FULL = "form_url_alias_full";
-
+	private final static String FORM_SITE_ALIAS = "form_site_alias";
+	
 	private final static String FORM_DESCRIPTION = "form_description";
 
 	private final static String FORM_HONORIFIC = "form_honorific";
@@ -399,6 +383,10 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String FORM_SHORT_DESCRIPTION = "form_short_description";
 
 	private final static String FORM_ICON_URL = "iconUrl";
+	
+	private final static String FORM_SITEINFO_URL_BASE = "form_site_url_base";
+	
+	private final static String FORM_SITEINFO_ALIASES = "form_site_aliases";
 
 	private final static String FORM_WILL_NOTIFY = "form_will_notify";
 
@@ -1251,9 +1239,6 @@ public class SiteAction extends PagedResourceActionII {
 		
 		Site site = getStateSite(state);
 		
-		// get alias base path
-		String aliasBaseUrl = ServerConfigurationService.getPortalUrl() + Entity.SEPARATOR + "site" + Entity.SEPARATOR;
-		
 		List unJoinableSiteTypes = (List) state.getAttribute(STATE_DISABLE_JOINABLE_SITE_TYPE);
 
 		switch (index) {
@@ -1629,10 +1614,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			
-			if (StringUtils.trimToNull(siteInfo.getUrlAlias()) != null) {
-				String urlAliasFull = aliasBaseUrl + siteInfo.getUrlAlias();
-				context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
-			}
+			context.put("siteUrls", getSiteUrlsForAliasIds(siteInfo.siteRefAliases));
 
 			context.put("title", siteInfo.title);
 			context.put("description", siteInfo.description);
@@ -1719,6 +1701,10 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 				}
+				
+				context.put("siteFriendlyUrls", getSiteUrlsForSite(site));
+				context.put("siteDefaultUrl", getDefaultSiteUrl(siteId));
+				
 				context.put("siteIcon", site.getIconUrl());
 				context.put("siteTitle", site.getTitle());
 				context.put("siteDescription", site.getDescription());
@@ -2035,13 +2021,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias));
 			if (displaySiteAlias)
 			{
-				alias = getSiteAlias(site!=null?site.getReference():"");
-				if (alias != null) {
-					String urlAliasFull = aliasBaseUrl + alias;
-					context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
-				}
-				context.put(FORM_URL_BASE, aliasBaseUrl);
-				context.put(FORM_URL_ALIAS, alias);
+				context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
+				context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
 			}
 			
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
@@ -2137,8 +2118,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("fieldValues", state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 			
 			context.put("title", siteInfo.title);
-			context.put(FORM_URL_BASE, aliasBaseUrl);
-			context.put(FORM_URL_ALIAS, siteInfo.url_alias);
+			context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
+			context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
 			if (siteInfo.description!=null && siteInfo.description.indexOf("\n") != -1 && siteInfo.description.indexOf("<br />") == -1 && siteInfo.description.indexOf("<br/>") == -1)
 			{
 				// replace the old style line break before WYSIWYG editor "\n" with the current line break <br />
@@ -2152,6 +2133,11 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("short_description", siteInfo.short_description);
 			context.put("form_site_contact_name", siteInfo.site_contact_name);
 			context.put("form_site_contact_email", siteInfo.site_contact_email);
+			
+			context.put("site_aliases", state.getAttribute(FORM_SITEINFO_ALIASES));
+			context.put("site_url_base", state.getAttribute(FORM_SITEINFO_URL_BASE));
+			context.put("site_aliases_editable", aliasesEditable(state, site == null ? null:site.getReference()));
+			context.put("site_alias_assignable", aliasAssignmentForNewSitesEnabled(state));
 
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2188,10 +2174,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("oName", siteProperties.getProperty(PROP_SITE_CONTACT_NAME));
 			context.put("email", siteInfo.site_contact_email);
 			context.put("oEmail", siteProperties.getProperty(PROP_SITE_CONTACT_EMAIL));
-			if (StringUtils.trimToNull(siteInfo.getUrlAlias()) != null) {
-				String urlAliasFull = aliasBaseUrl + siteInfo.getUrlAlias();
-				context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
-			}
+			context.put("siteUrls",  getSiteUrlsForAliasIds(siteInfo.siteRefAliases));
+			context.put("oSiteUrls", getSiteUrlsForSite(site));
+			
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
 			/*
@@ -4922,6 +4907,33 @@ public class SiteAction extends PagedResourceActionII {
 			addNewSite(params, state);
 
 			Site site = getStateSite(state);
+			
+			// Since the option to input aliases is presented to users prior to
+			// the new site actually being created, it doesn't really make sense 
+			// to check permissions on the newly created site when we assign 
+			// aliases, hence the advisor here.
+			//
+			// Set site aliases before dealing with tools b/c site aliases
+			// are more general and can, for example, serve the same purpose
+			// as mail channel aliases but the reverse is not true.
+			if ( aliasAssignmentForNewSitesEnabled(state) ) {
+				SecurityService.pushAdvisor(new SecurityAdvisor()
+				{
+					public SecurityAdvice isAllowed(String userId, String function, String reference)
+					{
+						if ( AliasService.SECURE_ADD_ALIAS.equals(function) || 
+								AliasService.SECURE_UPDATE_ALIAS.equals(function) ) {
+							return SecurityAdvice.ALLOWED; 
+						}
+						return SecurityAdvice.PASS;
+					}
+				});
+				try {
+					setSiteReferenceAliases(state, site.getId()); // sets aliases for the site entity itself
+				} finally {
+					SecurityService.popAdvisor();
+				}
+			}
 
 			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 			if (templateSite == null) 
@@ -5000,8 +5012,6 @@ public class SiteAction extends PagedResourceActionII {
 			// for course sites
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
-				String siteId = site.getId();
-
 				AcademicSession term = null;
 				if (state.getAttribute(STATE_TERM_SELECTED) != null) {
 					term = (AcademicSession) state
@@ -5011,7 +5021,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				// update the site and related realm based on the rosters chosen or requested
-				updateCourseSiteSections(state, siteId, rp, term);
+				updateCourseSiteSections(state, site.getId(), rp, term);
 			}
 			else
 			{
@@ -5023,15 +5033,9 @@ public class SiteAction extends PagedResourceActionII {
 			commitSite(site);
 
 			if (templateSite == null) 
-			{
-				String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-	
-				// now that the site exists, we can set the email alias when an
-				// Email Archive tool has been selected
-				setSiteAlias(state, siteId);
-				
+			{	
 				// save user answers
-				saveSiteSetupQuestionUserAnswers(state, siteId);
+				saveSiteSetupQuestionUserAnswers(state, site.getId());
 			}
 			
 			// TODO: hard coding this frame id is fragile, portal dependent, and
@@ -5073,41 +5077,74 @@ public class SiteAction extends PagedResourceActionII {
 		return alias;
 	}
 
-	/**
-	 * set site mail alias
-	 * @param state
-	 * @param siteId
-	 */
-	private void setSiteAlias(SessionState state, String siteId) {
-		List oTools = (List) state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
-		if (oTools == null || (oTools!=null && !oTools.contains("sakai.mailbox")))
-		{
-			// set alias only if the email archive tool is newly added
-			String alias = StringUtils.trimToNull((String) state
-					.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
-			if (alias != null) {
-				String channelReference = mailArchiveChannelReference(siteId);
-				try {
-					// test whether the alias already is used for some channel
-					AliasService.getTarget(alias);
-				} catch (IdUnusedException e)
-				{
-					// only if the targe is not used, then add it as the alias to the site
-					try {
-						AliasService.setAlias(alias, channelReference);
-					} catch (IdUsedException ee) {
-						addAlert(state, rb.getString("java.alias") + " " + alias
-								+ " " + rb.getString("java.exists"));
-						M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"), ee);
-					} catch (IdInvalidException ee) {
-						addAlert(state, rb.getString("java.alias") + " " + alias
-								+ " " + rb.getString("java.isinval"));
-						M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"), ee);
-					} catch (PermissionException ee) {
-						addAlert(state, rb.getString("java.addalias") + " ");
-						M_log.warn(this + ".setSiteAlias: " + rb.getString("java.addalias") + ee);
-					}
-				}
+ 	/**
+	* Processes site entity aliases associated with the {@link SiteInfo}
+	* object currently cached in the session. Checked exceptions during
+	* processing of any given alias results in an alert and a log message, 
+	* but all aliases will be processed. This behavior is an attempt to be
+	* consistent with established, heads-down style request processing 
+	* behaviors, e.g. in {@link #doFinish(RunData)}.
+	* 
+	* <p>Processing should work for both site creation and modification.</p>
+	* 
+	* <p>Implements no permission checking of its own, so insufficient permissions
+	* will result in an alert being cached in the current session. Thus it
+	* is typically appropriate for the caller to check permissions first,
+	* especially because insufficient permissions may result in a
+	* misleading {@link SiteInfo) state. Specifically, the alias collection
+	* is likely empty, which is consistent with handling of other read-only
+	* fields in that object, but which would cause this method to attempt
+	* to delete all aliases for the current site.</p>
+	* 
+	* <p>Exits quietly if no {@link SiteInfo} object has been cached under
+	* the {@link #STATE_SITE_INFO} key.</p>
+	* 
+	* @param state
+	* @param siteId
+	*/
+	private void setSiteReferenceAliases(SessionState state, String siteId) {
+		SiteInfo siteInfo = (SiteInfo)state.getAttribute(STATE_SITE_INFO);
+		if ( siteInfo == null ) {
+			return;
+		}
+		String siteReference = SiteService.siteReference(siteId);
+		List<String> existingAliasIds = toIdList(AliasService.getAliases(siteReference));
+		Set<String> proposedAliasIds = siteInfo.siteRefAliases;
+		Set<String> aliasIdsToDelete = new HashSet<String>(existingAliasIds);
+		aliasIdsToDelete.removeAll(proposedAliasIds);
+		Set<String> aliasIdsToAdd = new HashSet<String>(proposedAliasIds);
+		aliasIdsToAdd.removeAll(existingAliasIds);
+		for ( String aliasId : aliasIdsToDelete ) {
+			try {
+				AliasService.removeAlias(aliasId);
+			} catch ( PermissionException e ) {
+				addAlert(state, rb.getString("java.delalias") + " ");
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.delalias"), e);
+			} catch ( IdUnusedException e ) {
+				// no problem
+			} catch ( InUseException e ) {
+				addAlert(state, rb.getString("java.delalias") + " " + aliasId + ". " + 
+						rb.getString("java.aliaslocked") + " " + aliasId + "");
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.delalias") + ". " + 
+						rb.getString("java.aliaslocked") + " " + aliasId + "", e);
+	 			}
+	 		}
+		for ( String aliasId : aliasIdsToAdd ) {
+			try {
+				AliasService.setAlias(aliasId, siteReference);
+			} catch ( PermissionException e ) {
+				addAlert(state, rb.getString("java.addalias") + " ");
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias"), e);
+			} catch ( IdInvalidException e ) {
+				addAlert(state, rb.getString("java.alias") + " " + aliasId
+						+ " " + rb.getString("java.isinval"));
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias") 
+						+ " " + rb.getString("java.isinval"), e);
+			} catch ( IdUsedException e ) {
+				addAlert(state, rb.getString("java.alias") + " " + aliasId
+						+ " " + rb.getString("java.exists"));
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias")
+						+ ". " + rb.getString("java.exists"), e);
 			}
 		}
 	}
@@ -6126,12 +6163,6 @@ public class SiteAction extends PagedResourceActionII {
 		
 		saveFeatures(params, state, site);
 		
-		String id = site.getId();
-
-		// now that the site exists, we can set the email alias when an Email
-		// Archive tool has been selected
-		setSiteAlias(state, id);
-		
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			// clean state variables
 			state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
@@ -6140,7 +6171,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.removeAttribute(STATE_MULTIPLE_TOOL_ID_SET);
 			state.removeAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP);
 
-			state.setAttribute(STATE_SITE_INSTANCE_ID, id);
+			state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
 
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
 					.getString("continue"));
@@ -6375,7 +6406,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 			}
-			state.setAttribute(STATE_JOINERROLE, joinerRole);
+			state.setAttribute(STATE_JOINERROLE, joinerRole); 
 		}
 		catch (Exception e)
 		{
@@ -6421,8 +6452,6 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			Site.setTitle(siteInfo.title);
 		}
-		// set an alias for the site
-		setSiteAlias(siteInfo.url_alias, Site.getReference(), state);
 
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
@@ -6448,6 +6477,12 @@ public class SiteAction extends PagedResourceActionII {
 		if (contactEmail != null) {
 			siteProperties.addProperty(PROP_SITE_CONTACT_EMAIL, contactEmail);
 		}
+		
+		Collection<String> oldAliasIds = getSiteReferenceAliasIds(Site);
+		boolean updateSiteRefAliases = aliasesEditable(state, Site.getId()); 
+		if ( updateSiteRefAliases ) {
+			setSiteReferenceAliases(state, Site.getId());
+		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -6461,8 +6496,33 @@ public class SiteAction extends PagedResourceActionII {
 			// back to site info view
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 
-			// refresh the whole page
-			scheduleTopRefresh();
+			// Need to refresh the entire page because, e.g. the current site's name
+			// may have changed. This is problematic, though, b/c the current 
+			// top-level portal URL may reference a just-deleted alias. A temporary
+			// alias translation map is one option, but it is difficult to know when 
+			// to clean up. So we send a redirect instead of just scheduling 
+			// a reload.
+			//
+			// One problem with this is we have no good way to know what the 
+			// top-level portal handler should actually be. We also don't have a 
+			// particularly good way of knowing how the portal expects to receive 
+			// page references. We can't just use SitePage.getUrl() because that 
+			// method assumes that site reference roots are identical to portal 
+			// handler URL fragments, which is not guaranteed. Hence the approach
+			// below which tries to guess at the right portal handler, but just
+			// punts on page reference roots, using SiteService.PAGE_SUBTYPE for
+			// that portion of the URL
+			//
+			// None of this helps other users who may try to reload an aliased site 
+			// URL that no longer resolves.
+			if ( updateSiteRefAliases ) {
+				sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
+					getDefaultSiteUrl(ToolManager.getCurrentPlacement().getContext()) + "/" +
+					SiteService.PAGE_SUBTYPE + "/" + 
+					((ToolConfiguration) ToolManager.getCurrentPlacement()).getPageId());
+			} else {
+				scheduleTopRefresh();
+			}
 
 		}
 	} // doSave_siteInfo
@@ -6479,6 +6539,73 @@ public class SiteAction extends PagedResourceActionII {
 				&& (!site_type.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))
 					||	(state.getAttribute(TITLE_EDITABLE_SITE_TYPE) != null 
 							&& ((List) state.getAttribute(TITLE_EDITABLE_SITE_TYPE)).contains(site_type)));
+	}
+	
+	/**
+	 * Tests if the alias editing feature has been enabled 
+	 * ({@link #aliasEditingEnabled(SessionState, String)}) and that 
+	 * current user has set/remove aliasing permissions for the given
+	 * {@link Site} ({@link #aliasEditingPermissioned(SessionState, String)}).
+	 * 
+	 * <p>(Method name and signature is an attempt to be consistent with
+	 * {@link #siteTitleEditable(SessionState, String)}).</p>
+	 * 
+	 * @param state not used
+	 * @param siteId a site identifier (not a {@link Reference}); must not be <code>null</code>
+	 * @return
+	 */
+	private boolean aliasesEditable(SessionState state, String siteId) {
+		return aliasEditingEnabled(state, siteId) && 
+			aliasEditingPermissioned(state, siteId);
+	}
+	
+	/**
+	 * Tests if alias editing has been enabled by configuration. This is 
+	 * independent of any permissioning considerations. Also note that this 
+	 * feature is configured separately from alias assignment during worksite 
+	 * creation. This feature applies exclusively to alias edits and deletes 
+	 * against existing sites.
+	 * 
+	 * <p>(Method name and signature is an attempt to be consistent with 
+	 * {@link #siteTitleEditable(SessionState, String)}).</p>
+	 * 
+	 * @see #aliasAssignmentForNewSitesEnabled(SessionState)
+	 * @param state
+	 * @param siteId
+	 * @return
+	 */
+	private boolean aliasEditingEnabled(SessionState state, String siteId) {
+		return ServerConfigurationService.getBoolean("site-manage.enable.alias.edit", false);
+	}
+	
+	/**
+	 * Tests if alias assignment for new sites has been enabled by configuration. 
+	 * This is independent of any permissioning considerations. 
+	 * 
+	 * <p>(Method name and signature is an attempt to be consistent with 
+	 * {@link #siteTitleEditable(SessionState, String)}).</p>
+	 * 
+	 * @param state
+	 * @param siteId
+	 * @return
+	 */
+	private boolean aliasAssignmentForNewSitesEnabled(SessionState state) {
+		return ServerConfigurationService.getBoolean("site-manage.enable.alias.new", false);
+	}
+	
+	/**
+	 * Tests if the current user has set and remove permissions for aliases
+	 * of the given site. <p>(Method name and signature is an attempt to be 
+	 * consistent with {@link #siteTitleEditable(SessionState, String)}).</p>
+	 * 
+	 * @param state
+	 * @param siteId
+	 * @return
+	 */
+	private boolean aliasEditingPermissioned(SessionState state, String siteId) {
+		String siteRef = SiteService.siteReference(siteId);
+		return AliasService.allowSetAlias("", siteRef) &&
+			AliasService.allowRemoveTargetAliases(siteRef);
 	}
 
 	/**
@@ -7788,6 +7915,8 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_IMPORT_SITES);
 		state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
 		state.removeAttribute(STATE_CM_SELECTED_SECTIONS);
+		state.removeAttribute(FORM_SITEINFO_ALIASES);
+		state.removeAttribute(FORM_SITEINFO_URL_BASE);
 		sitePropertiesIntoState(state);
 
 	} // removeAddClassContext
@@ -8215,32 +8344,74 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.site_contact_email = email;
 		}
 
-		if (params.getString("url_alias") != null) {
-			siteInfo.url_alias = params.getString("url_alias");
-
-			try {
-				String reference = AliasService.getTarget(siteInfo.url_alias);
-				boolean aliasForOtherSite = true;
-				if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null)
-				{
-					String currentSiteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-					if (reference.indexOf(currentSiteId) != -1)
-					{
-						aliasForOtherSite = false;
-					}
-				}
-				if (aliasForOtherSite)
-					addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.exists"));
-			} catch (IdUnusedException e) {
-				// Do nothing. We want the alias to be unused.
-			}
-
+		int aliasCount = params.getInt("alias_count", 0);
+		siteInfo.siteRefAliases.clear();
+		for ( int j = 0; j < aliasCount ; j++ ) {
+			String alias = StringUtils.trimToNull(params.getString("alias_" + j));
+			if ( alias == null ) {
+				continue;
+			} 
+			// Kernel will force these to lower case anyway. Forcing
+			// to lower case whenever reading out of the form simplifies
+			// comparisons at save time, though, and provides consistent 
+			// on-screen display.
+			alias = alias.toLowerCase();
+			// An invalid alias will set an alert, which theoretically
+			// disallows further progress in the workflow, but we
+			// still need to re-render the invalid form contents.
+			// Thus siteInfo.aliases contains all input aliases, even if
+			// invalid. (Same thing happens above for email.)
+			validateSiteAlias(alias, state);
+			siteInfo.siteRefAliases.add(alias);
 		}
+
 		
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 		
 	} // updateSiteInfo
 
+	private boolean validateSiteAlias(String aliasId, SessionState state) {
+		if ( (aliasId = StringUtils.trimToNull(aliasId)) == null ) {
+			addAlert(state, rb.getString("java.alias") + " " + aliasId
+					+ " " + rb.getString("java.isinval"));
+			return false;
+		}
+		boolean isSimpleResourceName = aliasId.equals(Validator.escapeResourceName(aliasId));
+		boolean isSimpleUrl = aliasId.equals(Validator.escapeUrl(aliasId));
+		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
+			// The point of these site aliases is to have easy-to-recall,
+			// easy-to-guess URLs. So we take a very conservative approach
+			// here and disallow any aliases which would require special 
+			// encoding or would simply be ignored when building a valid 
+			// resource reference or outputting that reference as a URL.
+			addAlert(state, rb.getString("java.alias") + " " + aliasId
+					+ " " + rb.getString("java.isinval"));
+			return false;
+		} else {
+			String currentSiteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
+			boolean editingSite = currentSiteId != null;
+			try {
+				String targetRef = AliasService.getTarget(aliasId);
+				if ( editingSite ) {
+					String siteRef = SiteService.siteReference(currentSiteId);
+					boolean targetsCurrentSite = siteRef.equals(targetRef);
+					if ( !(targetsCurrentSite) ) {
+						addAlert(state, rb.getString("java.alias") + " " + aliasId
+							+ " " + rb.getString("java.exists"));
+						return false;
+					}
+				} else {
+					addAlert(state, rb.getString("java.alias") + " " + aliasId
+							+ " " + rb.getString("java.exists"));
+					return false;
+				}
+			} catch (IdUnusedException e) {
+				// No conflicting aliases
+			}
+			return true;
+		}
+	}
+	
 	/**
 	 * getParticipantList
 	 * 
@@ -8417,10 +8588,9 @@ public class SiteAction extends PagedResourceActionII {
 							// used
 							try {
 								String target = AliasService.getTarget(alias);
-								if (target != null) {
-									addAlert(state, rb
-											.getString("java.emailinuse")
-											+ " ");
+								boolean targetsThisSite = site.getReference().equals(target);
+								if (!(targetsThisSite)) {
+									addAlert(state, rb.getString("java.emailinuse") + " ");
 								}
 							} catch (IdUnusedException ee) {
 								try {
@@ -9174,9 +9344,6 @@ public class SiteAction extends PagedResourceActionII {
 						siteInfo.site_contact_email);
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
-				
-				// create an alias for the site
-				setSiteAlias(siteInfo.url_alias, site.getReference(), state);
 
 				// commit newly added site in order to enable related realm
 				commitSite(site);
@@ -9199,30 +9366,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 	} // addNewSite
-
-	private void setSiteAlias(String alias, String siteReference, SessionState state)
-	{
-		if (StringUtils.trimToNull(alias) != null && StringUtils.trimToNull(siteReference) != null) 
-		{
-			String currentAlias = StringUtils.trimToNull(getSiteAlias(siteReference));
-			
-			if (currentAlias == null || !currentAlias.equals(alias))
-			{
-				try {
-					AliasService.setAlias(alias, siteReference);
-				} catch (IdUsedException ee) {
-					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
-				} catch (IdInvalidException ee) {
-					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));	
-				} catch (PermissionException ee) {
-					addAlert(state, SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
-					M_log.warn(this + ".setSiteAlias: " + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
-				}
-			}
-		}
-	}
 
 	private void sendTemplateUseNotification(Site site, User currentUser,
 			Site templateSite) {
@@ -9367,6 +9510,10 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.additional = "";
 			state.setAttribute(STATE_SITE_TYPE, siteInfo.site_type);
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
+			
+			state.setAttribute(FORM_SITEINFO_ALIASES, getSiteReferenceAliasIds(site));
+			state.setAttribute(FORM_SITEINFO_URL_BASE, getSiteBaseUrl());
+			
 		} catch (Exception e) {
 			M_log.warn(this + ".sitePropertiesIntoState: " + e.getMessage(), e);
 		}
@@ -10252,7 +10399,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		public String title = NULL_STRING; // the short name of the site
 		
-		public String url_alias = NULL_STRING; // the url alias for the site
+		public Set<String> siteRefAliases = new HashSet<String>(); // the aliases for the site itself
 
 		public String short_description = NULL_STRING; // the short (20 char)
 
@@ -10330,13 +10477,17 @@ public class SiteAction extends PagedResourceActionII {
 		public String getSiteContactEmail() {
 			return site_contact_email;
 		}
-
-		public void setUrlAlias(String urlAlias) {
-			this.url_alias = urlAlias;
+		
+		public String getFirstAlias() {
+			return siteRefAliases.isEmpty() ? NULL_STRING : siteRefAliases.iterator().next();
 		}
 
-		public String getUrlAlias() {
-			return url_alias;
+		public Set<String> getSiteRefAliases() {
+			return siteRefAliases;
+		}
+
+		public void setSiteRefAliases(Set<String> siteRefAliases) {
+			this.siteRefAliases = siteRefAliases;
 		}
 		
 		public String getTerm() {
@@ -11760,6 +11911,63 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_SITE_MODE);
 		state.removeAttribute(STATE_TEMPLATE_INDEX);
 		state.removeAttribute(STATE_INITIALIZED);
+	}
+	
+	
+	private String getSiteBaseUrl() {
+		return ServerConfigurationService.getPortalUrl() + "/" + 
+			ServerConfigurationService.getString("portal.handler.default", "site") + 
+			"/";
+	}
+	
+	private String getDefaultSiteUrl(String siteId) {
+		return prefixString(getSiteBaseUrl(), siteId);
+	}
+	
+	private Collection<String> getSiteReferenceAliasIds(Site forSite) {
+		return prefixSiteAliasIds(null, forSite);
+	}
+	
+	private Collection<String> getSiteUrlsForSite(Site site) {
+		return prefixSiteAliasIds(getSiteBaseUrl(), site);
+	}
+	
+	private Collection<String> getSiteUrlsForAliasIds(Collection<String> aliasIds) {
+		return prefixSiteAliasIds(getSiteBaseUrl(), aliasIds);
+	}
+	
+	private String getSiteUrlForAliasId(String aliasId) {
+		return prefixString(getSiteBaseUrl(), aliasId);
+	}
+	
+	private Collection<String> prefixSiteAliasIds(String prefix, Site site) {
+		return prefixSiteAliasIds(prefix, AliasService.getAliases(site.getReference()));
+	}
+	
+	private Collection<String> prefixSiteAliasIds(String prefix, Collection<? extends Object> aliases) {
+		List<String> siteAliases = new ArrayList<String>();
+		for (Object alias : aliases) {
+			String aliasId = null;
+			if ( alias instanceof Alias ) {
+				aliasId = ((Alias)alias).getId();
+			} else {
+				aliasId = alias.toString();
+			}
+			siteAliases.add(prefixString(prefix,aliasId));
+		}
+		return siteAliases;
+	}
+	
+	private String prefixString(String prefix, String aliasId) {
+		return (prefix == null ? "" : prefix) + aliasId;
+	}
+	
+	private List<String> toIdList(List<? extends Entity> entities) {
+		List<String> ids = new ArrayList<String>(entities.size());
+		for ( Entity entity : entities ) {
+			ids.add(entity.getId());
+		}
+		return ids;
 	}
 	
 	/**

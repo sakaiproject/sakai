@@ -130,6 +130,37 @@ function printPreview(target){
 			</tr>
 			#end
 		#end
+		
+		## As with site email addresses, only show UUID-based site URL if that
+		## is our only option (see http://bugs.sakaiproject.org/jira/browse/SAK-10510)
+		#if ($!siteFriendlyUrls.Empty)
+		<tr> 
+			<th>
+				$tlang.getString("sitegen.siteinfolist.siteurl")
+			</th>
+			<td>
+				$!siteDefaultUrl
+			</td>
+		</tr>
+		#else
+		#set ( $aliasIdx = 0 )
+		#foreach($siteFriendlyUrl in $!siteFriendlyUrls)
+		<tr> 
+			<th>
+				#if ( $aliasIdx == 0 )
+					$tlang.getString("sitegen.siteinfolist.siteurl")
+				#else
+					&nbsp;
+				#end
+			</th>
+			<td>
+				$!siteFriendlyUrl
+			</td>
+		</tr>
+		#set ( $aliasIdx = $aliasIdx + 1 )
+		#end
+		#end
+		
 
 			<tr>
 				<th>

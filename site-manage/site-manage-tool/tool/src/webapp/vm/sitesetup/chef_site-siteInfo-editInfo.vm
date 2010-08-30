@@ -167,15 +167,50 @@ function submitRemoveSection(index){
 				$validator.escapeHtml($!title)
 			#end
 		</p>
-		#if ($displaySiteAlias)
-		<div class="shorttext">
- 			<label for="url">
- 				$tlang.getString("sinfo.url_alias")
- 			</label>
- 				$!form_url_base
- 				<input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$validator.escapeHtml($form_url_alias)" />
- 		</div>
- 		#end
+		#if (!$!existingSite)
+			## creating new sites
+			#if ($displaySiteAlias && $!site_alias_assignable)
+				<div class="shorttext">
+		 			<label for="alias_0">
+						$tlang.getString("sinfo.url")
+		 			</label>
+		 				$!form_site_url_base<input type="text" name="alias_0" id="alias_0" maxlength="40" size="20" value="$validator.escapeHtml($form_site_alias)" />
+				</div>
+				<input type="hidden" name="alias_count" id="alias_count" value="1" />
+			#else
+				<input type="hidden" name="alias_count" id="alias_count" value="0" />
+			#end
+		#else
+			## editing exist site
+			#set ( $aliasIdx = 0 )
+			#foreach ($siteAlias in $site_aliases)
+				<p class="shorttext">
+		 			#if ( $!site_aliases_editable )
+		 				<label for="alias_$aliasIdx">
+		 					$tlang.getString("sitediinf.editurl")
+		 				</label>
+		 				$!site_url_base<input type="text" name="alias_$aliasIdx" id="alias_$aliasIdx" maxlength="40" size="20" value="$validator.escapeHtml($!siteAlias)" />
+		 			#else
+		 				<label for="alias_$aliasIdx">
+		 					$tlang.getString("sinfo.url")
+		 				</label>
+		 				$!site_url_base$validator.escapeHtml($!siteAlias)
+		 				<input type="hidden" name="alias_$aliasIdx" id="alias_$aliasIdx" value="$validator.escapeHtml($!siteAlias)" />
+		 			#end
+		 			#set ( $aliasIdx = $aliasIdx + 1 )
+				</p>
+			#end
+			#if ( $!site_aliases_editable )
+				<p class="shorttext">
+					<label for="alias_$aliasIdx">
+	 					$tlang.getString("sitediinf.addurl")
+	 				</label>
+	 				$!site_url_base<input type="text" name="alias_$aliasIdx" id="alias_$aliasIdx" maxlength="40" size="20" value="" />
+				</p>
+				#set ( $aliasIdx = $aliasIdx + 1 )
+			#end
+			<input type="hidden" name="alias_count" id="alias_count" value="$aliasIdx" />
+		#end
 		#if ($!isCourseSite)
 			<p class="shorttext">
 				<label for="term">

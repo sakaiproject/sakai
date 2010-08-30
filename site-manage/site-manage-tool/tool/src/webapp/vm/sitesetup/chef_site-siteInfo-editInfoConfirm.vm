@@ -25,7 +25,7 @@
 			#if ($displaySiteAlias)
 				<tr>
 	 				<th>
-	 					$tlang.getString("newsc.url_alias")
+	 					$tlang.getString("newsc.url")
 	 				</th>
 	 				<td>
 	 					$validator.escapeHtml($!form_url_alias_full)
@@ -42,6 +42,32 @@
 					</td>					
 				</tr>
 			#end
+			<tr>
+				<th>
+					$tlang.getString("sitediconf.siteurls")
+				</th>
+				<td>
+					#if ( $!siteUrls.size() < $!oSiteUrls.size() )
+						#if ( $!siteUrls.Empty )
+							<span class="highlight">$tlang.getString("sitediconf.none")</span>
+						#else
+							#foreach ( $siteUrl in $siteUrls )
+								<span class="highlight">$validator.escapeHtml($!siteUrl)</span><br/>
+							#end
+						#end
+					#elseif ($!siteUrls.Empty)
+						<span class="instruction">$tlang.getString("sitediconf.none")</span>
+					#else
+						#foreach ( $siteUrl in $siteUrls )
+							#if ( !$!oSiteUrls.contains($!siteUrl) )
+								<span class="highlight">$validator.escapeHtml($!siteUrl)</span><br/>
+							#else
+								$validator.escapeHtml($!siteUrl)<br/>
+							#end
+						#end
+					#end
+				</td>
+			</tr>
 			#if($!description)
 				<tr>
 					<th>

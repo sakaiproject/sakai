@@ -70,6 +70,33 @@
 					$validator.escapeHtml($title)
 				</td>
 			</tr>
+			#if ( $!siteUrls.Empty )
+			<tr>
+ 				<th>
+					$tlang.getString("newsc.url")
+				</th>
+				<td>
+					<span class="instruction">$tlang.getString("newsc.url.none")</span>
+				</td>
+			</tr>
+			#else
+			#set ( $siteUrlIdx  = 0 )
+			#foreach ( $siteUrl in $siteUrls )
+			<tr>
+				<th>
+					#if ( $siteUrlIdx == 0 )
+						$tlang.getString("newsc.url")
+					#else
+						&nbsp;
+					#end
+				</th>
+				<td>
+					$validator.escapeHtml($!siteUrl)
+				</td>
+			</tr>
+			#set ( $siteUrlIdx = $siteUrlIdx + 1 )
+			#end
+			#end
 			<tr>
 				<th>
 				$tlang.getString("newsc.tools")
@@ -207,14 +234,6 @@
 
 				</td>
 			</tr>
-			<tr>
- 				<th>
- 					$tlang.getString("newsc.url_alias")
- 				</th>
- 				<td>
- 					$validator.escapeHtml($!form_url_alias_full)
- 				</td>
- 			</tr>
  			<tr>
 			<tr>
 					<th colspan="2">
