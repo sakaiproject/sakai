@@ -2067,16 +2067,19 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put(SPECIFY_DATES, specify);
 			context.put(HIDDEN, edit.getHeader().getDraft());
 			// there is no chance to get the notification setting at this point
-			
+		
 			//output notification history
-			List notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
-			if (notiHistory!=null){
-			List noti_history=new ArrayList();
-			for(Iterator it = notiHistory.iterator(); it.hasNext();){
-			noti_history.add(it.next().toString().split("_"));
-			}			
-			context.put("notiHistory", noti_history);
+			if (state.getEdit()!= null){
+				List notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
+				if (notiHistory!=null){
+					List noti_history=new ArrayList();
+					for(Iterator it = notiHistory.iterator(); it.hasNext();){
+						noti_history.add(it.next().toString().split("_"));
+					}			
+					context.put("notiHistory", noti_history);
+				}
 			}
+			
 
 		}
 		else
@@ -2156,13 +2159,15 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("noti", notification);
 			
 			//output notification history
-			List notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
-			if (notiHistory!=null){
-			List noti_history=new ArrayList();
-			for(Iterator it = notiHistory.iterator(); it.hasNext();){
-			noti_history.add(it.next().toString().split("_"));
-			}			
-			context.put("notiHistory", noti_history);
+			if (state.getEdit()!= null){
+				List notiHistory= state.getEdit().getProperties().getPropertyList("noti_history");
+				if (notiHistory!=null){
+					List noti_history=new ArrayList();
+					for(Iterator it = notiHistory.iterator(); it.hasNext();){
+						noti_history.add(it.next().toString().split("_"));
+					}			
+					context.put("notiHistory", noti_history);
+				}
 			}
 
 		}
