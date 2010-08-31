@@ -15,6 +15,7 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -37,7 +38,7 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 	}
 
 
-	private ExternalLogic externalLogic;	
+	private ExternalLogic externalLogic;
 	public void setExternalLogic(ExternalLogic externalLogic) {
 		this.externalLogic = externalLogic;
 	}
@@ -58,7 +59,7 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 		}
 
 		UIBranchContainer navIntra = UIBranchContainer.make(tofill, "navintra:");
-		UIInternalLink.make(navIntra,"actions-add", new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, null));
+		UIInternalLink.make(navIntra,"actions-add", UIMessage.make("mainview.new") , new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, null));
 
 
 		UIBranchContainer table = UIBranchContainer.make(tofill, "table:");
@@ -73,7 +74,8 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 			if (locale == null )
 				locale = "";
 			UIOutput.make(row, "template-locale", locale);
-			UIInternalLink.make(row,"template-edit", new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
+			UIInternalLink.make(row,"template-edit" , UIMessage.make("mainview.edit"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
+			UIInternalLink.make(row,"template-delete" , UIMessage.make("mainview.delete"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
 		}
 	}
 
