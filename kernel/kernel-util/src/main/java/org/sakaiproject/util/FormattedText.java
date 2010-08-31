@@ -175,12 +175,18 @@ public class FormattedText
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
 	/** Matches all anchor tags that have a target attribute. */
-	private static Pattern M_patternAnchorTagWithTarget = Pattern.compile("([<]a\\s[^<>]*?)target=[^<>\\s]*([^<>]*?)[>]",
+	public static final Pattern M_patternAnchorTagWithTarget = Pattern.compile("([<]a\\s[^<>]*?)target=[^<>\\s]*([^<>]*?)[>]",
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    /** Matches all anchor tags that do not have a target attribute. */
+    public static final Pattern M_patternAnchorTagWithOutTarget = 
+            Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
 	/** Matches href attribute */
 	private static Pattern M_patternHref = Pattern.compile("\\shref\\s*=\\s*(\".*?\"|'.*?')",
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private static Pattern M_patternHrefTarget = Pattern.compile("\\starget\\s*=\\s*(\".*?\"|'.*?')",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
      * This is maintained for backwards compatibility
@@ -408,10 +414,27 @@ public class FormattedText
 		// <a href="http://www.microsoft.com">Microsoft</a>
 		// becomes:
 		// <a href="http://www.microsoft.com" target="_blank">Microsoft</a>
-		value = M_patternAnchorTagWithTarget.matcher(value).replaceAll("$1$2>");
-		value = M_patternAnchorTag.matcher(value).replaceAll("$1$2$3 target=\"_blank\">");
+		// removed for KNL-526
+		//value = M_patternAnchorTagWithTarget.matcher(value).replaceAll("$1$2>"); // strips out targets
+		//value = M_patternAnchorTag.matcher(value).replaceAll("$1$2$3 target=\"_blank\">"); // adds in blank targets
+		// added for KNL-526
+        String testvalue0 = M_patternAnchorTag.matcher(value).replaceAll("$0");
+        String testvalue1 = M_patternAnchorTag.matcher(value).replaceAll("$1");
+        String testvalue2 = M_patternAnchorTag.matcher(value).replaceAll("$2");
+        String testvalue3 = M_patternAnchorTag.matcher(value).replaceAll("$3");
 
-		return value;
+        String testvalueWO0 = M_patternAnchorTagWithOutTarget.matcher(value).replaceAll("$0");
+        String testvalueWO1 = M_patternAnchorTagWithOutTarget.matcher(value).replaceAll("$1");
+        String testvalueWO2 = M_patternAnchorTagWithOutTarget.matcher(value).replaceAll("$2");
+        //String testvalueWO3 = M_patternAnchorTagWithOutTarget.matcher(value).replaceAll("$3");
+        //String testvalueWO4 = M_patternAnchorTagWithOutTarget.matcher(value).replaceAll("$4");
+
+        Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
+        if (m.find()) {
+            value = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+        }
+
+        return value;
 	}
 
 	/**
@@ -621,15 +644,33 @@ public class FormattedText
     public static String processAnchor(String anchor) {
         String newAnchor = "";
         String href = null;
+        String hrefTarget = null;
 
-        // get href
         try {
+            // get HREF value
             Matcher matcher = M_patternHref.matcher(anchor);
             if (matcher.find()) {
                 href = matcher.group();
             }
+            // get target value
+            matcher = M_patternHrefTarget.matcher(anchor);
+            if (matcher.find()) {
+                hrefTarget = matcher.group();
+            }
         } catch (Exception e) {
             M_log.warn("FormattedText.processAnchor ", e);
+        }
+
+        if (hrefTarget != null) {
+            // use the existing one
+            hrefTarget = hrefTarget.trim();
+            hrefTarget = hrefTarget.replaceAll("\"", ""); // slightly paranoid
+            hrefTarget = hrefTarget.replaceAll(">", ""); // slightly paranoid
+            hrefTarget = hrefTarget.replaceFirst("target=", ""); // slightly paranoid
+            hrefTarget = " target=\"" + hrefTarget + "\"";
+        } else {
+            // default to _blank
+            hrefTarget = " target=\"_blank\"";
         }
 
         // open in a new window
@@ -637,7 +678,7 @@ public class FormattedText
             href = href.replaceAll("\"", "");
             href = href.replaceAll(">", "");
             href = href.replaceFirst("href=", "href=\"");
-            newAnchor = "<a " + href + "\" target=\"_blank\">";
+            newAnchor = "<a " + href + "\"" + hrefTarget + ">";
         } else {
             M_log.debug("FormattedText.processAnchor href == null");
             newAnchor = anchor; // default to the original one so we don't lose the anchor

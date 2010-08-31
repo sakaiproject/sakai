@@ -1,6 +1,8 @@
 
 package org.sakaiproject.util;
 
+import java.util.regex.Pattern;
+
 import org.sakaiproject.component.cover.ComponentManager;
 
 import junit.framework.TestCase;
@@ -43,6 +45,51 @@ public class FormattedTextTest extends TestCase {
         assertEquals("<a  href=\"#anchor\" target=\"_blank\">", FormattedText
                 .processAnchor("<a href=\"#anchor\">"));
     }
+
+    public void testRegexTargetMatch() {
+        Pattern patternAnchorTagWithOutTarget = FormattedText.M_patternAnchorTagWithOutTarget;
+        /*  Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL); */
+        assertTrue(patternAnchorTagWithOutTarget.matcher("<a href=\"other.html\">link</a>").find());
+        assertFalse(patternAnchorTagWithOutTarget.matcher("<a target=\"AZ\" href=\"other.html\">link</a>").find());
+        assertTrue(patternAnchorTagWithOutTarget.matcher("<a href=\"other.html\" class=\"AZ\">link</a>").find());
+        assertFalse(patternAnchorTagWithOutTarget.matcher("<a target=\"AZ\" href=\"other.html\">link</a>").find());
+        assertFalse(patternAnchorTagWithOutTarget.matcher("<a href=\"other.html\" target=\"AZ\">link</a>").find());
+    }
+
+    // KNL-526 - testing that targets are not destroyed or replaced
+    public void testTargetNotOverridden() {
+        // method 1 - processAnchor (kills all A attribs and only works on the first part of the tag
+        assertEquals("<a  href=\"other.html\" target=\"_blank\">", 
+                FormattedText.processAnchor("<a href=\"other.html\">") );
+        assertEquals("<a  href=\"other.html\" target=\"_blank\">", 
+                FormattedText.processAnchor("<a target=\"_blank\" href=\"other.html\">") );
+
+        assertEquals("<a  href=\"other.html\" target=\"_AZ\">", 
+                FormattedText.processAnchor("<a href=\"other.html\" target=\"_AZ\">"));
+        // destroys other attributes though...
+        assertEquals("<a  href=\"other.html\" target=\"_AZ\">", 
+                FormattedText.processAnchor("<a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">"));
+
+        // method 2 - escapeHtmlFormattedText (saves other A attribs)
+        assertEquals("<a href=\"other.html\" target=\"_blank\">link</a>", 
+                FormattedText.escapeHtmlFormattedText("<a href=\"other.html\">link</a>") );
+        assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\">link</a>", 
+                FormattedText.escapeHtmlFormattedText("<a href=\"other.html\" class=\"azeckoski\">link</a>") );
+        assertEquals("<b>simple</b><b class=\"AZ\">bold</b>", 
+                FormattedText.escapeHtmlFormattedText("<b>simple</b><b class=\"AZ\">bold</b>") );
+
+        assertEquals("<a href=\"other.html\" target=\"_AZ\">link</a>", 
+                FormattedText.escapeHtmlFormattedText("<a href=\"other.html\" target=\"_AZ\">link</a>") );
+        assertEquals("<a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>", 
+                FormattedText.escapeHtmlFormattedText("<a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
+
+        assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>", 
+                FormattedText.escapeHtmlFormattedText("<a href=\"other.html\" class=\"azeckoski\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
+        assertEquals("<b>simple</b><b class=\"AZ\">bold</b><a href=\"other.html\" class=\"azeckoski\" target=\"_blank\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>", 
+                FormattedText.escapeHtmlFormattedText("<b>simple</b><b class=\"AZ\">bold</b><a href=\"other.html\" class=\"azeckoski\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
+    }
+
 
     // DISABLED TEST
     public void donottestAntisamyProcessFormattedText() {
