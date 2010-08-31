@@ -71,15 +71,15 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       throws ServletException, IOException
   {
 	  String agentIdString = getAgentString(req, res);
+	  if (agentIdString == null) {
+		  String path = "/jsf/delivery/mediaAccessDenied.faces";
+		  RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+		  dispatcher.forward(req, res);
+		  return;
+	  } 
 	  String mediaId = req.getParameter("mediaId");
 	  if (mediaId == null || mediaId.trim().equals("")) {
-		  if (agentIdString == null) {
-			  String path = "/jsf/delivery/mediaAccessDenied.faces";
-			  RequestDispatcher dispatcher = req.getRequestDispatcher(path);
-			  dispatcher.forward(req, res);
-		  } else {
 			  return;
-		  }
 	  }
 	  
 	// get media
@@ -109,23 +109,15 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       PublishedAssessmentService service = new PublishedAssessmentService();
       currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
     }
-    Long typeId = gradingService.getTypeId(mediaData.getItemGradingData().getItemGradingId());
-    if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
-    	isAudio = true;
-    }
 
     // some log checking
     //log.debug("agentIdString ="+agentIdString);
     //log.debug("****current site Id ="+currentSiteId);
     
-    // We only need to verify the Previleage if we display the media as a hyperlink
-    // If we display them in line, the previleage has been checked during rendering
-    // For SAK-6294, we want to display audio player in line. So we set isAudio to true above
-    // and skip the privilege checking
     boolean hasPrivilege = agentIdString !=null &&
     	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
     	 || canGrade(req, res, agentIdString, currentSiteId));
-    if (hasPrivilege || isAudio) {
+    if (hasPrivilege) {
       accessDenied = false;
     }
     if (accessDenied){
