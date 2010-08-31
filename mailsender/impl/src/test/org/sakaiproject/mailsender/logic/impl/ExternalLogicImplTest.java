@@ -21,26 +21,34 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_ALLOW_TRANSPORT;
+import static org.sakaiproject.mailsender.logic.impl.MailConstants.SAKAI_PORT;
 
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.HashMap;
+import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
-import org.sakaiproject.mailsender.logic.ConfigLogic;
+import org.sakaiproject.mailsender.MailsenderException;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.site.api.Site;
@@ -51,6 +59,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.web.multipart.MultipartFile;
+import org.subethamail.wiser.Wiser;
+import org.subethamail.wiser.WiserMessage;
 
 /**
  * @author chall
@@ -81,6 +91,8 @@ public class ExternalLogicImplTest {
 	Site site;
 	@Mock
 	User user;
+
+	Wiser mailServer;
 
 	static final String LOCATION_ID = "locationId";
 	static final String LOCATION_TITLE = "Location Title";
@@ -119,13 +131,26 @@ public class ExternalLogicImplTest {
 		impl.setUserDirectoryService(userDirectoryService);
 
 		when(serverConfigurationService.getString(MailConstants.SAKAI_HOST,
-				ExternalLogicImpl.DEFAULT_SMTP_HOST)).thenReturn(
-						ExternalLogicImpl.DEFAULT_SMTP_HOST);
+						ExternalLogicImpl.DEFAULT_SMTP_HOST)).thenReturn(
+				ExternalLogicImpl.DEFAULT_SMTP_HOST);
 		when(serverConfigurationService.getInt(MailConstants.SAKAI_PORT,
-				ExternalLogicImpl.DEFAULT_SMTP_PORT)).thenReturn(
-						ExternalLogicImpl.DEFAULT_SMTP_PORT);
+						ExternalLogicImpl.DEFAULT_SMTP_PORT)).thenReturn(
+				ExternalLogicImpl.DEFAULT_SMTP_PORT);
 
 		impl.init();
+	}
+
+	@After
+	public void tearDown() {
+		if (mailServer != null) {
+			List<WiserMessage> msgs = mailServer.getMessages();
+			System.out.println(msgs.size() + " messages");
+			for (WiserMessage msg : msgs) {
+				System.out.println("from: " + msg.getEnvelopeSender()
+						+ ", to: " + msg.getEnvelopeReceiver());
+			}
+			mailServer.stop();
+		}
 	}
 
 	@Test
@@ -242,22 +267,82 @@ public class ExternalLogicImplTest {
 
 	@Test
 	public void isUserAdmin() {
-		when(securityService.isSuperUser(isA(String.class))).thenReturn(true).thenReturn(false);
+		when(securityService.isSuperUser(isA(String.class))).thenReturn(true)
+				.thenReturn(false);
 		assertTrue(impl.isUserAdmin(USER_ID));
 		assertFalse(impl.isUserAdmin(USER_ID));
+	}
+
+	@Test
+	public void sendMailMissingFrom() throws Exception {
+		try {
+			impl.sendEmail(null, null, null, null, null, null, null);
+			fail("Must define 'from'");
+		} catch (MailsenderException e) {
+			// expected
+		}
+
+		try {
+			impl.sendEmail(null, "", null, null, null, null, null);
+			fail("Must define 'from'");
+		} catch (MailsenderException e) {
+			// expected
+		}
+	}
+
+	@Test
+	public void sendMailMissingTo() throws Exception {
+		try {
+			impl.sendEmail(null, "from@example.com", null, null, null, null,
+					null);
+			fail("Must define 'to'");
+		} catch (MailsenderException e) {
+			// expected
+		}
+
+		try {
+			impl.sendEmail(null, "from@example.com", null,
+					new HashMap<String, String>(), null, null, null);
+			fail("Must define 'from'");
+		} catch (MailsenderException e) {
+			// expected
+		}
 	}
 
 	@Test
 	public void sendMail() throws Exception {
 		ConfigEntry config = configLogic.getConfig();
 		String fromEmail = "from@example.com";
-		String fromName = "From Example";
+		String fromName = "Potamus, Peter";
 		HashMap<String, String> to = new HashMap<String, String>();
-		to.put("to@example.com", null);
+		to.put("to@example.com", "Birdman, Harvey");
 		String subject = "That thing I sent you";
-		String content = "Did you get that thing I sent you?";
+		String content = "You get that thing I sent you?";
 		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
 
-		impl.sendEmail(config, fromEmail, fromName, to, subject, content, attachments);
+		// have the system discover a free port
+		ServerSocket server = new ServerSocket();
+		server.bind(new InetSocketAddress("localhost", 0));
+		int port = server.getLocalPort();
+		server.close();
+
+		// start a test mail server
+		mailServer = new Wiser();
+		mailServer.setHostname("localhost");
+		mailServer.setPort(port);
+		mailServer.start();
+
+		Mockito.reset(serverConfigurationService);
+		when(serverConfigurationService.getString(eq(MailConstants.SAKAI_HOST),
+				isA(String.class))).thenReturn(
+						ExternalLogicImpl.DEFAULT_SMTP_HOST);
+		when(serverConfigurationService.getInt(eq(SAKAI_PORT), isA(Integer.class)))
+				.thenReturn(port);
+		when(serverConfigurationService.getBoolean(eq(SAKAI_ALLOW_TRANSPORT),
+				isA(Boolean.class))).thenReturn(true);
+		
+		impl.init();
+		impl.sendEmail(config, fromEmail, fromName, to, subject, content,
+				attachments);
 	}
 }
