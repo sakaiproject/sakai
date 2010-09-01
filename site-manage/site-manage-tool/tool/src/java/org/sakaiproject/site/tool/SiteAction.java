@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -37,7 +36,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +65,6 @@ import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.api.Menu;
-import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -106,12 +103,11 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
-import org.sakaiproject.site.util.ActionLinkItem;
 import org.sakaiproject.site.util.Participant;
-import org.sakaiproject.site.util.SiteParticipantHelper;
-import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.site.util.SiteParticipantHelper;
+import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
@@ -275,15 +271,6 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_PRIVATE_SITE_TYPES = "private_site_types";
 
 	private static final String STATE_DISABLE_JOINABLE_SITE_TYPE = "disable_joinable_site_types";
-
-	// Names of state attributes corresponding to properties of a site
-	private final static String PROP_SITE_CONTACT_EMAIL = "contact-email";
-
-	private final static String PROP_SITE_CONTACT_NAME = "contact-name";
-
-	private final static String PROP_SITE_TERM = "term";
-
-	private final static String PROP_SITE_TERM_EID = "term_eid";
 
 	/**
 	 * Name of the state attribute holding the site list column list is sorted
@@ -1943,9 +1930,9 @@ public class SiteAction extends PagedResourceActionII {
 
 				// site contact information
 				String contactName = siteProperties
-						.getProperty(PROP_SITE_CONTACT_NAME);
+						.getProperty(Site.PROP_SITE_CONTACT_NAME);
 				String contactEmail = siteProperties
-						.getProperty(PROP_SITE_CONTACT_EMAIL);
+						.getProperty(Site.PROP_SITE_CONTACT_EMAIL);
 				if (contactName == null && contactEmail == null) {
 					User u = site.getCreatedBy();
 					String email = u.getEmail();
@@ -1966,7 +1953,7 @@ public class SiteAction extends PagedResourceActionII {
 					coursesIntoContext(state, context, site);
 					
 					context.put("term", siteProperties
-							.getProperty(PROP_SITE_TERM));
+							.getProperty(Site.PROP_SITE_TERM));
 				} else {
 					context.put("isCourseSite", Boolean.FALSE);
 				}
@@ -2075,7 +2062,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (site != null)
 					{
 						// existing site
-						siteInfo.term = site.getProperties().getProperty(PROP_SITE_TERM);
+						siteInfo.term = site.getProperties().getProperty(Site.PROP_SITE_TERM);
 					}
 					else
 					{
@@ -2171,9 +2158,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("include", siteInfo.include);
 			context.put("oInclude", Boolean.valueOf(site.isPubView()));
 			context.put("name", siteInfo.site_contact_name);
-			context.put("oName", siteProperties.getProperty(PROP_SITE_CONTACT_NAME));
+			context.put("oName", siteProperties.getProperty(Site.PROP_SITE_CONTACT_NAME));
 			context.put("email", siteInfo.site_contact_email);
-			context.put("oEmail", siteProperties.getProperty(PROP_SITE_CONTACT_EMAIL));
+			context.put("oEmail", siteProperties.getProperty(Site.PROP_SITE_CONTACT_EMAIL));
 			context.put("siteUrls",  getSiteUrlsForAliasIds(siteInfo.siteRefAliases));
 			context.put("oSiteUrls", getSiteUrlsForSite(site));
 			
@@ -2510,7 +2497,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (sType != null && sType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
-						PROP_SITE_TERM));
+						Site.PROP_SITE_TERM));
 				setTermListForContext(context, state, true); // true upcoming only
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
@@ -5016,8 +5003,8 @@ public class SiteAction extends PagedResourceActionII {
 				if (state.getAttribute(STATE_TERM_SELECTED) != null) {
 					term = (AcademicSession) state
 							.getAttribute(STATE_TERM_SELECTED);
-					rp.addProperty(PROP_SITE_TERM, term.getTitle());
-					rp.addProperty(PROP_SITE_TERM_EID, term.getEid());
+					rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
+					rp.addProperty(Site.PROP_SITE_TERM_EID, term.getEid());
 				}
 
 				// update the site and related realm based on the rosters chosen or requested
@@ -6271,11 +6258,11 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		Site site = getStateSite(state);
-		String termEid = site.getProperties().getProperty(PROP_SITE_TERM_EID);
+		String termEid = site.getProperties().getProperty(Site.PROP_SITE_TERM_EID);
 		if (termEid == null)
 		{
 			// no term eid stored, need to get term eid from the term title
-			String termTitle = site.getProperties().getProperty(PROP_SITE_TERM);
+			String termTitle = site.getProperties().getProperty(Site.PROP_SITE_TERM);
 			List asList = cms.getAcademicSessions();
 			if (termTitle != null && asList != null)
 			{
@@ -6286,7 +6273,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (as.getTitle().equals(termTitle))
 					{
 						termEid = as.getEid();
-						site.getPropertiesEdit().addProperty(PROP_SITE_TERM_EID, termEid);
+						site.getPropertiesEdit().addProperty(Site.PROP_SITE_TERM_EID, termEid);
 						
 						try
 						{
@@ -6470,12 +6457,12 @@ public class SiteAction extends PagedResourceActionII {
 		// site contact information
 		String contactName = siteInfo.site_contact_name;
 		if (contactName != null) {
-			siteProperties.addProperty(PROP_SITE_CONTACT_NAME, contactName);
+			siteProperties.addProperty(Site.PROP_SITE_CONTACT_NAME, contactName);
 		}
 
 		String contactEmail = siteInfo.site_contact_email;
 		if (contactEmail != null) {
-			siteProperties.addProperty(PROP_SITE_CONTACT_EMAIL, contactEmail);
+			siteProperties.addProperty(Site.PROP_SITE_CONTACT_EMAIL, contactEmail);
 		}
 		
 		Collection<String> oldAliasIds = getSiteReferenceAliasIds(Site);
@@ -7411,8 +7398,8 @@ public class SiteAction extends PagedResourceActionII {
 										AcademicSession term = cms.getAcademicSession(termId);
 										if (term != null) {
 											ResourcePropertiesEdit rp = site.getPropertiesEdit();
-											rp.addProperty(PROP_SITE_TERM, term.getTitle());
-											rp.addProperty(PROP_SITE_TERM_EID, term.getEid());
+											rp.addProperty(Site.PROP_SITE_TERM, term.getTitle());
+											rp.addProperty(Site.PROP_SITE_TERM_EID, term.getEid());
 										} else {
 											M_log.warn("termId=" + termId + " not found");
 										}
@@ -9338,9 +9325,9 @@ public class SiteAction extends PagedResourceActionII {
 				site.setJoinerRole(siteInfo.joinerRole);
 				site.setPublished(siteInfo.published);
 				// site contact information
-				rp.addProperty(PROP_SITE_CONTACT_NAME,
+				rp.addProperty(Site.PROP_SITE_CONTACT_NAME,
 						siteInfo.site_contact_name);
-				rp.addProperty(PROP_SITE_CONTACT_EMAIL,
+				rp.addProperty(Site.PROP_SITE_CONTACT_EMAIL,
 						siteInfo.site_contact_email);
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
@@ -9478,14 +9465,14 @@ public class SiteAction extends PagedResourceActionII {
 				siteInfo.short_description = site.getShortDescription();
 				siteInfo.site_type = site.getType();
 				// term information
-				String term = siteProperties.getProperty(PROP_SITE_TERM);
+				String term = siteProperties.getProperty(Site.PROP_SITE_TERM);
 				if (term != null) {
 					siteInfo.term = term;
 				}
 				
 				// site contact information
-				String contactName = siteProperties.getProperty(PROP_SITE_CONTACT_NAME);
-				String contactEmail = siteProperties.getProperty(PROP_SITE_CONTACT_EMAIL);
+				String contactName = siteProperties.getProperty(Site.PROP_SITE_CONTACT_NAME);
+				String contactEmail = siteProperties.getProperty(Site.PROP_SITE_CONTACT_EMAIL);
 				if (contactName == null && contactEmail == null) {
 					String creatorId = siteProperties.getProperty(ResourceProperties.PROP_CREATOR);
 					try {
