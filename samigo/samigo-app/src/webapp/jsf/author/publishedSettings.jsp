@@ -310,20 +310,40 @@ function uncheckOther(field){
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision id="div2" title="#{assessmentSettingsMessages.t_deliveryDates}" >
     <f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="shorttext"
-      summary="#{templateMessages.delivery_dates_sec}">
+    <h:panelGrid columns="2" columnClasses="shorttext" summary="#{templateMessages.delivery_dates_sec}" border="0">
 
-      <h:outputText value="#{assessmentSettingsMessages.assessment_available_date}" />
+      <h:outputLabel value="#{assessmentSettingsMessages.assessment_available_date}" />
       <samigo:datePicker value="#{publishedSettings.startDateString}" size="25" id="startDate" />
-
-      <h:outputText value="#{assessmentSettingsMessages.assessment_due_date}" />
+      <h:outputText value="" />
+      <h:outputText value="#{assessmentSettingsMessages.available_date_note}" />
+	
+	<!-- For formatting -->
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	  
+      <h:outputLabel value="#{assessmentSettingsMessages.assessment_due_date}" />
       <samigo:datePicker value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
-
-      <h:outputText value="#{assessmentSettingsMessages.assessment_retract_date}"/>
+      <h:outputText value="" />
+	  <h:outputText value="#{assessmentSettingsMessages.assessment_due_date_note}" />
+	  	
+	<!-- For formatting -->
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	  
+      <h:outputLabel value="#{assessmentSettingsMessages.assessment_retract_date}"/>
+  	  <h:panelGroup>
       <samigo:datePicker value="#{publishedSettings.retractDateString}" size="25" id="retractDate" />
-
+      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+	  <h:outputText value="#{assessmentSettingsMessages.word_or}"/>
+	  <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
       <h:commandButton accesskey="#{assessmentSettingsMessages.a_retract}" type="submit" value="#{assessmentSettingsMessages.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" />
-
+      </h:panelGroup>
+      <h:outputText value="" />
+      <h:outputText value="#{assessmentSettingsMessages.assessment_retract_date_note}" />
 
     </h:panelGrid>
     <f:verbatim></div></f:verbatim>

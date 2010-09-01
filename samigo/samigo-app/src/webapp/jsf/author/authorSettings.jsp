@@ -397,23 +397,38 @@ function setBlockDivs()
 
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_assessment_delivery_dates}"> <div class="tier2">
-    <h:panelGrid columns="2" columnClasses="shorttext"
-      summary="#{templateMessages.delivery_dates_sec}">
-    <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available_date}"/>
+    <h:panelGrid columns="2" columnClasses="shorttext" summary="#{templateMessages.delivery_dates_sec}" border="0">
+      <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available_date}"/>
       <samigo:datePicker value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
+	  <h:outputText value="" />
+	  <h:outputText value="#{assessmentSettingsMessages.available_date_note}" />
 
-     <h:outputLabel for="endDate" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_due_date}" />
-        <h:panelGroup rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}">
-
-          <samigo:datePicker value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
-
-        </h:panelGroup>
-
+	<!-- For formatting -->
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	
+    <h:outputLabel for="endDate" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_due_date}" />
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}">
+      <samigo:datePicker value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
+	</h:panelGroup>
+	<h:outputText value="" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}"/>
+	<h:outputText value="#{assessmentSettingsMessages.assessment_due_date_note}" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}"/>
+	
+	<!-- For formatting -->
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	<h:outputText value="" />
+	  
     <h:outputLabel for="retractDate" value="#{assessmentSettingsMessages.assessment_retract_date}" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}" />
-        <h:panelGroup rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}">
-          <samigo:datePicker value="#{assessmentSettings.retractDateString}" size="25" id="retractDate" />
-        </h:panelGroup>
-    </h:panelGrid>
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}">
+      <samigo:datePicker value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
+	</h:panelGroup>
+	<h:outputText value="" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}"/>
+	<h:outputText value="#{assessmentSettingsMessages.assessment_retract_date_note}" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}"/>
+  </h:panelGrid>
  </div>
   </samigo:hideDivision>
 
