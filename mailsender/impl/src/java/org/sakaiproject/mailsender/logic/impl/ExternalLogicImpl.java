@@ -441,7 +441,7 @@ public class ExternalLogicImpl implements ExternalLogic
 				for (MultipartFile file : attachments.values())
 				{
 					// store the file for permanence
-					File f = new File(attachmentDirectory + file.getOriginalFilename());
+					File f = new File(attachmentDirectory + "/" + file.getOriginalFilename());
 					file.transferTo(f);
 
 					EmailAttachment attachment = new EmailAttachment();
@@ -673,14 +673,12 @@ public class ExternalLogicImpl implements ExternalLogic
 		if (attachments == null || attachments.isEmpty())
 		{
 			SimpleEmail email = new SimpleEmail();
-			email.addHeader("Content-Transfer-Encoding", "quoted-printable");
 			email.setMsg(content);
 			retval = email;
 		}
 		else
 		{
 			MultiPartEmail email = new MultiPartEmail();
-			email.addHeader("Content-Transfer-Encoding", "quoted-printable");
 			email.setMsg(content);
 
 			for (EmailAttachment attachment : attachments)
@@ -707,7 +705,6 @@ public class ExternalLogicImpl implements ExternalLogic
 			throws EmailException
 	{
 		HtmlEmail email = new HtmlEmail();
-		email.addHeader("Content-Transfer-Encoding", "quoted-printable");
 
 		Source source = new Source(content);
 		String text = source.getRenderer().toString();

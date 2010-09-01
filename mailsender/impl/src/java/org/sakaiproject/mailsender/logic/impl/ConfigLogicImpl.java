@@ -155,6 +155,10 @@ public class ConfigLogicImpl implements ConfigLogic
 				uploadDir = ud;
 			}
 		}
+
+		if (uploadDir.endsWith("/")) {
+			uploadDir = uploadDir.substring(0, uploadDir.length() - 1);
+		}
 		return uploadDir;
 	}
 
