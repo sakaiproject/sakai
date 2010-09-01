@@ -23,7 +23,6 @@ package org.sakaiproject.site.api;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -38,6 +37,26 @@ import org.sakaiproject.user.api.User;
  */
 public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 {
+	/**
+	 * property name the contact email
+	 */
+	public final static String PROP_SITE_CONTACT_EMAIL = "contact-email";
+
+	/**
+	 * property name for owners contact name
+	 */
+	public final static String PROP_SITE_CONTACT_NAME = "contact-name";
+
+	/**
+	 * property name for term
+	 */
+	public final static String PROP_SITE_TERM = "term";
+
+	/**
+	 * property name for term-eid
+	 */
+	public final static String PROP_SITE_TERM_EID = "term_eid";
+	
 	/**
 	 * @return the user who created this.
 	 */
