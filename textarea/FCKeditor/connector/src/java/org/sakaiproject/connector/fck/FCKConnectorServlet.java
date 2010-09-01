@@ -388,14 +388,14 @@ public class FCKConnectorServlet extends HttpServlet {
                     
           ContentCollection collection = null;
          
-          Map map = null; 
+          Map<String, String> map = null; 
           Iterator foldersIterator = null;
    
           try {
                //hides the real root level stuff and just shows the users the
                //the root folders of all the top collections they actually have access to.
                if (dir.split("/").length == 2) {
-                    List collections = new ArrayList();
+                    List<String> collections = new ArrayList<String>();
                     map = contentHostingService.getCollectionMap();
                     if (map != null && map.keySet() != null) {
                          collections.addAll(map.keySet());
