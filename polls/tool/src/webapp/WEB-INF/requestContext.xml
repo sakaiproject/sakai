@@ -35,18 +35,9 @@
 		class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
 		
 		<property name="messageLocator" ref="messageLocator" />
-		<property name="roleperms" ref="roleperms" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="site" ref="sakai-Site" />
 	</bean>
-
- 
-	<bean id="roleperms" factory-bean="RoleFactory"
-		factory-method="getRoles" />
-
-	<bean id="RoleFactory"	class="org.sakaiproject.poll.tool.params.RoleFactory">
-	</bean>
-
-
 
 
 	<bean id="pollListProducer"

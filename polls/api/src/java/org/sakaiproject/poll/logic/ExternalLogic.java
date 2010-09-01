@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.sakaiproject.poll.model.PollRolePerms;
+import org.sakaiproject.tool.api.ToolSession;
 
 public interface ExternalLogic {
 
@@ -186,5 +187,12 @@ public interface ExternalLogic {
 	 * 	The title of the site that owns the option's poll
 	 */
 	public void notifyDeletedOption(List<String> userEids, String siteTitle, String pollQuestion);
+	
+	
+	
+	/**
+	 * Needed to invoke helper tools
+	 */
+	public ToolSession getCurrentToolSession();
 	
 }

@@ -12,31 +12,10 @@
 <h3 rsf:id="permissions-title">Permissions</h3>
 <div class="instruction"><span rsf:id="permissions-instruction">Set permissions for Vote in worksite</span> '<span rsf:id="site-name">{site name}</span>'</div>
 
-<form method="post" rsf:id="perm-form">
-<input type="hidden" name="permissions" value="" />			
-<table class="listHier lines nolines" summary="List of roles and permissions that can be applied to this folder. Layout: each row lists the permissions of a role. Layout: column 1 lists the roles, the other columns list the permissions, checkboxes permit enabling a permission for a role." border="0" cellspacing="0">
-  <tbody>
-    <tr> 
-      <th id="role" rsf:id="permissions-role">Role</th>
-      <th rsf:id="head-row:"><span rsf:id="perm-name">perm.name</span></th>
-      
-    </tr>
-    <tr rsf:id="permission-row:"> 
-      <td headers="role"> <h4 rsf:id="role">Role</h4></td>
-      
-      <td headers="add" rsf:id="box-row:"> <label><input type="checkbox" rsf:id="perm-box"/><span rsf:id="msg=permissions_input_label" class="skip">Select</span></label> 
-      </td>
-    
-    </tr>
-    
-  </tbody>
-</table>
+<input type="text" rsf:id="helper-id" />
+<input type="submit" rsf:id="helper-binding" />
 
-<p class="act">
-    <input type="submit" value="Save" rsf:id="submit" class="active"/>
-    <input name="_cancel" type="submit" value="Cancel" rsf:id="cancel" />
-</p>
-</form>
+
 </div>
 </body>
 </html>

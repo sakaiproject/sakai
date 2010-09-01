@@ -30,6 +30,7 @@ import java.util.TimeZone;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.test.TestDataPreload;
 import org.sakaiproject.poll.model.PollRolePerms;
+import org.sakaiproject.tool.api.ToolSession;
 
 public class ExternalLogicStubb implements ExternalLogic {
 
@@ -171,6 +172,11 @@ public class ExternalLogicStubb implements ExternalLogic {
 	}
 
 	public String getUserEidFromId(String userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ToolSession getCurrentToolSession() {
 		// TODO Auto-generated method stub
 		return null;
 	}
