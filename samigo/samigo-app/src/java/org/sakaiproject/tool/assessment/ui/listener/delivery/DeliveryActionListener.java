@@ -1520,7 +1520,7 @@ public class DeliveryActionListener
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     ArrayList fibs = new ArrayList();
     String alltext = text.getText();
-    ArrayList texts = extractFIBTextArray(alltext);
+    ArrayList texts = extractFIBFINTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
@@ -1590,20 +1590,21 @@ public class DeliveryActionListener
     bean.setFibArray(fibs);
   }
 
-  private static ArrayList extractFIBTextArray(String alltext)
+  private static ArrayList extractFIBFINTextArray(String alltext)
   {
     ArrayList texts = new ArrayList();
 
-    while (alltext.indexOf("{") > -1)
+    while (alltext.indexOf("{}") > -1)
     {
-      int alltextLeftIndex = alltext.indexOf("{");
-      int alltextRightIndex = alltext.indexOf("}");
+      int alltextLeftIndex = alltext.indexOf("{}");
+      //int alltextRightIndex = alltext.indexOf("}");
 
       String tmp = alltext.substring(0, alltextLeftIndex);
-      alltext = alltext.substring(alltextRightIndex + 1);
+      alltext = alltext.substring(alltextLeftIndex + 2);
       texts.add(tmp);
-      // there are no more "}", exit loop
-      if (alltextRightIndex == -1)
+      // there are no more "{}", exit loop. 
+      // why do we this check? will it ever come to here?
+      if (alltextLeftIndex == -1)
       {
         break;
       }
@@ -1674,7 +1675,7 @@ public class DeliveryActionListener
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
     ArrayList fins = new ArrayList();
     String alltext = text.getText();
-    ArrayList texts = extractFINTextArray(alltext);
+    ArrayList texts = extractFIBFINTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
@@ -1747,28 +1748,6 @@ public class DeliveryActionListener
     fins.add(fbean);
 
     bean.setFinArray(fins);
-  }
-
-  private static ArrayList extractFINTextArray(String alltext)
-  {
-    ArrayList texts = new ArrayList();
-
-    while (alltext.indexOf("{") > -1)
-    {
-      int alltextLeftIndex = alltext.indexOf("{");
-      int alltextRightIndex = alltext.indexOf("}");
-
-      String tmp = alltext.substring(0, alltextLeftIndex);
-      alltext = alltext.substring(alltextRightIndex + 1);
-      texts.add(tmp);
-      // there are no more "}", exit loop
-      if (alltextRightIndex == -1)
-      {
-        break;
-      }
-    }
-    texts.add(alltext);
-    return texts;
   }
 
   /**
