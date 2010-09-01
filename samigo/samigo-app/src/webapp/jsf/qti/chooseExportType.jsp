@@ -71,7 +71,7 @@ function getSelectedType(qtiUrl, cpUrl){
 		<h:outputText value="#{authorImportExport.choose_type_3}" escape="true" />
     </div>
     <br />
-    <h:panelGrid columns="2">
+    <h:panelGrid columns="2" border="0">
      <h:outputText value="#{authorImportExport.choose_export_type}"/>
      <h:selectOneRadio id="exportType" layout="lineDirection" value="1">
        <f:selectItem itemLabel="#{authorImportExport.qti12}"
@@ -79,6 +79,12 @@ function getSelectedType(qtiUrl, cpUrl){
        <f:selectItem itemLabel="#{authorImportExport.content_packaging}"
          itemValue="2"/>
      </h:selectOneRadio>
+     <h:outputText value=""/>
+     <!-- For formatting -->
+     <h:panelGrid columns="2">
+       <h:outputText value=" "/>
+       <h:outputText value="#{authorImportExport.cp_message}"/>
+     </h:panelGrid>
     </h:panelGrid>
 
     <br/>
