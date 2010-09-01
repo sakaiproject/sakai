@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -201,7 +202,7 @@ public class SiteArchiver {
 		
 		stack.push(root);
 
-		String msg = archiveSite(theSite, doc, stack);
+		String msg = archiveSite(theSite, doc, stack, fromSystem);
 		results.append(msg);
 		
 		stack.pop();
@@ -238,7 +239,7 @@ public class SiteArchiver {
 	* element of the "site" element.
 	*/
 	
-	protected String archiveSite(Site site, Document doc, Stack stack)
+	protected String archiveSite(Site site, Document doc, Stack stack, String fromSystem)
 	{
 		Element element = doc.createElement(SiteService.APPLICATION_ID);
 		((Element)stack.peek()).appendChild(element);
@@ -292,24 +293,33 @@ public class SiteArchiver {
 			stack.push(realmNode);
 			
 			roles.addAll(realm.getRoles());
-			
-			for (int i = 0; i< roles.size(); i++)
-			{
-				role = (Role) roles.get(i);
-				String roleId = role.getId();
-				Element node = doc.createElement(roleId);
-				realmNode.appendChild(node);
-				
-				List users = new Vector();
-				users.addAll(realm.getUsersHasRole(role.getId()));
-				for (int j = 0; j < users.size(); j++)
-				{			
-					Element abilityNode = doc.createElement("ability");
-					abilityNode.setAttribute("roleId", roleId);
-					abilityNode.setAttribute("userId", ((String)users.get(j)));
-					node.appendChild(abilityNode);
-				}
-			}
+
+            for (int i = 0; i< roles.size(); i++)
+            {
+                role = (Role) roles.get(i);
+                String roleId = role.getId();
+                Element node = null;
+                if (ArchiveService.FROM_SAKAI_2_8.equals(fromSystem))
+                {
+                    node = doc.createElement("role");
+                    node.setAttribute("roleId", roleId);
+                }
+                else
+                {
+                    node = doc.createElement(roleId);
+                }
+                realmNode.appendChild(node);
+
+                List users = new Vector();
+                users.addAll(realm.getUsersHasRole(role.getId()));
+                for (int j = 0; j < users.size(); j++)
+                {
+                    Element abilityNode = doc.createElement("ability");
+                    abilityNode.setAttribute("roleId", roleId);
+                    abilityNode.setAttribute("userId", ((String)users.get(j)));
+                    node.appendChild(abilityNode);
+                }
+            }
 		}
 		catch(Exception any)
 		{

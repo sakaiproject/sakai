@@ -110,7 +110,7 @@ public class ArchiveService2Impl implements ArchiveService
 	*/
 	public String archive(String siteId)
 	{
-		return m_siteArchiver.archive(siteId, m_storagePath, FROM_SAKAI);
+		return m_siteArchiver.archive(siteId, m_storagePath, FROM_SAKAI_2_8);
 	}
 
 	/**

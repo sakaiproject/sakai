@@ -238,7 +238,7 @@ public class BasicArchiveService
 			root.setAttribute("source", siteId);
 			root.setAttribute("server", m_serverConfigurationService.getServerId());
 			root.setAttribute("date", now.toString());
-			root.setAttribute("system", FROM_SAKAI);
+			root.setAttribute("system", FROM_SAKAI_2_8);
 			
 			stack.push(root);
 
@@ -268,7 +268,7 @@ public class BasicArchiveService
 			root.setAttribute("source", siteId);
 			root.setAttribute("server", m_serverConfigurationService.getServerId());
 			root.setAttribute("date", now.toString());
-			root.setAttribute("system", FROM_SAKAI);
+			root.setAttribute("system", FROM_SAKAI_2_8);
 			
 			stack.push(root);
 
@@ -290,7 +290,7 @@ public class BasicArchiveService
 		doc.appendChild(root);
 		root.setAttribute("site", siteId);
 		root.setAttribute("date", now.toString());
-		root.setAttribute("system", FROM_SAKAI);
+		root.setAttribute("system", FROM_SAKAI_2_8);
 		
 		stack.push(root);
 
@@ -308,7 +308,7 @@ public class BasicArchiveService
 		doc.appendChild(root);
 		root.setAttribute("site", siteId);
 		root.setAttribute("date", now.toString());
-		root.setAttribute("system", FROM_SAKAI);
+		root.setAttribute("system", FROM_SAKAI_2_8);
 		
 		stack.push(root);
 		
@@ -562,7 +562,7 @@ public class BasicArchiveService
 				return true;
 			}
 		}
-		else if (system.equalsIgnoreCase(FROM_SAKAI))
+		else if (system.equalsIgnoreCase(FROM_SAKAI) || system.equalsIgnoreCase(FROM_SAKAI_2_8))
 		{
 			// Check - if CTools accepts the resource made by this role during importing
 			for (int i = 0; i <SAKAI_roles.length; i++)
@@ -736,7 +736,8 @@ public class BasicArchiveService
 						// if the xml file is from WT site, merge it with user id translation
 						if (system.equalsIgnoreCase(FROM_WT))
 							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, userIdTrans, new HashSet());
-						else if (system.equalsIgnoreCase(FROM_SAKAI) && (checkSakaiService(serviceName)))
+						else if ((system.equalsIgnoreCase(FROM_SAKAI) || system.equalsIgnoreCase(FROM_SAKAI_2_8))
+                                 && (checkSakaiService(serviceName)))
 							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, UsersListAllowImport);
 						else if (system.equalsIgnoreCase(FROM_CT))
 							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, UsersListAllowImport);

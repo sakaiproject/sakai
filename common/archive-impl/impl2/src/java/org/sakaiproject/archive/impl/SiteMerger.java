@@ -263,7 +263,8 @@ public class SiteMerger {
 					try
 					{
 						String msg = "";
-						if (system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) && (checkSakaiService(filterSakaiService,filteredSakaiService, serviceName)))
+						if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8)) 
+                                && (checkSakaiService(filterSakaiService,filteredSakaiService, serviceName)))
 							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, UsersListAllowImport);
 							
 						results.append(msg);
@@ -466,10 +467,22 @@ public class SiteMerger {
 				Node child = children.item(i);
 				if (child.getNodeType() != Node.ELEMENT_NODE) continue;
 				Element element2 = (Element)child;
-				
+                String roleId = null;
+
+                if (ArchiveService.FROM_SAKAI_2_8.equals(source))
+                {
+                    if (!"role".equals(element2.getTagName())) continue;
+
+                    roleId = element2.getAttribute("roleId");
+                }
+                else
+                {
+                    roleId = element2.getTagName();
+                }
+
 				//SWG Getting rid of WT part above, this was previously the else branch labeled "for both CT classic and Sakai CTools"
 				// check is this roleId is a qualified one
-				if (!checkSystemRole(source, element2.getTagName(), filterSakaiRoles, filteredSakaiRoles)) continue;
+				if (!checkSystemRole(source, roleId, filterSakaiRoles, filteredSakaiRoles)) continue;
 					
 				NodeList children2 = element2.getChildNodes();
 				final int length2 = children2.getLength();
@@ -562,7 +575,7 @@ public class SiteMerger {
 	* @return boolean value - true: the role is accepted for importing; otherwise, not;
 	*/
 	protected boolean checkSystemRole(String system, String roleId, boolean filterSakaiRoles, String[] filteredSakaiRoles) {
-		if (system.equalsIgnoreCase(ArchiveService.FROM_SAKAI)) {
+		if (system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8)) {
 			if (filterSakaiRoles)
 			{
 				for (int i = 0; i <filteredSakaiRoles.length; i++)
