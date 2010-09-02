@@ -396,7 +396,10 @@ public class ExternalLogicImplTest {
 		assertEquals("to@example.com", msg.getEnvelopeReceiver());
 		MimeMessage mimeMsg = msg.getMimeMessage();
 		assertEquals(subject, mimeMsg.getSubject());
-		assertEquals(body, mimeMsg.getContent());
+		String content = (String) mimeMsg.getContent();
+		assertEquals(body, content);
+		assertFalse(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertFalse(content.contains("Content-Disposition: attachment;"));
 	}
 
 	@Test
@@ -435,6 +438,7 @@ public class ExternalLogicImplTest {
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
 		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertFalse(content.contains("Content-Disposition: attachment;"));
 	}
 
 	@Test
@@ -449,7 +453,8 @@ public class ExternalLogicImplTest {
 		String subject = "That thing I sent you";
 		String body = "You get that thing I sent you?\n3x6=18\nåæÆÐ";
 		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
-		attachments.put("greatfile.txt", createAttachment("greatfile.txt"));
+		MultipartFile attachment = createAttachment("greatfile.txt");
+		attachments.put("greatfile.txt", attachment);
 		int port = startServer();
 
 		Mockito.reset(serverConfigurationService);
@@ -475,6 +480,8 @@ public class ExternalLogicImplTest {
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
 		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertTrue(content.contains("Content-Disposition: attachment;"));
+		assertTrue(content.contains("filename=" + attachment.getName()));
 	}
 
 	@Test
@@ -487,7 +494,8 @@ public class ExternalLogicImplTest {
 		String subject = "That thing I sent you";
 		String body = "You get <em>that thing</em> I sent you?\n3x6=18\nåæÆÐ";
 		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
-		attachments.put("greatfile.txt", createAttachment("greatfile.txt"));
+		MultipartFile attachment = createAttachment("greatfile.txt");
+		attachments.put("greatfile.txt", attachment);
 		int port = startServer();
 
 		Mockito.reset(serverConfigurationService);
@@ -513,6 +521,8 @@ public class ExternalLogicImplTest {
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
 		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertTrue(content.contains("Content-Disposition: attachment;"));
+		assertTrue(content.contains("filename=" + attachment.getName()));
 	}
 
 	@Test(expected = MailsenderException.class)
