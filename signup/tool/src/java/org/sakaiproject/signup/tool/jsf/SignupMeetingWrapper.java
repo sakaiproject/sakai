@@ -266,7 +266,7 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 		if (meeting.getRecurrenceId() != null && isSubRecurringMeeting())
 			return this.recurId;
 
-		return meeting.getRecurrenceId() != null ? meeting.getRecurrenceId().toString() : meeting.getId().toString();
+		return meeting.getRecurrenceId() != null ? meeting.getRecurrenceId().toString() : (meeting.getId().toString()+"_on");
 	}
 
 	/*
