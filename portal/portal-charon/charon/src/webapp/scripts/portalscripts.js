@@ -189,3 +189,25 @@ function show_timeout_alert(min) {
 	}
 }
 
+
+function sakaiMinimizeNavigation(minSiteNav,minPageNav) {
+	if (minSiteNav) {
+		$('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
+	}
+	if (minPageNav){
+		$('#container').addClass('sakaiMinimizePageNavigation');	
+	}
+	$('#toggleToolMax').hide();
+    $('#toggleNormal').css({'display':'inline'});
+}
+
+function sakaiRestoreNavigation(minSiteNav,minPageNav) {
+	if (minSiteNav) {
+		$('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
+	}
+	if (minPageNav){
+		$('#container').removeClass('sakaiMinimizePageNavigation');	
+	}
+	$('#toggleToolMax').show();
+	$('#toggleNormal').css({'display':'none'});
+}

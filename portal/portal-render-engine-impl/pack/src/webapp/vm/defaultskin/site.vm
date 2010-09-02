@@ -11,56 +11,43 @@
 <!-- END Header -->
 #if (!${loginTopLogin})
 <script type="text/javascript">
-var sakaiContentMarginLeft = "12.3em";
-
-function sakaiMinimizeNavigation() {
-    sakaiContentMarginLeft = $('#content').css('margin-left');
-    $('#siteNavWrapper').css({'display':'none'});
-    $('#presenceWrapper').css({'display':'none'});
-    $('#toolMenuWrap').css({'display':'none'});
-    $('#content').css({'margin-left':'1em'});
-    $('#toggleToolMax').css({'display':'none'});
-    $('#toggleNormal').css({'display':'block'});
-}
-
-function sakaiRestoreNavigation() {
-    $('#siteNavWrapper').css({'display':'block'});
-    $('#presenceWrapper').css({'display':'block'});
-    $('#content').css('margin-left',sakaiContentMarginLeft);
-    $('#toolMenuWrap').css({'display':'block'});
-    $('#toggleToolMax').css({'display':'block'});
-    $('#toggleNormal').css({'display':'none'});
-}
-
 $(document).ready(function() {
+	//move it to the tool menu
+	$('#toggler').prependTo('#toolMenuWrap')
+	//these 2 would depend on 2 sakai properties
+	var minSiteNav = true;
+	var minPageNav =true;
 #if (${sakai_nav_mimimized})
-sakaiMinimizeNavigation();
-$('#toggleToolMenu').toggle(function(e){
-    e.preventDefault();
-    sakaiRestoreNavigation();
-    document.cookie = "sakai_nav_mimimized=false; path=/";
-}, function(e) {
-    e.preventDefault();
-    sakaiMinimizeNavigation();
-    document.cookie = "sakai_nav_mimimized=true; path=/";
-    });
-});
+	sakaiMinimizeNavigation(minSiteNav,minPageNav);
+	$('#toggleToolMenu').toggle(function(e){
+	    e.preventDefault();
+	    sakaiRestoreNavigation(minSiteNav,minPageNav);	
+	    document.cookie = "sakai_nav_mimimized=false; path=/";
+	}, function(e) {
+	    e.preventDefault();
+	    sakaiMinimizeNavigation(minSiteNav,minPageNav);
+	    document.cookie = "sakai_nav_mimimized=true; path=/";
+	    });
+	});
 #else
-$('#toggleToolMenu').toggle(function(e){
-    e.preventDefault();
-    sakaiMinimizeNavigation();
-    document.cookie = "sakai_nav_mimimized=true; path=/";
-}, function(e) {
-    e.preventDefault();
-    sakaiRestoreNavigation();
-    document.cookie = "sakai_nav_mimimized=false; path=/";
-    });
-});
+	$('#toggleToolMenu').toggle(function(e){
+	    e.preventDefault();
+	    sakaiMinimizeNavigation(minSiteNav,minPageNav);
+	    document.cookie = "sakai_nav_mimimized=true; path=/";
+	}, function(e) {
+	    e.preventDefault();
+	    sakaiRestoreNavigation(minSiteNav,minPageNav);
+	    document.cookie = "sakai_nav_mimimized=false; path=/";
+	    });
+	});
 #end
+
 </script>
-<div id="toggler" style="position: absolute; left: 0px; top: 0px; z-index: 3000;">
-<a id="toggleToolMenu" href="#"><img id="toggleToolMax" src="/portal/styles/images/arrow_up_left.png" /><img id="toggleNormal" src="/portal/styles/images/arrow_down_right.png" style="display: none"/></a>
-</div>
+<span id="toggler" style="">
+<a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_menus}"><span class="skip">${rloader.sit_toggle_menus}</span><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
+	"${rloader.sit_toggle_menus}"/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_menus}" style="display: none"/></a>
+</span>
+
 #end
 <!-- site.vm -->
 
