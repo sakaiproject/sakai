@@ -420,6 +420,58 @@ display:none*/
 	cursor: text;
 }
 
+
+/*
+set of special selectors when a user has chosen to minimize navigation and maximize real
+page estate
+*/
+#toggleToolMax{
+	height:16px;
+	background:#fff url(images/expandPage.png) top left no-repeat
+}
+#toggleNormal{
+	height:16px;
+	background:#fff url(images/collapsePage.png) top left no-repeat
+}
+.sakaiMinimizePageNavigation #toolMenu li a{
+	display:block;
+	height:16px;
+	padding-right:0 !important;
+	width:16px;
+}
+.sakaiMinimizePageNavigation #toolMenu{
+	width:16px;
+}
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+	display:none
+}
+.sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
+	width:0px;
+	margin-right:1em;
+	border-right:none;
+}
+.sakaiMinimizePageNavigation #content{
+	padding-left:2em;
+	margin-left:0;
+}
+.sakaiMinimizeSiteNavigation #siteNavWrapper{
+	display:none
+}
+.sakaiMinimizeSiteNavigation #headerMax{
+	padding:0;
+	margin:0; 
+}
+
+#toolMenuWrap #toggler {
+	display:block;
+	float:right;
+}
+.sakaiMinimizePageNavigation #toggler {
+	display:block;
+	float:none !important;
+}
+
+
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
 #worksiteLogo{

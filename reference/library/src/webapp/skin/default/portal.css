@@ -566,21 +566,10 @@ html>body .dhtml_more_tabs {
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
-#toolMenu li.selectedTool span{
-	display: block;
-	padding-bottom : 2px;
-    padding-right : 23px !important;
-    padding-top : 2px;
-    margin-bottom : 0px;
-    margin-left : 0px;
-    margin-right : 0px;
-    margin-top : 0px;
-    background-position : center right !important;
-    background-repeat : no-repeat !important;
+#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
 	filter:alpha(opacity=50);
 	opacity: 0.50;
 	-moz-opacity: 0.50;
-	 
 }
 
 #toolMenu li span, #subSites li span{
@@ -630,6 +619,57 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	filter: alpha(opacity=70); /* opacity for IE */
 	opacity: 0.7; /* CSS3 standard */
 } 
+
+/*
+set of special selectors when a user has chosen to minimize navigation and maximize real
+page estate
+*/
+#toggleToolMax{
+	height:16px;
+	background:#fff url(images/expandPage.png) top left no-repeat
+}
+#toggleNormal{
+	height:16px;
+	background:#fff url(images/collapsePage.png) top left no-repeat
+}
+.sakaiMinimizePageNavigation #toolMenu li a{
+	display:block;
+	height:16px;
+	padding-right:0 !important;
+	width:16px;
+}
+.sakaiMinimizePageNavigation #toolMenu{
+	width:16px;
+}
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+	display:none
+}
+.sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
+	width:0px;
+	margin-right:1em;
+	border-right:none;
+}
+.sakaiMinimizePageNavigation #content{
+	padding-left:2em;
+	margin-left:0;
+}
+.sakaiMinimizeSiteNavigation #siteNavWrapper{
+	display:none
+}
+.sakaiMinimizeSiteNavigation #headerMax{
+	padding:0;
+	margin:0; 
+}
+
+#toolMenuWrap #toggler {
+	display:block;
+	float:right;
+}
+.sakaiMinimizePageNavigation #toggler {
+	display:block;
+	float:none !important;
+}
+
 
 /** Portal Timeout **/
 #timeout_alert_body {
