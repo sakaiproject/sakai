@@ -113,7 +113,7 @@ public class ExternalLogicImplTest {
 	static final String USER_DISPLAY_NAME = "User Displayname";
 	static final String SITE_TYPE = "project";
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	@Before
 	public void setUp() throws Exception {
@@ -398,7 +398,6 @@ public class ExternalLogicImplTest {
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = (String) mimeMsg.getContent();
 		assertEquals(body, content);
-		assertFalse(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
 		assertFalse(content.contains("Content-Disposition: attachment;"));
 	}
 
@@ -437,7 +436,7 @@ public class ExternalLogicImplTest {
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
-		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertFalse(content.contains("åæÆÐ"));
 		assertFalse(content.contains("Content-Disposition: attachment;"));
 	}
 
@@ -479,7 +478,7 @@ public class ExternalLogicImplTest {
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
-		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertFalse(content.contains("åæÆÐ"));
 		assertTrue(content.contains("Content-Disposition: attachment;"));
 		assertTrue(content.contains("filename=" + attachment.getName()));
 	}
@@ -520,7 +519,7 @@ public class ExternalLogicImplTest {
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
-		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertFalse(content.contains("åæÆÐ"));
 		assertTrue(content.contains("Content-Disposition: attachment;"));
 		assertTrue(content.contains("filename=" + attachment.getName()));
 	}
@@ -560,7 +559,7 @@ public class ExternalLogicImplTest {
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
 		assertTrue(content.contains("quoted-printable"));
-		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+		assertFalse(content.contains("åæÆÐ"));
 	}
 
 	private int startServer() throws IOException {
