@@ -48,6 +48,7 @@ import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.Session;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
@@ -454,15 +455,13 @@ public class ExternalLogicImpl implements ExternalLogic
 			}
 
 			Email emailMsg = null;
-
 			// add text part first if HTML
-			if (config.useRichTextEditor())
-			{
-				emailMsg = buildHtmlMessage(content, emailAttachments);
-			}
-			else
-			{
-				emailMsg = buildPlainMessage(content, emailAttachments);
+			if (config.useRichTextEditor()) {
+				Source source = new Source(content);
+				String txtContent = source.getRenderer().toString();
+				emailMsg = buildMessage(txtContent, content, emailAttachments);
+			} else {
+				emailMsg = buildMessage(content, null, emailAttachments);
 			}
 
 			// set the simple stuff
@@ -659,39 +658,6 @@ public class ExternalLogicImpl implements ExternalLogic
 	}
 
 	/**
-	 * Build a message part with plain text content. Add the message part to a multipart message.
-	 *
-	 * @param content
-	 * @param multipart
-	 * @param messageBodyPart
-	 * @throws MessagingException
-	 */
-	private Email buildPlainMessage(String content, List<EmailAttachment> attachments)
-			throws EmailException
-	{
-		Email retval = null;
-		if (attachments == null || attachments.isEmpty())
-		{
-			SimpleEmail email = new SimpleEmail();
-			email.setMsg(content);
-			retval = email;
-		}
-		else
-		{
-			MultiPartEmail email = new MultiPartEmail();
-			email.setMsg(content);
-
-			for (EmailAttachment attachment : attachments)
-			{
-				email.attach(attachment);
-			}
-			retval = email;
-		}
-
-		return retval;
-	}
-
-	/**
 	 * Build a message part with html content. Add the message part to a multipart message with an
 	 * alternative plain text part.
 	 *
@@ -699,32 +665,42 @@ public class ExternalLogicImpl implements ExternalLogic
 	 * @param multipart
 	 * @param altpart
 	 * @param messageBodyPart
+	 * @throws EmailException
 	 * @throws MessagingException
 	 */
-	private Email buildHtmlMessage(String content, List<EmailAttachment> attachments)
-			throws EmailException
-	{
-		HtmlEmail email = new HtmlEmail();
+	private Email buildMessage(String txtContent, String htmlContent,
+			List<EmailAttachment> attachments) throws EmailException,
+			MessagingException {
 
-		Source source = new Source(content);
-		String text = source.getRenderer().toString();
+		if (htmlContent == null && (attachments == null || attachments.isEmpty())) {
+			SimpleEmail retval = new SimpleEmail();
+			retval.setMsg(txtContent);
+			return retval;
+		}
 
-		// set the plain text part
-		email.setTextMsg(text);
+		// setup a message to handle html content or attachments (multipart)
+		MultiPartEmail retval = null;
 
-		// set the html part
-		email.setHtmlMsg(content);
+		// check for html content upfront because the HtmlEmail object can be
+		// used for simple (no attachments) or multipart (attachments) messages
+		if (htmlContent != null) {
+			HtmlEmail htmlEmail = new HtmlEmail();
+			htmlEmail.setTextMsg(txtContent);
+			htmlEmail.setHtmlMsg(htmlContent);
+			retval = htmlEmail;
+		} else {
+			retval = new MultiPartEmail();
+			retval.setMsg(txtContent);
+		}
 
-		// add the attachments
-		if (attachments != null && !attachments.isEmpty())
-		{
-			for (EmailAttachment attachment : attachments)
-			{
-				email.attach(attachment);
+		// no html content and no attachments == simple email
+		if (attachments != null && !attachments.isEmpty()) {
+			for (EmailAttachment emailAttachment : attachments) {
+				retval.attach(emailAttachment);
 			}
 		}
 
-		return email;
+		return retval;
 	}
 
 	private void collectInvalids(ArrayList<String> invalids, String email, String name)

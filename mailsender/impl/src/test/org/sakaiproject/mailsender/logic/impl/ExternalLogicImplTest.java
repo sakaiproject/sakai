@@ -43,6 +43,7 @@ import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
@@ -62,6 +63,7 @@ import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.mailsender.MailsenderException;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
+import org.sakaiproject.mailsender.model.ConfigEntry.EditorType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -111,7 +113,7 @@ public class ExternalLogicImplTest {
 	static final String USER_DISPLAY_NAME = "User Displayname";
 	static final String SITE_TYPE = "project";
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	@Before
 	public void setUp() throws Exception {
@@ -161,7 +163,12 @@ public class ExternalLogicImplTest {
 				System.out.println(msgs.size() + " messages");
 				for (WiserMessage msg : msgs) {
 					MimeMessage mimeMsg = msg.getMimeMessage();
-					MimeMultipart content = (MimeMultipart) mimeMsg.getContent();
+					String output = getContent(mimeMsg);
+					System.out.println("=========================");
+					System.out.println("from: " + msg.getEnvelopeSender()
+							+ ", to: " + msg.getEnvelopeReceiver()
+							+ ", content-type: " + mimeMsg.getContentType()
+							+ ", content:\n" + output);
 
 					InputStream rawIs = mimeMsg.getRawInputStream();
 					StringBuilder sb = new StringBuilder();
@@ -174,17 +181,27 @@ public class ExternalLogicImplTest {
 					} finally {
 						rawIs.close();
 					}
-					System.out.println("raw content: " + sb.toString());
-
-					ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-					content.writeTo(byteOut);
-					System.out.println("from: " + msg.getEnvelopeSender()
-							+ ", to: " + msg.getEnvelopeReceiver()
-							+ ", content-type: " + mimeMsg.getContentType()
-							+ ", content: " + byteOut.toString());
+					System.out.println("\n::: raw output :::\n" + sb.toString());
 				}
 			}
 			mailServer.stop();
+		}
+	}
+
+	private String getContent(MimeMessage mimeMsg) throws IOException,
+			MessagingException {
+		Object msgContent = mimeMsg.getContent();
+
+		if (msgContent instanceof String) {
+			return (String) msgContent;
+		} else if (msgContent instanceof MimeMultipart) {
+			MimeMultipart content = (MimeMultipart) msgContent;
+
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			content.writeTo(byteOut);
+			return byteOut.toString();
+		} else {
+			return null;
 		}
 	}
 
@@ -345,14 +362,16 @@ public class ExternalLogicImplTest {
 	}
 
 	@Test
-	public void sendMailNoAttachments() throws Exception {
+	public void sendPlainMailNoAttachments() throws Exception {
 		ConfigEntry config = configLogic.getConfig();
+		config.setEditorType(EditorType.htmlarea.toString());
+
 		String fromEmail = "from@example.com";
 		String fromName = "Potamus, Peter";
 		HashMap<String, String> to = new HashMap<String, String>();
 		to.put("to@example.com", "Birdman, Harvey");
 		String subject = "That thing I sent you";
-		String content = "You get that thing I sent you?";
+		String body = "You get that thing I sent you?";
 		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
 
 		int port = startServer();
@@ -367,19 +386,68 @@ public class ExternalLogicImplTest {
 				isA(Boolean.class))).thenReturn(true);
 
 		impl.init();
-		impl.sendEmail(config, fromEmail, fromName, to, subject, content,
+		impl.sendEmail(config, fromEmail, fromName, to, subject, body,
 				attachments);
+
+		List<WiserMessage> msgs = mailServer.getMessages();
+		assertEquals(1, msgs.size());
+		WiserMessage msg = msgs.get(0);
+		assertEquals(fromEmail, msg.getEnvelopeSender());
+		assertEquals("to@example.com", msg.getEnvelopeReceiver());
+		MimeMessage mimeMsg = msg.getMimeMessage();
+		assertEquals(subject, mimeMsg.getSubject());
+		assertEquals(body, mimeMsg.getContent());
 	}
 
 	@Test
-	public void sendMailWithAttachments() throws Exception {
+	public void sendMailNoAttachments() throws Exception {
 		ConfigEntry config = configLogic.getConfig();
 		String fromEmail = "from@example.com";
 		String fromName = "Potamus, Peter";
 		HashMap<String, String> to = new HashMap<String, String>();
 		to.put("to@example.com", "Birdman, Harvey");
 		String subject = "That thing I sent you";
-		String content = "You get that thing I sent you?";
+		String body = "You get <em>that thing</em> I sent you?\n3x6=18\nåæÆÐ";
+		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
+
+		int port = startServer();
+
+		Mockito.reset(serverConfigurationService);
+		when(serverConfigurationService.getString(eq(MailConstants.SAKAI_HOST),
+				isA(String.class))).thenReturn(
+						ExternalLogicImpl.DEFAULT_SMTP_HOST);
+		when(serverConfigurationService.getInt(eq(SAKAI_PORT), isA(Integer.class)))
+				.thenReturn(port);
+		when(serverConfigurationService.getBoolean(eq(SAKAI_ALLOW_TRANSPORT),
+				isA(Boolean.class))).thenReturn(true);
+
+		impl.init();
+		impl.sendEmail(config, fromEmail, fromName, to, subject, body,
+				attachments);
+
+		List<WiserMessage> msgs = mailServer.getMessages();
+		assertEquals(1, msgs.size());
+		WiserMessage msg = msgs.get(0);
+		assertEquals(fromEmail, msg.getEnvelopeSender());
+		assertEquals("to@example.com", msg.getEnvelopeReceiver());
+		MimeMessage mimeMsg = msg.getMimeMessage();
+		assertEquals(subject, mimeMsg.getSubject());
+		String content = getContent(mimeMsg);
+		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+	}
+
+	@Test
+	public void sendPlainMailWithAttachments() throws Exception {
+		ConfigEntry config = configLogic.getConfig();
+		config.setEditorType(EditorType.htmlarea.toString());
+
+		String fromEmail = "from@example.com";
+		String fromName = "Potamus, Peter";
+		HashMap<String, String> to = new HashMap<String, String>();
+		to.put("to@example.com", "Birdman, Harvey");
+		String subject = "That thing I sent you";
+		String body = "You get that thing I sent you?\n3x6=18\nåæÆÐ";
 		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
 		attachments.put("greatfile.txt", createAttachment("greatfile.txt"));
 		int port = startServer();
@@ -394,8 +462,95 @@ public class ExternalLogicImplTest {
 				isA(Boolean.class))).thenReturn(true);
 		
 		impl.init();
-		impl.sendEmail(config, fromEmail, fromName, to, subject, content,
+		impl.sendEmail(config, fromEmail, fromName, to, subject, body,
 				attachments);
+
+		List<WiserMessage> msgs = mailServer.getMessages();
+		assertEquals(1, msgs.size());
+		WiserMessage msg = msgs.get(0);
+		assertEquals(fromEmail, msg.getEnvelopeSender());
+		assertEquals("to@example.com", msg.getEnvelopeReceiver());
+		MimeMessage mimeMsg = msg.getMimeMessage();
+		assertEquals(subject, mimeMsg.getSubject());
+		String content = getContent(mimeMsg);
+		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+	}
+
+	@Test
+	public void sendMailWithAttachments() throws Exception {
+		ConfigEntry config = configLogic.getConfig();
+		String fromEmail = "from@example.com";
+		String fromName = "Potamus, Peter";
+		HashMap<String, String> to = new HashMap<String, String>();
+		to.put("to@example.com", "Birdman, Harvey");
+		String subject = "That thing I sent you";
+		String body = "You get <em>that thing</em> I sent you?\n3x6=18\nåæÆÐ";
+		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
+		attachments.put("greatfile.txt", createAttachment("greatfile.txt"));
+		int port = startServer();
+
+		Mockito.reset(serverConfigurationService);
+		when(serverConfigurationService.getString(eq(MailConstants.SAKAI_HOST),
+				isA(String.class))).thenReturn(
+						ExternalLogicImpl.DEFAULT_SMTP_HOST);
+		when(serverConfigurationService.getInt(eq(SAKAI_PORT), isA(Integer.class)))
+				.thenReturn(port);
+		when(serverConfigurationService.getBoolean(eq(SAKAI_ALLOW_TRANSPORT),
+				isA(Boolean.class))).thenReturn(true);
+		
+		impl.init();
+		impl.sendEmail(config, fromEmail, fromName, to, subject, body,
+				attachments);
+
+		List<WiserMessage> msgs = mailServer.getMessages();
+		assertEquals(1, msgs.size());
+		WiserMessage msg = msgs.get(0);
+		assertEquals(fromEmail, msg.getEnvelopeSender());
+		assertEquals("to@example.com", msg.getEnvelopeReceiver());
+		MimeMessage mimeMsg = msg.getMimeMessage();
+		assertEquals(subject, mimeMsg.getSubject());
+		String content = getContent(mimeMsg);
+		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
+	}
+
+	@Test(expected = MailsenderException.class)
+	public void sendMailNoValidRcpts() throws Exception {
+		ConfigEntry config = configLogic.getConfig();
+		String fromEmail = "from@example.com";
+		String fromName = "Potamus, Peter";
+		HashMap<String, String> to = new HashMap<String, String>();
+		to.put("nope", "wrong");
+		to.put("", "");
+		String subject = "That thing I sent you";
+		String body = "You get <em>that thing</em> I sent you?\n3x6=18\nåæÆÐ";
+		HashMap<String, MultipartFile> attachments = new HashMap<String, MultipartFile>();
+		int port = startServer();
+
+		Mockito.reset(serverConfigurationService);
+		when(serverConfigurationService.getString(eq(MailConstants.SAKAI_HOST),
+				isA(String.class))).thenReturn(
+						ExternalLogicImpl.DEFAULT_SMTP_HOST);
+		when(serverConfigurationService.getInt(eq(SAKAI_PORT), isA(Integer.class)))
+				.thenReturn(port);
+		when(serverConfigurationService.getBoolean(eq(SAKAI_ALLOW_TRANSPORT),
+				isA(Boolean.class))).thenReturn(true);
+		
+		impl.init();
+		impl.sendEmail(config, fromEmail, fromName, to, subject, body,
+				attachments);
+		
+		List<WiserMessage> msgs = mailServer.getMessages();
+		assertEquals(1, msgs.size());
+		WiserMessage msg = msgs.get(0);
+		assertEquals(fromEmail, msg.getEnvelopeSender());
+		assertEquals("to@example.com", msg.getEnvelopeReceiver());
+		MimeMessage mimeMsg = msg.getMimeMessage();
+		assertEquals(subject, mimeMsg.getSubject());
+		String content = getContent(mimeMsg);
+		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains("=C3=A5=C3=A6=C3=86=C3=90"));
 	}
 
 	private int startServer() throws IOException {
