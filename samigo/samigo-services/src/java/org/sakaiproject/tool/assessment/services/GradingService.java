@@ -1090,10 +1090,17 @@ public class GradingService
 
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
-      try {
-        gbsHelper.updateExternalAssessmentScore(data, g);
-        retryCount = 0;
-      }
+    	try {
+    		// Send the average score if average was selected for multiple submissions
+    		Integer scoringType = pub.getEvaluationModel().getScoringType();
+    		if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
+    			Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+    			getAverageSubmittedAssessmentGrading(Long.valueOf(pub.getPublishedAssessmentId()), data.getAgentId());
+    			data.setFinalScore(averageScore);
+    		}
+    		gbsHelper.updateExternalAssessmentScore(data, g);
+    		retryCount = 0;
+    	}
       catch (org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException ante) {
     	  log.warn("problem sending grades to gradebook: " + ante.getMessage());
           if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {

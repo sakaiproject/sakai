@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -541,6 +542,12 @@ implements ActionListener
 						try {
 							AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
 							log.debug("ag.scores " + ag.getTotalAutoScore());
+							// Send the average score if average was selected for multiple submissions
+							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
+								Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+								getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+								ag.setFinalScore(averageScore);
+							}
 							gbsHelper.updateExternalAssessmentScore(ag, g);
 						}
 						catch (Exception e) {
