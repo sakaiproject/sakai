@@ -113,7 +113,7 @@ public class ExternalLogicImplTest {
 	static final String USER_DISPLAY_NAME = "User Displayname";
 	static final String SITE_TYPE = "project";
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	@Before
 	public void setUp() throws Exception {
