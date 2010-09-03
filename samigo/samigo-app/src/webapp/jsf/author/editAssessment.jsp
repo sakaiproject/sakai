@@ -412,8 +412,9 @@ document.links[newindex].onclick();
   </h:column>
 </h:dataTable>
 
-<h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" />
-
+<h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" >
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
+</h:commandButton>
 </div>
 
 <p class="navList">

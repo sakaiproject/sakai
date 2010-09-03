@@ -186,6 +186,10 @@ public class AssessmentBean  implements Serializable {
   public float getTotalScore() {
     return this.totalScore;
   }
+  
+  public void setTotalScore(float totalScore) {
+	  this.totalScore = totalScore;
+  }
 
   public String getNewQuestionTypeId() {
     return this.newQuestionTypeId;
