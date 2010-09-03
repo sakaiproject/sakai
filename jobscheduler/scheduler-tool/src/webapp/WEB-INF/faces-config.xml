@@ -38,12 +38,28 @@
 		
 	<navigation-rule>
     	<from-view-id>/scheduler/main.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>events</from-outcome>
+                <to-view-id>/scheduler/main.jsp</to-view-id>
+            </navigation-case>
 		    <navigation-case>
 		    	<from-outcome>jobs</from-outcome>
       			<to-view-id>/scheduler/jobs.jsp</to-view-id>			    
 		    </navigation-case>
+            <navigation-case>
+                <from-outcome>filter</from-outcome>
+                <to-view-id>/scheduler/filter_events.jsp</to-view-id>
+            </navigation-case>
 	</navigation-rule>
   
+    <navigation-rule>
+        <from-view-id>/scheduler/filter_events.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>events</from-outcome>
+                  <to-view-id>/scheduler/main.jsp</to-view-id>			    
+            </navigation-case>
+    </navigation-rule>
+
 	<navigation-rule>
     	<from-view-id>/scheduler/jobs.jsp</from-view-id>
 		    <navigation-case>

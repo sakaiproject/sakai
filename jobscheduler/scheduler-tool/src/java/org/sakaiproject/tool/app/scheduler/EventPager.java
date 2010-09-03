@@ -5,8 +5,13 @@ import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 
 import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,28 +22,44 @@ import java.util.List;
  */
 public class EventPager
 {
+    private static String[]
+        EVENT_TYPE_STRINGS = {"FIRED", "COMPLETED", "INFO", "DEBUG", "ERROR"};
     private TriggerEventManager
         evtManager = null;
     private Date
         after = null,
         before = null;
+    private List<String>
+        jobs = new LinkedList<String>();
     private String
-        jobName = null,
         triggerName = null;
-    private TriggerEvent.TRIGGER_EVENT_TYPE
-        types[] = null;
     private int
         first = 0,
         numRows = 10;
+    private boolean
+        filterEnabled = false;
+    private HashMap<String, Boolean>
+        selectedEventTypes = new HashMap<String, Boolean>();
 
-    public String getJobName()
+    public EventPager()
     {
-        return jobName;
+        setAllEventTypes(true);
     }
 
-    public void setJobName(String jobName)
+    public Map<String, Boolean> getSelectedEventTypes()
     {
-        this.jobName = jobName;
+        return selectedEventTypes;
+    }
+
+    public List<String> getJobs()
+    {
+        return jobs;
+    }
+
+    public void setJobs(List<String> jobs)
+    {
+        this.jobs.clear();
+        this.jobs.addAll(jobs);
     }
 
     public String getTriggerName()
@@ -51,14 +72,99 @@ public class EventPager
         this.triggerName = triggerName;
     }
 
+    public void setFilterEnabled (boolean filter)
+    {
+        filterEnabled = filter;
+
+        if (!filterEnabled)
+        {
+            after = null;
+            before = null;
+            jobs.clear();
+            triggerName = null;
+            setAllEventTypes(true);
+        }
+
+        first = 0;
+    }
+
+    public boolean isFilterEnabled()
+    {
+        return filterEnabled;
+    }
+
+    public String[] getEventTypes()
+    {
+        return EVENT_TYPE_STRINGS;
+    }
+
     public TriggerEvent.TRIGGER_EVENT_TYPE[] getTypes()
     {
-        return types;
+        LinkedList<TriggerEvent.TRIGGER_EVENT_TYPE>
+            evtList = new LinkedList<TriggerEvent.TRIGGER_EVENT_TYPE>();
+
+        for (String type : selectedEventTypes.keySet())
+        {
+            Boolean
+                selected = selectedEventTypes.get(type);
+
+            if (selected != null && selected.booleanValue())
+            {
+                if ("FIRED".equals(type))
+                    evtList.add(TriggerEvent.TRIGGER_EVENT_TYPE.FIRED);
+                else if ("COMPLETE".equals(type))
+                    evtList.add(TriggerEvent.TRIGGER_EVENT_TYPE.COMPLETE);
+                else if ("INFO".equals(type))
+                    evtList.add(TriggerEvent.TRIGGER_EVENT_TYPE.INFO);
+                else if ("ERROR".equals(type))
+                    evtList.add(TriggerEvent.TRIGGER_EVENT_TYPE.ERROR);
+                else if ("DEBUG".equals(type))
+                    evtList.add(TriggerEvent.TRIGGER_EVENT_TYPE.DEBUG);
+            }
+        }
+
+        TriggerEvent.TRIGGER_EVENT_TYPE[]
+            typeArr = new TriggerEvent.TRIGGER_EVENT_TYPE[evtList.size()];
+
+        evtList.toArray(typeArr);
+
+        return typeArr;
+    }
+
+    private void setAllEventTypes(boolean b)
+    {
+        selectedEventTypes.put("FIRED", new Boolean(b));
+        selectedEventTypes.put("COMPLETED", new Boolean(b));
+        selectedEventTypes.put("INFO", new Boolean(b));
+        selectedEventTypes.put("DEBUG", new Boolean(b));
+        selectedEventTypes.put("ERROR", new Boolean(b));        
     }
 
     public void setTypes(TriggerEvent.TRIGGER_EVENT_TYPE[] types)
     {
-        this.types = types;
+        setAllEventTypes(false);
+
+        for (TriggerEvent.TRIGGER_EVENT_TYPE type : types)
+        {
+            switch (type)
+            {
+                case FIRED:
+                    selectedEventTypes.put("FIRED", Boolean.TRUE);
+                    break;
+                case COMPLETE:
+                    selectedEventTypes.put("COMPLETE", Boolean.TRUE);
+                    break;
+                case INFO:
+                    selectedEventTypes.put("INFO", Boolean.TRUE);
+                    break;
+                case ERROR:
+                    selectedEventTypes.put("ERROR", Boolean.TRUE);
+                    break;
+                case DEBUG:
+                    selectedEventTypes.put("DEBUG", Boolean.TRUE);
+                    break;
+            }
+        }
     }
 
     public Date getAfter()
@@ -138,7 +244,14 @@ public class EventPager
 
     public List<TriggerEvent> getEvents()
     {
-        return getTriggerEventManager().getTriggerEvents(after, before, jobName, triggerName, types);
+        if (isFilterEnabled())
+        {
+            return getTriggerEventManager().getTriggerEvents(after, before, jobs, triggerName, getTypes());
+        }
+        else
+        {
+            return getTriggerEventManager().getTriggerEvents();
+        }
     }
 
 }

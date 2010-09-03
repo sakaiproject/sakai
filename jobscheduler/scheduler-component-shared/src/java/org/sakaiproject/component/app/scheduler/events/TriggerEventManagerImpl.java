@@ -41,7 +41,7 @@ public class TriggerEventManagerImpl implements TriggerEventManager
         return Collections.unmodifiableList(events);
     }
 
-    public List<TriggerEvent> getTriggerEvents(Date after, Date before, String jobName, String triggerName,
+    public List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName,
                                                TriggerEvent.TRIGGER_EVENT_TYPE[] types)
     {
         LinkedList<TriggerEvent>
@@ -53,7 +53,7 @@ public class TriggerEventManagerImpl implements TriggerEventManager
                 continue;
             if (before != null && event.getTime().compareTo(before) == 1)
                 continue;
-            if (jobName != null && !jobName.equals(event.getJobName()))
+            if (jobs != null && !jobs.contains(event.getJobName()))
                 continue;
             if (triggerName != null && !triggerName.equals(event.getTriggerName()))
                 continue;

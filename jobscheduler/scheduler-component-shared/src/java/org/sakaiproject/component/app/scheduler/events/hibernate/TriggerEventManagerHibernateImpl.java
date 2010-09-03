@@ -53,7 +53,7 @@ public class TriggerEventManagerHibernateImpl
         return criteria.list();
     }
 
-    public List<TriggerEvent> getTriggerEvents(Date after, Date before, String jobName, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types)
+    public List<TriggerEvent> getTriggerEvents(Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types)
     {
         final Session
             session = this.getSession();
@@ -64,23 +64,23 @@ public class TriggerEventManagerHibernateImpl
         
         if (after != null)
         {
-            criteria.add(Restrictions.gt("time", after));
+            criteria.add(Restrictions.or(Restrictions.gt("time", after), Restrictions.eq("time", after)));
         }
         if (before != null)
         {
-            criteria.add(Restrictions.lt("time", before));
+            criteria.add(Restrictions.or(Restrictions.lt("time", before), Restrictions.eq("time", before)));
         }
-        if (jobName != null)
+        if (jobs != null && !jobs.isEmpty())
         {
-            criteria.add(Restrictions.eq("job", jobName));
+            criteria.add(Restrictions.in("jobName", jobs));
         }
         if (triggerName != null)
         {
-            criteria.add(Restrictions.eq("trigger", triggerName));
+            criteria.add(Restrictions.eq("triggerName", triggerName));
         }
         if (types != null)
         {
-            criteria.add(Restrictions.in("type", types));
+            criteria.add(Restrictions.in("eventType", types));
         }
 
         return criteria.list();

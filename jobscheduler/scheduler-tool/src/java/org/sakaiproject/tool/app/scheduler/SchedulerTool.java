@@ -28,6 +28,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.logging.Log;
@@ -1373,6 +1374,35 @@ public class SchedulerTool
          beanJobs.put(job, job);
       }
       return beanJobs;
+   }
+
+   public String processSetFilters()
+   {
+       getEventPager().setFilterEnabled(true);
+
+       return "events";
+   }
+
+   public String processClearFilters()
+   {
+       getEventPager().setFilterEnabled(false);
+
+       return "events";
+   }
+
+   public List<SelectItem> getScheduledJobs() throws SchedulerException
+   {
+       ArrayList<SelectItem>
+           scheduledJobs = new ArrayList<SelectItem> ();
+       String[]
+           jArr = schedulerManager.getScheduler().getJobNames(Scheduler.DEFAULT_GROUP);
+
+       for (int i = 0; i < jArr.length; i++)
+       {
+           scheduledJobs.add(new SelectItem(jArr[i]));
+       }
+
+       return scheduledJobs;
    }
 }
 

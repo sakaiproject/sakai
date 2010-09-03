@@ -16,7 +16,7 @@ public interface TriggerEventManager
 
     public List<TriggerEvent> getTriggerEvents ();
 
-    public List<TriggerEvent> getTriggerEvents (Date after, Date before, String jobName, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types);
+    public List<TriggerEvent> getTriggerEvents (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types);
 
     public void purgeEvents (Date before);
 }
