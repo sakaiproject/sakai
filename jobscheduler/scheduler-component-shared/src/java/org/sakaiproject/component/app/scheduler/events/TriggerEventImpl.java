@@ -19,23 +19,24 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.scheduler;
+package org.sakaiproject.component.app.scheduler.events;
+
+import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
 
 import java.util.Date;
 
-public class TriggerEvent
+public class TriggerEventImpl implements TriggerEvent
 {
   private String jobName;
+  private String triggerName;
   private Date time;
-  private String eventType;
-
-  protected static String TRIGGER_FIRED = "Fired";
-  protected static String TRIGGER_COMPLETE = "Complete";
+  private TRIGGER_EVENT_TYPE eventType;
+  private String message;
 
   /**
    * @return Returns the eventType.
    */
-  public String getEventType()
+  public TRIGGER_EVENT_TYPE getEventType()
   {
     return eventType;
   }
@@ -43,7 +44,7 @@ public class TriggerEvent
   /**
    * @param eventType The eventType to set.
    */
-  public void setEventType(String eventType)
+  public void setEventType(TRIGGER_EVENT_TYPE eventType)
   {
     this.eventType = eventType;
   }
@@ -56,7 +57,7 @@ public class TriggerEvent
     return time;
   }
 
-  /**
+    /**
    * @param time The time to set.
    */
   public void setTime(Date time)
@@ -79,4 +80,26 @@ public class TriggerEvent
   {
     this.jobName = jobName;
   }
+
+  public void setTriggerName(String name)
+  {
+      triggerName = name;
+  }
+
+  public String getTriggerName()
+  {
+      return triggerName;
+  }
+
+  public void setMessage (String m)
+  {
+      message = m;
+  }
+
+  public String getMessage()
+  {
+      return message;
+  }
+
+
 }

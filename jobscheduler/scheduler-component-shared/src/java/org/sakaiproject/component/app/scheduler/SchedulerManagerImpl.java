@@ -23,8 +23,11 @@ package org.sakaiproject.component.app.scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -34,6 +37,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
@@ -64,6 +68,10 @@ public class SchedulerManagerImpl implements SchedulerManager
   private Scheduler scheduler;
   private static final Log LOG = LogFactory.getLog(SchedulerManagerImpl.class);
 
+  private LinkedList<TriggerListener>
+      globalTriggerListeners = new LinkedList<TriggerListener>();
+  private LinkedList<JobListener>
+      globalJobListeners = new LinkedList<JobListener>();
 
 public void init()
   {
@@ -174,7 +182,17 @@ public void init()
         }
       }
 
-      scheduler.addGlobalTriggerListener(globalTriggerListener);
+      for (TriggerListener tListener : globalTriggerListeners)
+      {
+          scheduler.addGlobalTriggerListener(tListener);
+      }
+
+      for (JobListener jListener : globalJobListeners)
+      {
+          scheduler.addGlobalJobListener(jListener);
+      }
+
+      //scheduler.addGlobalTriggerListener(globalTriggerListener);
       scheduler.start();
     }
     catch (Exception e)
@@ -226,6 +244,7 @@ public void init()
 
 
   /**
+   * @deprecated use {@link #setGlobalTriggerListeners(Set<TriggerListener>)}
    * @return Returns the globalTriggerListener.
    */
   public TriggerListener getGlobalTriggerListener()
@@ -234,11 +253,52 @@ public void init()
   }
 
   /**
+   * @deprecated use {@link #getGlobalTriggerListeners()}
    * @param globalTriggerListener The globalTriggerListener to set.
    */
   public void setGlobalTriggerListener(TriggerListener globalTriggerListener)
   {
     this.globalTriggerListener = globalTriggerListener;
+
+      if (globalTriggerListeners != null)
+      {
+          globalTriggerListeners.addFirst(globalTriggerListener);
+      }
+  }
+
+  public void setGlobalTriggerListeners (final List<TriggerListener> listeners)
+  {
+      globalTriggerListeners.clear();
+
+      if (globalTriggerListener != null)
+      {
+          globalTriggerListeners.add(globalTriggerListener);
+      }
+
+      if (listeners != null)
+      {
+          globalTriggerListeners.addAll(listeners);
+      }
+  }
+
+  public List<TriggerListener> getGlobalTriggerListeners()
+  {
+      return Collections.unmodifiableList(globalTriggerListeners);
+  }
+
+  public void setGlobalJobListeners (final List<JobListener> listeners)
+  {
+      globalJobListeners.clear();
+
+      if (listeners != null)
+      {
+          globalJobListeners.addAll(listeners);
+      }
+  }
+
+  public List<JobListener> getGlobalJobListeners()
+  {
+      return Collections.unmodifiableList(globalJobListeners);
   }
 
   /**
