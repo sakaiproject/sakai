@@ -21,7 +21,7 @@
 				  </h:panelGroup>
 	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
 	              <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}" title=" #{#{(PrivateMessagesTool.msgNavMode == 'pvt_received' || PrivateMessagesTool.msgNavMode == 'pvt_sent' || PrivateMessagesTool.msgNavMode == 'pvt_deleted' || PrivateMessagesTool.msgNavMode == 'pvt_drafts')? msgs[PrivateMessagesTool.msgNavMode]: PrivateMessagesTool.msgNavMode}}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				<h:commandLink action="#{PrivateMessagesTool.processDisplayMessages}" value="#{PrivateMessagesTool.detailMsg.msg.title}" title=" #{PrivateMessagesTool.detailMsg.msg.title}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				<h:outputText value="#{msgs.pvt_forward}" />
 			<f:verbatim></h3></div></f:verbatim>
@@ -149,6 +149,7 @@
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForwardSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgPreviewForward}" value="#{msgs.pvt_preview}" accesskey="p"  styleClass="active" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForwardSaveDraft}" value="#{msgs.pvt_savedraft }" />
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>
     </h:form>

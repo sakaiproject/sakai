@@ -122,6 +122,7 @@ public class PrivateMessagesTool
   private static final String SELECT_MSGS_TO_DELETE = "pvt_select_msgs_to_delete";
   private static final String SELECT_RECIPIENT_LIST_FOR_REPLY = "pvt_select_reply_recipients_list";
   private static final String MISSING_SUBJECT = "pvt_missing_subject";
+  private static final String MISSING_SUBJECT_DRAFT = "pvt_missing_subject_draft";
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   private static final String MULTIPLE_WINDOWS = "pvt_multiple_windows";
   //skai-huxt reply all 
@@ -1332,6 +1333,29 @@ public void processChangeSelectView(ValueChangeEvent eve)
   {
   	return DISPLAY_MESSAGES_PG;
   }
+  
+  private String processPvtMsgDraft(){
+	  //set up draft details:
+	  PrivateMessage draft = prtMsgManager.initMessageWithAttachmentsAndRecipients(getDetailMsg().getMsg());
+	  setDetailMsg(new PrivateMessageDecoratedBean(draft));
+	  setComposeSubject(draft.getTitle());
+
+	  setComposeBody(draft.getBody());
+	  
+	  ArrayList attachments = new ArrayList();
+	  for (Attachment attachment : (List<Attachment>) draft.getAttachments()) {
+		  attachments.add(new DecoratedAttachment(attachment));
+	  }
+	  setAttachments(attachments);
+	  
+	  setSelectedLabel(draft.getLabel());
+	  
+	  //go to compose page
+	  setFromMainOrHp();
+	  fromMain = ("".equals(msgNavMode)) || ("privateMessages".equals(msgNavMode));
+	  LOG.debug("processPvtMsgDraft()");
+	  return PVTMSG_COMPOSE;
+  }
 
   /**
    * called when subject of List of messages to Topic clicked for detail
@@ -1349,7 +1373,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
       PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
       if (dMsg.getMsg().getId().equals(Long.valueOf(msgId)))
       {
+    	  
         this.setDetailMsg(dMsg); 
+        if(dMsg.getMsg().getDraft()){
+        	return processPvtMsgDraft();
+        }
         setDetailMsgCount++;
        
         prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
@@ -1584,6 +1612,7 @@ private   int   getNum(char letter,   String   a)
     	else
     		forwardSubject = title;//forwardSubject
 
+
     	// format the created date according to the setting in the bundle
 	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"));
 		formatter.setTimeZone(TimeService.getLocalTimeZone());
@@ -1762,6 +1791,10 @@ private   int   getNum(char letter,   String   a)
    * @return - pvtMsgCompose
    */ 
   public String processPvtMsgCompose() {
+	  //reset incase draft still has left over data
+	  setDetailMsg(null);
+	  attachments.clear();
+	  oldAttachments.clear();
     setFromMainOrHp();
     fromMain = ("".equals(msgNavMode)) || ("privateMessages".equals(msgNavMode));
     LOG.debug("processPvtMsgCompose()");
@@ -1811,8 +1844,14 @@ private   int   getNum(char letter,   String   a)
 		  setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
 		  return null ;
 	  }
-	  
-	  PrivateMessageDecoratedBean pmDb = new PrivateMessageDecoratedBean(constructMessage(false));
+	  PrivateMessage msg;
+	  if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
+		  msg = constructMessage(false, getDetailMsg().getMsg());
+		  msg.setDraft(Boolean.TRUE);
+	  }else{
+		  msg = constructMessage(false, null);
+	  }
+	  PrivateMessageDecoratedBean pmDb = new PrivateMessageDecoratedBean(msg);
 	  pmDb.setIsPreview(true);
 	  this.setDetailMsg(pmDb);
 	  
@@ -1849,7 +1888,12 @@ private   int   getNum(char letter,   String   a)
       return null ;
     }
     
-    PrivateMessage pMsg= constructMessage(true) ;
+    PrivateMessage pMsg = null;
+    if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
+    	pMsg = constructMessage(true, getDetailMsg().getMsg());
+    }else{
+    	pMsg= constructMessage(true, null) ;
+    }
     
     Set<User> recipients = getRecipients();
     
@@ -1943,7 +1987,7 @@ private   int   getNum(char letter,   String   a)
     LOG.debug("processPvtMsgSaveDraft()");
     if(!hasValue(getComposeSubject()))
     {
-      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+      setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
       return null ;
     }
 //    if(!hasValue(getComposeBody()) )
@@ -1951,43 +1995,45 @@ private   int   getNum(char letter,   String   a)
 //      setErrorMessage("Please enter message body for this compose message.");
 //      return null ;
 //    }
-    if(getSelectedComposeToList().size()<1)
-    {
-      setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
-      return null ;
+//    if(getSelectedComposeToList().size()<1)
+//    {
+//      setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
+//      return null ;
+//    }
+    PrivateMessage dMsg = null;
+    if(getDetailMsg() != null && getDetailMsg().getMsg() != null && getDetailMsg().getMsg().getDraft()){
+    	dMsg =constructMessage(true, getDetailMsg().getMsg()) ;
+    }else{
+    	dMsg =constructMessage(true, null) ;
     }
-    
-    PrivateMessage dMsg=constructMessage(true) ;
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
     
     if(!getBooleanEmailOut())
     {
       prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), false); 
+    }else{
+      prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), true);
     }
 
     //reset contents
     resetComposeContents();
     
-    if(getMsgNavMode().equals(""))
-    {
-    	// Return to Messages & Forums page or Messages page
-        if (isMessagesandForums()) {
-        	return MAIN_PG;
-        }
-        else {
-        	return MESSAGE_HOME_PG;
-        }
-    }
-    else
-    {
-      return DISPLAY_MESSAGES_PG;
-    } 
+    return returnDraftPage();
+  }
+  
+  private String returnDraftPage(){
+	  return processPvtMsgComposeCancel();
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
-  public PrivateMessage constructMessage(boolean clearAttachments)
+  public PrivateMessage constructMessage(boolean clearAttachments, PrivateMessage aMsg)
   {
-    PrivateMessage aMsg = messageManager.createPrivateMessage();
+	  if(aMsg == null){
+		  aMsg = messageManager.createPrivateMessage();
+	  }else{
+		  //set the date for now:
+		  aMsg.setCreated(new Date());
+	  }
     
     if (aMsg != null)
     {
@@ -2400,7 +2446,7 @@ private   int   getNum(char letter,   String   a)
   
   //////////////////////REPLY SEND  /////////////////
   public String processPvtMsgPreviewReply(){
-	  PrivateMessage pvtMsg = getPvtMsgReplyMessage(getDetailMsg().getMsg());
+	  PrivateMessage pvtMsg = getPvtMsgReplyMessage(getDetailMsg().getMsg(), false);
 	  if(pvtMsg == null){
 		  return null;
 	  }else{
@@ -2425,7 +2471,7 @@ private   int   getNum(char letter,   String   a)
  public String processPvtMsgReplySend() {
     LOG.debug("processPvtMsgReplySend()");
     
-    return processPvtMsgReplySentAction(getPvtMsgReplyMessage(getDetailMsg().getMsg()));
+    return processPvtMsgReplySentAction(getPvtMsgReplyMessage(getDetailMsg().getMsg(), false));
  }
  
  private String processPvtMsgReplySentAction(PrivateMessage rrepMsg){
@@ -2442,20 +2488,20 @@ private   int   getNum(char letter,   String   a)
     	else{
     		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, true);
     	}
-
-    	incrementSynopticToolInfo(recipients, false);
-
+    	
+    	if(!rrepMsg.getDraft()){
+    		incrementSynopticToolInfo(recipients, false);
+    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false));
+    	}
     	//reset contents
     	resetComposeContents();
-
-    	EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false));
-
+    	
     	return DISPLAY_MESSAGES_PG;
     }  
  }
  
  
- private PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage){
+ private PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, boolean isDraft){
     if (setDetailMsgCount != 1) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return null;
@@ -2475,16 +2521,22 @@ private   int   getNum(char letter,   String   a)
     		}
     	}
 
+    	
     	if(!hasValue(getReplyToSubject()))
     	{
-    		setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+    		if(isDraft){
+    			setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
+    		}else{
+    			setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+    		}
     		return null ;
     	}
-
-    	if(selectedComposeToList.size()<1)
-    	{
-    		setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
-    		return null ;
+    	if(!isDraft){
+    		if(selectedComposeToList.size()<1)
+    		{
+    			setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
+    			return null ;
+    		}
     	}
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
@@ -2558,7 +2610,7 @@ private   int   getNum(char letter,   String   a)
   // ////////////////////Forward SEND /////////////////
  
  public String processPvtMsgPreviewForward(){
-	 PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg());
+	 PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg(), false);
 	 if(pvtMsg == null){
 		 return null;
 	 }else{
@@ -2594,7 +2646,7 @@ private   int   getNum(char letter,   String   a)
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return null;
     } else {
-    	PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg());
+    	PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg(), false);
     	if(pvtMsg == null){
     		return null;
     	}else{
@@ -2604,20 +2656,41 @@ private   int   getNum(char letter,   String   a)
     }
  }
  
- private PrivateMessage getPvtMsgForward(PrivateMessage currentMessage){
+ public String processPvtMsgForwardSaveDraft(){
+	 LOG.debug("processPvtMsgForwardSaveDraft()");
+	 if (setDetailMsgCount != 1) {
+		 setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+		 return null;
+	 } else {
+		 PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg(), true);
+		 if(pvtMsg == null){
+			 return null;
+		 }else{
+			 pvtMsg.setDraft(Boolean.TRUE);
+			 processPvtMsgForwardSendHelper(pvtMsg);
+			 return returnDraftPage();
+		 }
+	 }
+ }
+ 
+ private PrivateMessage getPvtMsgForward(PrivateMessage currentMessage, boolean isDraft){
 
-    	if(!hasValue(getForwardSubject()))
-    	{
-    		setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
-    		return null ;
-    	}
-
-    	if(getSelectedComposeToList().size()<1)
-    	{
-    		setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
-    		return null ;
-    	}
-
+	 if(!isDraft){
+		if(getSelectedComposeToList().size()<1)
+		 {
+			 setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
+			 return null ;
+		 }
+	 }
+	 if(!hasValue(getForwardSubject()))
+	 {
+		 if(isDraft){
+			 setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
+		 }else{
+			 setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+		 }
+		 return null ;
+	 }
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
@@ -2696,20 +2769,20 @@ private   int   getNum(char letter,   String   a)
     		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, true);
     	}
 
-    	//update Synoptic tool info
-    	incrementSynopticToolInfo(recipients, false);
-    	
+    	if(!rrepMsg.getDraft()){
+    		//update Synoptic tool info
+    		incrementSynopticToolInfo(recipients, false);
+    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
+    	}
     	//reset contents
-    	resetComposeContents();
-
-    	EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));    	
+    	resetComposeContents();    	    	
     }
 
   
   
   //reply all preview:
  public String processPvtMsgPreviewReplyAll(){
-	 PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(true);
+	 PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(true, Boolean.FALSE);
 	 if(pvtMsg == null){
 		 return null;
 	 }else{
@@ -2728,7 +2801,7 @@ private   int   getNum(char letter,   String   a)
  
  public String processPvtMsgPreviewReplyAllSend(){
 	 this.setDetailMsg(getDetailMsg().getPreviewReplyTmpMsg());
-	 PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false);
+	 PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false, Boolean.FALSE);
 	 if(pvtMsg == null){
 		 return null;
 	 }else{
@@ -2736,13 +2809,28 @@ private   int   getNum(char letter,   String   a)
 	 }
  }
   
+ public String processPvtMsgReplyAllSaveDraft(){
+	 LOG.debug("processPvtMsgReply All Send()");
+	 if (setDetailMsgCount != 1) {
+		 setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+		 return null;
+	 } else {
+		 PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false, Boolean.TRUE);
+		 if(pvtMsg == null){
+			 return null;
+		 }else{
+			 return returnDraftPage();
+		 }
+	 }
+ }
+ 
   public String processPvtMsgReplyAllSend() {
     LOG.debug("processPvtMsgReply All Send()");
     if (setDetailMsgCount != 1) {
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return null;
     } else {
-    	PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false);
+    	PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false, Boolean.FALSE);
     	if(pvtMsg == null){
     		return null;
     	}else{
@@ -2751,18 +2839,24 @@ private   int   getNum(char letter,   String   a)
     }
   }
   
-  private PrivateMessage processPvtMsgReplyAllSendHelper(boolean preview){
+  private PrivateMessage processPvtMsgReplyAllSendHelper(boolean preview, Boolean isDraft){
 
 	  PrivateMessage currentMessage = getDetailMsg().getMsg() ;
 
 	  String msgauther=currentMessage.getAuthor();//string   "Test"      
 
 	  //Select Forward Recipients
+	  
 	  if(!hasValue(getForwardSubject()))
 	  {
-		  setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+		  if(isDraft){
+			  setErrorMessage(getResourceBundleString(MISSING_SUBJECT_DRAFT));
+		  }else{
+			  setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+		  }
 		  return null ;
 	  }
+	  
 	  int selcomposetolistsize=getSelectedComposeToList().size();
 
 
@@ -2771,7 +2865,7 @@ private   int   getNum(char letter,   String   a)
 
 	  StringBuilder alertMsg = new StringBuilder();
 	  rrepMsg.setTitle(FormattedText.processFormattedText(getForwardSubject(), alertMsg));
-	  rrepMsg.setDraft(Boolean.FALSE);
+	  rrepMsg.setDraft(isDraft);
 	  rrepMsg.setDeleted(Boolean.FALSE);
 
 	  rrepMsg.setAuthor(getAuthorString());
@@ -2919,13 +3013,13 @@ private   int   getNum(char letter,   String   a)
 			  prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, true);//getRecipients()  replyalllist
 		  }
 
-		  //update Synoptic tool info
-		  incrementSynopticToolInfo(returnSet, false);
-
+		  if(!rrepMsg.getDraft()){
+			  //update Synoptic tool info
+			  incrementSynopticToolInfo(returnSet, false);
+			  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
+		  }
 		  //reset contents
 		  resetComposeContents();
-
-		  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
 	  }
 	  return rrepMsg;
   }
@@ -2971,59 +3065,21 @@ private   int   getNum(char letter,   String   a)
    * process from Compose screen
    * @return - pvtMsg
    */
-  public String processPvtMsgReplySaveDraft() {
-    LOG.debug("processPvtMsgReplySaveDraft()");
-    
-    if(!hasValue(getReplyToSubject()))
-    {
-      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
-      return null ;
-    }
-
-    if(getSelectedComposeToList().size()<1)
-    {
-      setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
-      return null ;
-    }
-    
-    PrivateMessage drMsg=getDetailMsg().getMsg() ;
-
-    PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
-    drrepMsg.setTitle(getReplyToSubject()) ;
-    drrepMsg.setDraft(Boolean.TRUE);
-    drrepMsg.setDeleted(Boolean.FALSE);
-    
-    drrepMsg.setAuthor(getAuthorString());
-    drrepMsg.setApproved(Boolean.FALSE);
-    drrepMsg.setBody(getReplyToBody()) ;
-    
-    drrepMsg.setInReplyTo(drMsg) ;
-    this.getRecipients().add(drMsg.getCreatedBy());
-    
-    //Add attachments
-    for(int i=0; i<allAttachments.size(); i++)
-    {
-      prtMsgManager.addAttachToPvtMsg(drrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
-    } 
-    
-    Set<User> recipients =  getRecipients();
-    
-    if(!getBooleanEmailOut())
-    {
-     prtMsgManager.sendPrivateMessage(drrepMsg, recipients, false);  
-    }
-    else{
-      prtMsgManager.sendPrivateMessage(drrepMsg, recipients, true);
-    }
-    
-    //update Synoptic tool info
-    incrementSynopticToolInfo(recipients, false);
-        
-    //reset contents
-    resetComposeContents();
-    
-    return DISPLAY_MESSAGES_PG ;    
-  }
+ public String processPvtMsgReplySaveDraft() {
+	 PrivateMessage pvtMsg = getPvtMsgReplyMessage(getDetailMsg().getMsg(), true);
+	 if(pvtMsg == null){
+		 return null;
+	 }else{
+		 pvtMsg.setDraft(Boolean.TRUE);
+		 setMsgNavMode(PVTMSG_MODE_DRAFT);
+		 String returnVal = processPvtMsgReplySentAction(pvtMsg);
+		 if(returnVal == null){
+			 return null;
+		 }else{
+			 return returnDraftPage();
+		 }
+	 }
+ }
   
   ////////////////////////////////////////////////////////////////  
   public String processPvtMsgEmptyDelete() {

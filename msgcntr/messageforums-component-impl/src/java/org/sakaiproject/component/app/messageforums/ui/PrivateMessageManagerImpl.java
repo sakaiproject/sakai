@@ -222,19 +222,19 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(PVT_DELETED, true,false,
           userId, pf.getId());      
 
-      //PrivateTopic draftTopic = forumManager.createPrivateForumTopic("PVT_DRAFTS", true,false,
-      //    userId, pf.getId());
+      PrivateTopic draftTopic = forumManager.createPrivateForumTopic("PVT_DRAFTS", true,false,
+          userId, pf.getId());
     
       /** save individual topics - required to add to forum's topic set */
       forumManager.savePrivateForumTopic(receivedTopic, userId, siteId);
       forumManager.savePrivateForumTopic(sentTopic, userId, siteId);
       forumManager.savePrivateForumTopic(deletedTopic, userId, siteId);
-      //forumManager.savePrivateForumTopic(draftTopic);
+      forumManager.savePrivateForumTopic(draftTopic);
       
       pf.addTopic(receivedTopic);
       pf.addTopic(sentTopic);
       pf.addTopic(deletedTopic);
-      //pf.addTopic(draftTopic);
+      pf.addTopic(draftTopic);
       pf.setArea(area);  
       
       PrivateForum oldForum;
@@ -1114,7 +1114,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       throw new IllegalArgumentException("Null Argument");
     }
 
-    if (recipients.size() == 0)
+    if (recipients.size() == 0 && !message.getDraft().booleanValue())
     {
       /** for no just return out
         throw new IllegalArgumentException("Empty recipient list");
