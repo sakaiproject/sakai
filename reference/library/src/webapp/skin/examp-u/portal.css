@@ -411,19 +411,19 @@ page estate
 	padding-right:0 !important;
 	width:16px;
 }
-.sakaiMinimizePageNavigation #toolMenu{
-	width:16px;
+{
+	display:none;
 }
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
 	display:none
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
 	width:0px;
-	margin-right:1em;
+	margin-right:0;
 	border-right:none;
 }
 .sakaiMinimizePageNavigation #content{
-	padding-left:2em;
+	padding-left:1em;
 	margin-left:0;
 }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{

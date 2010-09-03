@@ -4,6 +4,7 @@ body{
 	padding: 0;
 	font-family: 'Trebuchet MS',Verdana,sans-serif;
 	margin: 0;
+	font-size:1em;
 	background: #fff;
 }
 
@@ -640,32 +641,23 @@ page estate
 */
 #toggleToolMax{
 	height:16px;
-	background:#fff url(images/expandPage.png) top left no-repeat
+	background:#fff url(images/collapsePage.png) top left no-repeat
 }
 #toggleNormal{
 	height:16px;
-	background:#fff url(images/collapsePage.png) top left no-repeat
+	background:#fff url(images/expandPage.png) top left no-repeat	
 }
-.sakaiMinimizePageNavigation #toolMenu li a{
-	display:block;
-	height:16px;
-	padding-right:0 !important;
-	width:16px;
-}
-.sakaiMinimizePageNavigation #toolMenu{
-	width:16px;
-}
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #presenceWrapper{
 	display:none
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
 	width:0px;
-	margin-right:1em;
+	margin-right:0;
 	border-right:none;
 }
 .sakaiMinimizePageNavigation #content{
-	padding-left:2em;
-	margin-left:0;
+	padding-right:2em;
+	margin-right:0;
 }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{
 	display:none
@@ -677,11 +669,11 @@ page estate
 
 #toolMenuWrap #toggler {
 	display:block;
-	float:right;
+	float:left;
 }
 .sakaiMinimizePageNavigation #toggler {
 	display:block;
-	float:none !important;
+	float:right !important;
 }
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/

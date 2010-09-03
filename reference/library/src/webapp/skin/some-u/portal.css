@@ -395,25 +395,18 @@ page estate
 	height:16px;
 	background:#fff url(images/collapsePage.png) top left no-repeat
 }
-.sakaiMinimizePageNavigation #toolMenu li a{
-	display:block;
-	height:16px;
-	padding-right:0 !important;
-	width:16px;
-}
 .sakaiMinimizePageNavigation #toolMenu{
-	width:16px;
+	display:none;
 }
 .sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
 	display:none
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
-	width:0px;
-	margin-right:1em;
-	border-right:none;
+	width:0;
+	padding:0;
 }
 .sakaiMinimizePageNavigation #content{
-	padding-left:2em;
+	padding-left:.5em;
 	margin-left:0;
 }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{
@@ -423,16 +416,19 @@ page estate
 	padding:0;
 	margin:0; 
 }
+.sakaiMinimizePageNavigation #toggler {
+	display:block !important;
+	float:none  !important;
+	position:absolute  !important;
+}
+
 
 #toolMenuWrap #toggler {
 	display:block;
-	float:right;
+	position:relative;
+	float:left;
+	
 }
-.sakaiMinimizePageNavigation #toggler {
-	display:block;
-	float:none !important;
-}
-
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/

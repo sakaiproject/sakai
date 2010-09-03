@@ -430,16 +430,7 @@ page estate
 	height:16px;
 	background:#fff url(images/collapsePage.png) top left no-repeat
 }
-.sakaiMinimizePageNavigation #toolMenu li a{
-	display:block;
-	height:16px;
-	padding-right:0 !important;
-	width:16px;
-}
-.sakaiMinimizePageNavigation #toolMenu{
-	width:16px;
-}
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
 	display:none
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
