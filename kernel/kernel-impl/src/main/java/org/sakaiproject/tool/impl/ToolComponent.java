@@ -309,7 +309,7 @@ public abstract class ToolComponent implements ToolManager
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("deprecation")
+	
 	public void register(Document toolXml)
 	{
 		Element root = toolXml.getDocumentElement();
