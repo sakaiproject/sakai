@@ -222,7 +222,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       PrivateTopic deletedTopic = forumManager.createPrivateForumTopic(PVT_DELETED, true,false,
           userId, pf.getId());      
 
-      PrivateTopic draftTopic = forumManager.createPrivateForumTopic("PVT_DRAFTS", true,false,
+      PrivateTopic draftTopic = forumManager.createPrivateForumTopic(PVT_DRAFTS, true,false,
           userId, pf.getId());
     
       /** save individual topics - required to add to forum's topic set */
