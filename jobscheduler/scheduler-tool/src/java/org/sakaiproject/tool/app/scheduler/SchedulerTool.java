@@ -33,11 +33,16 @@ import javax.faces.validator.ValidatorException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.CronTrigger;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.JobExecutionContext;
+import org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.ConfigurableJobProperty;
+import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationException;
+import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidator;
 import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
@@ -67,6 +72,14 @@ public class SchedulerTool
 
   private List<TriggerWrapper> filteredTriggersWrapperList;
 
+  private LinkedList<String> configurableJobErrorMessages = null;
+  private ConfigurableJobBeanWrapper configurableJobBeanWrapper;
+  private Map<String, String> configurableJobResources;
+  private List<ConfigurablePropertyWrapper> configurableJobProperties;
+  private JobDetail jobDetail;
+  private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.scheduler.bundle.Messages");
+  private TriggerWrapper triggerWrapper = null;
+
   public SchedulerTool()
   {
   }
@@ -80,13 +93,232 @@ public class SchedulerTool
   }
 
   /**
-   * @param filteredTriggerWrapperList The filteredTriggersWrapperList to set.
+   * @param filteredTriggersWrapperList The filteredTriggersWrapperList to set.
    */
   public void setFilteredTriggersWrapperList(List<TriggerWrapper> filteredTriggersWrapperList)
   {
     this.filteredTriggersWrapperList = filteredTriggersWrapperList;
   }
 
+    /**
+     * Returns a List of ConfigurablePropertyWrapper objects which correspond to the properties which
+     * can be configured for the current ConfigurableJobBeanWrapper. {@link #setConfigurableJobBeanWrapper(ConfigurableJobBeanWrapper)}
+     * must be called first, or this method will return null.
+     *
+     * @return List of ConfigurablePropertyWrappers, or null.
+     */
+  public List<ConfigurablePropertyWrapper> getConfigurableProperties()
+  {
+      return configurableJobProperties;
+  }
+
+    /**
+     * This method runs internally to refresh the set of ConfigurablePropertyWrappers whenever
+     * {@link #setConfigurableJobBeanWrapper(ConfigurableJobBeanWrapper)} or
+     * {@link #setJobDetail(JobDetail)} is called. {@link getConfigurableJobBeanWrapper()} must not be null
+     * for this operation to succeed.
+     */
+  private void refreshProperties ()
+  {
+      final ConfigurableJobBeanWrapper
+          job = getConfigurableJobBeanWrapper();
+
+      if (job == null)
+      {
+          configurableJobProperties = null;
+          return;
+      }
+      
+      final Set<ConfigurableJobProperty>
+          props = job.getConfigurableJobProperties();
+
+      final JobDetail
+          jd = getJobDetail();
+
+      final JobDataMap
+          dataMap = (jd != null) ? jd.getJobDataMap() : null;
+
+      if (configurableJobResources == null)
+      {
+          LOG.error ("no resource bundle provided for jobs of type: " + job.getJobType() + ". Labels will not be rendered correctly in the scheduler UI");
+      }
+
+      //create a List of jobs, b/c JSF can't handle Sets as a backing bean for a dataTable
+      if (props != null)
+      {
+          configurableJobProperties = new LinkedList<ConfigurablePropertyWrapper>();
+
+          for (ConfigurableJobProperty prop : props)
+          {
+              ConfigurablePropertyWrapper
+                  wrapper = new ConfigurablePropertyWrapper();
+              String
+                  value = null;
+
+              wrapper.setJobProperty(prop);
+
+              if (dataMap == null || (value = (String) dataMap.get(prop.getLabelResourceKey())) == null)
+              {
+                  wrapper.setValue (prop.getDefaultValue());
+              }
+              else
+              {
+                  wrapper.setValue (value);
+              }
+
+              configurableJobProperties.add(wrapper);
+
+              if (configurableJobResources != null)
+              {
+                  //check for resource strings for label and desc - warn if they are not present
+                  final ConfigurableJobProperty
+                      property = wrapper.getJobProperty();
+                  final String
+                      labelKey = property.getLabelResourceKey(),
+                      descKey = property.getDescriptionResourceKey();
+
+                  if (labelKey == null)
+                  {
+                      LOG.error ("no resource key provided for property label - NullPointerExceptions may occur in scheduler when processing jobs of type " + job.getJobType());
+                  }
+                  else if (configurableJobResources.get(labelKey) == null)
+                  {
+                      LOG.warn("no resource string provided for the property label key '" + labelKey + "' for the job type " + job.getJobType());
+                  }
+
+                  if (descKey == null)
+                  {
+                      LOG.warn ("no resource key provided for property description in job type " + job.getJobType());
+                  }
+                  else if (configurableJobResources.get(descKey) == null)
+                  {
+                      LOG.warn("no resource string provided for the property description key '" + descKey + "' for the job type " + job.getJobType());
+                  }
+              }
+          }
+      }
+  }
+
+    /**
+     *  Sets the JobDetail object for the job presently being editted or sor which properties or triggers are being
+     *  editted.
+     *
+     * @param detail
+     */
+  public void setJobDetail (JobDetail detail)
+  {
+      jobDetail = detail;
+
+      refreshProperties();
+  }
+
+    /**
+     *  Returns the JobDetail object for the job presently being editted or sor which properties or triggers are being
+     *  editted.
+     *
+     * @returns JobDetail
+     */
+  public JobDetail getJobDetail()
+  {
+      return jobDetail;
+  }
+
+    /**
+     * Sets the TriggerWrapper being editted.
+     *
+     * @param tw
+     */
+  public void setTriggerWrapper (TriggerWrapper tw)
+  {
+	  triggerWrapper = tw;
+  }
+
+    /**
+     * Returns the TriggerWrapper being editted.
+     *
+     * @return TroggerWrapper
+     */
+  public TriggerWrapper getTriggerWrapper ()
+  {
+	  return triggerWrapper;
+  }
+
+    /**
+     * Sets the ConfigurableJobBeanWrapper to establish the job whose properties are being editted
+     * during a job or trigger creation process.
+     *
+     * @param job
+     */
+  public void setConfigurableJobBeanWrapper(ConfigurableJobBeanWrapper job)
+  {
+      configurableJobBeanWrapper = job;
+
+      if (job != null)
+      {
+          //process the ResourceBundle into a map, b/c JSF won't allow method calls like rb.getString()
+          final ResourceBundle
+              rb = job.getResourceBundle();
+
+          if(rb != null)
+          {
+              configurableJobResources = new HashMap<String, String> ();
+
+              final Enumeration
+                  keyIt = rb.getKeys();
+
+              while (keyIt.hasMoreElements())
+              {
+                  final String
+                      key = (String)keyIt.nextElement();
+
+                  configurableJobResources.put(key, rb.getString(key));
+              }
+          }
+          else
+          {
+              configurableJobResources = null;
+          }
+      }
+      else
+      {
+          configurableJobResources = null;
+      }
+
+      refreshProperties();
+  }
+
+    /**
+     * Returns the ConfigurableJobBeanWrapper currently the focus for editting properties either to create a job
+     * or to schedule a trigger for a job.
+     *
+     * @return ConfigurableJobBeanWrapper
+     */
+  public ConfigurableJobBeanWrapper getConfigurableJobBeanWrapper ()
+  {
+      return configurableJobBeanWrapper;
+  }
+
+    /**
+     * Returns the resource map which will provide labels for the ConfigurableJobBeanWrapper currently the focus
+     * of the job or trigger creation process. This is a read-only property which is set by {@link #setConfigurableJobBeanWrapper(ConfigurableJobBeanWrapper)}
+     *
+     * @return
+     */
+  public Map<String, String> getConfigurableJobResources()
+  {
+      return configurableJobResources;
+  }
+
+    /**
+     * Returns validation errors which have occured during the editting of properties for a ConfigurableJobBeanWrapper.
+     *
+     * @return List of validation error Strings
+     */
+  public List<String> getConfigurableJobErrorMessages()
+  {
+      return configurableJobErrorMessages;
+  }
+    
   /**
    * @return Returns the isSelectAllJobsSelected.
    */
@@ -278,6 +510,27 @@ public class SchedulerTool
      }
   }
 
+    /**
+     * Convenience method for creating a JobDetail object from a JobBeanWrapper. The JobDetail object is
+     * used to actually create a job within Quartz, and is also tracked by the {@link getJobDetail()} property
+     * for use during the property editting process.
+     *
+     * @param job
+     * @return JobDetail object constructed from the job argument
+     */
+  private JobDetail createJobDetail (JobBeanWrapper job)
+  {
+      JobDetail
+          jd = new JobDetail (jobName, Scheduler.DEFAULT_GROUP, job.getJobClass(), false, true, true);
+      JobDataMap
+          map = jd.getJobDataMap();
+
+      map.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
+      map.put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+
+      return jd;
+  }
+
   public String processCreateJob()
   {
     Scheduler scheduler = schedulerManager.getScheduler();
@@ -288,18 +541,45 @@ public class SchedulerTool
     }
     try
     {
-       JobDetail jd = null;
+        //get a JobDetail object in case one is already in the Session
+        //  (eg. if we have returned her from a validation error
+       JobDetail jd = getJobDetail();
        JobBeanWrapper job = getSchedulerManager().getJobBeanWrapper(selectedClass);
-       if (job != null) {
-          jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP,
-             job.getJobClass(), false, true, true);
-          jd.getJobDataMap().put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());
-          jd.getJobDataMap().put(JobBeanWrapper.JOB_TYPE, job.getJobType());
+
+       if (job != null)
+       {
+           // create a new JobDetail object for this job
+           jd = createJobDetail(job);
+
+    	   //we have a job, so check to see if properties need to be set    	   
+           if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+           {
+        	   //this job is configurable, provide a screen to edit properties
+               final ConfigurableJobBeanWrapper
+                   configurableJob = (ConfigurableJobBeanWrapper)job;
+
+               // prepare properties for use within the property configuration UI
+               setConfigurableJobBeanWrapper (configurableJob);
+               setJobDetail(jd);
+
+               return "edit_properties";
+           }
+           else
+           {
+        	   //not a configurable job, create the job and move on
+               setConfigurableJobBeanWrapper(null);
+           }
        }
-       else {
+       else
+       {
+    	   // this is not a job configured via a JobBeanWrapper
+    	   // assume the class is a Job and schedule its execution
+          setConfigurableJobBeanWrapper(null);
           jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP,
              Class.forName(selectedClass.toString()), false, true, true);
        }
+       
+       // create the job and show the list of jobs
       scheduler.addJob(jd, false);
       processRefreshJobs();
       return "jobs";
@@ -311,6 +591,134 @@ public class SchedulerTool
     }
   }
 
+    /**
+     * Processes the properties which have been set during creation of a job.
+     *
+     * @return
+     */
+  public String processSetProperties()
+  {
+      Scheduler scheduler = schedulerManager.getScheduler();
+      if (scheduler == null)
+      {
+        LOG.error("Scheduler is down!");
+        return "error";
+      }
+
+      configurableJobErrorMessages = new LinkedList<String>();
+
+      try
+      {
+          JobDetail
+              jd = getJobDetail();
+          JobBeanWrapper
+              job = getSchedulerManager().getJobBeanWrapper(selectedClass);
+
+          final ConfigurableJobBeanWrapper
+              configurableJob = getConfigurableJobBeanWrapper();
+
+          final List<ConfigurablePropertyWrapper>
+              properties = getConfigurableProperties();
+
+          final ResourceBundle
+              jobRb = configurableJob.getResourceBundle();
+
+          final ConfigurableJobPropertyValidator
+              validator = configurableJob.getConfigurableJobPropertyValidator();
+
+          if (jd != null)
+          {
+              final JobDataMap
+                  dataMap = jd.getJobDataMap();
+
+              for (ConfigurablePropertyWrapper wrapper : properties)
+              {
+                  final ConfigurableJobProperty
+                      property = wrapper.getJobProperty();
+                  final String
+                      label = property.getLabelResourceKey(),
+                      value = wrapper.getValue();
+
+                  if (property.isRequired() && (value == null || value.trim().length() == 0))
+                  {
+                      String
+                          propName = (jobRb != null)?jobRb.getString(label):label,
+                          msg = null;
+
+                      try
+                      {
+                          msg = rb.getString("properties_required");
+                      }
+                      catch (MissingResourceException mre)
+                      {
+                          msg = "&lt;Missing resource string: properties_required&gt;";
+                      }
+
+                      configurableJobErrorMessages.add(msg + ": " + propName);
+                  }
+                  else
+                  {
+                      try
+                      {
+                          validator.assertValid(label, value);
+                      }
+                      catch (ConfigurableJobPropertyValidationException cjpve)
+                      {
+                          configurableJobErrorMessages.add ((jobRb != null)?jobRb.getString(cjpve.getMessage()):cjpve.getMessage());
+                          continue;
+                      }
+                      dataMap.put(property.getLabelResourceKey(), value);
+                  }
+              }
+
+              if (!configurableJobErrorMessages.isEmpty())
+              {
+                  return null;
+              }
+          }
+          else
+          {
+              setJobDetail (createJobDetail(job));
+              return null;
+          }
+          scheduler.addJob(jd, false);
+          processRefreshJobs();
+          return "jobs";
+      }
+      catch (Exception e)
+      {
+          LOG.error("Failed to create job");
+          return "error";          
+      }
+  }
+
+    /**
+     * Convenience method for scheduling a Trigger with the Quartz Scheduler object.
+     * @param wrapper
+     * @throws SchedulerException
+     */
+  private void scheduleTrigger(TriggerWrapper wrapper) throws SchedulerException
+  {
+	  Trigger
+	  	trigger = wrapper.getTrigger();
+	  
+	  Scheduler 
+	  	scheduler = schedulerManager.getScheduler();
+	  
+      scheduler.scheduleJob(trigger);
+      selectedJobDetailWrapper.getTriggerWrapperList().add(wrapper);
+      int currentTriggerCount = selectedJobDetailWrapper.getTriggerCount()
+          .intValue();
+      selectedJobDetailWrapper.setTriggerCount(Integer.valueOf(
+          currentTriggerCount + 1));
+  }
+
+    /**
+     * Creates a trigger for the currently selected JobDetailWrapper. This method redirects to UI
+     * to override configured properties if the Job is configurable.
+     *
+     * @return
+     */
   public String processCreateTrigger()
   {
     Scheduler scheduler = schedulerManager.getScheduler();
@@ -321,29 +729,152 @@ public class SchedulerTool
     }
     try
     {
-      Trigger trigger = new CronTrigger(triggerName, Scheduler.DEFAULT_GROUP,
-          selectedJobDetailWrapper.getJobDetail().getName(),
-          Scheduler.DEFAULT_GROUP, triggerExpression);
-      scheduler.scheduleJob(trigger);
-      TriggerWrapper tempTriggerWrapper = new TriggerWrapperImpl();
-      tempTriggerWrapper.setTrigger(trigger);
-      selectedJobDetailWrapper.getTriggerWrapperList().add(tempTriggerWrapper);
-      int currentTriggerCount = selectedJobDetailWrapper.getTriggerCount()
-          .intValue();
-      selectedJobDetailWrapper.setTriggerCount(Integer.valueOf(
-          currentTriggerCount + 1));
+    	JobDetail
+    		jd = selectedJobDetailWrapper.getJobDetail();
 
-      triggerName = null;
-      triggerExpression = null;
-      return "edit_triggers";
+    	Trigger trigger = new CronTrigger(triggerName, Scheduler.DEFAULT_GROUP,
+    		  						    jd.getName(),
+    		  						    Scheduler.DEFAULT_GROUP, triggerExpression);
+    	
+    	TriggerWrapper tempTriggerWrapper = new TriggerWrapperImpl();
+    	tempTriggerWrapper.setTrigger(trigger);
+      
+      	JobBeanWrapper
+      		job = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
+
+      	if (job != null)
+      	{
+		    if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+		    {
+		        final ConfigurableJobBeanWrapper
+		            configurableJob = (ConfigurableJobBeanWrapper)job;
+		
+                setJobDetail (jd);
+		        setConfigurableJobBeanWrapper (configurableJob);
+		        setTriggerWrapper (tempTriggerWrapper);
+		        
+		        return "edit_trigger_properties";
+		    }
+		    else
+		    {
+		    	setConfigurableJobBeanWrapper(null);
+                setJobDetail(null);
+		    	setTriggerWrapper(null);
+		    }
+		}
+      	
+      	scheduleTrigger (tempTriggerWrapper);
+
+      	return "edit_triggers";
     }
     catch (Exception e)
     {
-      triggerName = null;
-      triggerExpression = null;
       LOG.error("Failed to create trigger");
       return "error";
     }
+    finally
+    {
+    	triggerName = null;
+    	triggerExpression = null;
+    }
+  }
+
+    /**
+     * Validates and sets the properties for a Trigger once the property configuration UI has been completed.
+     *
+     * @return
+     */
+  public String processSetTriggerProperties ()
+  {
+      Scheduler scheduler = schedulerManager.getScheduler();
+      if (scheduler == null)
+      {
+        LOG.error("Scheduler is down!");
+        return "error";
+      }
+
+      configurableJobErrorMessages = new LinkedList<String>();
+
+      try
+      {
+      	  final JobDetail 
+      	  	  jd = selectedJobDetailWrapper.getJobDetail();
+      	  
+          final ConfigurableJobBeanWrapper
+              configurableJob = getConfigurableJobBeanWrapper();
+
+          final TriggerWrapper
+      	  	  triggerWrapper = getTriggerWrapper();
+          
+          final Trigger
+          	  trigger = triggerWrapper.getTrigger();
+
+          final List<ConfigurablePropertyWrapper>
+              properties = getConfigurableProperties();
+
+          final ResourceBundle
+              jobRb = configurableJob.getResourceBundle();
+
+          final ConfigurableJobPropertyValidator
+              validator = configurableJob.getConfigurableJobPropertyValidator();
+          
+          final JobDataMap
+              dataMap = trigger.getJobDataMap();
+
+          for (ConfigurablePropertyWrapper wrapper : properties)
+          {
+              final ConfigurableJobProperty
+                  property = wrapper.getJobProperty();
+              final String
+                  label = property.getLabelResourceKey(),
+                  value = wrapper.getValue();
+
+              if (property.isRequired() && (value == null || value.trim().length() == 0))
+              {
+                  String
+                      propName = (jobRb != null)?jobRb.getString(label):label,
+                      msg = null;
+
+                  try
+                  {
+                      msg = rb.getString("properties_required");
+                  }
+                  catch (MissingResourceException mre)
+                  {
+                      msg = "&lt;Missing resource string: properties_required&gt;";
+                  }
+
+                  configurableJobErrorMessages.add(msg + ": " + propName);
+              }
+              else
+              {
+                  try
+                  {
+                      validator.assertValid(label, value);
+                  }
+                  catch (ConfigurableJobPropertyValidationException cjpve)
+                  {
+                      configurableJobErrorMessages.add ((jobRb != null)?jobRb.getString(cjpve.getMessage()):cjpve.getMessage());
+                      continue;
+                  }
+                  dataMap.put(property.getLabelResourceKey(), value);
+              }
+          }
+
+          if (!configurableJobErrorMessages.isEmpty())
+          {
+              return null;
+          }
+          
+          scheduleTrigger(triggerWrapper);
+      }
+      catch (Exception e)
+      {
+          LOG.error("Failed to create job");
+          return "error";          
+      }
+
+	  return "edit_triggers";
   }
 
   public String processSelectAllJobs()
@@ -461,9 +992,155 @@ public class SchedulerTool
     }
     return "jobs";
   }
-  
+
+    /**
+     * Determines if the Job has configuration properties which might need to be overriden when the
+     * job is run. If so this redirects to a property configuration screen. Otherwise it simply continues
+     * to a confirmation screen.
+     * 
+     * @return
+     */
+  public String processPrepRunJobNow()
+  {
+      Scheduler scheduler = schedulerManager.getScheduler();
+      if (scheduler == null)
+      {
+        LOG.error("Scheduler is down!");
+        return "error";
+      }
+
+      try
+      {
+          JobDetail
+              jd = selectedJobDetailWrapper.getJobDetail();
+
+          JobBeanWrapper
+              job = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
+
+          if (job != null)
+          {
+              if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+              {
+                  final ConfigurableJobBeanWrapper
+                      configurableJob = (ConfigurableJobBeanWrapper)job;
+
+                  setJobDetail (jd);
+                  setConfigurableJobBeanWrapper (configurableJob);
+
+                  return "edit_runnow_properties";
+              }
+              else
+              {
+                  setConfigurableJobBeanWrapper(null);
+                  setJobDetail(null);
+              }
+          }
+          return "run_job_confirm";
+      }
+      catch (Exception e)
+      {
+        LOG.error("Failed to run job now");
+        return "error";
+      }
+  }
+
+    /**
+     * Processes the properties set for a Job that will be run now.
+     *
+     * @return
+     */
+  public String processSetRunNowProperties()
+  {
+      Scheduler scheduler = schedulerManager.getScheduler();
+      if (scheduler == null)
+      {
+        LOG.error("Scheduler is down!");
+        return "error";
+      }
+      try
+      {
+          JobDetail
+              jd = getJobDetail();
+
+          JobBeanWrapper
+              job = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
+
+          if (job != null)
+          {
+              if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+              {
+                  configurableJobErrorMessages = new LinkedList<String>();
+
+                  final ConfigurableJobBeanWrapper
+                      configurableJob = (ConfigurableJobBeanWrapper) job;
+
+                  final List<ConfigurablePropertyWrapper>
+                      properties = getConfigurableProperties();
+
+                  final ResourceBundle
+                      jobRb = configurableJob.getResourceBundle();
+
+                  final ConfigurableJobPropertyValidator
+                      validator = configurableJob.getConfigurableJobPropertyValidator();
+
+                  for (ConfigurablePropertyWrapper wrapper : properties)
+                  {
+                      final ConfigurableJobProperty
+                          property = wrapper.getJobProperty();
+                      final String
+                          label = property.getLabelResourceKey(),
+                          value = wrapper.getValue();
+
+                      if (property.isRequired() && (value == null || value.trim().length() == 0))
+                      {
+                          String
+                              propName = (jobRb != null)?jobRb.getString(label):label,
+                              msg = null;
+
+                          try
+                          {
+                              msg = rb.getString("properties_required");
+                          }
+                          catch (MissingResourceException mre)
+                          {
+                              msg = "&lt;Missing resource string: properties_required&gt;";
+                          }
+
+                          configurableJobErrorMessages.add(msg + ": " + propName);
+                      }
+                      else
+                      {
+                          try
+                          {
+                              validator.assertValid(label, value);
+                          }
+                          catch (ConfigurableJobPropertyValidationException cjpve)
+                          {
+                              configurableJobErrorMessages.add ((jobRb != null)?jobRb.getString(cjpve.getMessage()):cjpve.getMessage());
+                              continue;
+                          }
+                      }
+                  }
+
+                  if (!configurableJobErrorMessages.isEmpty())
+                  {
+                      return null;
+                  }
+              }
+          }
+          return "run_now_confirm";
+      }
+      catch (Exception e)
+      {
+          LOG.error("Failed to trigger job now");
+          return "error";
+      }
+  }
+
   /**
-   * This method runs the current job only once, right now
+   * This method runs the current job only once, right now. It will set properties on the Job execution if the
+   * Job has configurable properties.
+   * 
    * @return String
    */
   public String processRunJobNow()
@@ -476,10 +1153,50 @@ public class SchedulerTool
      }
      try
      {
-       
-       scheduler.triggerJob(
-             selectedJobDetailWrapper.getJobDetail().getName(), 
-             selectedJobDetailWrapper.getJobDetail().getGroup());
+         JobDetail
+             jd = getJobDetail();
+
+         JobBeanWrapper
+             job = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
+
+         JobDataMap
+             dataMap = null;
+
+         if (job != null)
+         {
+             if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+             {
+                 configurableJobErrorMessages = new LinkedList<String>();
+                 
+                 final List<ConfigurablePropertyWrapper>
+                     properties = getConfigurableProperties();
+
+                 dataMap = new JobDataMap (jd.getJobDataMap());
+
+                 for (ConfigurablePropertyWrapper wrapper : properties)
+                 {
+                     final ConfigurableJobProperty
+                         property = wrapper.getJobProperty();
+                     final String
+                         label = property.getLabelResourceKey(),
+                         value = wrapper.getValue();
+
+                     dataMap.put(label, value);
+                 }
+             }
+         }
+
+         if (dataMap == null)
+         {
+             scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getName(),
+                                  selectedJobDetailWrapper.getJobDetail().getGroup());
+         }
+         else
+         {
+             scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getName(),
+                                  selectedJobDetailWrapper.getJobDetail().getGroup(),
+                                  dataMap);
+         }
 
        return "success";
      }
@@ -635,6 +1352,5 @@ public class SchedulerTool
       }
       return beanJobs;
    }
-
 }
 

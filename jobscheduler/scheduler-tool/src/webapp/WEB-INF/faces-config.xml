@@ -61,6 +61,14 @@
 	
 	<navigation-rule>
     	<from-view-id>/scheduler/create_job.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>create_job</from-outcome>
+                <to-view-id>/scheduler/create_job.jsp</to-view-id>
+            </navigation-case>
+            <navigation-case>
+                <from-outcome>edit_properties</from-outcome>
+                <to-view-id>/scheduler/edit_properties.jsp</to-view-id>
+            </navigation-case>
 		    <navigation-case>
 		    	<from-outcome>jobs</from-outcome>
       			<to-view-id>/scheduler/jobs.jsp</to-view-id>
@@ -70,6 +78,18 @@
       			<to-view-id>/scheduler/main.jsp</to-view-id>
 		    </navigation-case>
 	</navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/scheduler/edit_properties.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>edit_properties</from-outcome>
+            <to-view-id>/scheduler/edit_properties.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>jobs</from-outcome>
+            <to-view-id>/scheduler/main.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 	
 	<navigation-rule>
     	<from-view-id>/scheduler/delete_jobs.jsp</from-view-id>
@@ -93,11 +113,23 @@
 		    	<from-outcome>delete_triggers</from-outcome>
       			<to-view-id>/scheduler/delete_triggers.jsp</to-view-id>
 		    </navigation-case>
+            <navigation-case>
+                <from-outcome>edit_runnow_properties</from-outcome>
+                <to-view-id>/scheduler/edit_runnow_properties.jsp</to-view-id>
+            </navigation-case>
    		    <navigation-case>
 		    	<from-outcome>run_job_confirm</from-outcome>
       			<to-view-id>/scheduler/run_job_confirm.jsp</to-view-id>
 		    </navigation-case>
 	</navigation-rule>
+	
+    <navigation-rule>
+        <from-view-id>/scheduler/edit_trigger_properties.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>edit_triggers</from-outcome>
+            <to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 	
 	<navigation-rule>
     	<from-view-id>/scheduler/delete_triggers.jsp</from-view-id>
@@ -109,12 +141,28 @@
 	
 	<navigation-rule>
     	<from-view-id>/scheduler/create_trigger.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>edit_trigger_properties</from-outcome>
+                <to-view-id>/scheduler/edit_trigger_properties.jsp</to-view-id>
+            </navigation-case>
    		    <navigation-case>
 		    	<from-outcome>edit_triggers</from-outcome>
       			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
 		    </navigation-case>
 	</navigation-rule>
 	
+    <navigation-rule>
+        <from-view-id>/scheduler/edit_runnow_properties.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>run_now_confirm</from-outcome>
+            <to-view-id>/scheduler/run_job_confirm.jsp</to-view-id>
+        </navigation-case>
+         <navigation-case>
+            <from-outcome>cancel</from-outcome>
+            <to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
 	<navigation-rule>
     	<from-view-id>/scheduler/run_job_confirm.jsp</from-view-id>
    		    <navigation-case>

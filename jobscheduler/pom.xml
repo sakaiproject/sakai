@@ -19,13 +19,38 @@
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url.localsite>
     </properties>
 
-    <modules>
-        <module>scheduler-api</module>
-        <module>scheduler-assembly</module>
-        <module>scheduler-component</module>
-        <module>scheduler-component-shared</module>
-        <module>scheduler-tool</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>scheduler-api</module>
+                <module>scheduler-assembly</module>
+                <module>scheduler-component</module>
+                <module>scheduler-component-shared</module>
+                <module>scheduler-tool</module>
+            </modules>
+         </profile>
+         <profile>
+            <id>testing</id>
+            <activation>
+                <property>
+                    <name>scheduler.configurable.test</name>
+                </property>
+            </activation>
+            <modules>
+                <module>scheduler-api</module>
+                <module>scheduler-assembly</module>
+                <module>scheduler-component</module>
+                <module>scheduler-component-shared</module>
+                <module>scheduler-tool</module>
+                <module>scheduler-configurable-job-test-component</module>
+                <module>scheduler-configurable-job-test-component-shared</module>
+            </modules>
+         </profile>
+    </profiles>
 
     <pluginRepositories>
         <pluginRepository>

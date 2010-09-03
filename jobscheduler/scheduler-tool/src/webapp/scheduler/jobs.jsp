@@ -22,7 +22,7 @@
 	  
    	  </sakai:tool_bar>
    	  <sakai:view_content>
-  	    <h:dataTable value="#{schedulerTool.jobDetailWrapperList}" var="job" styleClass="chefFlatListViewTable">
+  	    <h:dataTable value="#{schedulerTool.jobDetailWrapperList}" var="job" styleClass="listHier lines">
   	      <h:column>
     	      <f:facet name="header">    	      
     	        <h:commandButton alt="SelectAll" image="images/checkbox.gif" action="#{schedulerTool.processSelectAllJobs}"/>

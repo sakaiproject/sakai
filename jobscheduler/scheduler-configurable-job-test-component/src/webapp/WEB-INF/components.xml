@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="testConfigurableBean" class="org.sakaiproject.scheduler.configurable.test.TestConfigurableJob"/>
+
+   <bean id="org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper.schedulerSampleTest"
+         class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+         singleton="true" init-method="init">
+       <property name="beanId">
+          <value>testConfigurableBean</value>
+       </property>
+       <property name="jobName">
+          <value>Configurable Job Test</value>
+       </property>
+       <property name="resourceBundleBase" value="org.sakaiproject.scheduler.configurable.test.Messages"/>
+       <property name="configurableJobProperties">
+           <set>
+               <bean id="integer.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="true"/>
+                    <property name="labelResourceKey" value="integer.property"/>
+                    <property name="descriptionResourceKey" value="integer.property.description"/>
+                    <property name="defaultValue" value="1"/>
+               </bean>
+               <bean id="string.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="string.property"/>
+                    <property name="descriptionResourceKey" value="string.property.description"/>
+               </bean>
+               <bean id="boolean.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="boolean.property"/>
+                    <property name="descriptionResourceKey" value="boolean.property.description"/>
+               </bean>
+           </set>
+       </property>
+       <property name="configurableJobPropertyValidator">
+           <bean class="org.sakaiproject.scheduler.configurable.test.TestConfigurableJobPropertyValidator"/>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+
+   </bean>
+   
+</beans>
+
