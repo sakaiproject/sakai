@@ -5,13 +5,4 @@
 	<bean id="org.sakaiproject.conditions.api.ConditionService" class="org.sakaiproject.conditions.impl.BaseConditionService"
 		init-method="init" singleton="true">
 	</bean>
-
-	<bean id="org.sakaiproject.conditions.impl.ResourceReleaseRule"
-		class="org.sakaiproject.conditions.impl.ResourceReleaseRule">
-		<property name="contentHostingService"
-			ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-	</bean>
-
 </beans>

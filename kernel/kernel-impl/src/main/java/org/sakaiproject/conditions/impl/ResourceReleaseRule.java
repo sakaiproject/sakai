@@ -75,13 +75,13 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 		this.chs = chs;
 	}
 		
-	private SecurityService securityService;
+	private SecurityService securityService = (SecurityService)ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
 	}
 
 	
-	private AuthzGroupService authzGroupService;
+	private AuthzGroupService authzGroupService = (AuthzGroupService)ComponentManager.get("org.sakaiproject.authz.api.AuthzGroupService");;
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
 	}
