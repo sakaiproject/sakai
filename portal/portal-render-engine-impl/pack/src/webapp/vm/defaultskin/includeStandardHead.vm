@@ -2,8 +2,8 @@
 ## Standard Header used by all portal views
 ##
 ##
-<!-- START from includeStandardHead.vm -->
 <head>
+<!-- START from includeStandardHead.vm -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="Content-Style-Type" content="text/css" />
 #if (! $currentPlacement && $isPDA )
