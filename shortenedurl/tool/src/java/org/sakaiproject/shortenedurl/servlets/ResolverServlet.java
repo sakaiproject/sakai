@@ -33,13 +33,13 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
 /**
- * This is the request servlet for the ShortenedUrlService which parses the path, resolves the key to it's original URL,
+ * This is the resolver servlet for the ShortenedUrlService which parses the path, resolves the key to it's original URL,
  * then redirects to the that URL.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class ShortenedUrlServlet extends HttpServlet {
+public class ResolverServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private ShortenedUrlService service;

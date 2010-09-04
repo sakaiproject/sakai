@@ -4,17 +4,17 @@
   	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   	
-  	<display-name>sakai.shortenedurl</display-name>
-  	<description>Sakai ShortenedUrlService resolver servlet</description>
+  	<display-name>sakai.shortenedurl.servlets</display-name>
+  	<description>Sakai ShortenedUrlService generator and resolver servlets</description>
 
   	<servlet>
-    	<servlet-name>sakai.shortenedurl</servlet-name>
-    	<servlet-class>org.sakaiproject.shortenedurl.tool.ShortenedUrlServlet</servlet-class>
+    	<servlet-name>sakai.shortenedurl.resolver</servlet-name>
+    	<servlet-class>org.sakaiproject.shortenedurl.servlets.ResolverServlet</servlet-class>
     	<load-on-startup>1</load-on-startup>
   	</servlet>
 
   	<servlet-mapping>
-    	<servlet-name>sakai.shortenedurl</servlet-name>
+    	<servlet-name>sakai.shortenedurl.resolver</servlet-name>
     	<url-pattern>/*</url-pattern>
   	</servlet-mapping>
 
