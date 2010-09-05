@@ -52,7 +52,6 @@ import org.w3c.tidy.Tidy;
 public class MockCharonPortal extends HttpServlet
 {
 
-
 	/** Our log (commons). */
 	private static Log log = LogFactory.getLog(MockCharonPortal.class);
 
@@ -165,6 +164,19 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
 		rcontext.put("rloader", resourceLoader);
 		
+                String headCssToolBase = "<link href=\""
+                        + "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+                String headCssToolSkin = "<link href=\"" 
+                + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+                String headCss = headCssToolBase + headCssToolSkin;
+                String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
+                String head = headCss + headJs;
+
+                rcontext.put("sakai_html_head", head);
+                rcontext.put("sakai_html_head_css", headCss);
+                rcontext.put("sakai_html_head_css_base", headCssToolBase);
+                rcontext.put("sakai_html_head_css_skin", headCssToolSkin);
+                rcontext.put("sakai_html_head_js", headJs);
 
 		rcontext.put("sitReset", "sitReset");
 		rcontext.put("browser", new BrowserDetector("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en) AppleWebKit/523.12.2 (KHTML, like Gecko) Version/3.0.4 Safari/523.12.2"));
