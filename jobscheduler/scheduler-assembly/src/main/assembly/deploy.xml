@@ -12,7 +12,8 @@
             </useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.scheduler:scheduler-api:jar:*</include>
-                <include>org.sakaiproject.scheduler:scheduler-component-shared:jar:*</include>
+				<include>org.sakaiproject.scheduler:scheduler-events-model:jar:*</include>
+ 				<include>org.sakaiproject.scheduler:scheduler-component-shared:jar:*</include>
                 <include>quartz:quartz:jar:*</include>
             </includes>
             <unpack>false</unpack>
