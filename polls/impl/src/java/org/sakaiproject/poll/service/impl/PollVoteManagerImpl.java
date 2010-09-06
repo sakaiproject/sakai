@@ -221,7 +221,13 @@ public class PollVoteManagerImpl implements PollVoteManager {
 			log.debug("about to check if this user can vote in " + poll.getSiteId());
 			if (externalLogic.isAllowedInLocation("poll.vote", externalLogic.getSiteRefFromId(poll.getSiteId())) || externalLogic.isUserAdmin())
 			{
-				log.debug("this poll is votable  " + poll.getText());
+				log.debug("this poll is votable because the user has permissions, " + poll.getText());
+				return true;
+			}
+			
+			//SAK-18855 individual public polls
+			if(poll.getIsPublic()) {
+				log.debug("this poll is votable because it is public, " + poll.getText());
 				return true;
 			}
 		}

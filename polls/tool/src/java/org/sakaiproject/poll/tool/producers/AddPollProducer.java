@@ -40,6 +40,7 @@ import org.sakaiproject.util.FormattedText;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -247,6 +248,12 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		//UILabelTargetDecorator.targetLabel(pollOpen, voteOpen);
 		//UILabelTargetDecorator.targetLabel(pollClose, voteClose);
 
+		/*
+		 * access options
+		 */
+		UIMessage.make(newPoll,"poll_access_label","new_poll_access_label");
+		UIBoundBoolean accessPublic = UIBoundBoolean.make(newPoll, "access-public", "poll.isPublic", poll.getIsPublic());
+		
 
 		String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		String[] maxVotes = new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};

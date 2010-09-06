@@ -59,6 +59,9 @@
        <property name="id" type="string" length="255" not-null="true">
         	<column name="POLL_UUID" />
         </property>
+		<property name="isPublic" type="boolean" not-null="true">
+			<column name="POLL_IS_PUBLIC" />
+		</property>
 	</class>
 	
 </hibernate-mapping>

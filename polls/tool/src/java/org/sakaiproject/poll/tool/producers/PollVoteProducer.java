@@ -115,7 +115,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		LOG.debug("got id of " + strId);
 		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
-		if (!externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference(), externalLogic.getCurrentUserId())){
+		if (!pollVoteManager.pollIsVotable(poll)){
 			tml.addMessage(new TargettedMessage("vote_noperm"));
 			return;
 		} else {

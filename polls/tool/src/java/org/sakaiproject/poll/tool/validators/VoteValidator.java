@@ -85,9 +85,9 @@ public class VoteValidator implements Validator {
 		
 	//does the user have permission to vote
 	if (!externalLogic.isUserAdmin()) {
-		if (!externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference(), externalLogic.getCurrentUserId()))
+		if (!pollVoteManager.pollIsVotable(poll))
 		{
-			logger.warn("attempt to vote in " + externalLogic.getCurrentLocationReference() + " by unauthorized user" );
+			logger.error("attempt to vote in " + poll.getReference() + " by unauthorized user" );
 			errors.reject("vote_noperm","no permissions");
 			return;
 		}
