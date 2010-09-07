@@ -662,7 +662,17 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 	 */
 	public Edit putDeleteResource(String id, String uuid, String userId, Object[] others)
 	{
-		Entity entry = m_user.newResource(null, id, others);
+        // support for SAK-12874
+        Entity entry = null;
+        if (m_storage != null) {
+            // use the object being deleted
+            entry = m_storage.getResource(id);
+        }
+        if (entry == null) {
+            // failsafe to the old method
+            entry = m_user.newResource(null, id, others);
+        }
+		//Entity entry = m_user.newResource(null, id, others);
 
 		// form the XML and SQL for the insert
 		Object blob = getBlob(entry);
