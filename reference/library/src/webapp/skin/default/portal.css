@@ -566,16 +566,18 @@ html>body .dhtml_more_tabs {
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
-#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
-	filter:alpha(opacity=50);
-	opacity: 0.50;
-	-moz-opacity: 0.50;
-}
 
 #toolMenu li span, #subSites li span{
 
 }
 
+#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
+	filter:alpha(opacity=70);
+	color:#000;
+	opacity: 0.70;
+	-moz-opacity: 0.70;
+	text-decoration:none
+}
 
 #toolMenu li a:link,#toolMenu li a,
 #subSites li a:link,#subSites li a{
@@ -624,6 +626,9 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 set of special selectors when a user has chosen to minimize navigation and maximize real
 page estate
 */
+#toggleToolMenu {
+	border:1px solid #fff;
+}
 #toggleToolMax{
 	height:16px;
 	background:#fff url(images/expandPage.png) top left no-repeat

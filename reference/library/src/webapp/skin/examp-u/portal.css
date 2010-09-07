@@ -356,6 +356,13 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #toolMenu li span{
 }
 
+#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
+	filter:alpha(opacity=70);
+	color:#000;
+	opacity: 0.70;
+	-moz-opacity: 0.70;
+	text-decoration:none
+}
 
 
 #toolMenu li a:link,#toolMenu li a{

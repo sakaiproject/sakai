@@ -395,6 +395,13 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 display:none*/
 }
 
+#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
+	filter:alpha(opacity=70);
+	color:#000;
+	opacity: 0.70;
+	-moz-opacity: 0.70;
+	text-decoration:none
+}
 
 
 #toolMenu li a:link,#toolMenu li a{
