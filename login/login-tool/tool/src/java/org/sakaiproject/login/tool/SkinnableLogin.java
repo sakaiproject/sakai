@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -345,8 +346,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("loginWording", loginWording);
 		rcontext.put("cancelWording", cancelWording);
 			
-		String eid = request.getParameter("eid");
-		String pw = request.getParameter("pw");
+		String eid = StringEscapeUtils.escapeHtml(request.getParameter("eid"));
+		String pw = StringEscapeUtils.escapeHtml(request.getParameter("pw"));
 		
 		if (eid == null)
 			eid = "";
