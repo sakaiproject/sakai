@@ -171,6 +171,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// PortalHandler>();
 
 	private GalleryHandler galleryHandler;
+	
+	private String gatewaySiteUrl;
 
 	private WorksiteHandler worksiteHandler;
 
@@ -814,6 +816,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			PortalHandler ph;
 			String requestHandler = getRequestHandler(req);
+
+			// begin SAK-19089
+			// if not logged in and accessing "/" and not from PDA, redirect to gatewaySiteUrl
+			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option)) 
+					&& (requestHandler == null) && (session.getUserId() == null)) 
+			{
+				// redirect to gatewaySiteURL 
+				res.sendRedirect(gatewaySiteUrl);
+				return;
+			}
+			// end SAK-19089
 
 			if (requestHandler != null){
 				//Mobile access
@@ -1651,6 +1664,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
 
 		handlerPrefix = ServerConfigurationService.getString("portal.handler.default", "site");
+		
+		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
