@@ -186,15 +186,58 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 			String[] resourceTableOtherFields, boolean locksInDb,
 			String resourceEntryName, StorageUser user, SqlService sqlService)
 	{
-		m_resourceTableName = resourceTableName;
-		m_resourceTableIdField = resourceTableIdField;
-		m_resourceTableOtherFields = resourceTableOtherFields;
-		m_locksAreInDb = locksInDb;
-		m_resourceEntryTagName = resourceEntryName;
-		m_user = user;
-		m_sql = sqlService;
+	    this(resourceTableName, resourceTableIdField, resourceTableOtherFields, locksInDb, resourceEntryName, user, sqlService, null);
+	}
 
-		setSingleStorageSql(m_sql.getVendor());
+
+    // support for SAK-12874
+    protected DbSingleStorage m_storage = null;
+
+    /**
+     * Construct.
+     * 
+     * @param resourceTableName
+     *        Table name for resources.
+     * @param resourceTableIdField
+     *        The field in the resource table that holds the id.
+     * @param resourceTableOtherFields
+     *        The other fields in the resource table (between the two id and the
+     *        xml fields).
+     * @param locksInDb
+     *        If true, we do our locks in the remote database, otherwise we do
+     *        them here.
+     * @param resourceEntryName
+     *        The xml tag name for the element holding each actual resource
+     *        entry.
+     * @param user
+     *        The StorageUser class to call back for creation of Resource and
+     *        Edit objects.
+     * @param sqlService
+     *        The SqlService.
+     * @param storage
+     *        The storage for the normal resource (only used by delete storage)
+     */
+    public BaseDbBinarySingleStorage(String resourceTableName, String resourceTableIdField,
+	        String[] resourceTableOtherFields, boolean locksInDb,
+	        String resourceEntryName, StorageUser user, SqlService sqlService,
+	        DbSingleStorage storage)
+	{
+	    m_resourceTableName = resourceTableName;
+	    m_resourceTableIdField = resourceTableIdField;
+	    m_resourceTableOtherFields = resourceTableOtherFields;
+	    m_locksAreInDb = locksInDb;
+	    m_resourceEntryTagName = resourceEntryName;
+	    m_user = user;
+	    m_sql = sqlService;
+
+	    // support for SAK-12874
+	    m_storage = storage;
+	    if (m_storage == null && m_resourceTableName != null && m_resourceTableName.toUpperCase().contains("DELETE")) {
+	        // warn if the delete storage does not have the main storage set
+	        M_log.warn("resource storage is not set, delete table resource file paths will be invalid");
+	    }
+
+	    setSingleStorageSql(m_sql.getVendor());
 	}
 
 	/**

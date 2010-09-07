@@ -1101,21 +1101,21 @@ public class DbContentService extends BaseContentService
                 // level store
                 m_resourceDeleteStore = new BaseDbDualSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService);
+                        m_locksInDb, "resource", resourceUser, m_sqlService, m_resourceStore); // support for SAK-12874
 
             } else if ( migrateData && binaryDelete) {
                 // htripath-build the resource for store of deleted record-single
                 // level store
                 m_resourceDeleteStore = new BaseDbBinarySingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService);
+                        m_locksInDb, "resource", resourceUser, m_sqlService, m_resourceStore); // support for SAK-12874
 
             } else {
                 // htripath-build the resource for store of deleted record-single
                 // level store
                 m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID", 
                         (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, m_sqlService);
+                        m_locksInDb, "resource", resourceUser, m_sqlService, m_resourceStore); // support for SAK-12874
 
             }
 
