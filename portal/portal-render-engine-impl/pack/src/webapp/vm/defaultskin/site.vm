@@ -62,7 +62,7 @@ $(document).ready(function() {
 
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
-	<div id="portalContainer">
+        <div id="portalContainer" #if (${sakai_nav_mimimized}) class="sakaiMinimizeSiteNavigation" #end >
 		<div id="skipNav">
 		#if ($siteNavHasAccessibilityURL)
 			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">

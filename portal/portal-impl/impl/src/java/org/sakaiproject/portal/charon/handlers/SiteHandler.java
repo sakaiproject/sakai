@@ -224,10 +224,12 @@ public class SiteHandler extends WorksiteHandler
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
 		
-		// Have we been requested to start minimized?
-		Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MIMIMIZED);
-                if ( c != null && "true".equals(c.getValue()) ) {
-			rcontext.put(portal.SAKAI_NAV_MIMIMIZED, Boolean.TRUE);
+		// Have we been requested to display minimized and are we logged in?
+		if (session.getUserId() != null) {
+			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MIMIMIZED);
+                	if ( c != null && "true".equals(c.getValue()) ) {
+				rcontext.put(portal.SAKAI_NAV_MIMIMIZED, Boolean.TRUE);
+			}
 		}
 
 		// should we consider a frameset ?

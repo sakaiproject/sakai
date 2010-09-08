@@ -4,7 +4,11 @@
 ##
 <!-- START from includePage.vm -->
 		<!-- start includePage -->		
+#if (${sakai_nav_mimimized})
+		<div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
+#else
 		<div id="container" $pageSiteType >
+#end
 #parse("/vm/defaultskin/includePageBody.vm")
 	        </div>
 		<!-- end includePage -->
