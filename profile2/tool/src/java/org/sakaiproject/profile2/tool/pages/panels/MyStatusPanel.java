@@ -195,7 +195,11 @@ public class MyStatusPanel extends Panel {
 						status=newStatus; //update reference
 						
 						//reset the field
-						target.appendJavascript("autoFill($('#" + statusField.getMarkupId() + "'), '" + defaultStatus + "');");
+						target.appendJavascript("autoFill('#" + statusField.getMarkupId() + "', '" + defaultStatus + "');");
+						
+						//reset the counter
+						target.appendJavascript("countChars('#" + statusField.getMarkupId() + "');");
+
 					}
 					
 				} else {
