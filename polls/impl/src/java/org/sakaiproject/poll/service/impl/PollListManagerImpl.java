@@ -308,7 +308,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         search.addRestriction(new Restriction("optionId", optionId));
         Option option = dao.findOneBySearch(Option.class, search);
         // if the id is null set it
-        if (option.getUUId() == null) {
+        if (option != null && option.getUUId() == null) {
             option.setUUId( UUID.randomUUID().toString() );
             saveOption(option);
         }
