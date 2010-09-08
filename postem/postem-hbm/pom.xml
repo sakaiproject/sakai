@@ -29,12 +29,6 @@
       <artifactId>sakai-postem-api</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
-    <dependency>
-      <groupId>commons-math</groupId>
-      <artifactId>commons-math</artifactId>
-      <version>1.0</version>
-<!--properties:  deploy.target: shared -->
-    </dependency>
      <dependency>
     	<groupId>commons-lang</groupId>
     	<artifactId>commons-lang</artifactId>

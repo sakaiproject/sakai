@@ -36,7 +36,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
+//import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
@@ -425,7 +425,15 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	public List getAggregateData(int column) throws Exception {
 		List aggregateData = new ArrayList();
-		SummaryStatistics stats = SummaryStatistics.newInstance();
+		
+		// This code has never actually been used. The stats feature has been
+		// commented out since Postem's sakai introduction.
+		// Commenting out the implementation of this method since it
+		// deploys commons-math to shared. This method
+		// should probably not be part of the Gradebook api and should probably
+		// be moved to the GradebookManager if it is ever actually implemented.
+		
+		/*SummaryStatistics stats = SummaryStatistics.newInstance();
 		int blanks = 0;
 
 		Iterator iter = getStudents().iterator();
@@ -453,7 +461,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		aggregateData.add(new Pair("Range", new Double(stats.getMax()
 				- stats.getMin())));
 		aggregateData.add(new Pair("N=count(non-blank)", new Double(stats.getN())));
-		aggregateData.add(new Pair("count(blank)", new Integer(blanks)));
+		aggregateData.add(new Pair("count(blank)", new Integer(blanks)));*/
 
 		return aggregateData;
 	}

@@ -110,6 +110,14 @@ public interface Gradebook {
 
 	public List getRawData(int column);
 
+	/**
+	 * NOT IMPLEMENTED - the code in this method has never been used and is
+	 * currently commented out.  This method will always return an empty list
+	 * @param column
+	 * @return an empty list
+	 * @throws Exception
+	 * 
+	 */
 	public List getAggregateData(int column) throws Exception;
 
 	// public Map getTotals(int column);
