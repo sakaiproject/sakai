@@ -430,7 +430,7 @@ var notifyDeleteControl = function(){
 						#else
 							<h3>$tlang.getString("gen.addinst")</h3>
 						#end	
-							<div class="textPanel">$validator.escapeHtml($submission.FeedbackComment)</div>
+							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
 						#else
 					#end
 					## for returned (not resubmitted ) submission, show the instructor feedback
