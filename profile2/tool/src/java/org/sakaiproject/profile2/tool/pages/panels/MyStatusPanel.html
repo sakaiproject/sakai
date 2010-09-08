@@ -36,7 +36,7 @@
     <div wicket:id="statusFormContainer">
     	<form wicket:id="form" class="form-rounded">
 			<input type="text" wicket:id="message" class="statusField" wicket:message="title:text.no.status"/>
-			<input type="submit" wicket:id="submit" value="Say it" />
+			<input type="submit" wicket:id="submit" value="Say it" /><span id="tracker" class="text-counter"></span>
 		</form>
     </div>
     
@@ -56,8 +56,24 @@
 			});
 
 		}
-			
-	
+
+		//character counter
+		function countChars(id) {
+			$(id).apTextCounter({
+				maxCharacters: 140,
+				direction: 'down',
+				tracker: '#tracker',
+				onTrackerUpdated: function(msg) {
+					if (msg.count <= 10) {
+						$(msg.config.tracker).css("color", "red");
+					} else if (msg.count <= 20) {
+						$(msg.config.tracker).css("color", "maroon");
+					} else {
+						$(msg.config.tracker).css("color", "#999999");
+					}
+				}
+			});
+		}
 
 	</script>
 	

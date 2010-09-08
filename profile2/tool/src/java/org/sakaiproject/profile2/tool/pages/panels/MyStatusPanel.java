@@ -108,10 +108,12 @@ public class MyStatusPanel extends Panel {
         form.add(statusField);
         
         //link the status textfield field with the focus/blur function via this dynamic js 
+        //also link with counter
 		StringHeaderContributor statusJavascript = new StringHeaderContributor(
 				"<script type=\"text/javascript\">" +
 					"$(document).ready( function(){" +
 					"autoFill($('#" + statusField.getMarkupId() + "'), '" + defaultStatus + "');" +
+					"countChars('#" + statusField.getMarkupId() + "');" +
 					"});" +
 				"</script>");
 		add(statusJavascript);

@@ -276,6 +276,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//for i18n plugin
 		response.renderJavascriptReference("javascript/jquery.i18n.properties-min.js");
 		
+		//for text counter
+		response.renderJavascriptReference("javascript/jquery.apTextCounter.min.js");
+		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		response.renderCSSReference("css/profile2.css");

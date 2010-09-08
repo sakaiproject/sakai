@@ -24,7 +24,9 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 
 	private static final Logger log = Logger.getLogger(ProfileExternalIntegrationLogicImpl.class);
 
-	
+	/**
+	 * OAuth Consumer registration details for Profile2.
+	 */
 	private final String TWITTER_OAUTH_CONSUMER_KEY="XzSPZIj0LxNaaoBz8XrgZQ";
 	private final String TWITTER_OAUTH_CONSUMER_SECRET="FSChsnmTufYi3X9H25YdFRxBhPXgnh2H0lMnLh7ZVG4";
 	
@@ -106,7 +108,7 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 	/**
  	 * {@inheritDoc}
  	 */
-	public void sendMessageToTwitter(final String userUuid, final String message){
+	public void sendMessageToTwitter(final String userUuid, String message){
 		//setup class thread to call later
 		class TwitterUpdater implements Runnable{
 			private Thread runner;
@@ -166,6 +168,10 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 		if(StringUtils.isBlank(token) || StringUtils.isBlank(secret)) {
 			return;
 		}
+		
+		//PRFL-423 limit to 140 chars
+		//Hardcoded limit because 140 is the Twitter requirement so no need to make configurable
+		message = StringUtils.substring(message, 0, 140); 
 		
 		//instantiate class to send the data
 		new TwitterUpdater(userUuid, token, secret, message);

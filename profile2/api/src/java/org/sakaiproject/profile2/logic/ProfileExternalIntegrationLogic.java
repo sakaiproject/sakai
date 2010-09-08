@@ -48,12 +48,15 @@ public interface ProfileExternalIntegrationLogic {
 
 	/**
 	 * Send a message to twitter ( runs in a separate thread)
-	 * Will only run if twitter integration is enabled globally (ie via sakai.properties)
-	 * and if the user has linked their account.
+	 * 
+	 * <p>Will only run if twitter integration is enabled globally (ie via sakai.properties)
+	 * and if the user has linked their account.</p>
+	 * 
+	 * <p>Messages longer than 140 chars will be truncated to 140 chars. This is also validated client side.</p>
 	 *
 	 * @param userUuid	uuid of the user
 	 * @param message	the message
 	 */
-	public void sendMessageToTwitter(final String userUuid, final String message);
+	public void sendMessageToTwitter(final String userUuid, String message);
 	
 }

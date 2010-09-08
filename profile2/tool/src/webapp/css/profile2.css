@@ -1337,3 +1337,10 @@ div.wicket-aa ul li.selected {
     width: 1em; 
     overflow: hidden; 
 }
+
+.text-counter {
+	color: #999999;
+	font-size: 1.5em;
+	font-weight: bolder;
+	float:right;
+}

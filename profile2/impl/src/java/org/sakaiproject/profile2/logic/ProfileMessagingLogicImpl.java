@@ -13,12 +13,8 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
 
 /**
  * Implementation of ProfileMessagingLogic for Profile2.
