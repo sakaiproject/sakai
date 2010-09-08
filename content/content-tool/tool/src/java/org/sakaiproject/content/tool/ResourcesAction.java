@@ -4161,7 +4161,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 		
-		context.put("showQuota", Boolean.valueOf(!dropboxMode && allowUpdateSite));
+		if (! isSpecialSite) {
+			context.put("showQuota", Boolean.valueOf(!dropboxMode && allowUpdateSite));
+		} else {
+			context.put("showQuota", Boolean.valueOf(false));
+		}
 		
 		context.put("atHome", Boolean.toString(atHome));
 
