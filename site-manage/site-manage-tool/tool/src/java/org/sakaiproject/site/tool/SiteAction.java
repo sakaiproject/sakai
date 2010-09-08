@@ -5516,7 +5516,7 @@ public class SiteAction extends PagedResourceActionII {
 									+ sessionUserName + ", ");
 							buf.append(rb.getString("java.who") + "\n");
 							if (termExist) {
-								buf.append(term.getTitle());
+								buf.append(term.getTitle() + "\n");
 							}
 	
 							// requested sections
@@ -5529,10 +5529,12 @@ public class SiteAction extends PagedResourceActionII {
 								addRequestedCMSectionIntoNotification(state, requestFields, buf);
 							}
 							
-							buf.append("\n" + rb.getString("java.sitetitle") + "\t"
+							buf.append(rb.getString("java.sitetitle") + "\t"
 									+ title + "\n");
-							buf.append(rb.getString("java.siteid") + "\t" + id);
-							buf.append("\n\n" + rb.getString("java.according")
+							buf.append(rb.getString("java.siteid") + "\t" + id + "\n\n");			
+							buf.append(rb.getString("java.siteinstr") + "\n" + additional
+									+ "\n\n");
+							buf.append(rb.getString("java.according")
 									+ " " + sessionUserName + " "
 									+ rb.getString("java.record"));
 							buf.append(" " + rb.getString("java.canyou") + " "
@@ -5614,9 +5616,9 @@ public class SiteAction extends PagedResourceActionII {
 			buf.append(rb.getString("java.name") + "\t" + sessionUserName
 					+ " (" + officialAccountName + " " + cUser.getEid()
 					+ ")\n");
-			buf.append(rb.getString("java.email") + "\t" + replyTo + "\n\n");
+			buf.append(rb.getString("java.email") + "\t" + replyTo + "\n");
 			buf.append(rb.getString("java.sitetitle") + "\t" + title + "\n");
-			buf.append(rb.getString("java.siteid") + "\t" + id + "\n");
+			buf.append(rb.getString("java.siteid") + "\t" + id + "\n\n");
 			buf.append(rb.getString("java.siteinstr") + "\n" + additional
 					+ "\n\n");
 
