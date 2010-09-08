@@ -10,13 +10,22 @@
 #end
 <!-- END Header -->
 #if (!${loginTopLogin})
+#if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
 <script type="text/javascript">
 $(document).ready(function() {
-	//move it to the tool menu
-	$('#toggler').prependTo('#toolMenuWrap')
-	//these 2 would depend on 2 sakai properties
+	//move it to the tool menu and reveal it once it is in place
+	$('#toggler').prependTo('#toolMenuWrap');
+        $('#toggler').css({'display' : 'inline'});
+#if (${portal_allow_minimize_tools})
+	var minPageNav = true;
+#else
+	var minPageNav = false;
+#end
+#if (${portal_allow_minimize_navigation})
 	var minSiteNav = true;
-	var minPageNav =true;
+#else
+	var minSiteNav = false;
+#end
 #if (${sakai_nav_mimimized})
 	sakaiMinimizeNavigation(minSiteNav,minPageNav);
 	$('#toggleToolMenu').toggle(function(e){
@@ -43,11 +52,11 @@ $(document).ready(function() {
 #end
 
 </script>
-<span id="toggler" style="">
+<span id="toggler" style="display: none">
 <a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_menus}"><span class="skip">${rloader.sit_toggle_menus}</span><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
 	"${rloader.sit_toggle_menus}"/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_menus}" style="display: none"/></a>
 </span>
-
+#end
 #end
 <!-- site.vm -->
 
