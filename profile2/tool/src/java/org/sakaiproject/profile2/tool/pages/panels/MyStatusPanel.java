@@ -112,7 +112,7 @@ public class MyStatusPanel extends Panel {
 		StringHeaderContributor statusJavascript = new StringHeaderContributor(
 				"<script type=\"text/javascript\">" +
 					"$(document).ready( function(){" +
-					"autoFill($('#" + statusField.getMarkupId() + "'), '" + defaultStatus + "');" +
+					"autoFill('#" + statusField.getMarkupId() + "', '" + defaultStatus + "');" +
 					"countChars('#" + statusField.getMarkupId() + "');" +
 					"});" +
 				"</script>");
