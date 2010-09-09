@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -26,7 +28,10 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 
 public class ZipContentUtil {
 	
@@ -131,6 +136,54 @@ public class ZipContentUtil {
 		}
 		
 	}
+	
+	/**
+	 * Get a list of the files in a zip and their size
+	 * @param reference
+	 * @return 
+	 */
+	public Map<String, Long> getZipManfest(Reference reference) {
+		Map<String, Long> ret = new HashMap<String, Long>();
+		ContentResource resource;
+		try {
+			resource = ContentHostingService.getResource(reference.getId());
+		} catch (PermissionException e1) {
+			return null;
+		} catch (IdUnusedException e1) {
+			return null;
+		} catch (TypeException e1) {
+			return null;
+		}
+		String rootCollectionId = extractZipCollectionPrefix(resource);
+
+		
+		// Extract Zip File	
+		File temp = null;		
+		try {
+			temp = exportResourceToFile(resource);
+			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+			while (entries.hasMoreElements()) {
+				ZipEntry nextElement = entries.nextElement();						
+				ret.put(nextElement.getName(), nextElement.getSize());
+			}
+			zipFile.close();
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		} 
+		finally {
+			if (temp.exists()) {
+				if (!temp.delete()) {
+					LOG.warn("uanble to delete temp file!");	
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
 
 	/**
 	 * Creates a new ContentResource extracted from ZipFile
