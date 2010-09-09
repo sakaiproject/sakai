@@ -142,7 +142,7 @@ public class ZipContentUtil {
 	 * @param reference
 	 * @return 
 	 */
-	public Map<String, Long> getZipManfest(Reference reference) {
+	public Map<String, Long> getZipManifest(Reference reference) {
 		Map<String, Long> ret = new HashMap<String, Long>();
 		ContentResource resource;
 		try {
