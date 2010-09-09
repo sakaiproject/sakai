@@ -400,6 +400,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				template = persister.read(EmailTemplate.class,in);
 			}
 			catch(Exception e) {
+				log.warn("Error processing template: '" + templatePath + "', " + e.getClass() + ":" + e.getMessage() + ". Skipping ...");
 				continue;
 			}
 
