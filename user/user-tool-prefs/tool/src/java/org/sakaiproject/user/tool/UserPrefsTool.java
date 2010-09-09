@@ -24,37 +24,44 @@ package org.sakaiproject.user.tool;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
+import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 import org.sakaiproject.util.ResourceLoader;
+
 
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
@@ -75,6 +82,10 @@ public class UserPrefsTool
 
 	/** Should research/collab specific preferences (no syllabus) be displayed */
 	private static final String PREFS_RESEARCH = "prefs.research.collab";
+	
+	public static final String PREFS_EXPAND = "prefs.expand";
+	private static final String PREFS_EXPAND_TRUE = "1";
+	private static final String PREFS_EXPAND_FALSE = "0";
 
 	/**
 	 * Represents a name value pair in a keyed preferences set.
@@ -197,6 +208,8 @@ public class UserPrefsTool
 
 	/** Preferences service (injected dependency) */
 	protected PreferencesService m_preferencesService = null;
+	
+	protected UserNotificationPreferencesRegistrationService m_userNotificationPreferencesRegistrationService = null;
 
 	/** Session manager (injected dependency) */
 	protected SessionManager m_sessionManager = null;
@@ -268,71 +281,12 @@ public class UserPrefsTool
 	 * the pre-DTHML page.
 	 */
 	private String m_TabOutcome = "tab";
-
+	
+	private Map<String, Integer> m_sortedTypes = new HashMap<String, Integer>();
+	private List<DecoratedNotificationPreference> m_registereddNotificationItems = new ArrayList<DecoratedNotificationPreference>();	
+	private List<Site> m_sites = new ArrayList<Site>();
+	
 	// //////////////////////////////// PROPERTY GETTER AND SETTER ////////////////////////////////////////////
-	/**
-	 * @return Returns the ResourceLoader value. Note: workaround for <f:selectItem> element, which doesn't like using the <f:loadBundle> map variable
-	 */
-	public String getMsgNotiAnn1()
-	{
-		return msgs.getString("noti_ann_1");
-	}
-
-	public String getMsgNotiAnn2()
-	{
-		return msgs.getString("noti_ann_2");
-	}
-
-	public String getMsgNotiAnn3()
-	{
-		return msgs.getString("noti_ann_3");
-	}
-
-	public String getMsgNotiMail1()
-	{
-		return msgs.getString("noti_mail_1");
-	}
-
-	public String getMsgNotiMail2()
-	{
-		return msgs.getString("noti_mail_2");
-	}
-
-	public String getMsgNotiMail3()
-	{
-		return msgs.getString("noti_mail_3");
-	}
-
-	public String getMsgNotiRsrc1()
-	{
-		return msgs.getString("noti_rsrc_1");
-	}
-
-	public String getMsgNotiRsrc2()
-	{
-		return msgs.getString("noti_rsrc_2");
-	}
-
-	public String getMsgNotiRsrc3()
-	{
-		return msgs.getString("noti_rsrc_3");
-	}
-
-	public String getMsgNotiSyll1()
-	{
-		return msgs.getString("noti_syll_1");
-	}
-
-	public String getMsgNotiSyll2()
-	{
-		return msgs.getString("noti_syll_2");
-	}
-
-	public String getMsgNotiSyll3()
-	{
-		return msgs.getString("noti_syll_3");
-	}
-
 	/**
 	 * @return Returns the prefExcludeItems.
 	 */
@@ -698,6 +652,15 @@ public class UserPrefsTool
 		m_preferencesService = mgr;
 	}
 
+	public void setUserNotificationPreferencesRegistrationService(
+			UserNotificationPreferencesRegistrationService userNotificationPreferencesRegistrationService) {
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("setUserNotificationPreferencesRegistrationService(UserNotificationPreferencesRegistrationService " + userNotificationPreferencesRegistrationService + ")");
+		}
+		m_userNotificationPreferencesRegistrationService = userNotificationPreferencesRegistrationService;
+	}
+
 	/**
 	 * @param mgr
 	 *        The session manager.
@@ -727,6 +690,25 @@ public class UserPrefsTool
 	public void setTabUpdated(boolean tabUpdated)
 	{
 		this.tabUpdated = tabUpdated;
+	}
+	
+	/**
+	 * Init some services that are needed.  
+	 * Unfortunately they were needed when the constructor was called so 
+	 * injecting wasn't soon enough.
+	 */
+	private void initServices() {
+		if (m_userNotificationPreferencesRegistrationService == null) {
+			m_userNotificationPreferencesRegistrationService = (UserNotificationPreferencesRegistrationService)ComponentManager.get("org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService");
+		}
+		
+		if (m_preferencesService == null) {
+			m_preferencesService = (PreferencesService)ComponentManager.get("org.sakaiproject.user.api.PreferencesService");
+		}
+		
+		if (m_sessionManager == null) {
+			m_sessionManager = (SessionManager)ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
+		}
 	}
 
 	// /////////////////////////////////////// CONSTRUCTOR ////////////////////////////////////////////
@@ -793,8 +775,25 @@ public class UserPrefsTool
         } catch (NumberFormatException e) {
             LOG.warn("Invalid portal.default.tabs value specified ("+tabCountConfig+") must specify a number between 0 and 100, default to "+MAX_TAB_COUNT+": "+e);
         }
-
+		
+		initNotificationStructures();
 		LOG.debug("new UserPrefsTool()");
+	}
+	
+	/**
+	 * Init a bunch of stuff that we'll need for the notification preferences
+	 */
+	private void initNotificationStructures() {
+		
+		initServices();
+		
+		//Get my sites
+		m_sites = SiteService.getSites(SelectionType.ACCESS, null, null, null,
+				SortType.TITLE_ASC, null);
+		
+		initRegisteredNotificationItems();
+		
+		
 	}
 
 	public int getNoti_selection()
@@ -1428,14 +1427,9 @@ public class UserPrefsTool
 	}
 
 	// ////////////////////////////////// NOTIFICATION ACTIONS ////////////////////////////////
-	private String selectedAnnItem = "";
-
-	private String selectedMailItem = "";
-
-	private String selectedRsrcItem = "";
-
-	private String selectedSyllItem = "";
-
+	
+	private DecoratedNotificationPreference currentDecoratedNotificationPreference = null;
+	
 	protected boolean notiUpdated = false;
 
 	protected boolean tzUpdated = false;
@@ -1444,148 +1438,7 @@ public class UserPrefsTool
 
 	// ///////////////////////////////// GETTER AND SETTER ///////////////////////////////////
 	// TODO chec for any preprocessor for handling request for first time. This can simplify getter() methods as below
-	/**
-	 * @return Returns the selectedAnnItem.
-	 */
-	public String getSelectedAnnItem()
-	{
-		LOG.debug("getSelectedAnnItem()");
-
-		if (!hasValue(selectedAnnItem))
-		{
-			Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-			String a = buildTypePrefsContext(AnnouncementService.APPLICATION_ID, "annc", selectedAnnItem, prefs);
-			if (hasValue(a))
-			{
-				selectedAnnItem = a; // load from saved data
-			}
-			else
-			{
-				selectedAnnItem = "3"; // default setting
-			}
-		}
-		return selectedAnnItem;
-	}
-
-	/**
-	 * @param selectedAnnItem
-	 *        The selectedAnnItem to set.
-	 */
-	public void setSelectedAnnItem(String selectedAnnItem)
-	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("setSelectedAnnItem(String " + selectedAnnItem + ")");
-		}
-
-		this.selectedAnnItem = selectedAnnItem;
-	}
-
-	/**
-	 * @return Returns the selectedMailItem.
-	 */
-	public String getSelectedMailItem()
-	{
-		LOG.debug("getSelectedMailItem()");
-
-		if (!hasValue(this.selectedMailItem))
-		{
-			Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-			String a = buildTypePrefsContext(MailArchiveService.APPLICATION_ID, "mail", selectedMailItem, prefs);
-			if (hasValue(a))
-			{
-				selectedMailItem = a; // load from saved data
-			}
-			else
-			{
-				selectedMailItem = "3"; // default setting
-			}
-		}
-		return selectedMailItem;
-	}
-
-	/**
-	 * @param selectedMailItem
-	 *        The selectedMailItem to set.
-	 */
-	public void setSelectedMailItem(String selectedMailItem)
-	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("setSelectedMailItem(String " + selectedMailItem + ")");
-		}
-
-		this.selectedMailItem = selectedMailItem;
-	}
-
-	/**
-	 * @return Returns the selectedRsrcItem.
-	 */
-	public String getSelectedRsrcItem()
-	{
-		LOG.debug("getSelectedRsrcItem()");
-
-		if (!hasValue(this.selectedRsrcItem))
-		{
-			Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-			String a = buildTypePrefsContext(ContentHostingService.APPLICATION_ID, "rsrc", selectedRsrcItem, prefs);
-			if (hasValue(a))
-			{
-				selectedRsrcItem = a; // load from saved data
-			}
-			else
-			{
-				selectedRsrcItem = "3"; // default setting
-			}
-		}
-		return selectedRsrcItem;
-	}
-
-	/**
-	 * @param selectedRsrcItem
-	 *        The selectedRsrcItem to set.
-	 */
-	public void setSelectedRsrcItem(String selectedRsrcItem)
-	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("setSelectedRsrcItem(String " + selectedRsrcItem + ")");
-		}
-
-		this.selectedRsrcItem = selectedRsrcItem;
-	}
-
-	// syllabus
-	public String getSelectedSyllItem()
-	{
-		LOG.debug("getSelectedSyllItem()");
-
-		if (!hasValue(this.selectedSyllItem))
-		{
-			Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-			String a = buildTypePrefsContext(SyllabusService.APPLICATION_ID, "syll", selectedSyllItem, prefs);
-			if (hasValue(a))
-			{
-				selectedSyllItem = a; // load from saved data
-			}
-			else
-			{
-				selectedSyllItem = "3"; // default setting
-			}
-		}
-		return selectedSyllItem;
-	}
-
-	public void setSelectedSyllItem(String selectedSyllItem)
-	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("setSelectedRsrcItem(String " + selectedRsrcItem + ")");
-		}
-
-		this.selectedSyllItem = selectedSyllItem;
-	}
-
+	
 	/**
 	 * @return Returns the notiUpdated.
 	 */
@@ -1652,14 +1505,21 @@ public class UserPrefsTool
 		setUserEditingOn();
 		if (m_edit != null)
 		{
-			readTypePrefs(AnnouncementService.APPLICATION_ID, "annc", m_edit, getSelectedAnnItem());
-			readTypePrefs(MailArchiveService.APPLICATION_ID, "mail", m_edit, getSelectedMailItem());
-			readTypePrefs(ContentHostingService.APPLICATION_ID, "rsrc", m_edit, getSelectedRsrcItem());
-			readTypePrefs(SyllabusService.APPLICATION_ID, "syll", m_edit, getSelectedSyllItem());
+			
+			List<DecoratedNotificationPreference> items = getRegisteredNotificationItems();
+			for(UserNotificationPreferencesRegistration upr : m_userNotificationPreferencesRegistrationService.getRegisteredItems()) {
+				readTypePrefs(upr.getType(), upr.getPrefix(), m_edit, getSelectedNotificationItemByKey(upr.getType(), items));
+				
+				DecoratedNotificationPreference dnp = getDecoItemByKey(upr.getType(), items);
+				if (dnp != null) {
+					readOverrideTypePrefs(upr.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, upr.getPrefix(), m_edit, dnp.getSiteOverrides());
+				}
+			}
 
 			// update the edit and release it
 			m_preferencesService.commit(m_edit);
 		}
+		processRegisteredNotificationItems();
 		notiUpdated = true;
 		return "noti";
 	}
@@ -1672,8 +1532,7 @@ public class UserPrefsTool
 	public String processActionNotiCancel()
 	{
 		LOG.debug("processActionNotiCancel()");
-
-		loadNotiData();
+		processRegisteredNotificationItems();
 		return "noti";
 	}
 
@@ -1763,57 +1622,6 @@ public class UserPrefsTool
 	}
 
 	// ////////////////////////////////////// HELPER METHODS FOR NOTIFICATIONS /////////////////////////////////////
-	/**
-	 * Load saved notification data - this is called from cancel button of notification page as navigation stays in the page
-	 */
-	protected void loadNotiData()
-	{
-		LOG.debug("loadNotiData()");
-
-		selectedAnnItem = "";
-		selectedMailItem = "";
-		selectedRsrcItem = "";
-		selectedSyllItem = "";
-		notiUpdated = false;
-		Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-		String a = buildTypePrefsContext(AnnouncementService.APPLICATION_ID, "annc", selectedAnnItem, prefs);
-		if (hasValue(a))
-		{
-			selectedAnnItem = a; // load from saved data
-		}
-		else
-		{
-			selectedAnnItem = "2"; // default setting
-		}
-		String m = buildTypePrefsContext(MailArchiveService.APPLICATION_ID, "mail", selectedMailItem, prefs);
-		if (hasValue(m))
-		{
-			selectedMailItem = m; // load from saved data
-		}
-		else
-		{
-			selectedMailItem = "3"; // default setting
-		}
-		String r = buildTypePrefsContext(ContentHostingService.APPLICATION_ID, "rsrc", selectedRsrcItem, prefs);
-		if (hasValue(r))
-		{
-			selectedRsrcItem = r; // load from saved data
-		}
-		else
-		{
-			selectedRsrcItem = "3"; // default setting
-		}
-		// syllabus
-		String s = buildTypePrefsContext(SyllabusService.APPLICATION_ID, "syll", selectedSyllItem, prefs);
-		if (hasValue(s))
-		{
-			selectedSyllItem = s; // load from saved data
-		}
-		else
-		{
-			selectedSyllItem = "3"; // default setting
-		}
-	}
 
 	/**
 	 * Read the two context references for defaults for this type from the form.
@@ -1842,6 +1650,102 @@ public class UserPrefsTool
 		props.addProperty(Integer.toString(NotificationService.NOTI_OPTIONAL), data);
 
 	} // readTypePrefs
+	
+	/**
+	 * Read the two context references for defaults for this type from the form.
+	 * 
+	 * @param type
+	 *        The resource type (i.e. a service name).
+	 * @param prefix
+	 *        The prefix for context references.
+	 * @param edit
+	 *        The preferences being edited.
+	 * @param data
+	 *        The rundata with the form fields.
+	 */
+	protected void readOverrideTypePrefs(String type, String prefix, PreferencesEdit edit, List<SiteOverrideBean> data)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("readOverrideTypePrefs(String " + type + ", String " + prefix + ", PreferencesEdit " + edit + ", String " + data
+					+ ")");
+		}
+		
+		List<SiteOverrideBean> toDel = new ArrayList<SiteOverrideBean>();
+
+		// update the default settings from the form
+		ResourcePropertiesEdit props = edit.getPropertiesEdit(NotificationService.PREFS_TYPE + type);
+
+		// read the defaults
+		for (SiteOverrideBean sob : data) {
+			if (!sob.remove) {
+				props.addProperty(sob.getSiteId(), sob.getOption());
+			}
+			else {
+				props.removeProperty(sob.getSiteId());
+				toDel.add(sob);
+			}
+		}
+		data.removeAll(toDel);
+
+	} // readOverrideTypePrefs
+	
+	/**
+	 * Read the two context references for defaults for this type from the form.
+	 * 
+	 * @param type
+	 *        The resource type (i.e. a service name).
+	 * @param edit
+	 *        The preferences being edited.
+	 * @param data
+	 *        The rundata with the form fields.
+	 */
+	protected void readOverrideTypePrefs(String type, PreferencesEdit edit, List<SiteOverrideBean> data)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("readOverrideTypePrefs(String " + type + ", PreferencesEdit " + edit + ", String " + data
+					+ ")");
+		}
+
+		// update the default settings from the form
+		ResourcePropertiesEdit props = edit.getPropertiesEdit(NotificationService.PREFS_TYPE + type);
+
+		// read the defaults
+		for (SiteOverrideBean sob : data) {
+			props.addProperty(sob.getSiteId(), sob.getOption());
+		}
+
+	} // readOverrideTypePrefs
+	
+	/**
+	 * delete the preferences for this type.
+	 * 
+	 * @param type
+	 *        The resource type (i.e. a service name).
+	 * @param prefix
+	 *        The prefix for context references.
+	 * @param edit
+	 *        The preferences being edited.
+	 * @param data
+	 *        The rundata with the form fields.
+	 */
+	protected void deleteOverrideTypePrefs(String type, String prefix, PreferencesEdit edit, List<String> data)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("deleteOverrideTypePrefs(String " + type + ", String " + prefix + ", PreferencesEdit " + edit + ", String " + data
+					+ ")");
+		}
+
+		ResourcePropertiesEdit props = edit.getPropertiesEdit(NotificationService.PREFS_TYPE + type);
+
+		// delete
+		for (String siteId : data) {
+			props.removeProperty(siteId);
+		}
+
+	} // deleteOverrideTypePrefs
 
 	/**
 	 * Add the two context references for defaults for this type.
@@ -1867,6 +1771,41 @@ public class UserPrefsTool
 		String value = props.getProperty(new Integer(NotificationService.NOTI_OPTIONAL).toString());
 
 		return value;
+	}
+	
+	/**
+	 * Add the two context references for defaults for this type.
+	 * 
+	 * @param type
+	 *        The resource type (i.e. a service name).
+	 * @param prefix
+	 *        The prefix for context references.
+	 * @param context
+	 *        The context.
+	 * @param prefs
+	 *        The full set of preferences.
+	 */
+	protected List<SiteOverrideBean> buildOverrideTypePrefsContext(String type, String prefix, String context, Preferences prefs)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("buildOverrideTypePrefsContext(String " + type + ", String " + prefix + ", String " + context + ", Preferences "
+					+ prefs + ")");
+		}
+
+		ResourceProperties props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
+		
+		List<SiteOverrideBean> result = new ArrayList<SiteOverrideBean>();
+		
+		for (Iterator<String> i = props.getPropertyNames(); i.hasNext();) {
+			String propName = i.next();
+			SiteOverrideBean sob = new SiteOverrideBean(propName, props.getProperty(propName));
+			result.add(sob);
+		}
+		
+		Collections.sort(result, new SiteOverrideBeanSorter());
+		
+		return result;
 	}
 
 	// ////////////////////////////////////// REFRESH //////////////////////////////////////////
@@ -1939,7 +1878,6 @@ public class UserPrefsTool
 	{
 		LOG.debug("processActionNotiFrmRefresh()");
 
-		loadNotiData();
 		return "noti";
 		//return "tab";
 	}
@@ -2065,4 +2003,766 @@ public class UserPrefsTool
 	{
 		return ServerConfigurationService.getBoolean(PREFS_RESEARCH, false);
 	}
+	
+	public List<DecoratedNotificationPreference> getRegisteredNotificationItems() {
+		LOG.debug("getRegisteredNotificationItems()");
+		return m_registereddNotificationItems;
+	}
+	
+	public void initRegisteredNotificationItems() {
+		LOG.debug("initRegisteredNotificationItems()");
+		m_registereddNotificationItems.clear();
+		for (UserNotificationPreferencesRegistration upr : m_userNotificationPreferencesRegistrationService.getRegisteredItems()) {
+
+			m_registereddNotificationItems.addAll(getRegisteredNotificationItems(upr));
+		}
+		
+		processRegisteredNotificationItems();
+	}
+	
+	/**
+	 * Convenience method to take a string array and put it in a map
+	 * The key is the value in the array and the data in the map is the position in the array
+	 * @param array
+	 * @return
+	 */
+	private Map<String, Integer> stringArrayToMap(String[] array) {
+		Map<String, Integer> retMap = new HashMap<String, Integer>();
+		Integer index = 0;
+		for (String key : array) {
+			retMap.put(key, index);
+			index++;
+		}
+		return retMap;
+	}
+	
+	/**
+	 * Determine the sorting and if any should be hidden from view
+	 * @param decoItems
+	 */
+	private void processRegisteredNotificationItems() {
+		
+		Map<String, Integer> toolOrderMap = new HashMap<String, Integer>();
+		String[] toolOrder = ServerConfigurationService.getStrings("prefs.tool.order");
+		String hiddenTools = ServerConfigurationService.getString("prefs.tool.hidden");
+		String[] parsedHidden = hiddenTools.split(",");
+		Map<String, Integer> hiddenToolMap = new HashMap<String, Integer>();
+		
+		toolOrderMap = stringArrayToMap(toolOrder);
+		hiddenToolMap = stringArrayToMap(parsedHidden);
+		
+		Preferences prefs = m_preferencesService.getPreferences(getUserId());
+		
+		for (DecoratedNotificationPreference dnp : m_registereddNotificationItems) {
+			String toolId = dnp.getUserNotificationPreferencesRegistration().getToolId();
+			Integer sort = toolOrderMap.get(toolId);
+			if (sort != null)
+				dnp.setSortOrder(sort);
+			if (hiddenToolMap.get(toolId) != null) {
+				dnp.setHidden(true);
+			}
+			
+			ResourceProperties expandProps = prefs.getProperties(PREFS_EXPAND);
+			if (expandProps != null) {
+				String expandProp = expandProps.getProperty(dnp.key);
+				if (expandProp != null) {
+					boolean overrideExpand = expandProp.equalsIgnoreCase(PREFS_EXPAND_TRUE) ? true : false;
+					dnp.setExpandOverride(overrideExpand);
+				}
+			}
+		}
+		Collections.sort(m_registereddNotificationItems, new DecoratedNotificationPreferenceSorter());
+	}
+	
+	/**
+	 * Get the current preference settings for this registration item
+	 * @param upr
+	 * @return
+	 */
+	public List<DecoratedNotificationPreference> getRegisteredNotificationItems(UserNotificationPreferencesRegistration upr) {
+		LOG.debug("getRegisteredNotificationItems(UserNotificationPreferencesRegistration)");
+		List<DecoratedNotificationPreference> selNotiItems = new ArrayList<DecoratedNotificationPreference>();
+		Preferences prefs = m_preferencesService.getPreferences(getUserId());
+		List<SiteOverrideBean> siteOverrides = new ArrayList<SiteOverrideBean>();
+		if (upr.isOverrideBySite()) {
+			siteOverrides = 
+				buildOverrideTypePrefsContext(upr.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, 
+						upr.getPrefix(), null, prefs);
+		}
+		DecoratedNotificationPreference dnp = new DecoratedNotificationPreference(upr, siteOverrides);
+			String regItem = buildTypePrefsContext(upr.getType(), upr.getPrefix(), dnp.getSelectedOption(), prefs);
+			if (hasValue(regItem))
+			{
+				dnp.setSelectedOption(regItem); // load from saved data
+			}
+			else
+			{
+				dnp.setSelectedOption(upr.getDefaultValue()); // default setting
+			}
+			
+			selNotiItems.add(dnp);
+		return selNotiItems;
+	}
+		
+	public List<String> getSelectedNotificationItemIds(DecoratedNotificationPreference dnp) {
+		LOG.debug("getSelectedNotificationItemIds(DecoratedNotificationPreference)");
+		List<String> result = new ArrayList<String>();
+		for (SiteOverrideBean sob : dnp.getSiteOverrides()) {
+				result.add(sob.siteId);
+		}
+		return result;
+	}
+
+	public void setCurrentDecoratedNotificationPreference(
+			DecoratedNotificationPreference currentDecoratedNotificationPreference) {
+		this.currentDecoratedNotificationPreference = currentDecoratedNotificationPreference;
+	}
+
+	public DecoratedNotificationPreference getCurrentDecoratedNotificationPreference() {
+		return currentDecoratedNotificationPreference;
+	}
+
+	private DecoratedNotificationPreference getDecoItemByKey(String key, List<DecoratedNotificationPreference> decoPreferences) {
+		LOG.debug("getDecoItemByKey(" + key + ")");
+		for (DecoratedNotificationPreference dnp : decoPreferences) {
+			if (dnp.getKey().equalsIgnoreCase(key)) {
+				return dnp;
+			}
+		}
+		return null;
+	}
+	private String getSelectedNotificationItemByKey(String key, List<DecoratedNotificationPreference> decoPreferences) {
+		LOG.debug("getSelectedNotificationItemByKey(" + key + ")");
+		DecoratedNotificationPreference dnp = getDecoItemByKey(key, decoPreferences);
+		if (dnp != null) {
+			return dnp.getSelectedOption();
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the display name for the site type in question.  
+	 * If a course site, it will pull the info from the "term" site property
+	 * @param site
+	 * @return
+	 */
+	private String getSiteTypeDisplay(Site site) {
+		ResourceProperties siteProperties = site.getProperties();
+
+		String type = site.getType();
+		String term = null;
+
+		if ("course".equals(type))
+		{
+			term = siteProperties.getProperty("term");
+		}
+		else if ("project".equals(type))
+		{
+			term = msgs.getString("moresite_projects");
+		}
+		else if ("portfolio".equals(type))
+		{
+			term = msgs.getString("moresite_portfolios");
+		}
+		else if ("scs".equals(type))
+		{
+			term = msgs.getString("moresite_scs");
+		}
+		else if ("admin".equals(type))
+		{
+			term = msgs.getString("moresite_administration");
+		}
+		else
+		{
+			term = msgs.getString("moresite_other");
+		}
+		return term;
+	}
+	
+	public class DecoratedNotificationPreference {
+		
+		private String key = "";
+		private UserNotificationPreferencesRegistration userNotificationPreferencesRegistration = null;
+		private String selectedOption = "";
+		private List<SelectItem> optionSelectItems = new ArrayList<SelectItem>();
+		private List<SiteOverrideBean> siteOverrides = new ArrayList<SiteOverrideBean>();
+		private List<DecoratedSiteTypeBean> siteList = new ArrayList<DecoratedSiteTypeBean>();
+		private Integer sortOrder = Integer.MAX_VALUE;
+		private boolean hidden = false;
+		private Boolean expandOverride = null;
+		
+		public DecoratedNotificationPreference() { 
+			LOG.debug("DecoratedNotificationPreference()");
+		}
+		
+		public DecoratedNotificationPreference(UserNotificationPreferencesRegistration userNotificationPreferencesRegistration, List<SiteOverrideBean> siteOverrides) {
+			LOG.debug("DecoratedNotificationPreference(...)");
+			this.userNotificationPreferencesRegistration = userNotificationPreferencesRegistration;
+			this.key = userNotificationPreferencesRegistration.getType();
+			this.siteOverrides = siteOverrides;
+			
+			for (String optionKey : userNotificationPreferencesRegistration.getOptions().keySet()) {
+				SelectItem si = new SelectItem(optionKey, userNotificationPreferencesRegistration.getOptions().get(optionKey));
+				optionSelectItems.add(si);
+			}
+		}
+
+		public void setKey(String key) {
+			this.key = key;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public void setUserNotificationPreferencesRegistration(UserNotificationPreferencesRegistration userNotificationPreferencesRegistration) {
+			this.userNotificationPreferencesRegistration = userNotificationPreferencesRegistration;
+		}
+
+		public UserNotificationPreferencesRegistration getUserNotificationPreferencesRegistration() {
+			return userNotificationPreferencesRegistration;
+		}
+
+		public void setSelectedOption(String selectedOption) {
+			this.selectedOption = selectedOption;
+		}
+
+		public String getSelectedOption() {
+			return selectedOption;
+		}
+
+		public void setOptionSelectItems(List<SelectItem> optionSelectItems) {
+			this.optionSelectItems = optionSelectItems;
+		}
+
+		public List<SelectItem> getOptionSelectItems() {
+			return optionSelectItems;
+		}
+
+		public void setSiteOverrides(List<SiteOverrideBean> siteOverrides) {
+			this.siteOverrides = siteOverrides;
+		}
+
+		public List<SiteOverrideBean> getSiteOverrides() {
+			return siteOverrides;
+		}
+		
+		public List<DecoratedSiteTypeBean> getSiteList() {
+			return siteList;
+		}
+
+		public void setSiteList(List<DecoratedSiteTypeBean> siteList) {
+			this.siteList = siteList;
+		}
+
+		public Integer getSortOrder() {
+			return sortOrder;
+		}
+
+		public void setSortOrder(Integer sortOrder) {
+			this.sortOrder = sortOrder;
+		}
+
+		public boolean isHidden() {
+			return hidden;
+		}
+
+		public void setHidden(boolean hidden) {
+			this.hidden = hidden;
+		}
+		
+		public Boolean getExpandOverride() {
+			return expandOverride;
+		}
+
+		public void setExpandOverride(Boolean expandOverride) {
+			this.expandOverride = expandOverride;
+		}
+		
+		public boolean getExpand() {
+			Boolean override = getExpandOverride();
+			if (override != null)
+				return override;
+			else
+				return this.getUserNotificationPreferencesRegistration().isExpandByDefault();
+		}
+
+		public String processActionAddOverrides() {
+			setCurrentDecoratedNotificationPreference(this);
+			initSiteList();
+			return "noti_addSiteOverride";
+		}
+		
+		/**
+		 * Initializing the site structures
+		 */
+		private void initSiteList() {
+			Map<String, List<DecoratedSiteBean>> siteTypeMap = new HashMap<String, List<DecoratedSiteBean>>();
+			Map<String, String> siteTypeKeyMap = new HashMap<String, String>();
+			
+			List<String> selectedSites = getSelectedNotificationItemIds(this);
+			for (Site site : m_sites) {
+				if (site.getToolForCommonId(userNotificationPreferencesRegistration.getToolId()) != null) {
+					String typeDisplay = getSiteTypeDisplay(site);
+					List<DecoratedSiteBean> sitesList = siteTypeMap.get(typeDisplay);
+					if (sitesList == null) {
+						sitesList = new ArrayList<DecoratedSiteBean>();
+					}
+					boolean selected = selectedSites.contains(site.getId());
+					sitesList.add(new DecoratedSiteBean(site, selected));
+					siteTypeMap.put(typeDisplay, sitesList);
+					siteTypeKeyMap.put(typeDisplay, site.getType());
+				}
+			}
+			
+			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded");
+			
+			String[] sortedTypeList = ServerConfigurationService.getStrings("prefs.type.order");
+			String[] termOrder = ServerConfigurationService.getStrings("portal.term.order");
+			List<String> myTermOrder = new ArrayList<String>();
+					
+			
+			if (termOrder != null)
+			{
+				for (int i = 0; i < termOrder.length; i++)
+				{
+
+					if (siteTypeMap.containsKey(termOrder[i]))
+					{
+						myTermOrder.add(termOrder[i]);
+					}
+				}
+			}
+
+			int count = 0;
+			for (int i = 0; i < sortedTypeList.length; i++) {
+				
+				if ("course".equalsIgnoreCase(sortedTypeList[i])) {
+					boolean firstCourse = true;
+					for (String value : myTermOrder) {
+						if (value != null && !value.equals("")) {
+							m_sortedTypes.put(value, count);
+							count++;
+							if (firstCourse) {
+								expandTypeString = expandTypeString.concat("," + value);
+								firstCourse=false;
+							}
+						}
+					}
+				}
+				else {
+					String value = sortedTypeList[i];
+					if (value != null && !value.equals("")) {
+						m_sortedTypes.put(value, count);
+						count++;
+					}
+				}
+			}
+			//List<DecoratedSiteTypeBean> siteOverrideList = new ArrayList<DecoratedSiteTypeBean>();
+			List<String> expandedTypes = Arrays.asList(expandTypeString.split(","));
+			siteList = getFullSiteOverrideList(siteTypeMap, siteTypeKeyMap, expandedTypes);
+		}
+		
+		/**
+		 * Get all the sites by type and determine if the div should be expanded.
+		 * @return
+		 */
+		private List<DecoratedSiteTypeBean> getFullSiteOverrideList(Map<String, List<DecoratedSiteBean>> siteTypeMap, 
+				Map<String, String> siteTypeKeyMap, List<String> expandedTypes) {
+			LOG.debug("getFullSiteOverrideList()");
+			List<DecoratedSiteTypeBean> list = new ArrayList<DecoratedSiteTypeBean>();
+			
+			for (String keyText : siteTypeMap.keySet()) {
+				boolean expand = false;
+				String typeKey = siteTypeKeyMap.get(keyText);
+				if (expandedTypes.contains(typeKey) || expandedTypes.contains(keyText.toUpperCase()))
+					expand = true;
+				
+				list.add(new DecoratedSiteTypeBean(typeKey, keyText, siteTypeMap.get(keyText), expand));
+			}
+			
+			Collections.sort(list, new SiteTypeSorter());
+			
+			return list;
+		}
+		
+		/**
+		 * Do the save action
+		 * @return
+		 */
+		public String processActionSiteOverrideSave() {
+			LOG.debug("processActionSiteOverrideSave()");
+			
+			// get an edit
+			setUserEditingOn();
+			if (m_edit != null)
+			{
+				List<SiteOverrideBean> toAdd = new ArrayList<SiteOverrideBean>();
+				List<String> toDel = new ArrayList<String>();
+				
+				/** previously saved choices */
+				List<String> existingList = convertToStringList(getSiteOverrides());
+				
+				LOG.debug("processActionSiteOverrideSave().existingList: " + convertListToString(existingList));
+				
+				for (DecoratedSiteTypeBean dstb : siteList) {
+					for (DecoratedSiteBean dsb : dstb.getSites()) {
+						String siteId = dsb.getSite().getId();
+						LOG.debug("processActionSiteOverrideSave().selected?: " +siteId + ": " + dsb.selected);
+						SiteOverrideBean sob = new SiteOverrideBean(siteId, Integer.toString(NotificationService.PREF_NONE));
+						if (dsb.selected && !existingList.contains(siteId)) {
+							toAdd.add(sob);
+							//siteOverrides.add(sob);
+						}
+						else if (!dsb.selected && existingList.contains(siteId)) {
+							toDel.add(siteId);
+							//siteOverrides.remove(sob);
+						}
+					}
+				}
+
+				LOG.debug("processActionSiteOverrideSave().toAdd: " + convertListToString(toAdd));
+				LOG.debug("processActionSiteOverrideSave().toDel: " + convertListToString(toDel));
+				//adds
+				readOverrideTypePrefs(userNotificationPreferencesRegistration.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, 
+						m_edit, toAdd);
+
+				//deletes
+				deleteOverrideTypePrefs(userNotificationPreferencesRegistration.getType() + NotificationService.NOTI_OVERRIDE_EXTENSION, 
+						userNotificationPreferencesRegistration.getPrefix(), m_edit, toDel);
+
+				// update the edit and release it
+				m_preferencesService.commit(m_edit);
+				
+				//make sure the list gets updated
+				initRegisteredNotificationItems();
+			}
+			
+			notiUpdated = true;
+			return "noti";
+		}
+		
+		/**
+		 * For display/debug purposes.  Turns a List into a readable string
+		 * @param list
+		 * @return
+		 */
+		private String convertListToString(List list) {
+			String retVal = "[";
+			int counter = 0;
+			for (Iterator i = list.iterator(); i.hasNext();) {
+				
+				Object rawValue = i.next();
+				String val = "";
+				if (rawValue instanceof SiteOverrideBean) {
+					val = ((SiteOverrideBean)rawValue).getSiteId();
+				}
+				else {
+					val = (String) rawValue;
+				}
+				
+				if (counter > 0) 
+					retVal = retVal.concat(",");
+				retVal = retVal.concat(val);
+				counter++;
+			}
+			return retVal.concat("]");
+		}
+		
+		/**
+		 * For display/debug purposes.  Turns a List of SiteOverrideBeans into a readable string
+		 * @param list
+		 * @return
+		 */
+		private List<String> convertToStringList(List<SiteOverrideBean> list) {
+			List<String> retList = new ArrayList<String>(list.size());
+			for (SiteOverrideBean sob : list) {
+				retList.add(sob.getSiteId());
+			}
+			return retList;
+		}
+		
+		/**
+		 * Do the cancel action
+		 * @return
+		 */
+		public String processActionSiteOverrideCancel() {
+			LOG.debug("processActionSiteOverrideCancel()");
+			processRegisteredNotificationItems();
+			return "noti";
+		}
+	}
+		
+	public class SiteOverrideBean {
+		
+		private String siteId = "";
+		private String siteTitle = "";
+		private String option = "";
+		private boolean remove = false;
+		
+		public SiteOverrideBean() {
+			LOG.debug("SiteOverrideBean()");
+		}
+		
+		public SiteOverrideBean(String siteId, String option) {
+			LOG.debug("SiteOverrideBean(String, String)");
+			this.siteId = siteId;
+			this.option = option;
+			
+			try {
+				Site site = SiteService.getSite(siteId);
+				this.siteTitle =site.getTitle();
+			} catch (IdUnusedException e) {
+				LOG.warn("Unable to get Site object for id: " + siteId, e);
+			}
+		}
+		
+		public String getSiteId() {
+			return siteId;
+		}
+		public void setSiteId(String siteId) {
+			this.siteId = siteId;
+		}
+		public String getSiteTitle() {
+			return siteTitle;
+		}
+		public void setSiteTitle(String siteTitle) {
+			this.siteTitle = siteTitle;
+		}
+		public String getOption() {
+			return option;
+		}
+		public void setOption(String option) {
+			this.option = option;
+		}
+
+		public void setRemove(boolean remove) {
+			this.remove = remove;
+		}
+
+		public boolean isRemove() {
+			return remove;
+		}
+	}
+	
+	public class DecoratedSiteTypeBean {
+		private String typeKey = "";
+		private String typeText = "";
+		private String condensedTypeText = "";
+		private List<DecoratedSiteBean> sites = new ArrayList<DecoratedSiteBean>();
+		private List<SelectItem> sitesAsSelects = new ArrayList<SelectItem>();
+		private boolean defaultOpen = false;
+		
+		public DecoratedSiteTypeBean() {
+			LOG.debug("DecoratedSiteTypeBean()");
+		}
+		
+		public DecoratedSiteTypeBean(String typeKey, String typeText, List<DecoratedSiteBean> sites, boolean defaultOpen) {
+			LOG.debug("DecoratedSiteTypeBean(...)");
+			this.setTypeKey(typeKey);
+			this.typeText = typeText;
+			this.sites = sites;
+			this.condensedTypeText = typeText.replace(" ", "");
+			this.defaultOpen = defaultOpen;
+			
+			for (DecoratedSiteBean dsb : sites) {
+				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), dsb.getSite().getTitle()));
+			}			
+		}
+		
+		public String getStyle() {
+			String style = "display: none;";
+			if (defaultOpen)
+				style = "display: block;";
+			return style;
+		}
+		
+		public String getIconUrl() {
+			String url = "/library/image/sakai/expand.gif";
+			if (defaultOpen)
+				url = "/library/image/sakai/collapse.gif";
+			return url;
+		}
+		
+		public String getShowHideText() {
+			String key = "hideshowdesc_toggle_show";
+			if (defaultOpen)
+				key = "hideshowdesc_toggle_hide";
+			return msgs.getString(key);
+		}
+		
+		public Integer getSortOrder() {
+			Integer sort = null;
+			if (typeKey.equals("course")) {
+				sort = m_sortedTypes.get(typeText.toUpperCase());
+			}
+			else {
+				sort = m_sortedTypes.get(typeKey);
+			}
+			
+			if (sort == null)
+				sort = Integer.MAX_VALUE;
+			
+			return sort;
+		}
+
+		public void setTypeKey(String typeKey) {
+			this.typeKey = typeKey;
+		}
+
+		public String getTypeKey() {
+			return typeKey;
+		}
+
+		public String getTypeText() {
+			return typeText;
+		}
+
+		public void setTypeText(String typeText) {
+			this.typeText = typeText;
+		}
+
+		public String getCondensedTypeText() {
+			return condensedTypeText;
+		}
+
+		public void setCondensedTypeText(String condensedTypeText) {
+			this.condensedTypeText = condensedTypeText;
+		}
+
+		public List<DecoratedSiteBean> getSites() {
+			return sites;
+		}
+
+		public void setSites(List<DecoratedSiteBean> sites) {
+			this.sites = sites;
+		}
+
+		public List<SelectItem> getSitesAsSelects() {
+			return sitesAsSelects;
+		}
+
+		public void setSitesAsSelects(List<SelectItem> sitesAsSelects) {
+			this.sitesAsSelects = sitesAsSelects;
+		}
+
+		public void setDefaultOpen(boolean defaultOpen) {
+			this.defaultOpen = defaultOpen;
+		}
+
+		public boolean isDefaultOpen() {
+			return defaultOpen;
+		}
+	}
+	
+	public class DecoratedSiteBean {
+		private Site site = null;
+		private boolean selected = false;
+		
+		public DecoratedSiteBean() {
+			LOG.debug("DecoratedSiteBean()");
+		}
+		
+		public DecoratedSiteBean(Site site) {
+			LOG.debug("DecoratedSiteBean(Site)");
+			this.site = site;
+		}
+		
+		public DecoratedSiteBean(Site site, boolean selected) {
+			LOG.debug("DecoratedSiteBean(Site, boolean)");
+			this.site = site;
+			this.selected = selected;
+		}
+
+		public Site getSite() {
+			return site;
+		}
+
+		public void setSite(Site site) {
+			this.site = site;
+		}
+
+		public boolean isSelected() {
+			return selected;
+		}
+
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+		
+		public void checkBoxChanged(ValueChangeEvent vce) {
+			LOG.debug("checkBoxChanged()" + site.getId() + ": " + vce.getOldValue().toString() + "-->" + vce.getNewValue().toString());
+			Boolean tmpSelected = (Boolean)vce.getNewValue();
+			if (tmpSelected != null) {
+				selected = tmpSelected;
+			}
+		}
+	}
+	
+	/**
+	 * Class that figures out the order of the site types
+	 * @author chrismaurer
+	 *
+	 */
+	class SiteTypeSorter implements Comparator<DecoratedSiteTypeBean>
+	{
+		public int compare(DecoratedSiteTypeBean first, DecoratedSiteTypeBean second)
+		{
+			if (first == null || second == null) return 0;
+
+			Integer firstSort = first.getSortOrder();
+			Integer secondSort = second.getSortOrder();
+
+			if (firstSort != null)
+				return firstSort.compareTo(secondSort);
+
+			return 0;
+		}
+
+	}
+	
+	/**
+	 * Class that figures out the order of the site types
+	 * @author chrismaurer
+	 *
+	 */
+	class SiteOverrideBeanSorter implements Comparator<SiteOverrideBean>
+	{
+		public int compare(SiteOverrideBean first, SiteOverrideBean second)
+		{
+			if (first == null || second == null) return 0;
+
+			String firstSort = first.getSiteTitle();
+			String secondSort = second.getSiteTitle();
+
+			if (firstSort != null)
+				return firstSort.toLowerCase().compareTo(secondSort.toLowerCase());
+
+			return 0;
+		}
+
+	}
+	
+	/**
+	 * Class that figures out the order of the site types
+	 * @author chrismaurer
+	 *
+	 */
+	class DecoratedNotificationPreferenceSorter implements Comparator<DecoratedNotificationPreference>
+	{
+		public int compare(DecoratedNotificationPreference first, DecoratedNotificationPreference second)
+		{
+			if (first == null || second == null) return 0;
+
+			Integer firstSort = first.getSortOrder();
+			Integer secondSort = second.getSortOrder();
+
+			if (firstSort != null)
+				return firstSort.compareTo(secondSort);
+
+			return 0;
+		}
+
+	}
+	
 }

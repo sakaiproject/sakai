@@ -39,20 +39,13 @@
       <artifactId>sakai-privacy-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-announcement-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-mailarchive-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-syllabus-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
+      <artifactId>tomahawk</artifactId>
+      <version>1.1.6</version>
     </dependency>
     <!-- pull through the JSF tool dependencies -->
     <dependency>
@@ -114,7 +107,26 @@
       <artifactId>jstl</artifactId>
       <version>1.0.2</version>
     </dependency>
+    <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>jsp-api</artifactId>
+         <version>2.0</version>
+      </dependency>
+
+	<dependency>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+		<artifactId>entitybroker-api</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+		<artifactId>entitybroker-utils</artifactId>
+	</dependency>
 <!-- end Sun RI dependencies -->
+<!-- Spring dependency -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <resources>

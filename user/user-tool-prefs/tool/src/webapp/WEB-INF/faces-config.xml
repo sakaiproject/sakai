@@ -15,6 +15,20 @@
         </locale-config>
     </application>
 
+   <!-- hide division button bar -->
+   <component>
+      <component-type>HideDivision</component-type>
+      <component-class>org.sakaiproject.user.jsf.HideDivisionComponent</component-class>
+    </component>
+    
+    <render-kit>
+    <renderer>
+      <component-family>HideDivision</component-family> 
+      <renderer-type>org.sakaiproject.HideDivision</renderer-type>
+      <renderer-class>org.sakaiproject.user.jsf.HideDivisionRenderer</renderer-class>
+    </renderer> 
+    </render-kit>
+
     <navigation-rule>
         <from-view-id>/prefs/*</from-view-id>
         <navigation-case>
@@ -47,6 +61,11 @@
             <to-view-id>/prefs/privacy.jsp</to-view-id>
             <redirect />
         </navigation-case>
+        <navigation-case>
+            <from-outcome>noti_addSiteOverride</from-outcome>
+            <to-view-id>/prefs/noti_addSiteOverride.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
  	
 	<managed-bean>
@@ -66,6 +85,11 @@
 			<property-name>preferencesService</property-name>
 			<value>#{Components["org.sakaiproject.user.api.PreferencesService"]}</value>
 		</managed-property>
+	    <managed-property>
+	        <description>API Dependency: user preferences registration service</description>
+	        <property-name>userNotificationPreferencesRegistrationService</property-name>
+	        <value>#{Components["org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService"]}</value>
+	    </managed-property>
 	</managed-bean>
    
 	<managed-bean>
@@ -94,7 +118,7 @@
 		<property-name>privacyManager</property-name>
 		<value>#{Components["org.sakaiproject.api.privacy.PrivacyManager"]}</value>
 	 </managed-property>
-	 
+
    </managed-bean>
 
 </faces-config>
