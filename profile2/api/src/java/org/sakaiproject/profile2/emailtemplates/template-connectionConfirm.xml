@@ -10,7 +10,7 @@ ${connectionLink}
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
 Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
 	</message>
-	<html>${senderDisplayName} confirmed your connection request on ${localSakaiName}
+	<htmlMessage>${senderDisplayName} confirmed your connection request on ${localSakaiName}
 &lt;p&gt;
 To view ${senderDisplayName}&apos;s profile, follow the url below:
 &lt;br /&gt;${connectionLink}
@@ -20,7 +20,7 @@ To view ${senderDisplayName}&apos;s profile, follow the url below:
 &lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
 &lt;br /&gt;Control what email notifications you receive from connections at My Workspace &gt; ${toolName} &gt; Preferences
 &lt;/p&gt;
-</html>
+	</htmlMessage>
 	<locale>en</locale>
 	<version>1</version>
 	<owner>admin</owner>

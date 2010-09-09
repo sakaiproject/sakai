@@ -17,24 +17,15 @@
 package org.sakaiproject.profile2.logic;
 
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -45,7 +36,6 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
@@ -53,16 +43,13 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -1352,120 +1339,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 	
-	/**
-	 * Process the supplied template XML into an EmailTemplate object and save it
-	 * @param templatePath
-	 * @return
-	 * @throws IOException
-	 * @throws XMLStreamException
-	 */
-	private void processEmailTemplate(String templatePath) {
-		
-		final String ELEM_SUBJECT = "subject";
-		final String ELEM_MESSAGE = "message";
-		final String ELEM_HTML = "html";
-		final String ELEM_LOCALE = "locale";
-		final String ELEM_VERSION = "version";
-		final String ELEM_OWNER = "owner";
-		final String ELEM_KEY = "key";
-		final String ADMIN = "admin";
-		
-		InputStream in = SakaiProxy.class.getClassLoader().getResourceAsStream(templatePath);
-		XMLInputFactory factory = (XMLInputFactory)XMLInputFactory.newInstance();
-		XMLStreamReader staxXmlReader = null;
-		EmailTemplate template = new EmailTemplate();
-
-		try {
-			staxXmlReader = (XMLStreamReader) factory.createXMLStreamReader(in);
-		
-			for (int event = staxXmlReader.next(); event != XMLStreamConstants.END_DOCUMENT; event = staxXmlReader.next()) {
-
-				if (event == XMLStreamConstants.START_ELEMENT) {
-					String element = staxXmlReader.getLocalName();
-			    
-				    //subject
-				    if(StringUtils.equals(element, ELEM_SUBJECT)) {
-				    	template.setSubject(staxXmlReader.getElementText());
-				    }
-				    //message
-				    if(StringUtils.equals(element, ELEM_MESSAGE)) {
-				    	template.setMessage(staxXmlReader.getElementText());
-				    }
-				    //html
-				    if(StringUtils.equals(element, ELEM_HTML)) {
-				    	template.setHtmlMessage(staxXmlReader.getElementText());
-				    }
-				    //locale
-				    if(StringUtils.equals(element, ELEM_LOCALE)) {
-				    	template.setLocale(staxXmlReader.getElementText());
-				    }
-				    //version - SAK-17637
-				    if(StringUtils.equals(element, ELEM_VERSION)) {
-				    	//set as integer version of value, or default to 0
-				    	template.setVersion(Integer.valueOf(NumberUtils.toInt(staxXmlReader.getElementText(), 0)));
-				    }
-				    
-				    //owner
-				    if(StringUtils.equals(element, ELEM_OWNER)) {
-				    	template.setOwner(staxXmlReader.getElementText());
-				    }
-				    //key
-				    if(StringUtils.equals(element, ELEM_KEY)) {
-				    	template.setKey(staxXmlReader.getElementText());
-				    }
-				}
-			}
-		} catch (XMLStreamException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				staxXmlReader.close();
-			} catch (XMLStreamException e) {
-				e.printStackTrace();
-			}
-			try {
-				in.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		//check if we have an existing template of this key and locale
-		EmailTemplate existingTemplate = emailTemplateService.getEmailTemplate(template.getKey(), new Locale(template.getLocale()));
-		if(existingTemplate == null){
-			//no existing, save this one
-			Session sakaiSession = sessionManager.getCurrentSession();
-			sakaiSession.setUserId(ADMIN);
-			sakaiSession.setUserEid(ADMIN);
-			emailTemplateService.saveTemplate(template);
-			sakaiSession.setUserId(null);
-			sakaiSession.setUserId(null);
-			log.info("Saved email template: " + template.getKey() + " with locale: " + template.getLocale());
-			return;
-		} 
-		
-		//check version, if local one newer than persisted, update it - SAK-17679
-		int existingTemplateVersion = existingTemplate.getVersion() != null ? existingTemplate.getVersion().intValue() : 0;
-		if(template.getVersion() > existingTemplateVersion) {
-
-			existingTemplate.setSubject(template.getSubject());
-			existingTemplate.setMessage(template.getMessage());
-			existingTemplate.setHtmlMessage(template.getHtmlMessage());
-			existingTemplate.setVersion(template.getVersion());
-			existingTemplate.setOwner(template.getOwner());
-
-			Session sakaiSession = sessionManager.getCurrentSession();
-			sakaiSession.setUserId(ADMIN);
-			sakaiSession.setUserEid(ADMIN);
-			emailTemplateService.updateTemplate(existingTemplate);
-			sakaiSession.setUserId(null);
-			sakaiSession.setUserId(null);
-			log.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
-		}
-		
-		
-	}
-	
 	
 	/**
 	 * init
@@ -1474,15 +1347,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		log.info("Profile2 SakaiProxy init()");
 		
 		//process the email templates
-		for(String emailTemplate: emailTemplates){
-			processEmailTemplate(emailTemplate);
-			
-		}
+		//the list is injected via Spring
+		emailTemplateService.processEmailTemplates(emailTemplates);
 		
 	}
 
-	
-	
 	
 	
 	// INJECT API'S

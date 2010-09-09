@@ -16,7 +16,7 @@ ${messageLink}
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
 Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
 	</message>
-	<html>${senderDisplayName} replied to your message on ${localSakaiName}
+	<htmlMessage>${senderDisplayName} replied to your message on ${localSakaiName}
 &lt;p&gt;
 --------------------
 &lt;br /&gt;${messageSubject}
@@ -34,7 +34,7 @@ Control what email notifications you receive from connections at My Workspace > 
 &lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
 &lt;br /&gt;Control what email notifications you receive from connections at My Workspace &gt; ${toolName} &gt; Preferences
 &lt;/p&gt;
-	</html>
+	</htmlMessage>
 	<locale>en</locale>
 	<version>2</version>
 	<owner>admin</owner>
