@@ -132,7 +132,17 @@
     <!-- Password service, create this as a named bean so it can be configured if required. -->
     <bean id="org.sakaiproject.user.impl.PasswordService"
         class="org.sakaiproject.user.impl.PasswordService">
-    </bean>
+	</bean>
+	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService" 
+		class="org.sakaiproject.user.impl.UserNotificationPreferencesRegistrationServiceImpl" />
+
+	<bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration" abstract="true"
+		class="org.sakaiproject.util.UserNotificationPreferencesRegistrationImpl" >
+		<property name="userNotificationPreferencesRegistrationService">
+			<ref bean="org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService"/>
+		</property>
+	</bean>
+
 
 	<!-- the authCache Watcher -->
 	<bean class="org.sakaiproject.user.impl.AuthnCacheWatcher" init-method="init" destroy-method="destroy">
