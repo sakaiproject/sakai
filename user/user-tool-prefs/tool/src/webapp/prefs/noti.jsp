@@ -18,6 +18,7 @@
 		<script type="text/javascript">
 			$(document).ready(function(){
 				setupPrefsGen();
+				fixImplicitLabeling();
 			})  
 		</script>
 				<%--h:outputText value="User ID: "/><h:inputText value="#{AdminPrefsTool.userId}" /--%>	
@@ -68,34 +69,38 @@
 
 <%--(gsilver) selectOneRadio renders a table but will not accept a summary attribute. Need mechanism to tell screen readers that the table is a layour table.	 --%>
 				<p class="instruction"><h:outputText value="#{msgs.noti_inst_second}"/></p>
-				<h4><h:outputText value="#{msgs.noti_ann}"/></h4>
-				<h:selectOneRadio value="#{UserPrefsTool.selectedAnnItem}" layout="pageDirection" styleClass="indnt2">
-    			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiAnn3}"/>
-    			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiAnn2}"/>
-    			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiAnn1}"/>
-  			</h:selectOneRadio>
+			<fieldset><legend><h:outputText value="#{msgs.noti_ann}"/></legend>
+				 <h:selectOneRadio value="#{UserPrefsTool.selectedAnnItem}" layout="pageDirection" styleClass="indnt2">
+    			 <f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiAnn3}"/>
+    			 <f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiAnn2}"/>
+    			 <f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiAnn1}"/>
+  			     </h:selectOneRadio>
+            </fieldset>
   			
-  			<h4><h:outputText value="#{msgs.noti_rsrc}"/></h4>
+   			<fieldset><legend><h:outputText value="#{msgs.noti_rsrc}"/></legend>
 				<h:selectOneRadio value="#{UserPrefsTool.selectedRsrcItem}" layout="pageDirection" styleClass="indnt2">
     			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiRsrc3}"/>
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiRsrc2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiRsrc1}"/>
   			</h:selectOneRadio>
+        	</fieldset>
          
 			<f:subview id="syllabus" rendered="#{!UserPrefsTool.researchCollab}">
-  			<h4><h:outputText value="#{msgs.noti_syll}"/></h4>
+  			<fieldset><legend><h:outputText value="#{msgs.noti_syll}"/></legend>
 				<h:selectOneRadio value="#{UserPrefsTool.selectedSyllItem}" layout="pageDirection" styleClass="indnt2">
     			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiSyll3}"/>
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiSyll2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiSyll1}"/>
   			</h:selectOneRadio>
+        	</fieldset>
   			
-  			<h4><h:outputText value="#{msgs.noti_mail}"/></h4>
+  			<fieldset><legend><h:outputText value="#{msgs.noti_mail}"/></legend>
 				<h:selectOneRadio value="#{UserPrefsTool.selectedMailItem}" layout="pageDirection" styleClass="indnt2">
     			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiMail3}"/>
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiMail2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiMail1}"/>
   			</h:selectOneRadio>
+        	</fieldset>
 			</f:subview>
   				
 				<p class="act">
