@@ -388,6 +388,9 @@ private List<User> getUsersEmail(List<String> userIds) {
 
 		Persister persister = new Persister();
 		for(String templatePath : templatePaths) {
+			
+			log.debug("Processing template: " + templatePath);
+			
 			InputStream in = getClass().getClassLoader().getResourceAsStream(templatePath);
 
 			if(in == null) {
@@ -415,7 +418,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				sakaiSession.setUserId(null);
 				sakaiSession.setUserId(null);
 				log.info("Saved email template: " + template.getKey() + " with locale: " + template.getLocale());
-				return;
+				continue; //skip to next
 			} 
 		
 			//check version, if local one newer than persisted, update it - SAK-17679
