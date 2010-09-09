@@ -143,10 +143,9 @@ languages, as follows:
     Local ID: ar
                 
 23) Vietnamese
-    Status: inquiry on 4/02/2007
-    Translated by: n/a
-    Contact:  Nam Nguyen (nam.h.nguyen@3nexus.com)
-				  Billy Pham (bpham@huric.org)
+    Status: release for sakai 2.8
+    Contact:  Nguyen Hua Phung [phung@cse.hcmut.edu.vn] from HCMUT
+              Billy Quoc Pham [bpham@huric.org] from HOSEI University    
     Local ID: vi_VN
                 
 24) Khmer 
