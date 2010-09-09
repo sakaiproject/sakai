@@ -626,15 +626,17 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 set of special selectors when a user has chosen to minimize navigation and maximize real
 page estate
 */
-#toggleToolMenu {
-	border:1px solid #fff;
+#toggleToolMenu, #toggleToolMenu:visited,#toggleToolMenu:active,#toggleToolMenu:focus{
+	outline:none;
 }
 #toggleToolMax{
 	height:16px;
+	border:1px solid #fff;
 	background:#fff url(images/expandPage.png) top left no-repeat
 }
 #toggleNormal{
 	height:16px;
+	border:1px solid #fff;
 	background:#fff url(images/collapsePage.png) top left no-repeat
 }
 .sakaiMinimizePageNavigation #toolMenu li a{
