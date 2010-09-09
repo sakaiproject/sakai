@@ -198,7 +198,7 @@ function sakaiMinimizeNavigation(minSiteNav,minPageNav) {
 		$('#container').addClass('sakaiMinimizePageNavigation');	
 	}
 	$('#toggleToolMax').hide();
-    $('#toggleNormal').css({'display':'inline'});
+    $('#toggleNormal').css({'display':'block'});
 }
 
 function sakaiRestoreNavigation(minSiteNav,minPageNav) {
