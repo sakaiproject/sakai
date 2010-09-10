@@ -115,7 +115,9 @@ public class ForumsEmailService {
 				
 			Session session;
 			session = Session.getInstance(props, null);
-			session.setDebug(true);
+			
+			boolean smtpDebug = ServerConfigurationService.getBoolean("smtpDebug@org.sakaiproject.email.api.EmailService", false);
+			session.setDebug(smtpDebug);
 			
 			MimeMessage msg = new MimeMessage(session);
 			
@@ -140,10 +142,10 @@ public class ForumsEmailService {
 			int indx = 0;
 			for (int i = 0; i < toEmailAddress.size(); i++) {
 				String email = toEmailAddress.get(i);
-				log.info("got mail <" + email + ">");
+				log.debug("got mail <" + email + ">");
 
 				if ((email != null) && (email.length() > 0) && isValidEmail(email)) {
-					log.info("adding email <" + email + ">");
+					log.debug("adding email <" + email + ">");
 					try {
 						to[indx] = new InternetAddress(email);
 						indx++;
