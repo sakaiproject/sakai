@@ -191,7 +191,38 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>	
+			
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>yuicompressor-maven-plugin</artifactId>
+				<version>${yuicompressor.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>compress</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>compress</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<sourceDirectory>${basedir}/src/webapp</sourceDirectory>
+					<outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+					<nosuffix>true</nosuffix>
+					<jswarn>false</jswarn>
+					<excludes>
+						<exclude>**/*.java</exclude>
+						<exclude>**/*.html</exclude>
+						<exclude>**/*.xml</exclude>
+						<exclude>**/*.gif</exclude>
+						<exclude>**/*.png</exclude>
+						<exclude>**/*.properties</exclude>
+						<exclude>**/*.min.js</exclude>
+						<exclude>**/*-min.js</exclude>
+					</excludes>
+				</configuration> 
+			</plugin>
+		</plugins>
 		
 	</build>
 
