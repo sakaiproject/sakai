@@ -144,7 +144,7 @@ public interface Portal
 	/**
 	 * Name of cookie that is set to signal that the user wants us to start minimized
 	 */
-	public static final String SAKAI_NAV_MIMIMIZED = "sakai_nav_mimimized";
+	public static final String SAKAI_NAV_MINIMIZED = "sakai_nav_minimized";
 	
 	/**
 	 * prepare the response and send it to the render engine

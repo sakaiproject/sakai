@@ -4,7 +4,7 @@
 ##
 <!-- START from includePage.vm -->
 		<!-- start includePage -->		
-#if (${sakai_nav_mimimized})
+#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
 		<div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
 #else
 		<div id="container" $pageSiteType >

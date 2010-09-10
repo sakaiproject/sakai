@@ -226,9 +226,9 @@ public class SiteHandler extends WorksiteHandler
 		
 		// Have we been requested to display minimized and are we logged in?
 		if (session.getUserId() != null) {
-			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MIMIMIZED);
+			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
                 	if ( c != null && "true".equals(c.getValue()) ) {
-				rcontext.put(portal.SAKAI_NAV_MIMIMIZED, Boolean.TRUE);
+				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
 			}
 		}
 

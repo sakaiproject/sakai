@@ -13,7 +13,7 @@
 <!-- site.vm -->
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
-        <div id="portalContainer" #if (${sakai_nav_mimimized}) class="sakaiMinimizeSiteNavigation" #end >
+        <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
 		<div id="skipNav">
 		#if ($siteNavHasAccessibilityURL)
 			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">

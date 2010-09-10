@@ -26,27 +26,27 @@ $(document).ready(function() {
 #else
 	var minSiteNav = false;
 #end
-#if (${sakai_nav_mimimized})
+#if (${sakai_nav_minimized})
 	sakaiMinimizeNavigation(minSiteNav,minPageNav);
 	$('#toggleToolMenu').toggle(function(e){
 	    e.preventDefault();
 	    sakaiRestoreNavigation(minSiteNav,minPageNav);	
-	    document.cookie = "sakai_nav_mimimized=false; path=/";
+	    document.cookie = "sakai_nav_minimized=false; path=/";
 	}, function(e) {
 	    e.preventDefault();
 	    sakaiMinimizeNavigation(minSiteNav,minPageNav);
-	    document.cookie = "sakai_nav_mimimized=true; path=/";
+	    document.cookie = "sakai_nav_minimized=true; path=/";
 	    });
 	});
 #else
 	$('#toggleToolMenu').toggle(function(e){
 	    e.preventDefault();
 	    sakaiMinimizeNavigation(minSiteNav,minPageNav);
-	    document.cookie = "sakai_nav_mimimized=true; path=/";
+	    document.cookie = "sakai_nav_minimized=true; path=/";
 	}, function(e) {
 	    e.preventDefault();
 	    sakaiRestoreNavigation(minSiteNav,minPageNav);
-	    document.cookie = "sakai_nav_mimimized=false; path=/";
+	    document.cookie = "sakai_nav_minimized=false; path=/";
 	    });
 	});
 #end
@@ -62,7 +62,7 @@ $(document).ready(function() {
 
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
-        <div id="portalContainer" #if (${sakai_nav_mimimized}) class="sakaiMinimizeSiteNavigation" #end >
+        <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
 		<div id="skipNav">
 		#if ($siteNavHasAccessibilityURL)
 			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
