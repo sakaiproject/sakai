@@ -85,6 +85,9 @@ public class BeginDeliveryActionListener implements ActionListener
       // preview and take assessment is set by the parameter in the jsp pages
       delivery.setActionString(actionString);
     }
+    
+    delivery.setDisplayFormat();
+    
     int action = delivery.getActionMode();
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     

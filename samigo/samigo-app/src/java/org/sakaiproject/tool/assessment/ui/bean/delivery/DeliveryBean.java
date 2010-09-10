@@ -218,10 +218,8 @@ public class DeliveryBean
   private AgentFacade deliveryAgent;
 
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
-  //private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
-
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
-
+  
   private boolean noQuestions = false;
 
   // this assessmentGradingId is used to generate seed in getSeed(...) of DeliveryActaionListener.java
@@ -3108,5 +3106,11 @@ public class DeliveryBean
 		  return Boolean.parseBoolean(studentRichText);
 	  } 
 
+	  public void setDisplayFormat()
+	  {
+		  display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
+		  displayFormat = new SimpleDateFormat(display_dateFormat);
+	  }
+	  
 }
 
