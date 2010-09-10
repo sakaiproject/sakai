@@ -1747,6 +1747,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				retVal.setIndividuallyGraded(existingContent.individuallyGraded());
 				retVal.setReleaseGrades(existingContent.releaseGrades());
 				retVal.setAllowAttachments(existingContent.getAllowAttachments());
+				// for ContentReview service
+				retVal.setAllowReviewService(existingContent.getAllowReviewService());
 
 				tempVector = existingContent.getAttachments();
 				if (tempVector != null)
@@ -5751,6 +5753,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nContent.setTitle(oContent.getTitle());
 							nContent.setTypeOfGrade(oContent.getTypeOfGrade());
 							nContent.setTypeOfSubmission(oContent.getTypeOfSubmission());
+							// review service
+							nContent.setAllowReviewService(oContent.getAllowReviewService());
 							// properties
 							ResourcePropertiesEdit p = nContent.getPropertiesEdit();
 							p.clear();
