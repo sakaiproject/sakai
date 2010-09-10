@@ -40,6 +40,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.StringTokenizer;
@@ -98,6 +99,7 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.email.cover.DigestService;
 import org.sakaiproject.entity.api.AttachmentContainer;
@@ -222,8 +224,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setContentReviewService(ContentReviewService contentReviewService) {
 		this.contentReviewService = contentReviewService;
 	}
-	
 
+	String newline = "<br />\n";
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -2550,9 +2552,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	private String htmlContent(AssignmentSubmission s) 
-	{
-		String newline = "<br />\n";
-		
+	{	
 		Assignment a = s.getAssignment();
 		
 		String context = s.getContext();
@@ -2621,12 +2621,91 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				Reference r = (Reference) attachments.get(j);
 				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "(" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
+				//if this is a archive (zip etc) append the list of files in it
+				if (isArchiveFile(r)) {
+					buffer.append(getArchiveManifest(r));
+				}
 			}
 		}
 		
 		return buffer.toString();
 	}
 	
+	/**
+	 * get a list of the files in the archive
+	 * @param r
+	 * @return
+	 */
+	private Object getArchiveManifest(Reference r) {
+		String extension = getFileExtension(r);
+		StringBuilder builder = new StringBuilder();
+		if (".zip".equals(extension)) {
+			ZipContentUtil zipUtil = new ZipContentUtil();
+			Map<String, Long> manifest = zipUtil.getZipManifest(r);
+			Set<Entry<String, Long>> set = manifest.entrySet();
+			Iterator<Entry<String, Long>> it = set.iterator();
+			while (it.hasNext()) {
+				Entry<String, Long> entry = it.next();
+				builder.append(entry.getKey() + " (" + formatFileSize(entry.getValue()) + ")" + newline);
+			}
+		}
+		
+		return builder.toString();
+	}
+
+	private String formatFileSize(Long bytes) {
+		long len = bytes;
+		String[] byteString = { "KB", "KB", "MB", "GB" };
+		int count = 0;
+		long newLen = 0;
+		long lenBytesExtra = len;
+
+		while (len > 1024)
+		{
+			newLen = len / 1024;
+			lenBytesExtra = len - (newLen * 1024);
+			len = newLen;
+			count++;
+		}
+
+		if ((lenBytesExtra >= 512) || ((lenBytesExtra > 0) && (newLen == 0)))
+		{
+			newLen++;
+		}
+
+		return Long.toString(newLen) + " " + byteString[count];
+	}
+
+
+
+
+	/**
+	 * is this an archive type for which we can get a manifest
+	 * @param r
+	 * @return
+	 */
+	private boolean isArchiveFile(Reference r) {
+		String extension = getFileExtension(r);
+		if (".zip".equals(extension)) {
+			return true;
+		}
+		return false;
+	}
+
+
+
+	private String getFileExtension(Reference r) {
+		ResourceProperties resourceProperties = r.getProperties();
+		String fileName = resourceProperties.getProperty(resourceProperties.getNamePropDisplayName());
+		if (fileName.indexOf(".")>0) {
+			String extension = fileName.substring(fileName.lastIndexOf("."));
+			return extension;
+		}
+		return null;
+	}
+
+
+
 	private String htmlContentReleaseGrade(AssignmentSubmission s) 
 	{
 		String newline = "<br />\n";
