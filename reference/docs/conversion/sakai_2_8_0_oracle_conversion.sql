@@ -35,3 +35,7 @@ alter table SAM_ITEMGRADING_T rename column TEMP_CLOB_TEXT to ANSWERTEXT;
 -- SAM-971
 alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDPART number(10,0) default null;
 alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDQUESTION number(10,0) default null;
+
+-- Gradebook2 support
+-- SAK-19080 / GRBK-736
+alter table GB_GRADE_RECORD_T add USER_ENTERED_GRADE varchar2(127);
