@@ -257,7 +257,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//for cluetip
 		response.renderCSSReference("css/jquery.cluetip.css");
 		response.renderJavascriptReference("javascript/jquery.dimensions.js");
-		response.renderJavascriptReference("javascript/jquery.hoverIntent.js");
+		response.renderJavascriptReference("javascript/jquery.hoverIntent.min.js");
 		response.renderJavascriptReference("javascript/jquery.cluetip.js");
 		
 		//for color plugin
