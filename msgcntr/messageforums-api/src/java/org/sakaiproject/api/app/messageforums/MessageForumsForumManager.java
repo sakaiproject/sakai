@@ -202,11 +202,22 @@ public interface MessageForumsForumManager {
     /**
 	 * Returns # moderated topics that the current user has moderate
 	 * perm for, given the user's memberships and contextid
+	 * based on permissionLevelId (custom permissions)
 	 * @param membershipItems
 	 * @param contextId
 	 * @return
 	 */
-	public int getNumModTopicCurrentUserHasModPermFor(final List membershipItems);
+	public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipItems);
+	
+	/**
+	 * Returns # moderated topics that the current user has moderate
+	 * perm for, given the user's memberships and contextid
+	 * based on permissionLevelName (non-custom permissions)
+	 * @param membershipItems
+	 * @param contextId
+	 * @return
+	 */
+	public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List membershipItems);
 	
 	/**
 	 * Returns forum with topics, topic attachments, and topic messages

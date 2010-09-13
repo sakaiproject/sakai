@@ -2404,9 +2404,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		return messageManager.getPendingMsgsInTopic(topicId);
 	}
 	
-	public int getNumModTopicsWithModPermission(List membershipList)
+	public int getNumModTopicsWithModPermissionByPermissionLevel(List membershipList)
 	{
-		return forumManager.getNumModTopicCurrentUserHasModPermFor(membershipList);
+		return forumManager.getNumModTopicCurrentUserHasModPermForWithPermissionLevel(membershipList);
+	}
+	
+	public int getNumModTopicsWithModPermissionByPermissionLevelName(List membershipList)
+	{
+		return forumManager.getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(membershipList);
 	}
 
     private String getEventMessage(Object object) {

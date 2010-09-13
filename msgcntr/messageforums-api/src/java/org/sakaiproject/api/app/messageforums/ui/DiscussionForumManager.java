@@ -479,11 +479,22 @@ public interface DiscussionForumManager
   /**
    * Returns num moderated topics in the current site that the current user
    * has moderate permission for, given the user's memberships
+   * by permissionLevel (custom permissions)
    * @param membershipList
    * @param contextId
    * @return
    */
-  public int getNumModTopicsWithModPermission(List membershipList);
+  public int getNumModTopicsWithModPermissionByPermissionLevel(List membershipList);
+  
+  /**
+   * Returns num moderated topics in the current site that the current user
+   * has moderate permission for, given the user's memberships
+   * based on permissionLevel (non-custom permissions)
+   * @param membershipList
+   * @param contextId
+   * @return
+   */
+  public int getNumModTopicsWithModPermissionByPermissionLevelName(List membershipList);
   
   /**
    * Returns forum with topics, topic attachments, and topic messages

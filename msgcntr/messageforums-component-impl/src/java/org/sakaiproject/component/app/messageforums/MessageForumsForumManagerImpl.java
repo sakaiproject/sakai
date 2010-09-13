@@ -130,7 +130,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachments";
     
     private static final String QUERY_GET_ALL_MOD_TOPICS_IN_SITE = "findAllModeratedTopicsForSite";
-    private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM = "findNumModeratedTopicsForSiteByUserByMembership";
+    private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL = "findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelId";
+    private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME = "findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName";
     
     private static final String QUERY_GET_FORUM_BY_ID_WITH_TOPICS_AND_ATT_AND_MSGS = "findForumByIdWithTopicsAndAttachmentsAndMessages";
     
@@ -1410,18 +1411,39 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			return (PrivateForum) getHibernateTemplate().execute(hcb);
 		}
 	
-		public int getNumModTopicCurrentUserHasModPermFor(final List membershipList)
+		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipList)
 		{
 			if (membershipList == null) {
-	            LOG.error("getNumModTopicCurrentUserHasModPermFor failed with membershipList: " + membershipList);
+	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevel failed with membershipList: " + membershipList);
 	            throw new IllegalArgumentException("Null Argument");
 	        }
 
-	        LOG.debug("getNumModTopicCurrentUserHasModPermFor executing with membershipItems: " + membershipList);
+	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevel executing with membershipItems: " + membershipList);
 
 	        HibernateCallback hcb = new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM);
+	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL);
+	                q.setParameterList("membershipList", membershipList);
+	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+	                return q.uniqueResult();
+	            }
+	        };
+
+	        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+		}
+		
+		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List membershipList)
+		{
+			if (membershipList == null) {
+	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName failed with membershipList: " + membershipList);
+	            throw new IllegalArgumentException("Null Argument");
+	        }
+
+	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName executing with membershipItems: " + membershipList);
+
+	        HibernateCallback hcb = new HibernateCallback() {
+	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
 	                q.setParameterList("membershipList", membershipList);
 	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
 	                q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);

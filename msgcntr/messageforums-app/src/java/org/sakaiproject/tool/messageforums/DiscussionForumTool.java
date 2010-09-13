@@ -4714,11 +4714,20 @@ public class DiscussionForumTool
   {
 	  if (displayPendingMsgQueue == null){
 		  List membershipList = uiPermissionsManager.getCurrentUserMemberships();
-		  int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermission(membershipList);
+		  int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevel(membershipList);
 		  
 		  if (numModTopicWithPerm < 1)
 		  {
-			  displayPendingMsgQueue = false;
+			  numModTopicWithPerm = forumManager.getNumModTopicsWithModPermissionByPermissionLevelName(membershipList);
+			  
+			  if (numModTopicWithPerm < 1)
+			  {
+				  displayPendingMsgQueue = false;
+			  }
+			  else
+			  {
+				  displayPendingMsgQueue = true;
+			  }
 		  }
 		  else
 		  {		  
