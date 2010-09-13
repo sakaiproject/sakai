@@ -539,7 +539,9 @@
   <!-- permissions are a little nasty...  b/c permission level  is null in the membershipItem
   			if it is not custom, we need to	check for permission level that is custom and has same id 
   			or that is not custom and has the same permission level name -->
-  <query name="findAllPendingMsgsByContextByMembership">
+  			
+  <!--  first check by permissionLevel (id) -->
+  <query name="findAllPendingMsgsByContextByMembershipByPermissionLevel">
     <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
     					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
     				 join message.topic as topic
@@ -550,9 +552,24 @@
              membershipItem.name in ( :membershipList ) and
              message.deleted = false and
              message.approved = null and
-             ((pl.typeUuid != :customTypeUuid and 
-               pl.name = membershipItem.permissionLevelName) or
-              membershipItem.permissionLevel = pl.id) and
+             membershipItem.permissionLevel = pl.id and
+             pl.moderatePostings = true
+    ]]>    
+  </query>
+  
+  <!--  second check by permissionLevelName (non-custom permission) -->
+  <query name="findAllPendingMsgsByContextByMembershipByPermissionLevelName">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
+    					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    				 join message.topic as topic
+             join topic.openForum as forum
+             join forum.area as area
+             join topic.membershipItemSet as membershipItem   
+             where area.contextId = :contextId and
+             membershipItem.name in ( :membershipList ) and
+             message.deleted = false and
+             message.approved = null and
+             (pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) and
              pl.moderatePostings = true
     ]]>    
   </query>

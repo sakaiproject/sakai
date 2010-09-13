@@ -85,7 +85,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
     private static final String QUERY_READ_STATUS_WITH_MSGS_USER = "findReadStatusByMsgIds";
-    private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER = "findAllPendingMsgsByContextByMembership";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL = "findAllPendingMsgsByContextByMembershipByPermissionLevel";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME = "findAllPendingMsgsByContextByMembershipByPermissionLevelName";
     private static final String QUERY_FIND_PENDING_MSGS_BY_TOPICID = "findPendingMsgsByTopicId";
     private static final String QUERY_UNDELETED_MSG_BY_TOPIC_ID = "findUndeletedMessagesByTopicId";
     //private static final String ID = "id";
@@ -1556,18 +1557,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	public List getPendingMsgsInSiteByMembership(final List membershipList)
 	{   	
 		if (membershipList == null) {
-            LOG.error("getPendingMsgsInSiteByUser failed with membershipList: " + membershipList);
+            LOG.error("getPendingMsgsInSiteByMembership failed with membershipList: " + membershipList);
             throw new IllegalArgumentException("Null Argument");
         }
 		
+		// First, check by permissionLevel (custom permissions)
 		HibernateCallback hcb = new HibernateCallback() 
 		{
 			public Object doInHibernate(Session session) throws HibernateException, SQLException 
 			{
-				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER);
+				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL);
 				q.setParameter("contextId", getContextId(), Hibernate.STRING);
 				q.setParameterList("membershipList", membershipList);
-				q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
 				
 				return q.list();
 			}
@@ -1589,17 +1590,47 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             resultSet.add(tempMsg);
           }
         }
+        
+        // Second, check by PermissionLevelName (non-custom permissions)
+        HibernateCallback hcb2 = new HibernateCallback() 
+		{
+			public Object doInHibernate(Session session) throws HibernateException, SQLException 
+			{
+				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER_AND_PERMISSION_LEVEL_NAME);
+				q.setParameter("contextId", getContextId(), Hibernate.STRING);
+				q.setParameterList("membershipList", membershipList);
+				q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);
+				
+				return q.list();
+			}
+		};
+		   
+        temp = (ArrayList) getHibernateTemplate().execute(hcb2);
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+            }
+            resultSet.add(tempMsg);
+          }
+        }
+        
         return Util.setToList(resultSet); 
 	}
 	
 	public List getPendingMsgsInTopic(final Long topicId)
 	{
 		if (topicId == null) {
-            LOG.error("getNumPendingMsgsInTopic failed with topicId: " + topicId);
+            LOG.error("getPendingMsgsInTopic failed with topicId: " + topicId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("getNumPendingMsgsInTopic executing with topicId: " + topicId);
+        LOG.debug("getPendingMsgsInTopic executing with topicId: " + topicId);
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
