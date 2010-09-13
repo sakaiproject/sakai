@@ -70,9 +70,36 @@
 			#if (${sitePages.pageNavShowPresenceLoggedIn})
 				<div id="presenceWrapper">
 					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+#if (${sitePages.pageNavPresenceIframe})
 					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
 						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}" >
 					</iframe>
+#else
+				<div id="presenceIframe">
+					&nbsp;
+				</div>
+<script type="text/javascript">
+var sakaiLastPresenceTime = null;
+var sakaiLastPresenceTimeOut = null;
+## This gets changed when we minimize - Default from Properties
+var sakaiPresenceTimeOut = ${sitePages.sakaiPresenceTimeMin};
+var sakaiPresenceTimeMax = ${sitePages.sakaiPresenceTimeMax};
+var sakaiPresenceTimeMin = ${sitePages.sakaiPresenceTimeMin};
+var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
+var sakaiPresenceTimeFactor = ${sitePages.sakaiPresenceTimeFactor};
+var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes";
+
+$(document).ready(function() {
+## Lets have presence delay a bit in case they are clicking really fast.
+    sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
+## If we are starting minimized, longer for the second and following refreshes
+#if (${sakai_nav_minimized})
+    sakaiPresenceTimeOut = sakaiPresenceTimeMax;
+#end
+} );
+
+</script>
+#end
 				</div>
 			#end
 			</div>

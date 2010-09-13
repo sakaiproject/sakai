@@ -669,6 +669,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& loggedIn));
 		theMap.put("pageNavPresenceUrl", presenceUrl);
 
+		// Retrieve whether or not we are to put presence in a frame
+		theMap.put("pageNavPresenceIframe", Boolean.valueOf(
+			ServerConfigurationService.getBoolean("display.users.present.iframe", false)) );
+		theMap.put("sakaiPresenceTimeMax", Integer.valueOf(
+			ServerConfigurationService.getInt("display.users.present.time.max", 90000)) );
+		theMap.put("sakaiPresenceTimeMin", Integer.valueOf(
+			ServerConfigurationService.getInt("display.users.present.time.min", 30000)) );
+		theMap.put("sakaiPresenceTimeDelay", Integer.valueOf(
+			ServerConfigurationService.getInt("display.users.present.time.delay", 3000)) );
+		theMap.put("sakaiPresenceTimeFactor", Integer.valueOf(
+			ServerConfigurationService.getInt("display.users.present.time.factor", 10)) );
+
 		return theMap;
 	}
 
