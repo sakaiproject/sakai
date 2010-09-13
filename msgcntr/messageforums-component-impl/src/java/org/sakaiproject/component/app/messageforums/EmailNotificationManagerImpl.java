@@ -44,6 +44,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 		EmailNotificationManager {
@@ -102,17 +103,27 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 
 		if (emailNotification == null) {
 			// this user has not set his emailnotification option. That's okay.
-			// by default it is level 1
+			// by default it is level 1, unless otherwise specified by sakai.properties
 			try {
 				userDirectoryService.getUser(userId);
 			} catch (UserNotDefinedException e) {
 				e.printStackTrace();
 			}
+			String notificationDefault = ServerConfigurationService.getString("mc.notificationDefault", "1");
 			EmailNotification newEmailNotification = new EmailNotificationImpl();
 			newEmailNotification.setContextId(getContextId());
 			newEmailNotification.setUserId(userId);
-			newEmailNotification
+			LOG.debug("notificationDefault= "+notificationDefault);
+			if (notificationDefault.equals("0")) {
+			    newEmailNotification
+					.setNotificationLevel(EmailNotification.EMAIL_NONE);
+			} else if (notificationDefault.equals("2")) {
+			    newEmailNotification
+					.setNotificationLevel(EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
+			} else {
+			    newEmailNotification
 					.setNotificationLevel(EmailNotification.EMAIL_REPLY_TO_MY_MESSAGE);
+			}
 
 			// create a new emailnotification if this user doesn't have a record
 			// yet
