@@ -47,7 +47,7 @@
 							</f:facet>
 							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
 								<h:graphicImage url="/syllabus/moveup.gif" alt="#{msgs.mainEditLinkUpTitle}" />
-								<h:outputText value="#{msgs.mainEditLinkUpTitle} " styleClass="skip"/> <h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
+								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
@@ -56,7 +56,7 @@
 							</f:facet>
 							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink" rendered="#{SyllabusTool.editAble == 'true'}">
 								<h:graphicImage url="/syllabus/movedown.gif" alt="#{msgs.mainEditLinkDownTitle}" />
-								<h:outputText value="#{msgs.mainEditLinkDownTitle} " styleClass="skip" /> <h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
+								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
