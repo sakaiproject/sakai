@@ -3,7 +3,7 @@
 
 <beans>
 
-    <bean id="org.sakaiproject.yourapp.hibernate.AdditionalHibernateMappings"
+    <bean id="org.sakaiproject.jobscheduler.hibernate.AdditionalHibernateMappings"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="mappingResources">
             <list>
