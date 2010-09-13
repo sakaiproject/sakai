@@ -237,7 +237,7 @@ function printPreview(target){
 
 		#set ($desc = $siteDescription) 
 		#set ($ell= $tlang.getString("sinfo.list.desc.ellipse"))
-		#if ( $desc.length() == 0|| $desc ==" "|| $desc =="&nbsp;" || $desc =="" || $desc =="<br>" || $desc =="<br/>" || $desc.isEmpty() || $validator.escapeHtml($desc)=="&lt;br type=&quot;_moz&quot; /&gt;" )
+		#if (!$desc || $desc.length() == 0|| $desc ==" "|| $desc =="&nbsp;" || $desc =="" || $desc =="<br>" || $desc =="<br/>" || $desc.isEmpty() || $validator.escapeHtml($desc)=="&lt;br type=&quot;_moz&quot; /&gt;" )
 		#else
 
 			<h4 style="padding:5px 0">
