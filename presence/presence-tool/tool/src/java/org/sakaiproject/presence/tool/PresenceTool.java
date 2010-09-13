@@ -62,6 +62,9 @@ public class PresenceTool extends HttpServlet
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(PresenceTool.class);
 
+	/** Request parameter to generate a fragment only. */
+	protected static final String OUTPUT_FRAGMENT = "output_fragment";
+
 	/** Tool state attribute where the observer is stored. */
 	protected static final String ATTR_OBSERVER = "observer";
 
@@ -111,13 +114,16 @@ public class PresenceTool extends HttpServlet
 		// refresh our presence at the location
 		PresenceService.setPresence(location);
 
-		// make sure we have an observing watching for presence change at location
-		PresenceObservingCourier observer = (PresenceObservingCourier) toolSession.getAttribute(ATTR_OBSERVER);
-		if (observer == null)
-		{
-			// setup an observer to notify us when presence at this location changes
-			observer = new PresenceObservingCourier(location);
-			toolSession.setAttribute(ATTR_OBSERVER, observer);
+		// If we are a full frame, make sure we have an observing watching 
+		// for presence change at location
+		if ( ! "yes".equals(req.getParameter(OUTPUT_FRAGMENT) ) ) {
+			PresenceObservingCourier observer = (PresenceObservingCourier) toolSession.getAttribute(ATTR_OBSERVER);
+			if (observer == null)
+			{
+				// setup an observer to notify us when presence at this location changes
+				observer = new PresenceObservingCourier(location);
+				toolSession.setAttribute(ATTR_OBSERVER, observer);
+			}
 		}
 
 		// get the list of users at the location
@@ -166,11 +172,14 @@ public class PresenceTool extends HttpServlet
 		// start the response
 		PrintWriter out = startResponse(req, res, "presence");
 
-		sendAutoUpdate(out, req, placement.getId(), placement.getContext());
+		if ( ! "yes".equals(req.getParameter(OUTPUT_FRAGMENT) ) ) 
+		{
+			sendAutoUpdate(out, req, placement.getId(), placement.getContext());
+		}
 		sendPresence(out, users, chatUsers);
 
 		// end the response
-		endResponse(out);
+		if ( ! "yes".equals(req.getParameter(OUTPUT_FRAGMENT) ) ) endResponse(out);
 	}
 
 	/**
@@ -344,6 +353,8 @@ public class PresenceTool extends HttpServlet
 
 		// get the writer
 		PrintWriter out = res.getWriter();
+
+		if ( "yes".equals(req.getParameter(OUTPUT_FRAGMENT) ) ) return out;
 
 		// form the head
 		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
