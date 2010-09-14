@@ -1065,7 +1065,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
 		rcontext.put("userId", s.getUserId());
 		rcontext.put("userEid", s.getUserEid());
-
+		rcontext.put("loggedOutUrl",ServerConfigurationService.getLoggedOutUrl());
+		rcontext.put("timeoutDialogEnabled",Boolean.valueOf(ServerConfigurationService.getBoolean("timeoutDialogEnabled", false)));
+		rcontext.put("timeoutDialogWarningSeconds", Integer.valueOf(ServerConfigurationService.getInt("timeoutDialogWarningSeconds", 600)));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
 

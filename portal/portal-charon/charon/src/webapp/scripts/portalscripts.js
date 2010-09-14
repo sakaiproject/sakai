@@ -76,35 +76,19 @@ var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
 jQuery(document).ready(function(){
 	// note a session exists whether the user is logged in or no
-	if (portal.loggedIn) {  //if Logged in
-		setup_timeout_config();
+	if (portal.loggedIn && portal.timeoutDialog ) {
+		setTimeout('setup_timeout_config();', 15000);
 	}
 });
 
 var setup_timeout_config = function() {
-	jQuery.ajax({
-		url: "/portal/timeout/config",
-		cache: true,
-		dataType: "text",
-		success: function(data){
-		var values = data.split("\n");
-		if (values[0] == "true") {
-			timeoutDialogEnabled = true;
-		}
-		else {
-			timeoutDialogEnabled = false;
-		}
-		timeoutDialogWarningTime = new Number(values[1]);
-		timeoutLoggedoutUrl = new String(values[2]);
-		if (timeoutDialogEnabled == true) {
-			poll_session_data();
-			fetch_timeout_dialog();
-		}
-	},
-	error: function(XMLHttpRequest, status, error) {
-		timeoutDialogEnabled = false;
+	timeoutDialogEnabled = portal.timeoutDialog.enabled;
+	timeoutDialogWarningTime = portal.timeoutDialog.seconds;
+	timeoutLoggedoutUrl = portal.loggedOutUrl;
+	if (timeoutDialogEnabled == true) {
+		poll_session_data();
+		fetch_timeout_dialog();
 	}
-	});
 }
 
 var poll_session_data = function() {
