@@ -51,7 +51,7 @@
 	  </h:panelGrid>
 		<f:verbatim></ol></f:verbatim>
 
-    <h:outputText value="#{deliveryMessages.data_discrepancy_4} <b>#{deliveryMessages.save_and_continue}</b> #{deliveryMessages.text_or} <b>#{deliveryMessages.button_save_for_later}</b>#{deliveryMessages.text_period}" escape="false"/>
+    <h:outputText value="#{deliveryMessages.data_discrepancy_4}" escape="false"/>
     <h:outputText value="#{deliveryMessages.data_discrepancy_5} <b>#{deliveryMessages.button_return}</b> #{deliveryMessages.data_discrepancy_6}" escape="false"/>
   </h:panelGrid>
 
