@@ -119,9 +119,13 @@ public interface MessageForumsMessageManager {
     
     public int findReadViewableMessageCountByTopicId(Long topicId);
 
-    public List findDiscussionForumMessageCountsForAllSites(final List siteList, final List roleList);
+    public List findDiscussionForumMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList);
     
-    public List findDiscussionForumReadMessageCountsForAllSites(final List siteList, final List roleList);
+    public List findDiscussionForumMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList);
+    
+    public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList);
+    
+    public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList);
 
     public List findDiscussionForumMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList); // added
 

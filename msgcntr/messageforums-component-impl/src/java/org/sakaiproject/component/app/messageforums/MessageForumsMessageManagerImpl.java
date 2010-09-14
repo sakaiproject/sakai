@@ -193,16 +193,39 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     /**
      * FOR SYNOPTIC TOOL:
      * 		Returns the count of discussion forum messages grouped by site
-      */
-    public List findDiscussionForumMessageCountsForAllSites(final List siteList, final List roleList) {
+     */
+    public List findDiscussionForumMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList) {
     	if (siteList == null) {
-            LOG.error("findDiscussionForumMessageCountsForAllSites failed with null site list.");
+            LOG.error("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId failed with null site list.");
             throw new IllegalArgumentException("Null Argument");
     	}	
         
     	HibernateCallback hcb = new HibernateCallback() {
                public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSites");
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelId");
+                    q.setParameterList("siteList", siteList);
+                    q.setParameterList("roleList", roleList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+
+        return (List) getHibernateTemplate().execute(hcb);
+    }
+
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of discussion forum messages grouped by site
+     */
+    public List findDiscussionForumMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList) {
+    	if (siteList == null) {
+            LOG.error("findDiscussionForumMessageCountsForAllSitesByPermissionLevelName failed with null site list.");
+            throw new IllegalArgumentException("Null Argument");
+    	}	
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumMessageCountsForAllSitesByPermissionLevelName");
                     q.setParameterList("siteList", siteList);
                     q.setParameterList("roleList", roleList);
                     q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
@@ -213,16 +236,35 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return (List) getHibernateTemplate().execute(hcb);
     }
+    
+    /**
+     * FOR SYNOPTIC TOOL:
+     * 		Returns the count of read discussion forum messages grouped by site
+     */
+    public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId(final List siteList, final List roleList) {
+        
+    	HibernateCallback hcb = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId");
+                   q.setParameterList("siteList", siteList);
+                   q.setParameterList("roleList", roleList);
+                   q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+                   return q.list();
+               }
+    	};
+        
+        return (List) getHibernateTemplate().execute(hcb);
+    }
 
     /**
      * FOR SYNOPTIC TOOL:
      * 		Returns the count of read discussion forum messages grouped by site
      */
-    public List findDiscussionForumReadMessageCountsForAllSites(final List siteList, final List roleList) {
+    public List findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName(final List siteList, final List roleList) {
         
     	HibernateCallback hcb = new HibernateCallback() {
                public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSites");
+                   Query q = session.getNamedQuery("findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName");
                    q.setParameterList("siteList", siteList);
                    q.setParameterList("roleList", roleList);
                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
@@ -233,7 +275,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         
         return (List) getHibernateTemplate().execute(hcb);
     }
-
+    
     /**
      * FOR SYNOPTIC TOOL:
      * 		Returns the count of discussion forum messages grouped by topics within a site

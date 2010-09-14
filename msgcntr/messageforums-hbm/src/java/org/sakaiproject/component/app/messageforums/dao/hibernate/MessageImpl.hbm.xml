@@ -346,7 +346,9 @@
 
 <!--  Gets counts of message user can access grouped by site and role/group.
 	  Needed since user can have different roles in different sites -->
-  <query name="findDiscussionForumMessageCountsForAllSites">
+	  
+  <!--  first test by custom permissions (permissionLevel id) -->
+  <query name="findDiscussionForumMessageCountsForAllSitesByPermissionLevelId">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
     		   join messages.topic as topic
@@ -360,8 +362,7 @@
                messages.draft = false and
                messages.deleted = false and
               membershipItem.name in ( :roleList ) and
-             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
-               membershipItem.permissionLevel = pl.id)  and
+               membershipItem.permissionLevel = pl.id  and
               (pl.read = true and 
               (pl.moderatePostings = true or 
                messages.approved = true or
@@ -370,6 +371,32 @@
     ]]>
  
  </query>
+
+  <!--  second test by non-custom permissions (permissionLevelName) -->
+  <query name="findDiscussionForumMessageCountsForAllSitesByPermissionLevelName">
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+    		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+              membershipItem.name in ( :roleList ) and
+              (pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName)  and
+              (pl.read = true and 
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, membershipItem.name
+    ]]>
+ 
+ </query>
+
 
 <!-- Gets count of messages user has already read grouped by site and role/group.
 	 Needed since user can have different roles/groups in different sites or

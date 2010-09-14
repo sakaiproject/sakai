@@ -775,7 +775,11 @@ public class MessageForumSynopticBean {
 			// If grouped in all sites, no processing needed
 			if (! siteListMinusGrouped.isEmpty()) {
 				List discussionForumMessageCounts = messageManager
-						.findDiscussionForumMessageCountsForAllSites(siteListMinusGrouped, roleList);
+						.findDiscussionForumMessageCountsForAllSitesByPermissionLevelId(siteListMinusGrouped, roleList);
+				
+				
+				discussionForumMessageCounts.addAll(messageManager
+						.findDiscussionForumMessageCountsForAllSitesByPermissionLevelName(siteListMinusGrouped, roleList));
 
 				discussionForumMessageCounts = filterMessageCountsByRole(discussionForumMessageCounts);
 		
@@ -783,7 +787,10 @@ public class MessageForumSynopticBean {
 				if (! discussionForumMessageCounts.isEmpty()) {
 					// Pulls read discussion forum message counts from DB
 					List discussionForumReadMessageCounts = messageManager
-											.findDiscussionForumReadMessageCountsForAllSites(siteListMinusGrouped, roleList);
+						.findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelId(siteListMinusGrouped, roleList);
+					
+					discussionForumReadMessageCounts.addAll(messageManager
+						.findDiscussionForumReadMessageCountsForAllSitesByPermissionLevelName(siteListMinusGrouped, roleList));
 
 					// if no read messages, totals are current message counts
 					if (discussionForumReadMessageCounts.isEmpty()) {
