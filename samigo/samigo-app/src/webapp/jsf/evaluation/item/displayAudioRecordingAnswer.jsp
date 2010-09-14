@@ -30,10 +30,15 @@ should be included in file importing DeliveryMessages
       <h:outputText value="#{description.answer}" escape="false" rendered="#{itemGradingArrayList.mediaSize == 0}" />
 	  <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
 	    <h:column>
-      <h:outputText escape="false" value="
-         <embed src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\"
-                volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
-         " />
+
+        <h:outputText escape="false" value="
+        	<object>
+        		<param name=\"autostart\" value=\"false\"/>
+        		<param name=\"autoplay\" value=\"false\"/>
+        		<param name=\"controller\" value=\"true\"/>         
+        		<embed src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\" volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\" autoplay=\"false\" controller=\"true\" type=\"audio/basic\"/>
+        	</object>" 
+        />
 
 	  <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{evaluationMessages.open_bracket}"/>
