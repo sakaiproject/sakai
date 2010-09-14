@@ -81,8 +81,11 @@ public class RosterOverview extends BaseRosterPageBean {
 		// Add the header row
 		List<Object> header = new ArrayList<Object>();
 		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_name"));
-		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_userId"));
-		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_email"));
+        header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_userId"));
+
+        if (isEmailColumnRendered()) {
+            header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_email"));
+        }
 		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_role"));
 		
 		spreadsheetData.add(header);
@@ -90,8 +93,11 @@ public class RosterOverview extends BaseRosterPageBean {
 			Participant participant = participantIter.next();
 			List<Object> row = new ArrayList<Object>();
 			row.add(participant.getUser().getSortName());
-			row.add(participant.getUser().getDisplayId());
-			row.add(participant.getUser().getEmail());
+            row.add(participant.getUser().getDisplayId());
+
+            if (isEmailColumnRendered()){
+                row.add(participant.getUser().getEmail());
+            }
 			row.add(participant.getRoleTitle());
             spreadsheetData.add(row);
         }

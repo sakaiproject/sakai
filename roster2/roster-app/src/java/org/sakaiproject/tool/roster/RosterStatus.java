@@ -124,9 +124,12 @@ public class RosterStatus extends BaseRosterPageBean {
 		// Add the header row
 		List<Object> header = new ArrayList<Object>();
 		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_name"));
-		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_userId"));
-		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_email"));
-		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_status"));
+        header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_userId"));
+
+        if (isEmailColumnRendered()){
+            header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_email"));
+        }
+        header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_status"));
 		header.add(LocaleUtil.getLocalizedString(facesContext, ServicesBean.MESSAGE_BUNDLE, "facet_credits"));
 		spreadsheetData.add(header);
 
@@ -135,7 +138,9 @@ public class RosterStatus extends BaseRosterPageBean {
 			List<Object> row = new ArrayList<Object>();
 			row.add(participant.getUser().getSortName());
 			row.add(participant.getUser().getDisplayId());
-			row.add(participant.getUser().getEmail());
+            if (isEmailColumnRendered()){
+			    row.add(participant.getUser().getEmail());
+            }
 			row.add(((EnrolledParticipant)participant).getEnrollmentStatus());
 			row.add(((EnrolledParticipant)participant).getEnrollmentCredits());
 			spreadsheetData.add(row);

@@ -244,8 +244,8 @@ public class RosterGroupMembership extends BaseRosterPageBean {
 					Participant participant = participantIter.next();
 					List<Object> row = new ArrayList<Object>();
 					row.add(participant.getUser().getSortName());
-					row.add(participant.getUser().getDisplayId());
-					row.add(participant.getRoleTitle());
+                    row.add(participant.getUser().getDisplayId());
+                    row.add(participant.getRoleTitle());
 					row.add(participant.getGroupsString());
 		            spreadsheetData.add(row);
 		        }
