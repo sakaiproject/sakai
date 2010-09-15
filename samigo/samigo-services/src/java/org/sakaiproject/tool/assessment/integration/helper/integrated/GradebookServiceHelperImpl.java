@@ -109,10 +109,14 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 			for (int i = 0; i < pageList.size(); i++) {
 				page = (SitePage) pageList.get(i);
 				List pageToolList = page.getTools();
-				toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
-				if (toolId.equalsIgnoreCase("sakai.gradebook.tool")) {
+				try {
+					toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
+				} catch (Exception ee) {
+					log.warn(siteId + " contains a page (" + page.getTitle() + ") without a valid tool registration");
+				}
+				if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebook.tool")) {
 					return true;
-				} else if (toolId.equalsIgnoreCase("sakai.gradebook.gwt.rpc")) {
+				} else if (toolId != null && toolId.equalsIgnoreCase("sakai.gradebook.gwt.rpc")) {
 					return true;
 				}
 
