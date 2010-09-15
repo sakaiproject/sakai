@@ -1621,9 +1621,17 @@ public class ItemHelper12Impl extends ItemHelperBase
         		  answer.setPartialCredit(100f);
         	  }
         	  
-        	  if (answer.getItem().getPartialCreditFlag()) 
+        	  if (answer.getItem().getPartialCreditFlag()) {
+        		  Float partialCredit = 100f;
+        		  try {
+        			  partialCredit = Float.valueOf(((answer.getItem().getScore().floatValue())*answer.getPartialCredit().floatValue())/100f);
+        		  }
+        		  catch (Exception e) {
+        			  log.error("Could not compute partial value for id: " + answer.getId());
+        		  }
         		  addAnswerFeedbackPartialCredit(itemXml, value,
-        				  isInsert, xpathIndex, "" + label, Float.valueOf(((answer.getItem().getScore().floatValue())*answer.getPartialCredit().floatValue())/100f)); //--mustansar
+        				  isInsert, xpathIndex, "" + label, partialCredit); //--mustansar
+        	  }
           }
           else 
           { // for MC Mulitiple Correct
