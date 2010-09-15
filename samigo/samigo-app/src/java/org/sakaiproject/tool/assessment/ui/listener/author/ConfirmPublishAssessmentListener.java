@@ -175,8 +175,16 @@ public class ConfirmPublishAssessmentListener
     //#2c - validate if this is a time assessment, is there a time entry?
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
-    if (time!=null)
-      isTime=((Boolean)time).booleanValue();
+    if (time!=null) {
+    	// Because different flow might get different type, we test it before cast.
+    	if (time instanceof java.lang.String) {
+    		isTime = Boolean.getBoolean((String) time);
+    	}
+    	else if (time instanceof java.lang.Boolean) {
+    		isTime=((Boolean)time).booleanValue();
+    	}
+    }
+      
   
     if ((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
       String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
