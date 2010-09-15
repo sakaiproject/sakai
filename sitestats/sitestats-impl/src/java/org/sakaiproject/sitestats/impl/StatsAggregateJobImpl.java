@@ -59,6 +59,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	private JobRun				jobRun				= null;
 	private Object				extDbdriver			= null;
 	private String				sqlGetEvent			= null;
+	private String				sqlPastSiteEvents	= null;
 	private boolean				isOracle 			= false;
 	private boolean				isEventContextSupported = false;
 
@@ -81,6 +82,14 @@ public class StatsAggregateJobImpl implements StatefulJob {
 														"where EVENT_ID >= ? " +
 														") " +
 														"WHERE rn BETWEEN ? AND  ?";
+	private String MYSQL_PAST_SITE_EVENTS			= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
+														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
+														"where (CONTEXT = ? or (EVENT in ('pres.begin','pres.end') and REF = ?)) " +
+														"and EVENT_DATE >= ? and EVENT_DATE <= ?";
+	private String ORACLE_PAST_SITE_EVENTS			= "SELECT " + ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN + " " +
+														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
+														"where (CONTEXT = ? or (EVENT in ('pres.begin','pres.end') and REF = ?)) " +
+														"and EVENT_DATE >= ? and EVENT_DATE <= ?";
 	
 	// Services
 	private StatsUpdateManager	statsUpdateManager	= null;
@@ -397,6 +406,81 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		}
 		return ok;
 	}
+	
+	public long collectPastSiteEvents(String siteId, Date initialDate, Date finalDate) {
+		List<Event> eventsQueue = new ArrayList<Event>();
+		Connection connection = getEventDbConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		long count = 0;
+		long opStart = System.currentTimeMillis();
+		try{
+			st = connection.prepareStatement(sqlPastSiteEvents);
+			st.setString(1, siteId);									// CONTEXT = ?	
+			st.setString(2, "/presence/"+siteId+"-presence");			// REF = ?	
+			st.setDate(3, new java.sql.Date(initialDate.getTime()));	// EVENT_DATE >= ?
+			st.setDate(4, new java.sql.Date(finalDate.getTime()));		// EVENT_DATE <= ?
+			rs = st.executeQuery();
+				
+			while(rs.next()){
+				Date date = null;
+				String event = null;
+				String ref = null;
+				String context = null;
+				String sessionUser = null;
+				String sessionId = null;
+				try{
+					//If an exception is launched, iteration is not aborted but no event is added to event queue
+					date = new Date(rs.getTimestamp("EVENT_DATE").getTime());
+					event = rs.getString("EVENT");
+					ref = rs.getString("REF");
+					sessionUser = rs.getString("SESSION_USER");
+					sessionId = rs.getString("SESSION_ID");
+					context = rs.getString("CONTEXT");
+					
+					eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, context, sessionUser, sessionId) );					
+					count++;				
+				}catch(Exception e){
+					if(LOG.isDebugEnabled())
+						LOG.debug("Ignoring "+event+", "+ref+", "+date+", "+sessionUser+", "+sessionId+" due to: "+e.toString());
+				}
+			}
+			
+			// process events
+			boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
+			eventsQueue.clear();
+			if(!processedOk){
+				String returnMessage = "An error occurred while processing/persisting events to db - please check your logs.";
+				LOG.error(returnMessage);
+				throw new Exception(returnMessage);
+			}
+			
+		}catch(SQLException e){
+			LOG.error("Unable to collect past site events", e);
+		}catch(Exception e){
+			LOG.error("Unable to collect past site due to an unknown cause", e);
+		}finally{
+			try{
+				if(rs != null)
+					try{
+						rs.close();
+					}catch(SQLException e){ }
+			}finally{
+				try{
+					if(st != null)
+						try{
+							st.close();
+						}catch(SQLException e){ }
+				}finally{
+					closeEventDbConnection(connection);
+				}
+			}
+		}
+		
+		long opEnd = System.currentTimeMillis();
+		LOG.info("Collected "+count+" past events for site "+siteId+" in "+(opEnd-opStart)/1000+" seconds.");
+		return count;
+	}
 
 
 	// ################################################################
@@ -415,12 +499,18 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					else
 						sqlGetEvent = ORACLE_GET_EVENT.replaceAll(ORACLE_CONTEXT_COLUMN, "");
 					
+					// this feature is only available for Sakai >= 2.6.x
+					sqlPastSiteEvents = ORACLE_PAST_SITE_EVENTS;
+					
 				}else{
 					isOracle = false;
 					if(isEventContextSupported)
 						sqlGetEvent = MYSQL_GET_EVENT;
 					else
 						sqlGetEvent = MYSQL_GET_EVENT.replaceAll(MYSQL_CONTEXT_COLUMN, "");
+					
+					// this feature is only available for Sakai >= 2.6.x
+					sqlPastSiteEvents = MYSQL_PAST_SITE_EVENTS;
 				}
 			}catch(SQLException e){
 				LOG.error("Unable to connect Sakai Db", e);

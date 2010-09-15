@@ -42,6 +42,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -286,6 +287,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		}
 		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectPastSiteEvents(java.lang.String, java.util.Date, java.util.Date)
+	 */
+	public long collectPastSiteEvents(String siteId, Date initialDate, Date finalDate) {
+		StatsAggregateJobImpl statsAggregateJob = (StatsAggregateJobImpl) ComponentManager.get("org.sakaiproject.sitestats.api.StatsAggregateJob");
+		return statsAggregateJob.collectPastSiteEvents(siteId, initialDate, finalDate);
 	}
 	
 	/* (non-Javadoc)

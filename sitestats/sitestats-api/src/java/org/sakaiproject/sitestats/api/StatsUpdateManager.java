@@ -86,6 +86,17 @@ public interface StatsUpdateManager {
 	public boolean collectEvents(Event[] events);
 	
 	/**
+	 * Collect Sakai events from SAKAI_EVENTS table for a specific site, between specified dates.
+	 * Useful to collect events not processed by SiteStats (occurs when tool is configured to process
+	 * events from sites with the tool placed, and the tool was placed some time after site creation).
+	 * @param siteId The site id
+	 * @param initialDate The initial date of events from SAKAI_EVENT
+	 * @param finalDate The final date of events from SAKAI_EVENT
+	 * @return The number of processed events
+	 */
+	public long collectPastSiteEvents(String siteId, Date initialDate, Date finalDate);
+	
+	/**
 	 * Construct a new Event object using specified arguments. Useful for building Events read from SAKAI_EVENT and SAKAI_SESSION table.
 	 * @param date The SAKAI_EVENT.EVENT_DATE field
 	 * @param event The SAKAI_EVENT.EVENT field
