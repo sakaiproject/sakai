@@ -48,12 +48,12 @@
      </h:outputLink>
    </p>
    <p class="act">
-      <h:commandButton id="remove" accesskey="#{authorMessages.remove_attachment}" type="submit" value="#{authorMessages.button_remove}" action="editPart" styleClass="active">
+      <h:commandButton id="remove" type="submit" value="#{authorMessages.button_remove}" action="editPart" styleClass="active">
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemoveAttachmentListener" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
       </h:commandButton>
-      <h:commandButton accesskey="#{authorMessages.a_cancel}" id="cancel" value="#{authorMessages.button_cancel}" type="submit" action="editAssessment"/>
+      <h:commandButton id="cancel" value="#{authorMessages.button_cancel}" type="submit" action="editAssessment"/>
    </p>
  </h:form>
  <!-- end content -->

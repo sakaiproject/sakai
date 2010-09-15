@@ -44,7 +44,7 @@
        <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" />
      </div>
        <p class="act">
-       <h:commandButton id="retract" accesskey="#{assessmentSettingsMessages.a_retract}" value="#{assessmentSettingsMessages.button_retract}" type="submit"
+       <h:commandButton id="retract" value="#{assessmentSettingsMessages.button_retract}" type="submit"
          styleClass="active" action="author" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />

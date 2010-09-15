@@ -47,7 +47,7 @@
          rendered="#{delivery.settings.autoSubmit}" />
   </div>
  <p class="act">
-       <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="submit"
+       <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
          styleClass="active" action="select" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />

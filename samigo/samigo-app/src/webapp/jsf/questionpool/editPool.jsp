@@ -95,7 +95,7 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
   </h:inputHidden>
 </h:panelGrid>
 <div style="margin-top:1em;margin-bottom:2.5em">
-  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="Update"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
+  <h:commandButton id="Update"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   </h:commandButton>
 </div>
@@ -149,7 +149,7 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
 </h4>
   <div class="tier2">
 <div class="navIntraToolLink">
-  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="removeSubmit"   rendered="#{questionpool.importToAuthoring == 'false'}"  action="#{questionpool.doit}" value="#{questionPoolMessages.remove}">
+  <h:commandButton id="removeSubmit"   rendered="#{questionpool.importToAuthoring == 'false'}"  action="#{questionpool.doit}" value="#{questionPoolMessages.remove}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
   </h:commandButton>
  
@@ -190,13 +190,13 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
 <!-- for importing questions from pool to authoring -->
 <!-- disable copy button once clicked.  show processing... -->
 
-  <h:commandButton accesskey="#{questionPoolMessages.a_copy}" id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
+  <h:commandButton id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
    onclick="disableImport(); showNotif('submitnotif',this.name,'editform');" onkeypress="disableImport(); showNotif('submitnotif',this.name,'editform');"
         value="#{questionPoolMessages.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
-  <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true">
+  <h:commandButton style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
   </h:commandButton>
 

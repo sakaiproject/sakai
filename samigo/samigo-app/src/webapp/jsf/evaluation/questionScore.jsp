@@ -1070,13 +1070,13 @@ document.location='../evaluation/questionScore';
 
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
-   <h:commandButton accesskey="#{evaluationMessages.a_update}" styleClass="active" value="#{evaluationMessages.save_cont}" action="questionScores" type="submit" >
+   <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="questionScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
    </h:commandButton>
-   <h:commandButton accesskey="#{evaluationMessages.a_cancel}" value="#{evaluationMessages.cancel}" action="totalScores" immediate="true"/>
+   <h:commandButton value="#{evaluationMessages.cancel}" action="totalScores" immediate="true"/>
 </div>
 </h:form>
 </div>

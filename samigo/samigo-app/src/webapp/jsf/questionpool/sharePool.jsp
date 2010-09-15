@@ -285,10 +285,10 @@
 
 <p class="act">
  
-  <h:commandButton accesskey="#{questionPoolMessages.a_ok}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_sharePool}" action="#{questionpoolshare.sharePool}" >
+  <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_sharePool}" action="#{questionpoolshare.sharePool}" >
   </h:commandButton>
 
-  <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" type="submit" immediate="true" id="cancel" value="#{questionPoolMessages.cancel}" action="poolList"  >
+  <h:commandButton type="submit" immediate="true" id="cancel" value="#{questionPoolMessages.cancel}" action="poolList"  >
   </h:commandButton>
 </p>
 

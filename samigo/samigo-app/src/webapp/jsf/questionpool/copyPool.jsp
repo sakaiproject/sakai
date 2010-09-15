@@ -84,15 +84,15 @@
 
 <p class="act">
 
-  <h:commandButton accesskey="#{questionPoolMessages.a_copy}" id="copypoolsubmit" immediate="true" value="#{questionPoolMessages.copy}"
+  <h:commandButton id="copypoolsubmit" immediate="true" value="#{questionPoolMessages.copy}"
     action="#{questionpool.copyPool}" styleClass="active" rendered="#{questionpool.actionType == 'pool'}">
   </h:commandButton>
 
-  <h:commandButton accesskey="#{questionPoolMessages.a_copy}" id="copyitemsubmit" immediate="true" value="#{questionPoolMessages.copy}"
+  <h:commandButton id="copyitemsubmit" immediate="true" value="#{questionPoolMessages.copy}"
     action="#{questionpool.copyQuestion}" styleClass="active" rendered="#{questionpool.actionType == 'item'}">
   </h:commandButton>
 
-<h:commandButton accesskey="#{questionPoolMessages.a_cancel}" id="cancel" value="#{questionPoolMessages.cancel}" action="#{questionpool.cancelPool}" immediate="true"/>
+<h:commandButton id="cancel" value="#{questionPoolMessages.cancel}" action="#{questionpool.cancelPool}" immediate="true"/>
 
 </p>
 </h:form>

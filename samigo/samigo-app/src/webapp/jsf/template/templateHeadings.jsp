@@ -24,7 +24,7 @@
 <f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
 <li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
 
-   <h:commandLink accesskey="#{generalMessages.a_assessment}" title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true" rendered="#{authorization.adminAssessment}">
+   <h:commandLink title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true" rendered="#{authorization.adminAssessment}">
       <h:outputText value="#{generalMessages.assessment}" />
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
@@ -38,7 +38,7 @@
 <f:verbatim></span></li>
 <li role="menuitem" ><span></f:verbatim>
 
-    <h:commandLink id="questionPoolsLink" accesskey="#{generalMessages.a_pool}" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
+    <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{generalMessages.questionPool}" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />

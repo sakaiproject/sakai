@@ -55,7 +55,7 @@
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -136,7 +136,7 @@
 
 <!-- BEGIN ASSESSMENT BUTTON -->
 <!-- When previewing, we don't need to check security. When take the assessment for real, we do -->
- <h:commandButton id="beginAssessment1" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" 
+ <h:commandButton id="beginAssessment1" value="#{deliveryMessages.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
@@ -144,7 +144,7 @@
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton id="beginAssessment2" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" 
+ <h:commandButton id="beginAssessment2" value="#{deliveryMessages.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
@@ -152,7 +152,7 @@
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton id="beginAssessment3" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
+ <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
@@ -165,7 +165,7 @@
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
-  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_cancel}" type="button"
+  <h:commandButton value="#{deliveryMessages.button_cancel}" type="button"
      style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
 onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
@@ -176,7 +176,7 @@ onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

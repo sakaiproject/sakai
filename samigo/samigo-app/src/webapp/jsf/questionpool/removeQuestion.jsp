@@ -51,11 +51,11 @@
 </h:dataTable>
 
      <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton accesskey="#{questionPoolMessages.a_remove}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.remove}"
+  <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.remove}"
     action="#{questionpool.removeQuestionsFromPool}" >
   </h:commandButton>
 
-<h:commandButton id="cancel" accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="editPool"/>
+<h:commandButton id="cancel" style="act" value="#{questionPoolMessages.cancel}" action="editPool"/>
 
      </h:panelGrid>
    </h:panelGrid>

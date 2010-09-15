@@ -26,7 +26,7 @@
 <f:verbatim></span></li></f:verbatim>
 <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
 <f:verbatim><li role="menuitem" ><span></f:verbatim>
-    <h:commandLink accesskey="#{generalMessages.a_template}" title="#{generalMessages.t_template}" action="template" immediate="true">
+    <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
       <h:outputText value="#{generalMessages.template}" />
     </h:commandLink>
@@ -34,7 +34,7 @@
 </h:panelGroup>
 <f:verbatim><li role="menuitem" ><span></f:verbatim>
 
-    <h:commandLink id="questionPoolsLink"  accesskey="#{generalMessages.a_pool}" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
+    <h:commandLink id="questionPoolsLink"  title="#{generalMessages.t_questionPool}" action="poolList" immediate="true" rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{generalMessages.questionPool}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
     </h:commandLink>

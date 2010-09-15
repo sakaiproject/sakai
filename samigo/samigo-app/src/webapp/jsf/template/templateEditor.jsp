@@ -667,17 +667,17 @@
 
   <p class="act">
   <h:panelGroup rendered="#{(template.idString ne '1' && template.typeId ne '142') || person.isAdmin}">
-    <h:commandButton accesskey="#{templateMessages.a_save}" type="submit" id="Submit" value="#{templateMessages.save}"
+    <h:commandButton type="submit" id="Submit" value="#{templateMessages.save}"
       action="#{templateIndex.getOutcome}" styleClass="active">
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateUpdateListener" />
                 </h:commandButton>
     <h:outputText escape="false" value="&nbsp;&nbsp;" />
-    <h:commandButton accesskey="#{templateMessages.a_cancel}" type="submit" id="Cancel" value="#{templateMessages.cancel}"
+    <h:commandButton type="submit" id="Cancel" value="#{templateMessages.cancel}"
       action="template"/>
   </h:panelGroup>
   <h:panelGroup rendered="#{template.typeId eq '142' && !person.isAdmin}">
-    <h:commandButton accesskey="#{templateMessages.a_cancel}" type="submit" id="Exit" value="#{templateMessages.cancel}"
+    <h:commandButton type="submit" id="Exit" value="#{templateMessages.cancel}"
       action="template"/>
   </h:panelGroup>
   </p>

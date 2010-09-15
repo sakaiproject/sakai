@@ -88,7 +88,7 @@ function clickSubmitForGrade(){
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -192,19 +192,19 @@ function clickSubmitForGrade(){
                              && authorization!=null 
                              && authorization.takeAssessment 
                              && authorization.submitAssessmentForGrade)}">
-    <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
+    <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.confirmSubmitTOC}" styleClass="active"  
       onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
-  <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmitTOC}" styleClass="active"   
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
-  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_exit}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{(delivery.actionString=='takeAssessment'
@@ -212,7 +212,7 @@ function clickSubmitForGrade(){
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
-  <h:commandButton accesskey="#{deliveryMessages.a_quit}" type="submit" value="#{deliveryMessages.button_exit}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="quit"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.hasTimeLimit}" >
@@ -223,7 +223,7 @@ function clickSubmitForGrade(){
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

@@ -45,7 +45,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <p>
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 </p>
-<h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  accesskey="#{evaluationMessages.a_close}" value="#{evaluationMessages.close}"/>
+<h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  value="#{evaluationMessages.close}"/>
 
 </div>	
 

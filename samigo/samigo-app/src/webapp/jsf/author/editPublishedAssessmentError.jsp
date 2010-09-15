@@ -42,7 +42,7 @@
        <h:outputText value="#{authorMessages.edit_published_assessment_error_info}" />
      </div>
        <p class="act">
-       <h:commandButton id="return" accesskey="#{authorMessages.a_return}" value="#{authorMessages.button_return}" type="submit" styleClass="active" action="author" >
+       <h:commandButton id="return" value="#{authorMessages.button_return}" type="submit" styleClass="active" action="author" >
        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
        </h:commandButton>
        </p>

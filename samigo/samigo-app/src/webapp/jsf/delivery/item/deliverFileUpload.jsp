@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
     target="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}"
     valueChangeListener="#{delivery.addMediaToItemGrading}" />
   <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-  <h:commandButton id="upl" accesskey="#{deliveryMessages.a_upload}" value="#{deliveryMessages.upload}" action="#{delivery.getOutcome}" onclick="showNotif('submitnotif',this.name,'takeAssessmentForm');"/>
+  <h:commandButton id="upl" value="#{deliveryMessages.upload}" action="#{delivery.getOutcome}" onclick="showNotif('submitnotif',this.name,'takeAssessmentForm');"/>
 </h:panelGroup>
 <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> #{deliveryMessages.processing}</span>"/>
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
@@ -56,9 +56,9 @@ should be included in file importing DeliveryMessages
   <!-- please check the valueChangeListener to get the final destination -->
   <h:inputText size="50" />
   <h:outputText value="  " />
-  <h:commandButton accesskey="#{deliveryMessages.a_browse}" value="#{deliveryMessages.browse}" type="button"/>
+  <h:commandButton value="#{deliveryMessages.browse}" type="button"/>
   <h:outputText value="  " />
-  <h:commandButton accesskey="#{deliveryMessages.a_upload}" value="#{deliveryMessages.upload}" type="button"/>
+  <h:commandButton value="#{deliveryMessages.upload}" type="button"/>
 </h:panelGroup>
 
 <f:verbatim><br /></f:verbatim>

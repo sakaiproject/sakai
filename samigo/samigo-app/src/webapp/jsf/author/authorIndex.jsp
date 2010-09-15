@@ -119,7 +119,7 @@ document.links[newindex].onclick();
     <h:outputText value=" "/>
     <h:panelGroup>
 	  <h:inputText id="title" value="#{author.assessTitle}" size="32" />
-      <h:commandButton type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" accesskey="#{authorFrontDoorMessages.a_create}">
+      <h:commandButton type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
       </h:commandButton>
     </h:panelGroup>
@@ -135,7 +135,7 @@ document.links[newindex].onclick();
     <h:outputText value=" " rendered="#{author.showTemplateList}"/>
 	<h:panelGroup rendered="#{author.showTemplateList}">
   	  <h:outputText value="#{authorFrontDoorMessages.assessment_choose} " />
-	  <h:selectOneMenu id="assessmentTemplate" accesskey="#{authorFrontDoorMessages.a_select}" value="#{author.assessmentTemplateId}" >
+	  <h:selectOneMenu id="assessmentTemplate" value="#{author.assessmentTemplateId}" >
         <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
         <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
@@ -160,8 +160,7 @@ document.links[newindex].onclick();
 	</h:panelGroup>
     <h:outputText value=" "/>
     <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
-      rendered="#{authorization.createAssessment}" accesskey="#{authorFrontDoorMessages.a_import}"
-      action="importAssessment">
+      rendered="#{authorization.createAssessment}" action="importAssessment">
     </h:commandButton>
   </h:panelGrid>
 

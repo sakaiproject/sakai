@@ -55,13 +55,13 @@
 </h:panelGrid>
 
 <p class="act">
-<h:commandButton accesskey="#{authorMessages.a_save}" type="submit"  action="#{itemauthor.doit}" value="#{authorMessages.button_save}" styleClass="active">
+<h:commandButton type="submit"  action="#{itemauthor.doit}" value="#{authorMessages.button_save}" styleClass="active">
    <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandButton>
 
-  <h:commandButton accesskey="#{authorMessages.a_cancel}" type="button" id="Cancel" value="#{authorMessages.button_cancel}" immediate="true"
+  <h:commandButton type="button" id="Cancel" value="#{authorMessages.button_cancel}" immediate="true"
     onclick="document.location='editPool.faces'" onkeypress="document.location='editPool.faces'"/>
 </p>
 

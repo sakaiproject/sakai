@@ -64,7 +64,7 @@ remove the javascript onclick stuff.
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -145,7 +145,7 @@ function saveTime()
 <p class="act">
 
   <%-- SUBMIT FOR GRADE --%>
-  <h:commandButton id="submitforGrade" accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
+  <h:commandButton id="submitforGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.submitForGrade}" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
@@ -154,7 +154,7 @@ function saveTime()
     onclick="disableSubmitForGrade()" onkeypress="" />
 
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
-  <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
       rendered="#{(delivery.actionString=='takeAssessment'
 				   || delivery.actionString=='previewAssessment')
@@ -191,7 +191,7 @@ function saveTime()
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

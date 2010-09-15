@@ -34,8 +34,8 @@ should be included in file importing DeliveryMessages
   <!-- please check the valueChangeListener to get the final destination -->
   <h:inputText size="50" />
   <h:outputText value="  " />
-  <h:commandButton accesskey="#{evaluationMessages.a_browse}" value="#{evaluationMessages.browse}" type="button"/>
+  <h:commandButton value="#{evaluationMessages.browse}" type="button"/>
   <h:outputText value="  " />
-  <h:commandButton accesskey="#{evaluationMessages.a_upload}" value="#{evaluationMessages.upload}" type="button"/>
+  <h:commandButton value="#{evaluationMessages.upload}" type="button"/>
 </h:panelGroup>
 <f:verbatim><br /></f:verbatim>

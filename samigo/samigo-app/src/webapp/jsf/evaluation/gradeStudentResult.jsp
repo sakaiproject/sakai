@@ -288,7 +288,7 @@ document.location='../evaluation/gradeStudentResult';
 </h:commandLink>
 
 <p class="act">
-   <h:commandButton accesskey="#{evaluationMessages.a_save}" styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">
+   <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
@@ -298,7 +298,7 @@ document.location='../evaluation/gradeStudentResult';
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton accesskey="#{evaluationMessages.a_cancel}" value="#{evaluationMessages.cancel}" action="totalScores" immediate="true">
+   <h:commandButton value="#{evaluationMessages.cancel}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>

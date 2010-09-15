@@ -48,10 +48,10 @@
      </h:outputLink>
    </p>
    <p class="act">
-      <h:commandButton id="remove" accesskey="#{deliveryMessages.a_remove}" type="submit" value="#{deliveryMessages.button_remove}" action="#{delivery.getOutcome}" styleClass="active">
+      <h:commandButton id="remove" type="submit" value="#{deliveryMessages.button_remove}" action="#{delivery.getOutcome}" styleClass="active">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.RemoveMediaListener" />
       </h:commandButton>
-      <h:commandButton accesskey="#{deliveryMessages.a_cancel}" id="cancel" value="#{deliveryMessages.button_cancel}" type="submit" action="takeAssessment">
+      <h:commandButton id="cancel" value="#{deliveryMessages.button_cancel}" type="submit" action="takeAssessment">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
       </h:commandButton>
    </p>

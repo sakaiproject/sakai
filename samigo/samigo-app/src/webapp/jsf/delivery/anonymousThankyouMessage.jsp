@@ -39,7 +39,7 @@
 <h:form id="redirectLoginForm">
   <h:outputText value="#{deliveryMessages.anonymous_thank_you}"/>
   <h3 style="insColor insBak"><h:outputText  value="#{deliveryMessages.anonymous_thank_you_message}" /></h3>
-  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_continue}" type="button"
+  <h:commandButton value="#{deliveryMessages.button_continue}" type="button"
      style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </h:form>
 </div>

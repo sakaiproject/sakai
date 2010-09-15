@@ -58,11 +58,11 @@ We need to find a strategy for doing this.
 something like if type true false render include true false etc.
 -->
 <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton accesskey="#{authorMessages.a_save}" type="submit" value="#{authorMessages.button_save}" action="editAssessment">
+  <h:commandButton type="submit" value="#{authorMessages.button_save}" action="editAssessment">
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
   </h:commandButton>
-  <h:commandButton accesskey="#{authorMessages.a_cancel}" type="submit" value="#{authorMessages.button_cancel}" action="editAssessment">
+  <h:commandButton type="submit" value="#{authorMessages.button_cancel}" action="editAssessment">
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
   </h:commandButton>

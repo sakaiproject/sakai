@@ -117,10 +117,10 @@
 
 <p class="act">
  
-<h:commandButton accesskey="#{questionPoolMessages.a_update}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
 
-  <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{questionPoolMessages.cancel}" action="#{questionpool.cancelImport}"  >
+  <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{questionPoolMessages.cancel}" action="#{questionpool.cancelImport}"  >
   </h:commandButton>
 </p>
 

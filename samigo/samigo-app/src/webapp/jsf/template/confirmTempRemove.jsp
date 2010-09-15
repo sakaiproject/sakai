@@ -48,7 +48,7 @@
 
        </div>
        <p class="act">
-       <h:commandButton id="remove" accesskey="#{templateMessages.a_remove}" value="#{templateMessages.index_button_remove}" type="submit"
+       <h:commandButton id="remove" value="#{templateMessages.index_button_remove}" type="submit"
          styleClass="active" action="template" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.DeleteTemplateListener" />

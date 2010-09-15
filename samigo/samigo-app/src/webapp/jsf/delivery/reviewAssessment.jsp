@@ -122,7 +122,7 @@
   </h:dataTable>
 </div>
 <h:panelGrid columns="3" cellpadding="3" cellspacing="3">
-  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" type="submit" value="#{deliveryMessages.button_cancel}" action="select">
+  <h:commandButton type="submit" value="#{deliveryMessages.button_cancel}" action="select">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 </h:panelGrid>

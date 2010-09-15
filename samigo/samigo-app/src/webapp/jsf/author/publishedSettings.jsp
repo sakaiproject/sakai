@@ -340,7 +340,7 @@ function uncheckOther(field){
       <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
 	  <h:outputText value="#{assessmentSettingsMessages.word_or}"/>
 	  <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:commandButton accesskey="#{assessmentSettingsMessages.a_retract}" type="submit" value="#{assessmentSettingsMessages.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" />
+      <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_retract_now}" action="confirmAssessmentRetract"  styleClass="active" />
       </h:panelGroup>
       <h:outputText value="" />
       <h:outputText value="#{assessmentSettingsMessages.assessment_retract_date_note}" />
@@ -941,7 +941,7 @@ function uncheckOther(field){
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton accesskey="#{assessmentSettingsMessages.a_saveSettings}" type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();" >
+  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   

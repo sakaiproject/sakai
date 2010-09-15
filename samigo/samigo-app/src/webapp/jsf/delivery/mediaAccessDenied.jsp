@@ -42,11 +42,11 @@
   <h:outputText  value="#{deliveryMessages.media_access_denied_message}" /></h3>
   </div>
  <p class="act">
-  <h:commandButton accesskey="#{deliveryMessages.a_ok}" value="#{deliveryMessages.button_ok}" type="button"
+  <h:commandButton value="#{deliveryMessages.button_ok}" type="button"
      styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 
 <%--
-  <h:commandButton accesskey="#{deliveryMessages.a_ok}" value="#{deliveryMessages.button_ok}" type="submit"
+  <h:commandButton value="#{deliveryMessages.button_ok}" type="submit"
      style="act" action="#{delivery.doit}" >
      <f:actionListener
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />

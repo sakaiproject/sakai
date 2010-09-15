@@ -127,7 +127,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
 
 <%-- from question pool context, do not show question pool as option --%>
-<h:selectOneMenu accesskey="#{authorMessages.a_options}" rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
+<h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />

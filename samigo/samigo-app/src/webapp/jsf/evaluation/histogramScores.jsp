@@ -278,7 +278,7 @@ $Id$
 
 
 
-<h:commandButton accesskey="#{evaluationMessages.a_return}"value="#{evaluationMessages.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
+<h:commandButton value="#{evaluationMessages.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
 </div>
 </h:form>
 </div>

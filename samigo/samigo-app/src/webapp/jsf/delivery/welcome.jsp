@@ -39,7 +39,7 @@
 Welcome, if this is the assessment, please continue
   <!-- content... -->
   <h:form id="anonymousPage">
-      <h:commandLink accesskey="#{mainIndexMessages.a_ok}" action="beginAssessment" >
+      <h:commandLink action="beginAssessment" >
         <f:param name="publishedId" value="#{delivery.publishedAssessment.publishedAssessmentId}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />

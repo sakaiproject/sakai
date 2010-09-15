@@ -43,7 +43,7 @@
   <%-- Clicking OK returns user to the assessments page. --%>
   <h:form id="ok">
   <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-   <h:commandButton accesskey="#{authorMessages.a_ok}" value="#{authorMessages.button_ok}" type="submit"
+   <h:commandButton value="#{authorMessages.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>
 </div>

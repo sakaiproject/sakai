@@ -42,7 +42,7 @@
   <h:outputText  value="#{authorImportExport.export_denied_message}" />
   </div>
  <p class="act">
-  <h:commandButton accesskey="#{authorImportExport.a_login}" value="#{authorImportExport.button_continue}" type="button"
+  <h:commandButton value="#{authorImportExport.button_continue}" type="button"
      styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </h:form>
 </div>
