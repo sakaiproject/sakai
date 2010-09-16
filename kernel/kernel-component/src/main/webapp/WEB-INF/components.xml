@@ -27,5 +27,6 @@ Uncomment to enable JCR Content
      <import resource="event-components.xml" />
      <import resource="memory-components.xml" />
      <import resource="util-components.xml" />
+     <import resource="messagebundle-components.xml" />
 
 </beans>
