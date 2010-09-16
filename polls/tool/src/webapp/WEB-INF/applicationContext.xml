@@ -36,7 +36,7 @@
 		Spring messageSource replaces JSF message-bundle from faces-config.xml
 	-->
 	<bean id="messageSource"
-		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		class="org.sakaiproject.util.ResourceLoaderMessageSource">
 		<property name="basename"
 			value="classpath:org/sakaiproject/poll/bundle/Messages" />
 		<property name="cacheSeconds" value="10" />
