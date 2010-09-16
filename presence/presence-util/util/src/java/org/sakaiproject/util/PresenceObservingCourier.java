@@ -25,6 +25,7 @@ import java.util.Observable;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.presence.cover.PresenceService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>
@@ -123,13 +124,22 @@ public class PresenceObservingCourier extends EventObservingCourier
 
 		if (!check(arg)) return;
 
-		if (m_elementId == null)
+		boolean inFrame = ServerConfigurationService.getBoolean("display.users.present.iframe", false);
+		if ( inFrame ) 
 		{
-			m_courierService.deliver(new DirectRefreshDelivery(getDeliveryId()));
+			if (m_elementId == null)
+			{
+				m_courierService.deliver(new DirectRefreshDelivery(getDeliveryId()));
+			}
+			else
+			{
+				m_courierService.deliver(new DirectRefreshDelivery(getDeliveryId(), m_elementId));
+			}
 		}
 		else
 		{
-			m_courierService.deliver(new DirectRefreshDelivery(getDeliveryId(), m_elementId));
+			String updatePresence = "try { updatePresence(); } catch(err) { }";
+			m_courierService.deliver(new TestDelivery(getDeliveryId(), m_elementId, updatePresence));
 		}
 	}
 }

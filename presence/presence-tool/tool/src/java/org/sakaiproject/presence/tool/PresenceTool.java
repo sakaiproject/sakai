@@ -116,14 +116,12 @@ public class PresenceTool extends HttpServlet
 
 		// If we are a full frame, make sure we have an observing watching 
 		// for presence change at location
-		if ( ! "yes".equals(req.getParameter(OUTPUT_FRAGMENT) ) ) {
-			PresenceObservingCourier observer = (PresenceObservingCourier) toolSession.getAttribute(ATTR_OBSERVER);
-			if (observer == null)
-			{
-				// setup an observer to notify us when presence at this location changes
-				observer = new PresenceObservingCourier(location);
-				toolSession.setAttribute(ATTR_OBSERVER, observer);
-			}
+		PresenceObservingCourier observer = (PresenceObservingCourier) toolSession.getAttribute(ATTR_OBSERVER);
+		if (observer == null)
+		{
+			// setup an observer to notify us when presence at this location changes
+			observer = new PresenceObservingCourier(location);
+			toolSession.setAttribute(ATTR_OBSERVER, observer);
 		}
 
 		// get the list of users at the location
@@ -172,10 +170,7 @@ public class PresenceTool extends HttpServlet
 		// start the response
 		PrintWriter out = startResponse(req, res, "presence");
 
-		if ( ! "yes".equals(req.getParameter(OUTPUT_FRAGMENT) ) ) 
-		{
-			sendAutoUpdate(out, req, placement.getId(), placement.getContext());
-		}
+		sendAutoUpdate(out, req, placement.getId(), placement.getContext());
 		sendPresence(out, users, chatUsers);
 
 		// end the response
