@@ -1895,13 +1895,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_eid = eid;
 
 			// setup for properties
-			ResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
+			BaseResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
 			m_properties = props;
 
 			// if the id is not null (a new user, rather than a reconstruction)
 			// and not the anon (id == "") user,
 			// add the automatic (live) properties
 			if ((m_id != null) && (m_id.length() > 0)) addLiveProperties(this);
+			
+			//KNL-567 lazy set the properties to be lazy so they get loaded
+			props.setLazy(true);
 		}
 
 		public BaseUserEdit(String id)
