@@ -10,7 +10,7 @@
 		class="uk.org.ponder.springutil.SpringMessageLocator">
 		<property name="messageSource">
 			<bean
-				class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+				class="org.sakaiproject.util.ResourceLoaderMessageSource">
 				<property name="basename">
 					<value>WEB-INF/bundle/messages</value>
 				</property>
