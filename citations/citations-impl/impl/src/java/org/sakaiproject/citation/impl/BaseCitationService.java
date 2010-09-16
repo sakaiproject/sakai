@@ -839,7 +839,8 @@ public abstract class BaseCitationService implements CitationService
 					continue; // Skip if this is a special field
 				}
 				String rislabel = field.getIdentifier(RIS_FORMAT);
-				if (rislabel != null)
+				// SAK-16740 -- Need to skip fields if risLabel is "" (or null)
+				if (rislabel != null && ! rislabel.trim().equals(""))
 				{
 					exportRisField(rislabel, getCitationProperty(fieldname), buffer);
 				}
@@ -4878,6 +4879,8 @@ public abstract class BaseCitationService implements CitationService
 	    unknown.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
 
 	    unknown.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+	    // SAK-16740 -- rislabel for "year" is "Y1" (or "PY")
+	    unknown.addAlternativeIdentifier(Schema.YEAR, RIS_FORMAT, "Y1");
 
 	    unknown.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
@@ -4950,6 +4953,8 @@ public abstract class BaseCitationService implements CitationService
 	    article.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "JF");
 
 	    article.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+	    // SAK-16740 -- rislabel for "year" is "Y1" (or "PY")
+	    article.addAlternativeIdentifier(Schema.YEAR, RIS_FORMAT, "Y1");
 
 	    article.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    article.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
@@ -4961,6 +4966,7 @@ public abstract class BaseCitationService implements CitationService
 	    article.addAlternativeIdentifier(Schema.ISSUE, RIS_FORMAT, "IS");
 
 	    article.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
+	    article.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
 
 	    article.addField("startPage", Schema.NUMBER, true, false, 0, 1);
 	    article.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
@@ -5004,6 +5010,8 @@ public abstract class BaseCitationService implements CitationService
 	    book.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "BT");
 
 	    book.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+	    // SAK-16740 -- rislabel for "year" is "Y1" (or "PY")
+	    book.addAlternativeIdentifier(Schema.YEAR, RIS_FORMAT, "Y1");
 
 	    book.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    book.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
@@ -5060,6 +5068,8 @@ public abstract class BaseCitationService implements CitationService
 	    chapter.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "CT");
 
 	    chapter.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+	    // SAK-16740 -- rislabel for "year" is "Y1" (or "PY")
+	    chapter.addAlternativeIdentifier(Schema.YEAR, RIS_FORMAT, "Y1");
 
 	    chapter.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
@@ -5124,6 +5134,8 @@ public abstract class BaseCitationService implements CitationService
 	    report.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
 
 	    report.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+	    // SAK-16740 -- rislabel for "year" is "Y1" (or "PY")
+	    report.addAlternativeIdentifier(Schema.YEAR, RIS_FORMAT, "Y1");
 
 	    report.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    report.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
