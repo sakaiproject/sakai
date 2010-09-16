@@ -34,6 +34,7 @@
       --%>
 	  <sakai:view_content>
 				<h1 style="font-size:1em;padding:0;margin:0"> <h:outputText value="#{msgs.search}" /></h1>
+				<h:outputLabel value="#{msgs.search}" for="searchField" styleClass="skip"/>
 				<h:inputText value="#{SearchTool.searchString}" required="true" onclick="clearText(this)" id="searchField"/>
 	 		<h:commandButton action="#{SearchTool.processActionSearch}" id="searchButton" value="#{msgs.search_button}"  onclick="document.getElementById('message').style.display = 'block';"> 
 				 <help:defaultAction/>
