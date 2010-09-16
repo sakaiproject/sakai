@@ -2037,6 +2037,60 @@ public class UserPrefsTool
 	}
 	
 	/**
+	 * Convenience method to take a string (comma delimited list of values) and turn it in to a list.
+	 * @param toolIds
+	 * @return
+	 */
+	private List<String> stringToList(String toolIds)
+	{
+		if ((toolIds != null) && (toolIds.length() > 0))
+		{
+			String[] items = toolIds.split(",");
+			return Arrays.asList(items);
+		}
+		return new ArrayList<String>();
+	}
+	
+	/**
+	 * Looks at the various hide and stealth properties to determine which tools should be displayed.
+	 * This method mostly taken from org.sakaiproject.tool.impl.ToolComponent.init() and modified a bit.
+	 * @return
+	 */
+	private String[] getHiddenTools() {
+		// compute the tools to hide: these are the stealth tools plus the hidden tools, minus the visible ones
+		Set<String> toHide = new HashSet();
+		
+		String hiddenToolsPrefs = ServerConfigurationService.getString("prefs.tool.hidden");
+		String stealthTools = ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager");
+		String hiddenTools = ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager");
+		String visibleTools = ServerConfigurationService.getString("visibleTools@org.sakaiproject.tool.api.ActiveToolManager");
+		
+
+		if (stealthTools != null)
+		{
+			toHide.addAll(stringToList(stealthTools));
+		}
+
+		if (hiddenTools!= null)
+		{
+			toHide.addAll(stringToList(hiddenTools));
+		}
+
+		if (visibleTools != null)
+		{
+			toHide.removeAll(stringToList(visibleTools));
+		}
+		
+		if (hiddenToolsPrefs != null)
+		{
+			toHide.addAll(stringToList(hiddenToolsPrefs));
+		}
+		
+		return toHide.toArray(new String[]{});
+
+	}
+	
+	/**
 	 * Determine the sorting and if any should be hidden from view
 	 * @param decoItems
 	 */
@@ -2044,8 +2098,9 @@ public class UserPrefsTool
 		
 		Map<String, Integer> toolOrderMap = new HashMap<String, Integer>();
 		String[] toolOrder = ServerConfigurationService.getStrings("prefs.tool.order");
-		String hiddenTools = ServerConfigurationService.getString("prefs.tool.hidden");
-		String[] parsedHidden = hiddenTools.split(",");
+		//String hiddenTools = ServerConfigurationService.getString("prefs.tool.hidden");
+		
+		String[] parsedHidden = getHiddenTools();
 		Map<String, Integer> hiddenToolMap = new HashMap<String, Integer>();
 		
 		toolOrderMap = stringArrayToMap(toolOrder);
