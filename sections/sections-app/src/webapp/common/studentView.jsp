@@ -112,16 +112,24 @@
 
             <h:column>
                 <h:commandLink
-                    value="#{msgs.student_view_join}"
                     actionListener="#{studentViewBean.processJoinSection}"
                     rendered="#{section.joinable && studentViewBean.joinAllowed}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
+										<h:outputText value="#{msgs.student_view_join} " />	
+										<h:outputFormat value="#{msgs.student_view_join_sc}" styleClass="skip">
+								        <f:param value="#{section.title}"/>
+								    </h:outputFormat>
+
                 </h:commandLink>
                 <h:commandLink
-                    value="#{msgs.student_view_switch}"
                     actionListener="#{studentViewBean.processSwitchSection}"
                     rendered="#{section.switchable && studentViewBean.switchAllowed}">
                     <f:param name="sectionUuid" value="#{section.uuid}"/>
+										<h:outputText value="#{msgs.student_view_switch} " />	
+								    <h:outputFormat value="#{msgs.student_view_switch_sc}" styleClass="skip">
+								        <f:param value="#{section.title}"/>
+								    </h:outputFormat>
+
                 </h:commandLink>
                 <h:outputText
                     value="#{msgs.student_view_full}"
