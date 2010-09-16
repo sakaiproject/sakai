@@ -139,6 +139,7 @@ document.links[newindex].onclick();
         <h:outputText value="#{authorMessages.subnav_settings}" />
 	    <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
+	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
 	</h:commandLink>
 
 	<h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings_editAssessment" immediate="true"
@@ -147,14 +148,17 @@ document.links[newindex].onclick();
         <h:outputText  value="#{authorFrontDoorMessages.link_settings}" />
         <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
+	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
     </h:commandLink>
     
     <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
 
-  	<h:commandLink title="#{authorMessages.t_publish}" id="editAssessmentSettings_editAssessment2" action="editAssessmentSettings" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
+  	<h:commandLink title="#{authorMessages.t_publish}" id="editAssessmentSettings_editAssessment2" action="saveSettingsAndConfirmPublish" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
       <h:outputText value="#{authorMessages.subnav_publish}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
     </h:commandLink>
     </p>
 
@@ -180,11 +184,13 @@ document.links[newindex].onclick();
   <h:commandButton id="republish" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
       action="#{author.getOutcome}" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton id="republishRegrade" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
       action="#{author.getOutcome}" >
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
 
 </h:panelGroup>
@@ -422,11 +428,13 @@ document.links[newindex].onclick();
   <h:commandButton id="republish1" value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow}"
       action="#{author.getOutcome}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton id="republishRegrade1" value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow && assessmentBean.hasGradingData}"
       action="#{author.getOutcome}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
   </h:commandButton>
 </h:panelGroup>
 </p>

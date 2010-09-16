@@ -39,7 +39,9 @@
  <h:form id="publishAssessmentForm">
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
    <h3>
-      <h:outputText  value="#{assessmentSettingsMessages.check_settings_and_add_notification}"/>
+      <h:outputText value="#{assessmentSettingsMessages.publish_assessment}" escape="false" rendered="#{author.isEditPendingAssessmentFlow}"/>
+      <h:outputText value="#{assessmentSettingsMessages.republish_assessment}" escape="false" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}"/>
+      <h:outputText value="#{assessmentSettingsMessages.regrade_republish_assessment}" escape="false" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}"/>
    </h3>
 <div class="tier1">
 
@@ -50,8 +52,7 @@
   <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
     <h:panelGrid  columns="1">
-	   <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1} <b>#{assessmentSettingsMessages.publish_confirm_message_2}</b> #{assessmentSettingsMessages.publish_confirm_message_3}" escape="false"/>
-       <h:outputText value="#{assessmentSettingsMessages.cancel_message_1} <b>#{assessmentSettingsMessages.cancel_message_2}</b> #{assessmentSettingsMessages.cancel_message_3}" escape="false"/>
+	   <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message}" escape="false" />
     </h:panelGrid>
   </h:panelGroup>
 
@@ -77,11 +78,18 @@
 
  <f:verbatim><p class="act"></f:verbatim>
  <!-- Cancel button -->
-   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{author.isEditPendingAssessmentFlow}"/>
-   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
+   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFromPage}" rendered="#{author.isEditPendingAssessmentFlow}"/>
+   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFromPage}" rendered="#{!author.isEditPendingAssessmentFlow}">
 	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
    </h:commandButton>
 
+   <h:commandButton value="#{assessmentSettingsMessages.button_edit_settings}" type="submit" action="editAssessmentSettings" rendered="#{author.isEditPendingAssessmentFlow}">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsPublishAssessmentListener" />
+   </h:commandButton>
+   <h:commandButton value="#{assessmentSettingsMessages.button_edit_settings}" type="submit" action="editPublishedAssessmentSettings" rendered="#{!author.isEditPendingAssessmentFlow}">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsPublishAssessmentListener" />
+   </h:commandButton>
+	
    <!-- Publish, Republishe and Regrade, or Republish button -->
    <h:commandButton id="publish" value="#{assessmentSettingsMessages.button_save_and_publish}" type="submit"
 	 styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()" rendered="#{author.isEditPendingAssessmentFlow}">

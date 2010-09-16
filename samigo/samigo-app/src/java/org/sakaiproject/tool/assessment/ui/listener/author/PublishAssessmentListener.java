@@ -97,16 +97,24 @@ public class PublishAssessmentListener
 	  try {
 
   		//FacesContext context = FacesContext.getCurrentInstance();
-  		
-  		UIComponent eventSource = (UIComponent) ae.getSource();
-  		ValueBinding vb = eventSource.getValueBinding("value");
-  		String buttonValue = (String) vb.getExpressionString(); 
-  		if(buttonValue.endsWith(".button_unique_save_and_publish}"))
-  		{
+  		if (ae == null) {
   			repeatedPublish = false;
-  			return;
   		}
-  		
+  		else {
+  			UIComponent eventSource = (UIComponent) ae.getSource();
+  			ValueBinding vb = eventSource.getValueBinding("value");
+  			if (vb == null) {
+  				repeatedPublish = false;
+  			}
+  			else {
+  				String buttonValue = (String) vb.getExpressionString(); 
+  				if(buttonValue.endsWith(".button_unique_save_and_publish}"))
+  				{
+  					repeatedPublish = false;
+  					return;
+  				}
+  			}
+  		}
   		if(!repeatedPublish)
   		{
   			//Map reqMap = context.getExternalContext().getRequestMap();

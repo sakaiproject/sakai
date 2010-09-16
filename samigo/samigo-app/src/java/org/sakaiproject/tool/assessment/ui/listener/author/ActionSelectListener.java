@@ -83,9 +83,20 @@ public class ActionSelectListener implements ValueChangeListener {
 			pdfBean.setActionString("author");
 			author.setOutcome("print");
 		}
-		else if ("settings_pending".equals(newValue) || "publish".equals(newValue)) {
+		else if ("settings_pending".equals(newValue)) {
 			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();
 			authorSettingsListener.processAction(null);
+			author.setFromPage("author");
+		}
+		else if ("publish".equals(newValue)) {
+			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();
+			authorSettingsListener.processAction(null);
+			ConfirmPublishAssessmentListener confirmPublishAssessmentListener = new ConfirmPublishAssessmentListener();
+			confirmPublishAssessmentListener.processAction(null);
+			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+			publishAssessmentListener.processAction(null);
+			author.setOutcome("saveSettingsAndConfirmPublish");			
+			author.setFromPage("author");
 		}
 		else if ("duplicate".equals(newValue)) {
 			ConfirmCopyAssessmentListener confirmCopyAssessmentListener = new ConfirmCopyAssessmentListener();
@@ -112,6 +123,7 @@ public class ActionSelectListener implements ValueChangeListener {
 			ConfirmEditPublishedAssessmentListener confirmEditPublishedAssessmentListener = new ConfirmEditPublishedAssessmentListener();
 			confirmEditPublishedAssessmentListener.processAction(null);
 			author.setOutcome("confirmEditPublishedAssessment");
+			author.setFromPage("author");
 		}
 		else if ("preview_published".equals(newValue)) {
 			delivery.setActionString("previewAssessment");
