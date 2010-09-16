@@ -398,10 +398,7 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
 		rcontext.put("pageNavPresenceIframe", Boolean.valueOf(false));
-                rcontext.put("sakaiPresenceTimeMax", Integer.valueOf(90000));
-                rcontext.put("sakaiPresenceTimeMin", Integer.valueOf(30000));
                 rcontext.put("sakaiPresenceTimeDelay", Integer.valueOf(3000));
-                rcontext.put("sakaiPresenceTimeFactor", Integer.valueOf(10));
 		// rcontext.put("pageNavSitContentshead", "sit_contentshead");
 
 	}

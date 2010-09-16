@@ -183,7 +183,6 @@ function sakaiMinimizeNavigation(minSiteNav,minPageNav) {
 	}
 	$('#toggleToolMax').hide();
 	$('#toggleNormal').css({'display':'block'});
-	if ( typeof sakaiPresenceTimeMax != "undefined" ) sakaiPresenceTimeOut = sakaiPresenceTimeMax;
 }
 
 function sakaiRestoreNavigation(minSiteNav,minPageNav) {
@@ -195,11 +194,9 @@ function sakaiRestoreNavigation(minSiteNav,minPageNav) {
 	}
 	$('#toggleToolMax').show();
 	$('#toggleNormal').css({'display':'none'});
-	if ( typeof sakaiPresenceTimeMin != "undefined" ) sakaiPresenceTimeOut = sakaiPresenceTimeMin;
 }
 
 function updatePresence() {
-	sakaiLastPresenceTime = new Date();
 	jQuery.ajax( {
 		url: sakaiPresenceFragment,
 		cache: false,
@@ -209,12 +206,6 @@ function updatePresence() {
 			 	location.reload();
 			} else {
 				$("#presenceIframe").html(frag);
-				var thisTime = new Date();
-				var deltaTime = thisTime.getTime() - sakaiLastPresenceTime.getTime();
-				howLong = sakaiPresenceTimeOut + (deltaTime * sakaiPresenceTimeFactor ) ;
-				if ( howLong > sakaiPresenceTimeMax ) howLong = sakaiPresenceTimeMax;
-				if ( howLong < sakaiPresenceTimeMin ) howLong = sakaiPresenceTimeMin;
-				sakaiLastPresenceTimeOut = setTimeout('updatePresence()', howLong);
 			}
 		},
 		// If we get an error, wait 60 seconds before retry
