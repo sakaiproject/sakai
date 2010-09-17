@@ -631,6 +631,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		if (m_provider != null)
 		{
+			if (eid == null) {
+				//theres no point in asking a provider if we have no eid
+				return null;
+			}
+			
 			// make a new edit to hold the provider's info, hoping it will be filled in
 			// Since the provider may actually want to fill in the user ID itself,
 			// there's no point in us allocating a new user ID until after it returns.
