@@ -23,6 +23,8 @@ package org.sakaiproject.contentreview.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.site.api.Site;
 
@@ -205,4 +207,27 @@ public interface ContentReviewService {
 	 * @param ContentId
 	 */
 	public void removeFromQueue(String ContentId);
+	
+	/**
+	 * Get a status message for a submission in the locale of the specified user
+	 * @param messageCode
+	 * @param userRef
+	 * @return
+	 */
+	public String getLocalizedStatusMessage(String messageCode, String userRef);
+	
+	/**
+	 * Get a status message for a submission in the locale of the current user
+	 * @param messageCode
+	 * @return
+	 */
+	public String getLocalizedStatusMessage(String messageCode);
+	
+	/**
+	 * Get a status message for a submission in the locale specified
+	 * @param messageCode
+	 * @param locale
+	 * @return
+	 */
+	public String getLocalizedStatusMessage(String messageCode, Locale locale);
 }
