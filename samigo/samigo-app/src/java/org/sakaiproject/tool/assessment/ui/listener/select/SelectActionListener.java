@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -152,7 +153,7 @@ public class SelectActionListener
       delivery.setAssessmentTitle(f.getTitle());
       delivery.setDueDate(f.getDueDate());
       delivery.setTimeRunning(false);// set to true in BeginDeliveryActionListener
-
+      setTimedAssessment(delivery, f);
       // check pastDue
       if (f.getDueDate()!=null && (new Date()).after(f.getDueDate()))
         delivery.setPastDue(true);
@@ -810,4 +811,25 @@ public class SelectActionListener
     return h;
   }
   
+  private void setTimedAssessment(DeliveryBeanie delivery, PublishedAssessmentFacade pubAssessment){
+	  if (pubAssessment.getTimeLimit() != null) {
+		  int seconds = pubAssessment.getTimeLimit().intValue();
+		  int hour = 0;
+		  int minute = 0;
+		  if (seconds>=3600) {
+			  hour = Math.abs(seconds/3600);
+			  minute =Math.abs((seconds-hour*3600)/60);
+		  }
+		  else {
+			  minute = Math.abs(seconds/60);
+		  }
+		  delivery.setTimeLimit_hour(hour);
+		  delivery.setTimeLimit_minute(minute);
+	  }
+
+	  else{
+		  delivery.setTimeLimit_hour(0);
+		  delivery.setTimeLimit_minute(0);
+	  }
+  }
 }

@@ -84,6 +84,8 @@ public class PublishedAssessmentData
   private Set assessmentAttachmentSet;
   private Integer scoringType;
   private Date lastNeedResubmitDate;
+  private Integer timeLimit;
+
   
   public PublishedAssessmentData() {}
   /**
@@ -242,12 +244,22 @@ public class PublishedAssessmentData
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
 			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);
   }
+  
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
+          Integer lateHandling,
+          Boolean unlimitedSubmissions,
+          Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null);
+  }
   public PublishedAssessmentData(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
                                  Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
-                                 Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
+                                 Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit) {
     this.assessmentBaseId = id;
     this.title = title;
     this.releaseTo = releaseTo;
@@ -270,6 +282,7 @@ public class PublishedAssessmentData
     this.scoringType = scoringType;
     this.status = status;
     this.lastModifiedDate = lastModifiedDate;
+    this.timeLimit = timeLimit;
   }
 
   public PublishedAssessmentData(Long id, int submissionSize) {
@@ -730,4 +743,13 @@ public class PublishedAssessmentData
   public void setLastNeedResubmitDate(Date lastNeedResubmitDate) {
 	  this.lastNeedResubmitDate = lastNeedResubmitDate;
   }
+
+  public Integer getTimeLimit() {
+	  return this.timeLimit;
+  }
+
+  public void setTimeLimit(Integer timeLimit) {
+	  this.timeLimit = timeLimit;
+  }
+
 }

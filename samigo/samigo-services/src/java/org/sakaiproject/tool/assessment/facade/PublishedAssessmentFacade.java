@@ -102,6 +102,7 @@ public class PublishedAssessmentFacade
   private String releaseToGroups;
   private ArrayList releaseToGroupsList = new ArrayList();
   private int enrolledStudentCount;
+  private Integer timeLimit;
 
   public PublishedAssessmentFacade() {
   }
@@ -182,11 +183,21 @@ public class PublishedAssessmentFacade
 			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);  
 	  
   }
+  
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
 			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
 			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, lastModifiedDate, null);  
+	  
+  }
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
+			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
+			Integer lateHandling, Boolean unlimitedSubmissions,
+			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate, Integer timeLimit) {
 		this.publishedAssessmentId = id;
 		this.title = title;
 		this.releaseTo = releaseTo;
@@ -209,6 +220,7 @@ public class PublishedAssessmentFacade
 		this.scoringType = scoringType;
 		this.status = status;
 		this.lastModifiedDate = lastModifiedDate;
+	    this.timeLimit = timeLimit;
 	}
 
 
@@ -800,4 +812,13 @@ public class PublishedAssessmentFacade
 	  this.lastNeedResubmitDate = lastNeedResubmitDate;
 	  this.data.setLastNeedResubmitDate(lastNeedResubmitDate);
   }
+  
+  public Integer getTimeLimit() {
+	  return this.timeLimit;
+  }
+
+  public void setTimeLimit(Integer timeLimit) {
+	  this.timeLimit = timeLimit;
+  }
+
 }

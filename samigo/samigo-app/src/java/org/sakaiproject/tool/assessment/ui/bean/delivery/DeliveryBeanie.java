@@ -77,6 +77,8 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private java.util.Date dueDate;
   private boolean pastDue;
   private boolean timeRunning;
+  private int timeLimit_hour;
+  private int timeLimit_minute;
   private String finalScore;
   private boolean isAssessmentBeanie=false;
 
@@ -368,6 +370,26 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   public void setTimeRunning(boolean timeRunning)
   {
     this.timeRunning = timeRunning;
+  }
+  
+  public int getTimeLimit_hour()
+  {
+    return timeLimit_hour;
+  }
+
+  public void setTimeLimit_hour(int timeLimit_hour)
+  {
+    this.timeLimit_hour = timeLimit_hour;
+  }
+
+  public int getTimeLimit_minute()
+  {
+    return timeLimit_minute;
+  }
+
+  public void setTimeLimit_minute(int timeLimit_minute)
+  {
+    this.timeLimit_minute = timeLimit_minute;
   }
 
   public String getRoundedRawScore() {
