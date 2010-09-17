@@ -38,6 +38,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -158,7 +159,7 @@ public class BeginDeliveryActionListener implements ActionListener
     PublishedAssessmentFacade pubAssessment)
   {
     AssessmentAccessControlIfc control = (AssessmentAccessControlIfc)pubAssessment.getAssessmentAccessControl();
-
+    
     // populate deliveryBean, settingsBean and feedbackComponent .
     // deliveryBean contains settingsBean & feedbackComponent)
     populateDelivery(delivery, pubAssessment);
@@ -175,6 +176,10 @@ public class BeginDeliveryActionListener implements ActionListener
     if (component.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate())) {
       delivery.setFeedbackOnDate(true); 
     }
+    
+    EvaluationModelIfc eval = (EvaluationModelIfc) pubAssessment.getEvaluationModel();
+    delivery.setScoringType(eval.getScoringType());
+    
     delivery.setAttachmentList(pubAssessment.getAssessmentAttachmentList());
   }
 

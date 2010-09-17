@@ -61,74 +61,70 @@
 
 <h3><h:outputText value="#{deliveryMessages.begin_assessment_}" /></h3>
 <div class="tier1">
- <h4> <h:outputText value="#{delivery.assessmentTitle} #{deliveryMessages.info} " escape="false"/></h4>
+ <h4> <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.for} #{delivery.courseName} " escape="false"/></h4>
 <div class="tier2">
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-  <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
-
-  <p></p> 
+ 
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
-<h:panelGrid columns="2" cellpadding="2">
-    <h:outputLabel value="#{deliveryMessages.course}" rendered="#{delivery.courseName ne ''}" />
-    <h:outputText value="#{delivery.courseName} " />
-
-    <h:outputLabel value="#{deliveryMessages.creator}" rendered="#{delivery.creatorName ne ''}"/>
-    <h:outputText value="#{delivery.creatorName}" />
-
-
-    <h:outputLabel value="#{deliveryMessages.assessment_title}" rendered="#{delivery.assessmentTitle ne ''}"/>
-    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
-
-    <h:outputLabel value="#{deliveryMessages.time_limit}"/>
+<h:panelGrid columns="1" border="0">
+	<h:outputText value="#{deliveryMessages.begin_assessment_msg_due} <b>#{delivery.dueDateDayOfWeek}, #{delivery.dueDateString}</b>." rendered="#{delivery.dueDate!=null && delivery.dueDate ne ''}" escape="false"/>
+    <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}" rendered="#{delivery.dueDate==null || delivery.dueDate eq ''}" escape="false"/>
+    
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+    
     <h:panelGroup rendered="#{delivery.hasTimeLimit}">
-       <h:outputText value="#{delivery.timeLimit_hour} " />
-       <h:outputText value="#{deliveryMessages.time_limit_hour} " />
-       <h:outputText value="#{delivery.timeLimit_minute} " />
-       <h:outputText value="#{deliveryMessages.time_limit_minute}" />
+	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_timed_1}" escape="false"/>
+    	<h:outputText value="<b>#{delivery.timeLimit_hour} #{deliveryMessages.time_limit_hour} #{delivery.timeLimit_minute} #{deliveryMessages.time_limit_minute}</b> " escape="false"/>
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_timed_2}" escape="false"/>
     </h:panelGroup>
-    <h:panelGroup rendered="#{!delivery.hasTimeLimit}">
-       <h:outputText value="#{deliveryMessages.no_time_limit}" />
-    </h:panelGroup>
-
-    <h:outputLabel value="#{deliveryMessages.num_subs}" rendered="#{!delivery.anonymousLogin}"/>
-    <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{deliveryMessages.remaining})"
-       rendered="#{!delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}"/>
-    <h:outputText value="#{deliveryMessages.unlimited_}"
-       rendered="#{delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}"/>
-
-    <h:outputLabel value="#{deliveryMessages.feedback}" />
+    <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_time_limit}" rendered="#{!delivery.hasTimeLimit}" escape="false"/>
+     
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+    
+    <h:panelGrid rendered="#{delivery.navigation == 1}">  
+	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_linear}" escape="false"/>
+    	<h:outputText value=" "/>
+    	<h:outputText value=" "/>
+    </h:panelGrid>
+      
     <h:panelGroup>
-      <h:outputText value="#{deliveryMessages.feedback_on_submission}"
-         rendered="#{delivery.feedbackComponent.showOnSubmission}"/>
-      <h:outputText value="#{deliveryMessages.immed}"
-         rendered="#{delivery.feedbackComponent.showImmediate}"/>
-      <h:outputText value="#{delivery.settings.feedbackDate}"
-         rendered="#{delivery.feedbackComponent.showDateFeedback}">
-        <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
-      </h:outputText>
-      <h:outputText value="#{deliveryMessages.none}"
-         rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
+	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} " rendered="#{delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}" escape="false"/>
+		<h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{deliveryMessages.remaining}). " rendered="#{!delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}" escape="false"/>
+		
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_highest}" rendered="#{delivery.scoringType == 1}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_latest}" rendered="#{delivery.scoringType == 2}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.begin_assessment_msg_average}" rendered="#{delivery.scoringType == 4}" escape="false"/>
     </h:panelGroup>
-
+    
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+    
     <h:panelGroup>
-      <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{deliveryMessages.due_date}" />
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_upon_submission}" rendered="#{delivery.feedbackComponent.showOnSubmission}"/>
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_during_assessment}" rendered="#{delivery.feedbackComponent.showImmediate}"/>
+      <h:panelGroup rendered="#{delivery.feedbackComponent.showDateFeedback}">
+      	<h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_provide_on} " />
+      	<h:outputText value="#{delivery.settings.feedbackDate}">
+        	<f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
+      	</h:outputText>
+      	<h:outputText value="."/>
+      </h:panelGroup>
+      <h:outputText value="#{deliveryMessages.begin_assessment_msg_feedback_no}" rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
     </h:panelGroup>
-    <h:panelGroup>
-      <h:outputText value="#{delivery.dueDateString}" >
-      </h:outputText>
-    </h:panelGroup>
+</h:panelGrid>
+	
+<h:panelGrid columns="2" border="0">
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+    <h:outputLabel value="#{deliveryMessages.username}" rendered="#{delivery.settings.username ne ''}" />
+    <h:inputText value="#{delivery.username}" size="20" rendered="#{delivery.settings.username ne ''}" />
 
-    <h:outputLabel value="#{deliveryMessages.username}"
-      rendered="#{delivery.settings.username ne ''}" />
-    <h:inputText value="#{delivery.username}" size="20"
-      rendered="#{delivery.settings.username ne ''}" />
-
-    <h:outputLabel value="#{deliveryMessages.password}"
-      rendered="#{delivery.settings.username ne ''}" />
-    <h:inputSecret value="#{delivery.password}" size="20"
-      rendered="#{delivery.settings.username ne ''}" />
+    <h:outputLabel value="#{deliveryMessages.password}" rendered="#{delivery.settings.username ne ''}" />
+    <h:inputSecret value="#{delivery.password}" size="20" rendered="#{delivery.settings.username ne ''}" />
 </h:panelGrid>
  </div></div>
 

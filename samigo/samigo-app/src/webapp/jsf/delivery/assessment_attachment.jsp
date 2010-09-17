@@ -21,7 +21,11 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <f:verbatim><div class="tier1"></f:verbatim><h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
+ <f:verbatim><div class="tier1"></f:verbatim>
+ <h:panelGroup rendered="#{delivery.hasAttachment}">
+ 	<f:verbatim><p></p></f:verbatim>
+ </h:panelGroup>
+ <h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
   <f:verbatim><br/></f:verbatim>
   <h:panelGroup rendered="#{delivery.hasAttachment}">
     <h:dataTable value="#{delivery.attachmentList}" var="attach" border="0">

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -185,6 +186,7 @@ public class DeliveryBean
   private String showScore;
   private boolean hasTimeLimit;
   private boolean isMoreThanOneQuestion;
+  private Integer scoringType;
   
   // daisyf added for servlet Login.java, to support anonymous login with
   // publishedUrl
@@ -219,7 +221,14 @@ public class DeliveryBean
 
   private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
-  
+  private static String[] strDays = new String[] { 
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","sunday"),
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","monday"),
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","tuesday"),
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","wednesday"),
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","thusday"),
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","friday"),
+	  ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","saturday")};
   private boolean noQuestions = false;
 
   // this assessmentGradingId is used to generate seed in getSeed(...) of DeliveryActaionListener.java
@@ -960,6 +969,20 @@ public class DeliveryBean
       ex.printStackTrace();
     }
     return dateString;
+  }
+  
+  public String getDueDateDayOfWeek()
+  {
+    String dayOfWeek = "";
+    if (dueDate == null) {
+      return dayOfWeek;
+    }
+    
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(dueDate);
+    dayOfWeek = strDays[cal.get(Calendar.DAY_OF_WEEK) - 1];
+    
+    return dayOfWeek;
   }
 
   public void setDueDate(java.util.Date dueDate)
@@ -3110,6 +3133,16 @@ public class DeliveryBean
 	  {
 		  display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
 		  displayFormat = new SimpleDateFormat(display_dateFormat);
+	  }
+
+	  public Integer getScoringType()
+	  {
+	      return scoringType;
+	  }
+
+	  public void setScoringType(Integer scoringType)
+	  {
+	    this.scoringType = scoringType;
 	  }
 	  
 }
