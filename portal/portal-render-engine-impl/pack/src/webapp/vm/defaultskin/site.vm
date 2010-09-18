@@ -4,7 +4,7 @@
 #parse("/vm/defaultskin/includeStandardHead.vm")
 <body class="portalBody">
 #if ( $pageTop )
-	<script type="text/javascript" language="JavaScript">
+<script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
 	</script>
 #end
@@ -12,45 +12,47 @@
 #if (!${loginTopLogin})
 #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
 <script type="text/javascript">
-$(document).ready(function() {
-	//move it to the tool menu and reveal it once it is in place
-	$('#toggler').prependTo('#toolMenuWrap');
-        $('#toggler').css({'display' : 'inline'});
-#if (${portal_allow_minimize_tools})
-	var minPageNav = true;
-#else
-	var minPageNav = false;
-#end
-#if (${portal_allow_minimize_navigation})
-	var minSiteNav = true;
-#else
-	var minSiteNav = false;
-#end
-#if (${sakai_nav_minimized})
-	sakaiMinimizeNavigation(minSiteNav,minPageNav);
-	$('#toggleToolMenu').toggle(function(e){
-	    e.preventDefault();
-	    sakaiRestoreNavigation(minSiteNav,minPageNav);	
-	    document.cookie = "sakai_nav_minimized=false; path=/";
-	}, function(e) {
-	    e.preventDefault();
-	    sakaiMinimizeNavigation(minSiteNav,minPageNav);
-	    document.cookie = "sakai_nav_minimized=true; path=/";
-	    });
-	});
-#else
-	$('#toggleToolMenu').toggle(function(e){
-	    e.preventDefault();
-	    sakaiMinimizeNavigation(minSiteNav,minPageNav);
-	    document.cookie = "sakai_nav_minimized=true; path=/";
-	}, function(e) {
-	    e.preventDefault();
-	    sakaiRestoreNavigation(minSiteNav,minPageNav);
-	    document.cookie = "sakai_nav_minimized=false; path=/";
-	    });
-	});
-#end
+    $(document).ready(function() {
+        var toggleClass=""
+        #if (${portal_allow_minimize_tools})
+            var minPageNav = true;
+            toggleClass="toggleTools"
+        #else
+            var minPageNav = false;
+        #end
+        #if (${portal_allow_minimize_navigation})	
+            var minSiteNav = true;
+            toggleClass= toggleClass + "toggleNav"
+        #else
+            var minSiteNav = false;
+        #end
+       $('#toggler').prependTo('#toolMenuWrap');
+       $('#toggler').css({'display' : 'inline'});
+       $('#toggler').addClass(toggleClass)
 
+        #if (${sakai_nav_minimized})
+            sakaiMinimizeNavigation(minSiteNav,minPageNav);
+            $('#toggleToolMenu').toggle(function(e){
+                e.preventDefault();
+                sakaiRestoreNavigation(minSiteNav,minPageNav);	
+                document.cookie = "sakai_nav_minimized=false; path=/";
+            }, function(e) {
+                e.preventDefault();
+                sakaiMinimizeNavigation(minSiteNav,minPageNav);
+                document.cookie = "sakai_nav_minimized=true; path=/";
+            });
+        #else
+            $('#toggleToolMenu').toggle(function(e){
+                e.preventDefault();
+                sakaiMinimizeNavigation(minSiteNav,minPageNav);
+                document.cookie = "sakai_nav_minimized=true; path=/";
+            }, function(e) {
+                e.preventDefault();
+                sakaiRestoreNavigation(minSiteNav,minPageNav);
+                document.cookie = "sakai_nav_minimized=false; path=/";
+            });
+        #end
+    });
 </script>
 <span id="toggler" style="display: none">
 <a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_menus}"><span class="skip">${rloader.sit_toggle_menus}</span><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
