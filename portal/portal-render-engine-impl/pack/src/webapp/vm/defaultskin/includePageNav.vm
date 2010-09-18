@@ -24,7 +24,7 @@
 			#foreach( $page in $sitePages.pageNavTools )
 		  		#if (${page.current})
 						<li class="selectedTool">
-						<a class="${page.menuClass}"  #if(${page.hidden})hidden#end"><span>${page.pageTitle}</span></a>
+						<a class="${page.menuClass}#if(${page.hidden}) hidden#end"><span>${page.pageTitle}</span></a>
 						</li>
 		  		#else
 		  			 #if (${page.ispopup})
