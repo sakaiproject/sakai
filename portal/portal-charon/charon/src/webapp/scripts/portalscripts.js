@@ -77,7 +77,7 @@ var timeoutLoggedoutUrl;
 jQuery(document).ready(function(){
 	// note a session exists whether the user is logged in or no
 	if (portal.loggedIn && portal.timeoutDialog ) {
-		setTimeout('setup_timeout_config();', 15000);
+		setTimeout('setup_timeout_config();', 60000);
 	}
 });
 
