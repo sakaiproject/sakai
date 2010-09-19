@@ -15,48 +15,42 @@
     $(document).ready(function() {
         var toggleClass=""
         #if (${portal_allow_minimize_tools})
-            var minPageNav = true;
             toggleClass="toggleTools"
-        #else
-            var minPageNav = false;
         #end
         #if (${portal_allow_minimize_navigation})	
-            var minSiteNav = true;
             toggleClass= toggleClass + "toggleNav"
-        #else
-            var minSiteNav = false;
         #end
        $('#toggler').prependTo('#toolMenuWrap');
        $('#toggler').css({'display' : 'inline'});
        $('#toggler').addClass(toggleClass)
 
         #if (${sakai_nav_minimized})
-            sakaiMinimizeNavigation(minSiteNav,minPageNav);
+            sakaiMinimizeNavigation();
             $('#toggleToolMenu').toggle(function(e){
                 e.preventDefault();
-                sakaiRestoreNavigation(minSiteNav,minPageNav);	
+                sakaiRestoreNavigation();	
                 document.cookie = "sakai_nav_minimized=false; path=/";
             }, function(e) {
                 e.preventDefault();
-                sakaiMinimizeNavigation(minSiteNav,minPageNav);
+                sakaiMinimizeNavigation();
                 document.cookie = "sakai_nav_minimized=true; path=/";
             });
         #else
             $('#toggleToolMenu').toggle(function(e){
                 e.preventDefault();
-                sakaiMinimizeNavigation(minSiteNav,minPageNav);
+                sakaiMinimizeNavigation();
                 document.cookie = "sakai_nav_minimized=true; path=/";
             }, function(e) {
                 e.preventDefault();
-                sakaiRestoreNavigation(minSiteNav,minPageNav);
+                sakaiRestoreNavigation();
                 document.cookie = "sakai_nav_minimized=false; path=/";
             });
         #end
     });
 </script>
 <span id="toggler" style="display: none">
-<a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_menus}"><span class="skip">${rloader.sit_toggle_menus}</span><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
-	"${rloader.sit_toggle_menus}"/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_menus}" style="display: none"/></a>
+<a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_nav}"><span class="skip">${rloader.sit_toggle_nav}</span><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
+	"${rloader.sit_toggle_nav}"/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_nav}" style="display: none"/></a>
 </span>
 #end
 #end

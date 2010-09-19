@@ -174,22 +174,22 @@ function show_timeout_alert(min) {
 }
 
 
-function sakaiMinimizeNavigation(minSiteNav,minPageNav) {
-	if (minSiteNav) {
+function sakaiMinimizeNavigation() {
+	if (portal.toggle.sitenav) {
 		$('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
 	}
-	if (minPageNav){
+	if (portal.toggle.tools){
 		$('#container').addClass('sakaiMinimizePageNavigation');	
 	}
 	$('#toggleToolMax').hide();
 	$('#toggleNormal').css({'display':'block'});
 }
 
-function sakaiRestoreNavigation(minSiteNav,minPageNav) {
-	if (minSiteNav) {
+function sakaiRestoreNavigation() {
+	if (portal.toggle.sitenav) {
 		$('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
 	}
-	if (minPageNav){
+	if (portal.toggle.tools){
 		$('#container').removeClass('sakaiMinimizePageNavigation');	
 	}
 	$('#toggleToolMax').show();

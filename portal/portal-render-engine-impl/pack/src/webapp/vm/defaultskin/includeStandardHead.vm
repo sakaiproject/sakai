@@ -19,6 +19,10 @@
 		"timeoutDialog" : {
 			"enabled": $!{timeoutDialogEnabled},
 			"seconds": $!{timeoutDialogWarningSeconds}
+		},
+		"toggle" : {
+			"tools": $!{portal_allow_minimize_tools},
+			"sitenav": $!{portal_allow_minimize_navigation}
 		}
 	};
 </script>

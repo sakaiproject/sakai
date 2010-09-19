@@ -1093,9 +1093,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		// Copy the minimization preferences to the context
 		String minStr = ServerConfigurationService.getString("portal.allow.minimize.tools","true");
-		if ( "true".equals(minStr) ) rcontext.put("portal_allow_minimize_tools",Boolean.TRUE);
+		rcontext.put("portal_allow_minimize_tools",Boolean.valueOf( "true".equals(minStr) ) ) ;
 		minStr = ServerConfigurationService.getString("portal.allow.minimize.navigation","true");
-		if ( "true".equals(minStr) ) rcontext.put("portal_allow_minimize_navigation",Boolean.TRUE);
+		rcontext.put("portal_allow_minimize_navigation",Boolean.valueOf( "true".equals(minStr) ) ) ;
 		return rcontext;
 	}
 
