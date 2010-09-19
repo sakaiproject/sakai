@@ -160,18 +160,21 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	String context = getContext();
 	Placement placement = ToolManager.getCurrentPlacement();
 
-	// Get the optional values from session
-        String frameHeight =  getCorrectProperty(request, "frameheight", null);
-	dPrint("fh="+frameHeight);
-        String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
-
-	if ( iframeUrl != null ) {
+	// Check to see if out launch will be successful
+	String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
+	if ( retval.length > 1 ) {
+            String frameHeight =  getCorrectProperty(request, "frameheight", null);
+	    dPrint("fh="+frameHeight);
+            String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
             StringBuffer text = new StringBuffer();
 
 	    Session session = SessionManager.getCurrentSession();
 	    session.setAttribute("sakai:maximized-url",iframeUrl);
             dPrint("Setting sakai:maximized-url="+iframeUrl);
 
+            text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+            text.append("try { portalMaximizeTool(); } catch (err) { }\n");
+            text.append("</script>\n");
 	    text.append("<iframe ");
 	    text.append("title=\"Site Info\" ");
 	    if ( frameHeight == null ) frameHeight = "1200";
