@@ -334,15 +334,22 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
-		m.put("siteTitle", Web.escapeHtml(s.getTitle()));
+ 		int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 20);
+		String titleStr = s.getTitle();
+		if ( titleStr != null )
+		{
+			if ( titleStr.length() > siteTitleMaxLength ) titleStr = titleStr.substring(0,siteTitleMaxLength);
+			titleStr = titleStr.trim();
+		}
+		m.put("siteTitle", Web.escapeHtml(titleStr));
 		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
 		String siteUrl = Web.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
 		m.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(s)));
-        m.put("siteType", s.getType());
-	    m.put("siteId", s.getId());
+		m.put("siteType", s.getType());
+		m.put("siteId", s.getId());
 
 		// TODO: This should come from the site neighbourhood.
 		ResourceProperties rp = s.getProperties();
