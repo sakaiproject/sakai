@@ -761,6 +761,8 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'grade
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
