@@ -173,8 +173,15 @@ function show_timeout_alert(min) {
 	}
 }
 
+// The official way for a tool to request minimized navigation
+function portalMaximizeTool() {
+        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
+        if ( ! portal.toggle.allowauto ) return;
+        sakaiMinimizeNavigation();
+}
 
 function sakaiMinimizeNavigation() {
+        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
 	if (portal.toggle.sitenav) {
 		$('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
 	}
@@ -186,6 +193,7 @@ function sakaiMinimizeNavigation() {
 }
 
 function sakaiRestoreNavigation() {
+        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
 	if (portal.toggle.sitenav) {
 		$('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
 	}

@@ -21,6 +21,7 @@
 			"seconds": $!{timeoutDialogWarningSeconds}
 		},
 		"toggle" : {
+			"allowauto": $!{portal_allow_auto_minimize},
 			"tools": $!{portal_allow_minimize_tools},
 			"sitenav": $!{portal_allow_minimize_navigation}
 		}

@@ -20,37 +20,24 @@
         #if (${portal_allow_minimize_navigation})	
             toggleClass= toggleClass + "toggleNav"
         #end
-       $('#toggler').prependTo('#toolMenuWrap');
-       $('#toggler').css({'display' : 'inline'});
-       $('#toggler').addClass(toggleClass)
+        $('#toggler').prependTo('#toolMenuWrap');
+        $('#toggler').css({'display' : 'inline'});
+        $('#toggler').addClass(toggleClass)
 
-        #if (${sakai_nav_minimized})
-            sakaiMinimizeNavigation();
-            $('#toggleToolMenu').toggle(function(e){
-                e.preventDefault();
+        $('#toggleToolMenu').click(function(){
+            if ( $('#toggleNormal').is(':visible') ) {
                 sakaiRestoreNavigation();	
                 document.cookie = "sakai_nav_minimized=false; path=/";
-            }, function(e) {
-                e.preventDefault();
+            } else {
                 sakaiMinimizeNavigation();
                 document.cookie = "sakai_nav_minimized=true; path=/";
-            });
-        #else
-            $('#toggleToolMenu').toggle(function(e){
-                e.preventDefault();
-                sakaiMinimizeNavigation();
-                document.cookie = "sakai_nav_minimized=true; path=/";
-            }, function(e) {
-                e.preventDefault();
-                sakaiRestoreNavigation();
-                document.cookie = "sakai_nav_minimized=false; path=/";
-            });
-        #end
+            }
+        });
     });
 </script>
 <span id="toggler" style="display: none">
 <a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_nav}"><span class="skip">${rloader.sit_toggle_nav}</span><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
-	"${rloader.sit_toggle_nav}"/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_nav}" style="display: none"/></a>
+	"${rloader.sit_toggle_nav}"#if (${sakai_nav_minimized}) style="display:none"#end/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_nav}"#if (! ${sakai_nav_minimized}) style="display:none"#end/></a>
 </span>
 #end
 #end
