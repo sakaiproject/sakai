@@ -570,8 +570,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		{
 			rv = m_title;
 		}
-		else
-			rv = "(title unknown)";
+		//else
+			//rv = "(title unknown)";
 
 		return rv;
 	}

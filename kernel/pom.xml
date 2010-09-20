@@ -384,8 +384,8 @@
     </distributionManagement>
     <pluginRepositories>
         <pluginRepository>
-            <id>codehaus snapshot repository</id>
-            <url>http://snapshots.repository.codehaus.org/</url>
+            <id>codehaus plugin repository</id>
+            <url>https://nexus.codehaus.org/content/repositories/releases/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
