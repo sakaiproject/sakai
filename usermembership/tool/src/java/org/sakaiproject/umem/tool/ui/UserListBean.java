@@ -299,7 +299,7 @@ public class UserListBean {
 		// 1. Search internal users (Sakai DB)
 		try{
 			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_INTERNAL)){
-				List<User> users = M_uds.searchUsers(searchKeyword, -1, -1);
+				List<User> users = M_uds.searchUsers(searchKeyword, 1, Integer.MAX_VALUE);
 				for(User u : users) {
 					// filter user type
 					if(userTypeMatches(u.getType())) {
