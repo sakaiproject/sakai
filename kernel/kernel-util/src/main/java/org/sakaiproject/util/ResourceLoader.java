@@ -61,7 +61,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	protected String LOCALE_SESSION_KEY = "sakai.locale.";
 
 	// Debugging variables for displaying ResourceBundle name & property	
-	protected String DEBUG_LOCALE = "en_DEBUG";
+	protected String DEBUG_LOCALE = "en_US_DEBUG";
 	private   String DBG_PREFIX = "** ";
 	private   String DBG_SUFFIX = " **";
 
@@ -261,7 +261,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		if (localeString != null)
 		{
 			String[] locValues = localeString.split("_");
-			if (locValues.length > 1)
+			if (locValues.length > 2)
+				loc = new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+			else if (locValues.length == 2)
 				loc = new Locale(locValues[0], locValues[1]); // language, country
 			else if (locValues.length == 1) 
 				loc = new Locale(locValues[0]); // just language
