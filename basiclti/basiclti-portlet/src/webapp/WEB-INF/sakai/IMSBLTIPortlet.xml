@@ -32,7 +32,7 @@
                 <configuration name="imsti.key" />
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
-                <configuration name="imsti.newwindow" />
+                <configuration name="imsti.newpage" />
                 <configuration name="imsti.frameheight" />
                 <configuration name="imsti.debug" />
                 <configuration name="imsti.releasename" />
@@ -48,7 +48,7 @@
                 <configuration name="final.key" value="false"/>
                 <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
-                <configuration name="final.newwindow" value="false"/>
+                <configuration name="final.newpage" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
                 <configuration name="final.debug" value="false"/>
                 <configuration name="final.releasename" value="false"/>
@@ -89,7 +89,7 @@
                 <configuration name="final.key" value="true"/>
                 <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
-                <configuration name="final.newwindow" value="false"/>
+                <configuration name="final.newpage" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
                 <configuration name="final.debug" value="false"/>
 

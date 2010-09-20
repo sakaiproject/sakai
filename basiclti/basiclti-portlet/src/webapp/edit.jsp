@@ -189,9 +189,21 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 
 
-<% if ( allow(sp,"frameheight") || allow(sp, "debug") ) { %>
+<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") ) { %>
 <fieldset>
 <legend><%=rb.getString("launch.information") %></legend>
+<% if ( allow(sp,"newpage") ) { %>
+<p>
+<%=rb.getString("new.page") %>
+<input type="checkbox" size="10" name="imsti.newpage" 
+<% if ( ov.getProperty("imsti.newpage",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<%=rb.getString("new.page.detail") %>
+</p>
+<% } %>
 <% if ( allow(sp,"frameheight") ) { %>
 <p>
 <%=rb.getString("iframe.height") %>

@@ -123,6 +123,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("releasename");
         fieldList.add("releaseemail");
         fieldList.add("assignment");
+        fieldList.add("newpage");
     }
 
     // Simple Debug Print Mechanism
@@ -163,29 +164,40 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	// Check to see if out launch will be successful
 	String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
 	if ( retval.length > 1 ) {
+            String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
             String frameHeight =  getCorrectProperty(request, "frameheight", null);
 	    dPrint("fh="+frameHeight);
-            String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
+            String newPage =  getCorrectProperty(request, "newpage", null);
             StringBuffer text = new StringBuffer();
 
 	    Session session = SessionManager.getCurrentSession();
 	    session.setAttribute("sakai:maximized-url",iframeUrl);
             dPrint("Setting sakai:maximized-url="+iframeUrl);
 
-            text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-            text.append("try { portalMaximizeTool(); } catch (err) { }\n");
-            text.append("</script>\n");
-	    text.append("<iframe ");
-	    text.append("title=\"Site Info\" ");
-	    if ( frameHeight == null ) frameHeight = "1200";
-   	    text.append("height=\""+frameHeight+"\" \n");
-	    text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
-	    text.append("marginheight=\"0\" scrolling=\"auto\"\n");
-	    text.append("src=\""+iframeUrl+"\">\n");
-	    text.append(rb.getString("noiframes"));
-	    text.append("<br>");
-	    text.append("<a href=\""+iframeUrl+"\">Press here for content</a>\n");
-	    text.append("</iframe>");
+            if ( "on".equals(newPage) ) {
+                text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+                text.append("window.open('"+iframeUrl+"','BasicLTI');\n");
+                text.append("</script>\n");
+                text.append("<p>\n");
+                text.append(rb.getString("new.page.launch"));
+                text.append("</p>\n");
+            } else {
+                text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+                text.append("try { portalMaximizeTool(); } catch (err) { }\n");
+                text.append("</script>\n");
+	        text.append("<iframe ");
+	        if ( frameHeight == null ) frameHeight = "1200";
+   	        text.append("height=\""+frameHeight+"\" \n");
+	        text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
+	        text.append("marginheight=\"0\" scrolling=\"auto\"\n");
+	        text.append("src=\""+iframeUrl+"\">\n");
+	        text.append(rb.getString("noiframes"));
+	        text.append("<br>");
+	        text.append("<a href=\""+iframeUrl+"\">");
+	        text.append(rb.getString("noiframe.press.here"));
+                text.append("</a>\n");
+	        text.append("</iframe>");
+            }
             out.println(text);
 	    dPrint("==== doView complete ====");
 	    return;
