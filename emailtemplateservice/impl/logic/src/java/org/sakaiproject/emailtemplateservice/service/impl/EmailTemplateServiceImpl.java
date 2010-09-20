@@ -134,6 +134,19 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       return et;
    }
 
+   
+	public boolean templateExists(String key) {
+		List<EmailTemplate> et = null;
+		Search search = new Search("key", key);
+        et = dao.findBySearch(EmailTemplate.class, search);
+        if (et != null && et.size() > 0) {
+        	return true;
+        }
+        
+		return false;
+	}
+   
+   
    public List<EmailTemplate> getEmailTemplates(int max, int start) {
       return dao.findAll(EmailTemplate.class, start, max);
    }
@@ -440,4 +453,6 @@ private List<User> getUsersEmail(List<String> userIds) {
 			}
 		}
 	}
+
+
 }

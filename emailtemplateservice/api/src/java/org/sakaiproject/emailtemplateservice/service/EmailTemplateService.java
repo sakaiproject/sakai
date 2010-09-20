@@ -156,4 +156,13 @@ public interface EmailTemplateService {
     */
    public void processEmailTemplates(List<String> templatePaths);
    
+   /**
+    * Does a template for the key exist in any locale?
+    * @param key
+    * @return
+    */
+   public boolean templateExists(String key);
+	   
+   
+   
 }
