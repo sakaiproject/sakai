@@ -4,7 +4,6 @@ announcement https://source.sakaiproject.org/svn/announcement/trunk
 archive https://source.sakaiproject.org/svn/archive/trunk
 assignment https://source.sakaiproject.org/svn/assignment/trunk
 authz https://source.sakaiproject.org/svn/authz/trunk
-blog https://source.sakaiproject.org/svn/blog/trunk
 calendar https://source.sakaiproject.org/svn/calendar/trunk
 chat https://source.sakaiproject.org/svn/chat/trunk
 citations https://source.sakaiproject.org/svn/citations/trunk
@@ -29,7 +28,6 @@ postem https://source.sakaiproject.org/svn/postem/trunk
 presence https://source.sakaiproject.org/svn/presence/trunk
 providers https://source.sakaiproject.org/svn/providers/trunk
 reference https://source.sakaiproject.org/svn/reference/trunk
-reports https://source.sakaiproject.org/svn/reports/trunk
 reset-pass https://source.sakaiproject.org/svn/reset-pass/trunk
 rights https://source.sakaiproject.org/svn/rights/trunk
 roster https://source.sakaiproject.org/svn/roster/trunk
