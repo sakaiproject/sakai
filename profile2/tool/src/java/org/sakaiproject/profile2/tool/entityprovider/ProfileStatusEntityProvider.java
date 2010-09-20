@@ -58,17 +58,15 @@ public class ProfileStatusEntityProvider extends AbstractEntityProvider implemen
 	
 	public Object getEntity(EntityReference ref) {
 	
+		//note, returning null = 404 thrown by EB.
+		
 		//convert input to uuid
 		String uuid = sakaiProxy.ensureUuid(ref.getId());
 		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
+			return null;
 		}
 		
-		ProfileStatus status = statusLogic.getUserStatus(uuid);
-		if(status == null) {
-			throw new EntityNotFoundException("ProfileStatus could not be retrieved for " + ref.getId(), ref.getReference());
-		}
-		return status;
+		return statusLogic.getUserStatus(uuid);
 	}
 	
 	
