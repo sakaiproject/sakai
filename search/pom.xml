@@ -362,13 +362,6 @@
 </build>
 <pluginRepositories>
 		<pluginRepository>
-			<id>codehaus snapshot repository</id>
-			<url>http://snapshots.repository.codehaus.org/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</pluginRepository>
-		<pluginRepository>
 			<id>Sakai Plugin Repo</id>
 			<url>http://source.sakaiproject.org/maven2</url>
 			<releases>
