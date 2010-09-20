@@ -12,7 +12,7 @@
 			<bean
 				class="org.sakaiproject.util.ResourceLoaderMessageSource">
 				<property name="basename">
-					<value>WEB-INF/bundle/messages</value>
+					<value>classpath:org.sakaiproject.accountvalidator.bundle/messages</value>
 				</property>
 				<property name="cacheSeconds">
 					<value>10</value>
