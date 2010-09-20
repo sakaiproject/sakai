@@ -542,7 +542,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			versionString = getTagValue(xmlTemplate, "version", "");
 	
 		
-		if (emailTemplateService.templateExists(key, new Locale(locale)))
+		if (!emailTemplateService.templateExists(key, new Locale(locale)))
 		{
 			EmailTemplate template = new EmailTemplate();
 			template.setSubject(subject);
