@@ -90,7 +90,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 	public void init() {
         try {
             entityManager.registerEntityProducer(this, REFERENCE_ROOT);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.warn("init(): ", t);
         }
 
