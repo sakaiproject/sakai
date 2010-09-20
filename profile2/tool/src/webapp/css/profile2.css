@@ -1254,8 +1254,8 @@ div.wicket-aa ul li.selected {
 .wicket-mfu-container {
 	padding: 5px;
 	margin-top: 3px;
-	background-color: white;
-	border: 1px solid gray;
+	background-color: transparent;
+	border: 1px dotted #5D5D5D;
 	font-size: 10px;
 }
 
@@ -1267,7 +1267,6 @@ div.wicket-aa ul li.selected {
 
 .wicket-mfu-caption {
 	font-weight: bold;
-	border: 1px solid gray;
 }
 
 .wicket-mfu-container input {
