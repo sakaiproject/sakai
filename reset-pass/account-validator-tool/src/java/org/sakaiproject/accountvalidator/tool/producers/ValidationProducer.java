@@ -21,7 +21,6 @@ package org.sakaiproject.accountvalidator.tool.producers;
 
 import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -158,9 +157,31 @@ ViewParamsReporter, ActionResultInterceptor {
 					
 			};
 			
-			UIMessage.make(tofill, "welcome1", "validate.welcome1", args);
-			UIMessage.make(tofill, "welcome", "validate.welcome", args);
-			UIMessage.make(tofill, "validate.imnew", "validate.imnew", args);
+			//is this a password reset?
+			boolean isReset = false;
+			if (va.getAccountStatus() == ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET) {
+				isReset = true;
+			}
+			
+			if (!isReset) {
+				UIMessage.make(tofill, "welcome1", "validate.welcome1", args);
+				UIMessage.make(tofill, "welcome", "validate.welcome", args);
+				UIMessage.make(tofill, "validate.imnew", "validate.imnew", args);
+				//merge form
+				UIMessage.make(tofill, "validate.alreadyhave",  "validate.alreadyhave", args);
+				
+			} else {
+				UIMessage.make(tofill, "welcome1", "validate.welcome1.reset", args);
+				UIMessage.make(tofill, "welcome", "validate.welcome.reset", args);
+				UIMessage.make(tofill, "validate.imnew", "validate.oneaccount", args);
+				
+				//merge form
+				UIMessage.make(tofill, "validate.alreadyhave",  "validate.alreadyhave.reset", args);
+			}
+			
+			
+			
+			
 			
 			//we need to know what sites their a member of:
 			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
@@ -184,7 +205,14 @@ ViewParamsReporter, ActionResultInterceptor {
 			//details form
 			UIForm detailsForm = UIForm.make(tofill, "setDetailsForm");
 			
-			UIMessage.make(detailsForm, "claim", "validate.claim", args);
+			if (isReset) {
+				UIMessage.make(detailsForm, "claim", "validate.reset", args);
+				UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.reset"), "accountValidationLocator.validateAccount");
+			} else {
+				UIMessage.make(detailsForm, "claim", "validate.claim", args);
+				UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.account"), "accountValidationLocator.validateAccount");
+			}
+			
 			String otp =  "accountValidationLocator." + va.getId();
 			
 			UIOutput.make(detailsForm, "eid", u.getDisplayId());
@@ -203,14 +231,18 @@ ViewParamsReporter, ActionResultInterceptor {
 				UIInput.make(row2, "password2", otp + ".password2");
 			}
 			
-			UICommand.make(detailsForm, "addDetailsSub", UIMessage.make("submit.new.account"), "accountValidationLocator.validateAccount");
+			
 			detailsForm.parameters.add(new UIELBinding(otp + ".userId", va.getUserId()));
 
 			//the claim form
-			UIMessage.make(tofill, "validate.alreadyhave",  "validate.alreadyhave", args);
+			
 			UIForm claimForm = UIForm.make(tofill, "claimAccountForm");
 			
-			UIMessage.make(claimForm, "validate.loginexisting",  "validate.loginexisting", args);
+			if (!isReset) {
+				UIMessage.make(claimForm, "validate.loginexisting",  "validate.loginexisting", args);
+			} else {
+				UIMessage.make(claimForm, "validate.loginexisting",  "validate.loginexisting.reset", args);
+			}
 			UIInput.make(claimForm, "userName", "claimLocator.new_1.userEid");
 			UIInput.make(claimForm, "password", "claimLocator.new_1.password1");
 			UICommand.make(claimForm, "submitClaim", UIMessage.make("submit.login"), "claimLocator.claimAccount");
