@@ -289,8 +289,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String locale = xmlTemplate.getChildText("locale");
 		String versionString = xmlTemplate.getChildText("version");
 		
-		EmailTemplate existingTemplate = this.emailTemplateService.getEmailTemplate(key, new Locale(locale));
-		if (existingTemplate == null)
+		
+		if (emailTemplateService.templateExists(key, new Locale(locale)))
 		{
 			EmailTemplate template = new EmailTemplate();
 			template.setSubject(subject);
@@ -305,6 +305,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		}
 		else
 		{
+			EmailTemplate existingTemplate = this.emailTemplateService.getEmailTemplate(key, new Locale(locale));
 			String oVersionString = existingTemplate.getVersion() != null ? existingTemplate.getVersion().toString():null;
 			if ((oVersionString == null && versionString != null) || (oVersionString != null && versionString != null && !oVersionString.equals(versionString)))
 			{
