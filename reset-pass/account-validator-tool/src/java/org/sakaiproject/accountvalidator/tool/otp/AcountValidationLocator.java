@@ -234,9 +234,9 @@ public class AcountValidationLocator implements BeanLocator  {
 				Evidence e = new ExternalTrustedEvidence(u.getEid());
 				try {
 					Authentication a = authenticationManager.authenticate(e);
-					log.info("authenticated " + a.getEid() + "(" + a.getUid() + ")");
-					log.info("reg: " + httpServletRequest.getRemoteAddr());
-					log.info("user agent: " + httpServletRequest.getHeader("user-agent"));
+					log.debug("authenticated " + a.getEid() + "(" + a.getUid() + ")");
+					log.debug("reg: " + httpServletRequest.getRemoteAddr());
+					log.debug("user agent: " + httpServletRequest.getHeader("user-agent"));
 					usageSessionService.login(a , httpServletRequest);
 				} catch (AuthenticationException e1) {
 					// TODO Auto-generated catch block
