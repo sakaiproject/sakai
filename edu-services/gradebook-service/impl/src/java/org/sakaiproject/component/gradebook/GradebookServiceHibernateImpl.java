@@ -432,7 +432,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	private Comment getInternalComment(String gradebookUid, String assignmentName, String studentUid, Session session) {
 		Query q = session.createQuery(
-		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.name=:assignmentName");
+		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.name=:assignmentName and gradableObject.removed=false");
 		q.setParameter("studentId", studentUid);
 		q.setParameter("gradebookUid", gradebookUid);
 		q.setParameter("assignmentName", assignmentName);
