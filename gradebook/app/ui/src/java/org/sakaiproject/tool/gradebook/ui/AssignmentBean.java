@@ -254,9 +254,12 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			try {
 				getGradebookManager().createAssignments(getGradebookId(), itemsToSave);
 				
-				for (Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
+				String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
+	            for (Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
+	            	String itemName = ((Assignment) gbItemIter.next()).getName();
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", 
-									new String[] {((Assignment) gbItemIter.next()).getName()}));
+									new String[] {itemName}));
+					getGradebookBean().getEventTrackingService().postEvent("gradebook.newItem","/gradebook/"+getGradebookId()+"/"+itemName+"/"+authzLevel);
 				}
 			}
 			catch (MultipleAssignmentSavingException e) {
