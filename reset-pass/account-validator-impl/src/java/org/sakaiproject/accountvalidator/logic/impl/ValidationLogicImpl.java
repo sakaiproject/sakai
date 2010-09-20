@@ -404,12 +404,12 @@ public class ValidationLogicImpl implements ValidationLogic {
 		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
 		v.setValidationSent(new Date());
 		
-		if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue()) {
+		/*if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue()) {
 			//A password reset doesn't invalidate confirmation
 			v.setStatus(ValidationAccount.STATUS_CONFIRMED);
 		} else { 
 			v.setStatus(ValidationAccount.STATUS_SENT);
-		}
+		}*/
 		v.setFirstName(userFirstName);
 		v.setSurname(userLastName);
 		

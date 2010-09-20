@@ -79,15 +79,15 @@ public class FormHandler {
 		//is the user validated?
 		String userId = userBean.getUser().getId().trim();
 		if (!validationLogic.isAccountValidated(userId)) {
-			m_log.info("account is not validated");
+			m_log.debug("account is not validated");
 			//its possible that the user has an outstanding Validation
 			ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
 			if (va == null) {
 				//we need to validate the account.
-				m_log.info("This is a legacy user to validate!");
+				m_log.debug("This is a legacy user to validate!");
 				validationLogic.createValidationAccount(userBean.getUser().getId(), ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS);
 			} else {
-				m_log.info("resending validation");
+				m_log.debug("resending validation");
 				validationLogic.resendValidation(va.getValidationToken());
 			}
 			
@@ -101,10 +101,10 @@ public class FormHandler {
 				m_log.info("no account found!");
 				validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 			} else if (va.getValidationReceived() == null) {
-				m_log.info("no response on validation!");
+				m_log.debug("no response on validation!");
 				validationLogic.resendValidation(va.getValidationToken());
 			} else {
-				m_log.info("creating a new validation for password reset");
+				m_log.debug("creating a new validation for password reset");
 				validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 			}
 			return "Success";
