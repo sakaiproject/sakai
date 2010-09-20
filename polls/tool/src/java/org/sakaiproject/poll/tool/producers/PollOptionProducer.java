@@ -196,11 +196,16 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
 		LOG.debug("checking IntercetpActionResult(");
 
+		
 		if (result.resultingView instanceof OptionViewParameters) {
 			OptionViewParameters optvp = (OptionViewParameters) result.resultingView;
 			LOG.debug("OptionViewParams: "  + optvp.id + " : " + optvp.pollId);
 			String retVal = (String) actionReturn;
 			LOG.debug("retval is " + retVal);
+			if (retVal == null) {
+				return;
+			}
+			
 			String viewId = AddPollProducer.VIEW_ID;
 			if (optvp.pollId != null) {
 				if (! "option".equals(retVal)) {
