@@ -85,7 +85,6 @@
                 <module>archive</module>
                 <module>assignment</module>
                 <module>authz</module>
-                <module>blog</module>
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
@@ -108,7 +107,6 @@
                 <module>presence</module>
                 <module>providers</module>
                 <module>reference</module>
-                <module>reports</module>
                 <module>rights</module>
                 <module>roster</module>
                 <module>rwiki</module>
@@ -140,7 +138,6 @@
                 <module>archive</module>
                 <module>assignment</module>
                 <module>authz</module>
-                <module>blog</module>
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
@@ -163,7 +160,6 @@
                 <module>presence</module>
                 <module>providers</module>
                 <module>reference</module>
-                <module>reports</module>
                 <module>rights</module>
                 <module>roster</module>
                 <module>rwiki</module>
