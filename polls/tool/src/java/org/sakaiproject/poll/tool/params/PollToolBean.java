@@ -291,7 +291,7 @@ public class PollToolBean {
 		
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	public Poll proccessActionDeleteOption() {
 		LOG.info("about to delete option " + option.getId());
 		Long pollId = option.getPollId();
