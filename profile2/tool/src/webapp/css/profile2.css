@@ -512,7 +512,9 @@ h2 {
 }
 
 
-
+.status-msg {
+	word-wrap: break-word;
+}
 
 .statusField {
 	color: #5D5D5D;
