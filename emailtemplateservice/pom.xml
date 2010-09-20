@@ -171,6 +171,12 @@
                 <artifactId>emailtemplateservice-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
+    	    <dependency>
+		<groupId>org.simpleframework</groupId>
+		<artifactId>simple-xml</artifactId>
+		<version>2.3.6</version>
+		<scope>provided</scope>
+	    </dependency>
         </dependencies>
     </dependencyManagement>
     

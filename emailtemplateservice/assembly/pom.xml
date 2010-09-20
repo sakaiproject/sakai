@@ -41,7 +41,11 @@
             <type>war</type>
             <scope>compile</scope>
         </dependency>
-        
+	<dependency>
+   	  <groupId>org.simpleframework</groupId>
+	  <artifactId>simple-xml</artifactId>
+	  <scope>compile</scope>
+	</dependency>        
     </dependencies>
 
     <build>

@@ -12,6 +12,7 @@
             </useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.emailtemplateservice:emailtemplateservice-api:jar:*</include>
+		<include>org.simpleframework:simple-xml:jar:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
