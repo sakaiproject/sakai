@@ -290,7 +290,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String versionString = xmlTemplate.getChildText("version");
 		
 		
-		if (emailTemplateService.templateExists(key, new Locale(locale)))
+		if (!emailTemplateService.templateExists(key, new Locale(locale)))
 		{
 			EmailTemplate template = new EmailTemplate();
 			template.setSubject(subject);
