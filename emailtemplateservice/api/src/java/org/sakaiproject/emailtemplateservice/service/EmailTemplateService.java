@@ -157,11 +157,11 @@ public interface EmailTemplateService {
    public void processEmailTemplates(List<String> templatePaths);
    
    /**
-    * Does a template for the key exist in any locale?
+    * Does a template for the key exist in this locale?
     * @param key
     * @return
     */
-   public boolean templateExists(String key);
+   public boolean templateExists(String key, Locale locale);
 	   
    
    

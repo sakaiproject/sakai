@@ -135,9 +135,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
    
-	public boolean templateExists(String key) {
+	public boolean templateExists(String key, Locale locale) {
 		List<EmailTemplate> et = null;
 		Search search = new Search("key", key);
+		search.addRestriction( new Restriction("locale", locale.toString()) );
         et = dao.findBySearch(EmailTemplate.class, search);
         if (et != null && et.size() > 0) {
         	return true;
