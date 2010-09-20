@@ -231,9 +231,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	
 	//Style it like a Sakai tool
-	protected static final String HEADSCRIPTS = "/library/js/headscripts.js";
-	protected static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( window.name )";
-	
 	public void renderHead(IHeaderResponse response) {
 		//get Sakai skin
 		String skinRepo = sakaiProxy.getSkinRepoProperty();
@@ -241,10 +238,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		String toolBaseCSS = skinRepo + "/tool_base.css";
 		
 		//Sakai additions
-		response.renderJavascriptReference(HEADSCRIPTS);
+		response.renderJavascriptReference("/library/js/headscripts.js");
 		response.renderCSSReference(toolBaseCSS);
 		response.renderCSSReference(toolCSS);
-		response.renderOnLoadJavascript(BODY_ONLOAD_ADDTL);
+		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
 		
 		//for jQuery
 		response.renderJavascriptReference("javascript/jquery-1.2.5.min.js");
