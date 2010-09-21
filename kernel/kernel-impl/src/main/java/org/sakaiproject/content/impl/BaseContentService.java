@@ -160,6 +160,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import com.ibm.icu.impl.duration.impl.DataRecord.ECountVariant;
+import com.ibm.icu.text.CharsetDetector;
+
 /**
  * <p>
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
@@ -5536,6 +5539,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		
 		commitResourceEdit(edit, priority);
 
+		//check the content type
+		checkUpdateContentEncoding(edit.getId());
+		
 		if (virusScanner.getEnabled()) {
 			try {
 				virusScanner.scanContent(edit.getId());
@@ -5596,6 +5602,72 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 	} // commitResource
+
+	private void checkUpdateContentEncoding(String id) {
+		M_log.debug("checkUpdateContentEncoding(" + id);
+		try
+		{
+			ContentResourceEdit edit = editResource(id);
+			//no point in doing this for 0 size resources
+			if (edit.getContentLength() == 0)
+			{
+				return;
+			}
+			
+			String contentEncoding = edit.getProperties().getProperty(ResourceProperties.PROP_CONTENT_ENCODING);
+			if (contentEncoding == null)
+			{
+				contentEncoding = "";
+			}
+			String encoding = null;
+			CharsetDetector detector = new CharsetDetector();
+			InputStream content = edit.streamContent();
+			//we don't want the whole file the first couple of bytes should do
+			int len = 1000;
+			byte[] contentBytes = new byte[len];
+			if (content.markSupported()) 
+			{			
+				detector.setText(content);
+				encoding = detector.detect().getName();
+			} else {
+				 content.read(contentBytes);
+				 detector.setText(contentBytes);
+			}
+			
+			encoding = detector.detect().getName();
+			M_log.debug("detected character encoding of " + encoding + " origional was" + contentEncoding);
+			if (encoding != null && !contentEncoding.equals(encoding))
+			{
+				ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+				rpe.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
+				rpe.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
+				commitResource(edit);
+			}
+			
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InUseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OverQuotaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 	/**
 	 * Commit the changes made, and release the lock - no quota check. The Object is disabled, and not to be used after this call.
