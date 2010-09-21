@@ -21,13 +21,35 @@
 
 package org.sakaiproject.content.user.prefs;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.impl.BaseContentService;
 import org.sakaiproject.util.UserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Resource;
+
 
 public class ContentUserNotificationPreferencesRegistrationImpl extends UserNotificationPreferencesRegistrationImpl {
 
+	private ServerConfigurationService serverConfigurationService = null;
+	
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
+	private static final String RESOURCECLASS = "resource.class.content";
+
+	
 	public ResourceLoader getResourceLoader(String location) {
-		return new ResourceLoader(location);
+		//return new ResourceLoader(location);
+		
+		String resourceClass = getServerConfigurationService().getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+		return new Resource().getLoader(resourceClass, location);
+	}
+
+	public ServerConfigurationService getServerConfigurationService() {
+		return serverConfigurationService;
+	}
+
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 }
