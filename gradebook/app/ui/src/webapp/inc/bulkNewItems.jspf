@@ -97,7 +97,7 @@
 			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
 		  					styleClass="itemSummaryLite">
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-					<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date} #{msgs.date_entry_format_description}"/>
+					<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.due_date} #{msgs.date_entry_format_description}"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
   					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"

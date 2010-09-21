@@ -73,7 +73,7 @@
 					<h:outputText id="category" value="#{assignmentDetailsBean.assignmentCategory}"  />
 				</h:panelGroup>
 
-				<h:outputText id="dueDateLabel" value="#{msgs.assignment_details_due_date}"/>
+				<h:outputText id="dueDateLabel" value="#{msgs.due_date}"/>
 				<h:outputText id="dueDate" value="#{assignmentDetailsBean.assignment.dueDate}" rendered="#{assignmentDetailsBean.assignment.dueDate != null}" >
                      <gbx:convertDateTime/>
                 </h:outputText>

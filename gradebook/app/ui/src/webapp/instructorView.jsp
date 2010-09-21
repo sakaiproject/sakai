@@ -173,7 +173,7 @@
 				<h:column>
 					<f:facet name="header">
 						<t:commandSortHeader columnName="dueDate" propertyName="dueDate" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.inst_view_due_date}"/>
+							<h:outputText value="#{msgs.due_date}"/>
 						</t:commandSortHeader>
 					</f:facet>
 

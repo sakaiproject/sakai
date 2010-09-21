@@ -33,7 +33,7 @@
 					</h:panelGroup>
            
 					<h:panelGroup>
-						<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.import_assignment_due_date}"/>
+						<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.due_date}"/>
 						<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
 					</h:panelGroup>
 					<h:panelGroup>
