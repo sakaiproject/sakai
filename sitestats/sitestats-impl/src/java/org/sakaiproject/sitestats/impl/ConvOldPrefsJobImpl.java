@@ -199,7 +199,7 @@ public class ConvOldPrefsJobImpl implements StatefulJob {
 				rs = s.executeQuery("select count(*) from SST_PREFS");
 				present = true;
 			}catch(SQLException e){
-				LOG.error("Table SST_PREFS doesn't exist! Create it before running this conversion script.", e);
+				LOG.error("Table SST_PREFS doesn't exist! Nothing to do, aborting.");
 				present = false;
 			}finally{
 				if(rs != null){
@@ -217,7 +217,7 @@ public class ConvOldPrefsJobImpl implements StatefulJob {
 					present = true;
 				}
 			}catch(SQLException e){
-				LOG.error("Table SST_PREFERENCES doesn't exist! Create it before running this conversion script.", e);
+				LOG.error("Table SST_PREFERENCES doesn't exist! Create it before running this conversion script.");
 				present = false;
 			}finally{
 				if(rs != null){
