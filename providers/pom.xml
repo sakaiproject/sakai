@@ -28,6 +28,7 @@
     <module>kerberos</module>
     <module>openldap</module>
     <module>sample</module>
+    <module>hybrid</module>
   </modules>
   <dependencyManagement>
     <dependencies>

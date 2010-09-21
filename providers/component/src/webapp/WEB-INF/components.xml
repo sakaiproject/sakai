@@ -195,5 +195,14 @@
   		</property>
   	</bean>
  -->
+ <!--	Uncomment and configure to use the Sakai 3 Nakamura Hybrid Provider.
+ 	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+ 			class="org.sakaiproject.provider.user.NakamuraUserDirectoryProvider"
+ 			init-method="init">
+   		<property name="threadLocalManager">
+   			<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+   		</property>
+ 	</bean>
+  -->
 
 </beans>
