@@ -652,7 +652,7 @@ page estate
 .toggleTools #toggleNormal{
 	background:#fff url(images/toggler-back.png) -80px 0 no-repeat
  }
-.sakaiMinimizePageNavigation #toolMenu li a{
+.sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a{
 	display:block;
 	height:16px;
 	padding-right:0 !important;
@@ -661,7 +661,7 @@ page estate
 .sakaiMinimizePageNavigation #toolMenu{
 	width:16px;
 }
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper, .sakaiMinimizePageNavigation #subSites li span{
 	display:none
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
