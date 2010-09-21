@@ -37,6 +37,16 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 
+    <filter>
+        <filter-name>NakamuraAuthenticationFilter</filter-name>
+        <filter-class>org.sakaiproject.login.filter.NakamuraAuthenticationFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>NakamuraAuthenticationFilter</filter-name>
+				<url-pattern>/container</url-pattern>
+    </filter-mapping>
+
     <servlet>
         <servlet-name>sakai.login</servlet-name>
         <servlet-class>org.sakaiproject.login.tool.SkinnableLogin</servlet-class>
