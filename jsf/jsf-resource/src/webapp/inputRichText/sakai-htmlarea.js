@@ -20,7 +20,7 @@
 @license@
 **********************************************************************************/
 // the inputRichText directory
-var inputRichTextDir = "/sakai-jsf-resource/inputRichText";
+var inputRichTextDir = "/jsf-resource/inputRichText";
 
 /**
 * This is a private utility to set the language code.

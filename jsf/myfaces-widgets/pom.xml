@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Widgets - MyFaces RI (sakai-jsf-widgets-myfaces)
+    <name>Sakai JSF Widgets - MyFaces RI (jsf-widgets-myfaces)
     </name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>myfaces-widgets</artifactId>

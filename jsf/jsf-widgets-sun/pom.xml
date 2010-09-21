@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
   
-  <name>Sakai JSF Widgets - Sun RI (sakai-jsf-widgets-sun)</name>
+  <name>Sakai JSF Widgets - Sun RI (jsf-widgets-sun)</name>
   <groupId>org.sakaiproject.jsf</groupId>
   <artifactId>jsf-widgets-sun</artifactId>
   <organization>

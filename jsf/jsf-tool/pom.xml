@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Tool Servlet (sakai-jsf-tool)</name>
+    <name>Sakai JSF Tool Servlet (jsf-tool)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-tool</artifactId>
     <organization>

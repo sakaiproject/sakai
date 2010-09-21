@@ -8,7 +8,7 @@
         <version>2.8-SNAPSHOT</version>
     </parent>
 
-    <name>Sakai JSF Spreadsheet Support (sakai-jsf-spreadsheet)</name>
+    <name>Sakai JSF Spreadsheet Support (jsf-spreadsheet)</name>
     <groupId>org.sakaiproject.jsf</groupId>
     <artifactId>jsf-spreadsheet</artifactId>
     <packaging>jar</packaging>
