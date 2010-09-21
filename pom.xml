@@ -121,7 +121,6 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
-                <module>webservices</module>
                 <module>usermembership</module>
             </modules>
         </profile>
@@ -175,7 +174,6 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
-                <module>webservices</module>
             </modules>
         </profile>
         <profile>
