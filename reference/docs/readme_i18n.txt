@@ -125,9 +125,9 @@ languages, as follows:
     Local ID: sv_SE
                 
 20) Turkish
-    Status: inquiry on 7/17/2006
+    Status: 2.8 initial release
     Translated by: n/a
-    Contact: E. Emre …zkeskin (eozkeskin@hotmail.com)
+    Contact: Yasin ÖZARSLAN <ozarslan@gmail.com>
     Local ID: tr_TR
                 
 21) Mongolian
