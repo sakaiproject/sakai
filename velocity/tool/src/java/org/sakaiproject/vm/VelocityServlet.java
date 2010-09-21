@@ -30,28 +30,45 @@ import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.tools.view.servlet.VelocityViewServlet;
 
 /**
  * <p>
  * Responds with the expansion of a Velocity Template. The template and context references are specified in the request.
  * </p>
  */
-public class VelocityServlet extends org.apache.velocity.servlet.VelocityServlet
+public class VelocityServlet extends VelocityViewServlet
 {
 
 	/**
 	 * Called by the VelocityServlet init(). We want to set a set of properties so that templates will be found in the webapp root. This makes this easier to work with as an example, so a new user doesn't have to worry about config issues when first
 	 * figuring things out
 	 */
-	protected Properties loadConfiguration(ServletConfig config) throws IOException, FileNotFoundException
+	protected ExtendedProperties loadConfiguration(ServletConfig config) throws IOException, FileNotFoundException
 	{
-		// load the properties as configured in the servlet init params
-		Properties p = super.loadConfiguration(config);
+		// This is to support old config property.
+		String configPath = config.getInitParameter("properties");
+		ExtendedProperties p;
+		if (configPath != null && configPath.length() > 0)
+		{
+			p = new ExtendedProperties();
+			if (!configPath.startsWith("/"))
+			{
+				configPath = "/"+configPath;
+			}
+			p.load(getServletContext().getResourceAsStream(configPath));
+		}
+		else
+		{
+			// load the properties as configured in the servlet init params
+			p = super.loadConfiguration(config);
+		}
 
 		/*
 		 * first, we set the template path for the FileResourceLoader to the root of the webapp. This probably won't work under in a WAR under WebLogic, but should under tomcat :)
