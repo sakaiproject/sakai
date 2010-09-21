@@ -547,7 +547,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
                     return new ArrayList();
                 } else {
-                    Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
+                    Query q = session.createQuery("from AssignmentGradeRecord as agr left join fetch agr.gradableObject where agr.gradableObject.removed=false and " +
                             "agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
                     q.setLong("gradebookId", gradebookId.longValue());
                     return filterGradeRecordsByStudents(q.list(), studentUids);
