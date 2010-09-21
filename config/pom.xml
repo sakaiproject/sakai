@@ -41,5 +41,7 @@
 		<module>configuration/bundles</module>
 		<module>localization/bundles</module>
 		<module>localization/pack</module>
+		<module>sharedI18n/bundles</module>
+		<module>sharedI18n/pack</module>
 	</modules>
 </project>
