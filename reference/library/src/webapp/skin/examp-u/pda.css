@@ -1,8 +1,13 @@
 /*pda portal*/
+html {
+	font-family: Helvetica, Arial,sans-serif;
+}
 .portalBodyPDA{
 	margin:0;padding:0;
 	width:auto;
 }
+
+/*several overrides for tool elements displayed in the pda portal*/
 /*the menu for sites*/
 
 .portletpda .portletBody{
@@ -39,13 +44,18 @@
 	.portletpda .portletBody .checkbox label{
 		font-size:1.1em;
 }
-
+.portalBodyPDA .portletBody .navIntraTool{
+	padding:.5em 0;
+}
+.portalBodyPDA .portletBody .navIntraTool a{
+	text-decoration:none !important;
+}
 #pda-portlet-menu{
-	font-size: 14px !important;
+	font-size: 14px;
+	font-family: Helvetica, Arial, sans-serif;
 	width:100%;
-	background:#CBCC03 url(images/pda-menu-back.gif) top left repeat-x;
+	background:#09C url(images/pda-menu-back.gif) top left repeat-x;
 	list-style: none;
-	font-family: Helvetica, Arial,sans-serif;
 	color:#fff;
 	margin:0;
 	clear: both;
@@ -57,7 +67,7 @@
 
 #pda-portlet-menu li {
 	margin-left: 0;
-	padding:6px 8px 6px 0;
+	padding:7px 8px 6px 0;
 	list-style: none;
 	display: inline;
 	float:left;
@@ -65,17 +75,23 @@
 
 #pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
 	content: "\00BB \0020";
-	color: #fff;
+	color: #ff9;
 	font-weight: bold;
 }
 
 /*the first item in the menu - may contain an instance string "CamTools" or "OnCourse"*/
 #pda-portlet-menu li.instanceNote:before{
-	content: "\00BB";
+	content: "";
 	visibility:hidden;
 	color: #fff;
 }
-
+#pda-portlet-menu li.instanceNote a{
+	text-decoration:none;
+    display:block;
+    width:45px;
+    height:25px
+    
+}
 #pda-portlet-menu li.sitesLink:before{
 	content: "\00BB";
 	visibility:hidden;
@@ -84,8 +100,9 @@
 
 #pda-portlet-menu li.instanceNote{
 	color:#fff;
-	background:#CBCC03 url(images/pda-menu-instance-icon.gif) top left no-repeat;
-	width:38px;
+    padding:0 4px 4px 4px;
+    background:#09c url(images/pda-menu-instance-icon.gif) top left no-repeat;
+	width:40px;
 }
 /*put non site links to the right*/
 #pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink  {
@@ -96,7 +113,7 @@
 	margin-left:1em;
 }
 #pda-portlet-menu li span a{
-	color:#000;
+	color:#ff9;
 	text-decoration:none !important;
 }	
 #pda-portlet-menu li span a:hover{
@@ -111,33 +128,48 @@
 .loginLink{}
 /*the list menu (gateway sites, site lists, tool lists, may want to differentiate between them, if so can*/
 #pda-portlet-page-menu, #pda-portlet-site-menu{
-	font-size: 14px !important;
-	margin:.5em;
+	font-size: 18px !important;
+	font-weight:bold;
+	margin:0;
 	padding:0;	
 	list-style:none;
 	line-height:2em;
 	font-family: Helvetica, Arial, sans-serif;
+	border-collapse:collapse;
 }
 #pda-portlet-page-menu li, #pda-portlet-site-menu li{
-	margin:6px 0;
-	padding:0;
+	margin:0;
+	padding:.4em;
+	border-bottom:1px solid #ccc;
 }
-
+#pda-portlet-page-menu li.subSites, #pda-portlet-site-menu li.subSites{
+	padding:0
+}
+#pda-portlet-page-menu li.subSites ul, #pda-portlet-site-menu li.subSites ul{
+	list-style:none;
+	margin:0;
+	padding:0 !important;
+	
+}
+#pda-portlet-page-menu li.subSiteItem, #pda-portlet-site-menu li.subSiteItem{
+	padding-left:1em;
+}	
+.subSiteItem .textPanelFooter{
+	font-size:.8em;
+	font-style:normal;
+	color:#aaa;
+}
+#pda-portlet-page-menu li:hover, #pda-portlet-site-menu li:hover{
+	background:#eee
+	}
 #pda-portlet-site-menu a, #pda-portlet-page-menu a{
-	color:#000;
-	-webkit-tap-highlight-color:#ff9;
-	-webkit-text-size-adjust:none;  
+	color:#333;
 	text-decoration:none;
-	padding-left:5px;
+	padding:0;
+	background:url(images/pda-list-arrow.png) center right no-repeat;
 	display:block;
 	margin:0;
-	width: 200px;
-}	
-
-#pda-portlet-site-menu a:before, #pda-portlet-page-menu a:before{
-	content: "\00BB \0020";
-	color: #000;
-	font-weight: bold;
+	width: 100%;
 }	
 
 /*external login form formatting*/
@@ -202,4 +234,132 @@
 	height:75px;
 	width:150px;
 	overflow:auto;
+}
+
+#pda-footer {
+	font-size: 14px !important;
+	font-weight:bold;
+	background-color:#004d73;
+	padding: 1em 0;
+    vertical-align:middle;	
+	text-align: center;
+}
+
+.switch-link, .switch-link:visited{
+	color:#000 !important;
+	background:#fff;
+	padding:10px;
+	text-decoration:none;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	border-radius:10px;
+}	
+.switch-link:hover{
+	text-decoration: underline;
+	
+}
+.skip{
+	display: inline;
+	position: absolute;
+	top: -999px;
+	left: -999px;
+	height: 0;
+}
+/*
+next block has overrides optimizing for certail mobile devices
+*/
+@media screen and (max-device-width: 480px){
+html {
+    -webkit-text-size-adjust: none;
+}
+#pda-portlet-menu{
+	position:absolute;
+	top:0;
+	height:35px;
+	font-size: 14px !important;
+	width:100%;
+	background:#09C url(images/pda-menu-back-ip.png) top left repeat-x;
+	border-bottom:1px solid #222
+}
+#pda-portlet-site-menu, #pda-portlet-page-menu, .portletpda .portletBody{
+	margin-top:36px;
+}
+#pda-portlet-menu li.sitesLink:before, #pda-portlet-menu li.currentSiteLink:before, #pda-portlet-menu li.currentToolTitle:before {
+    content: "";
+}
+#pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
+    font-size: 16px;
+	padding-top:10px;
+	position:absolute;
+	height:35px;
+	top:0;
+	left:70px;
+    width: 11em !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+}
+#pda-portlet-menu li.instanceNote a {
+    text-decoration: none;
+	display:block;
+	width: 60px;
+    margin-top:2px;
+	height:35px;
+	
+}
+#pda-portlet-menu li.instanceNote {
+	position:absolute;
+	top:0;
+	left:0;
+    margin: -6px 3px 3px;
+    padding: 5px !important;
+    background: url(images/pda-menu-instance-icon-ip.png) center left no-repeat;
+    width: 60px;
+}
+#pda-portlet-menu li.helpLink, .currentSiteParentLink, .currentToolTitle, #pda-portlet-menu li.sitesLink {
+    display: none  !important
+}
+#pda-portlet-menu li span a {
+    color: #fff;
+}
+.logoutLink, .loginLink, .switch-link{
+	position:absolute;
+	top:2px;
+	right:2px;
+    -webkit-border-image: url(images/pda-button.png) 10 stretch;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+    font: normal  bold 13px / 20px Helvetica, sans-serif;
+	height:20px;
+	padding:2px !important;
+    border-width: 3px;
+	text-decoration: none;
+}
+
+.logoutLink a, .loginLink a,.logoutLink a:active, .loginLink a:active, .logoutLink a:focus, .loginLink a:focus{
+		text-decoration: none !important;
+}
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    -webkit-tap-highlight-color: #fff;
+    -webkit-text-size-adjust: none;
+}
+
+
+#pda-footer {
+	padding: .7em 0 1em 0;
+	height:100%;
+	overflow:hidden;
+}
+
+.switch-link, .switch-link:visited {
+	position:relative;
+	color:#fff !important;
+	background:none;
+	padding:5px !important;
+	text-decoration:none !important;
+	-webkit-border-radius:0;
+	-moz-border-radius:0;
+	border-radius:0;
+}	
+
 }
