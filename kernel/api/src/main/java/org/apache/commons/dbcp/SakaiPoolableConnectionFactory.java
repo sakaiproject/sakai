@@ -23,6 +23,8 @@ package org.apache.commons.dbcp;
 
 import java.sql.Connection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.KeyedObjectPoolFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -40,6 +42,8 @@ public class SakaiPoolableConnectionFactory extends PoolableConnectionFactory
 	/** Configuration: to rollback each connection when borrowed from the pool. */
 	protected boolean m_rollbackOnReturn = false;
 
+	
+	protected static final Log M_log = LogFactory.getLog(SakaiPoolableConnectionFactory.class);
 	/**
 	 * Create a new <tt>PoolableConnectionFactory</tt>.
 	 * 
@@ -233,6 +237,8 @@ public class SakaiPoolableConnectionFactory extends PoolableConnectionFactory
 			{
 				if (!conn.getAutoCommit() && !conn.isReadOnly())
 				{
+					Exception e = new RuntimeException("Automatic Transaction Rollback");
+					M_log.error("Transaction RolledBack!", e);
 					conn.rollback();
 				}
 			}
