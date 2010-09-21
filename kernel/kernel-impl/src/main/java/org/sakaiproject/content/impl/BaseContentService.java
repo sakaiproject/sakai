@@ -5605,9 +5605,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 	private void checkUpdateContentEncoding(String id) {
 		M_log.debug("checkUpdateContentEncoding(" + id);
+		ContentResourceEdit edit = null;
 		try
 		{
-			ContentResourceEdit edit = editResource(id);
+			edit = editResource(id);
 			//no point in doing this for 0 size resources
 			if (edit.getContentLength() == 0)
 			{
@@ -5642,7 +5643,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				rpe.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 				rpe.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
 				commitResource(edit);
-			}
+			} 
 			
 		} catch (PermissionException e) {
 			// TODO Auto-generated catch block
@@ -5665,6 +5666,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		} catch (OverQuotaException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally {
+			if (edit != null)
+			{
+				cancelResource(edit);
+			}
 		}
 		
 	}
