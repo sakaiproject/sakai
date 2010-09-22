@@ -61,6 +61,7 @@
 			<input disabled type="text" name="dtype" id="dtype" value="$type"/>
 			<input type="hidden" name="type" id="type" value="$type"/>
 		</p>
+		$!recaptchaScript
 		<div class="act">
 			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")"  accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")"  accesskey="x" />

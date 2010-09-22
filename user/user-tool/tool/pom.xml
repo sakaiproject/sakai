@@ -54,6 +54,11 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
+    <dependency>
+		<groupId>net.tanesha.recaptcha4j</groupId>
+		<artifactId>recaptcha4j</artifactId>
+		<version>0.0.7</version>
+	</dependency>
   </dependencies>
   <build>
     <resources>

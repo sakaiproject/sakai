@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaFactory;
+import net.tanesha.recaptcha.ReCaptchaResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -128,6 +132,31 @@ public class UsersAction extends PagedResourceActionII
 		if (state.getAttribute("create-type") == null)
 		{
 			state.setAttribute("create-type", config.getInitParameter("create-type", ""));
+		}
+		
+		if (state.getAttribute("recaptcha-enabled") == null)
+		{
+			String publicKey = ServerConfigurationService.getString("recaptcha.public-key", "");
+			String privateKey = ServerConfigurationService.getString("recaptcha.private-key", "");
+			Boolean systemEnabled = ServerConfigurationService.getBoolean("recaptcha.enabled", false);
+			Boolean toolEnabled = Boolean.parseBoolean(config.getInitParameter("recaptcha-enabled", "false"));
+			Boolean enabled = systemEnabled && toolEnabled;
+			if (enabled)
+			{
+				if (publicKey == null || publicKey.length() == 0)
+				{
+					Log.warn("chef", "recaptcha is enabled but no public key is found.");
+					enabled = Boolean.FALSE;
+				}
+				if (privateKey == null || privateKey.length() == 0)
+				{
+					Log.warn("chef", "recaptcha is enabled but no private key is found.");
+					enabled = Boolean.FALSE;
+				}
+			}
+			state.setAttribute("recaptcha-public-key", publicKey);
+			state.setAttribute("recaptcha-private-key", privateKey);
+			state.setAttribute("recaptcha-enabled", enabled);
 		}
 
 	} // initState
@@ -341,6 +370,14 @@ public class UsersAction extends PagedResourceActionII
 
 		value = (String) state.getAttribute("valueEmail");
 		if (value != null) context.put("valueEmail", value);
+				
+		if ((Boolean)state.getAttribute("recaptcha-enabled"))
+		{
+			ReCaptcha captcha = ReCaptchaFactory.newReCaptcha((String)state.getAttribute("recaptcha-public-key"), (String)state.getAttribute("recaptcha-private-key"), false);
+	        String captchaScript = captcha.createRecaptchaHtml((String)state.getAttribute("recaptcha-error"), null);
+	        state.removeAttribute("recaptcha-error");
+	        context.put("recaptchaScript", captchaScript);
+		}
 
 		return "_create";
 
@@ -841,6 +878,23 @@ public class UsersAction extends PagedResourceActionII
 				type = (String) state.getAttribute("create-type");
 			}
 		}
+		
+		if ((Boolean)state.getAttribute("recaptcha-enabled"))
+		{
+			String challengeField = data.getParameters().getString("recaptcha_challenge_field");
+			String responseField = data.getParameters().getString("recaptcha_response_field");
+			if (challengeField == null) challengeField = "";
+			if (responseField == null) responseField = "";
+			ReCaptcha captcha = ReCaptchaFactory.newReCaptcha((String)state.getAttribute("recaptcha-public-key"), (String)state.getAttribute("recaptcha-private-key"), false);
+			ReCaptchaResponse response = captcha.checkAnswer(data.getRequest().getRemoteAddr(), challengeField, responseField);
+			if (!response.isValid())
+			{
+				addAlert(state, rb.getString("useact.capterr"));
+		        state.setAttribute("recaptcha-error", response.getErrorMessage());
+				return false;
+			}
+		}
+		
 		
 		//insure valid email address
 		//email.matches(".+@.+\\..+")
