@@ -192,6 +192,7 @@
 				</executions>
 			</plugin>
 			
+			<!-- compress CSS and JS -->
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>yuicompressor-maven-plugin</artifactId>
