@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
@@ -36,13 +38,13 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.user.cover.UserDirectoryService;
 
 
 /**
@@ -187,7 +189,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             if (currentUserId == null) {
             	//is this a public poll? (ie .anon role has poll.vote)
             	if(!pollListManager.isPollPublic(poll)){
-            		throw new SecurityException("User must be logged in in order to access poll data: " + ref);
+                    throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
             	}
             } else {
                 String userReference = developerHelperService.getCurrentUserReference();
@@ -275,7 +277,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         } else {
             userId = developerHelperService.getCurrentUserId();
             if (userId == null) {
-                throw new SecurityException("No user is currently logged in so no polls data can be retrieved");
+                throw new EntityException("No user is currently logged in so no polls data can be retrieved", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
         String perm = PollListManager.PERMISSION_VOTE;

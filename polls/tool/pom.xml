@@ -72,6 +72,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
+		<dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
         <!-- RSF dependencies -->
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
