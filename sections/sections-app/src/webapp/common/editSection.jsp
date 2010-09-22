@@ -19,11 +19,11 @@
     <t:div styleClass="act">
         <h:commandButton
         	action="#{editSectionBean.update}"
-        	value="#{msgs.section_update}"
+        	value="#{msgs.update}"
         	styleClass="active"
         	onclick="reEnableLimits();" />
 
-        <h:commandButton action="overview" value="#{msgs.section_cancel}" immediate="true" />
+        <h:commandButton action="overview" value="#{msgs.cancel}" immediate="true" />
     </t:div>
 </h:form>
 </div>

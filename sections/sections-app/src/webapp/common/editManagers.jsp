@@ -68,7 +68,7 @@
             <h:commandButton
                 action="#{editManagersBean.cancel}"
                 immediate="true"
-                value="#{msgs.edit_manager_cancel}"/>
+                value="#{msgs.cancel}"/>
         </t:div>
 </h:form>
 </div>

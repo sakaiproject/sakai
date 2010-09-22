@@ -7,13 +7,13 @@
     
     <h:panelGroup rendered="#{navMenuBean.sectionManagementEnabled}">
         <h:commandLink action="addSections" immediate="true" rendered="#{viewName ne 'addSections'}">
-            <h:outputText value="#{msgs.nav_add_sections}"/>
+            <h:outputText value="#{msgs.add_sections}"/>
         </h:commandLink>
-        <h:outputText value="#{msgs.nav_add_sections}" rendered="#{viewName eq 'addSections'}" styleClass="currentView" /><h:outputText value=" | "/>
+        <h:outputText value="#{msgs.add_sections}" rendered="#{viewName eq 'addSections'}" styleClass="currentView" /><h:outputText value=" | "/>
     </h:panelGroup>
 
     <h:commandLink action="roster" immediate="true" rendered="#{viewName ne 'roster'}">
-        <h:outputText value="#{msgs.nav_roster}"/>
+        <h:outputText value="#{msgs.student_member}"/>
     </h:commandLink>
 
     <h:outputText value="#{msgs.nav_roster}" rendered="#{viewName eq 'roster'}" styleClass="currentView" />

@@ -59,7 +59,7 @@
             <h:commandButton
                 action="overview"
                 immediate="true"
-                value="#{msgs.edit_student_cancel}"/>
+                value="#{msgs.cancel}"/>
         </t:div>
 </h:form>
 </div>

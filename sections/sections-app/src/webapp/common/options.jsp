@@ -18,7 +18,7 @@
 	        	<h:outputText value="#{msgs.options_confirm}"/>
 	        	<h:panelGroup>
 		        	<h:commandButton action="#{optionsBean.confirmExternallyManaged}" value="#{msgs.options_automatically_manage}"/>
-		        	<h:commandButton action="options" value="#{msgs.options_cancel}"/>
+		        	<h:commandButton action="options" value="#{msgs.cancel}"/>
 	        	</h:panelGroup>
         	</h:panelGrid>
         </t:div>
@@ -49,13 +49,13 @@
         <t:div styleClass="act verticalPadding">
             <h:commandButton
                 action="#{optionsBean.update}"
-                value="#{msgs.options_update}"
+                value="#{msgs.update}"
                 styleClass="active"
                 rendered="#{optionsBean.sectionOptionsManagementEnabled}"
                 disabled="#{optionsBean.confirmMode}" />
             <h:commandButton
                 action="overview"
-                value="#{msgs.options_cancel}"
+                value="#{msgs.cancel}"
                 rendered="#{optionsBean.sectionOptionsManagementEnabled}"
                 disabled="#{optionsBean.confirmMode}" />
             <h:commandButton

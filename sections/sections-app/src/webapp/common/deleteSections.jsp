@@ -33,7 +33,7 @@
                 action="#{overviewBean.deleteSections}"
                 value="#{msgs.overview_delete_short}"
                 styleClass="active" />
-            <h:commandButton action="overview" value="#{msgs.overview_cancel}"/>
+            <h:commandButton action="overview" value="#{msgs.cancel}"/>
         </t:div>        
     </t:div>
 

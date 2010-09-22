@@ -8,7 +8,7 @@
 		<%@include file="/inc/navMenu.jspf"%>
 	</t:aliasBean>
 
-	<h3><h:outputText value="#{msgs.nav_add_sections}"/></h3>
+	<h3><h:outputText value="#{msgs.add_sections}"/></h3>
 
 	<t:div styleClass="instructions">
 		<h:outputText value="#{msgs.add_section_instructions}"/>
@@ -16,7 +16,7 @@
 
 	<%@include file="/inc/globalMessages.jspf"%>
 	
-	<h:outputText value="#{msgs.add_section_add}"/>
+	<h:outputText value="#{msgs.add}"/>
 	<h:selectOneMenu
 		id="numToAdd"
 		immediate="true"
@@ -45,11 +45,11 @@
 		<h:commandButton
 			action="#{addSectionsBean.addSections}"
 			disabled="#{empty addSectionsBean.category}"
-			value="#{msgs.add_sections_add}"
+			value="#{msgs.add_sections}"
 			styleClass="active"
 			onclick="reEnableLimits();" />
 		
-		<h:commandButton action="overview" immediate="true" value="#{msgs.add_sections_cancel}"/>
+		<h:commandButton action="overview" immediate="true" value="#{msgs.cancel}"/>
 	</t:div>
 </h:form>
 </div>

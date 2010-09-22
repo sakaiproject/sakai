@@ -168,7 +168,7 @@
     
         <h:commandButton
             action="overview"
-            value="#{msgs.overview_cancel}"
+            value="#{msgs.cancel}"
             rendered="#{overviewBean.deleteRendered}"/>
     </t:div>
 
