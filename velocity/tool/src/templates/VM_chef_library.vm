@@ -139,9 +139,12 @@
     $!sakai_head	
     
     	## setup wysiwyg editor
+        ########################### This should already be handled by portal or sakai-editor/editor.js
+    #*
 	#set($editor_path = "vm/editor/$!sakai_editor/sakai_header.vm") 
 	<!-- $editor_path -->
 	#parse("$editor_path")
+    *#
     
 #if ($frameRefresh)
 	#foreach ($id in $frameRefresh)
@@ -380,12 +383,15 @@
 *# ------------------------------------------------------------------
 #macro (chef_setupformattedtextarea $textarea_id)
 
+    #*
 	## setup wysiwyg editor
 	#set($editor_path = "vm/editor/$!sakai_editor/sakai_body.vm") 
 	<!-- $editor_path -->
 	#parse("$editor_path")
 
 	<script type="text/javascript" defer="1">chef_setupformattedtextarea('$textarea_id');</script>	
+    *#
+	<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>	
 
 #end
 
@@ -395,11 +401,14 @@
 *# ------------------------------------------------------------------
 
 #macro (chef_setupformattedtextareaparams $textarea_id $height $width $ToolBarSetChoice)
+    #*
 	## setup wysiwyg editor
 	#set($editor_path = "vm/editor/$!sakai_editor/sakai_body.vm") 
 	<!-- $editor_path -->
 	#parse("$editor_path")
 	<script type="text/javascript" defer="1">chef_setupformattedtextarea('$textarea_id','$height','$width','$ToolBarSetChoice');</script>	
+    *#
+	<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id', { height: '$height', width: '$width', toolbarSet: '$ToolBarSetChoice' } );</script>	
 #end
 
 #* ------------------------------------------------------------------
