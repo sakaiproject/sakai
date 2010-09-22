@@ -5668,8 +5668,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			e.printStackTrace();
 		}
 		finally {
-			if (edit != null)
+			if (edit != null && edit.isActiveEdit())
 			{
+				
 				cancelResource(edit);
 			}
 		}
