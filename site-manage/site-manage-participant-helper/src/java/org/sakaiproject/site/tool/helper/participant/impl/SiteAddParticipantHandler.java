@@ -2,6 +2,7 @@ package org.sakaiproject.site.tool.helper.participant.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -190,6 +191,7 @@ public class SiteAddParticipantHandler {
 	{
 		if (roles.isEmpty())
 			init();
+		Collections.sort(roles);
 		return roles;
 	}
 	public void setRoles (List<Role> roles)
