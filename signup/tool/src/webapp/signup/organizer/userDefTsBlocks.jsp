@@ -79,7 +79,7 @@
 											<h:outputText value="#{msgs.tab_max_participants}" escape="false"/>
 									</f:facet>
 										<h:panelGroup styleClass="titleText" >
-							        			<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" 
+							        			<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText" size="2" style="margin-left:12px;margin-top:6px;" 
 							        				onkeyup="validateMaxParticipants('#{tsWrapper.positionInTSlist}');return false;" />
 										</h:panelGroup>
 							</t:column>
