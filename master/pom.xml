@@ -480,7 +480,7 @@
             <dependency>
                 <groupId>org.sakaiproject.contentreview</groupId>
                 <artifactId>contentreview-service-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.contentreview.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
