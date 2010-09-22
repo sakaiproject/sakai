@@ -232,7 +232,7 @@ public class PrivateMessagesTool
   //Compose Screen-webpage
   private List selectedComposeToList = new ArrayList();
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
-  private boolean booleanEmailOut= false;
+  private boolean booleanEmailOut= Boolean.parseBoolean(ServerConfigurationService.getString("mc.messages.ccEmailDefault", "false"));
   private String composeSubject ;
   private String composeBody;
   private String selectedLabel="Normal" ;   //defautl set
@@ -1821,7 +1821,7 @@ private   int   getNum(char letter,   String   a)
     this.setComposeBody("");
     this.setComposeSubject("");
     this.setComposeSendAsPvtMsg(SET_AS_YES); //set as default
-    this.setBooleanEmailOut(false); //set as default
+    this.setBooleanEmailOut(Boolean.parseBoolean(ServerConfigurationService.getString("mc.messages.ccEmailDefault", "false"))); //set as default
     this.getSelectedComposeToList().clear();
     this.setReplyToSubject("");
     this.setReplyToBody("");
