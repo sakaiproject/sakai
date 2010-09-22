@@ -11,7 +11,7 @@
     <name>Sakai educational Services Project</name>
     <groupId>org.sakaiproject.edu-services</groupId>
     <artifactId>edu-services</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -25,9 +25,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/branches/edu-services-1.1.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/branches/edu-services-1.1.x</developerConnection>
-        <url>https://source.sakaiproject.org/svn/edu-services/branches/edu-services-1.1.x</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
     </scm>
 
     <modules>
