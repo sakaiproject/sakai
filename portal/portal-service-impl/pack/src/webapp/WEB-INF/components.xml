@@ -10,6 +10,8 @@
           init-method="init"
           >
 	       <property name="siteNeighbourhoodService" ><ref bean="org.sakaiproject.portal.api.SiteNeighbourhoodService" /></property>
+	       <property name="editorRegistry"><ref bean="org.sakaiproject.portal.api.EditorRegistry" /></property>
+	       <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
     </bean>
     <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
           class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"
@@ -43,6 +45,10 @@
             <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
         </property>
         <property name="maxLength" value="15"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.portal.api.EditorRegistry"
+    	class="org.sakaiproject.portal.service.EditorRegistryImpl" singleton="true" init-method="init" lazy-init="false" destroy-method="destroy">
     </bean>
 
 </beans>
