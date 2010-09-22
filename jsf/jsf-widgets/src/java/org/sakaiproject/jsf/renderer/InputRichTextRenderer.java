@@ -202,6 +202,20 @@ public class InputRichTextRenderer extends Renderer
 
 	ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class.getName());
     String editor = serverConfigurationService.getString("wysiwyg.editor");
+    
+    
+    writer.write("<table border=\"0\"><tr><td>");
+    writer.write("<textarea name=\"" + clientId + "_inputRichText\" id=\"" + clientId + "_inputRichText\"");
+    if (textareaColumns > 0) writer.write(" cols=\""+textareaColumns+"\"");
+    if (textareaRows > 0) writer.write(" rows=\""+textareaRows+"\"");
+    writer.write(">");
+    if (value != null)
+       writer.write((String) value);
+    writer.write("</textarea>");
+    
+    writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText');</script>");
+
+    /*
     if(editor != null && !editor.equalsIgnoreCase("FCKeditor"))
     {
       // Render JavaScripts.
@@ -334,6 +348,7 @@ public class InputRichTextRenderer extends Renderer
        writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('"+clientId+"_inputRichText');</script>");
        writer.write("</td></tr></table>\n");
     }
+    */
   }
 
   /**
