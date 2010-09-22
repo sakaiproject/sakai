@@ -124,7 +124,7 @@
 							</h:panelGroup>
 							
 							<h:outputText id="recurWarnLabel_1" value="" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
-							<h:outputText id="recurWarnLabel_2" value="#{msgs.warn_copy_recurred_event}" styleClass="alertMessage" style="width:95%" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
+							<h:outputText id="recurWarnLabel_2" value="#{msgs.warn_copy_recurred_event}" styleClass="alertMessage" style="width:93%" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
 							
 							 <h:panelGroup>
 		                     	<h:outputText value="#{msgs.star_character}" style="color:#B11;" />  
@@ -454,8 +454,9 @@
 	    	 var untilCalendarTag = document.getElementById('meeting:utilCalendar');
 	    	 
 	    	 //init signupBegin
-			 var signupBeginVal = document.getElementById("meeting:signupBeginsType").value;
-			 isSignUpBeginStartNow(signupBeginVal);
+			 var signupBeginTag = document.getElementById("meeting:signupBeginsType");
+			 if(signupBeginTag)
+			 	isSignUpBeginStartNow(signupBeginTag.value);
 	    	 
 	    	 initRepeatCalendar();
 	    	 isShowAssignToAllChoice();
