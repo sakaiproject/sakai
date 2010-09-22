@@ -326,8 +326,15 @@ public void init()
           }
           catch (Exception e){}
       }
-      
+
+      Log
+          sqlSvcLog = LogFactory.getLog("org.sakaiproject.db.impl.BaseSqlService");
+
+      sqlSvcLog.warn("TESTING FOR QRTZ_TRIGGERS TABLE - an error and stack trace may follow relating to the failure of the query \"SELECT 1 FROM QRTZ_TRIGGERS\". This is not an error. It is an expected possible result of the test for the QRTZ_TRIGGERS table and it should not appear after the first startup of Sakai.");
+
       List l = sqlService.dbRead(chkStmt);
+
+      sqlSvcLog.warn("TEST FOR QRTZ_TRIGGERS TABLE COMPLETE");
 
       return (l == null || l.size() < 1);
   }
