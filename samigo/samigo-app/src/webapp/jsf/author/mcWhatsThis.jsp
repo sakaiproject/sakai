@@ -44,36 +44,40 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 					<h:outputText value="#{authorMessages.multiple_choice_sin}" escape="false"/>
 					<f:verbatim></b></f:verbatim>
 				</h:panelGroup>
-				<h:panelGroup>
-					<h:outputText value="#{authorMessages.mcsc_whats_this_text}" escape="false"/>
-					<h:outputText value=" #{authorMessages.mcsc_whats_this_text_2}" escape="false"  rendered="#{itemauthor.currentItem.partialCreditEnabled==true}"/>
-				</h:panelGroup>
-				<h:panelGroup>
+
+				<h:outputText value="#{authorMessages.mcsc_whats_this_text}" escape="false" rendered="#{itemauthor.currentItem.partialCreditEnabled==true}"/>
+				<h:outputText value=" #{authorMessages.mcsc_whats_this_text_no_partial_credit}" escape="false"  rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}"/>
+				<h:outputText value="#{authorMessages.mcms_whats_this_note}" escape="false" rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}"/>
+				<h:outputText value="&nbsp;" escape="false" rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}"/>
+
+				<h:panelGroup rendered="#{itemauthor.currentItem.partialCreditEnabled==true}" >
 					<f:verbatim><ul></f:verbatim>
 					<h:panelGroup>
 					<f:verbatim><li></f:verbatim>
 					<f:verbatim><b></f:verbatim>
 					<h:outputText value="#{authorMessages.enable_nagative_marking}: " escape="false"/>
 					<f:verbatim></b></f:verbatim>	
-					<h:outputText value="#{authorMessages.enable_negative_makrinkg_note}" escape="false"/>
+					<h:outputText value="#{authorMessages.enable_negative_makrinkg_text}" escape="false"/>
+					<f:verbatim><br/></f:verbatim>
+					<h:outputText value="#{authorMessages.mcms_whats_this_note}" escape="false"/>
 					<f:verbatim></li></f:verbatim>
 					</h:panelGroup>
-					<h:panelGroup rendered="#{itemauthor.currentItem.partialCreditEnabled==true}">
+					<h:panelGroup>
 					<h:outputText value="&nbsp;" escape="false"/>
 					<f:verbatim><li></f:verbatim>
 					<f:verbatim><b></f:verbatim>
 					<h:outputText value="#{authorMessages.enable_partial_credit}: " escape="false"/>
 					<f:verbatim></b></f:verbatim>	
-					<h:outputText value="#{authorMessages.enable_partial_credit_note}" escape="false"/>
+					<h:outputText value="#{authorMessages.enable_partial_credit_text}" escape="false"/>
 					<f:verbatim></li></f:verbatim>
 					</h:panelGroup>
-					<h:panelGroup rendered="#{itemauthor.currentItem.partialCreditEnabled==true}">
+					<h:panelGroup>
 					<h:outputText value="&nbsp;" escape="false"/>
 					<f:verbatim><li></f:verbatim>
 					<f:verbatim><b></f:verbatim>
 					<h:outputText value="#{authorMessages.reset_grading_logic}: " escape="false"/>
 					<f:verbatim></b></f:verbatim>	
-					<h:outputText value="#{authorMessages.reset_to_default_grading_logic_note}" rendered="#{itemauthor.currentItem.partialCreditEnabled==true}" escape="false"/>
+					<h:outputText value="#{authorMessages.reset_to_default_grading_logic_text}" escape="false"/>
 					<f:verbatim></li></f:verbatim>
 					</h:panelGroup>
 				<f:verbatim></ul></f:verbatim>
@@ -93,6 +97,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				<f:verbatim></b></f:verbatim>	
 				</h:panelGroup>
 				<h:outputText value="#{authorMessages.mcms_whats_this_text}" escape="false"/>
+				<h:outputText value="#{authorMessages.mcms_whats_this_note}" escape="false"/>
 								
 				<h:outputText value="&nbsp;" escape="false"/>
 				
