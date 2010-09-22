@@ -16,8 +16,8 @@
 	</parent>
 	
 	<organization>
-        <name>Lancaster University, Centre for e-Science</name>
-        <url>http://e-science.lancs.ac.uk</url>
+        <name>The Sakai Foundation</name>
+        <url>http://www.sakaiproject.org</url>
     </organization>
     
     <inceptionYear>2008</inceptionYear>
@@ -26,16 +26,19 @@
 		<developer>
 			<name>Steve Swinsburg</name>
 			<email>s.swinsburg@gmail.com</email>
+			<organization>The Australian National University</organization>
 			<timezone>10</timezone>
 		</developer>
 		<developer>
 			<name>Adrian Fish</name>
 			<email>a.fish@lancaster.ac.uk</email>
+			<organization>Lancaster University, Centre for e-Science</organization>
 			<timezone>0</timezone>
 		</developer>
 		<developer>
 			<name>Daniel Robinson</name>
 			<email>d.b.robinson@lancaster.ac.uk</email>
+			<organization>Lancaster University, Centre for e-Science</organization>
 			<timezone>0</timezone>
 		</developer>
 	</developers>
