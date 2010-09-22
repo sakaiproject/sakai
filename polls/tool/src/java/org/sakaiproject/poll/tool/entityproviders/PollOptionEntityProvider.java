@@ -71,6 +71,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         String userReference = developerHelperService.getCurrentUserReference();
         if (userReference == null) {
+            throw new EntityException("User must be logged in to create new options", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
         }
         Option option = (Option) entity;
         // check minimum settings
