@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Common Cartridge</name>
