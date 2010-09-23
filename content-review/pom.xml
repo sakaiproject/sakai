@@ -11,9 +11,9 @@
 	<name>Sakai Content Review API</name>
 	<version>2.8.1-SNAPSHOT</version>
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/content-review/trunk</url>
+		<connection>scm:svn:https://source.sakaiproject.org/svn/content-review/branches/contentreview-2.8.x</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/content-review/branches/contentreview-2.8.x</developerConnection>
+		<url>https://source.sakaiproject.org/svn/content-review/branches/contentreview-2.8.x</url>
 	</scm>
 	<packaging>pom</packaging>
 	<modules>
