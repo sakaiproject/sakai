@@ -210,6 +210,25 @@ implements ActionListener
 			context.addMessage(null,new FacesMessage(retractDateErr));
 			error=true;
 		}
+		
+		Date startDate = assessmentSettings.getStartDate();
+	    Date dueDate = assessmentSettings.getDueDate();
+	    Date retractDate = assessmentSettings.getRetractDate();
+	    if (dueDate != null && startDate != null && dueDate.before(startDate)) {
+	    	String dateError1 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_earlier_than_avaliable");
+	    	context.addMessage(null,new FacesMessage(dateError1));
+	    	error=true;
+	    }
+	    if (retractDate != null && startDate != null && retractDate.before(startDate)) {
+	    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
+	    	context.addMessage(null,new FacesMessage(dateError2));
+	    	error=true;
+	    }
+	    if (retractDate != null && dueDate != null && retractDate.before(dueDate)) {
+	    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
+	    	context.addMessage(null,new FacesMessage(dateError3));
+	    	error=true;
+	    }
 
 		// if timed assessment, does it has value for time
 		Object time = assessmentSettings.getValueMap().get("hasTimeAssessment");

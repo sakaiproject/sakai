@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -103,7 +104,12 @@ public class SaveAssessmentSettings
       control.setAssessmentBase(assessment.getData());
     }
     // a. LATER set dueDate, retractDate, startDate, releaseTo
-    control.setStartDate(assessmentSettings.getStartDate());
+    if (assessmentSettings.getStartDate() != null) {
+    	control.setStartDate(assessmentSettings.getStartDate());
+    }
+    else {
+    	control.setStartDate(new Date());
+    }
     control.setDueDate(assessmentSettings.getDueDate());
     control.setRetractDate(assessmentSettings.getRetractDate());
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());

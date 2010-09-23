@@ -24,8 +24,8 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
-import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -40,7 +40,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -110,11 +109,34 @@ public class SaveAssessmentSettingsListener
     	error=true;
     }
     
+    Date startDate = assessmentSettings.getStartDate();
+    Date dueDate = assessmentSettings.getDueDate();
+    Date retractDate = assessmentSettings.getRetractDate();
+    if ((dueDate != null && startDate != null && dueDate.before(startDate)) ||
+    	(dueDate != null && startDate == null && dueDate.before(new Date()))) {
+    	String dateError1 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_earlier_than_avaliable");
+    	context.addMessage(null,new FacesMessage(dateError1));
+    	error=true;
+    	assessmentSettings.setStartDate(new Date());
+    }
+    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
+        (retractDate != null && startDate == null && retractDate.before(new Date()))) {
+    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
+    	context.addMessage(null,new FacesMessage(dateError2));
+    	error=true;
+    	assessmentSettings.setStartDate(new Date());
+    }
+    if (retractDate != null && dueDate != null && retractDate.before(dueDate)) {
+    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
+    	context.addMessage(null,new FacesMessage(dateError3));
+    	error=true;
+    }
+
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
     	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
     	if (groupsAuthorized == null || groupsAuthorized.length == 0) {
-    		String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_one_group");
-        	context.addMessage(null,new FacesMessage(retractDateErr));
+    		String releaseGroupError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_one_group");
+        	context.addMessage(null,new FacesMessage(releaseGroupError));
         	error=true;
         	assessmentSettings.setNoGroupSelectedError(true);
     	}
