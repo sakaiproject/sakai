@@ -123,6 +123,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -385,6 +386,15 @@ public class ResourcesAction
     /** Resource bundle using current language locale */
     private static ResourceLoader rrb = new ResourceLoader("right");
 	
+	/** Shared messages */
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.sharedI18n.bundle.shared";
+	private static final String RESOURCECLASS = "resource.class.shared";
+	private static final String RESOURCEBUNDLE = "resource.bundle.shared";
+	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
+
 	static final Log logger = LogFactory.getLog(ResourcesAction.class);
 	
 	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
@@ -4050,6 +4060,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		logger.debug(this + ".buildListContext()");
 		context.put("clang",rb);
 		context.put("tlang",trb);
+		context.put("slang",srb);
 		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));

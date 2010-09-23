@@ -109,6 +109,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -131,6 +132,15 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader crb = new ResourceLoader("content");
+
+	/** Shared messages */
+	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
+	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.sharedI18n.bundle.shared";
+	private static final String RESOURCECLASS = "resource.class.shared";
+	private static final String RESOURCEBUNDLE = "resource.bundle.shared";
+	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ResourceLoader srb = new Resource().getLoader(resourceClass, resourceBundle);
 
     private static final Log logger = LogFactory.getLog(FilePickerAction.class);
 
@@ -317,6 +327,7 @@ public class FilePickerAction extends PagedResourceHelperAction
     private String buildAddMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
     {
 		context.put("tlang",trb);
+		context.put("stlang",srb);
 
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -503,6 +514,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected String buildSelectAttachmentContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
     {
 		context.put("tlang",hrb);
+		context.put("stlang",srb);
 
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 

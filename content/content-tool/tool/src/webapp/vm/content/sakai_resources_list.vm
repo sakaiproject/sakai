@@ -166,8 +166,8 @@ $(document).ready(function() {
 						</a>								 
 					#else
 						<a href="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
-							title= "$clang.getString('expandall')">
-							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$clang.getString('expandall')" alt="$clang.getString('expandall')" hspace="0" />
+							title= "$slang.getString('label.expand.all')">
+							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$slang.getString('label.expand.all')" alt="$slang.getString('label.expand.all')" hspace="0" />
 						</a>								 
 					#end
 				</th>
