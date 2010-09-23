@@ -78,6 +78,9 @@ public class LinkAction extends VelocityPortletPaneledAction
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("link");
 
+	/** Name of state attribute for Site instance id */
+	private static final String STATE_SITE_INSTANCE_ID = "site.instance.id";
+
 	private static final Log logger = LogFactory.getLog(LinkAction.class);
 
         private static final String LINK_MODE = "link_mode";
@@ -105,11 +108,17 @@ public class LinkAction extends VelocityPortletPaneledAction
 
 	/**
 	 * Get the current site id
+	 * @param state SessionState
 	 * @throws SessionDataException
 	 * @return Site id (GUID)
 	 */
-	private String getSiteId() throws SessionDataException
+	private String getSiteId(SessionState state) throws SessionDataException
 	{
+		// Check if it is state (i.e. we are a helper in site.info)
+		String retval = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+		if ( retval != null ) return retval;
+
+		// If it is not in state, we must be stand alone
 		Placement placement = ToolManager.getCurrentPlacement();
 
 		if (placement == null)
@@ -117,21 +126,6 @@ public class LinkAction extends VelocityPortletPaneledAction
 			throw new SessionDataException("No current tool placement");
 		}
 		return placement.getContext();
-	}
-
-	/**
-	 * Get a site property by name
-	 *
-	 * @param name Property name
-	 * @throws IdUnusedException, SessionDataException
-	 * @return The property value (null if none)
-	 */
-	private String getSiteProperty(String name) throws IdUnusedException, SessionDataException
-	{
-		Site site;
-
-		site = SiteService.getSite(getSiteId());
-		return site.getProperties().getProperty(name);
 	}
 
 	/**
@@ -148,7 +142,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 		try 
 		{ 
 			Site site;
-			String siteId = getSiteId();
+			String siteId = getSiteId(state);
 
 			site = SiteService.getSite(siteId);
 			String parentId = site.getProperties().getProperty("sakai:parent-id");
@@ -215,7 +209,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 		try
 		{
 			Site site;
-			site = SiteService.getSite(getSiteId());
+			site = SiteService.getSite(getSiteId(state));
 			ResourcePropertiesEdit rpe = site.getPropertiesEdit();
 			rpe.addProperty("sakai:parent-id", parentId);
 			SiteService.save(site);
@@ -241,7 +235,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 		try
 		{
 			Site site;
-			site = SiteService.getSite(getSiteId());
+			site = SiteService.getSite(getSiteId(state));
 			ResourcePropertiesEdit rpe = site.getPropertiesEdit();
 			rpe.removeProperty("sakai:parent-id");
 			SiteService.save(site);
