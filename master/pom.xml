@@ -98,7 +98,7 @@
         <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
         <sakai.contentreview.version>2.9-SNAPSHOT</sakai.contentreview.version>
         <sakai.edu-services.version>1.2-SNAPSHOT</sakai.edu-services.version>
-        <sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>
+        <sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
         <sakai.hybrid.version>1.0-SNAPSHOT</sakai.hybrid.version>
         <sakai.jsf.version>2.8-SNAPSHOT</sakai.jsf.version>
