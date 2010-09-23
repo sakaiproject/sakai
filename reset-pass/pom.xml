@@ -6,8 +6,7 @@
 	<parent>
 		<artifactId>sakai-standard-tool</artifactId>
 		<groupId>org.sakaiproject.purepoms</groupId>
-		<version>2.8-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+		<version>2.9-SNAPSHOT</version>
 	</parent>
 	<name>Reset Password and Account Validator</name>
 	<groupId>org.sakaiproject.reset-pass</groupId>
