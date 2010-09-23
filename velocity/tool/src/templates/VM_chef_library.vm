@@ -417,12 +417,15 @@
 *# ------------------------------------------------------------------
 #macro (chef_setuphtmldocumenttextarea $textarea_id)
 
+	#*
 	## setup wysiwyg editor
 	#set($editor_path = "vm/editor/$!sakai_editor/sakai_body.vm") 
 	<!-- $editor_path -->
 	#parse("$editor_path")
 
 	<script type="text/javascript" defer="1">chef_setuphtmldocumenttextarea('$textarea_id');</script>
+	*#
+	<script type="text/javascript" defer="1">sakai.editor.launch('$textarea_id');</script>
 	
 #end
 
