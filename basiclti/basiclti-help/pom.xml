@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti</artifactId>
-        <version>1.3-SNAPSHOT</version>
+        <version>1.4-SNAPSHOT</version>
     </parent>
 
     <name>BasicLTI Help (basiclti-help)</name>
