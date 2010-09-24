@@ -253,6 +253,7 @@
     	<twitter4j.version>2.1.2</twitter4j.version>
     	<wicketstuff.tinymce.version>1.4.11</wicketstuff.tinymce.version>
     	<wicketstuff.objectautocomplete.version>1.4.11</wicketstuff.objectautocomplete.version>
+        <sakai.common.version>1.1.0-a01</sakai.common.version>
     	<sakai.ets.version>0.5.0-a01</sakai.ets.version>
     	<quartz.version>1.5.2</quartz.version>
     	<genericdao.version>0.9.18</genericdao.version>

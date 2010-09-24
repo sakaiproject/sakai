@@ -23,9 +23,7 @@
 			components/sakai-common-components;
             components/profile-component;
 		</clean.targets>
-		<deploy.target>tomcat-overlay</deploy.target>
-		
-		<sakai.common.version>1.1-SNAPSHOT</sakai.common.version>	
+		<deploy.target>tomcat-overlay</deploy.target>	
 	</properties>
 	
 	<dependencies>
