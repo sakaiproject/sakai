@@ -35,9 +35,9 @@
 	</modules>
 	
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/sam/trunk</url>
+		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/branches/samigo-2.8.x</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/branches/samigo-2.8.x</developerConnection>
+		<url>https://source.sakaiproject.org/svn/sam/branches/samigo-2.8.x</url>
 	</scm>
 	
 	<distributionManagement>
