@@ -960,7 +960,10 @@ public class TemplateBean implements Serializable
   
   public boolean getShowAssessmentTypes() {
 	  String showAssessmentTypes = ServerConfigurationService.getString("samigo.showAssessmentTypes");
-	  return Boolean.parseBoolean(showAssessmentTypes);
+	  if ("false".equalsIgnoreCase(showAssessmentTypes)) {
+		  return Boolean.FALSE;
+	  }
+	  return Boolean.TRUE;
   }
 
 }
