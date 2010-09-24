@@ -5,14 +5,13 @@
 	<name>Sakai WebServices Project</name>
   	<groupId>org.sakaiproject.webservices</groupId>
   	<artifactId>webservices</artifactId>
-  	
-  	<packaging>pom</packaging>
   	<version>1.0-SNAPSHOT</version>
-
+  	<packaging>pom</packaging>
+  	
   	<parent>
 		<groupId>org.sakaiproject.purepoms</groupId>
 		<artifactId>sakai-basic-tool</artifactId>
-		<version>2.8-SNAPSHOT</version>
+		<version>2.9-SNAPSHOT</version>
 	</parent>
   	
   	<organization>
@@ -22,14 +21,6 @@
   	
   	<inceptionYear>2005</inceptionYear>
   	
-  	<developers>
-		<developer>
-			<name>Steve Swinsburg</name>
-			<email>s.swinsburg@gmail.com</email>
-			<timezone>10</timezone>
-		</developer>
-  	</developers>
-  	
 	<licenses>
         <license>
             <name>Educational Community License, Version 2.0</name>
@@ -37,6 +28,83 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.sakaiproject.org/jira/browse/SAK</url>
+    </issueManagement>
+    
+    <developers>
+        <developer>
+            <name>Steve Swinsburg</name>
+            <email>s.swinsburg@gmail.com</email>
+            <timezone>10</timezone>
+        </developer>
+    </developers>
+    
+    <modules>
+        <module>axis</module>
+        <module>util</module>
+        <module>assembly</module>
+    </modules>
+    
+    <properties>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/webservices/${project.version}</url.localsite>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/webservices/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
     
     <repositories>
 		<repository>
@@ -76,46 +144,7 @@
             </snapshots>
         </repository>
 	</repositories>
-	
-	<distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
-        </site>
-    </distributionManagement>
     
-    <scm>
-    	<connection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</connection>
-    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</developerConnection>
-    	<url>https://source.sakaiproject.org/svn/webservices/trunk</url>
-  	</scm>
-    
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://jira.sakaiproject.org/jira/browse/SAK</url>
-    </issueManagement>
-    
-    <properties>
-		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/webservices/${project.version}</url.localsite>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-  	
   	<dependencyManagement>
     	<dependencies>
       		<dependency>
@@ -125,35 +154,4 @@
       		</dependency>
     	</dependencies>
   	</dependencyManagement>
-  
-  	<modules>
-    	<module>axis</module>
-    	<module>util</module>
-		<module>assembly</module>
-  	</modules>
-  	
-  	 <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-  
 </project>
