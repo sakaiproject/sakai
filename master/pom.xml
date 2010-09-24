@@ -104,7 +104,7 @@
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
         <sakai.polls.version>1.4-SNAPSHOT</sakai.polls.version>
-        <sakai.profile.version>2.8-SNAPSHOT</sakai.profile.version>
+        <sakai.profile.version>2.9-SNAPSHOT</sakai.profile.version>
         <sakai.profile2.version>1.4-SNAPSHOT</sakai.profile2.version>
         <sakai.resetpass.version>2.9-SNAPSHOT</sakai.resetpass.version>
         <sakai.sakai-mock.version>2.8-SNAPSHOT</sakai.sakai-mock.version>
