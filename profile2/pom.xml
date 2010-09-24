@@ -167,6 +167,13 @@
 				<role>Testing</role>
 			</roles>
 		</contributor>
+        <contributor>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@umich.edu</email>
+            <roles>
+                <role>POM plumbing</role>
+            </roles>
+        </contributor>
 	</contributors>
 
     <licenses>
@@ -246,15 +253,15 @@
     	<twitter4j.version>2.1.2</twitter4j.version>
     	<wicketstuff.tinymce.version>1.4.11</wicketstuff.tinymce.version>
     	<wicketstuff.objectautocomplete.version>1.4.11</wicketstuff.objectautocomplete.version>
-    	<sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>
+    	<sakai.ets.version>0.5.0-a01</sakai.ets.version>
     	<quartz.version>1.5.2</quartz.version>
     	<genericdao.version>0.9.18</genericdao.version>
     	<commons.codec.version>1.4</commons.codec.version>
-    	<legacy.profile.api.version>2.8-SNAPSHOT</legacy.profile.api.version>
+    	<legacy.profile.api.version>2.8.0-a01</legacy.profile.api.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <search-api.version>1.3.0-SNAPSHOT</search-api.version>
-		<entitybroker.version>1.4.0-SNAPSHOT</entitybroker.version>
+        <search-api.version>1.3.0-a01</search-api.version>
+		<entitybroker.version>1.4.0-a01</entitybroker.version>
 		<yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
 	</properties>
     
