@@ -75,6 +75,9 @@ public interface NotificationService
 
 	/** Preferences key for a specific notification - append the notification id. */
 	static final String PREFS_NOTI = "noti:notis:";
+	
+	/** Preferences extension used for site specific preferences */
+	static final String NOTI_OVERRIDE_EXTENSION = "_override";
 
 	/**
 	 * Establish a new notification, locked for edit. Must commitEdit() to make official, or cancelEdit() when done!

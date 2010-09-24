@@ -87,6 +87,8 @@ public class NotificationService
 
 	public static java.lang.String PREFS_NOTI = org.sakaiproject.event.api.NotificationService.PREFS_NOTI;
 
+	public static java.lang.String NOTI_OVERRIDE_EXTENSION = org.sakaiproject.event.api.NotificationService.NOTI_OVERRIDE_EXTENSION;
+	
 	public static void commitEdit(org.sakaiproject.event.api.NotificationEdit param0)
 	{
 		org.sakaiproject.event.api.NotificationService service = getInstance();
