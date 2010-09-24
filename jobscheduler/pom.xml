@@ -16,6 +16,7 @@
 
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url.localsite>
+        <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
     </properties>
 
     <profiles>
