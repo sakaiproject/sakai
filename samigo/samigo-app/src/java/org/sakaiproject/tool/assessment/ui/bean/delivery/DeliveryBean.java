@@ -3144,6 +3144,47 @@ public class DeliveryBean
 	  {
 	    this.scoringType = scoringType;
 	  }
-	  
+
+	  public String getSelectHrfURL(){
+		  String toolId = null;	  
+		  StringBuilder url = new StringBuilder(ServerConfigurationService.getString("portalPath"));
+		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		  String currentSiteId = publishedAssessmentService.getPublishedAssessmentSiteId(getAssessmentId()); 
+		  toolId = getCurrentToolId(currentSiteId);
+		  url.append("/tool/");
+		  url.append(toolId);
+		  url.append("/jsf/index/mainIndex");
+		  return url.toString();
+	  }  
+
+	  private String getCurrentToolId(String id) {
+		  Site currentSite = getCurrentSite(id);
+		  if (currentSite == null) {
+			  return "";
+		  }
+		  SitePage page = null;
+		  String toolId = null;
+		  String toolUrlId = null;
+		  try {
+			  List pageList = currentSite.getPages();
+			  for (int i = 0; i < pageList.size(); i++) {
+				  page = (SitePage) pageList.get(i);
+				  List pageToolList = page.getTools();		
+				  if (pageToolList.get(0)==null && ((ToolConfiguration) pageToolList.get(0)).getTool()==null) {
+					  continue;
+				  }
+				  toolId = ((ToolConfiguration) pageToolList.get(0)).getToolId();
+				  toolUrlId = ((ToolConfiguration) pageToolList.get(0)).getId();
+				  if (toolId.equalsIgnoreCase("sakai.samigo")) {		
+					  return toolUrlId;
+				  }
+			  }
+		  } catch (Exception e) {
+			  log.warn(e.getMessage());
+		  }
+		  return "";
+	  }
+
+
 }
 

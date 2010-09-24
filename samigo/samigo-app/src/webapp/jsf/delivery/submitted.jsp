@@ -116,8 +116,9 @@ document.links[newindex].onclick();
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
     <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
-       style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}" 
+       style="act" onclick="javascript:self.location.href='#{delivery.selectHrfURL}'" onkeypress="javascript:self.location.href='#{delivery.selectHrfURL}'" />
+
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}" 
