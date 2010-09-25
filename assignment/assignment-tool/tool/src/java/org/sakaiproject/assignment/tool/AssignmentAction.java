@@ -7888,7 +7888,6 @@ public class AssignmentAction extends PagedResourceActionII
 	
 				if (withGrade)
 				{
-					String gString = submission.getGrade();
 					// any change in grade. Do not check for ungraded assignment type
 					if (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE)
 					{
