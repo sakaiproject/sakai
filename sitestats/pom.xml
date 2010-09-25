@@ -110,9 +110,9 @@
     
     <!-- Source code repository location -->
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</developerConnection>
-        <url>http://source.sakaiproject.org/viewsvn/sitestats/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/sitestats/branches/sitestats-2.2.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sitestats/branches/sitestats-2.2.x</developerConnection>
+        <url>http://source.sakaiproject.org/viewsvn/sitestats/branches/sitestats-2.2.x</url>
     </scm>
     
     <!-- Distribution Management -->
