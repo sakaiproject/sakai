@@ -197,8 +197,12 @@ public abstract class UserNotificationPreferencesRegistrationImpl implements Use
 		//Look up the bundle file
 		Map<String, String> processedOptions = new HashMap<String, String>();
 		for (String i : optionsMap.keySet()) {
-			String value = getLocalResourceLoader().getString(optionsMap.get(i));
-			processedOptions.put(i, value);
+			ResourceLoader loader = getLocalResourceLoader();
+			if (loader != null) {
+				String value = loader.getString(optionsMap.get(i));
+				processedOptions.put(i, value);
+			}
+			
 		}
 		return processedOptions;
 	}
@@ -207,9 +211,12 @@ public abstract class UserNotificationPreferencesRegistrationImpl implements Use
 		logger.info("UserPreferencesRegistrationImpl.init()");
 		
 		Map<String, String> processedOptions = processOptionsMap(getRawOptions());
-		this.sectionTitle = getLocalResourceLoader().getString(getSectionTitleBundleKey());
-		this.sectionDescription = getLocalResourceLoader().getString(getSectionDescriptionBundleKey());
-		this.sectionTitleOverride = getLocalResourceLoader().getString(getOverrideSectionTitleBundleKey());
+		ResourceLoader loader = getLocalResourceLoader();
+		if (loader != null) {
+			this.sectionTitle = loader.getString(getSectionTitleBundleKey());
+			this.sectionDescription = loader.getString(getSectionDescriptionBundleKey());
+			this.sectionTitleOverride = loader.getString(getOverrideSectionTitleBundleKey());
+		}
 		this.options = processedOptions;
 		getUserNotificationPreferencesRegistrationService().register(this);
 	}
