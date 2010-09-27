@@ -388,7 +388,7 @@ public class SiteManageGroupHandler {
             boolean found = false;
             // remove those no longer included in the group
 			Set members = group.getMembers();
-			String[] membersSelected = memberList.split(",");
+			String[] membersSelected = memberList.split("##");
 			for (Iterator iMembers = members.iterator(); iMembers
 					.hasNext();) {
 				found = false;
