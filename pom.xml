@@ -160,7 +160,7 @@
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <module>roster</module>
+                <!-- <module>roster</module> -->
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
