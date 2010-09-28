@@ -30,8 +30,8 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <%-- designed to be in  popup window --%>
-      <samigo:stylesheet path="/css/tool.css"/>
-      <samigo:stylesheet path="/css/tool_base.css"/>
+      <head>
+      <%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorImportExport.export_q}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
