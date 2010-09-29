@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
@@ -52,9 +53,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -76,7 +75,7 @@ public class RealmsAction extends PagedResourceActionII
 	protected List readResourcesPage(SessionState state, int first, int last)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		return AuthzGroupService.getAuthzGroups(search, new PagingPosition(first, last));
 	}
@@ -87,7 +86,7 @@ public class RealmsAction extends PagedResourceActionII
 	protected int sizeResources(SessionState state)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		return AuthzGroupService.countAuthzGroups(search);
 	}
@@ -753,7 +752,7 @@ public class RealmsAction extends PagedResourceActionII
 		String maintain = data.getParameters().getString("maintain");
 		
 		// verify provider information
-		if (StringUtil.trimToNull(provider) != null)
+		if (StringUtils.trimToNull(provider) != null)
 		{
 			String[] providers = groupProvider.unpackId(provider);
 			for (int i = 0; i<providers.length; i++)
@@ -977,7 +976,7 @@ public class RealmsAction extends PagedResourceActionII
 		if (realm != null && role == null)
 		{
 			// read the form
-			String id = StringUtil.trimToNull(data.getParameters().getString("id"));
+			String id = StringUtils.trimToNull(data.getParameters().getString("id"));
 
 			// if the field is missing, and there are no locks, just be done with no change
 			if ((id == null) && (locks == null)) return true;
@@ -1006,10 +1005,10 @@ public class RealmsAction extends PagedResourceActionII
 		role.disallowAll();
 
 		// description
-		role.setDescription(StringUtil.trimToNull(data.getParameters().getString("description")));
+		role.setDescription(StringUtils.trimToNull(data.getParameters().getString("description")));
 
 		// providerOnly
-		String providerOnlyString = (StringUtil.trimToNull(data.getParameters().getString("providerOnly")));
+		String providerOnlyString = (StringUtils.trimToNull(data.getParameters().getString("providerOnly")));
 		role.setProviderOnly("true".equals(providerOnlyString));		
 
 		// for each lock set, give it to the role
@@ -1039,7 +1038,7 @@ public class RealmsAction extends PagedResourceActionII
 		Role role = (Role) state.getAttribute("role");
 
 		// read the form
-		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
+		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
 
 		if (id == null)
 		{
@@ -1174,7 +1173,7 @@ public class RealmsAction extends PagedResourceActionII
 	private boolean readUserForm(RunData data, SessionState state)
 	{
 		// get the role
-		String roles = StringUtil.trimToNull(data.getParameters().getString("roles"));
+		String roles = StringUtils.trimToNull(data.getParameters().getString("roles"));
 		
 		//get status
 		Boolean status=true;
@@ -1188,7 +1187,7 @@ public class RealmsAction extends PagedResourceActionII
 		if (user == null)
 		{
 			// read the form
-			String eid = StringUtil.trimToNull(data.getParameters().getString("eid"));
+			String eid = StringUtils.trimToNull(data.getParameters().getString("eid"));
 
 			// if the field is missing, and there are no roles, just be done with no change
 			if ((eid == null) && (roles == null)) return true;
