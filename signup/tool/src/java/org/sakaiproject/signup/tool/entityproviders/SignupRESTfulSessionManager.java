@@ -58,7 +58,7 @@ public class SignupRESTfulSessionManager {
 	}
 
 	public SignupEventsCache getSignupEventsCache(String uniqueId) {
-		if (getStoredUserSessionData() == null)
+		if (uniqueId == null || getStoredUserSessionData() == null)
 			return null;
 
 		return getStoredUserSessionData().get(uniqueId);

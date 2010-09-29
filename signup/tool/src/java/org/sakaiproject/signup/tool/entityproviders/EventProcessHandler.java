@@ -38,6 +38,7 @@ import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.restful.SignupEvent;
+import org.sakaiproject.signup.restful.SignupTargetSiteEventInfo;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddAttendee;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddWaiter;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CancelAttendee;
@@ -72,9 +73,12 @@ public class EventProcessHandler implements SignupBeanConstants {
 
 		event = signupRESTfulSessionManager.getExistedSignupEventInCache(siteId, eventId);
 		if (event == null || event.getSignupSiteItems() == null || mustAccessDB) {
-			event = SignupObjectConverter.convertToSignupEventObj(getSignupMeetingService().loadSignupMeeting(eventId,
-					userId, siteId), userId, siteId, true,false, this.sakaiFacade);
-			signupRESTfulSessionManager.updateSignupEventsCache(siteId, event);
+			SignupTargetSiteEventInfo sdMeeting = getSignupMeetingService().loadSignupMeetingWithAutoSelectedSite(eventId, userId, siteId);
+			String targetSiteId = sdMeeting.getTargetSiteId();
+			event = SignupObjectConverter.convertToSignupEventObj(sdMeeting.getSignupMeeting(), userId, targetSiteId, true,false, this.sakaiFacade);
+			
+			if(targetSiteId != null)
+				signupRESTfulSessionManager.updateSignupEventsCache(targetSiteId, event);
 		}
 
 		return event;

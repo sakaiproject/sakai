@@ -42,6 +42,7 @@ import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.restful.SignupTargetSiteEventInfo;
 import org.sakaiproject.signup.util.PlainTextFormat;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -187,6 +188,56 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 			meeting.setPermission(permission);
 		}
 
+	}
+	
+	private String assignPermission(String userId, String siteId, SignupMeeting meeting){
+		String targetSiteId = siteId;
+		if(targetSiteId == null){
+			targetSiteId = findSiteWithHighestPermissionLevel(userId, meeting);
+		}
+
+		if(targetSiteId !=null){
+			boolean attend = isAllowToAttend(userId, targetSiteId, meeting);
+			boolean update = isAllowToUpdate(userId, targetSiteId, meeting);
+			boolean delete = isAllowToDelete(userId, targetSiteId, meeting);
+			Permission permission = new Permission(attend, update, delete);
+			meeting.setPermission(permission);
+		}
+		
+		return targetSiteId;
+	}
+	
+	private String findSiteWithHighestPermissionLevel(String userId, SignupMeeting meeting){
+		List<SignupSite> sites = meeting.getSignupSites();
+
+		//look if user has update and delete permissions
+		for (SignupSite site : sites) {
+			String sId = site.getSiteId();
+			boolean update = isAllowToUpdate(userId, sId, meeting);
+			boolean delete = isAllowToDelete(userId, sId, meeting);
+			if(update && delete){
+				return sId;
+			}
+		}
+		//look if user has update permission
+		for (SignupSite site : sites) {
+			String sId = site.getSiteId();
+			boolean update = isAllowToUpdate(userId, sId, meeting);
+			if(update){
+				return sId;
+			}
+		}
+		
+		//look if user has attend permission
+		for (SignupSite site : sites) {
+			String sId = site.getSiteId();
+			boolean attend = isAllowToAttend(userId, sId, meeting);
+			if(attend){
+				return sId;
+			}
+		}
+		
+		return null;
 	}
 
 	/*
@@ -579,6 +630,16 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		temp.add(meeting);
 		updatePermissions(userId, siteId, temp);
 		return meeting;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public SignupTargetSiteEventInfo loadSignupMeetingWithAutoSelectedSite(Long meetingId, String userId, String siteId) {
+		SignupMeeting meeting = signupMeetingDao.loadSignupMeeting(meetingId);
+		String sId = assignPermission(userId, siteId, meeting);
+		SignupTargetSiteEventInfo defaultSiteEvent = new SignupTargetSiteEventInfo(meeting,sId);
+		return defaultSiteEvent;
 	}
 
 	/* TODO: attachments if any */

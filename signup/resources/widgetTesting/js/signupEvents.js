@@ -122,6 +122,8 @@ var editEvent= function(eventId, tsId, userActType,siteId){
 
 var showEvent = function(eventId,siteId){
 	sdata.Ajax.request({
+			//now the siteId parameter is optional. If not supplied, it will return a site with highest permission level 
+			// which the user has for this event
     		url : serverUrl + "/direct/signupEvent/" + eventId+ ".json?siteId=" + siteId + "&rmd=" + Math.random(),
     		httpMethod : "GET",
 		onSuccess : function(data) {

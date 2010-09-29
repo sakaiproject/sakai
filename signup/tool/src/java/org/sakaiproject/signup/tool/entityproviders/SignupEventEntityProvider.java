@@ -105,7 +105,9 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 		if (siteId == null || siteId.trim().length() < 1) {
 			siteId = (String) requestStorage.getStoredValueAsType(String.class, SignupEvent.SITE_ID_FIELD_NAME);
 			if (siteId == null || siteId.trim().length() < 1) {
-				throw new IllegalArgumentException("Missing current site id: (" + id + "), it is required.");
+				//throw new IllegalArgumentException("Missing current site id: (" + id + "), it is required.");
+				//now siteId is an optional parameter and it will find the siteId with the highest permission level for user
+				siteId = null;
 			}
 		}
 
@@ -190,7 +192,9 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 	/**
 	 * Example for accessing one event's Json object URL: 
 	 * http://localhost:8080/direct/signupEvent/128.json?siteId=91ab88b6-f687-46e2-8645-f8cc1d26959c&rnd=32421
-	 * where '128' is eventId, and 'rnd' is any random numbers
+	 * where '128' is eventId, and 'rnd' is any random numbers.
+	 * <b>Important Note</b>: the siteId is an optional parameter. If it is not supplied, it will return a target site, which
+	 * the user has the highest permission level on the event.
 	 * */
 	public Object getEntity(EntityReference ref) {
 		String id = ref.getId();

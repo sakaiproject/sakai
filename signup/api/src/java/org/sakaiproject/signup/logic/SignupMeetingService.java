@@ -22,7 +22,6 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.restful.SignupTargetSiteEventInfo;
 
 /**
  * <p>
@@ -223,6 +223,21 @@ public interface SignupMeetingService {
 	 *             thrown if something goes bad
 	 */
 	void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots, boolean isOrganizer) throws Exception;
+	
+	/**
+	 * This retrieve a SignupDefaultSiteEvent object from database according to the
+	 * SignupMeeting Id. However, if the siteId is null, it will return a SignupTargetSiteEventInfo
+	 *  object with a target siteId, in which the user has the highest permission level.
+	 * 
+	 * @param meetingId
+	 *            a unique Id for SignupMeeting object
+	 * @param userId
+	 *            the internal user id (not username)
+	 * @param siteId
+	 *            a unique id which represents the current site
+	 * @return a SignupTargetSiteEventInfo object
+	 */
+	SignupTargetSiteEventInfo loadSignupMeetingWithAutoSelectedSite(Long meetingId, String userId, String siteId);
 	
 	/**
 	 * This retrieve a SignupMeeting object from database according to the
