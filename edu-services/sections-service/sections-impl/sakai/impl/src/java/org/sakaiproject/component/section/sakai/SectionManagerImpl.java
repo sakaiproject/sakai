@@ -1192,9 +1192,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		List<CourseSection> sections = new ArrayList<CourseSection>();
 		sections.add(section);
 
-		addSections(courseUuid, sections);
-		
-		return section;
+		Collection<CourseSection> retValue = addSections(courseUuid, sections);
+		if (retValue.size() == 1){
+            return retValue.iterator().next();
+        }
+        log.error("section creation failed");
+        return null;
 	}
 	
 	/**
