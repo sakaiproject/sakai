@@ -779,7 +779,7 @@ public class ViewProfile extends BasePage {
 		}
 		
 		/* GALLERY FEED PANEL */
-		if (sakaiProxy.isProfileGalleryEnabledGlobally() && isGalleryVisible) {
+		if (sakaiProxy.isProfileGalleryEnabledGlobally() && isGalleryVisible && prefs.isShowGalleryFeed()) {
 			add(new AjaxLazyLoadPanel("galleryFeed") {
 				private static final long serialVersionUID = 1L;
 	

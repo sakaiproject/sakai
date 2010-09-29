@@ -40,8 +40,8 @@ public class ProfilePreferences implements Serializable {
 	private boolean messageReplyEmailEnabled;
 	private boolean useOfficialImage;
 	private boolean showKudos;
+	private boolean showGalleryFeed;
 
-	
 	/** 
 	 * Empty constructor
 	 */
@@ -102,6 +102,15 @@ public class ProfilePreferences implements Serializable {
 
 	public void setShowKudos(boolean showKudos) {
 		this.showKudos = showKudos;
+	}
+	
+	public boolean isShowGalleryFeed() {
+		return showGalleryFeed;
+	}
+
+
+	public void setShowGalleryFeed(boolean showGalleryFeed) {
+		this.showGalleryFeed = showGalleryFeed;
 	}
 
 	@Override

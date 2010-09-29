@@ -530,7 +530,7 @@ public class MyProfile extends BasePage {
 
 			@Override
 			public Component getLazyLoadComponent(String markupId) {
-				if (sakaiProxy.isProfileGalleryEnabledGlobally()) {
+				if (sakaiProxy.isProfileGalleryEnabledGlobally() && prefs.isShowGalleryFeed()) {
 					return new GalleryFeed(markupId, userUuid, userUuid)
 							.setOutputMarkupId(true);
 				} else {

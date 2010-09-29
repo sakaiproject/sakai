@@ -32,7 +32,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -41,7 +40,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
-import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.TwitterPrefsPane;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -245,9 +243,25 @@ public class MyPreferences extends BasePage{
         });
 		ws.add(kudosContainer);
 		
+		//gallery feed
+		WebMarkupContainer galleryFeedContainer = new WebMarkupContainer("galleryFeedContainer");
+		galleryFeedContainer.add(new Label("galleryFeedLabel", new ResourceModel("preferences.widget.gallery")));
+		CheckBox galleryFeedSetting = new CheckBox("galleryFeedSetting", new PropertyModel<Boolean>(preferencesModel, "showGalleryFeed"));
+		galleryFeedContainer.add(galleryFeedSetting);
+		//tooltip
+		galleryFeedContainer.add(new IconWithClueTip("galleryFeedToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("preferences.widget.gallery.tooltip")));
+		
+		//updater
+		galleryFeedSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		ws.add(galleryFeedContainer);
+		galleryFeedContainer.setVisible(sakaiProxy.isProfileGalleryEnabledGlobally());
+		
 		form.add(ws);
-		
-		
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {

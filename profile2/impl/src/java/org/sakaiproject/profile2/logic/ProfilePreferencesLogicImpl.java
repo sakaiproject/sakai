@@ -139,6 +139,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		prefs.setMessageReplyEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING);
 		prefs.setUseOfficialImage(ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING);
 		prefs.setShowKudos(ProfileConstants.DEFAULT_SHOW_KUDOS_SETTING);
+		prefs.setShowGalleryFeed(ProfileConstants.DEFAULT_SHOW_GALLERY_FEED_SETTING);
 				
 		return prefs;
 	}

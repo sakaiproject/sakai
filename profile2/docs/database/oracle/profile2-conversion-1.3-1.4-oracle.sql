@@ -77,6 +77,9 @@ alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) default 1;
 /* add kudos privacy (PRFL-336) */
 alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) default 0;
 
+/* add gallery feed preference (PRFL-382) */
+alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) default 1;
+
 /* remove twitter from preferences (PRFL-94) */
 alter table PROFILE_PREFERENCES_T drop column TWITTER_ENABLED;
 alter table PROFILE_PREFERENCES_T drop column TWITTER_USERNAME;
