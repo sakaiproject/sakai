@@ -4056,6 +4056,11 @@ public class DiscussionForumTool
   						messageManager);
   			}
   		}
+  		//since replyTo has been set to the selected message, the selected message was update
+  		//we need to grab the newest one from the db
+  		if(selectedMessage != null && selectedMessage.getMessage() != null){
+  			selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(selectedMessage.getMessage().getId()), messageManager);
+  		}
 
   		sendEmailNotification(dMsg,selectedThreadHead);
   	}catch(Exception e){
