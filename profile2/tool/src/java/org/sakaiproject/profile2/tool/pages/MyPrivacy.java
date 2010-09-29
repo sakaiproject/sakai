@@ -315,6 +315,8 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		myPicturesContainer.setVisible(sakaiProxy.isProfileGalleryEnabledGlobally());
+		
 		// messages privacy
 		WebMarkupContainer messagesContainer = new WebMarkupContainer("messagesContainer");
 		messagesContainer.add(new Label("messagesLabel", new ResourceModel("privacy.messages")));
