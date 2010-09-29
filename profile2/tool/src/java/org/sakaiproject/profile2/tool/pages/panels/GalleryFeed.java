@@ -33,7 +33,6 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
-import org.sakaiproject.profile2.tool.pages.MyPicture;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
 import org.sakaiproject.profile2.tool.pages.ViewPicture;
 import org.sakaiproject.profile2.tool.pages.ViewPictures;
@@ -151,7 +150,8 @@ public class GalleryFeed extends Panel {
 			viewPicturesLabel = new Label("viewPicturesLabel",
 					new ResourceModel("link.gallery.feed.addnew"));
 
-			if (!viewingUserId.equals(ownerUserId)) {
+			if (!viewingUserId.equals(ownerUserId) || 
+					sakaiProxy.isSuperUserAndProxiedToUser(ownerUserId)) {
 				viewPicturesLink.setVisible(false);
 			}
 
