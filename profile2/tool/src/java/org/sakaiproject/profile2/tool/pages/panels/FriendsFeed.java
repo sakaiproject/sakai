@@ -16,12 +16,7 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -31,13 +26,10 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.FriendsFeedDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyFriends;
@@ -177,7 +169,9 @@ public class FriendsFeed extends Panel {
 					setResponsePage(new MySearch());
 				} else {
 					//if own FriendsFeed, link to own MyFriends, otherwise link to ViewFriends
-					if(viewingUserId.equals(ownerUserId)) {
+					if (sakaiProxy.isSuperUserAndProxiedToUser(ownerUserId)) {
+						setResponsePage(new ViewFriends(ownerUserId));
+					} else if (viewingUserId.equals(ownerUserId)) {
 						setResponsePage(new MyFriends());
 					} else {
 						setResponsePage(new ViewFriends(ownerUserId));
