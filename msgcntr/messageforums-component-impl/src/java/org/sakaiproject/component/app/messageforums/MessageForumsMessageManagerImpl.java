@@ -1071,7 +1071,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
     
     public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
-    	saveMessage(message, logEvent, toolId, toolId, toolId, false);
+    	saveMessage(message, logEvent, toolId, userId, contextId, false);
     }
     
     public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId, boolean ignoreLockedTopicForum){
