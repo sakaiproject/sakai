@@ -9284,7 +9284,6 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				catch (NumberFormatException e)
 				{
-					M_log.warn(this + ":AssignmentComparator compare" + e.getMessage());
 					// otherwise do an alpha-compare
 					result = compareString(maxGrade1, maxGrade2);
 				}
