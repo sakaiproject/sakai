@@ -253,6 +253,8 @@ public class SakaiBLTIUtil {
         if ( tool_css == null ) tool_css = getOurServerUrl() + "/library/skin/default/tool.css";  
 	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);  
 
+	// Let tools know we are coming from Sakai
+	setProperty(props,"ext_lms", "sakai2");  
 	return true;
     } 
 
