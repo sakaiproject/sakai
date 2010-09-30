@@ -783,7 +783,7 @@ $(document).ready(function() {
 			</div>
 		#end	
 		<a name="extraNodesTop"></a>
-		<h3 style="margin-bottom:0">Additional information</h3>
+		<h3 style="margin-bottom:0">$tlang.getString("additional_information")</h3>
 		<table class="listHier lines nolines" style="width:auto;" id="extraNodeLinkList">
 			<caption style="border-bottom:1px solid #ccc;text-align:left; margin-top:1em;padding-bottom:.3em">$tlang.getString("supplement")</caption>
 			<tr>
