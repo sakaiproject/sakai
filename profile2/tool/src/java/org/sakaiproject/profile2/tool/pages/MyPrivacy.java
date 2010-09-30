@@ -52,6 +52,8 @@ public class MyPrivacy extends BasePage {
 		
 		log.debug("MyPrivacy()");
 
+		disableLink(myPrivacyLink);
+		
 		//get current user
 		final String userUuid = sakaiProxy.getCurrentUserId();
 

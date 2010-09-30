@@ -61,6 +61,8 @@ public class MySearch extends BasePage {
 		
 		log.debug("MySearch()");
 		
+		disableLink(searchLink);
+		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
 		

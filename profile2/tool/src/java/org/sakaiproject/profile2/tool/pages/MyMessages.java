@@ -49,6 +49,8 @@ public class MyMessages extends BasePage {
 
 		log.debug("MyMessages( " + threadId + ")");
 		
+		disableLink(myMessagesLink);
+		
 		//get user 
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		

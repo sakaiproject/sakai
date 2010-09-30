@@ -33,6 +33,8 @@ public class MyFriends extends BasePage {
 	public MyFriends() {
 		
 		log.debug("MyFriends()");
+		
+		disableLink(myFriendsLink);
 				
 		//get current user
 		final String userId = sakaiProxy.getCurrentUserId();

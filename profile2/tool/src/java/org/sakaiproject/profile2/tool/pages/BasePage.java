@@ -20,14 +20,13 @@ import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
@@ -75,6 +74,15 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
 	
+	Link<Void> myPicturesLink;
+	Link<Void> myProfileLink;
+	Link<Void> myFriendsLink;
+	Link<Void> myMessagesLink;
+	Link<Void> myPrivacyLink;
+	Link<Void> searchLink;
+	Link<Void> preferencesLink;
+	
+	
 	public BasePage() {
 		//super();
 		
@@ -88,7 +96,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
     	//profile link
-    	Link<Void> myProfileLink = new Link<Void>("myProfileLink") {
+    	myProfileLink = new Link<Void>("myProfileLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyProfile());
@@ -100,10 +108,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		//my pictures link
-		Link<Void> myPicturesLink = new Link<Void>("myPicturesLink") {
+		myPicturesLink = new Link<Void>("myPicturesLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick() {
+				this.setEnabled(false);
 				setResponsePage(new MyPictures());
 			}
 		};
@@ -118,7 +127,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		//my friends link
-    	Link<Void> myFriendsLink = new Link<Void>("myFriendsLink") {
+    	myFriendsLink = new Link<Void>("myFriendsLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyFriends());
@@ -139,7 +148,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		//messages link
-    	Link<Void> myMessagesLink = new Link<Void>("myMessagesLink") {
+    	myMessagesLink = new Link<Void>("myMessagesLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyMessages());
@@ -160,7 +169,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 
 		//privacy link
-    	Link<Void> myPrivacyLink = new Link<Void>("myPrivacyLink") {
+    	myPrivacyLink = new Link<Void>("myPrivacyLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyPrivacy());
@@ -172,7 +181,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		//search link
-    	Link<Void> searchLink = new Link<Void>("searchLink") {
+    	searchLink = new Link<Void>("searchLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MySearch());
@@ -184,7 +193,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		//preferences link
-    	Link<Void> preferencesLink = new Link<Void>("preferencesLink") {
+    	preferencesLink = new Link<Void>("preferencesLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyPreferences());
@@ -308,6 +317,14 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		get("pageTitle").setDefaultModel(model);  
 	} 
 	*/ 
+	
+	/** 
+	 * Disable a page nav link (PRFL-468)
+	 */
+	protected void disableLink(Link<Void> l) {
+		l.add(new AttributeAppender("class", new Model<String>("current-tab"), " "));
+		l.setEnabled(false);
+	}
 	
 	
 	

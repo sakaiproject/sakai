@@ -52,6 +52,8 @@ public class MyPreferences extends BasePage{
 		
 		log.debug("MyPreferences()");
 		
+		disableLink(preferencesLink);
+		
 		//get current user
 		final String userUuid = sakaiProxy.getCurrentUserId();
 

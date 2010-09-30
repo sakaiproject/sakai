@@ -176,7 +176,7 @@ div#footer {
 	float:right;
 }
 .instruction {
-	color: #5D5D5D;
+	color: #777777;
 }
 .clear {
 	clear:both;
@@ -1344,4 +1344,11 @@ div.wicket-aa ul li.selected {
 	font-size: 1.5em;
 	font-weight: bolder;
 	float:right;
+}
+
+/* disabled nav link */
+.current-tab {
+	color: #5D5D5D;
+	margin-right: 1em;
+	display: inline-block;
 }

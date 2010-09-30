@@ -93,6 +93,8 @@ public class MyPictures extends BasePage {
 	private void renderMyPictures(int pageToDisplay, String userUuid) {
 
 		log.debug("MyPictures()");
+		
+		disableLink(myPicturesLink);
 
 		configureFeedback();
 		createGalleryForm(userUuid, pageToDisplay);
@@ -362,4 +364,6 @@ public class MyPictures extends BasePage {
 		}
 
 	}
+	
+	
 }

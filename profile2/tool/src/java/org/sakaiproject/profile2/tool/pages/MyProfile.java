@@ -106,14 +106,16 @@ public class MyProfile extends BasePage {
 	 * @param userUuid
 	 */
 	private void renderMyProfile(final String userUuid) {
-			
+		
+		//don't do this for super users viewing other people's profiles as otherwise there is no way back to own profile
+		if(!sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
+			disableLink(myProfileLink);
+		}
+		
 		//add the feedback panel for any error messages
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
 		add(feedbackPanel);
 		feedbackPanel.setVisible(false); //hide by default
-		
-		
-		
 		
 		//get the prefs record, or a default if none exists yet
 		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
