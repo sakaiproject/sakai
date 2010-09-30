@@ -110,7 +110,7 @@
 						#if ($sortedAsc.equals("true")) 
 							<img id="sortascendingopendate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 						#else 
-							<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+							<img id="sortdescendingopendate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
 						#end 
 					#end 
 				</a>
@@ -121,7 +121,7 @@
 						#if ($sortedAsc.equals("true")) 
 							<img id="sortascendingduedate" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
 						#else 
-							<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("listassig.sordes")" /> 
+							<img id="sortdescendingduedate" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
 						#end 
 					#end 
 				</a>
