@@ -50,6 +50,13 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>imsblis</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-help</artifactId>
             <version>${project.version}</version>
             <type>jar</type>

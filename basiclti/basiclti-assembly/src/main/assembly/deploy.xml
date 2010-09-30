@@ -34,6 +34,15 @@
             </includes>
             <unpack>false</unpack>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.basiclti:imsblis:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
     </dependencySets>
     <fileSets>
         <fileSet>
