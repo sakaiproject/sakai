@@ -9188,7 +9188,19 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if (m_criteria.equals(SORTED_BY_ASSIGNMENT_STATUS))
 			{
-				result = compareString(((Assignment) o1).getStatus(), ((Assignment) o2).getStatus());
+				
+				if (AssignmentService.allowAddAssignment(((Assignment) o1).getContext()))
+				{
+					// comparing assignment status
+					result = compareString(((Assignment) o1).getStatus(), ((Assignment) o2).getStatus());
+				}
+				else
+				{
+					// comparing submission status
+					AssignmentSubmission s1 = findAssignmentSubmission((Assignment) o1);
+					AssignmentSubmission s2 = findAssignmentSubmission((Assignment) o2);
+					result = s1==null ? 1 : s2==null? -1:compareString(s1.getStatus(), s2.getStatus());
+				}
 			}
 			else if (m_criteria.equals(SORTED_BY_NUM_SUBMISSIONS))
 			{
@@ -9726,6 +9738,27 @@ public class AssignmentAction extends PagedResourceActionII
 			return result;
 		}
 
+		/**
+		 * returns AssignmentSubmission object for given assignment by current user
+		 * @param a
+		 * @return
+		 */
+		protected AssignmentSubmission findAssignmentSubmission (Assignment a) {
+			AssignmentSubmission rv = null;
+			try
+			{
+				rv = AssignmentService.getSubmission(a.getReference(), UserDirectoryService.getCurrentUser());
+			}
+			catch (IdUnusedException e)
+			{
+				M_log.warn(this + "compare: " + rb.getFormattedMessage("cannotfin_assignment", new Object[]{a.getReference()}));
+			}
+			catch (PermissionException e)
+			{
+				
+			}
+			return rv;	
+		}
 		/**
 		 * Compare two strings as double values. Deal with the case when either of the strings cannot be parsed as double value.
 		 * @param grade1
