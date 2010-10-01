@@ -70,7 +70,7 @@ function handleEnterKeyPress(ev)
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
-		<input type="hidden" name="submissionId" id="submissionId" value="$validator.escapeUrl($submission.Reference)" />
+		<input type="hidden" name="submissionId" id="submissionId" value="$submission.Reference" />
 		
 		<div class="navPanel">
 		   <div class="viewNav highlight"
