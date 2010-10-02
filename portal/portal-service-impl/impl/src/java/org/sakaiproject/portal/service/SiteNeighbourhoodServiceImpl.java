@@ -151,11 +151,13 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		}
 
 		// remove all in exclude from mySites
+		List<Site> visibleSites = new ArrayList<Site>();
 		for (Site site: mySites) {
-			if (prefExclude.contains(site.getId())) {
-				mySites.remove(site);
+			if ( ! prefExclude.contains(site.getId())) {
+				visibleSites.add(site);
 			}
 		}
+		mySites = visibleSites;
 
 		// Prepare to put sites in the right order
 		Vector<Site> ordered = new Vector<Site>();
