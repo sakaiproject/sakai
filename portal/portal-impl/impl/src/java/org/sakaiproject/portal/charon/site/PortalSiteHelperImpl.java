@@ -334,11 +334,19 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
- 		int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 20);
+ 		int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
 		String titleStr = s.getTitle();
 		if ( titleStr != null )
 		{
-			if ( titleStr.length() > siteTitleMaxLength ) titleStr = titleStr.substring(0,siteTitleMaxLength);
+			titleStr = titleStr.trim();
+			if ( titleStr.length() > siteTitleMaxLength && siteTitleMaxLength >= 10 ) 
+			{
+				titleStr = titleStr.substring(0,siteTitleMaxLength-4) + " ...";
+			} 
+			else if ( titleStr.length() > siteTitleMaxLength ) 
+			{
+				titleStr = titleStr.substring(0,siteTitleMaxLength);
+			}
 			titleStr = titleStr.trim();
 		}
 		m.put("siteTitle", Web.escapeHtml(titleStr));
