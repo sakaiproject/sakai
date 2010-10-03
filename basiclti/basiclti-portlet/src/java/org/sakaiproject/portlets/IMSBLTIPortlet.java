@@ -124,6 +124,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("releaseemail");
         fieldList.add("assignment");
         fieldList.add("newpage");
+        fieldList.add("maximize");
     }
 
     // Simple Debug Print Mechanism
@@ -168,6 +169,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
             String frameHeight =  getCorrectProperty(request, "frameheight", null);
 	    dPrint("fh="+frameHeight);
             String newPage =  getCorrectProperty(request, "newpage", null);
+            String maximize =  getCorrectProperty(request, "maximize", null);
             StringBuffer text = new StringBuffer();
 
 	    Session session = SessionManager.getCurrentSession();
@@ -182,9 +184,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
                 text.append(rb.getString("new.page.launch"));
                 text.append("</p>\n");
             } else {
-                text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-                text.append("try { portalMaximizeTool(); } catch (err) { }\n");
-                text.append("</script>\n");
+		if ( "on".equals(maximize) ) {
+                	text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+                	text.append("try { portalMaximizeTool(); } catch (err) { }\n");
+                	text.append("</script>\n");
+		}
 	        text.append("<iframe ");
 	        if ( frameHeight == null ) frameHeight = "1200";
    	        text.append("height=\""+frameHeight+"\" \n");

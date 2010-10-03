@@ -189,7 +189,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 
 
-<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") ) { %>
+<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") || allow(sp, "maximize") ) { %>
 <fieldset>
 <legend><%=rb.getString("launch.information") %></legend>
 <% if ( allow(sp,"newpage") ) { %>
@@ -202,6 +202,18 @@ if ( document.getElementById("UISwitcher") ) switchui();
    />
 <% } %>
 <%=rb.getString("new.page.detail") %>
+</p>
+<% } %>
+<% if ( allow(sp,"maximize") ) { %>
+<p>
+<%=rb.getString("maximize.page") %>
+<input type="checkbox" size="10" name="imsti.maximize" 
+<% if ( ov.getProperty("imsti.maximize",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<%=rb.getString("maximize.page.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>
