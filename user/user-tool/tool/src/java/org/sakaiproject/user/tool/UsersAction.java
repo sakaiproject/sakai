@@ -134,12 +134,12 @@ public class UsersAction extends PagedResourceActionII
 			state.setAttribute("create-type", config.getInitParameter("create-type", ""));
 		}
 		
-		if (state.getAttribute("recaptcha-enabled") == null)
+		if (state.getAttribute("user.recaptcha-enabled") == null)
 		{
-			String publicKey = ServerConfigurationService.getString("recaptcha.public-key", "");
-			String privateKey = ServerConfigurationService.getString("recaptcha.private-key", "");
-			Boolean systemEnabled = ServerConfigurationService.getBoolean("recaptcha.enabled", false);
-			Boolean toolEnabled = Boolean.parseBoolean(config.getInitParameter("recaptcha-enabled", "false"));
+			String publicKey = ServerConfigurationService.getString("user.recaptcha.public-key", "");
+			String privateKey = ServerConfigurationService.getString("user.recaptcha.private-key", "");
+			Boolean systemEnabled = ServerConfigurationService.getBoolean("user.recaptcha.enabled", false);
+			Boolean toolEnabled = Boolean.parseBoolean(config.getInitParameter("user.recaptcha-enabled", "false"));
 			Boolean enabled = systemEnabled && toolEnabled;
 			if (enabled)
 			{
@@ -154,9 +154,9 @@ public class UsersAction extends PagedResourceActionII
 					enabled = Boolean.FALSE;
 				}
 			}
-			state.setAttribute("recaptcha-public-key", publicKey);
-			state.setAttribute("recaptcha-private-key", privateKey);
-			state.setAttribute("recaptcha-enabled", enabled);
+			state.setAttribute("user.recaptcha-public-key", publicKey);
+			state.setAttribute("user.recaptcha-private-key", privateKey);
+			state.setAttribute("user.recaptcha-enabled", enabled);
 		}
 
 	} // initState
@@ -371,9 +371,9 @@ public class UsersAction extends PagedResourceActionII
 		value = (String) state.getAttribute("valueEmail");
 		if (value != null) context.put("valueEmail", value);
 				
-		if ((Boolean)state.getAttribute("recaptcha-enabled"))
+		if ((Boolean)state.getAttribute("user.recaptcha-enabled"))
 		{
-			ReCaptcha captcha = ReCaptchaFactory.newReCaptcha((String)state.getAttribute("recaptcha-public-key"), (String)state.getAttribute("recaptcha-private-key"), false);
+			ReCaptcha captcha = ReCaptchaFactory.newReCaptcha((String)state.getAttribute("user.recaptcha-public-key"), (String)state.getAttribute("user.recaptcha-private-key"), false);
 	        String captchaScript = captcha.createRecaptchaHtml((String)state.getAttribute("recaptcha-error"), null);
 	        state.removeAttribute("recaptcha-error");
 	        context.put("recaptchaScript", captchaScript);
@@ -879,13 +879,13 @@ public class UsersAction extends PagedResourceActionII
 			}
 		}
 		
-		if ((Boolean)state.getAttribute("recaptcha-enabled"))
+		if ((Boolean)state.getAttribute("user.recaptcha-enabled"))
 		{
 			String challengeField = data.getParameters().getString("recaptcha_challenge_field");
 			String responseField = data.getParameters().getString("recaptcha_response_field");
 			if (challengeField == null) challengeField = "";
 			if (responseField == null) responseField = "";
-			ReCaptcha captcha = ReCaptchaFactory.newReCaptcha((String)state.getAttribute("recaptcha-public-key"), (String)state.getAttribute("recaptcha-private-key"), false);
+			ReCaptcha captcha = ReCaptchaFactory.newReCaptcha((String)state.getAttribute("user.recaptcha-public-key"), (String)state.getAttribute("user.recaptcha-private-key"), false);
 			ReCaptchaResponse response = captcha.checkAnswer(data.getRequest().getRemoteAddr(), challengeField, responseField);
 			if (!response.isValid())
 			{
