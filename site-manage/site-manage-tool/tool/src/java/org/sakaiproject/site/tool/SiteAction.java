@@ -6682,7 +6682,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_VISITED_TEMPLATES, templates);
 		}
 		if (state.getAttribute(STATE_SITE_TITLE_MAX) == null) {
-			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 20);
+			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
 			state.setAttribute(STATE_SITE_TITLE_MAX, siteTitleMaxLength);
 		}
 	} // init
