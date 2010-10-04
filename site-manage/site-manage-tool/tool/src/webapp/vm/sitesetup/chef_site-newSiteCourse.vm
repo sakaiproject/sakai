@@ -193,7 +193,7 @@ function redirectBasedOnSelection(){
 		</div>
 	#end		
 
-			#if ($!termCourseList)
+			#if ($!termCourseList && $!termCourseList.size() > 0)
 				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
 					<p class="instruction">$tlang.getString("nscourse.youmay")</p>
 				#end
@@ -281,6 +281,9 @@ function redirectBasedOnSelection(){
 					</table>
 					<p></p>
 				 #end
+			#else
+				## no registered course
+				<p class="instruction">$tlang.getString("noterm_class")</p>
 			#end	
 				## instructor could choose to go to the manual creation page
 				<input  type="hidden" name="manualAdds" value="x" id="manual_add"/>
@@ -309,8 +312,7 @@ function redirectBasedOnSelection(){
 						$tlang.getString("man.please")
 					</p>
 		#end
-
-
+		<p/>
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="option" id="option" value="x" />
