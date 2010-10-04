@@ -189,7 +189,7 @@ public class ClamAVScanner implements VirusScanner {
 				}
 			}
 			long finish = System.currentTimeMillis();
-			logger.info("Content scanned in " + (finish - start));
+			logger.debug("Content scanned in " + (finish - start));
 		} catch (UnsupportedEncodingException e) {
 			logger.error("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + e.getMessage());
 			throw new VirusScanIncompleteException(SCAN_INCOMPLETE_MSG, e);
