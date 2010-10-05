@@ -662,11 +662,9 @@ h2 {
 /* people list styles */
 .connections-wrap, .search-results-wrap {
 	/*border: 1px solid red;*/
+	border-bottom: 1px solid #d0d0df;
 	margin-bottom: 12px;
-	border-left: 1px solid #d0d0df;
-	border-right: 1px solid #d0d0df;
-	border-top: 1px solid #d0d0df;
-	width: 500px;
+	width: 520px;
 }
 
 
@@ -675,7 +673,9 @@ h2 {
 	position: relative;
 	left: 0;
 	top: 0;
-	border-bottom: 1px solid #d0d0df;
+	border-left: 1px solid #d0d0df;
+	border-right: 1px solid #d0d0df;
+	border-top: 1px solid #d0d0df;
 	border-collapse: collapse;
 	height: 120px;
 	padding-top: 5px;

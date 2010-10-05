@@ -116,6 +116,11 @@ public class ProfileConstants {
 	//the property that an external provider may set into the user properties for the jpegPhoto field.
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 	
+	/*
+	 * SEARCH
+	 */
+	public static final int DEFAULT_MAX_SEARCH_RESULTS = 50;
+	public static final int DEFAULT_MAX_SEARCH_RESULTS_PER_PAGE = 25;
 	
 	/*
 	 * PREFERENCES
@@ -231,10 +236,6 @@ public class ProfileConstants {
 	//date format display
 	public static final String DEFAULT_DATE_FORMAT = "dd MMMM yyyy"; 
 	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM";
-
-
-	//max number of search result items before its limited
-	public static final int MAX_SEARCH_RESULTS = 30;
 	
 	//max number of connections to show per page
 	public static final int MAX_CONNECTIONS_PER_PAGE = 15;

@@ -1290,6 +1290,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return siteService.siteExists(siteId);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getMaxSearchResults() {
+		return serverConfigurationService.getInt(
+				"profile2.search.maxSearchResults",
+				ProfileConstants.DEFAULT_MAX_SEARCH_RESULTS);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getMaxSearchResultsPerPage() {
+		return serverConfigurationService.getInt(
+				"profile2.search.maxSearchResultsPerPage",
+				ProfileConstants.DEFAULT_MAX_SEARCH_RESULTS_PER_PAGE);
+	}
+
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
@@ -1425,6 +1444,5 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void setEmailTemplates(ArrayList<String> emailTemplates) {
 		this.emailTemplates = emailTemplates;
 	}
-
 	
 }

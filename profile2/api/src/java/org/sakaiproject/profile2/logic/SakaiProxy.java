@@ -686,4 +686,13 @@ public interface SakaiProxy {
 	 */
 	public boolean checkForSite(String siteId);
 	
+	/**
+	 * Get the profile2.search.maxSearchResults value from sakai.properties
+	 */
+	public int getMaxSearchResults();
+	
+	/**
+	 * Get the profile2.search.maxSearchResultsPerPage value from sakai.properties
+	 */
+	public int getMaxSearchResultsPerPage();
 }

@@ -33,7 +33,9 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.list.PageableListView;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -123,7 +125,7 @@ public class MySearch extends BasePage {
 		 * RESULTS
 		 * 
 		 */
-		
+				
 		//search results label
 		final Label numSearchResults = new Label("numSearchResults");
 		numSearchResults.setOutputMarkupId(true);
@@ -137,9 +139,7 @@ public class MySearch extends BasePage {
 			protected List<Person> load() {
 				return results;
 			}
-		};
-		
-		
+		};	
 				
 		//container which wraps list
 		final WebMarkupContainer resultsContainer = new WebMarkupContainer("searchResultsContainer");
@@ -150,7 +150,9 @@ public class MySearch extends BasePage {
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
 		
 		//search results
-		ListView<Person> resultsListView = new ListView<Person>("searchResults", resultsModel) {
+		final PageableListView<Person> resultsListView = new PageableListView<Person>("searchResults",
+				resultsModel, sakaiProxy.getMaxSearchResultsPerPage()) {
+			
 			private static final long serialVersionUID = 1L;
 
 			protected void populateItem(final ListItem<Person> item) {
@@ -316,24 +318,18 @@ public class MySearch extends BasePage {
 				
 		    }
 		};
+				
 		resultsContainer.add(resultsListView);
 		
-		
+		final PagingNavigator searchResultsNavigator = new PagingNavigator("searchResultsNavigator", resultsListView);
+		searchResultsNavigator.setOutputMarkupId(true);
+		searchResultsNavigator.setVisible(false);
+		resultsContainer.add(searchResultsNavigator);
+				
 		add(connectionWindow);
-		
 		
 		//add results container
 		add(resultsContainer);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-			
 		 
 		/* 
 		 * 
@@ -362,21 +358,25 @@ public class MySearch extends BasePage {
 					results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
 	
 					int numResults = results.size();
-					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 					
 					//text
 					if(numResults == 0) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
+						searchResultsNavigator.setVisible(false);
 					} else if (numResults == 1) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
-					} else if (numResults == maxResults) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
+						searchResultsNavigator.setVisible(false);
+					} else if (numResults > sakaiProxy.getMaxSearchResultsPerPage()) {
+						// TODO can we update string? e.g. display x out of y results
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
+						searchResultsNavigator.setVisible(true);
 					} else {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
+						searchResultsNavigator.setVisible(false);
 					}
 					
 					//post view event
@@ -387,10 +387,7 @@ public class MySearch extends BasePage {
 					target.addComponent(resultsContainer);
 					target.addComponent(numSearchResults);
 					target.appendJavascript("setMainFrameHeight(window.name);");	
-
-				}
-				
-				
+				}				
             }
 		};
 		sbnSubmitButton.setModel(new ResourceModel("button.search.byname"));
@@ -426,21 +423,25 @@ public class MySearch extends BasePage {
 					results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
 										
 					int numResults = results.size();
-					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 
 					//text
 					if(numResults == 0) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
+						searchResultsNavigator.setVisible(false);
 					} else if (numResults == 1) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
-					} else if (numResults == maxResults) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
+						searchResultsNavigator.setVisible(false);
+					} else if (numResults > sakaiProxy.getMaxSearchResultsPerPage()) {
+						// TODO can we update string? e.g. display x out of y results
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
+						searchResultsNavigator.setVisible(true);
 					} else {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
+						searchResultsNavigator.setVisible(false);
 					}
 					
 					//post view event

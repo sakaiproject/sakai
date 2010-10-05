@@ -310,7 +310,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		log.debug("Found " + users.size() + " results for search: " + search);
 		
 		//restrict to only return the max number. UI will print message
-		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
+		int maxResults = sakaiProxy.getMaxSearchResults();
 		if(users.size() >= maxResults) {
 			users = users.subList(0, maxResults);
 		}
@@ -336,7 +336,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		users.addAll(sakaiProxy.getUsers(sakaiPersonUuids));
 		
 		//restrict to only return the max number. UI will print message
-		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
+		int maxResults = sakaiProxy.getMaxSearchResults();
 		if(users.size() >= maxResults) {
 			users = users.subList(0, maxResults);
 		}
