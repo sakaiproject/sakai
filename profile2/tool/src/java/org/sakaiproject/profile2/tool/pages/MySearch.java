@@ -435,7 +435,7 @@ public class MySearch extends BasePage {
 						searchResultsNavigator.setVisible(false);
 					} else if (numResults > sakaiProxy.getMaxSearchResultsPerPage()) {
 						// TODO can we update string? e.g. display x out of y results
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else {
