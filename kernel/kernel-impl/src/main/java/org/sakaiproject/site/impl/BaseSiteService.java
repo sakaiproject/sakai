@@ -716,7 +716,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 					for ( Iterator it=site.getPages().iterator(); it.hasNext(); )
 					{
 						SitePage page = (SitePage)it.next();
-						page.localizePage();
+						if (!page.getTitleCustom()) {
+							page.localizePage();
+						}
 					}
 
 					doSave(site, true);
