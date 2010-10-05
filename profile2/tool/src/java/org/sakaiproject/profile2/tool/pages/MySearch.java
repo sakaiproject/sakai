@@ -320,12 +320,13 @@ public class MySearch extends BasePage {
 		};
 				
 		resultsContainer.add(resultsListView);
-		
+
 		final PagingNavigator searchResultsNavigator = new PagingNavigator("searchResultsNavigator", resultsListView);
 		searchResultsNavigator.setOutputMarkupId(true);
 		searchResultsNavigator.setVisible(false);
+
 		resultsContainer.add(searchResultsNavigator);
-				
+
 		add(connectionWindow);
 		
 		//add results container
@@ -358,6 +359,8 @@ public class MySearch extends BasePage {
 					results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
 	
 					int numResults = results.size();
+					int maxResults = sakaiProxy.getMaxSearchResults();
+					int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 					
 					//text
 					if(numResults == 0) {
@@ -368,9 +371,12 @@ public class MySearch extends BasePage {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
 						searchResultsNavigator.setVisible(false);
-					} else if (numResults > sakaiProxy.getMaxSearchResultsPerPage()) {
-						// TODO can we update string? e.g. display x out of y results
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
+					} else if (numResults == maxResults) {
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
+						resultsContainer.setVisible(true);
+						searchResultsNavigator.setVisible(true);
+					} else if (numResults > maxResultsPerPage) {
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
 						resultsContainer.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else {
@@ -378,7 +384,7 @@ public class MySearch extends BasePage {
 						resultsContainer.setVisible(true);
 						searchResultsNavigator.setVisible(false);
 					}
-					
+
 					//post view event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					
@@ -392,9 +398,7 @@ public class MySearch extends BasePage {
 		};
 		sbnSubmitButton.setModel(new ResourceModel("button.search.byname"));
 		sbnForm.add(sbnSubmitButton);
-        add(sbnForm);
-        
-        
+        add(sbnForm);        
         
         /* 
 		 * 
@@ -423,7 +427,9 @@ public class MySearch extends BasePage {
 					results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
 										
 					int numResults = results.size();
-
+					int maxResults = sakaiProxy.getMaxSearchResults();
+					int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
+					
 					//text
 					if(numResults == 0) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
@@ -433,9 +439,12 @@ public class MySearch extends BasePage {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
 						searchResultsNavigator.setVisible(false);
-					} else if (numResults > sakaiProxy.getMaxSearchResultsPerPage()) {
-						// TODO can we update string? e.g. display x out of y results
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
+					} else if (numResults == maxResults) {
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
+						resultsContainer.setVisible(true);
+						searchResultsNavigator.setVisible(true);
+					} else if (numResults > maxResultsPerPage) {
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
 						resultsContainer.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else {
@@ -452,20 +461,11 @@ public class MySearch extends BasePage {
 					target.addComponent(numSearchResults);
 					target.addComponent(resultsContainer);
 					target.appendJavascript("setMainFrameHeight(window.name);");	
-
 				}
-				
-				
             }
 		};
 		sbiSubmitButton.setModel(new ResourceModel("button.search.byinterest"));
 		sbiForm.add(sbiSubmitButton);
         add(sbiForm);
-   	
 	}
-
 }
-
-
-
-
