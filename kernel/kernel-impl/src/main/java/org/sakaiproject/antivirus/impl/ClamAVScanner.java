@@ -272,19 +272,27 @@ public class ClamAVScanner implements VirusScanner {
 
 		try {
 			ContentResource resource = contentHostingService.getResource(resourceReference);
-			scan(resource.streamContent());
+			if (resource.getContentLength() > 0) {
+				scan(resource.streamContent());
+			}
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("no permission to read: " + resourceReference);
+			if (logger.isDebugEnabled()) {
+				logger.warn("PermissionException", e);
+			}
+			
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("no such resource: " + resourceReference);
 		} catch (TypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("TypeException: " + resourceReference);
+			if (logger.isDebugEnabled()) {
+				logger.warn("TypeException", e);
+			}
 		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("ServerOverloadException: " + resourceReference);
+			if (logger.isDebugEnabled()) {
+				logger.warn("ServerOverloadException", e);
+			}
 		} catch (VirusFoundException e) {
 			//we should log an event for this is we likely have CHS events before and after this
 			eventTrackingService.post(eventTrackingService.newEvent("antivirus.virusfound", contentHostingService.getReference(resourceReference), false));
