@@ -699,7 +699,7 @@ h2 {
 	top: 5px;
 	left: 5px;
 	max-width: 100px;
-	width: 100px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */ 
 	border: 1px solid #666666;
 	padding: 2px;
 }
