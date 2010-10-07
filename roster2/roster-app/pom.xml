@@ -82,7 +82,7 @@
       <artifactId>jsf-app</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>jsf</groupId>
+          <groupId>javax.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
