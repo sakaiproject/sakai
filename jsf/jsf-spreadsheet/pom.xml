@@ -33,7 +33,6 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>

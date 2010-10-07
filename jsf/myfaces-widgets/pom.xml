@@ -51,13 +51,11 @@
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
+	    <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.1</version>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
