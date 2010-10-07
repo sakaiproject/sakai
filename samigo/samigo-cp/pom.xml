@@ -50,7 +50,6 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
 		</dependency>
         <dependency>
             <groupId>jdom</groupId>
@@ -58,9 +57,9 @@
             <version>1.0</version>
         </dependency>
 		<dependency>
-			<groupId>jsf</groupId>
+			<groupId>javax.faces</groupId>
 			<artifactId>jsf-api</artifactId>
-			<version>1.1.01</version>
+			<version>1.1_02</version>
 		</dependency>
 	</dependencies>
     
