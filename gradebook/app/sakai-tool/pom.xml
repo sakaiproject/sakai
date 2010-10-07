@@ -97,7 +97,7 @@
       <artifactId>jsf-app</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>jsf</groupId>
+          <groupId>javax.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
@@ -184,7 +184,6 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -204,7 +203,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -214,7 +212,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -247,7 +244,6 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
@@ -270,7 +266,6 @@
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
-<!--properties:  war.bundle: false -->
     </dependency>
 <!-- Sakai tag library -->
     <dependency>
