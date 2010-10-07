@@ -92,7 +92,7 @@
       <exclusions>
         <exclusion>
 <!-- we are pulling the myfaces version of this api -->
-          <groupId>jsf</groupId>
+          <groupId>javax.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
