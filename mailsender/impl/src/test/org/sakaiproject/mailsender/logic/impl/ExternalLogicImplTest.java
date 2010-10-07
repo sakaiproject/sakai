@@ -81,6 +81,8 @@ import org.subethamail.wiser.WiserMessage;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ExternalLogicImplTest {
+	private static final String CONTENT_DISPOSITION_ATTACHMENT = "Content-Disposition: attachment;";
+
 	ExternalLogicImpl impl;
 
 	ConfigLogicImpl configLogic;
@@ -114,6 +116,7 @@ public class ExternalLogicImplTest {
 	static final String SITE_TYPE = "project";
 
 	private static final boolean DEBUG = false;
+	private static final String QUOTED_PRINTABLE = "quoted-printable";
 
 	@Before
 	public void setUp() throws Exception {
@@ -398,7 +401,7 @@ public class ExternalLogicImplTest {
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = (String) mimeMsg.getContent();
 		assertEquals(body, content);
-		assertFalse(content.contains("Content-Disposition: attachment;"));
+		assertFalse(content.contains(CONTENT_DISPOSITION_ATTACHMENT));
 	}
 
 	@Test
@@ -435,9 +438,9 @@ public class ExternalLogicImplTest {
 		MimeMessage mimeMsg = msg.getMimeMessage();
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
-		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains(QUOTED_PRINTABLE));
 		assertFalse(content.contains("åæÆÐ"));
-		assertFalse(content.contains("Content-Disposition: attachment;"));
+		assertFalse(content.contains(CONTENT_DISPOSITION_ATTACHMENT));
 	}
 
 	@Test
@@ -477,9 +480,9 @@ public class ExternalLogicImplTest {
 		MimeMessage mimeMsg = msg.getMimeMessage();
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
-		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains(QUOTED_PRINTABLE));
 		assertFalse(content.contains("åæÆÐ"));
-		assertTrue(content.contains("Content-Disposition: attachment;"));
+		assertTrue(content.contains(CONTENT_DISPOSITION_ATTACHMENT));
 		assertTrue(content.contains("filename=" + attachment.getName()));
 	}
 
@@ -518,9 +521,9 @@ public class ExternalLogicImplTest {
 		MimeMessage mimeMsg = msg.getMimeMessage();
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
-		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains(QUOTED_PRINTABLE));
 		assertFalse(content.contains("åæÆÐ"));
-		assertTrue(content.contains("Content-Disposition: attachment;"));
+		assertTrue(content.contains(CONTENT_DISPOSITION_ATTACHMENT));
 		assertTrue(content.contains("filename=" + attachment.getName()));
 	}
 
@@ -558,7 +561,7 @@ public class ExternalLogicImplTest {
 		MimeMessage mimeMsg = msg.getMimeMessage();
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
-		assertTrue(content.contains("quoted-printable"));
+		assertTrue(content.contains(QUOTED_PRINTABLE));
 		assertFalse(content.contains("åæÆÐ"));
 	}
 
