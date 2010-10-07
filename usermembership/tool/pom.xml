@@ -39,8 +39,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-usermembership-api</artifactId>
     </dependency>
-<!-- Spring Framework -->
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
 <!-- Sakai Project dependencies (Web/JSF related) -->
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
@@ -51,7 +49,7 @@
       <artifactId>jsf-app</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>jsf</groupId>
+          <groupId>java.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
@@ -70,7 +68,6 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-digester</groupId>
@@ -85,7 +82,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
   </dependencies>
 </project>
