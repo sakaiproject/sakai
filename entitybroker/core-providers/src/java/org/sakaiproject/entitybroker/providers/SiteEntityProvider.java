@@ -602,16 +602,36 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
                 siteService.save(s);
                 siteId = s.getId();
             } catch (IdInvalidException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new IllegalArgumentException("Cannot create site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             } catch (IdUsedException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new IllegalArgumentException("Cannot create site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             } catch (PermissionException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new SecurityException(
                         "Current user does not have permissions to create site: " + ref + ":"
                         + e.getMessage(), e);
             } catch (IdUnusedException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new IllegalArgumentException("Cannot save new site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             }
@@ -663,16 +683,36 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
                 siteService.save(s);
                 siteId = s.getId();
             } catch (IdInvalidException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new IllegalArgumentException("Cannot create site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             } catch (IdUsedException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new IllegalArgumentException("Cannot create site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             } catch (PermissionException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new SecurityException(
                         "Current user does not have permissions to create site: " + ref + ":"
                         + e.getMessage(), e);
             } catch (IdUnusedException e) {
+                try {
+                    siteService.removeSite(s);
+                } catch (Exception e1) {
+                    log.warn("Could not cleanup site on create failure: " + e1); // BLANK
+                }
                 throw new IllegalArgumentException("Cannot save new site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             }
