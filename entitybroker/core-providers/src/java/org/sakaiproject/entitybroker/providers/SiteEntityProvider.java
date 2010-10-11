@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -82,34 +84,31 @@ import org.sakaiproject.util.FormattedText;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
-        RESTful, ActionsExecutable, Redirectable, RequestStorable {
+RESTful, ActionsExecutable, Redirectable, RequestStorable {
+
+    private static Log log = LogFactory.getLog(SiteEntityProvider.class);
 
     private SiteService siteService;
-
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
 
-	private AuthzGroupService authzGroupService;
+    private AuthzGroupService authzGroupService;
+    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+        this.authzGroupService = authzGroupService;
+    }
 
-	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-		this.authzGroupService = authzGroupService;
-	}
-
-	private FunctionManager functionManager;
-
-	public void setFunctionManager(FunctionManager functionManager) {
-		this.functionManager = functionManager;
-	}
+    private FunctionManager functionManager;
+    public void setFunctionManager(FunctionManager functionManager) {
+        this.functionManager = functionManager;
+    }
 
     private UserEntityProvider userEntityProvider;
-
     public void setUserEntityProvider(UserEntityProvider userEntityProvider) {
         this.userEntityProvider = userEntityProvider;
     }
 
     public static String PREFIX = "site";
-
     public String getEntityPrefix() {
         return PREFIX;
     }
@@ -122,7 +121,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     @EntityURLRedirect("/{prefix}/{id}/memberships")
     public String redirectMemberships(Map<String, String> vars) {
         return MembershipEntityProvider.PREFIX + "/site/" + vars.get("id")
-                + vars.get(TemplateParseUtil.DOT_EXTENSION);
+        + vars.get(TemplateParseUtil.DOT_EXTENSION);
     }
 
     @EntityCustomAction(action = "exists", viewKey = EntityView.VIEW_SHOW)
@@ -169,7 +168,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
-                    "This action (perms) is not accessible to anon and there is no current user.");
+            "This action (perms) is not accessible to anon and there is no current user.");
         }
 
         String siteId = view.getEntityReference().getId();
@@ -193,71 +192,62 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         return perms;
     }
 
-	@EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)
+    @EntityCustomAction(action="setPerms", viewKey=EntityView.VIEW_EDIT)
     public String handleSetPerms(EntityReference ref, Map<String, Object> params) {
         String userId = developerHelperService.getCurrentUserId();
-
-        if(userId == null)
-            throw new SecurityException("This action (setPerms) is not accessible to anon and there is no current user.");
-
+        if (userId == null) {
+            throw new SecurityException(
+            "This action (setPerms) is not accessible to anon and there is no current user.");
+        }
         String siteId = ref.getId();
-    
         Site site = getSiteById(siteId);
-
         List<String> userMutableFunctions = functionManager.getRegisteredUserMutableFunctions();
-        
-        boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
+        boolean admin = developerHelperService.isUserAdmin(developerHelperService
+                .getCurrentUserReference());
 
         try {
             AuthzGroup authzGroup = authzGroupService.getAuthzGroup(site.getReference());
-
             boolean changed = false;
-
             for (String name : params.keySet()) {
-                if (!name.contains(":"))
+                if (!name.contains(":")) {
                     continue;
-    
+                }
                 String value = (String) params.get(name);
-
                 String roleId = name.substring(0, name.indexOf(":"));
-
-				Role role = authzGroup.getRole(roleId);
-				if(role == null) {
-					throw new IllegalArgumentException(
-                        "Invalid role id '" + roleId + "' provided in POST parameters.");
-				}
+                Role role = authzGroup.getRole(roleId);
+                if (role == null) {
+                    throw new IllegalArgumentException("Invalid role id '" + roleId
+                            + "' provided in POST parameters.");
+                }
                 String function = name.substring(name.indexOf(":") + 1);
 
                 // Only change this function if registered as userMutable
-                 if (admin || userMutableFunctions.contains(function)) {
-                	if("true".equals(value))
-	                    role.allowFunction(function);
-	                else
-	                    role.disallowFunction(function);
+                if (admin || userMutableFunctions.contains(function)) {
+                    if ("true".equals(value)) {
+                        role.allowFunction(function);
+                    } else {
+                        role.disallowFunction(function);
+                    }
                 } else {
-                	throw new SecurityException("The function " + function + " cannot be updated by the current user.");
+                    throw new SecurityException("The function " + function
+                            + " cannot be updated by the current user.");
                 }
-
                 changed = true;
             }
 
-            if(changed) {
-				try
-				{
-					authzGroupService.save(authzGroup);
-				}
-				catch(AuthzPermissionException ape) {
-					throw new SecurityException("The permissions for this site (" + siteId
-						+ ") cannot be updated by the current user.");
-				}
-			}
+            if (changed) {
+                try {
+                    authzGroupService.save(authzGroup);
+                } catch (AuthzPermissionException ape) {
+                    throw new SecurityException("The permissions for this site (" + siteId
+                            + ") cannot be updated by the current user.");
+                }
+            }
+        } catch (GroupNotDefinedException gnde) {
+            throw new IllegalArgumentException("No realm defined for site (" + siteId + ").");
         }
-		catch(GroupNotDefinedException gnde) {
-			throw new IllegalArgumentException("No realm defined for site (" + siteId + ").");
-		}
-
         return "SUCCESS";
-	}
+    }
 
     @EntityCustomAction(action = "group", viewKey = "")
     public EntityGroup handleGroups(EntityView view, Map<String, Object> params) {
@@ -266,8 +256,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         String groupId = view.getPathSegment(3);
         EntityGroup eg = null;
         String groupTitle = params.containsKey("groupTitle") ? params.get("groupTitle").toString() : null;
-        String groupDescription = params.get("groupDescription") != null ? params.get(
-                "groupDescription").toString() : null;
+        String groupDescription = params.get("groupDescription") != null ? params.get("groupDescription").toString() : null;
         // fix empty strings that may be specified
         if ("".equals(groupTitle)) {
             groupTitle = null;
@@ -293,8 +282,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         if (EntityView.Method.GET.name().equals(view.getMethod())) {
             // GET /direct/site/siteid/group/groupid
             if (groupId == null) {
-                throw new IllegalArgumentException(
-                        "Invalid path provided: expected to receive the groupId");
+                throw new IllegalArgumentException("Invalid path provided: expected to receive the groupId");
             }
             group = site.getGroup(groupId);
 
@@ -334,29 +322,20 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
         } else if (EntityView.Method.POST.name().equals(view.getMethod())) {
             // POST /direct/site/siteid/group/groupid - update metadata for group but not membership
-
             if (groupTitle == null) {
                 // No metadata specified
-                throw new IllegalArgumentException(
-                        "A group title needs to be provided to edit group: "
-                                + groupId);
+                throw new IllegalArgumentException("A group title needs to be provided to edit group: " + groupId);
             }
-
             group = site.getGroup(groupId);
-
             if (group != null) {
-
                 checkGroupType(group);
-
                 if (groupTitle != null) {
                     group.setTitle(groupTitle);
                 }
                 //clear description if it is not provided
                 if (groupDescription != null) {
-                	 groupDescription = groupDescription.trim();
+                    groupDescription = groupDescription.trim();
                 }
-                groupDescription = groupDescription.trim();
-                
             } else {
                 throw new IllegalArgumentException("Cannot find a group with given id: " + groupId
                         + " in site:" + siteId);
@@ -373,16 +352,13 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
         } else if (EntityView.Method.DELETE.name().equals(view.getMethod())) {
             // DELETE /direct/site/siteid/group - delete an existing group in the site.
-
             if (groupId == null) {
                 throw new IllegalArgumentException(
-                        "Invalid path provided: expect to receive the groupId");
+                "Invalid path provided: expect to receive the groupId");
             }
-
             group = site.getGroup(groupId);
             checkGroupType(group);
             site.removeGroup(group);
-
             try {
                 siteService.save(site);
             } catch (IdUnusedException e) {
@@ -403,57 +379,50 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     public Set<String> handleUserPerms(EntityView view) {
         // expects site/siteId/userPerms[/:PREFIX:]
         String prefix = view.getPathSegment(3);
-
         String userId = developerHelperService.getCurrentUserId();
-
         if (userId == null) {
-            throw new SecurityException(
-                    "This action (userPerms) is not accessible to anon and there is no current user.");
+            throw new SecurityException("This action (userPerms) is not accessible to anon and there is no current user.");
         }
-
-		Set<String> filteredFunctions = new TreeSet<String>();
-
+        Set<String> filteredFunctions = new TreeSet<String>();
         if (developerHelperService.isUserAdmin("/user/" + userId)) {
             // Special case for the super admin
-            if(prefix != null)
+            if(prefix != null) {
                 filteredFunctions.addAll(functionManager.getRegisteredFunctions(prefix));
-            else
+            } else {
                 filteredFunctions.addAll(functionManager.getRegisteredFunctions());
-        }
-        else {
+            }
+        } else {
             String siteId = view.getEntityReference().getId();
             Site site = getSiteById(siteId);
-
             AuthzGroup siteHelperRealm = null;
-
             try {
                 siteHelperRealm = authzGroupService.getAuthzGroup("!site.helper");
-            }
-            catch(GroupNotDefinedException gnde) {
+            } catch(GroupNotDefinedException gnde) {
                 // This should probably be logged but not rethrown.
+                log.warn("Failure: could not find !site.helper: " + gnde);
             }
 
-            Role currentUserRole = site.getUserRole(userId);
+            if (siteHelperRealm != null) {
+                Role currentUserRole = site.getUserRole(userId);
+                Role siteHelperRole = siteHelperRealm.getRole(currentUserRole.getId());
+                Set<String> functions = currentUserRole.getAllowedFunctions();
 
-            Role siteHelperRole = siteHelperRealm.getRole(currentUserRole.getId());
-
-            Set<String> functions = currentUserRole.getAllowedFunctions();
-
-            if(siteHelperRole != null) {
-                // Merge in all the functions from the same role in !site.helper
-                functions.addAll(siteHelperRole.getAllowedFunctions());
-            }
-
-            if(prefix != null) {
-                for(String function : functions) {
-                    if(function.startsWith(prefix))
-                        filteredFunctions.add(function);
+                if (siteHelperRole != null) {
+                    // Merge in all the functions from the same role in !site.helper
+                    functions.addAll(siteHelperRole.getAllowedFunctions());
+                }
+                if (prefix != null) {
+                    for (String function : functions) {
+                        if (function.startsWith(prefix)) {
+                            filteredFunctions.add(function);
+                        }
+                    }
+                } else {
+                    filteredFunctions = functions;
                 }
             }
-            else
-                filteredFunctions = functions;
-        }
 
+        }
         return filteredFunctions;
     }
 
@@ -463,7 +432,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
-                    "This action (userPerms) is not accessible to anon and there is no current user.");
+            "This action (userPerms) is not accessible to anon and there is no current user.");
         }
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 
@@ -523,7 +492,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             List<Map<String, Object>> tools = new ArrayList<Map<String,Object>>();
             pageData.put("tools", tools);
             data.add( pageData );
-            
+
             // get the tool configs for each
             for (ToolConfiguration tc : (List<ToolConfiguration>) page.getTools() ) {
                 // get the tool from column 0 for this tool config (if there is one)
@@ -602,7 +571,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             if (siteId == null && site.getId() != null) {
                 siteId = site.getId();
             }
-            
+
             // check description
             String description = site.getDescription();
 
@@ -610,7 +579,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 StringBuilder alertMsg = new StringBuilder();
                 description = FormattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
-                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                    throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
             }
 
@@ -641,7 +610,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             } catch (PermissionException e) {
                 throw new SecurityException(
                         "Current user does not have permissions to create site: " + ref + ":"
-                                + e.getMessage(), e);
+                        + e.getMessage(), e);
             } catch (IdUnusedException e) {
                 throw new IllegalArgumentException("Cannot save new site with given id: " + siteId
                         + ":" + e.getMessage(), e);
@@ -652,7 +621,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             if (siteId == null && site.getId() != null) {
                 siteId = site.getId();
             }
-            
+
             // check description
             String description = site.getDescription();
 
@@ -660,10 +629,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 StringBuilder alertMsg = new StringBuilder();
                 description = FormattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
-                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                    throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
             }            
-            
+
             Site s = null;
             try {
                 s = siteService.addSite(siteId, site.getType());
@@ -702,14 +671,14 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             } catch (PermissionException e) {
                 throw new SecurityException(
                         "Current user does not have permissions to create site: " + ref + ":"
-                                + e.getMessage(), e);
+                        + e.getMessage(), e);
             } catch (IdUnusedException e) {
                 throw new IllegalArgumentException("Cannot save new site with given id: " + siteId
                         + ":" + e.getMessage(), e);
             }
         } else {
             throw new IllegalArgumentException(
-                    "Invalid entity for creation, must be Site or EntitySite object");
+            "Invalid entity for creation, must be Site or EntitySite object");
         }
         return siteId;
     }
@@ -734,7 +703,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         if (entity.getClass().isAssignableFrom(Site.class)) {
             // if someone passes in a Site
             Site site = (Site) entity;
-            
+
             // check description
             String description = site.getDescription();
 
@@ -742,10 +711,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 StringBuilder alertMsg = new StringBuilder();
                 description = FormattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
-                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                    throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
             }            
-            
+
             s.setCustomPageOrdered(site.isCustomPageOrdered());
             s.setDescription(description);
             s.setIconUrl(site.getIconUrl());
@@ -762,8 +731,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
             // put in properties if admin, otherwise ignore
             if (admin) {
-	            ResourcePropertiesEdit rpe = s.getPropertiesEdit();
-	            rpe.set(site.getProperties());
+                ResourcePropertiesEdit rpe = s.getPropertiesEdit();
+                rpe.set(site.getProperties());
             }
         } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
             // if they instead pass in the entitysite object
@@ -776,10 +745,10 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 StringBuilder alertMsg = new StringBuilder();
                 description = FormattedText.processFormattedText(description, alertMsg);
                 if (description == null) {
-                	throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
+                    throw new IllegalArgumentException("Site description markup rejected: " + alertMsg.toString());
                 }
             }            
-            
+
             s.setCustomPageOrdered(site.isCustomPageOrdered());
             if (description != null)
                 s.setDescription(description);
@@ -800,16 +769,16 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 s.setSkin(site.getSkin());
             if (site.getTitle() != null)
                 s.setTitle(site.getTitle());
-            
+
             // put in properties if admin, otherwise ignore
             if (admin) {
-	            ResourcePropertiesEdit rpe = s.getPropertiesEdit();
-	            for (String key : site.getProps().keySet()) {
-	                String value = site.getProps().get(key);
-	                rpe.addProperty(key, value);
-	            }
+                ResourcePropertiesEdit rpe = s.getPropertiesEdit();
+                for (String key : site.getProps().keySet()) {
+                    String value = site.getProps().get(key);
+                    rpe.addProperty(key, value);
+                }
             }
-            
+
             // attempt to set the owner as requested
             String ownerUserId = site.getOwner();
             if (ownerUserId != null) {
@@ -822,7 +791,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             }
         } else {
             throw new IllegalArgumentException(
-                    "Invalid entity for update, must be Site or EntitySite object");
+            "Invalid entity for update, must be Site or EntitySite object");
         }
         try {
             siteService.save(s);
@@ -867,8 +836,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             if (!siteService.allowAccessSite(site.getId())) {
                 throw new SecurityException(
                         "This site ("
-                                + site.getReference()
-                                + ") is not accessible to anon and there is no current user so the site is inaccessible");
+                        + site.getReference()
+                        + ") is not accessible to anon and there is no current user so the site is inaccessible");
             }
         } else {
             if (!site.isPubView() && !siteService.allowAccessSite(site.getId())) {
@@ -995,11 +964,11 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             try {
                 if (!group.getProperties().getBooleanProperty(GROUP_PROP_WSETUP_CREATED)) {
                     throw new IllegalArgumentException(
-                            "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
+                    "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
                 }
             } catch (Exception e) {
                 throw new IllegalArgumentException(
-                        "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
+                "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
             }
         }
     }
