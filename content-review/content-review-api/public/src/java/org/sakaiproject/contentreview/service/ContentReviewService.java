@@ -24,6 +24,7 @@ package org.sakaiproject.contentreview.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.site.api.Site;
@@ -31,6 +32,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
+import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.model.ContentReviewItem;
 
 /**
@@ -230,4 +232,48 @@ public interface ContentReviewService {
 	 * @return
 	 */
 	public String getLocalizedStatusMessage(String messageCode, Locale locale);
+	
+	/**
+	 * This is a vendor specific method to allow getting information about
+	 * a particular assignment in an external plagiarism checking system.
+	 * The method returns a Map of keys and properties since they may differ
+	 * between implementations.
+	 * 
+	 * In the Turnitin implementation this provides all the return information
+	 * that comes over the wire from their Fid4 Fcmd7 function which can 
+	 * be referenced from their API Documentation.
+	 * 
+	 * This method may be necessary for deeper integrations (A2), but could
+	 * tie your code to a particular implementation.
+	 * 
+	 * @param siteId
+	 * @param taskId
+	 * @return
+	 * @throws SubmissionException
+         * @throws TransientSubmissionException
+	 */
+	public Map getAssignment(String siteId, String taskId)
+	throws SubmissionException, TransientSubmissionException;
+	
+	/**
+	 * This is a vendor specific method needed for some deep integrations
+	 * (such as A2) to pre provision assignments on an external content
+	 * checking system.  The method takes in a Map which can take varying
+	 * keys and values depending on implementation.
+	 * 
+	 * For the Turnitin implementation these keys map to some input 
+	 * parameters for Fid4 Fcmd 2/3. These can be seen in Turnitin's API
+	 * documentation.
+	 * 
+	 * Using this method will likely tie you to a particular Content Review
+	 * implementation.
+	 * 
+	 * @param siteId
+	 * @param taskId
+	 * @param extraAsnnOpts
+	 * @throws SubmissionException
+	 * @throws TransientSubmissionException
+	 */
+	public void createAssignment(String siteId, String taskId, Map extraAsnnOpts)
+	throws SubmissionException, TransientSubmissionException;
 }
