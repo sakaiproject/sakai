@@ -109,7 +109,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			String emailId = user.getEmail();
 			String to = emailId;
 			String headerTo = emailId;
-			String replyTo = emailId;
+			String replyTo = from;
 			Map<String, String> rv = new HashMap<String, String>();
 			rv.put("productionSiteName", productionSiteName);
 
@@ -164,7 +164,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String newUserEmail = user.getEmail();
 		String to = newUserEmail;
 		String headerTo = newUserEmail;
-		String replyTo = newUserEmail;
+		String replyTo = from;
 		
 		
 		

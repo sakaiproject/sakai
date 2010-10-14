@@ -56,7 +56,8 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			String emailId = user.getEmail();
 			String to = emailId;
 			String headerTo = emailId;
-			String replyTo = emailId;
+			// UVa: change Reply-To to be the user adding the new participant
+			String replyTo = from;
 			String message_subject = productionSiteName + " "
 					+ rb.getString("java.sitenoti");
 			String content = "";
@@ -119,7 +120,8 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		String newUserEmail = user.getEmail();
 		String to = newUserEmail;
 		String headerTo = newUserEmail;
-		String replyTo = newUserEmail;
+        // UVa: change Reply-To to be the From (collab support) address
+		String replyTo = from;
 		String message_subject = productionSiteName + " "
 				+ rb.getString("java.newusernoti");
 		String content = "";
