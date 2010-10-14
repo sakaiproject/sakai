@@ -43,6 +43,7 @@ import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.behaviors.SjaxCall;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 public class SjaxContainer extends WebMarkupContainer implements IHeaderContributor {
 
@@ -60,6 +61,8 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 	transient ScormResourceService resourceService;
 	@SpringBean
 	transient ScormSequencingService sequencingService;
+	@SpringBean(name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
+	transient GradebookExternalAssessmentService gradebookExternalAssessmentService;
 	
 	private UISynchronizerPanel synchronizerPanel;
 	private SjaxCall[] calls = new SjaxCall[8]; 
@@ -226,6 +229,11 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			return applicationService;
 		}
 
+		@Override
+		protected GradebookExternalAssessmentService gradebookExternalAssessmentService() {
+			return gradebookExternalAssessmentService;
+		}
+		
 		@Override
 		protected ScormResourceService resourceService() {
 			return resourceService;

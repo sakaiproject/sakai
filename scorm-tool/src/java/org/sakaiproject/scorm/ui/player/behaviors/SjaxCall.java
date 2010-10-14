@@ -37,6 +37,7 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
 import org.sakaiproject.scorm.ui.player.util.Utils;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 /**
  * This class is right at the center of all the action. It provides a wrapper for Synchronous
@@ -88,6 +89,15 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * @return API Service dependency injected at the Component level
 	 */
 	protected abstract ScormApplicationService applicationService();
+	
+	/**
+	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
+	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
+	 * create a member variable that would then be serialized.
+	 * 
+	 * @return API Service dependency injected at the Component level
+	 */
+	protected abstract GradebookExternalAssessmentService gradebookExternalAssessmentService();
 	
 	/**
 	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
@@ -163,7 +173,12 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 			public Object getTarget() {
 				return target;
 			}
-			
+
+			@Override
+			public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
+				return SjaxCall.this.gradebookExternalAssessmentService();
+			}
+
 		};
 		
 		try {
