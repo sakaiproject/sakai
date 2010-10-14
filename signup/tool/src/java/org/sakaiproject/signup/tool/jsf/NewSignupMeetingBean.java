@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -713,7 +714,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		
 		SignupUser attendeeSignUser = getSakaiFacade().getSignupUser(this.signupMeeting, attendeeUserId);
 		if(attendeeSignUser ==null){
-			Utilities.addErrorMessage(Utilities.rb.getString("user.has.no.permission.attend") + attendeeEid);
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {attendeeEid}));
 			return "";
 		}
 		

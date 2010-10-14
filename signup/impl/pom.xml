@@ -44,21 +44,18 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>generic-dao</artifactId>
-			<version>0.9.17</version>
-			<scope>provided</scope>
+			<version>[0.9.18,0.10)</version>
 		</dependency>
 
 		<!-- Spring and Hibernate dependencies. -->
 		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
-			<version>${sakai.spring.version}</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>${sakai.hibernate.groupId}</groupId>
-			<artifactId>${sakai.hibernate.artifactId}</artifactId>
-			<version>${sakai.hibernate.version}</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
 		</dependency>
 
 		<!-- Required for hibernate 3 HQL queries -->
@@ -96,7 +93,6 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
 		</dependency>
 
 		<dependency>
@@ -156,8 +152,6 @@
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>${sakai.ehcache.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

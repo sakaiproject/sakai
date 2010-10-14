@@ -32,12 +32,6 @@
 	      	<artifactId>sakai-kernel-util</artifactId>
 	    </dependency>
 
-		<!-- generic DAO -->
-		<dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>generic-dao</artifactId>
-         <version>0.9.17</version>
-      </dependency>
 	</dependencies>
 	<build>
 		<resources />

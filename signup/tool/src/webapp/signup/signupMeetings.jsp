@@ -87,7 +87,7 @@
 		   	    				
 		   	    				<h:outputText value="&nbsp;" escape="false"/>
 		   	    			</h:panelGroup>
-							<h:commandLink action="#{SignupMeetingsBean.processSignup}">
+							<h:commandLink id="cmdlink90" action="#{SignupMeetingsBean.processSignup}">
 								<h:outputText value="#{wrapper.meeting.title}" />
 							</h:commandLink>							
 						</t:column>

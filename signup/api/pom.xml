@@ -40,9 +40,8 @@
 			<version>${sakai.version}</version>
 		</dependency>		
 		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
-			<version>${sakai.spring.version}</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>

@@ -88,7 +88,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
-			<version>${sakai.spring.version}</version>
 			<type>jar</type>
 		</dependency>
 		<!-- we are running a webapp in tomcat so we need the servlet api -->
@@ -193,7 +192,6 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>

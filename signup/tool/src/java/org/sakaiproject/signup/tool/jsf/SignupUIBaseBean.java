@@ -304,7 +304,11 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * session style and signup is not required.
 	 */
 	public boolean getAnnouncementType() {
-		return ANNOUNCEMENT.equals(meetingWrapper.getMeeting().getMeetingType());
+		boolean anoun = false;
+		if (ANNOUNCEMENT.equals(meetingWrapper.getMeeting().getMeetingType()))
+			anoun= true;
+		
+		return anoun;
 	}
 
 	/**
