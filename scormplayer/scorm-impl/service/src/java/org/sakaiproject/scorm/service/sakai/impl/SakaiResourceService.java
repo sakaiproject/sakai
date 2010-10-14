@@ -2,10 +2,8 @@ package org.sakaiproject.scorm.service.sakai.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -13,7 +11,6 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -46,17 +43,17 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	 * @author roland
 	 *
 	 */
-	private final class ContentReadSecurityAdvisor implements SecurityAdvisor {
-	    public SecurityAdvice isAllowed(String userId, String function, String reference) {
-	    	if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
-	    		return SecurityAdvice.ALLOWED;
-	    	}
-	    	if (ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)) {
-	    		return SecurityAdvice.ALLOWED;
-	    	}
-	        return SecurityAdvice.PASS;
-	    }
-    }
+//	private final class ContentReadSecurityAdvisor implements SecurityAdvisor {
+//	    public SecurityAdvice isAllowed(String userId, String function, String reference) {
+//	    	if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
+//	    		return SecurityAdvice.ALLOWED;
+//	    	}
+//	    	if (ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)) {
+//	    		return SecurityAdvice.ALLOWED;
+//	    	}
+//	        return SecurityAdvice.PASS;
+//	    }
+//    }
 
 
 	private static Log log = LogFactory.getLog(SakaiResourceService.class);
@@ -80,20 +77,20 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			
 		ContentCollectionEdit collection = null;
 		try {
-			collection = contentService().editCollection(getContentPackageDirectoryPath(uuid));
+			collection = this.contentService().editCollection(getContentPackageDirectoryPath(uuid));
 		
 			collection.setHidden();
 			
 			ResourcePropertiesEdit props = collection.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
 			
-			contentService().commitCollection(collection);
+			this.contentService().commitCollection(collection);
 		} catch (Exception e) {
 			log.warn("Unable to rename the root collection for " + uuid + " to " + title);
 		
 			try {
 				if (collection != null)
-					contentService().cancelCollection(collection);
+					this.contentService().cancelCollection(collection);
 			} catch (Exception ex) {
 				log.warn("Failed to cancel collection edit for " + uuid);
 			}
@@ -105,7 +102,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	public Archive getArchive(String resourceId) {
 		Archive archive = null;
 		try {
-			ContentResource resource = contentService().getResource(resourceId);
+			ContentResource resource = this.contentService().getResource(resourceId);
 
 			ResourceProperties props = resource.getProperties();
 		
@@ -126,7 +123,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	
 	public InputStream getArchiveStream(String resourceId) {
 		try {
-			ContentResource resource = contentService().getResource(resourceId);
+			ContentResource resource = this.contentService().getResource(resourceId);
 		
 			return resource.streamContent();
 		
@@ -181,7 +178,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 
 		ContentResourceEdit edit = null;
 		try {
-			edit = contentService().addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+			edit = this.contentService().addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 			edit.setContent(stream);
 			edit.setContentType(mimeType);
@@ -192,12 +189,12 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			ResourcePropertiesEdit props = edit.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 			
-	        contentService().commitResource(edit, priority);			
+	        this.contentService().commitResource(edit, priority);			
 
 	        return edit.getId();
 		} catch (Exception e) {
 			if (edit != null)
-				contentService().cancelResource(edit);
+				this.contentService().cancelResource(edit);
 			
 			log.error("Failed to place resources in Sakai content repository", e);
 		}
@@ -222,7 +219,6 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			if (log.isDebugEnabled())
 				log.debug("Removing collection " + contentPackageDirectoryId);
 			
-			contentService().removeCollection(contentPackageDirectoryId);
 		} catch (IdUnusedException iuue) {
 			// I think this could be a bug with the BaseContentService
 			// possibly related to caching... 
@@ -236,7 +232,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	
 	protected String getRootDirectoryPath() {
 		String siteId = toolManager().getCurrentPlacement().getContext();
-		String collectionId = contentService().getSiteCollection(siteId);
+		String collectionId = this.contentService().getSiteCollection(siteId);
 		
 		return collectionId;
 	}
@@ -249,7 +245,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		throws IdUnusedException, InUseException, PermissionException, 
 			ServerOverloadException, TypeException {
 		
-		ContentCollection collection = contentService().getCollection(collectionId);
+		ContentCollection collection = this.contentService().getCollection(collectionId);
 		
 		List<ContentEntity> members = collection.getMemberResources();
 		
@@ -258,7 +254,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 				if (log.isDebugEnabled())
 					log.debug("Removing resource " + member.getId());
 				try {
-					contentService().removeResource(member.getId());
+					this.contentService().removeResource(member.getId());
 				} catch (IdUnusedException iuue) {
 					// I think this could be a bug with the BaseContentService
 					// possibly related to caching... 
@@ -273,7 +269,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			log.debug("Removing collection " + collectionId);
 		
 		try {
-			contentService().removeCollection(collectionId);
+			this.contentService().removeCollection(collectionId);
 		} catch (IdUnusedException iuue) {
 			// I think this could be a bug with the BaseContentService
 			// possibly related to caching... 
@@ -285,11 +281,10 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	
 	protected List<ContentPackageResource> getContentResourcesRecursive(String collectionId, String uuid, String path) {
 		
-		SecurityService.pushAdvisor(new ContentReadSecurityAdvisor());
 		
 		List<ContentPackageResource> resources = new LinkedList<ContentPackageResource>();
 		try {
-			ContentCollection collection = contentService().getCollection(collectionId);
+			ContentCollection collection = this.contentService().getCollection(collectionId);
 			List<ContentEntity> members = collection.getMemberResources();
 						
 			for (ContentEntity member : members) {
@@ -325,8 +320,6 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		
 		} catch (Exception e) {
 			log.error("Caught an exception looking for content packages", e);
-		} finally {
-			SecurityService.popAdvisor();
 		}
 		
 		return resources;
@@ -347,7 +340,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			log.debug("Adding a folder with collection id: " + collectionId);
 		
 		try {
-			collection = contentService().addCollection(collectionId);
+			collection = this.contentService().addCollection(collectionId);
 			
 			String displayName = getDisplayName(entryName);
 
@@ -356,14 +349,14 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			ResourcePropertiesEdit props = collection.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 			
-			contentService().commitCollection(collection);
+			this.contentService().commitCollection(collection);
 		} catch (IdUsedException e) {
 			// Well, if it's used, then we'll go ahead and use it again, I guess
 		} catch (Exception e) {
 			log.error("Failed to add a folder with id " + collectionId);
 			
 			if (collection != null)
-				contentService().cancelCollection(collection);
+				this.contentService().cancelCollection(collection);
 			
 			return null;
 		} 
@@ -382,7 +375,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		ContentResourceEdit resource = null;
 		
 		try {
-			resource = contentService().addResource(resourceId);
+			resource = this.contentService().addResource(resourceId);
 			
 			byte[] buffer = new byte[1024];
 			int length;
@@ -412,13 +405,13 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(entry.getName()));
 			props.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, "UTF-8");
 			
-			contentService().commitResource(resource, NotificationService.NOTI_NONE);
+			this.contentService().commitResource(resource, NotificationService.NOTI_NONE);
 			
 		} catch (Exception e) {
 			log.error("Failed to create new resource with id " + resourceId, e);
 			
 			if (resource != null)
-				contentService().cancelResource(resource);
+				this.contentService().cancelResource(resource);
 			
 			return null;
 		}
@@ -432,7 +425,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		String rootCollectionId = getRootDirectoryPath();
 		
 		try {
-			ContentCollection collection = contentService().getCollection(rootCollectionId);
+			ContentCollection collection = this.contentService().getCollection(rootCollectionId);
 		
 			List<ContentEntity> members = collection.getMemberResources();
 			
@@ -475,7 +468,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	private List<Archive> findUnvalidatedArchives(String collectionId) {
 		List<Archive> archives = new LinkedList<Archive>();
 		try {
-			ContentCollection collection = contentService().getCollection(collectionId);
+			ContentCollection collection = this.contentService().getCollection(collectionId);
 			List<ContentEntity> members = collection.getMemberResources();
 			
 			for (ContentEntity member : members) {

@@ -1,11 +1,11 @@
 <projectDescription>
   <name>sakai-scorm-client-impl</name>
-  <comment>This project creates the client implementation used by the Sakai Scorm Tool</comment>
+  <comment>This project creates the client implementation used by the Sakai Scorm Tool. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
+    <project>sakai-scorm-adl-impl</project>
+    <project>sakai-scorm-api</project>
     <project>sakai-scorm-content-impl</project>
     <project>sakai-scorm-model-impl</project>
-    <project>sakai-scorm-api</project>
-    <project>sakai-scorm-adl-impl</project>
   </projects>
   <buildSpec>
     <buildCommand>

@@ -11,6 +11,7 @@ import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMFactory;
 import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.DMProcessingInfo;
+import org.adl.datamodels.DMRequest;
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
 import org.adl.datamodels.ieee.ValidatorFactory;
@@ -1297,6 +1298,15 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		try {
 
 
+			if (sessionBean.isSuspended()) {
+				//cmiData.SCOEntry = "resume";
+				//cmi.exit
+				setValue("cmi.exit", "suspend", sessionBean, sessionBean.getDisplayingSco());
+			} else if (sessionBean.isEnded()) {
+				setValue("cmi.exit", "normal", sessionBean, sessionBean.getDisplayingSco());
+			}
+			
+			
 			// Call terminate on the data manager to ensure that we're in the appropriate state
 			dm.terminate();
 

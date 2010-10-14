@@ -14,6 +14,7 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.event.api.NotificationService;
@@ -114,7 +115,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			            	setResponsePage(ConfirmPage.class, params);
 		            	}
 		            } catch (Exception e) {
-		            	UploadPage.this.warn(getLocalizer().getString("upload.failed", UploadPage.this));
+		            	UploadPage.this.warn(getLocalizer().getString("upload.failed", UploadPage.this, new Model(e)));
 		                log.error("Failed to upload file", e);
 		            }
 		        }

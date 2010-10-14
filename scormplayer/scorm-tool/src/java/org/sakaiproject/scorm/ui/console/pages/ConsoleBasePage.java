@@ -25,19 +25,19 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
+import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 
 public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
@@ -70,7 +70,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		final boolean canValidate = lms.canValidate(context);
 		
 		add(newPageTitleLabel(params));
-		add(feedback = new FeedbackPanel("feedback"));
+		add(feedback = new SakaiFeedbackPanel("feedback"));
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
 		
 		NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);

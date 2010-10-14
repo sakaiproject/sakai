@@ -4,8 +4,6 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -35,25 +33,6 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 	
 	@Override
 	public InputStream getInputStream() throws ResourceNotFoundException {
-		
-		SecurityService.pushAdvisor(new SecurityAdvisor(){
-
-			public SecurityAdvice isAllowed(String userId, String function, String reference) {
-		    	if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
-		    		if (SecurityService.unlock(userId, "scorm.launch", reference)) {
-			    		return SecurityAdvice.ALLOWED;
-		    		}
-		    	} else if (ContentHostingService.AUTH_RESOURCE_HIDDEN.equals(function)) {
-		    		if (SecurityService.unlock(userId, "scorm.launch", reference)) {
-			    		return SecurityAdvice.ALLOWED;
-		    		}
-		    	}
-	            return SecurityAdvice.PASS;
-            }
-			
-			
-		});
-		
 		try {
 			ContentResource resource = ContentHostingService.getResource(contentResourceId);
 			return resource.streamContent();
@@ -62,10 +41,7 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 			throw new ResourceNotFoundException(getPath());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		} finally {
-			SecurityService.popAdvisor();
 		}
-		
 	}
 
 	@Override

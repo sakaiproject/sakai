@@ -22,6 +22,7 @@ package org.sakaiproject.scorm.ui.player.components;
 
 import java.util.List;
 
+import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +31,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
@@ -93,7 +95,12 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 	}
 	
 	private int chooseStartOrResume(SessionBean sessionBean, INavigable navigator, AjaxRequestTarget target) {
-		int navRequest = SeqNavRequests.NAV_START;
+		int navRequest = SeqNavRequests.NAV_NONE;
+		sequencingService.navigate(SeqNavRequests.NAV_NONE, sessionBean, null, target);
+		IValidRequests navigationState = sessionBean.getNavigationState();
+		if (navigationState.isStartEnabled()) {
+			navRequest = SeqNavRequests.NAV_START;
+		}
 		
 		List<Attempt> attempts = resultService.getAttempts(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
 		
@@ -211,8 +218,10 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 		String result = sequencingService.navigate(navRequest, sessionBean, null, target);
 				
 		// Success is null.
-		if (result == null || result.contains("_TOC_"))
+		if (result == null || result.contains("_TOC_")) {
+			sessionBean.setStarted(true);
 			return null;
+		}
 		
 		// If we get an invalid nav request, chances are that we need to abandon and start again
 		if (result.equals("_INVALIDNAVREQ_")) {
@@ -228,6 +237,9 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 		} else if (result.equals("_SEQBLOCKED_")) {
 			result = sequencingService.navigate(SeqNavRequests.NAV_NONE, sessionBean, null, target);
 		
+		}
+		if (result == null || result.contains("_TOC_")) {
+			sessionBean.setStarted(true);
 		}
 
 		return result;

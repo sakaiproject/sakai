@@ -1,12 +1,12 @@
 <projectDescription>
   <name>sakai-scorm-pack</name>
-  <comment>This project packs the components used by the Sakai Scorm Tool</comment>
+  <comment>This project packs the components used by the Sakai Scorm Tool. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
   <projects>
+    <project>sakai-scorm-adl-impl</project>
     <project>sakai-scorm-client-impl</project>
     <project>sakai-scorm-content-impl</project>
     <project>sakai-scorm-model-impl</project>
     <project>sakai-scorm-service-impl</project>
-    <project>sakai-scorm-adl-impl</project>
   </projects>
   <buildSpec>
     <buildCommand>
@@ -15,9 +15,13 @@
     <buildCommand>
       <name>org.eclipse.wst.validation.validationbuilder</name>
     </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
   </buildSpec>
   <natures>
     <nature>org.eclipse.wst.common.project.facet.core.nature</nature>
     <nature>org.eclipse.wst.common.modulecore.ModuleCoreNature</nature>
+    <nature>org.eclipse.jdt.core.javanature</nature>
   </natures>
 </projectDescription>

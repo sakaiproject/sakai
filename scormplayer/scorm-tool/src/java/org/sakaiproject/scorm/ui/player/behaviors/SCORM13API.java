@@ -1,6 +1,10 @@
 package org.sakaiproject.scorm.ui.player.behaviors;
 
+import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.api.ecmascript.SCORM13APIInterface;
+import org.adl.datamodels.DMInterface;
+import org.adl.datamodels.DMProcessingInfo;
+import org.adl.datamodels.IDataManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.model.api.ScoBean;
@@ -9,6 +13,9 @@ import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.navigation.INavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
 
 public abstract class SCORM13API implements SCORM13APIInterface {
 
@@ -24,6 +31,7 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 	public abstract ScormApplicationService getApplicationService();
 	
 	public abstract ScormSequencingService getSequencingService();
+	public abstract GradebookExternalAssessmentService getGradebookExternalAssessmentService();
 	
 	public abstract ScoBean getScoBean();
 	
@@ -106,14 +114,80 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 		if (isSuccessful) {
 			result = STRING_TRUE;
 
-			if (navigationEvent.isChoiceEvent()) 
+			if (navigationEvent.isChoiceEvent()) { 
 				getSequencingService().navigate(navigationEvent.getChoiceEvent(), getSessionBean(), getAgent(), getTarget());
-			else 
+			} else { 
 				getSequencingService().navigate(navigationEvent.getEvent(), getSessionBean(), getAgent(), getTarget());
+			}
+			
+			synchResultWithGradebook();
 			
 		} 
 
 		return result;
+	}
+
+	protected void synchResultWithGradebook() {
+		ScoBean displayingSco = getSessionBean().getDisplayingSco();
+		IDataManager dataManager = displayingSco.getDataManager();
+		String successStatus = getValueAsString("cmi.success_status", dataManager); // passed, failed, unknown
+		String mode = getValueAsString("cmi.mode", dataManager); // passed, failed, unknown
+		String credit = getValueAsString("cmi.credit", dataManager); // credit, no_credit 
+		String completionStatus = getValueAsString("cmi.completion_status", dataManager); // (completed, incomplete, not_attempted, unknown)
+		double score = getRealValue("cmi.score.scaled", dataManager) * 100d; // A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of Ð1.0 to 1.0, inclusive.
+		if ("normal".equals(mode) && "completed".equals(completionStatus) && successStatus != null && "credit".equals(credit)) {
+			Placement placement = ToolManager.getCurrentPlacement();
+			String context = placement.getContext();
+			long contentPackageId = getSessionBean().getContentPackage().getContentPackageId();
+			String assessmentExternalId = ""+contentPackageId+":"+dataManager.getScoId();
+			if (getGradebookExternalAssessmentService().isExternalAssignmentDefined(context, assessmentExternalId)) {
+				getGradebookExternalAssessmentService().updateExternalAssessmentScore(context, assessmentExternalId, getSessionBean().getLearnerId(), score);
+			}
+		}
+	}
+	
+	private String getValueAsString(String element, IDataManager dataManager) {
+		String result = getValue(element, dataManager);
+		
+		if (result.trim().length() == 0 || result.equals("unknown"))
+			return null;
+			
+        return result;
+	}
+	private String getValue(String iDataModelElement, IDataManager dataManager) {
+		// Process 'GET'
+        DMProcessingInfo dmInfo = new DMProcessingInfo();
+        
+        String result;
+        int dmErrorCode = 0;
+        dmErrorCode = DMInterface.processGetValue(iDataModelElement, false, dataManager, dmInfo);
+
+        if ( dmErrorCode == APIErrorCodes.NO_ERROR ) {
+        	result = dmInfo.mValue;
+        } else {
+            result = new String("");
+        }
+        
+        return result;
+	}
+	
+	private double getRealValue(String element, IDataManager dataManager) {
+		String result = getValue(element, dataManager);
+		
+		if (result.trim().length() == 0 || result.equals("unknown"))
+			return -1.0;
+		
+		double d = -1.0;
+		
+		try {
+			d = Double.parseDouble(result);
+			
+				
+		} catch (NumberFormatException nfe) {
+			log.error("Unable to parse " + result + " as a double!");
+		}
+		
+		return d;
 	}
 
 }

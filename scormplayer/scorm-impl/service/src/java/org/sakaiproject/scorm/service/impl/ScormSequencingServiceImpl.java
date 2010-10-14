@@ -24,6 +24,8 @@ import javax.swing.tree.TreeModel;
 
 import org.adl.api.ecmascript.APIErrorManager;
 import org.adl.api.ecmascript.IErrorManager;
+import org.adl.datamodels.DMInterface;
+import org.adl.datamodels.IDataManager;
 import org.adl.sequencer.ILaunch;
 import org.adl.sequencer.ISeqActivity;
 import org.adl.sequencer.ISeqActivityTree;
@@ -40,6 +42,7 @@ import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
+import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -74,8 +77,20 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		
 		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
 		
-		if (tree.getSuspendAll() != null && request == SeqNavRequests.NAV_START)
+		if (tree.getSuspendAll() != null && request == SeqNavRequests.NAV_START) {
 			request = SeqNavRequests.NAV_RESUMEALL;
+		} 
+		
+		if (request == SeqNavRequests.NAV_EXITALL) {
+			
+			ScoBean displayingSco = sessionBean.getDisplayingSco();
+			if (displayingSco != null) {
+				IDataManager dataManager = displayingSco.getDataManager();
+				if (dataManager != null) {
+					DMInterface.processSetValue("adl.nav.request", "_none_", true, dataManager);
+				}
+			}
+		}
 		
 		ISequencer sequencer = adlManager().getSequencer(tree);
 		ILaunch launch = sequencer.navigate(request);
@@ -83,6 +98,19 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 		
 		update(sessionBean, sequencer, launch, manifest);
 		
+//		if (request == SeqNavRequests.NAV_EXITALL) {
+//			Attempt attempt = sessionBean.getAttempt();
+//			if (attempt != null) {
+//				attempt.setNotExited(false);
+//				attempt.setSuspended(false);
+//				attemptDao().save(attempt);
+//			}
+//			sessionBean.setSuspended(false);
+//			sessionBean.setEnded(true);
+//			sessionBean.setStarted(false);
+//			sessionBean.setRestart(true);
+//			
+//		}  
 		if (request == SeqNavRequests.NAV_SUSPENDALL) {
 			Attempt attempt = sessionBean.getAttempt();
 			if (attempt != null) {
@@ -99,13 +127,18 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			agent.displayResource(sessionBean, target);
 		
 		String result = launch.getLaunchStatusNoContent();
-		if ((request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL)) { // Start flag, check if the result is OK
-			if (result == null) { // Result is null, so OK
-				sessionBean.setStarted(true);
-			} else if (launch.getNavState().isContinueEnabled() && ADLLaunch.LAUNCH_SEQ_BLOCKED.equals(result)) { // Expected to be blocked when there is no continue.
-				sessionBean.setStarted(true);
-			}
-		}
+//		if ((request == SeqNavRequests.NAV_NONE || request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL)) { // Start flag, check if the result is OK
+//			if (result == null || result.contains("_TOC_")) { // Result is null, so OK
+//				sessionBean.setStarted(true);
+//			}
+//		}
+//		if ((request == SeqNavRequests.NAV_NONE || request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL)) { // Start flag, check if the result is OK
+//			if (result == null || result.contains("_TOC_")) { // Result is null, so OK
+//				sessionBean.setStarted(true);
+//			} else if (launch.getNavState().isContinueEnabled() && ADLLaunch.LAUNCH_SEQ_BLOCKED.equals(result)) { // Expected to be blocked when there is no continue.
+//				sessionBean.setStarted(true);
+//			}
+//		}
 		return result;
 	}
 	
