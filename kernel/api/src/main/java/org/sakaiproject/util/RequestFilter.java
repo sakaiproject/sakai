@@ -973,7 +973,11 @@ public class RequestFilter implements Filter
 		// limit to the ceiling
 		if (uploadMax > m_uploadCeiling)
 		{
-			M_log.warn("Upload size exceeds ceiling: " + ((uploadMax / 1024L) / 1024L) + " > "
+			/**
+			 * KNL-602 This is the expected behaviour of the request filter honouring the globaly configured
+			 * value -DH
+			 */
+			M_log.debug("Upload size exceeds ceiling: " + ((uploadMax / 1024L) / 1024L) + " > "
 					+ ((m_uploadCeiling / 1024L) / 1024L) + " megs");
 
 			uploadMax = m_uploadCeiling;
