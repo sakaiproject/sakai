@@ -141,7 +141,7 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 			long contentPackageId = getSessionBean().getContentPackage().getContentPackageId();
 			String assessmentExternalId = ""+contentPackageId+":"+dataManager.getScoId();
 			if (getGradebookExternalAssessmentService().isExternalAssignmentDefined(context, assessmentExternalId)) {
-				getGradebookExternalAssessmentService().updateExternalAssessmentScore(context, assessmentExternalId, getSessionBean().getLearnerId(), score);
+				getGradebookExternalAssessmentService().updateExternalAssessmentScore(context, assessmentExternalId, getSessionBean().getLearnerId(), "" + score);
 			}
 		}
 	}
