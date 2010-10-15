@@ -751,6 +751,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String isMobile = device.getCapability("is_wireless_device");
 			Boolean isMobileBool = Boolean.valueOf(isMobile);
 			if (isMobileBool.booleanValue()) {
+				Session session = SessionManager.getCurrentSession();
+				session.setAttribute("is_wireless_device", Boolean.TRUE);
 				return deviceName;
 			}
 			return null;
