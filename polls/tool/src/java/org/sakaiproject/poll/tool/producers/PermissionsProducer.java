@@ -29,19 +29,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolSession;
 
 import uk.ac.cam.caret.sakai.rsf.helper.HelperViewParameters;
-import uk.org.ponder.beanutil.PathUtil;
 import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIBoundBoolean;
-import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIELBinding;
-import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -114,9 +108,9 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 
 	public List<NavigationCase> reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
-		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
+		togo.add(new NavigationCase(null, new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		togo.add(new NavigationCase("Success", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
-		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
+		togo.add(new NavigationCase("Cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;
 	}
 
