@@ -45,6 +45,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Provides data for the student view of the gradebook. Is used by both the
@@ -63,6 +64,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
     private boolean isAllItemsViewOnly = true;
+    private double totalPoints;
+    private double pointsEarned;
+    private boolean showCoursePoints;
 
     private boolean sortAscending;
     private String sortColumn;
@@ -229,6 +233,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		}
     	}
     	
+    	totalPoints = getGradebookManager().getTotalPoints(gradebook.getId());
+    	pointsEarned = gradeRecord.getPointsEarned();
+    	
     	initializeStudentGradeData();
     }
 
@@ -335,6 +342,19 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     }
     public String getStudentUid() {
     	return studentUid;
+    }
+    
+    public double getTotalPoints() {
+        return totalPoints;
+    }
+    
+    public double getPointsEarned() {
+        return pointsEarned;
+    }
+    
+    public boolean getShowCoursePoints() {
+        String showCoursePoints = ServerConfigurationService.getString("gradebook.showCoursePoints", "false");
+        return Boolean.parseBoolean(showCoursePoints);
     }
     
     
