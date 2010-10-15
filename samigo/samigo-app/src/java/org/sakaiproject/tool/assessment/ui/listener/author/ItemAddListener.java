@@ -981,7 +981,7 @@ public class ItemAddListener
 							Boolean.TRUE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(100f), Float.valueOf(bean.getItemDiscount()));
 				} else {
 					if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
-						Float pc =  answerbean.getPartialCredit(); //--mustansar
+						Float pc =  Float.valueOf(answerbean.getPartialCredit()); //--mustansar
 						if (pc == null) {
 							pc = Float.valueOf(0f);
 						}
@@ -1217,7 +1217,7 @@ public class ItemAddListener
 					answer.setScore(Float.valueOf(bean.getItemScore()));
 					answerBean = (AnswerBean) newAnswerMap.get(Long.valueOf(String.valueOf(i)));
 					String oneAnswer = stripPtags(answerBean.getText());
-					answer.setPartialCredit(answerBean.getPartialCredit());
+					answer.setPartialCredit(Float.valueOf(answerBean.getPartialCredit()));
 					String oneLabel = answerBean.getLabel();
 					log.debug("oneAnswer = " + oneAnswer);
 					log.debug("oneLabel = " + oneLabel);
@@ -1253,7 +1253,7 @@ public class ItemAddListener
 					else {
 						answer = new PublishedAnswer(text, oneAnswer,
 								Long.valueOf(j), oneLabel, Boolean.FALSE, null,
-								Float.valueOf(bean.getItemScore()), answerBean.getPartialCredit(), Float.valueOf(bean.getItemDiscount()));
+								Float.valueOf(bean.getItemScore()), Float.valueOf(answerBean.getPartialCredit()), Float.valueOf(bean.getItemDiscount()));
 					}
 					HashSet answerFeedbackSet = new HashSet();
 				    answerFeedbackSet.add(new PublishedAnswerFeedback(answer,

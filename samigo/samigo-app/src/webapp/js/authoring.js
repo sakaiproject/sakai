@@ -121,10 +121,10 @@ function uncheckOthers(field){
 var selectId =  field.getAttribute("value");
 var inputhidden = document.getElementById("itemForm:selectedRadioBtn");
 inputhidden.setAttribute("value", selectId);
-swtichPartialCredit(fieldname,prevCorrectBtn); 
+switchPartialCredit(fieldname,prevCorrectBtn); 
 }
 
-function swtichPartialCredit(newCorrect,oldCorrect){
+function switchPartialCredit(newCorrect,oldCorrect){
    var toggleDiv=document.getElementById('partialCredit_toggle');
    if( typeof(toggleDiv) == 'undefined' ||toggleDiv == null){
       return;

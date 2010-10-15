@@ -24,7 +24,13 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import org.sakaiproject.util.ResourceLoader;
- 
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.ResourceLoader;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.print.attribute.standard.Severity;
 
 public class AnswerBean implements Serializable{
 
@@ -35,7 +41,7 @@ public class AnswerBean implements Serializable{
   private String label;
   private String feedback;
   private Boolean isCorrect;
-  private Float partialCredit = Float.valueOf(0);  //to incorporate partial credit
+  private int partialCredit = 0;  //to incorporate partial credit
   private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   public static final String choiceLabels = rb.getString("choice_labels"); 
@@ -97,7 +103,7 @@ public class AnswerBean implements Serializable{
   
   // additional constroctor for partial credit
 	public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk,
-			Boolean pcorr, String pgrade, Float pscore, Float pCredit) {
+			Boolean pcorr, String pgrade, Float pscore, int pCredit) {
 		this.text = ptext;
 		this.sequence = pseq;
 		this.label = plabel;
@@ -107,11 +113,26 @@ public class AnswerBean implements Serializable{
 	}
 
 	// --mustansar for partial credit
-	public Float getPartialCredit() {
+	public int getPartialCredit() {
 		return partialCredit;
 	}
 
-	public void setPartialCredit(Float pCredit) {
+	public void setPartialCredit(int pCredit) {
 		this.partialCredit = pCredit;
+	}
+	
+	public void validatePartialCredit(FacesContext context,  UIComponent toValidate,Object value){
+		Integer pCredit=Integer.parseInt(value.toString());
+
+		if(pCredit<0 || pCredit>99 || pCredit==null){
+			((UIInput)toValidate).setValid(false);
+			FacesMessage message=new FacesMessage();
+			message.setSeverity(FacesMessage.SEVERITY_ERROR);
+			String summary=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","partial_credit_limit_summary");
+			String detail =ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","partial_credit_limit_detail"); 
+			message.setSummary(summary) ;
+			message.setDetail(detail);   
+			context.addMessage(toValidate.getClientId(context), message);
+		}
 	}
 }

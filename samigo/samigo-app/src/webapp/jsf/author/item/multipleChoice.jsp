@@ -240,9 +240,8 @@
 	<f:verbatim ><br/><br/></f:verbatim>
 	
 	<!-- Begin changes made for Partial Credit --> 
-	<h:outputText value="#{authorMessages.percentange_vaue}" />
-	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}" onchange="toPoint(this.id);">
-	    <f:validateDoubleRange  minimum="0.00" maximum="100.00"/> </h:inputText>
+	<h:outputText value="#{authorMessages.percentage_value}" />
+	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}" onchange="toPoint(this.id);" validator="#{answer.validatePartialCredit}" />
 	    <h:outputText id="partialCreditReminder" value="#{authorMessages.enter_new_pc_value}" style="visibility:hidden;" />
 	    <h:message for="partialCredit" styleClass="validate"/>
 	<!-- end of partial credit -->
