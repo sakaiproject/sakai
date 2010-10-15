@@ -179,6 +179,8 @@ public class SearchBeanImpl implements SearchBean
 	
 	private String searchTermSuggestion = null;
 	
+	private boolean inPDAPortal = false;
+	
 	// Empty constructor to aid in testing.
 	 
 	public SearchBeanImpl(String siteId, SearchService ss, String search,ToolManager tm,
@@ -246,6 +248,28 @@ public class SearchBeanImpl implements SearchBean
 			currentUser = user.getId();
 		
 		requestURL = request.getRequestURL().toString();
+		
+		// normal or pda portal?
+		checkPdaPortal(request);
+	}
+	
+	/**
+	 * check whether pda portal is being used now?
+	 */
+	private void checkPdaPortal(HttpServletRequest req)
+	{
+		// recognize what to do from the path
+		String option = req.getContextPath();
+		String[] parts = {};
+		if (option != null && !"/".equals(option))
+		{
+			//get the parts (the first will be "")
+			parts = option.split("/");
+		}
+		if ((parts.length >= 2) && (parts[2].equals("pda")))
+		{
+			inPDAPortal = true;
+		}
 	}
 
 	/**
@@ -618,8 +642,16 @@ public class SearchBeanImpl implements SearchBean
 	public String getToolUrl()
 	{
 
-		return serverConfigurationService.getString("portalPath") + "/tool/"
-				+ placementId;
+		if (inPDAPortal)
+		{
+			return serverConfigurationService.getString("portalPath") + "/pda/" + siteId + "/tool/"
+			+ placementId;
+		}
+		else
+		{
+			return serverConfigurationService.getString("portalPath") + "/tool/"
+					+ placementId;
+		}
 	}
 
 	public boolean hasResults()
