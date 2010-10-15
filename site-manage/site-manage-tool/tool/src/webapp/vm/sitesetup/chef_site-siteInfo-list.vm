@@ -530,6 +530,7 @@ function printPreview(target){
 				#if ($fromWSetup)
 					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" />
 				#end
+                                <div class="instruction" style="padding-left: 0.3em;"><em>Last updated $realmModifiedTime</em></span>
 			</div>
 		</form>
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
