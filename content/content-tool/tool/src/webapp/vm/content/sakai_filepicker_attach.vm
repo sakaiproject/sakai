@@ -75,7 +75,7 @@
 						</td>
 						<td  headers="action">
 							<div class="itemAction">
-								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')">$tlang.getString("att.remove")</a>
+								<a href="#toolLinkParam("FilePickerAction" "doRemoveitem" "itemId=$validator.escapeUrl($att_item.id)")" title="$tlang.getString('att.remove')">$tlang.getString("att.remove") <span class="skip">$validator.escapeHtml($att_item.displayName)</span></a>
 							</div>	
 						</td>
 					</tr>
@@ -272,7 +272,7 @@
 												|
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
+											<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim() <span class="skip">$validator.escapeHtml($item.name)</span></a>
 										#end
 									#end
 								#end
