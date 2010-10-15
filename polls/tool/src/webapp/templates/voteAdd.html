@@ -23,8 +23,7 @@
 
 <table>
 	<tr>
-		<td><span class="reqStarInline">*</span> <label
-			rsf:id="new-poll-question-label" for="pollName">Question</label></td>
+		<td><label for="pollName"><span class="reqStarInline">*</span><span rsf:id="new-poll-question-label">Question</span></label></td>
 		<td><input name="Question" type="text" size="50"
 			rsf:id="new-poll-text" id="pollName"/></td>
 	</tr>
@@ -41,16 +40,14 @@
 </p>
 <table>
 	<tr>
-		<td><span class="reqStarInline">*</span> <label
-			rsf:id="msg=new_poll_open_label" for="openDate:1:date-field">Opening</label></td>
+		<td><label for="openDate:1:date-field"><span class="reqStarInline">*</span><span rsf:id="msg=new_poll_open_label">Opening</span></label></td>
 		<td><span rsf:id="openDate:"> <input type="text"
 			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
 			size="12" maxlength="10" /> <img src="../images/calendar.gif"
 			alt="calendar" /> </span></td>
 	</tr>
 	<tr>
-		<td><span class="reqStarInline">*</span> <label
-			rsf:id="msg=new_poll_close_label" for ="closeDate:1:date-field">Closing Date</label></td>
+		<td> <label for ="closeDate:1:date-field"><span class="reqStarInline">*</span><span	rsf:id="msg=new_poll_close_label">Closing Date</span></label></td>
 		<td><span rsf:id="closeDate:"> <input type="text"
 			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
 			size="12" maxlength="10" /> <img src="../images/calendar.gif"
@@ -81,9 +78,8 @@
 <p><strong rsf:id="new-poll-limits">Limits:</strong></p>
 <table>
 	<tr>
-		<td><span class="reqStarInline">*</span> <label
-			rsf:id="msg=new_poll_min_limits" for="min-votes-selection">What is the minimum number of
-		Answer Options that can be selected?</label></td>
+		<td> <label for="min-votes-selection"><span class="reqStarInline">*</span><span rsf:id="msg=new_poll_min_limits">What is the minimum number of
+		Answer Options that can be selected?</span></label></td>
 		<td><select name="minOptions" rsf:id="min-votes" id="min-votes">
 			<option value="0">0</option>
 			<option value="1">1</option>
@@ -104,9 +100,9 @@
 		</select></td>
 	</tr>
 	<tr>
-		<td><span class="reqStarInline">*</span> <label
-			rsf:id="msg=new_poll_max_limits" for="max-votes-selection">What is the maximum number of
-		Answer Options that can be selected?</label></td>
+		<td><span class="reqStarInline">*</span> <label	for="max-votes-selection">
+		<span rsf:id="msg=new_poll_max_limits">What is the maximum number of
+		Answer Options that can be selected?</span></label></td>
 		<td><select name="maxOptions" rsf:id="max-votes" id="max-votes">
 			<option value="1">1</option>
 			<option value="2">2</option>
