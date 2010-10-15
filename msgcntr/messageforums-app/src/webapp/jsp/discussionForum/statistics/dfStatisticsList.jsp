@@ -35,9 +35,9 @@
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.nameSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 					</h:commandLink>
   				</f:facet>
-  				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{stat.siteUser}">
+  				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
-  				    <f:param value="#{stat.siteUser}" name="siteUser"/>
+  				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
 				   	<h:outputText value="#{stat.siteUser}" />
 	          	</h:commandLink>
 			</h:column>

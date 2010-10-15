@@ -126,6 +126,10 @@ public class MessageForumStatisticsBean {
 			this.siteUser = newValue;
 		}
 		
+		public String getEscapedSiteUser(){
+			return this.siteUser.replaceAll("'", "\\\\'");
+		}
+
 		public String getSiteUserId(){
 			return this.siteUserId;
 		}
