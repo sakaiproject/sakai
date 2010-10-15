@@ -74,7 +74,7 @@ document.links[newindex].onclick();
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
 
-<h:messages styleClass="validation"/>
+<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
