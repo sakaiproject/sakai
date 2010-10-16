@@ -4835,8 +4835,6 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(reviseAction);
 	    typedef.addAction(new CitationListDeleteAction());
 	    typedef.addAction(new CitationListCopyAction());
-	    typedef.addAction(new CitationListPasteCopyAction());
-	    typedef.addAction(new CitationListPasteMoveAction());
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
@@ -5336,38 +5334,6 @@ public abstract class BaseCitationService implements CitationService
 		public CitationListCopyAction()
 		{
 			super(ResourceToolAction.COPY, ResourceToolAction.ActionType.COPY, CitationService.CITATION_LIST_ID, true);
-		}
-
-		@Override
-		public void finalizeAction(Reference reference)
-		{
-			copyCitationCollection(reference);
-		}
-
-	}
-
-	public class CitationListPasteMoveAction extends BaseServiceLevelAction
-	{
-
-		public CitationListPasteMoveAction()
-		{
-			super(ResourceToolAction.PASTE_COPIED, ResourceToolAction.ActionType.PASTE_MOVED, CitationService.CITATION_LIST_ID, true);
-		}
-
-		@Override
-		public void finalizeAction(Reference reference)
-		{
-			copyCitationCollection(reference);
-		}
-
-	}
-
-	public class CitationListPasteCopyAction extends BaseServiceLevelAction
-	{
-
-		public CitationListPasteCopyAction()
-		{
-			super(ResourceToolAction.PASTE_COPIED, ResourceToolAction.ActionType.PASTE_COPIED, CitationService.CITATION_LIST_ID, true);
 		}
 
 		@Override
