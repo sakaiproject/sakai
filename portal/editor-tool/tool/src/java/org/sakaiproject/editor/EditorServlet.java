@@ -39,6 +39,7 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.StringUtil;
 
 public class EditorServlet extends HttpServlet
@@ -135,9 +136,11 @@ public class EditorServlet extends HttpServlet
 				res.addHeader("Cache-Control", "no-cache");
 				res.addHeader("Content-Type", "text/javascript");
 				
+				//Note that this is the same stuff as in SkinnableCharonPortal. We should probably do a bit of refactoring.
 				PrintWriter out = res.getWriter();
 				out.print("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; \n");
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
+				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
 				out.print(editor.getPreloadScript());
 			}
 			else {

@@ -115,6 +115,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
+import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -1294,7 +1295,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		StringBuilder headJs = new StringBuilder();
 		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n");
 		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; \n");
-		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';</script>\n");
+		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
+		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";</script>\n");
 		headJs.append(preloadScript);
 		headJs.append(editorScript);
 		headJs.append(launchScript);
