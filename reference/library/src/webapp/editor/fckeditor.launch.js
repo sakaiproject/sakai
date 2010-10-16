@@ -23,7 +23,9 @@ sakai.editor.editors.fckeditor.launch = function(targetId, config) {
     oFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/filemanager/connector?Type=Flash&Command=QuickUpload&Type=Flash" + folder;
     oFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/filemanager/connector?Type=File&Command=QuickUpload&Type=Link" + folder;
 
-    oFCKeditor.Config['CustomConfigurationsPath'] = "/library/editor/FCKeditor/config.js";
+    var config = sakai.editor.enableResourceSearch ? "config_rs.js" : "config.js";
+
+    oFCKeditor.Config['CustomConfigurationsPath'] = "/library/editor/FCKeditor/" + config;
     oFCKeditor.ReplaceTextarea();
 }
 
