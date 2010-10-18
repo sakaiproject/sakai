@@ -87,6 +87,20 @@ public class RichTextAreaRenderer extends Renderer
         	
     	ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class.getName());
         String editor = serverConfigurationService.getString("wysiwyg.editor");
+        
+        writer.write("<table border=\"0\"><tr><td>");
+        writer.write("<textarea name=\"" + textareaId + "\" id=\"" + textareaId + "\"");
+        if (columns > 0) writer.write(" cols=\""+columns+"\"");
+        if (rows > 0) writer.write(" rows=\""+rows+"\"");
+        writer.write(">");
+        if (value != null)
+           writer.write((String) value);
+        writer.write("</textarea>");
+        
+        writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + textareaId + "');</script>");
+        
+        
+        /*
         if(editor!=null && !editor.equalsIgnoreCase("FCKeditor"))
         {
 
@@ -215,6 +229,7 @@ public class RichTextAreaRenderer extends Renderer
         		}
         		else if (toolbarButtonRows == 2)
         		{
+        */
         			/*
         			 * writer.write(" <textarea name=\"" + clientId +
         			 * "_textarea\" id=\"" + clientId + "_textarea\"" + "
@@ -238,12 +253,14 @@ public class RichTextAreaRenderer extends Renderer
         			 * clientId +"_textarea\',config);" + "\">" + value + "
         			 * </textarea>\n");
         			 */
+        /*
         			writer.write("config.toolbar = [[\'fontname\', \'space\',\'fontsize\', \'space\',\'forecolor\', \'space\',\'bold\', \'italic\', \'underline\',\'separator\',\'strikethrough\', \'subscript\', \'superscript\', \'separator\',");
         			writer.write("\'justifyleft\', \'justifycenter\', \'justifyright\', \'justifyfull\', \'separator\'],[\'orderedlist\', \'unorderedlist\',\'outdent\', \'indent\',\'htmlmode\', \'separator\', \'showhelp\', \'about\' ],");
         			writer.write("];\n");
         		}
         		else if (toolbarButtonRows == 3)
         		{
+        */
         			/*
         			 * writer.write(" <textarea name=\"" + clientId +
         			 * "_textarea\" id=\"" + clientId + "_textarea\"" + "
@@ -266,6 +283,7 @@ public class RichTextAreaRenderer extends Renderer
         			 * clientId +"_textarea\',config);" + "\">" + value + "
         			 * </textarea>\n");
         			 */
+        /*
         			writer.write("config.toolbar = [[\'fontname\', \'space\',\'fontsize\', \'space\',\'formatblock\', \'space\',\'bold\', \'italic\', \'underline\'],");
         			writer.write("[\'separator\',\'strikethrough\', \'subscript\', \'superscript\', \'separator\', \'copy\', \'cut\', \'paste\', \'space\', \'undo\', \'redo\', \'separator\', \'justifyleft\', \'justifycenter\', \'justifyright\', \'justifyfull\', \'separator\',\'outdent\', \'indent\'],");
         			writer.write("[\'separator\',\'forecolor\', \'hilitecolor\', \'textindicator\', \'separator\',\'inserthorizontalrule\', \'createlink\', \'insertimage\', \'inserttable\', \'htmlmode\', \'separator\',\'popupeditor\', \'separator\', \'showhelp\', \'about\' ],");
@@ -410,6 +428,7 @@ public class RichTextAreaRenderer extends Renderer
 
         	writer.write("</td></tr></table>\n");
         }
+        */
     }
 
 
