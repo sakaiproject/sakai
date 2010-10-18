@@ -8,9 +8,6 @@
  * Licensed under the terms of any of the following licenses at your
  * choice:
  *
- *  - GNU General Public License Version 2 or later (the "GPL")
- *    http://www.gnu.org/licenses/gpl.html
- *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
  *
@@ -20,6 +17,9 @@
  * == END LICENSE ==
  *
  * This page shows all resources available in a folder in the File Browser.
+ *
+ * NOTE: This file has been modified for use within Sakai as of September 2010,
+ *       to allow both FCKeditor and CKEditor to use the plugin.
 -->
 <html>
 <head>
@@ -87,9 +87,26 @@ function OpenFolder( folderPath )
 	window.parent.frames['frmFolders'].LoadFolders( folderPath ) ;
 }
 
+function GetUrlParam( paramName )
+{
+    var oRegex = new RegExp( '[\?&]' + paramName + '=([^&]+)', 'i' ) ;
+    var oMatch = oRegex.exec( window.top.location.search ) ;
+ 
+    if ( oMatch && oMatch.length > 1 )
+        return decodeURIComponent( oMatch[1] ) ;
+    else
+        return '' ;
+}
+
 function OpenFile( fileUrl )
 {
-	window.top.opener.SetUrl( fileUrl ) ;
+    funcNum = GetUrlParam('CKEditorFuncNum') ;
+    if (funcNum != '') {
+        window.top.opener.CKEDITOR.tools.callFunction( funcNum, encodeURI( fileUrl ).replace( '#', '%23' ));
+    }
+    else {
+        window.top.opener.SetUrl( fileUrl ) ;
+    }
 	window.top.close() ;
 	window.top.opener.focus() ;
 }
