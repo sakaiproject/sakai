@@ -12,9 +12,9 @@
   <artifactId>loader</artifactId>
   <version>1.2.0-rc03-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/loader</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.2.x/loader</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.2.x/loader</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.2.x/loader</url>
   </scm>
 
   <packaging>war</packaging>

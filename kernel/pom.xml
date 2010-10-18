@@ -352,12 +352,12 @@
     </contributors>
     <scm>
         <connection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.2.x
 		</connection>
         <developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.2.x
 		</developerConnection>
-        <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+        <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.2.x</url>
     </scm>
     <distributionManagement>
         <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
