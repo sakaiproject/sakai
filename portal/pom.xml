@@ -17,6 +17,7 @@
     <url>https://source.sakaiproject.org/svn/portal/trunk</url>
   </scm>
   <modules>
+    <module>editor-tool/tool</module>
     <module>portal-api/api</module>
     <module>portal-charon/charon</module>
     <module>portal-impl/impl</module>

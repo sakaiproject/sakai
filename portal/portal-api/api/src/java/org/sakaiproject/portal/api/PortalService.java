@@ -26,6 +26,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.tool.api.Placement;
+
 /**
  * Portal Service acts as a focus for all Portal based activities, the service implementation
  * should act as a holder to enable the varous webapps to communicate with one annother.
@@ -256,5 +259,51 @@ public interface PortalService
 	 * @return
 	 */
 	SiteNeighbourhoodService getSiteNeighbourhoodService();
+	
+	/**
+	 * Bean setter for Content Hosting dependency.
+	 * @param contentHostingService
+	 */
+	void setContentHostingService(ContentHostingService contentHostingService);
+	
+	/**
+	 * Bean getter for Content Hosting dependency.
+	 * @return
+	 */
+	ContentHostingService getContentHostingService();
+		
+	/**
+	 * Retrieves the site collection ID for a placement for file browsing to an appropriate location.
+	 * If this is null or cannot be found, the user's My Workspace resources are returned.
+	 * @param placement The placement that is being rendered.
+	 * @return The collection ID for the placement's context or current user's My Workspace. 
+	 */
+	String getBrowserCollectionId(Placement placement);
+	
+	/**
+	 * Bean setter for Editor Registry.
+	 * @param editorRegistry
+	 */
+	void setEditorRegistry(EditorRegistry editorRegistry);
+	
+	/**
+	 * Bean getter for Editor Registry.
+	 * @return
+	 */
+	EditorRegistry getEditorRegistry();
+	
+	/**
+	 * Retrieve the activated system-wide Editor.
+	 * @return The active configured Editor instance.
+	 */
+	Editor getActiveEditor();
+	
+	/**
+	 * Retrieve the activated Editor, considering the tool Placement.
+	 * This allows for site-specific editor selection by administrators via the wysiwyg.editor site property.
+	 * @param placement The placement that is being rendered.
+	 * @return The configured Editor instance for this placement.
+	 */
+	Editor getActiveEditor(Placement placement);
 
 }

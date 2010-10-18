@@ -50,6 +50,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
@@ -114,6 +115,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
+import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -1264,7 +1266,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	// NOTE: This code is duplicated in ToolPortal.java - make sure to change 
 	// both places
-	public Properties toolHeaderProperties(String skin) 
+	public Properties toolHeaderProperties(String skin)
+	{
+		return toolHeaderProperties(skin, null);
+	}
+	
+	public Properties toolHeaderProperties(String skin, Placement placement) 
 	{
 		Properties retval = new Properties();
 		// setup html information that the tool might need (skin, body on load,
@@ -1278,15 +1285,32 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
 		+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
-		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
+		
+		Editor editor = portalService.getActiveEditor(placement);
+		String preloadScript = editor.getPreloadScript() == null ? ""
+				: "<script type=\"text/javascript\" language=\"JavaScript\">" + editor.getPreloadScript() + "</script>\n";
+		String editorScript = editor.getEditorUrl() == null ? ""
+				: "<script type=\"text/javascript\" language=\"JavaScript\" src=\"" + editor.getEditorUrl() + "\"></script>\n";
+		String launchScript = editor.getLaunchUrl() == null ? ""
+				: "<script type=\"text/javascript\" language=\"JavaScript\" src=\"" + editor.getLaunchUrl() + "\"></script>\n";
+		
+		StringBuilder headJs = new StringBuilder();
+		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n");
+		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; \n");
+		headJs.append("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(placement) + "';\n");
+		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";</script>\n");
+		headJs.append(preloadScript);
+		headJs.append(editorScript);
+		headJs.append(launchScript);
+		
 		// TODO: Should we include jquery here?  See includeStandardHead.vm
-		String head = headCss + headJs;
+		String head = headCss + headJs.toString();
 
 		retval.setProperty("sakai.html.head", head);
 		retval.setProperty("sakai.html.head.css", headCss);
 		retval.setProperty("sakai.html.head.css.base", headCssToolBase);
 		retval.setProperty("sakai.html.head.css.skin", headCssToolSkin);
-		retval.setProperty("sakai.html.head.js", headJs);
+		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;
 	}
@@ -1295,7 +1319,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Placement p, String skin) throws ToolException
         {
 		// Get the tool header properties
-		Properties props = toolHeaderProperties(skin);
+		Properties props = toolHeaderProperties(skin, p);
 		for(Object okey : props.keySet() ) 
 		{
 			String key = (String) okey;
