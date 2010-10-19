@@ -174,6 +174,13 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
+		HttpServletRequest req = rundata.getRequest();
+		if (getVmReference("is_wireless_device", req) == null)
+		{
+			Session session = SessionManager.getCurrentSession();
+			Object c = session.getAttribute("is_wireless_device");
+			setVmReference("is_wireless_device", c, req);
+		}
 	}
 
 	/**

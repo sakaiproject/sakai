@@ -31,8 +31,12 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -131,6 +135,13 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
+		HttpServletRequest req = rundata.getRequest();
+		if (getVmReference("is_wireless_device", req) == null)
+		{
+			Session session = SessionManager.getCurrentSession();
+			Object c = session.getAttribute("is_wireless_device");
+			setVmReference("is_wireless_device", c, req);
+		}
 
 		if (state.getAttribute(STATE_PAGESIZE) == null)
 		{
