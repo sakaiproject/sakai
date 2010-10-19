@@ -87,9 +87,9 @@
     </issueManagement>
     
     <scm>
-    	<connection>scm:svn:https://source.sakaiproject.org/contrib/shortenedurl/trunk</connection>
-    	<developerConnection>scm:svn:https://source.sakaiproject.org/contrib/shortenedurl/trunk</developerConnection>
-    	<url>https://source.sakaiproject.org/contrib/shortenedurl/trunk</url>
+    	<connection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</connection>
+    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</developerConnection>
+    	<url>https://source.sakaiproject.org/svn/shortenedurl/trunk</url>
   	</scm>
 	
     <modules>
