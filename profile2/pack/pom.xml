@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>1.4-SNAPSHOT</version>
+	    <version>1.4.0-a02</version>
 	</parent>
 
 	<properties>
