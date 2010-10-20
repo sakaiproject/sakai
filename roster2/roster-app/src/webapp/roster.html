@@ -1,0 +1,804 @@
+<!--
+
+    Copyright (c) 2008-2010 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xml:lang="en"  
+      lang="en">
+<head>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
+<script type="text/javascript" src="lib/trimpath-template-latest.js"></script>
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script type="text/javascript" src="lib/sakai_utils.js"></script>
+<script type="text/javascript" src="lib/jquery.localisation.js"></script>
+<script type="text/javascript" src="lib/jquery.hoverIntent.min.js"></script>
+<script type="text/javascript" src="lib/jquery.dimensions.js"></script>
+<script type="text/javascript" src="lib/jquery.cluetip.min.js"></script>
+<script type="text/javascript" src="lib/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="lib/jquery.tablesorter.pager.js"></script>
+<script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
+<script type="text/javascript" src="js/roster_permissions.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/skin/tool_base.css" />
+<link rel="stylesheet" type="text/css" href="/library/skin/default/tool.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" />
+<link href="/profile2-tool/css/profile2-profile-entity.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" type="text/css" href="css/roster.css" />
+
+<!-- translations -->
+<script type="text/javascript">
+var arg = SakaiUtils.getParameters();
+if(arg['language'])
+{
+	$.localise('roster-translations',{language:arg['language'],loadBase: true});
+}
+else
+{
+	$.localise('roster-translations');
+}
+</script>
+
+</head>
+<body>
+
+<div id="roster_navbar"></div>
+
+<div id="rosterMainContainer">
+	<form id="roster_form">
+		<div id="roster_header"></div>
+		<div id="roster_section_filter"></div>
+		<div id="roster_search"></div>
+		<div id="roster_content"></div>
+	</form>
+</div>
+
+<div id="roster_navbar_template" style="display:none"><!--
+<div class="navIntraTool rosterNavBar">
+	<div id="roster_navbar_items">
+		<a id="navbar_overview_link" title="${navbar_overview_tooltip}"
+			href="javascript:;">${navbar_overview}</a>
+		<a id="navbar_pics_link" title="${navbar_pics_tooltip}"
+			href="javascript:;">${navbar_pics}</a>
+		<a id="navbar_group_membership_link" title="${navbar_group_membership_tooltip}"
+			href="javascript:;">${navbar_group_membership}</a>
+		<a id="navbar_enrollment_status_link" title="${navbar_status_tooltip}"
+			href="javascript:;">${navbar_status}</a>
+	</div>
+</div>
+-->
+</div>
+
+<div id="roster_overview_header_template" style="display:none"><!--
+<table class="rosterPageHeader">
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				<h3>${title_overview}: ${siteTitle}</h3>
+			</td>
+			<td class="rosterPageHeaderRight">
+				<input id="export_button" type="button" value="${export_roster}"/>
+				<input type="button" value="${print_roster}" onclick="window.print()" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+{if true == displayTitleMsg}
+	<span class="instruction rosterTitleMessage">${title_msg}</span>
+{/if}
+-->
+</div>
+
+<div id="roster_pics_header_template" style="display:none"><!--
+<table class="rosterPageHeader">
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				<h3>${title_pictures}: ${siteTitle}</h3>
+			</td>
+			<td class="rosterPageHeaderRight">
+				<input type="button" value="${print_roster}" onclick="window.print()" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+-->
+</div>
+
+<div id="roster_groups_header_template" style="display:none"><!--
+<table class="rosterPageHeader">
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				<h3>${title_group_membership}: ${siteTitle}</h3>
+			</td>
+			<td class="rosterPageHeaderRight">
+				<input id="export_button" type="button" value="${export_roster}"/>
+				<input type="button" value="${print_roster}" onclick="window.print()"/>
+			</td>
+		</tr>
+	</tbody>
+</table>
+{if true == displayTitleMsg}
+	<span class="instruction rosterTitleMessage">${title_msg_groups}</span>
+{/if}
+-->
+</div>
+
+<div id="roster_enrollment_header_template" style="display:none"><!--
+<table class="rosterPageHeader">
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				<h3>${title_status}: ${siteTitle}</h3>
+			</td>
+			<td class="rosterPageHeaderRight">
+				<input id="export_button" type="button" value="${export_roster}"/>
+				<input type="button" value="${print_roster}" onclick="window.print()" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+-->
+</div>
+
+<div id="roster_section_filter_template" style="display:none"><!--
+<table>
+	<tr>
+		<td><span class="filterLabel">${section_filter_pre}</span></td>
+		<td>
+			<select id="roster_form_section_filter" size="1">
+				<option selected="selected" value="">${roster_sections_all}</option>
+				<option value=${roster_section_sep_line}>${roster_section_sep_line}</option>
+				{for group in siteGroups}
+					<option value=${group.id}>${group.title}</option>
+				{/for}
+			</select>
+		</td>
+		<td><span class="filterLabel">${section_filter_post}</span></td>
+	</tr>
+</table>
+ -->
+</div>
+
+<div id="roster_group_section_filter_template" style="display:none"><!--
+<table>
+	<tr>
+		<td><span class="filterLabel">${section_filter_pre}</span></td>
+		<td>
+			<select id="roster_form_group_choice" size="1" name="roster_form:section_filter">
+				<option selected="selected" value="">${roster_group_ungrouped}</option>
+				<option value=${roster_group_bygroup}>${roster_group_bygroup}</option>
+			</select>
+		</td>
+	</tr>
+</table>
+ -->
+</div>
+
+<div id="roster_group_section_filter_with_participants_template" style="display:none"><!--
+<table>
+	<tr>
+		<td><span class="filterLabel">${section_filter_pre}</span></td>
+		<td>
+			<select id="roster_form_group_choice" size="1" name="roster_form:section_filter">
+				<option selected="selected" value="">${roster_group_ungrouped}</option>
+				<option value=${roster_group_bygroup}>${roster_group_bygroup}</option>
+			</select>
+		</td>
+		<td>
+			<span class="instruction">
+				<span class="rosterRoleTopLine">${participants}</span><br />
+				<span class="rosterRoleBottomLine">
+				{for frag in roleFragments}${frag}{/for}
+				</span>
+			</span>
+		</td>
+	</tr>
+</table>
+ -->
+</div>
+
+<div id="roster_enrollment_section_filter_template" style="display:none"><!--
+<table>
+	{if enrollmentSets.length > 0}
+	<tbody>
+		<tr>
+			<td><span class="filterLabel">${enrollment_status_filter}</span></td>
+			<td>
+				<span class="filterElement">
+					{if enrollmentSets.length == 1}
+						${enrollmentSets[0].title}
+					{else}
+					<select id="roster_form_enrollment_set_filter" size="1">
+						<option selected="selected" value="">${roster_enrollment_status_all}</option>
+						{for enrollmentSet in enrollmentSets}
+							<option value="${enrollmentSet}">${enrollmentSet.title}</option>
+						{/for}
+					</select>
+					{/if}
+				</span>
+			</td>
+		</tr>
+		<tr>
+			<td><span class="filterLabel">${enrollment_status_filter_label}</span></td>
+			<td><span class="filterElement">
+					<select id="roster_form_enrollment_status_filter" size="1">
+						<option selected="selected" value="">${roster_enrollment_status_all}</option>
+						{for enrollmentStatusDescription in enrollmentStatusDescriptions}
+							<option value="${enrollmentStatusDescription}">${enrollmentStatusDescription}</option>
+						{/for}
+					</select>
+				</span>
+			</td>
+		</tr>
+	</tbody>
+	{/if}
+</table>
+ -->
+</div>
+
+<div id="roster_search_with_participants_template" style="display:none"><!--
+<table id="roster_form:search_group" class="searchFilter">
+	<tbody>
+		<tr>
+			<td>
+				<div id="roster_form:search_filter" class="act">
+					<input id="roster_form_search_field" type="text" value="${roster_search_text}"
+						onfocus="clearIfDefaultString(this, roster_search_text)"
+						onkeypress="return handleEnterKey(this, event)"
+						name="roster_form_search" />
+					<input id="roster_form_search_button" class="active" type="button"
+						value="${roster_search_button}" name="roster_form:search_button" />
+					<input id="roster_form_clear_button" type="button"
+						value="${roster_clear_button}" name="roster_form:clear_button" />
+				</div>
+			</td>
+			<td>
+				<span class="instruction">
+					<span class="rosterRoleTopLine">${participants}</span><br />
+					<span class="rosterRoleBottomLine">
+					{for frag in roleFragments}${frag}{/for}
+					</span>
+				</span>
+			</td>
+		</tr>
+	</tbody>
+</table>
+ -->
+</div>
+
+<div id="roster_search_with_students_template" style="display:none"><!--
+<table id="roster_form:search_group" class="searchFilter">
+	<tbody>
+		<tr>
+			<td>
+				<div id="roster_form:search_filter" class="act">
+					<input id="roster_form_search_field" type="text" value="${roster_search_text}"
+						onfocus="clearIfDefaultString(this, roster_search_text)"
+						onkeypress="return handleEnterKey(this, event)"
+						name="roster_form_search" />
+					<input id="roster_form_search_button" class="active" type="button"
+						value="${roster_search_button}" name="roster_form:search_button" />
+					<input id="roster_form_clear_button" type="button"
+						value="${roster_clear_button}" name="roster_form:clear_button" />
+				</div>
+			</td>
+			<td>
+				<span class="instruction">
+					<span class ="rosterRoleTopLine">${students}</span>
+				</span>
+			</td>
+		</tr>
+	</tbody>
+</table>
+ -->
+</div>
+
+<div id="roster_participants_template" style="display:none"><!--
+<span class="instruction">
+	<span class="rosterRoleTopLine">${participants}</span><br />
+	<span class="rosterRoleBottomLine">
+	{for frag in roleFragments}${frag}{/for}
+	</span>
+</span>
+-->
+</div>
+
+<div id="roster_overview_template" style="display:none"><!--
+<table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
+	<thead>
+		<tr>
+			{if true == viewUserDisplayId && true == viewEmail}
+				<th width="35%"><a href="#">${facet_name}</a></th>
+				<th width="25%"><a href="#">${facet_userId}</a></th>
+				<th width="25%"><a href="#">${facet_email}</a></th>
+				<th width="15%"><a href="#">${facet_role}</a></th>
+			{elseif true == viewUserDisplayId}
+				<th width="40%"><a href="#">${facet_name}</a></th>
+				<th width="40%"><a href="#">${facet_userId}</a></th>
+				<th width="20%"><a href="#">${facet_role}</a></th>
+			{elseif true == viewEmail}
+				<th width="40%"><a href="#">${facet_name}</a></th>
+				<th width="40%"><a href="#">${facet_email}</a></th>
+				<th width="20%"><a href="#">${facet_role}</a></th>
+			{else}
+				<th width="50%"><a href="#">${facet_name}</a></th>
+				<th width="50%"><a href="#">${facet_role}</a></th>
+			{/if}
+		</tr>
+	</thead>
+	<tbody>
+	{if membership.length == 0}
+		<tr>
+			<td>${no_participants}</td>
+			{if true == viewUserDisplayId}
+				<td></td>
+			{/if}
+			{if true == viewEmail}
+				<td></td>
+			{/if}
+			<td></td>
+		</tr>
+	{else}
+		{for member in membership}
+			<tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+				{if true == viewUserDisplayId}
+					<td>
+						{if true == firstNameLastName}
+							${member.displayName}
+						{else}
+							${member.sortName}
+						{/if}
+					</td>
+					<td>
+						{if true == viewProfile}
+							<a href="${member.profileUrl}" "title="${show_profile}">${member.displayId}</a>
+						{else}
+							${member.displayId}
+						{/if}
+					</td>
+				{else}
+					<td>
+					{if true == viewProfile}
+						{if true == firstNameLastName}
+							<a href="${member.profileUrl}" "title="${show_profile}">${member.displayName}</a>
+						{else}
+							<a href="${member.profileUrl}" "title="${show_profile}">${member.sortName}</a>
+						{/if}
+					{else}
+						{if true == firstNameLastName}
+							${member.displayName}
+						{else}
+							${member.sortName}
+						{/if}
+					{/if}
+					</td>
+				{/if}
+				
+				{if true == viewEmail}
+					<td><a href="mailto:${member.email}">${member.email}</a></td>
+				{/if}
+				<td>${member.role}</td>
+			</tr>
+		{/for}
+	{/if}
+	</tbody>
+</table>
+
+-->
+</div>
+
+<div id="roster_pics_template" style="display:none"><!--
+<table class="rosterPicturesFilter">
+	{if membership.length > 0}
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				{if true == hideNames}
+					<input id="roster_form_hide_names" type="button"
+						value="${roster_show_names}" />
+				{else}
+					<input id="roster_form_hide_names" type="button"
+						value="${roster_hide_names}" />
+				{/if}
+				{if true == viewSingleColumn}
+					<input id="roster_form_pics_view" type="button" value="${view_table}"/>
+				{else}
+					<input id="roster_form_pics_view" type="button" value="${view_single}"/>
+				{/if}
+			</td>
+		</tr>
+	</tbody>
+	{/if}
+</table>
+<table class="rosterPictures">
+	<tbody>
+	{if membership.length == 0}
+		<tr><td>${no_participants}</td></tr>
+	{else}
+		{if true == viewSingleColumn}
+			<tr>
+				{for member in membership}
+				{if true == firstNameLastName}
+					{var memberName = member.displayName}
+				{else}
+					{var memberName = member.sortName}
+				{/if}
+				<div>
+					{if false == viewUserDisplayId && true == viewProfile}
+						<a href="${member.profileUrl}" "title="${show_profile}"><img class="rosterPicture" src="${member.profileImageUrl}" title="${show_profile}" /></a>
+					{else}
+						<img class="rosterPicture" src="${member.profileImageUrl}" title="${profile_picture_alt} ${member.displayName}" />
+					{/if}
+				</div>
+				{if false == hideNames}
+					{if true == viewUserDisplayId}
+						<div><span title="${memberName}">${memberName}</span></div>
+					{else}
+						{if true == viewProfile}
+							<a href="${member.profileUrl}" "title="${show_profile}">${memberName}</a>
+						{/if}
+					{/if}
+				{/if}
+				{if true == viewUserDisplayId}
+				<div>
+					{if true == viewProfile}
+						<a href="${member.profileUrl}" "title="${show_profile}">${member.displayId}</a>
+					{else}
+						${member.displayId}
+					{/if}
+				</div>
+				{/if}
+				<div class="rosterActions">
+					{if true == viewEmail && member.email.length > 0}
+						<span><a href="mailto:${member.email}" title="${profile_email} ${member.email}"><img class="rosterActionAlignment" src="/library/image/silk/email.png" alt="${profile_email} ${member.email}"></a></span>
+					{/if}
+					{if true == viewConnections}
+						{if currentUserId == member.userId}
+							<span class="icon connection-self">${profile_connection_self}</span>
+						{else}
+							{var divId = 'profile_friend_' + member.userId}
+							{if member.friendStatus == CONNECTION_NONE}
+								<span id=${divId} class="icon connection-add">
+									<a href="javascript:;" onclick="return requestFriend('${currentUserId}','${member.userId}')">${profile_connection_add}</a>
+								</span>
+							{elseif member.friendStatus == CONNECTION_CONFIRMED}
+								<span id=${divId} class="icon connection-confirmed">
+									<a href="javascript:;" onclick="return removeFriend('${currentUserId}','${member.userId}')">${profile_connection_remove}</a>
+								</span>
+							{elseif member.friendStatus == CONNECTION_REQUESTED}
+								<span class="icon connection-request">${profile_connection_requested}</span>
+							{elseif member.friendStatus == CONNECTION_INCOMING}
+								<span id=${divId}>
+									<a href="javascript:;" onclick="return confirmFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/accept.png"></a>
+									<a href="javascript:;" onclick="return ignoreFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/cancel.png"></a>
+									<span class="rosterActionAlignment">${profile_connection_accept}</span>
+								</span>
+							{/if}
+						{/if}
+					{/if}
+				</div>
+				{/for}
+			</tr>
+		{else}
+		<tr>
+		{for member in membership}
+			{var count = +member_index + 1}
+			<td>
+				{if true == firstNameLastName}
+					{var memberName = member.displayName}
+				{else}
+					{var memberName = member.sortName}
+				{/if}
+				<div>
+					{if false == viewUserDisplayId && true == viewProfile}
+						<a href="${member.profileUrl}" "title="${show_profile}"><img class="rosterPicture" src="${member.profileImageUrl}" title="${show_profile}" /></a>
+					{else}
+						<img class="rosterPicture" src="${member.profileImageUrl}" title="${profile_picture_alt} ${member.displayName}" />
+					{/if}
+				</div>
+				{if false == hideNames}
+					{if true == viewUserDisplayId}
+						<div><span title="${memberName}">${memberName}</span></div>
+					{else}
+						{if true == viewProfile}
+							<a href="${member.profileUrl}" "title="${show_profile}">${memberName}</a>
+						{/if}
+					{/if}
+				{/if}
+				{if true == viewUserDisplayId}
+				<div>
+					{if true == viewProfile}
+						<a href="${member.profileUrl}" "title="${show_profile}">${member.displayId}</a>
+					{else}
+						${member.displayId}
+					{/if}
+				</div>
+				{/if}
+				<div class="rosterActions">
+					{if true == viewEmail && member.email.length > 0}
+						<span><a href="mailto:${member.email}" title="${profile_email} ${member.email}"><img class="rosterActionAlignment" src="/library/image/silk/email.png" alt="${profile_email} ${member.email}"></a></span>
+					{/if}
+					{if true == viewConnections}
+						{if currentUserId == member.userId}
+							<span class="icon connection-self">${profile_connection_self}</span>
+						{else}
+							{var divId = 'profile_friend_' + member.userId}
+							{if member.friendStatus == CONNECTION_NONE}
+								<span id=${divId} class="icon connection-add">
+									<a href="javascript:;" onclick="return requestFriend('${currentUserId}','${member.userId}')">${profile_connection_add}</a>
+								</span>
+							{elseif member.friendStatus == CONNECTION_CONFIRMED}
+								<span id=${divId} class="icon connection-confirmed">
+									<a href="javascript:;" onclick="return removeFriend('${currentUserId}','${member.userId}')">${profile_connection_remove}</a>
+								</span>
+							{elseif member.friendStatus == CONNECTION_REQUESTED}
+								<span class="icon connection-request">${profile_connection_requested}</span>
+							{elseif member.friendStatus == CONNECTION_INCOMING}
+								<span id=${divId}>
+									<a href="javascript:;" onclick="return confirmFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/accept.png"></a>
+									<a href="javascript:;" onclick="return ignoreFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/cancel.png"></a>
+									<span class="rosterActionAlignment">${profile_connection_accept}</span>
+								</span>
+							{/if}
+						{/if}
+					{/if}
+				</div>
+			</td>
+		{if count % 4 == 0}
+		</tr>
+		<tr>
+		{/if}
+		{/for}
+		</tr>
+		{/if}
+	{/if}
+	</tbody>
+</table>
+ -->
+</div>
+
+<div id="roster_grouped_template" style="display:none"><!--
+<table cellpadding="0" cellspacing="0" width="100%">
+	<tbody>
+	{for siteGroup in siteGroups}
+		<tr>
+			<td>
+				<table width="100%">
+					<tbody>
+						<tr>
+						<td><h3>${siteGroup.title}</h3></td>
+						<td>
+							<div class="instruction rosterRoleGrouped">
+								<span class="rosterRoleTopLineGrouped">${rolesText[siteGroup.id].participants}</span><br />
+								<span class="rosterRoleBottomLineGrouped">
+									{for role in rolesText[siteGroup.id].roles}${role.frag}{/for}
+								</span>
+							</div>
+						</td>
+						</tr>
+					</tbody>
+				</table>
+				<table cellpadding="0" cellspacing="0" class="listHier rosterTable">
+					<thead>
+						<tr>
+							{if true == viewUserDisplayId}
+								<th width="25%"><a href="#">${facet_name}</a></th>
+								<th width="10%"><a href="#">${facet_userId}</a></th>
+							{else}
+								<th width="35%"><a href="#">${facet_name}</a></th>
+							{/if}
+							<th width="15%"><a href="#">${facet_role}</a></th>
+							<th width="50%">${facet_groups}</th>
+						</tr>
+					</thead>
+					<tbody>
+					{if siteGroup.userIds.length == 0}
+						<tr>
+							<td>${no_participants}</td>
+							{if true == viewUserDisplayId}
+								<td></td>
+							{/if}
+							<td></td>
+							<td></td>
+						</tr>
+					{else}
+						{for siteGroupUser in siteGroup.userIds}
+							{for member in membership}
+								{if siteGroupUser == member.userId}
+									<tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+										{if true == viewUserDisplayId}
+											<td>
+												{if true == firstNameLastName}
+													${member.displayName}
+												{else}
+													${member.sortName}
+												{/if}
+											</td>
+											<td>
+												{if true == viewProfile}
+													<a href="${member.profileUrl}" "title="${show_profile}">${member.displayId}</a>
+												{else}
+													${member.displayId}
+												{/if}
+											</td>
+										{else}
+											<td>
+											{if true == viewProfile}
+												{if true == firstNameLastName}
+													<a href="${member.profileUrl}" "title="${show_profile}">${member.displayName}</a>
+												{else}
+													<a href="${member.profileUrl}" "title="${show_profile}">${member.sortName}</a>
+												{/if}
+											{else}
+												{if true == firstNameLastName}
+													${member.displayName}
+												{else}
+													${member.sortName}
+												{/if}
+											{/if}
+											</td>
+										{/if}
+										<td>${member.role}</td>
+										<td>${member.groupsToString}</td>
+									</tr>
+								{/if}
+							{/for}
+						{/for}
+					{/if}
+					</tbody>
+				</table>
+			</td>
+		</tr>		
+	{/for}
+	</tbody>
+</table>
+-->
+</div>
+
+<div id="roster_ungrouped_template" style="display:none"><!--
+<table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
+	<thead>
+		<tr>
+			{if true == viewUserDisplayId}
+				<th width="25%"><a href="#">${facet_name}</a></th>
+				<th width="10%"><a href="#">${facet_userId}</a></th>
+			{else}
+				<th width="35%"><a href="#">${facet_name}</a></th>
+			{/if}
+			<th width="15%"><a href="#">${facet_role}</a></th>
+			<th width="50%">${facet_groups}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{for member in membership}
+			<tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+				{if true == viewUserDisplayId}
+					<td>
+						{if true == firstNameLastName}
+							${member.displayName}
+						{else}
+							${member.sortName}
+						{/if}
+					</td>
+					<td>
+						{if true == viewProfile}
+							<a href="${member.profileUrl}" "title="${show_profile}">${member.displayId}</a>
+						{else}
+							${member.displayId}
+						{/if}
+					</td>
+				{else}
+					<td>
+					{if true == viewProfile}
+						{if true == firstNameLastName}
+							<a href="${member.profileUrl}" "title="${show_profile}">${member.displayName}</a>
+						{else}
+							<a href="${member.profileUrl}" "title="${show_profile}">${member.sortName}</a>
+						{/if}
+					{else}
+						{if true == firstNameLastName}
+							${member.displayName}
+						{else}
+							${member.sortName}
+						{/if}
+					{/if}
+					</td>
+				{/if}
+				<td>${member.role}</td>
+				<td>${member.groupsToString}</td>
+			</tr>
+		{/for}
+	</tbody>
+</table>
+-->
+</div>
+
+<div id="roster_enrollment_status_template" style="display:none"><!--
+<table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
+	<thead>
+		<tr>
+			<th width="45%"><a href="#">${facet_name}</a></th>
+			<th width="10%"><a href="#">${facet_userId}</a></th>
+			{if true == viewEmail}
+				<th width="20%"><a href="#">${facet_email}</a></th>
+				<th width="12.5%"><a href="#">${facet_status}</a></th>
+				<th width="12.5%"><a href="#">${facet_credits}</a></th>
+			{else}
+				<th width="22.5%"><a href="#">${facet_status}</a></th>
+				<th width="22.5%"><a href="#">${facet_credits}</a></th>
+			{/if}
+		</tr>
+	</thead>
+	<tbody>
+	{if enrollment.length == 0}
+		<tr>
+			<td>${no_participants}</td>
+			<td></td>
+			{if true == viewEmail}
+				<td></td>
+			{/if}
+			<td></td>
+			<td></td>
+		</tr>
+	{else}
+		{for member in enrollment}
+			{if enrollmentStatus == roster_enrollment_status_all ||
+				member.status == enrollmentStatus}
+					<tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+					<td>
+						{if true == firstNameLastName}
+							${member.displayName}
+						{else}
+							${member.sortName}
+						{/if}
+					</td>
+					<td>
+						{if true == viewProfile}
+							<a href="${member.profileUrl}" "title="${show_profile}">
+								${member.displayId}
+							</a>
+						{else}
+							${member.displayId}
+						{/if}
+					</td>
+					{if true == viewEmail}
+						<td><a href="mailto:${member.email}">${member.email}</a></td>
+					{/if}
+					<td>${member.status}</td>
+					<td>${member.credits}</td>
+				</tr>
+			{/if}
+		{/for}
+	{/if}
+	</tbody>
+</table>
+
+-->
+</div>
+
+<div id="empty_template" style="display:none"><!--  --></div>
+
+<!--  Templates End -->
+
+<script type="text/javascript" src="js/roster.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="css/jquery.cluetip.css" /> -->
+
+</body>
+</html>

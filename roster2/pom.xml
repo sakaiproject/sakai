@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.9-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Roster2 base pom</name>
+    <groupId>org.sakaiproject.roster2</groupId>
+    <artifactId>roster-base</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2009</inceptionYear>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>roster-app</module>
+        <module>roster-assembly</module>
+        <module>roster-help</module>
+    </modules>
+
+    <properties>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/roster2/${project.version}</url.localsite>
+        <yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
+    </properties>
+
+    <developers>
+        <developer>
+            <id>d.b.robinson</id>
+            <name>Daniel Robinson</name>
+            <organization>Lancaster University</organization>
+            <email>d.b.robinson@lancaster.ac.uk</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+        <developer>
+            <id>a.fish</id>
+            <name>Adrian Fish</name>
+            <organization>Lancaster University</organization>
+            <email>a.fish@lancaster.ac.uk</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+        <developer>
+            <id>arwhyte</id>
+            <name>Anthony Whyte</name>
+            <organization>Sakai Foundation / University of Michigan</organization>
+            <email>arwhyte@umich.edu</email>
+            <roles>
+                <role>POM plumber</role>
+                <role>release manager</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/roster/branches/trimpath_work/</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/roster/branches/trimpath_work/</developerConnection>
+        <url>https://source.sakaiproject.org/svn/roster/branches/trimpath_work/</url>
+    </scm>
+
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+        	<name>oss.sonatype.org - github-releases</name>
+        	<id>oss.sonatype.org-github-releases</id>
+        	<url>http://oss.sonatype.org/content/repositories/github-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.6.1</version>
+                <configuration>
+                    <debug>true</debug>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                    </links>
+                    <breakiterator>true</breakiterator>
+                    <verbose>false</verbose>
+                    <aggregate>true</aggregate>
+                    <maxmemory>512m</maxmemory>
+                    <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="rosterOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aruh_ru</value></property>
+      <property name="name"><value>Список студентов: обзор</value></property>
+      <property name="location"><value>/sakai_site_roster/aruh_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.site.roster</value></property>
+   </bean>
+
+   <bean id="rosterView" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arna_ru</value></property>
+      <property name="name"><value>Обзор списка студентов</value></property>
+      <property name="location"><value>/sakai_site_roster/arna_ru.html</value></property>
+   </bean>
+
+   <bean id="rosterPrint" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atzt_ru</value></property>
+      <property name="name"><value>Распечатать список студентов</value></property>
+      <property name="location"><value>/sakai_site_roster/atzt_ru.html</value></property>
+   </bean>
+
+   <bean id="rosterExport" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atfv_ru</value></property>
+      <property name="name"><value>Экспорт списка студентов</value></property>
+      <property name="location"><value>/sakai_site_roster/atfv_ru.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="assignmentCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Список студентов</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="rosterOverview"/>
+                     <ref bean="rosterView"/>
+                     <ref bean="rosterPrint"/>
+                     <ref bean="rosterExport"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
