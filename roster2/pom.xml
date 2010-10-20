@@ -68,9 +68,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/roster/branches/trimpath_work/</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/roster/branches/trimpath_work/</developerConnection>
-        <url>https://source.sakaiproject.org/svn/roster/branches/trimpath_work/</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/roster2/trunk/</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/roster2/trunk/</developerConnection>
+        <url>https://source.sakaiproject.org/contrib/roster2/trunk/</url>
     </scm>
 
     <distributionManagement>
