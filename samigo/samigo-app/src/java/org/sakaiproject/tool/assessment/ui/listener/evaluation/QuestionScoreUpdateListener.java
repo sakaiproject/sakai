@@ -41,7 +41,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -124,6 +126,18 @@ public class QuestionScoreUpdateListener
           (ar.getAssessmentGradingId() + ":" + itemId);
         if (datas == null)
           datas = new ArrayList();
+        
+        Iterator gradingIter = datas.iterator();
+        ArrayList correctArray = new ArrayList();
+        if (TypeIfc.FILL_IN_BLANK.equals(Long.valueOf(bean.getTypeId())) || TypeIfc.FILL_IN_NUMERIC.equals(Long.valueOf(bean.getTypeId()))) {
+      	  while (gradingIter.hasNext()) {
+          	  ItemGradingData itemGradingData = (ItemGradingData) gradingIter.next();
+          	  if (itemGradingData.getAutoScore() != null && itemGradingData.getAutoScore() != 0) {
+          		  correctArray.add(itemGradingData.getItemGradingId());
+          	  }
+            }
+        }
+        
         Iterator iter2 = datas.iterator();
         while (iter2.hasNext()){
           Object obj = iter2.next();
@@ -131,7 +145,19 @@ public class QuestionScoreUpdateListener
           ItemGradingData data = (ItemGradingData) obj;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
-          float newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+          float newAutoScore = 0;
+          if (TypeIfc.FILL_IN_BLANK.equals(Long.valueOf(bean.getTypeId())) || TypeIfc.FILL_IN_NUMERIC.equals(Long.valueOf(bean.getTypeId()))) {
+          	if (correctArray.size() == 0) {
+          		newAutoScore = 0;
+          	}
+          	else {
+          		newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) correctArray.size();
+          	}
+          }
+          else {
+          	newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+          }
+          
           String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, ar.getComments());
           ar.setComments(newComments);
           if (newComments!=null) {
@@ -160,7 +186,14 @@ public class QuestionScoreUpdateListener
           logString.append(data.getItemGradingId());
           
           if (newAutoScore != oldAutoScore){
-        	data.setAutoScore(Float.valueOf(newAutoScore));
+            if (TypeIfc.FILL_IN_BLANK.equals(Long.valueOf(bean.getTypeId())) || TypeIfc.FILL_IN_NUMERIC.equals(Long.valueOf(bean.getTypeId()))) {
+              if (correctArray.contains(data.getItemGradingId())) {
+        	    data.setAutoScore(Float.valueOf(newAutoScore));
+        	  }
+            }
+        	else {
+        	  data.setAutoScore(Float.valueOf(newAutoScore));
+        	}
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
             logString.append(", oldAutoScore=");
