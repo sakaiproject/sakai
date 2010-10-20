@@ -72,7 +72,7 @@
     
     <properties>
         <sakai.version>2.9-SNAPSHOT</sakai.version>
-        <sakai.kernel.version>1.2.0-rc02-SNAPSHOT</sakai.kernel.version>
+        <sakai.kernel.version>1.3.0-SNAPSHOT</sakai.kernel.version>
         <!-- Standard dependency versions -->
         <sakai.commons.lang.version>2.5</sakai.commons.lang.version>
         <sakai.commons.fileupload.version>1.2.1</sakai.commons.fileupload.version>
@@ -111,6 +111,7 @@
         <sakai.samigo.version>2.9-SNAPSHOT</sakai.samigo.version>
         <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
         <sakai.search.version>1.4-SNAPSHOT</sakai.search.version>
+        <sakai.shortenedurl.version>1.1-SNAPSHOT</sakai.shortenedurl.version>
         <sakai.sitestats.version>2.3-SNAPSHOT</sakai.sitestats.version>
 	    <sakai.webservices.version>1.1-SNAPSHOT</sakai.webservices.version>
         <!-- Set the source encoding to avoid maven warnings -->
