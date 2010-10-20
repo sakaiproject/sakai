@@ -121,18 +121,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>apache-repo</id>
-            <name>apache-repo</name>
-            <layout>default</layout>
-            <url>http://myfaces.zones.apache.org/dist/maven-repository</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>
 
     <dependencyManagement>
