@@ -55,9 +55,9 @@
     </properties>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/shortenedurl/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/branches/shortenedurl-1.0.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/branches/shortenedurl-1.0.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/shortenedurl/branches/shortenedurl-1.0.x</url>
     </scm>
     
     <distributionManagement>
