@@ -99,9 +99,13 @@ ${responseHead}
 #if ($currentPlacement)
   #if ( ${bufferedResponse} && ${responseBody} ) 
     <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
-  #else
-  	## what is this for?
-  	<li class="toolLink"><span><a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}">${currentPlacement.toolTitle}</a></span></li>	
+    <li class="toolLink"><span>
+    	#if ($showResetButton)
+    		<a href="$resetActionUrl" title="$rloader.getString('sit_reset')">
+    			<img src="${pageSkinRepo}/${pageSkin}/images/reload.gif" alt="$rloader.getString('sit_reset')" />
+    		</a>
+    	#end
+    </span></li>
   #end
 #end
 #if (${currentPlacement.toolShowHelpButton})
