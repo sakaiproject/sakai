@@ -64,7 +64,7 @@ public class RandomisedUrl implements Serializable {
 		return key;
 	}
 
-	public void setKey(String tiny) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 

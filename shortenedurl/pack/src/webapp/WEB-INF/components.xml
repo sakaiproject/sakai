@@ -4,7 +4,7 @@
 
 <beans>
 
-	<!-- Base ShortenedUrlService bean - inject this into your app -->
+	<!-- Base ShortenedUrlService bean - inject this into your app - it will register the appropriate service or the default -->
 	<bean id="org.sakaiproject.shortenedurl.api.ShortenedUrlService"
     	class="org.sakaiproject.shortenedurl.impl.BaseShortenedUrlService"
     	singleton="true"

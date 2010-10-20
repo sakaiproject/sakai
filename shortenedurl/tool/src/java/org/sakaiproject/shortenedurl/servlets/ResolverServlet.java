@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.shortenedurl.tool;
+package org.sakaiproject.shortenedurl.servlets;
 
 import java.io.IOException;
 

@@ -14,7 +14,8 @@
       		</generator>
 	    </id>
 		
-		<property name="key" column="KEY" type="string" not-null="true" index="KEY_INDEX" />
+		<!-- KEY is a reserved SQL keyword, so it's TINY -->
+		<property name="key" column="TINY" type="string" not-null="true" index="KEY_INDEX" />
 		<property name="url" column="URL" type="string" length="4000" not-null="true" index="URL_INDEX" />
 		
 	</class>
