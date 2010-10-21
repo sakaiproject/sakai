@@ -616,7 +616,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("getDiscussionForumById executing with forumId: " + forumId);
+        LOG.debug("getForumById executing with forumId: " + forumId);
 
         if (open) {
             // open works for both open and discussion forums
@@ -649,7 +649,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
+        LOG.debug("getTopicById executing with topicId: " + topicId);
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -685,7 +685,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("getDiscussionForumById executing with topicId: " + uuid);
+        LOG.debug("getTopicByUuid executing with topicId: " + uuid);
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_BY_TOPIC_UUID);
@@ -1115,7 +1115,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         getHibernateTemplate().saveOrUpdate(forum);
         
         //getHibernateTemplate().delete(topic);
-        LOG.debug("deleteOpenForumTopic executed with topicId: " + id);
+        LOG.debug("deleteDiscussionForumTopic executed with topicId: " + id);
     }
 
     /**
@@ -1204,7 +1204,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             throw new IllegalArgumentException("Null Argument");
         }
 
-        LOG.debug("getDiscussionForumById executing with topicId: " + topicId);
+        LOG.debug("searchTopicMessages executing with topicId: " + topicId);
 
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1378,7 +1378,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           throw new IllegalArgumentException("Null Argument");
       }
 
-      LOG.debug("getForumByOwnerArea executing with owner: " + owner + " and area:" + area);
+      LOG.debug("getPrivateForumByOwnerAreaWithAllTopics executing with owner: " + owner + " and area:" + area);
 
       HibernateCallback hcb = new HibernateCallback() {
           public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1398,7 +1398,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				throw new IllegalArgumentException("Null Argument");
 			}
 
-			LOG.debug("getForumByOwnerAreaNull executing with owner: " + owner);
+			LOG.debug("getPrivateForumByOwnerAreaNullWithAllTopics executing with owner: " + owner);
 
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
