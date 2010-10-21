@@ -267,7 +267,8 @@ public class MyInfoEdit extends Panel {
 			sakaiPerson.setDateOfBirth(null);
 		}
 
-		sakaiPerson.setNotes(ProfileUtils.processHtml(userProfile.getPersonalSummary()));
+		//PRFL-467 store as given, and processed when it is retrieved.
+		sakaiPerson.setNotes(userProfile.getPersonalSummary());
 		
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId);
