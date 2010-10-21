@@ -27,6 +27,7 @@ public class ProfileImage {
 	private String officialImageUrl;
 	private String officialImageEncoded;
 	private String altText;
+	private String mimeType;
 	
 	public ProfileImage() {}
 	
@@ -101,6 +102,13 @@ public class ProfileImage {
 
 	public void setAltText(String altText) {
 		this.altText = altText;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+	public String getMimeType() {
+		return mimeType;
 	}
 	
 	

@@ -45,7 +45,9 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.SiteService;
@@ -538,21 +540,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public byte[] getResource(String resourceId) {
+	public MimeTypeByteArray getResource(String resourceId) {
 		
-		byte[] data = null;
+		MimeTypeByteArray mtba = new MimeTypeByteArray();
 		
 		if(StringUtils.isBlank(resourceId)) {
 			return null;
 		}
 		
 		try {
-			
 			enableSecurityAdvisor();
-		
 			try {
 				ContentResource resource = contentHostingService.getResource(resourceId);
-				data = resource.getContent();
+				if(resource == null){
+					return null;
+				}
+				mtba.setBytes(resource.getContent());
+				mtba.setMimeType(resource.getContentType());
+				return mtba;
 			}
 			catch(Exception e){
 				log.error("SakaiProxy.getResource() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
@@ -563,7 +568,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		finally	{
 			disableSecurityAdvisor();
 		}
-		return data;
+		
+		return null;
 	}
 	
 	
@@ -1311,6 +1317,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
+	
 	
 	/**
 	 * Setup a security advisor for this transaction

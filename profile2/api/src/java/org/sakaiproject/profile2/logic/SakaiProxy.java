@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.user.api.User;
 /**
  * An interface for abstracting Sakai specific parts away from the main logic.
@@ -252,12 +252,11 @@ public interface SakaiProxy {
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
 		
 	/**
-	 * Retrieve a resource from ContentHosting as a byte[]
+	 * Retrieve a resource from ContentHosting with byte[] and mimetype
 	 *
 	 * @param resourceId	the full resourceId of the file
 	 */
-	public byte[] getResource(String resourceId);
-	
+	public MimeTypeByteArray getResource(String resourceId);
 	
 	/**
 	 * Removes the specified resource.

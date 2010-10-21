@@ -123,7 +123,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		if(bytes != null && bytes.length > 0) {
 			try {
 				out.write(bytes);
-				ActionReturn actionReturn = new ActionReturn("BASE64", null, out);
+				ActionReturn actionReturn = new ActionReturn("BASE64", image.getMimeType(), out);
 				return actionReturn;
 			} catch (IOException e) {
 				throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
@@ -136,8 +136,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			try {
 				requestGetter.getResponse().sendRedirect(url);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new EntityException("Error redirecting to external image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 			}
 		}
 		

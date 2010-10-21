@@ -46,7 +46,7 @@ public class GalleryImageRenderer extends Panel {
 			return;
 		}
 
-		final byte[] imageBytes = sakaiProxy.getResource(imageResourceId);
+		final byte[] imageBytes = sakaiProxy.getResource(imageResourceId).getBytes();
 		
 		if (imageBytes != null && imageBytes.length > 0) {
 

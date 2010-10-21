@@ -11,6 +11,7 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.GalleryImage;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -129,14 +130,16 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		//get the image based on the global type/preference
 		switch (imageType) {
 			case ProfileConstants.PICTURE_SETTING_UPLOAD:
-				byte[] bytes = getUploadedProfileImage(userUuid, size);
+				MimeTypeByteArray mtba = getUploadedProfileImage(userUuid, size);
+				
 				//if no uploaded image, set the default image url
-				if(bytes == null) {
+				if(mtba.getBytes() == null) {
 					image.setExternalImageUrl(defaultImageUrl);
 				} else {
-					image.setUploadedImage(getUploadedProfileImage(userUuid, size));
+					image.setUploadedImage(mtba.getBytes());
 				}
 				image.setAltText(getAltText(userUuid, isSameUser, true));
+				image.setMimeType(mtba.getMimeType());
 			break;
 			
 			case ProfileConstants.PICTURE_SETTING_URL: 
@@ -439,14 +442,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	 * 
 	 * @param userUuid 		the uuid of the user we are querying
 	 * @param size			comes from ProfileConstants, main or thumbnail, also maps to a directory in ContentHosting
-	 * @return byte[] or null
+	 * @return MimeTypeByteArray or null
 	 * 
 	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
 	 *
 	 */
-	private byte[] getUploadedProfileImage(String userUuid, int size) {
+	private MimeTypeByteArray getUploadedProfileImage(String userUuid, int size) {
 		
-		byte[] image = null;
+		MimeTypeByteArray mtba = new MimeTypeByteArray();
 		
 		//get record from db
 		ProfileImageUploaded profileImage = dao.getCurrentProfileImageRecord(userUuid);
@@ -458,18 +461,18 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		//get main image
 		if(size == ProfileConstants.PROFILE_IMAGE_MAIN) {
-			image = sakaiProxy.getResource(profileImage.getMainResource());
+			mtba = sakaiProxy.getResource(profileImage.getMainResource());
 		}
 		
 		//or get thumbnail
 		if(size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
-			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
-			if(image == null) {
-				image = sakaiProxy.getResource(profileImage.getMainResource());
+			mtba = sakaiProxy.getResource(profileImage.getThumbnailResource());
+			if(mtba.getBytes() == null) {
+				mtba = sakaiProxy.getResource(profileImage.getMainResource());
 			}
 		}
 		
-		return image;
+		return mtba;
 	}
 	
 	/**

@@ -281,7 +281,7 @@ public class GalleryImageEdit extends Panel {
 				if (imageLogic.setUploadedProfileImage(
 						userId,
 						sakaiProxy.getResource(
-								image.getMainResource()), "", "")) {
+								image.getMainResource()).getBytes(), "", "")) {
 
 					sakaiProxy.postEvent(
 							ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD,
