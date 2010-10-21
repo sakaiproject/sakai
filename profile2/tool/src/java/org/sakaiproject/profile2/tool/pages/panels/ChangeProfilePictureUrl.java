@@ -69,7 +69,8 @@ public class ChangeProfilePictureUrl extends Panel{
 	/**
 	 * This constructor is only called if we were a superuser editing someone else's picture.
 	 * An additional catch is also in place.
-	 * @param parameters 
+	 * @param id		component id 
+	 * @param userUuid	uuid of other user
 	 */
 	public ChangeProfilePictureUrl(String id, String userUuid)   {
 		super(id);

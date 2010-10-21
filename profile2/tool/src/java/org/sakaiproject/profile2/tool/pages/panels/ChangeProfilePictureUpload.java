@@ -67,7 +67,8 @@ public class ChangeProfilePictureUpload extends Panel{
 	/**
 	 * This constructor only called if we were a superuser editing someone else's picture.
 	 * An additional catch is also in place.
-	 * @param parameters 
+	 * @param id		component id 
+	 * @param userUuid	uuid of other user
 	 */
 	public ChangeProfilePictureUpload(String id, String userUuid)   {
 		super(id);

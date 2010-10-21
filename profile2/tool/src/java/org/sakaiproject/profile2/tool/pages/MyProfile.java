@@ -87,7 +87,7 @@ public class MyProfile extends BasePage {
 	 * This constructor is called if we are viewing someone elses but in edit mode.
 	 * This will only be called if we were a superuser editing someone else's profile.
 	 * An additional catch is also in place.
-	 * @param parameters 
+	 * @param userUuid		uuid of other user 
 	 */
 	public MyProfile(final String userUuid)   {
 		log.debug("MyProfile(" + userUuid +")");

@@ -330,8 +330,8 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Creates a full profile event reference for a give reference
-	 * @param eventId
+	 * Creates a full profile event reference for a given reference
+	 * @param ref
 	 * @return
 	 */
 	public static String createEventRef(String ref) {
@@ -351,7 +351,7 @@ public class ProfileUtils {
 	
 	/**
 	 * Method to chop a String into it's parts based on the separator and return as a List. Useful for multi valued Sakai properties
-	 * @param s 	the String to split
+	 * @param str 		the String to split
 	 * @param separator	separator character
 	 * @return
 	 */
