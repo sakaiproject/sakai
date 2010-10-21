@@ -248,7 +248,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			sha.reset();
 			sha.update(principal.getName().getBytes("UTF-8"));
 			sha.update((byte) 0x0a);
-			sha.update(req.getHeader("user-agent").getBytes("UTF-8"));
+			String ua = req.getHeader("user-agent");
+			if (ua != null) {
+				sha.update(ua.getBytes("UTF-8"));
+			}
 			sha.update(salt);			 
 			
 			sessionId = byteArrayToHexStr(sha.digest());			 
