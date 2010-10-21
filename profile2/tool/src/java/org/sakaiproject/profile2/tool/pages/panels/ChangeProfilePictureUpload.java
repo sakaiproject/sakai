@@ -18,13 +18,11 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -33,8 +31,6 @@ import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.components.CloseButton;
-import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
-import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -51,6 +47,8 @@ public class ChangeProfilePictureUpload extends Panel{
 	private ProfileImageLogic imageLogic;
 
     private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
+    
+    private Label formFeedback;
 
     /**
 	 * Default constructor if modifying own
@@ -90,7 +88,7 @@ public class ChangeProfilePictureUpload extends Panel{
 	private void renderChangeProfilePictureUpload(final String userUuid) {  
         
         //setup form	
-		Form form = new Form("form") {
+		Form<Void> form = new Form<Void>("form") {
 			private static final long serialVersionUID = 1L;
 
 			public void onSubmit(){
@@ -100,28 +98,28 @@ public class ChangeProfilePictureUpload extends Panel{
 				
 				if (upload == null) {
 					log.error("Profile.ChangeProfilePicture.onSubmit: upload was null.");
-					error(new StringResourceModel("error.no.file.uploaded", this, null).getString());
+					//error(new StringResourceModel("error.no.file.uploaded", this, null).getString());
+					formFeedback.setDefaultModel(new ResourceModel("error.no.file.uploaded"));
 				    return;
 				} else if (upload.getSize() == 0) {
 				    log.error("Profile.ChangeProfilePicture.onSubmit: upload was empty.");
-					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
+					//error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
+					formFeedback.setDefaultModel(new ResourceModel("error.empty.file.uploaded"));
 					return;
 				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload.getContentType())) {
 					log.error("Profile.ChangeProfilePicture.onSubmit: invalid file type uploaded for profile picture");
-					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
+					//error(new StringResourceModel("error.invalid.image.type", this, null).getString());
+					formFeedback.setDefaultModel(new ResourceModel("error.invalid.image.type"));
 				    return;
 				} else {
 					
 					String mimeType = upload.getContentType();
-					String fileName = upload.getClientFileName();
+					//String fileName = upload.getClientFileName();
 					
 					//ok so get bytes of file uploaded
 					byte[] imageBytes = upload.getBytes();
 					
-					//add image using ProfileImageService which scales and sets up CHS automatically
-					//note that this has changed so it uses the service. if needs to be changed back so there is no dependency on the PIS,
-					//just grab the bits from the methods in PIS that do what is required, remove from applicationContext.xml, Locator.java and ProfileApplication.java
-					//likewise for ChangeProfilePictureUrl.java
+					//add image using ProfileImageLogic which scales and sets up CHS automatically
 					if(imageLogic.setUploadedProfileImage(userUuid, imageBytes, mimeType, null)) {
 						
 						//log it
@@ -137,13 +135,16 @@ public class ChangeProfilePictureUpload extends Panel{
 							setResponsePage(new MyProfile());
 						}
 					} else {
-						error(new StringResourceModel("error.file.save.failed", this, null).getString());
+						//error(new StringResourceModel("error.file.save.failed", this, null).getString());
+						formFeedback.setDefaultModel(new ResourceModel("error.file.save.failed"));
 						return;
 					}
 										
 				}
 				
 			}
+						
+			
 		};
 		
 		//get the max upload size from Sakai
@@ -174,23 +175,14 @@ public class ChangeProfilePictureUpload extends Panel{
 		Label textSelectImage = new Label("textSelectImage", new StringResourceModel("text.upload.image.file", null, new Object[]{ maxSize } ));
 		form.add(textSelectImage);
 		
-		//feedback
-		FeedbackPanel feedback = new FeedbackPanel("feedback");
-		form.add(feedback);
-		
-		// filteredErrorLevels will not be shown in the FeedbackPanel
-		//this way we can control them. see the onSubmit method for the form
-        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
-        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
-		
 		//upload
 		uploadField = new FileUploadField("picture");
 		form.add(uploadField);
 		
-		//file feedback will be redirected here
-        final FeedbackLabel fileFeedback = new FeedbackLabel("fileFeedback", form);
-        fileFeedback.setOutputMarkupId(true);
-        form.add(fileFeedback);
+        //feedback for form submit action
+		formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupId(true);
+		form.add(formFeedback);
 		
 		//submit button
 		//TODO form indicator on this button, but requires an AJAX button which can't handle file uploads.
