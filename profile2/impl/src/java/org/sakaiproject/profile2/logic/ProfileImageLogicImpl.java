@@ -132,14 +132,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			case ProfileConstants.PICTURE_SETTING_UPLOAD:
 				MimeTypeByteArray mtba = getUploadedProfileImage(userUuid, size);
 				
-				//if no uploaded image, set the default image url
-				if(mtba.getBytes() == null) {
+				//if no uploaded image, use the default image url
+				if(mtba == null || mtba.getBytes() == null) {
 					image.setExternalImageUrl(defaultImageUrl);
 				} else {
 					image.setUploadedImage(mtba.getBytes());
+					image.setMimeType(mtba.getMimeType());
 				}
 				image.setAltText(getAltText(userUuid, isSameUser, true));
-				image.setMimeType(mtba.getMimeType());
 			break;
 			
 			case ProfileConstants.PICTURE_SETTING_URL: 
