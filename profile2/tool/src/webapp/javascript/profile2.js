@@ -36,23 +36,23 @@ function fixWindowVertical() {
 	return false;
 } 
 	
-/*
-function resizeIframe(iframeID) { 
-	
-	//Checks that page is in iframe
-	if(self==parent) {
-		return false;
-	}
-	// Checks for IE5+. 
-	else if(document.getElementById&&document.all)  {
+/* alternate method to shrink or grow the iframe */
+function resizeFrame(updown){	 
+    if (top.location != self.location) {	 
+        var frame = parent.document.getElementById(window.name);	 
+    }	 
+    if (frame) {	 
+        if (updown == 'shrink') {	 
+            var clientH = document.body.clientHeight;	 
+        }	 
+        else {	 
+            var clientH = document.body.clientHeight + 200;	 
+        }	 
+        $(frame).height(clientH);	 
+    }	 
+    else {	 
+        //throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );	 
+    }	 
+}
 
-	var FramePageHeight = framePage.scrollHeight + 10; 
-	// framePage 
-	is the ID of the framed page's BODY tag. The added 10 pixels prevent an 
-	unnecessary scrollbar. 
-
-	parent.document.getElementById(iframeID).style.height=FramePageHeight; 
-	// "iframeID" is the ID of the inline frame in the parent page. 
-	} 
-	*/
 	
