@@ -80,6 +80,12 @@ ${responseHead}
 ## Always assume small display
 #set ( $wurflSmallDisplay = 1 )
 <div class="portletpda">
+	<!-- include site html if exist-->
+	#if ($siteHTMLInclude)
+		<div id="siteHTMLInclude">
+			$siteHTMLInclude
+		</div>
+	#end
   <ul id="pda-portlet-menu">
 	## renders an image (can be the inst logo small) set in the css as a background and a link back to the site list
 	<li class="instanceNote"><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")"><span class="skip">$rloader.getString("pda_sites")</span></a></li>

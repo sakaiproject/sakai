@@ -187,6 +187,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// public String String PROP_PARENT_ID = "sakai:parent-id";
 
 	private String PROP_SHOW_SUBSITES  = SiteService.PROP_SHOW_SUBSITES ;
+	
+	private final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
+	
 	// 2.3 back port
 	// public String PROP_SHOW_SUBSITES = "sakai:show-subsites";
 
@@ -437,12 +440,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 
 		String errorMessage = null;
-
+		String siteHtmlInclude = null;
 		// find the site, for visiting
 		Site site = null;
 		try
 		{
 			site = siteHelper.getSiteVisit(siteId);
+			siteHtmlInclude = site.getProperties().getProperty(PROP_HTML_INCLUDE);
 		}
 		catch (IdUnusedException e)
 		{
@@ -503,6 +507,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
+		if (siteHtmlInclude != null) rcontext.put("siteHTMLInclude", siteHtmlInclude);
 
 		// Make the top Url where the "top" url is
 		String portalTopUrl = Web.serverUrl(req)
