@@ -139,7 +139,7 @@ public class MyStaffDisplay extends Panel {
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
-		publicationsContainer.add(new Label("publications", ProfileUtils.escapeHtmlForDisplay(publications)).setEscapeModelStrings(false));
+		publicationsContainer.add(new Label("publications", ProfileUtils.processHtml(publications)).setEscapeModelStrings(false));
 		add(publicationsContainer);
 		if(StringUtils.isBlank(publications)) {
 			publicationsContainer.setVisible(false);

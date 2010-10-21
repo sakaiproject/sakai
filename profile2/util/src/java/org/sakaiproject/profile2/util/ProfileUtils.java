@@ -361,39 +361,12 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Processes HTML and strips evils tags, also converts newlines to proper HTML breaks.
+	 * Processes HTML and escapes evils tags like &lt;script&gt;, also converts newlines to proper HTML breaks.
 	 * @param s
 	 * @return
 	 */
 	public static String processHtml(String s){
 		return FormattedText.processFormattedText(s, new StringBuilder(), true, false);
-	}
-	
-	/**
-	 * Escape HTML so it can be displayed on screen, will stop evil tags from displaying.
-	 * @param s
-	 * @return
-	 */
-	public static String escapeHtmlForDisplay(String s) {
-		return FormattedText.escapeHtmlFormattedText(s);
-	}
-	
-	/**
-	 * Escapes HTML to the HTML entity equivalents
-	 * @param s
-	 * @return
-	 */
-	public static String escapeHtml(String s){
-		return StringEscapeUtils.escapeHtml(s);
-	}
-	
-	/**
-	 * Unescapes HTML entities back to original characters
-	 * @param s
-	 * @return
-	 */
-	public static String unescapeHtml(String s){
-		return StringEscapeUtils.unescapeHtml(s);
 	}
 	
 	/**

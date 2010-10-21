@@ -47,6 +47,7 @@ import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * This is the entity provider for a user's profile.
@@ -408,7 +409,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			
 			//PRFL-389 abbreviate long personal summary
 			int maxLength = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.formatted.profile.summary.max", ProfileConstants.FORMATTED_PROFILE_SUMMARY_MAX_LENGTH));
-			sb.append(StringUtils.abbreviate(userProfile.getPersonalSummary(), maxLength));
+			sb.append(StringUtils.abbreviate(ProfileUtils.processHtml(userProfile.getPersonalSummary()), maxLength));
 			
 			sb.append("</div>");
 		}

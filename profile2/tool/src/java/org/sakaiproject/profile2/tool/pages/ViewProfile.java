@@ -213,7 +213,7 @@ public class ViewProfile extends BasePage {
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
-		personalSummaryContainer.add(new Label("personalSummary", ProfileUtils.escapeHtmlForDisplay(personalSummary)).setEscapeModelStrings(false));
+		personalSummaryContainer.add(new Label("personalSummary", ProfileUtils.processHtml(personalSummary)).setEscapeModelStrings(false));
 		basicInfoContainer.add(personalSummaryContainer);
 		if(StringUtils.isBlank(personalSummary)) {
 			personalSummaryContainer.setVisible(false);
@@ -422,7 +422,7 @@ public class ViewProfile extends BasePage {
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
-		publicationsContainer.add(new Label("publications", ProfileUtils.escapeHtmlForDisplay(publications)).setEscapeModelStrings(false));
+		publicationsContainer.add(new Label("publications", ProfileUtils.processHtml(publications)).setEscapeModelStrings(false));
 		staffInfoContainer.add(publicationsContainer);
 		if(StringUtils.isBlank(publications)) {
 			publicationsContainer.setVisible(false);

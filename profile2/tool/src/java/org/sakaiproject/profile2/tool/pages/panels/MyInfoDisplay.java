@@ -72,7 +72,7 @@ public class MyInfoDisplay extends Panel {
 		String lastName = userProfile.getLastName();
 		*/
 		String nickname = userProfile.getNickname();
-		String personalSummary = ProfileUtils.unescapeHtml(userProfile.getPersonalSummary());
+		String personalSummary = userProfile.getPersonalSummary();
 		
 		Date dateOfBirth = userProfile.getDateOfBirth();
 		if(dateOfBirth != null) {

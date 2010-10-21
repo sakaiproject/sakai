@@ -278,7 +278,9 @@ public class MyStaffEdit extends Panel {
 		sakaiPerson.setStaffProfile(userProfile.getStaffProfile());
 		sakaiPerson.setUniversityProfileUrl(userProfile.getUniversityProfileUrl());
 		sakaiPerson.setAcademicProfileUrl(userProfile.getAcademicProfileUrl());
-		sakaiPerson.setPublications(ProfileUtils.processHtml(userProfile.getPublications()));
+		
+		//PRFL-467 store as given, and process when it is retrieved.
+		sakaiPerson.setPublications(userProfile.getPublications());
 		
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
