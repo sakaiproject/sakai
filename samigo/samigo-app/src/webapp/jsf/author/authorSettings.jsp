@@ -319,7 +319,7 @@ function setBlockDivs()
      <h:outputText value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{assessmentSettings.title}"/>
     </h3>
 <p>
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="validation" warnClass="messageValidation" errorClass="validation" fatalClass="validation"/>
 </p>
 
 <div class="tier1">

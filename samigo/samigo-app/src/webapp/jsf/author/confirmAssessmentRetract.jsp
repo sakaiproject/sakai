@@ -39,9 +39,9 @@
   <h3><h:outputText value="#{assessmentSettingsMessages.retract_conf}"/></h3>
  <h:form id="retractAssessmentForm">
    <h:inputHidden id="templateId" value="#{template.idString}"/>
-
-     <div class="validation tier1">
-       <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" />
+	<br/>
+     <div>
+       <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" styleClass="messageConfirmation" />
      </div>
        <p class="act">
        <h:commandButton id="retract" value="#{assessmentSettingsMessages.button_retract}" type="submit"

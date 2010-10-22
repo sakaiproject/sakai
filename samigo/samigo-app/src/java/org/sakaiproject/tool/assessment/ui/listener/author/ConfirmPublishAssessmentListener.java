@@ -133,17 +133,17 @@ public class ConfirmPublishAssessmentListener
     Date retractDate = assessmentSettings.getRetractDate();
     if (dueDate != null && startDate != null && dueDate.before(startDate)) {
     	String dateError1 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_earlier_than_avaliable");
-    	context.addMessage(null,new FacesMessage(dateError1));
+    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError1, null));
     	error=true;
     }
     if (retractDate != null && startDate != null && retractDate.before(startDate)) {
     	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
-    	context.addMessage(null,new FacesMessage(dateError2));
+    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
     	error=true;
     }
     if (retractDate != null && dueDate != null && retractDate.before(dueDate)) {
     	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
-    	context.addMessage(null,new FacesMessage(dateError3));
+    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
     	error=true;
     }
     
