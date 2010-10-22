@@ -22,6 +22,7 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +38,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -135,18 +137,6 @@ public class PDAHandler extends PageHandler
 					}
 				}
 
-				// This is a pop-up page - it does exactly the same as
-				// /portal/page
-				// /portal/pda/site-id/page/page-id
-				// 1 2 3 4
-				String pageId = null;
-				if ((parts.length == 5) && (parts[3].equals("page")))
-				{
-					doPage(req, res, session, parts[4], req.getContextPath()
-							+ req.getServletPath());
-					return END;
-				}
-
 				// Tool resetting URL - clear state and forward to the real tool
 				// URL
 				// /portal/pda/site-id/tool-reset/toolId
@@ -172,6 +162,7 @@ public class PDAHandler extends PageHandler
 				// /portal/pda/site-id/tool/toolId
 				if ((parts.length > 4) && (parts[3].equals("tool")))
 				{
+					// look for page and pick up the top-left tool to show
 					toolId = parts[4];
 				}
 
@@ -193,7 +184,32 @@ public class PDAHandler extends PageHandler
 						return END;
 					}
 				}
-
+				
+				// /portal/site/site-id/page/page-id
+				// /portal/pda/site-id/page/page-id
+				// 1 2 3 4
+				if ((parts.length == 5) && (parts[3].equals("page")))
+				{
+					// look for page and pick up the top-left tool to show
+					String pageId = parts[4];
+					SitePage page = SiteService.findPage(pageId);
+					if (page == null)
+					{
+						portal.doError(req, res, session, Portal.ERROR_WORKSITE);
+						return END;
+					}
+					else
+					{
+						List<ToolConfiguration> tools = page.getTools(0);
+						if (tools != null && !tools.isEmpty())
+						{
+							toolId = tools.get(0).getId();
+						}
+						parts[3]="tool";
+						parts[4]=toolId;
+					}
+				}
+				
 				PortalRenderContext rcontext = portal.includePortal(req, res, session,
 						siteId, toolId, req.getContextPath() + req.getServletPath(),
 						"pda",
