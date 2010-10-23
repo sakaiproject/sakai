@@ -125,8 +125,6 @@ public class BeginDeliveryActionListener implements ActionListener
     	sizeMax_float = sizeMax.floatValue()/1024;
     }
     delivery.setFileUploadSizeMax(sizeMax_float);
-
-
     delivery.setPublishedAssessment(pub);
     
     // populate backing bean from published assessment
@@ -256,6 +254,7 @@ public class BeginDeliveryActionListener implements ActionListener
     // #1 - set submission remains
     int totalSubmissions = (service.getTotalSubmission(AgentFacade.getAgentString(),
         publishedAssessmentId.toString())).intValue();
+    delivery.setTotalSubmissions(totalSubmissions);
     if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
       // when there are retaks, we always display 1 as number of remaining submission	
       int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;

@@ -160,6 +160,7 @@ public class DeliveryBean
   private String instructorName;
   private ContentsDeliveryBean pageContents;
   private int submissionsRemaining;
+  private int totalSubmissions;  
   private boolean forGrade;
   private String password;
   private int numberRetake;
@@ -1281,6 +1282,16 @@ public class DeliveryBean
   public void setSubmissionsRemaining(int submissionsRemaining)
   {
     this.submissionsRemaining = submissionsRemaining;
+  }
+  
+  public int getTotalSubmissions()
+  {
+    return totalSubmissions;
+  }
+
+  public void setTotalSubmissions(int totalSubmissions)
+  {
+    this.totalSubmissions = totalSubmissions;
   }
 
   public String getInstructorName()

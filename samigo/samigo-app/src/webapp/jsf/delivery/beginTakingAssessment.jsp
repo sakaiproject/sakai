@@ -93,7 +93,8 @@
       
     <h:panelGroup>
 	    <h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} " rendered="#{delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}" escape="false"/>
-		<h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{deliveryMessages.remaining}). " rendered="#{!delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.submission_allowed_1} #{delivery.settings.maxAttempts} #{deliveryMessages.submission_allowed_2} " rendered="#{!delivery.settings.unlimitedAttempts && delivery.totalSubmissions==0 && !delivery.anonymousLogin}" escape="false"/>
+		<h:outputText value="#{deliveryMessages.submission_allowed_1} #{delivery.submissionsRemaining} #{deliveryMessages.submission_allowed_3} " rendered="#{!delivery.settings.unlimitedAttempts && delivery.totalSubmissions!=0 && !delivery.anonymousLogin}" escape="false"/>
 		
 		<h:outputText value="#{deliveryMessages.begin_assessment_msg_highest}" rendered="#{delivery.scoringType == 1}" escape="false"/>
 		<h:outputText value="#{deliveryMessages.begin_assessment_msg_latest}" rendered="#{delivery.scoringType == 2}" escape="false"/>
