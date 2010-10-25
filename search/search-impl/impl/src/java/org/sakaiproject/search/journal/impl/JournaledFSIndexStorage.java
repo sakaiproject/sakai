@@ -308,8 +308,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				}
 				if (tableExists)
 				{
+					//SRCH-3 deleting this entirely can lead to search inconsistency
 					deleteJournalSavePointPst = connection
-							.prepareStatement("delete from search_node_status where serverid = ? ");
+							.prepareStatement("update search_node_status set jid = 0 where serverid = ? ");
 					deleteJournalSavePointPst.clearParameters();
 					deleteJournalSavePointPst.setString(1, serverId);
 					deleteJournalSavePointPst.executeUpdate();
