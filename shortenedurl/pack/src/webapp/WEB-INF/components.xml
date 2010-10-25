@@ -74,6 +74,12 @@
 	    </property>
   	</bean>
   	
+  	<!--  EntityProvider -->
+	<bean id="org.sakaiproject.shortenedurl.entityprovider.ShortenedUrlServiceEntityProvider"
+		class="org.sakaiproject.shortenedurl.entityprovider.ShortenedUrlServiceEntityProviderImpl">
+		<property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService" />
+	</bean>
+	
 	
 
 </beans>

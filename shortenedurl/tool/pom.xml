@@ -32,12 +32,18 @@
 	      	<groupId>commons-logging</groupId>
 	      	<artifactId>commons-logging</artifactId>
 	    </dependency>
+	    <dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
 	    
+	    <!-- sakai dependencies -->
 	    <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-	  
+        
   	</dependencies>
   	
 </project>

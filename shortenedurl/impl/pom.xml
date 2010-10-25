@@ -49,6 +49,13 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         
+        <!-- entity broker dependency -->
+        <dependency>
+      		<groupId>org.sakaiproject.entitybroker</groupId>
+      		<artifactId>entitybroker-api</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+        
         <!-- bundled dependencies -->
         <dependency>
 			<groupId>org.apache.httpcomponents</groupId>

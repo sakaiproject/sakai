@@ -17,5 +17,5 @@
     	<servlet-name>sakai.shortenedurl.resolver</servlet-name>
     	<url-pattern>/*</url-pattern>
   	</servlet-mapping>
-
+  	
 </web-app>
