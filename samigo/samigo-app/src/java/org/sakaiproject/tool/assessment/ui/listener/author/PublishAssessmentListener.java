@@ -99,12 +99,14 @@ public class PublishAssessmentListener
   		//FacesContext context = FacesContext.getCurrentInstance();
   		if (ae == null) {
   			repeatedPublish = false;
+  			return;
   		}
   		else {
   			UIComponent eventSource = (UIComponent) ae.getSource();
   			ValueBinding vb = eventSource.getValueBinding("value");
   			if (vb == null) {
   				repeatedPublish = false;
+  				return;
   			}
   			else {
   				String buttonValue = (String) vb.getExpressionString(); 
