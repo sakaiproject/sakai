@@ -965,7 +965,6 @@ function setBlockDivs()
       action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}" onclick="setBlockDivs();" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsAuthorSettingsListener" />
   </h:commandButton>
 
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
