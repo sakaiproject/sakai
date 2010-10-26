@@ -70,7 +70,7 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 		else if (obj == null){
 			return false;
 		}
-		else if (obj instanceof DetachableMessageModel) {
+		else if (obj instanceof DetachableMessageThreadModel) {
 			DetachableMessageThreadModel other = (DetachableMessageThreadModel)obj;
 			return other.id == id;
 		}
@@ -85,6 +85,7 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 		//inject
 		InjectorHolder.getInjector().inject(this);
 		
+		//get thread from db
 		return messagingLogic.getMessageThread(id);
 	}
 }

@@ -40,10 +40,6 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 * @param m
 	 */
 	public DetachableMessageModel(Message m){
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.id = m.getId();
 	}
 	
@@ -51,10 +47,6 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 * @param id
 	 */
 	public DetachableMessageModel(String id){
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.id = id;
 	}
 	
@@ -89,7 +81,11 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 * @see org.apache.wicket.model.LoadableDetachableModel#load()
 	 */
 	protected Message load(){
-		// loads message from the database
+		
+		//inject
+		InjectorHolder.getInjector().inject(this);
+
+		// get the message
 		return messagingLogic.getMessage(id);
 	}
 }
