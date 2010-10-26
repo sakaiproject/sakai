@@ -312,15 +312,23 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	
 	public List<CourseOffering> findActiveCourseOfferingsInCanonicalCourse(
 			String eid) {
-		// TODO Auto-generated method stub
+		log.debug("findActiveCourseOfferingsInCanonicalCourse(eid");
 		/**
 		 * select * from CM_MEMBER_CONTAINER_T where start_date <= now() and end_date>=now() and class_discr='org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl' and canonical_course in (select MEMBER_CONTAINER_ID from CM_MEMBER_CONTAINER_T where enterprise_id= ? and CLASS_DISCR='org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl');
 		 */
-		CanonicalCourse canonicalCourse = this.getCanonicalCourse(eid);
+		CanonicalCourse canonicalCourse = null;
+		try {
+			canonicalCourse = this.getCanonicalCourse(eid);
+		}
+		catch (IdNotFoundException e) {
+			//its quite possible someone ask for a course that doesn't exits
+			return new ArrayList<CourseOffering>();
+		}
 		
-		
-		return new ArrayList<CourseOffering>(getHibernateTemplate().findByNamedQueryAndNamedParam("findActiveCourseOfferingsInCanonicalCourse", 
+		List<CourseOffering> ret = new ArrayList<CourseOffering>(getHibernateTemplate().findByNamedQueryAndNamedParam("findActiveCourseOfferingsInCanonicalCourse", 
 				"canonicalCourse", canonicalCourse));
+		
+		return ret;
 	}
 	
 	

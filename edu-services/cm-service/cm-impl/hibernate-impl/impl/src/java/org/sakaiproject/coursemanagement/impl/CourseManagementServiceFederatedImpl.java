@@ -945,6 +945,7 @@ public class CourseManagementServiceFederatedImpl implements
 	}
 
 	public List<CourseOffering> findActiveCourseOfferingsInCanonicalCourse(	String eid) {
+		log.debug("findActiveCourseOfferingsInCanonicalCourse(" + eid +")");
 		List<CourseOffering> ret = new ArrayList<CourseOffering>();
 		for(Iterator<CourseManagementService> implIter = implList.iterator(); implIter.hasNext();) {
 			CourseManagementService cm = implIter.next();
