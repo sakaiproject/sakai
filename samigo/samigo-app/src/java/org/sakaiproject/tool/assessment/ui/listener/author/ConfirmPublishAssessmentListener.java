@@ -131,17 +131,23 @@ public class ConfirmPublishAssessmentListener
     Date startDate = assessmentSettings.getStartDate();
     Date dueDate = assessmentSettings.getDueDate();
     Date retractDate = assessmentSettings.getRetractDate();
-    if (dueDate != null && startDate != null && dueDate.before(startDate)) {
+    boolean isRetractEarlierThanAvaliable = false;
+    if ((dueDate != null && startDate != null && dueDate.before(startDate)) ||
+    	(dueDate != null && startDate == null && dueDate.before(new Date()))) {
     	String dateError1 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_earlier_than_avaliable");
     	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError1, null));
     	error=true;
+    	assessmentSettings.setStartDate(new Date());
     }
-    if (retractDate != null && startDate != null && retractDate.before(startDate)) {
+    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
+        (retractDate != null && startDate == null && retractDate.before(new Date()))) {
     	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
     	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
     	error=true;
+    	isRetractEarlierThanAvaliable = true;
+    	assessmentSettings.setStartDate(new Date());
     }
-    if (retractDate != null && dueDate != null && retractDate.before(dueDate)) {
+    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
     	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
     	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
     	error=true;
@@ -325,6 +331,8 @@ public class ConfirmPublishAssessmentListener
 	publishRepublishNotification.setSendNotification(false);
 	publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_publish"));
 	assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
+	SetFromPageAsAuthorSettingsListener setFromPageAsAuthorSettingsListener = new SetFromPageAsAuthorSettingsListener();
+	setFromPageAsAuthorSettingsListener.processAction(null);
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
