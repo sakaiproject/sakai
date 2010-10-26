@@ -238,4 +238,11 @@ public class CourseManagementServiceSampleChainImpl implements CourseManagementS
 	public Map<String, String> getMembershipStatusDescriptions(Locale locale) {
 		return null;
 	}
+
+	public List<CourseOffering> findActiveCourseOfferingsInCanonicalCourse(
+			String eid) {
+		return null;
+	}
+
+
 }

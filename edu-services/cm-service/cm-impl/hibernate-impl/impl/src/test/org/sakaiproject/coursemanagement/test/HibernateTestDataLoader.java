@@ -20,7 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.test;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -198,6 +200,20 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		co3.setTitle("English 101: Intro to literature");
 		co3.setDescription("Fall 2006 Eng 101 Offering");
 		getHibernateTemplate().save(co3);
+		
+		CourseOfferingCmImpl co4 = new CourseOfferingCmImpl();
+		co4.setAcademicSession(term);
+		co4.setCanonicalCourse(cc3);
+		co4.setEid("ENG101_F2006_02");
+		co4.setTitle("English 101: Intro to literature");
+		co4.setDescription("Fall 2006 Eng 101 Offering");
+		//we need this one to be active
+		Calendar cal = new GregorianCalendar();
+		cal.add(Calendar.MONTH, -1);
+		co4.setStartDate(cal.getTime());
+		cal.add(Calendar.MONTH, +7);
+		co4.setEndDate(cal.getTime());
+		getHibernateTemplate().save(co4);
 
 		// Add these course offerings to course sets
 		CourseSetCmImpl bioCset = (CourseSetCmImpl)cm.getCourseSet("BIO_DEPT");

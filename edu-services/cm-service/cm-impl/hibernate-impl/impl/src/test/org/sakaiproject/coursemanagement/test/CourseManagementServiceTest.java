@@ -326,4 +326,14 @@ public class CourseManagementServiceTest extends CourseManagementTestBase {
 		Assert.assertEquals("Lecture", cm.getSectionCategoryDescription("lct"));
 	}
 	
+	
+	public void testFindActiveCourseOfferings() {
+		List<CourseOffering> coList = cm.findActiveCourseOfferingsInCanonicalCourse("ENG101");
+		assertEquals(1, coList.size());
+		//check we have the right one
+		CourseOffering co = coList.get(0);
+		assertEquals("ENG101_F2006_02", co.getEid());
+		
+	}
+	
 }

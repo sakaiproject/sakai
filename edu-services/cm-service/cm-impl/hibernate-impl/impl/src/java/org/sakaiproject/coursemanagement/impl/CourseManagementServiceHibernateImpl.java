@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.coursemanagement.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -306,6 +308,22 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 				"findEnrolledSections", "userId", userId));
 	}
 
+	
+	
+	public List<CourseOffering> findActiveCourseOfferingsInCanonicalCourse(
+			String eid) {
+		// TODO Auto-generated method stub
+		/**
+		 * select * from CM_MEMBER_CONTAINER_T where start_date <= now() and end_date>=now() and class_discr='org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl' and canonical_course in (select MEMBER_CONTAINER_ID from CM_MEMBER_CONTAINER_T where enterprise_id= ? and CLASS_DISCR='org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl');
+		 */
+		CanonicalCourse canonicalCourse = this.getCanonicalCourse(eid);
+		
+		
+		return new ArrayList<CourseOffering>(getHibernateTemplate().findByNamedQueryAndNamedParam("findActiveCourseOfferingsInCanonicalCourse", 
+				"canonicalCourse", canonicalCourse));
+	}
+	
+	
 	public Set<Section> findInstructingSections(final String userId, final String academicSessionEid) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -453,5 +471,7 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		map.put("guest", "Guest");
 		return map;
 	}
+
+
 
 }

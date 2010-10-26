@@ -48,6 +48,13 @@
         ]]>
     </query>
     
+    <query name="findActiveCourseOfferingsInCanonicalCourse">
+    <![CDATA[from CourseOfferingCmImpl where start_date <= now() 
+    	and end_date>=now() and class_discr='org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl' 
+    	and canonicalCourse = :canonicalCourse);
+    ]]>
+    </query>
+    
     <query name="findCourseOfferingRoles">
         <![CDATA[
         select co.eid, mbr.role from  CourseOfferingCmImpl as co, MembershipCmImpl as mbr

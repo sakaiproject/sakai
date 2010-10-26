@@ -460,5 +460,12 @@ public interface CourseManagementService {
 	 * @return A Map of CourseSet EIDs to roles for the user
 	 */
 	public Map<String, String> findCourseSetRoles(String userEid);
+	
+	/**
+	 * Find the currently offered course offerings in the cannonical course
+	 * @param eid
+	 * @return
+	 */
+	public List<CourseOffering> findActiveCourseOfferingsInCanonicalCourse(String eid); 
 
 }
