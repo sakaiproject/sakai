@@ -68,7 +68,9 @@
     <!-- ProfilePrivacyLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
-    	init-method="init">
+    	init-method="init"
+    	singleton="true"
+    	depends-on="org.sakaiproject.profile2.cache.privacy">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
@@ -77,7 +79,9 @@
     <!-- ProfilePreferencesLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
-    	init-method="init">
+    	init-method="init"
+    	singleton="true"
+    	depends-on="org.sakaiproject.profile2.cache.preferences">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
@@ -125,7 +129,9 @@
     <!-- ProfileKudosLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
     	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
-    	init-method="init">
+    	init-method="init"
+    	singleton="true"
+    	depends-on="org.sakaiproject.profile2.cache.kudos">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
@@ -231,6 +237,55 @@
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
      	
+    </bean>
+    
+    
+    <!-- kudos cache -->
+    <bean id="org.sakaiproject.profile2.cache.kudos"
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        </property>
+        <property name="cacheName">
+            <value>org.sakaiproject.profile2.cache.kudos</value>
+        </property>
+        <property name="maxElementsInMemory" value="10000" />
+        <property name="diskPersistent" value="false" />
+        <property name="eternal" value="false" />
+        <property name="timeToLive" value="3600" />
+		<property name="timeToIdle" value="3600" />
+    </bean>
+    
+    <!--  preferences cache -->
+    <bean id="org.sakaiproject.profile2.cache.preferences"
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        </property>
+        <property name="cacheName">
+            <value>org.sakaiproject.profile2.cache.preferences</value>
+        </property>
+        <property name="maxElementsInMemory" value="10000" />
+        <property name="diskPersistent" value="false" />
+        <property name="eternal" value="false" />
+        <property name="timeToLive" value="3600" />
+		<property name="timeToIdle" value="3600" />
+    </bean>
+    
+    <!--  privacy cache -->
+    <bean id="org.sakaiproject.profile2.cache.privacy"
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        </property>
+        <property name="cacheName">
+            <value>org.sakaiproject.profile2.cache.privacy</value>
+        </property>
+        <property name="maxElementsInMemory" value="10000" />
+        <property name="diskPersistent" value="false" />
+        <property name="eternal" value="false" />
+        <property name="timeToLive" value="3600" />
+		<property name="timeToIdle" value="3600" />
     </bean>
 
 </beans>
