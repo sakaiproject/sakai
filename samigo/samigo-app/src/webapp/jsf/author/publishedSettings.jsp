@@ -252,7 +252,7 @@ function uncheckOther(field){
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
 <p>
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="validation" warnClass="messageValidation" errorClass="validation" fatalClass="validation"/>
 </p>
 
     <h3>
