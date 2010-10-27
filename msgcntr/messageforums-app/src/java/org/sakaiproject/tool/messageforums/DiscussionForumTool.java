@@ -1382,8 +1382,9 @@ public class DiscussionForumTool
     }
     
     boolean isNew = forum.getId() == null;
+    boolean synopticUpdate = isNew ? false : needToUpdateSynopticOnForumSave(forum, draft);
     HashMap<String, Integer> beforeChangeHM = null;
-    if(!isNew){
+    if(!isNew && synopticUpdate){
     	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
     }
     
@@ -1425,6 +1426,72 @@ public class DiscussionForumTool
     return forum;
   }
 
+  private boolean needToUpdateSynopticOnForumSave(Object target, boolean isDraft){
+	  boolean update = false;
+	  
+	  boolean isModerated = false;
+	  boolean isModeratedOld = false;
+	  boolean isDraftOld = false;
+	  Set oldMembershipItemSet = null;
+	  
+	  if (target instanceof DiscussionForum){
+		  DiscussionForum forum = ((DiscussionForum) target);
+		  isModerated = forum.getModerated();
+		  
+		  DiscussionForum oldForum = forumManager.getForumById(forum.getId());
+		  isModeratedOld = oldForum.getModerated();
+		  isDraftOld = oldForum.getDraft();
+	  }
+	  else if (target instanceof Topic){
+		  DiscussionTopic topic = ((DiscussionTopic) target);
+		  isModerated = topic.getModerated();
+		  
+		  DiscussionTopic oldTopic = forumManager.getTopicById(topic.getId());
+		  isModeratedOld = oldTopic.getModerated();
+		  isDraftOld = oldTopic.getDraft();
+	  }
+	  
+	  
+	  if(isModerated != isModeratedOld ||
+			  isDraft != isDraftOld){
+		  update = true;
+	  }
+	  
+	  if(!update && isModerated && permissions != null){
+		  //only need to look up permission changes for moderate postings if it is moderated
+
+		  if (target instanceof DiscussionForum){
+			  oldMembershipItemSet = uiPermissionsManager.getForumItemsSet((DiscussionForum) target);
+		  }else  if (target instanceof DiscussionTopic){
+			  oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic) target);
+		  }
+		  
+		  if(oldMembershipItemSet != null){
+			  Iterator iter = permissions.iterator();
+		      while (iter.hasNext())
+		      {
+		        PermissionBean permBean = (PermissionBean) iter.next();
+		        Iterator iter2 = oldMembershipItemSet.iterator();
+				while(iter2.hasNext())
+				{
+					DBMembershipItem oldItem = (DBMembershipItem) iter2.next();
+					if(permBean.getItem().getId().equals(oldItem.getId())){
+						if(permBean.getModeratePostings() != oldItem.getPermissionLevel().getModeratePostings()){
+							update = true;
+							break;
+						}
+					}
+				}
+				if(update){
+					break;
+				}
+		      }
+		  }
+	  }
+		  
+	  
+	  return update;
+  }
   
   
 
@@ -1761,9 +1828,10 @@ public class DiscussionForumTool
       DiscussionTopic topic = selectedTopic.getTopic();
       if (selectedForum != null)
       {
-	boolean isNew = topic.getId() == null;
+    	boolean isNew = topic.getId() == null;
+    	boolean synopticUpdate = isNew ? false : needToUpdateSynopticOnForumSave(topic, draft);
         HashMap<String, Integer> beforeChangeHM = null;
-        if(!isNew){
+        if(!isNew && synopticUpdate){
 		beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
         }
 
