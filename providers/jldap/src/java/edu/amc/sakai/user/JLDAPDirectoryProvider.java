@@ -37,6 +37,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
+import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.util.StringUtil;
 
 import com.novell.ldap.LDAPConnection;
@@ -57,7 +58,7 @@ import com.novell.ldap.LDAPSocketFactory;
  * @author David Ross, Albany Medical College
  * @author Rishi Pande, Virginia Tech
  */
-public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig, ExternalUserSearchUDP
+public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig, ExternalUserSearchUDP, UsersShareEmailUDP
 {
 	/** Default LDAP connection port */
 	public static final int DEFAULT_LDAP_PORT = 389;
@@ -1674,6 +1675,36 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			return null;
 		}
 		
+		return users;
+	}
+	
+	/**
+	 * Find all user objects which have this email address.
+	 * 
+	 * @param email
+	 *        The email address string.
+	 * @param factory
+	 *        To create all the UserEdit objects you populate and return in the return collection.
+	 * @return Collection (UserEdit) of user objects that have this email address, or an empty Collection if there are none.
+	 */
+	public Collection findUsersByEmail(String email, UserFactory factory) {
+
+		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
+		List<User> users = new ArrayList<User>();
+		try {
+			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, 0);
+
+			for(LdapUserData ldapUserData: ldapUsers) {
+
+				UserEdit user = factory.newUser();
+				mapUserDataOntoUserEdit(ldapUserData, user);
+
+				users.add(user);
+			}
+		} catch (LDAPException e) {
+			M_log.warn("An error occurred finding users by email: " + e.getClass().getName() + ": (" + e.getResultCode() + ") " + e.getMessage());
+			return null;
+		}
 		return users;
 	}
 
