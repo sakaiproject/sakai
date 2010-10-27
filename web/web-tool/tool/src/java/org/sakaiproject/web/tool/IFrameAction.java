@@ -70,12 +70,13 @@ import org.sakaiproject.event.api.NotificationService;
  * IFrameAction is the Sakai tool to place any web content in an IFrame on the page.
  * </p>
  * <p>
- * Three special modes are supported - these pick the URL content from special places:
+ * Four special modes are supported - these pick the URL content from special places:
  * </p>
  * <ul>
  * <li>"site" - to show the services "server.info.url" configuration URL setting</li>
  * <li>"workspace" - to show the configured "myworkspace.info.url" URL, introducing a my workspace to users</li>
  * <li>"worksite" - to show the current site's "getInfoUrlFull()" setting</li>
+ * <li>"annotatedurl" - to show a link to a configured target url, with a description following the link. Aid in redirection.</li>
  * </ul>
  */
 public class IFrameAction extends VelocityPortletPaneledAction
@@ -105,6 +106,15 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 	/** The special attribute, in state, config and context. */
 	protected final static String SPECIAL = "special";
+	
+	/** The Annotated URL Tool's url attribute, in state, config and context. */
+	protected final static String TARGETPAGE_URL = "TargetPageUrl";
+	
+	/** The Annotated URL Tool's name attribute, in state, config and context. */
+	protected final static String TARGETPAGE_NAME = "TargetPageName";
+	
+	/** The Annotated URL Tool's text attribute, in state, config and context. */
+	protected final static String ANNOTATED_TEXT = "desp";
 
 	/** Support an external url defined in sakai.properties, in state, config and context. */
 	protected final static String SAKAI_PROPERTIES_URL_KEY = "sakai.properties.url.key";
@@ -114,6 +124,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	/** Special value for site. */
 	protected final static String SPECIAL_SITE = "site";
+	
+	/** Special value for Annotated URL Tool. */
+	protected final static String SPECIAL_ANNOTATEDURL = "annotatedurl";
 
 	/** Special value for myworkspace. */
 	protected final static String SPECIAL_WORKSPACE = "workspace";
@@ -252,6 +265,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			{
 				special = SPECIAL_WORKSITE;
 			}
+			else if ("true".equals(config.getProperty("annotatedurl")))
+			{
+				special = SPECIAL_ANNOTATEDURL;
+			}
 		}
 
 		state.removeAttribute(SPECIAL);
@@ -269,6 +286,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// set the source url setting
 		String source = StringUtil.trimToNull(config.getProperty(SOURCE));
+		
 
 		// check for an older way the ChefWebPagePortlet took parameters, converting to our "source" value
 		if (source == null)
@@ -289,7 +307,21 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// set the height
 		state.setAttribute(HEIGHT, config.getProperty(HEIGHT, "600px"));
-
+		
+		
+		state.setAttribute(ANNOTATED_TEXT, config.getProperty(ANNOTATED_TEXT, ""));
+		
+		
+		if(config.getProperty(TARGETPAGE_URL)!=null)
+				{
+			// set Target page url for Annotated URL Tool
+		state.setAttribute(TARGETPAGE_URL,config.getProperty(TARGETPAGE_URL));
+		
+		
+		// set Target page name for Annotated URL Tool
+		state.setAttribute(TARGETPAGE_NAME,config.getProperty(TARGETPAGE_NAME));
+				}
+		
 		// set the title
 		state.setAttribute(TITLE, placement.getTitle());
 		
@@ -718,7 +750,12 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		String special = (String) state.getAttribute(SPECIAL);
 		context.put(URL, url);
 		context.put(HEIGHT, state.getAttribute(HEIGHT));
-
+		
+		//for annotatedurl
+		context.put(TARGETPAGE_URL, state.getAttribute(TARGETPAGE_URL));
+		context.put(TARGETPAGE_NAME, state.getAttribute(TARGETPAGE_NAME));
+		context.put(ANNOTATED_TEXT, state.getAttribute(ANNOTATED_TEXT));
+		
 		// set the resource bundle with our strings
 		context.put("tlang", rb);
 
@@ -814,6 +851,22 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				{
 				}
 			}
+			else if (SPECIAL_ANNOTATEDURL.equals(special))
+			{
+				
+				context.put("heading", rb.getString("gen.custom.annotatedurl"));
+
+				// for Annotated URL Tool page, also include the description
+				try
+				{		
+					String desp = state.getAttribute(ANNOTATED_TEXT).toString();
+					context.put("description", desp);
+		            
+				}
+				catch (Throwable e)
+				{
+				}
+			}
 
 			else
 			{
@@ -882,6 +935,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		{
 			template = template + "-site-customize";
 		}
+		else if (SPECIAL_WORKSPACE.equals(special))
+		{
+			template = template + "-customize";
+		}
+		else if (SPECIAL_ANNOTATEDURL.equals(special))
+		{
+			template = template + "-annotatedurl-customize";
+		}
 		else
 		{
 			template = template + "-customize";
@@ -935,11 +996,26 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				return;
 			}
 		}
+		else if (SPECIAL_ANNOTATEDURL.equals(state.getAttribute(SPECIAL)))
+		{
+			// update the site info
+			try
+			{
+				String desp = data.getParameters().getString("description");
+				state.setAttribute(ANNOTATED_TEXT, desp);
+				placement.getPlacementConfig().setProperty(ANNOTATED_TEXT, desp);
+					
+			}
+			catch (Throwable e)
+			{
+			}
+		}
 		else
 		{
 			state.setAttribute(HEIGHT, height);
 			placement.getPlacementConfig().setProperty(HEIGHT, height);
 		}
+		
 
 		// title
 		String title = data.getParameters().getString(TITLE);

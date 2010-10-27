@@ -8,6 +8,11 @@
 #end
 
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+
+	#if($TargetPageUrl)
+         <h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
+         $desp      
+     #end
 	 	<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em  -2em">
 		<iframe 
 			width="100%"
@@ -18,10 +23,13 @@
 			marginwidth="0"
 			marginheight="0"
 			scrolling="auto"
-			src="$!validator.escapeHtml($url)"
+			 #if(!$TargetPageUrl)	
+				src="$!validator.escapeHtml($url)"	
+  			 #end
 			onload="updateMainFrameHeight();">
 		</iframe>
 	</div>
+	Hello3
 </div>
 
 <script  type="text/javascript" language="JavaScript">
