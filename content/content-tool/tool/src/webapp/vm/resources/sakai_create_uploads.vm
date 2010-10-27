@@ -1,4 +1,23 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<script type ="text/javascript" src ="/library/js/jquery-latest.min.js">
+</script>
+<script  type ="text/javascript">
+$(document).ready(function() {
+	jQuery.noConflict();
+	$('#saveChanges').attr('disabled','disabled')
+	$('input:file').live('change', function() {
+		var changed=false
+		$("input:file").each(function(i){
+			if ($(this).val() !==''){
+				changed=true
+			}
+		})
+		if (changed){
+			$('#saveChanges').attr('disabled','')
+		}
+	});
+});
+</script>
 <div class="portletBody specialLink">
 	<h3>
 		$tlang.getString("create.uploads")
