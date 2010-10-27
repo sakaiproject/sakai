@@ -509,7 +509,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	private AssignmentGrading produceAssignmentGrading(String userId, Double score) {
 		AssignmentGrading rv = new AssignmentGrading();
 		rv.setUserId(userId);
-		
+		rv.setScore(score);
 		return rv;
 	}
 
