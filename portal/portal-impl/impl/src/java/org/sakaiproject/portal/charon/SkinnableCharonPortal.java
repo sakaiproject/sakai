@@ -960,7 +960,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void doLogout(HttpServletRequest req, HttpServletResponse res,
 			Session session, String returnPath) throws ToolException
 	{
-		String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+		
+		// SAK-16370 to allow multiple logout urls
+		String loggedOutUrl = null;
+		String userType = UserDirectoryService.getCurrentUser().getType();
+		if(userType == null) {		
+			loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+		} else {
+			loggedOutUrl = ServerConfigurationService.getString("loggedOutUrl." + userType, ServerConfigurationService.getLoggedOutUrl());
+		}
+		
 		if ( returnPath != null ) 
 		{
 			loggedOutUrl = loggedOutUrl + returnPath;
