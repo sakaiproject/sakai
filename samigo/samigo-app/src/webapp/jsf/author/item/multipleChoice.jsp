@@ -122,7 +122,7 @@
   <h:panelGroup>
 	<h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
     <h:commandLink  title="#{authorMessages.reset_grading_logic}"
-					id="resetlink"
+					id="resetlink" 
 					rendered="#{itemauthor.currentItem.itemType == 1}"
 					onkeypress="this.form.onsubmit();this.form.submit();"
 					action="#{itemauthor.currentItem.resetToDefaultGradingLogic}">
@@ -241,7 +241,7 @@
 	
 	<!-- Begin changes made for Partial Credit --> 
 	<h:outputText value="#{authorMessages.percentage_value}" />
-	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}" onchange="toPoint(this.id);" validator="#{answer.validatePartialCredit}" />
+	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}" validator="#{answer.validatePartialCredit}"/>
 	    <h:outputText id="partialCreditReminder" value="#{authorMessages.enter_new_pc_value}" style="visibility:hidden;" />
 	    <h:message for="partialCredit" styleClass="validate"/>
 	<!-- end of partial credit -->

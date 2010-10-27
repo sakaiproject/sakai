@@ -41,7 +41,7 @@ public class AnswerBean implements Serializable{
   private String label;
   private String feedback;
   private Boolean isCorrect;
-  private int partialCredit = 0;  //to incorporate partial credit
+  private String partialCredit = "0";  //to incorporate partial credit
   private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   public static final String choiceLabels = rb.getString("choice_labels"); 
@@ -103,7 +103,7 @@ public class AnswerBean implements Serializable{
   
   // additional constroctor for partial credit
 	public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk,
-			Boolean pcorr, String pgrade, Float pscore, int pCredit) {
+			Boolean pcorr, String pgrade, Float pscore, String pCredit) {
 		this.text = ptext;
 		this.sequence = pseq;
 		this.label = plabel;
@@ -113,18 +113,34 @@ public class AnswerBean implements Serializable{
 	}
 
 	// --mustansar for partial credit
-	public int getPartialCredit() {
+	public String getPartialCredit() {
 		return partialCredit;
 	}
 
-	public void setPartialCredit(int pCredit) {
+	public void setPartialCredit(String pCredit) {
 		this.partialCredit = pCredit;
 	}
 	
 	public void validatePartialCredit(FacesContext context,  UIComponent toValidate,Object value){
-		Integer pCredit=Integer.parseInt(value.toString());
-
-		if(pCredit<0 || pCredit>99 || pCredit==null){
+		Integer pCredit = null;
+		boolean isValid = true;
+		if ("0.0".equals(value.toString())) {
+			pCredit = 0;
+		}
+		else {
+			try {
+				pCredit = Integer.parseInt(value.toString());
+			}
+			catch (NumberFormatException e) {
+				isValid = false;
+			}
+		}
+		
+		if(isValid && (pCredit==null || pCredit<0 || pCredit>99 )){
+			isValid = false;
+		}
+		
+		if (!isValid) {
 			((UIInput)toValidate).setValid(false);
 			FacesMessage message=new FacesMessage();
 			message.setSeverity(FacesMessage.SEVERITY_ERROR);

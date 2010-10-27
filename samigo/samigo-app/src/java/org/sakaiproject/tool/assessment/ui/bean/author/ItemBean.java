@@ -1436,12 +1436,11 @@ public class ItemBean
 		// checking whether the answer is correct simply leads to NPE.
 		while (iter.hasNext()) {
 			AnswerBean answerBean = (AnswerBean) iter.next();
-			// if (answerBean.getPartialCredit().floatValue() < 100.00) {
-			if (answerBean.getLabel().equals(corrAnswer)) {
-				answerBean.setPartialCredit(100);
+			if (Integer.parseInt(answerBean.getPartialCredit()) < 100) {
+				answerBean.setPartialCredit("0");
 			}
 			else {
-				answerBean.setPartialCredit(0);
+				answerBean.setPartialCredit("100");
 			}
 		}
 		this.setMultipleChoiceAnswers(answersList);
@@ -1457,7 +1456,7 @@ public class ItemBean
 		// simply leads to NPE.
 		while (iter.hasNext()) {
 			AnswerBean answerBean = (AnswerBean) iter.next();
-			answerBean.setPartialCredit(0);
+			answerBean.setPartialCredit("0");
 		}
 		this.setMultipleChoiceAnswers(answersList);
 		return null;
