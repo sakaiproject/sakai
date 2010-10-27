@@ -180,6 +180,7 @@ function disablePartialCreditField(){
           var subElement= radiobtn.name.split(":");
           var currCorrId="itemForm:mcchoices:"+subElement[2]+":partialCredit";
 		  var correctPInput= document.getElementById(currCorrId);
+		  correctPInput.valueOf().value=100;
           correctPInput.disabled=true;
        }   
     }
