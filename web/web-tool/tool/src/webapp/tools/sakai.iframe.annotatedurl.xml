@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.iframe.annotatedurl"
+			title="AnnotatedUrl"
+			description="To display Annotated Url">
+
+		<configuration name="height" value="600px" />
+
+		<configuration name="special" value="annotatedurl" type="final" />
+		<configuration name="reset.button" value="true" type="final" />
+		<configuration name="desp" value="Click the Options item in the toolbar to enter your class specific policies here." />
+		<configuration name="TargetPageName" value="Target Page" />
+		<configuration name="TargetPageUrl" value="http://sakaiproject.org/" />
+		
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+	</tool>
+
+</registration>
