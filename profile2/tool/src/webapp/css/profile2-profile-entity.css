@@ -82,6 +82,7 @@ div.profile2-profile-content-thumb {
 
 .profile2-profile-statusMessage {
 	font-size: 0.8em;
+	word-wrap: break-word;
 }
 
 .profile2-profile-statusDate {
