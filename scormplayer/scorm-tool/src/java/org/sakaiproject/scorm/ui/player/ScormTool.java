@@ -48,7 +48,7 @@ public class ScormTool extends SakaiWebApplication {
 	public void init() {
 		super.init();
 
-		Objects.setObjectStreamFactory(new org.apache.wicket.util.io.WicketObjectStreamFactory());
+//		Objects.setObjectStreamFactory(new org.apache.wicket.util.io.WicketObjectStreamFactory());
 		
 		/*mount(new BookmarkablePageRequestTargetUrlCodingStrategy("scormplayer", PlayerPage.class, null) {
 			public boolean matches(String path)
