@@ -582,6 +582,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String upload_limit = rb.getFormattedMessage("upload.limit", new String[]{ max_file_size_mb });
 		context.put("upload_limit", upload_limit);
 		
+		String uploadMax = ServerConfigurationService.getString("content.upload.max");
+		String instr_uploads= rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax});
+		context.put("instr_uploads", instr_uploads);
+
 //		int max_bytes = 1024 * 1024;
 //		try
 //		{
@@ -1318,10 +1322,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			mfp.setErrorEncountered(true);
 			mfp.setActionCompleted(false);
 			logger.debug(this + ".doUpload() setting error on pipe");
-
+			String uploadMax = ServerConfigurationService.getString("content.upload.max");
+			addAlert(state, rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			return;
 		}
 		
+		logger.debug(" after doUpload() setting error on pipe");
 		int count = params.getInt("fileCount");
 		mfp.setFileCount(count);
 		if(count < 1)
@@ -1468,6 +1474,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			HttpServletRequest req = data.getRequest();
 			String status = (String) req.getAttribute("upload.status");
+			logger.debug("Printing out upload.status: " + status);
 			if(status == null)
 			{
 				logger.warn("No files uploaded; upload.status == null");

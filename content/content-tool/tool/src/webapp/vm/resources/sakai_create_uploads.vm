@@ -23,12 +23,15 @@ $(document).ready(function() {
 		$tlang.getString("create.uploads")
 	</h3>
 	#if ($itemAlertMessage)
-		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div class="messageValidation">$itemAlertMessage</div>
 		<div style="display:block;clear:both" ></div>
 	#end
-	<p class="instruction">
-		$tlang.getString("instr.uploads")
-	</p>
+        #if($instr_uploads)
+		<p class="instruction">
+			$instr_uploads
+		</p>
+         #end
+
 	<div class="breadCrumb">
 	<h4>
 		$tlang.getString("gen.location")
