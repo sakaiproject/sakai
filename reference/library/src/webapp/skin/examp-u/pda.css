@@ -72,8 +72,11 @@ html {
 	display: inline;
 	float:left;
 }
+#pda-portlet-menu li.resetToolLink{
+    padding-left:5px;
+} 
 
-#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
+#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteParentLink:before,#pda-portlet-menu li.currentSiteChildLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
 	content: "\00BB \0020";
 	color: #ff9;
 	font-weight: bold;
@@ -288,12 +291,10 @@ html {
     content: "";
 }
 #pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
-    font-size: 16px;
+    font-size: 14px;
 	padding-top:10px;
-	position:absolute;
+	position:relative;
 	height:35px;
-	top:0;
-	left:70px;
     width: 11em !important;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -303,19 +304,20 @@ html {
 #pda-portlet-menu li.instanceNote a {
     text-decoration: none;
 	display:block;
-	width: 60px;
+	width: 55px;
     margin-top:2px;
 	height:35px;
 	
 }
 #pda-portlet-menu li.instanceNote {
-	position:absolute;
-	top:0;
-	left:0;
-    margin: -6px 3px 3px;
-    padding: 5px !important;
+	position:relative;
+    margin: -6px 3px 0;
+    padding: 5px 5px 5px 0 !important;
     background: url(images/pda-menu-instance-icon-ip.png) center left no-repeat;
-    width: 60px;
+    width: 55px;
+}
+#pda-portlet-menu li.resetToolLink{
+    padding:10px 5px;
 }
 #pda-portlet-menu li.helpLink, .currentSiteParentLink, .currentToolTitle, #pda-portlet-menu li.sitesLink {
     display: none  !important
