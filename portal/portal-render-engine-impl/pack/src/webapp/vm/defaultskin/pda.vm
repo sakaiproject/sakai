@@ -105,13 +105,15 @@ ${responseHead}
 #if ($currentPlacement)
   #if ( ${bufferedResponse} && ${responseBody} ) 
     <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
-    <li class="toolLink"><span>
-    	#if ($showResetButton)
-    		<a href="$resetActionUrl" title="$rloader.getString('sit_reset')">
-    			<img src="${pageSkinRepo}/${pageSkin}/images/reload.gif" alt="$rloader.getString('sit_reset')" />
-    		</a>
-    	#end
-    </span></li>
+	#if ($showResetButton)
+    	<li class="resetToolLink">
+			<span>
+    			<a href="$resetActionUrl" title="$rloader.getString('sit_reset')" class="toolReset">
+	    			<img src="${pageSkinRepo}/${pageSkin}/images/pda-tool-reload.png" alt="$rloader.getString('sit_reset')" />
+	    		</a>
+    		</span>
+		</li>
+	#end
   #end
 #end
 #if (${currentPlacement.toolShowHelpButton})
