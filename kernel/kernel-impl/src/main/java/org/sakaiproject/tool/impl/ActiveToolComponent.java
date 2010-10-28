@@ -112,19 +112,26 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	 */
 	public void register(Tool tool, ServletContext context)
 	{
-		MyActiveTool at = null;
+		ActiveTool at = null;
 
 		// make it an active tool
 		if (tool instanceof MyActiveTool)
 		{
 			at = (MyActiveTool) tool;
 		}
+		else if (tool instanceof ActiveTool)
+		{
+			at = (ActiveTool) tool;
+		}
 		else
 		{
 			at = new MyActiveTool(tool);
 		}
 
-		at.setServletContext(context);
+		// TODO: elevate setServletContext to ActiveTool interface to avoid instance testing
+		if (at instanceof MyActiveTool) {
+			((MyActiveTool) at).setServletContext(context);
+		}
 
 		// KNL-409 - JSR-168 Portlets do not dispatch the same as normal
 		// Sakai tools - so the warning below is not necessary for JSR-168

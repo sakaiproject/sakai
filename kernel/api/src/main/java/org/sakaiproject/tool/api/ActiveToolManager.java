@@ -40,6 +40,9 @@ public interface ActiveToolManager extends ToolManager
 	/**
 	 * Add this tool to the registry.
 	 * @param tool The Tool to register.
+	 * @param config The ServletContext to be attached to the tool. Only applied to the default implementation,
+	 *               as supplied through the XML signatures (usually via the ToolListener), or a bare Tool instance,
+	 *               which will be decorated. Ignored if supplying a custom ActiveTool implementation (or proxy).
 	 */
 	void register(Tool tool, ServletContext config);
 	
