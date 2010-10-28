@@ -153,7 +153,7 @@ document.links[newindex].onclick();
     
     <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
 
-  	<h:commandLink title="#{authorMessages.t_publish}" id="editAssessmentSettings_editAssessment2" action="saveSettingsAndConfirmPublish" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
+  	<h:commandLink title="#{authorMessages.t_publish}" id="editAssessmentSettings_editAssessment2" action="#{assessmentSettings.getOutcomePublish}" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
       <h:outputText value="#{authorMessages.subnav_publish}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />

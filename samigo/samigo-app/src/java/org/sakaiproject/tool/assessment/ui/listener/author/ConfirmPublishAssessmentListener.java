@@ -314,6 +314,8 @@ public class ConfirmPublishAssessmentListener
       String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","published_assessment_title_not_unique_error");
       context.addMessage(null,new FacesMessage(err));
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+      author.setIsErrorInSettings(true);
       return;
     }
     

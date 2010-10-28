@@ -81,9 +81,12 @@ public class AuthorBean implements Serializable
   private boolean showTemplateList;
   private boolean isEditPendingAssessmentFlow = true;
   private String fromPage;
+  private String firstFromPage;
   private boolean isRetractedForEdit = false;
   private boolean editPubAssessmentRestricted;
   private boolean isRepublishAndRegrade = false;
+  private boolean isErrorInSettings = false;
+  
   // currentFormTime is used to make sure the data we get back is from
   // the current form
   private long currentFormTime = 0;
@@ -540,6 +543,16 @@ public class AuthorBean implements Serializable
     this.fromPage = fromPage;
   }
   
+  public String getFirstFromPage()
+  {
+    return firstFromPage;
+  }
+
+  public void setFirstFromPage(String firstFromPage)
+  {
+    this.firstFromPage = firstFromPage;
+  }
+  
   public boolean getIsRetractedForEdit()
   {
     return isRetractedForEdit;
@@ -700,4 +713,15 @@ public class AuthorBean implements Serializable
 	  }
 	  return false;
   }
+  
+  public void setIsErrorInSettings(boolean isErrorInSettings)
+  {
+    this.isErrorInSettings = isErrorInSettings;
+  }
+
+  public boolean getIsErrorInSettings()
+  {
+    return isErrorInSettings;
+  }
+  
 }

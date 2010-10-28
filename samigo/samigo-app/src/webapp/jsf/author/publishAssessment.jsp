@@ -78,8 +78,8 @@
 
  <f:verbatim><p class="act"></f:verbatim>
  <!-- Cancel button -->
-   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFromPage}" rendered="#{author.isEditPendingAssessmentFlow}"/>
-   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFromPage}" rendered="#{!author.isEditPendingAssessmentFlow}">
+   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFirstFromPage}" rendered="#{author.isEditPendingAssessmentFlow}"/>
+   <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
 	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
    </h:commandButton>
 

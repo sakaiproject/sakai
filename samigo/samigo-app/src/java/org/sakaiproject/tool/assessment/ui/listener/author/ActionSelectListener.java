@@ -63,6 +63,7 @@ public class ActionSelectListener implements ValueChangeListener {
 		if ("edit_pending".equals(newValue)) {
 			EditAssessmentListener editAssessmentListener = new EditAssessmentListener();
 			editAssessmentListener.processAction(null);
+			author.setFirstFromPage("editAssessment");
 		}
 		else if ("preview_pending".equals(newValue)) {
 			delivery.setActionString("previewAssessment");
@@ -91,12 +92,19 @@ public class ActionSelectListener implements ValueChangeListener {
 		else if ("publish".equals(newValue)) {
 			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();
 			authorSettingsListener.processAction(null);
+			author.setIsErrorInSettings(false);
 			ConfirmPublishAssessmentListener confirmPublishAssessmentListener = new ConfirmPublishAssessmentListener();
 			confirmPublishAssessmentListener.processAction(null);
-			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
-			publishAssessmentListener.processAction(null);
-			author.setOutcome("saveSettingsAndConfirmPublish");			
+			if (author.getIsErrorInSettings()) {
+				author.setOutcome("editAssessmentSettings");	
+			}
+			else {
+				PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+				publishAssessmentListener.processAction(null);
+				author.setOutcome("saveSettingsAndConfirmPublish");		
+			}
 			author.setFromPage("author");
+			author.setFirstFromPage("author");
 		}
 		else if ("duplicate".equals(newValue)) {
 			ConfirmCopyAssessmentListener confirmCopyAssessmentListener = new ConfirmCopyAssessmentListener();
