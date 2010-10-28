@@ -54,6 +54,7 @@ public class SakaiBLTIUtil {
     public static final boolean verbosePrint = false;
 
     public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
+    public static final String BASICLTI_SETTINGS_ENABLED = "basiclti.settings.enabled";
 
     public static void dPrint(String str)
     {
@@ -176,18 +177,47 @@ public class SakaiBLTIUtil {
  
 	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
 
-		String gradeSecret = toNull(getCorrectProperty(config,"gradesecret", placement));
-                String enabled = ServerConfigurationService.getString(BASICLTI_OUTCOMES_ENABLED, null);
-                if ( "true".equals(enabled) && assignment != null && gradeSecret != null) {
+		String placementSecret = toNull(getCorrectProperty(config,"placementsecret", placement));
+                String allowOutcomes = ServerConfigurationService.getString(
+                                SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+                if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+
+                String allowSettings = ServerConfigurationService.getString(
+                                SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+                if ( ! "true".equals(allowSettings) ) allowSettings = null;
+
+		if ( placementSecret != null ) {
 			String suffix = ":::" +  user.getId() + ":::" + placement.getId();
-			String base_string = gradeSecret + suffix;
+			String base_string = placementSecret + suffix;
 			String signature = ShaUtil.sha256Hash(base_string);
 			String result_sourcedid = signature + suffix;
-			setProperty(props,"lis_result_sourcedid", result_sourcedid);  
 
-			String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_simple_outcome_url",null);
-        		if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/outcomes/";  
-			setProperty(props,"ext_ims_lis_simple_outcome_url", outcome_url);  
+                	if ( "true".equals(allowSettings) ) {
+				setProperty(props,"ext_ims_lti_tool_setting_id", result_sourcedid);  
+	
+				String setting = config.getProperty("toolsetting", null);
+				if ( setting != null ) {
+					setProperty(props,"ext_ims_lti_tool_setting", setting);  
+				}
+				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
+        			if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(props,"ext_ims_lti_tool_setting_url", service_url);  
+			}
+	
+                	if ( "true".equals(allowOutcomes) && assignment != null ) {
+				setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+	
+				// TODO: Remove this after the switch to Basic Outcomes
+				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_simple_outcome_url",null);
+        			if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/outcomes/";  
+				setProperty(props,"ext_ims_lis_simple_outcome_url", outcome_url);  
+
+				// New Basic Outcomes URL
+				outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
+        			if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(props,"ext_ims_lis_basic_outcome_url", outcome_url);  
+	
+			}
 		}
 	}
 

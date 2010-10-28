@@ -251,8 +251,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	request.setAttribute("imsti.oldvalues", oldValues);
   
-        String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-	if ( "true".equals(enabled) ) {
+        String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+	if ( "true".equals(allowOutcomes) ) {
 	  	List<String> assignments = getGradeBookAssignments();
         	if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
 	}
@@ -526,10 +526,27 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
         // Make Sure the Assignment is a legal one
 	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
-        String oldGradeSecret = getSakaiProperty(sakaiProperties,"imsti.gradesecret");
-        String enabled = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-	// System.out.println("old gradesecret="+oldGradeSecret);
-	if ( "true".equals(enabled) && assignment != null && assignment.trim().length() > 1 ) {
+        String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
+        String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+        String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+
+	// System.out.println("old placementsecret="+oldPlacementSecret);
+	if ( oldPlacementSecret == null && ("true".equals(allowOutcomes) || "true".equals(allowSettings) ) ) {
+               	try {
+			String uuid = UUID.randomUUID().toString();
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
+			String date_secret = sdf.format(date);
+                       	prefs.setValue("sakai:imsti.placementsecret", uuid);
+                       	prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
+			// System.out.println("placementsecret set to="+uuid+" data="+date_secret);
+                       	changed = true;
+               	} catch (ReadOnlyException e) {
+                       	setErrorMessage(request, rb.getString("error.modify.prefs") );
+               	} 
+        }
+
+	if ( "true".equals(allowOutcomes) && assignment != null && assignment.trim().length() > 1 ) {
 	        List<String> assignments = getGradeBookAssignments();
                 boolean found = false;
                 if ( assignments != null ) for ( String assn : assignments ) {
@@ -539,21 +556,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			setErrorMessage(request, rb.getString("error.gradable.badassign") + assignment );
 			return;
 		}
-		if ( oldGradeSecret == null ) {
-                	try {
-				String uuid = UUID.randomUUID().toString();
-				Date date = new Date();
-				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
-				String date_secret = sdf.format(date);
-                        	prefs.setValue("sakai:imsti.gradesecret", uuid);
-                        	prefs.setValue("sakai:imsti.gradesecretdate", date_secret);
-				// System.out.println("gradesecret set to="+uuid+" data="+date_secret);
-                        	changed = true;
-                	} catch (ReadOnlyException e) {
-                        	setErrorMessage(request, rb.getString("error.modify.prefs") );
-                	} 
-                } 
-        }
+	}
 
         String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
         if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;

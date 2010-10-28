@@ -3,7 +3,7 @@
                          "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
 
-  <display-name>IMS LIS SimpleOutComes Servlet</display-name>
+  <display-name>IMS Services Servlet</display-name>
 
     <filter>
         <filter-name>RemoteHostFilter</filter-name>
@@ -48,9 +48,19 @@
     <servlet-class>org.sakaiproject.blti.SimpleOutcomesServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>ServiceServlet</servlet-name>
+    <servlet-class>org.sakaiproject.blti.ServiceServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>SimpleOutcomesServlet</servlet-name>
     <url-pattern>/outcomes/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ServiceServlet</servlet-name>
+    <url-pattern>/service/*</url-pattern>
   </servlet-mapping>
   
   <listener>

@@ -84,7 +84,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 /**
  * Notes:
  * 
- * This program is directly exposed as a URL to receive IMS Basic LTI launches
+ * This program is directly exposed as a URL to receive IMS Basic LTI messages
  * so it must be carefully reviewed and any changes must be looked at carefully.
  * Here are some issues:
  * 
@@ -107,7 +107,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
  */
 
 @SuppressWarnings("deprecation")
-public class SimpleOutcomesServlet extends HttpServlet {
+public class ServiceServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static Log M_log = LogFactory.getLog(SimpleOutcomesServlet.class);
@@ -140,11 +140,11 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		if (e != null) {
 			M_log.error(e.getLocalizedMessage(), e);
 		}
-		theMap.put("/simpleoutcome/statusinfo/codemajor", "Fail");
-		theMap.put("/simpleoutcome/statusinfo/severity", "Error");
+		theMap.put("/message_response/statusinfo/codemajor", "Fail");
+		theMap.put("/message_response/statusinfo/severity", "Error");
 		String msg = rb.getString(s) + ": " + message;
 		M_log.info(msg);
-		theMap.put("/simpleoutcome/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
+		theMap.put("/message_response/statusinfo/description", FormattedText.escapeHtmlFormattedText(msg));
 		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
 		out.println(theXml);
@@ -163,18 +163,23 @@ public class SimpleOutcomesServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
-		M_log.debug("Basic LTI Outcome request from IP=" + ipAddress);
+		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
 
-		String enabled = ServerConfigurationService.getString(
+		String allowOutcomes = ServerConfigurationService.getString(
 				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-		if (enabled == null || !("true".equals(enabled))) {
-			M_log.warn("Basic LTI Outcomes are Disabled IP=" + ipAddress);
+                if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+
+		String allowSettings = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+                if ( ! "true".equals(allowSettings) ) allowSettings = null;
+
+		if (allowOutcomes == null && allowSettings == null ) {
+			M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		boolean success = false;
-		
+		// Lets return an XML Response
 		Map<String,String> theMap = new TreeMap<String,String>();
 
 		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
@@ -182,57 +187,71 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
 		}
 
-		String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
+		//check lti_message_type
 		String lti_message_type = request.getParameter(BasicLTIConstants.LTI_MESSAGE_TYPE);
-		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
+		theMap.put("/message_response/lti_message_type", lti_message_type);
+		String sourcedid = null;
+		String message_type = null;
+		if( BasicLTIUtil.equals(lti_message_type, "basic-lis-replaceresult") || 
+		    BasicLTIUtil.equals(lti_message_type, "basic-lis-createresult") || 
+		    BasicLTIUtil.equals(lti_message_type, "basic-lis-updateresult") || 
+		    BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult") || 
+		    BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
+			sourcedid = request.getParameter("sourcedid");
+			if ( allowOutcomes != null ) message_type = "basicoutcome";
+		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lti-loadsetting") || 
+		    BasicLTIUtil.equals(lti_message_type, "basic-lti-savesetting") || 
+		    BasicLTIUtil.equals(lti_message_type, "basic-lti-deletesetting") ) {
+			sourcedid = request.getParameter("id");
+			if ( allowSettings != null ) message_type = "toolsetting";
+                } else {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+		}
 
-		theMap.put("/simpleoutcome/lti_message_type", lti_message_type);
+		// If we have not gotten one of our allowed message types, stop now
+		if ( message_type == null ) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+		}
+
+		// No point continuing without a sourcedid
+		if(BasicLTIUtil.isBlank(sourcedid)) {
+			doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
+			return;
+		}
+
+		String lti_version = request.getParameter(BasicLTIConstants.LTI_VERSION);
+		if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_version="+lti_version, null);
+			return;
+		}
+
+		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
+		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
+			return;
+		}
 
 		// Sadly not supported easily using the Gradebook API - may have to dig
 		// deeper later
-		if ( BasicLTIUtil.equals(lti_message_type, "simple-lis-deleteresult") ) {
-			theMap.put("/simpleoutcome/statusinfo/codemajor", "Unsupported");
-			theMap.put("/simpleoutcome/statusinfo/severity", "Error");
-			theMap.put("/simpleoutcome/statusinfo/codeminor", "cannotdelete");
+		if ( BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult") ) {
+			theMap.put("/message_response/statusinfo/codemajor", "Unsupported");
+			theMap.put("/message_response/statusinfo/severity", "Error");
+			theMap.put("/message_response/statusinfo/codeminor", "cannotdelete");
 			String theXml = XMLMap.getXML(theMap, true);
 			PrintWriter out = response.getWriter();
 			out.println(theXml);
 			return;
                 }
 
-		//check message type
-		if( BasicLTIUtil.equals(lti_message_type, "simple-lis-replaceresult") || 
-		    BasicLTIUtil.equals(lti_message_type, "simple-lis-createresult") || 
-		    BasicLTIUtil.equals(lti_message_type, "simple-lis-updateresult") || 
-		    BasicLTIUtil.equals(lti_message_type, "simple-lis-readresult") ) {
-			// OK
-                } else {
-			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
-			return;
-		}
-		if(!BasicLTIUtil.equals(lti_version, "LTI-1p0")) {
-			doError(request, response, theMap, "outcomes.invalid", "lti_version="+lti_version, null);
-			return;
-		}
-
-		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
-			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
-			return;
-		}
-
-		String sourcedid = request.getParameter("sourcedid");
-		if(BasicLTIUtil.isBlank(sourcedid)) {
-			doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
-			return;
-		}
-
 		// Truncate this to the maximum length to insure no cruft at the end
 		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
 
+		// Attempt to parse the sourcedid, any failure is fatal
 		String placement_id = null;
 		String signature = null;
 		String user_id = null;
-		// Attempt to parse the sourcedid, any failure,if fatal
 		try {
                 	int pos = sourcedid.indexOf(":::");
                 	if ( pos > 0 ) {
@@ -337,6 +356,72 @@ public class SimpleOutcomesServlet extends HttpServlet {
 			return;
 		}
 
+		// Perform the message-specific handling
+		if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+
+		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+	}
+
+	protected void processSetting(HttpServletRequest request, HttpServletResponse response, 
+		String lti_message_type, 
+		Site site, String siteId, ToolConfiguration placement, Properties config,
+		String user_id,  Map<String, String> theMap)
+		throws java.io.IOException
+	{
+		String setting = null;
+
+                pushAdvisor();
+		boolean success = false;
+		try { 
+			if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
+				setting = placement.getPlacementConfig().getProperty("toolsetting", null);
+				if ( setting != null ) {
+					theMap.put("/message_response/setting/value", setting);
+				}
+				success = true;
+			} else {
+				if ( "basic-lti-savesetting".equals(lti_message_type) ) {
+					setting = request.getParameter("setting");
+					// Truncate this to the maximum length to insure no cruft at the end
+					if ( setting.length() > 8096) setting = setting.substring(0,8096);
+					if ( setting == null ) {
+						M_log.warn("No setting parameter");
+						doError(request, response, theMap, "setting.empty", "", null);
+						return;
+					}
+					placement.getPlacementConfig().setProperty("toolsetting", setting);
+				} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
+					placement.getPlacementConfig().remove("toolsetting");
+				}
+				try {
+					placement.save();
+					success = true;
+				} catch(Exception e) {
+					doError(request, response, theMap, "setting.save.fail", "", e);
+				}
+			}
+                } catch (Exception e) {
+			doError(request, response, theMap, "setting.fail", "", e);
+                } finally {
+                        popAdvisor();
+                }
+
+		if ( ! success ) return;
+
+		theMap.put("/message_response/statusinfo/codemajor", "Success");
+		theMap.put("/message_response/statusinfo/severity", "Status");
+		theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
+                String theXml = XMLMap.getXML(theMap, true);
+                PrintWriter out = response.getWriter();
+                out.println(theXml);
+	}
+
+	protected void processOutcome(HttpServletRequest request, HttpServletResponse response, 
+		String lti_message_type, 
+		Site site, String siteId, ToolConfiguration placement, Properties config,
+		String user_id,  Map<String, String> theMap)
+		throws java.io.IOException
+	{
 		// Make sure the user exists in the site
                 boolean userExistsInSite = false;
                 try {
@@ -384,7 +469,7 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		}
 
 		// Things look good - time to process the grade
-		boolean isRead = BasicLTIUtil.equals(lti_message_type, "simple-lis-readresult");
+		boolean isRead = BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult");
 
 		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
 
@@ -401,6 +486,8 @@ public class SimpleOutcomesServlet extends HttpServlet {
 		Session sess = SessionManager.getCurrentSession();
 		String theGrade = null;
                 pushAdvisor();
+		boolean success = false;
+		
                 try {
 			// Indicate "who" is setting this grade - needs to be a real user account
 			String gb_user_id = ServerConfigurationService.getString(
@@ -414,7 +501,7 @@ public class SimpleOutcomesServlet extends HttpServlet {
 				theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
 				dGrade = new Double(theGrade);
 				dGrade = dGrade / assignmentObject.getPoints();
-				theMap.put("/simpleoutcome/result/resultscore/textstring", dGrade.toString());
+				theMap.put("/message_response/result/resultscore/textstring", dGrade.toString());
 			} else { 
 				dGrade = new Double(result_resultscore_textstring);
 				dGrade = dGrade * assignmentObject.getPoints();
@@ -423,9 +510,9 @@ public class SimpleOutcomesServlet extends HttpServlet {
 				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
 			}
                		success = true;
-			theMap.put("/simpleoutcome/statusinfo/codemajor", "Success");
-			theMap.put("/simpleoutcome/statusinfo/severity", "Status");
-			theMap.put("/simpleoutcome/statusinfo/codeminor", "fullsuccess");
+			theMap.put("/message_response/statusinfo/codemajor", "Success");
+			theMap.put("/message_response/statusinfo/severity", "Status");
+			theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
                 } catch (Exception e) {
                 	doError(request, response, theMap, "outcome.grade.fail", "siteId="+siteId, e);
                 } finally {
