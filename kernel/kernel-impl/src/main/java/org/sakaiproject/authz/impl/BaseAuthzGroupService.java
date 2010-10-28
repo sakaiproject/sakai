@@ -930,9 +930,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			String eid = userDirectoryService().getUserEid(userId);
 
 			// wrap the provided map in our special map that will deal with compound provider ids
-			Map providerGrants = new ProviderMap(m_provider, m_provider.getGroupRolesForUser(eid));
+			// suppressed using a properties setting and per
+			// http://article.gmane.org/gmane.comp.cms.sakai.devel/36245
+			// DRS / Univ of VA SAK-1590
+			if (!serverConfigurationService().getBoolean("suppressCMRefresh", false)) {
+				Map providerGrants = new ProviderMap(m_provider, m_provider.getGroupRolesForUser(eid));
 
-			m_storage.refreshUser(userId, providerGrants);
+				m_storage.refreshUser(userId, providerGrants);
+			}
 
 			// update site security for this user - get the user's realms for the three site locks
 			Set updAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SECURE_UPDATE_SITE, null);
