@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.console.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,6 +54,7 @@ import org.sakaiproject.wicket.model.SimpleDateFormatPropertyModel;
 public class PackageConfigurationPage extends ConsoleBasePage {
 
 	static class AssessmentSetup {
+
 		LaunchData launchData;
 
 		Double numberOffPoints = 100d;
@@ -117,7 +119,9 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 
 	}
 
-	static class GradebookSetup {
+	static class GradebookSetup implements Serializable{
+		private static final long serialVersionUID = 1L;
+		
 		boolean isGradebookDefined;
 		
 		ContentPackage contentPackage;
