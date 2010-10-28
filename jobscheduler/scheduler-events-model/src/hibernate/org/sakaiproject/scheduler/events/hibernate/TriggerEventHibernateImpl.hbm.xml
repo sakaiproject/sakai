@@ -16,7 +16,7 @@
                   type="org.sakaiproject.scheduler.events.hibernate.TriggerEventEnumUserType" not-null="true"/>
         <property name="jobName" column="jobName" type="string" not-null="true"/>
         <property name="triggerName" column="triggerName" type="string"/>
-        <property name="time" column="time"/>
+        <property name="time" column="time" not-null="true"/>
         <property name="message" column="message" type="text"/>
     </class>
 
