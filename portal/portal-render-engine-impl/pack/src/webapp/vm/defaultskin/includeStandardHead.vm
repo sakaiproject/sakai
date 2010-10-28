@@ -11,6 +11,7 @@
         ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
 	var portal = { 
 		"loggedIn": $!{loggedIn},
+		"portalPath": "$!{portalPath}",
 		"loggedOutUrl": "$!{loggedOutUrl}",
 		"user": {
 			"id": "$!{userId}",

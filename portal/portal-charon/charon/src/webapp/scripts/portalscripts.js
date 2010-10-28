@@ -74,6 +74,7 @@ var sessionTimeOut;
 var timeoutDialogEnabled = false;
 var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
+var timeoutPortalPath;
 jQuery(document).ready(function(){
 	// note a session exists whether the user is logged in or no
 	if (portal.loggedIn && portal.timeoutDialog ) {
@@ -85,6 +86,7 @@ var setup_timeout_config = function() {
 	timeoutDialogEnabled = portal.timeoutDialog.enabled;
 	timeoutDialogWarningTime = portal.timeoutDialog.seconds;
 	timeoutLoggedoutUrl = portal.loggedOutUrl;
+	timeoutPortalPath = portal.portalPath;
 	if (timeoutDialogEnabled == true) {
 		poll_session_data();
 		fetch_timeout_dialog();
@@ -132,7 +134,7 @@ var poll_session_data = function() {
 
 function keep_session_alive(){
 	dismiss_session_alert();
-	jQuery.get(timeoutLoggedoutUrl);
+	jQuery.get(timeoutPortalPath);
 }
 
 var dismiss_session_alert = function(){
