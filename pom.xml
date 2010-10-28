@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>master</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.6.3</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+    <parent>
+      <artifactId>master</artifactId>
+      <groupId>org.sakaiproject</groupId>
+      <relativePath>../master/pom.xml</relativePath>
+      <version>2.7.0</version>
+    </parent>
+
   <groupId>org.sakaiproject</groupId>
   <artifactId>scorm</artifactId>
   <name>Sakai Scorm Project</name>

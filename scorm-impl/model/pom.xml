@@ -42,11 +42,6 @@
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-coursemanagement-api</artifactId>
-		</dependency>
-		
-		<dependency>
 			<groupId>${sakai.hibernate.groupId}</groupId>
 			<artifactId>${sakai.hibernate.artifactId}</artifactId>
   	        <version>${sakai.hibernate.version}</version>
@@ -59,6 +54,11 @@
 			<version>${sakai.spring.version}</version>
 		</dependency>
 		
+		<dependency>
+		  <groupId>org.sakaiproject.edu-services.course-management</groupId>
+		  <artifactId>coursemanagement-api</artifactId>
+		</dependency>
+
 		<!--this I doubt works DH <dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
