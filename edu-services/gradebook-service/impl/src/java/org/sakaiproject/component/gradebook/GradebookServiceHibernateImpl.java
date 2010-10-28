@@ -1193,7 +1193,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return (List)getHibernateTemplate().execute(hc);
 	}
 	
-  public boolean checkStuendsNotSubmitted(String gradebookUid)
+  public boolean checkStudentsNotSubmitted(String gradebookUid)
   {
   	Gradebook gradebook = getGradebook(gradebookUid);
   	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
@@ -2629,5 +2629,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    }
 
 	    return categoryDef;
+	}
+
+	public boolean checkStuendsNotSubmitted(String gradebookUid) {
+		return checkStudentsNotSubmitted(gradebookUid);
 	}
 }
