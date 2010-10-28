@@ -5091,7 +5091,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			ContentCollection collection = ContentHostingService.getCollection(siteCollectionId);
 			long quota = ContentHostingService.getQuota(collection);
 			long usage = collection.getBodySizeK();
-			context.put("usage", ListItem.formatSize(usage * 1024));
+			
+			String usageMsg = (usage == 0) ? rb.getFormattedMessage("size.kb", new Object[] { 0 })
+					: ListItem.formatSize(usage * 1024);
+			context.put("usage", usageMsg);
+			
 			if (quota > 0)
 			{
 				long usagePrecent = usage * 100 / quota;
