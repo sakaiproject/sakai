@@ -53,7 +53,9 @@ import org.sakaiproject.wicket.model.SimpleDateFormatPropertyModel;
 
 public class PackageConfigurationPage extends ConsoleBasePage {
 
-	static class AssessmentSetup {
+	static class AssessmentSetup implements Serializable{
+
+		private static final long serialVersionUID = 1L;
 
 		LaunchData launchData;
 
@@ -103,7 +105,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 
 	}
 
-	public class DisplayNamePropertyModel extends DecoratedPropertyModel {
+	public class DisplayNamePropertyModel extends DecoratedPropertyModel implements Serializable{
 
 		private static final long serialVersionUID = 1L;
 
@@ -175,7 +177,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		}
 	}
 
-	public class TryChoiceRenderer extends ChoiceRenderer {
+	public class TryChoiceRenderer extends ChoiceRenderer implements Serializable{
 		private static final long serialVersionUID = 1L;
 
 		public TryChoiceRenderer() {
