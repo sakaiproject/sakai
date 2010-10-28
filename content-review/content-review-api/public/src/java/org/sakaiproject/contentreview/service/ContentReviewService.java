@@ -163,6 +163,29 @@ public interface ContentReviewService {
 	throws QueueException, SubmissionException, ReportException;
 	
 	/**
+	 * This is a complement to getReportList, except that it returns all
+	 * ContentReviewItems for a site and task, rather than just the ones 
+	 * whose reports have been completed. 
+	 * 
+	 * This is the result of running into leaky abstraction problems while
+	 * working on Assignments 2, namely that we need to make the pretty
+	 * little color coded bars for an entire class for a given assignment,
+	 * and if some of them had issues we need to present a fine grained 
+	 * error message (such as, your paper was less than 2 paragraphs, or 
+	 * your paper was the wrong file type). This requires another property
+	 * method, but rather than add a getErrorCode(String contentId) method
+	 * it's more efficient to add this so we can get the whole lot in one
+	 * DB query, rather than lookup the special case failures.
+	 * 
+	 * @param siteId
+	 * @param taskId
+	 * @return
+	 */
+	public List<ContentReviewItem> getAllContentReviewItems(String siteId, String taskId)
+	throws QueueException, SubmissionException, ReportException;
+	
+	
+	/**
 	 * Return the Name of the Service Implementation for Display Purposes
 	 * 
 	 */
