@@ -91,7 +91,7 @@ public class TriggerEventManagerHibernateImpl
         Query
             q = getSession().getNamedQuery("purgeEventsBefore");
 
-        q.setDate(0, before);
+        q.setTimestamp(0, before);
 
         q.executeUpdate();
     }

@@ -28,7 +28,18 @@ public class TestTriggerEventManagerHibernateImpl
     private TriggerEventManagerHibernateImpl
         temhi = null;
     private static final Date
-        TEST_DATE = new Date();
+        TEST_DATE;
+
+    static
+    {
+        //Need to create a time with 0 in the milliseconds field ao that equality comparisons work with values
+        //  returned from the DB
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.MILLISECOND, 0);
+
+        TEST_DATE = new Date(cal.getTimeInMillis());
+    }
 
     public TestTriggerEventManagerHibernateImpl()
     {
@@ -87,8 +98,10 @@ public class TestTriggerEventManagerHibernateImpl
             TriggerEvent.TRIGGER_EVENT_TYPE
                 type = TriggerEvent.TRIGGER_EVENT_TYPE.values()[i % eventTypeCount];
 
+            Date newDate = new Date(cal.getTimeInMillis());
+
             mgr.createTriggerEvent(type, "job name " + i, "trigger name " + i,
-                                   new Date(cal.getTimeInMillis()), "message " + i);
+                                   newDate, "message " + i);
 
             cal.add(Calendar.HOUR, -1);
         }
@@ -102,6 +115,45 @@ public class TestTriggerEventManagerHibernateImpl
             mgr = getEventManager();
 
         mgr.purgeEvents(new Date());
+    }
+
+    @Test
+    public void testPurgeEventsBeforeDate()
+        throws Exception
+    {
+        final TriggerEventManagerHibernateImpl
+            mgr = getEventManager();
+
+        generateEvents(5);
+
+        Calendar
+            cal = Calendar.getInstance();
+
+        cal.setTimeInMillis(TEST_DATE.getTime());
+
+        cal.add(Calendar.HOUR, -2);
+
+        Date
+            before = new Date (cal.getTimeInMillis());
+
+        mgr.purgeEvents(before);
+
+        List<TriggerEvent>
+            results = mgr.getTriggerEvents();
+
+        Assert.assertNotNull(results);
+        Assert.assertEquals(3, results.size());
+
+        for (TriggerEvent evt : results)
+        {
+            Date
+                evtTime = evt.getTime();
+            long
+                evtMillis = evtTime.getTime(),
+                b4Millis = before.getTime();
+
+            Assert.assertTrue (b4Millis <= evtMillis);
+        }
     }
 
     @Test
