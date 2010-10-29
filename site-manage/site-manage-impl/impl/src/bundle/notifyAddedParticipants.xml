@@ -2,18 +2,17 @@
 <emailTemplates>
 	<emailTemplate>
 		<subject>${localSakaiName} Site Notification</subject>
-		<message>${currentUserDisplayName}:
+		<message>Dear ${userName},
 
 &lt;#if newNonOfficialAccount == "true" &gt;
-	Once you have your guest account, you can log in to ${localSakaiName}:
-&lt;#else&gt;
-	To login:
+You have been added to the system as a guest user. Your username is ${username}. You will receive your password in a separate email.
 &lt;/#if&gt;
-1. Open ${localSakaiName}: ${localSakaiURL}
-2. Click the Login button.
-3. Type your guest account login and password, and click Login.
-4. Go to the site, click on the site tab. (You will see two or more tabs in a row across the upper part of the screen.)
+	
+To access the new site:
 
+1. Open ${localSakaiName}: ${localSakaiURL}
+2. Enter your username and password, and click Login.
+3. Navigate to the site via the course tab or via the "My Active Sites" tab.
 
 </message>
  <locale></locale>
@@ -22,7 +21,7 @@
 	<emailTemplate>
 		<subject>${localSakaiName} Notificació de lloc
 		</subject>
-		<message>${currentUserDisplayName}: Se us ha
+		<message>${userName}: Se us ha
 			afegit al/s següent/s ${localSakaiName} lloc: per
 			${currentUserDisplayName}. &lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
@@ -39,10 +38,10 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} </subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
  ${localSakaiName}
- ${currentUserDisplayName}. 
+ ${userName}. 
 
 &lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
@@ -59,7 +58,7 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} Site melding</subject>
- <message>${currentUserDisplayName}:
+ <message>${userName}:
 
 U bent toegevoegd aan de volgende ${localSakaiName}  site:
 door ${currentUserDisplayName}. 
