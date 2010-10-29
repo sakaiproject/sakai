@@ -40,6 +40,9 @@
         init-method="init" destroy-method="destroy">        
         <property name="qrtzJobs">
             <set>                
+                <value>org.sakaiproject.component.app.scheduler.jobs.TestJob</value>
+                <value>org.sakaiproject.component.app.scheduler.jobs.TestJob2</value>
+                <value>org.sakaiproject.component.app.scheduler.jobs.LongTestJob</value>
             </set>
         </property>
         <property name="qrtzPropFile">
@@ -150,6 +153,85 @@
         </property>
     </bean>
 
+    <!-- Testers for ScheduledInvocationManager  
+    
+    <bean id="scheduledInvocationRunner"
+      class="org.sakaiproject.component.app.scheduler.jobs.ScheduledInvocationRunner">
+   </bean>   
+    
+     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationRunner"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>scheduledInvocationRunner</value>
+      </property>
+      <property name="jobName">
+         <value>Scheduled Invocation Runner</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+   
+    <bean id="scheduledInvocationTestJob"
+      class="org.sakaiproject.component.app.scheduler.test.ScheduledInvocationTestJob">
+      <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+      </property>
+      <property name="sim">
+      		<ref bean="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+      </property>	
+   </bean>   
+   
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationTestJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>scheduledInvocationTestJob</value>
+      </property>
+      <property name="jobName">
+         <value>Scheduled Invocation Test Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+    
+   <bean id="scheduledInvocationTestCommand" class="org.sakaiproject.component.app.scheduler.test.ScheduledInvocationTestCommand">
+   </bean>
+   -->
+  
+   
+   <!-- sample bean job... this sample shows how to install a bean into quartz for scheduling -->
+
+   <!-- this is the actual bean to execute.  This will have all
+   spring injected values intact when executed -->
+   <bean id="schedulerSampleTest"
+      class="org.sakaiproject.component.app.scheduler.jobs.TestBeanJob">
+      <property name="configMessage">
+         <value>Hello from spring and quartz!</value>
+      </property>
+   </bean>
+
+   <!-- this is the helper that will register the above bean with the schedule manager
+        things to set here are the beanId (from bean above) and the jobName
+   -->
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerSampleTest"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>schedulerSampleTest</value>
+      </property>
+      <property name="jobName">
+         <value>Sample Bean Test</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+   <!-- sample bean job -->
+   
+   
    <!-- Conditions Job -->
    		<!--  simple job that fires a Datetime event -->   
 	   <bean id="datetimeJob"

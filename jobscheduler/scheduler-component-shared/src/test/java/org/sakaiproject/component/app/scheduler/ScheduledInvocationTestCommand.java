@@ -1,4 +1,4 @@
-package org.sakaiproject.component.app.scheduler.test;
+package org.sakaiproject.component.app.scheduler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
