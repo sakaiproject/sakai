@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/evaluation/TotalScoresBean.java $
- * $Id: TotalScoresBean.java 29431 2007-04-22 05:20:55Z ktsao@stanford.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 The Sakai Foundation
@@ -198,10 +198,13 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     	String fileUploadMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","file_upload_message");
     	String noSubmissionMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","export_no_submission");
         GradingService gradingService = new GradingService();
+        String poolString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","pool");
+        String partString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","part");
         String questionString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","question");
         String textString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","text");
         String rationaleString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","rationale");
-        List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, questionString, textString, rationaleString, useridMap);
+        List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
+        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, rationaleString, useridMap);
         List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
 
         // Now insert the header line
@@ -218,14 +221,12 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   	  	}
 
         PublishedAssessmentService pubService = new PublishedAssessmentService();
-  	  	
   	  	// gopalrc - Nov 2007
         if (showPartAndTotalScoreSpreadsheetColumns) {
 	  	  	int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId)).intValue();
 	  	  	if (numberOfSections > 1) {
 		  	  	for (int i = 1; i <= numberOfSections; i++) {
-		    		  headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","part") 
-		    				  + " " + i + " " + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","score"));
+		  	  		headerList.add(partString + " " + i + " " + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","score"));
 		    	}
 	  	  	}
 	        

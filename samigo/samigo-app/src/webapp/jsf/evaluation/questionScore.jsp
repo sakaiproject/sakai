@@ -99,9 +99,9 @@ document.location='../evaluation/questionScore';
     <h:outputText value=" #{evaluationMessages.separator} " />
     <h:outputText value="#{evaluationMessages.q_view}" />
 
-	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
     <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
+      rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
@@ -109,9 +109,9 @@ document.location='../evaluation/questionScore';
     </h:commandLink>
 
 
-	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
     <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
-      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
+      rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.item_analysis}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener

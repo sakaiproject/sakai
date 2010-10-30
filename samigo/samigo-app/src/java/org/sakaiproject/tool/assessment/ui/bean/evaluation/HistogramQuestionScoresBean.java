@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -33,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>
@@ -68,9 +68,11 @@ public class HistogramQuestionScoresBean
   private String totalScore; //total possible score
   private String adjustedScore;
   private boolean allSubmissions;
+  private String questionLabelFormat;
   private String questionNumber;
   private String questionText;
   private String questionType;
+  private String poolName;
   private String percentCorrect;
   private String partNumber;
   private String mean;
@@ -498,6 +500,25 @@ public class HistogramQuestionScoresBean
     questionType = pquestionType;
   }
 
+  /**
+   * get the pool name
+   *
+   * @return the pool name
+   */
+  public String getPoolName()
+  {
+    return poolName;
+  }
+
+  /**
+   * set the the pool name
+   *
+   * @param qpoolName the pool name
+   */
+  public void setPoolName(String qpoolName)
+  {
+    poolName = qpoolName;
+  }
   /**
    * get the percent correct
    *
@@ -947,12 +968,24 @@ public class HistogramQuestionScoresBean
   
   
   public String getQuestionLabel() {
+      if(questionLabelFormat == null){
+        String label = "Q" + questionNumber;
+        if(randomType && poolName != null){
+            label = label + "-Pool:" + poolName;
+        }
 	  if (getNumberOfParts() > 1) {
-		  return "P" + partNumber + "-Q" + questionNumber; 
+		  return "P" + partNumber + "-" + label;
 	  }
 	  else {
-		  return "Q" + questionNumber; 
+		  return label;
 	  }
+      }else{
+          return MessageFormat.format(questionLabelFormat, questionNumber, partNumber, poolName);
+      }
+  }
+
+  public void setQuestionLabelFormat(String questionLabelFormat){
+      this.questionLabelFormat = questionLabelFormat;
   }
   
   public void addStudentWithAllCorrect(String agentId) {
