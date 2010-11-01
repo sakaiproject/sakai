@@ -57,7 +57,7 @@ iframeId = '$iframeId';
 							<input type="submit" value="&lt;" disabled="disabled" />
 						#end
 							<label for="pageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
-							<select name="pageSize" onchange="blur(); saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id'; form.submit();">
+							<select name="pageSize" onchange="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id'; form.submit();">
 								#foreach ($i in $!pager.getPageSizes())
 									<option value="$i" #if($pager.getPageSize() == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
 								#end
