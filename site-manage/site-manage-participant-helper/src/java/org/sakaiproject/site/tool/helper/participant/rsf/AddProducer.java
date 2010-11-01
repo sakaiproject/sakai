@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
 import org.sakaiproject.tool.api.SessionManager;
@@ -82,7 +83,9 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     	
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
     	
-    	if (isCourseSite)
+    	org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+    	
+    	if (isCourseSite && cms != null)
     	{
     		// show specific instructions for adding participant into course site
     		UIMessage.make(content, "add.official", "add.official");
