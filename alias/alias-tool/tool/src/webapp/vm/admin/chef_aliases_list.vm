@@ -41,7 +41,7 @@
 						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("alias.list.listnavselect")</span>
-							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
 								#foreach ($value in $sizeList)
 									## $value is an Integer array of length one
 									#foreach($intValue in $value)
