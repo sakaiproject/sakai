@@ -12,22 +12,22 @@
 				</li>	
 			#end
 			#if ($withGrade && $!allowGradeSubmission)
-				<li #if ($prevAction=false) class="firstToolBarItem"  #set($prevAction=true) #end  role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end  role="menuitem">
 					<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
 				</li>			
 			#end
 			#if ($allowAddAssignment)
-				<li #if ($prevAction=false) class="firstToolBarItem"  #set($prevAction=true) #end   role="menuitem">
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end   role="menuitem">
 					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
 				</li>	
 			#end
 			#if (($allowAllGroups) && ($assignmentscheck))
-				<li #if ($prevAction=false) class="firstToolBarItem"  #set($prevAction=true) #end   role="menuitem">				
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end   role="menuitem">				
 					<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
 				</li>	
 			#end
 			#if ($allowUpdateSite)
-				<li #if ($prevAction=false) class="firstToolBarItem"  #set($prevAction=true) #end role="menuitem">				
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end role="menuitem">				
 					<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
 				</li>
 				#if ($enableViewOption)		
