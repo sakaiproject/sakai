@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.feedback.FeedbackMessage;
@@ -41,6 +42,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -49,7 +51,6 @@ import org.apache.wicket.util.file.Folder;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
-import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
@@ -67,7 +68,6 @@ public class MyPictures extends BasePage {
 	private FileListView addPictureListView;
 	private Folder addPictureUploadFolder;
 	private GridView gridView;
-
 	
 	/**
 	 * Constructor for current user.
@@ -106,18 +106,17 @@ public class MyPictures extends BasePage {
 		addPictureUploadFolder = new Folder(System
 				.getProperty("java.io.tmpdir"), "addPicturesUploadFolder");
 		addPictureUploadFolder.mkdirs();
-
-		Form addPictureForm = new FileUploadForm("addPictureForm", userUuid);
+		
+		//file feedback will be redirected here
+        Label fileFeedback = new Label("fileFeedback");
+        fileFeedback.setOutputMarkupPlaceholderTag(true);
+        add(fileFeedback);
+        
+		Form addPictureForm = new FileUploadForm("addPictureForm", userUuid, fileFeedback);
 		
 		addPictureForm.setOutputMarkupId(true);
 		add(addPictureForm);
 		
-		//file feedback will be redirected here
-        final FeedbackLabel fileFeedback = new FeedbackLabel("fileFeedback", addPictureForm);
-        fileFeedback.setOutputMarkupId(true);
-        addPictureForm.add(fileFeedback);
-        
-
 		WebMarkupContainer addPictureContainer = new WebMarkupContainer(
 				"addPictureContainer");
 		addPictureContainer.add(new Label("addPictureLabel", new ResourceModel(
@@ -294,10 +293,13 @@ public class MyPictures extends BasePage {
 
 		private final String userUuid;
 
-		public FileUploadForm(String id, String userUuid) {
+		private Label fileFeedback;
+		
+		public FileUploadForm(String id, String userUuid, Label fileFeedback) {
 			super(id);
 
 			this.userUuid = userUuid;
+			this.fileFeedback = fileFeedback;
 
 			// set form to multipart mode
 			setMultiPart(true);
@@ -313,8 +315,7 @@ public class MyPictures extends BasePage {
 		protected void onSubmit() {
 			
 			if (uploads.size() == 0) {
-				error(new StringResourceModel("error.gallery.upload.warning",
-						this, null).getString());
+				setFeedbackMessage("error.gallery.upload.warning", "alertMessage");
 				return;
 			}
 			
@@ -324,20 +325,17 @@ public class MyPictures extends BasePage {
 				final FileUpload upload = filesToUpload.next();
 
 				if (upload == null) {
-					log.error("Profile.MyPictures: upload was null.");
-					error(new StringResourceModel("error.no.file.uploaded",
-							this, null).getString());
+					log.error("picture upload was null.");
+					setFeedbackMessage("error.no.file.uploaded", "alertMessage");
 					return;
 				} else if (upload.getSize() == 0) {
-					log.error("Profile.MyPictures.onSubmit: upload was empty.");
-					error(new StringResourceModel("error.empty.file.uploaded",
-							this, null).getString());
+					log.error("picture upload was empty.");
+					setFeedbackMessage("error.empty.file.uploaded", "alertMessage");
 					return;
 				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload
 						.getContentType())) {
-					log.error("Profile.MyPictures.onSubmit: invalid file type uploaded for gallery");
-					error(new StringResourceModel("error.invalid.image.type",
-							this, null).getString());
+					log.error("attempted to upload invalid file type to gallery");
+					setFeedbackMessage("error.invalid.image.type", "alertMessage");
 					return;
 				}
 
@@ -347,8 +345,8 @@ public class MyPictures extends BasePage {
 						userUuid, imageBytes, upload.getContentType(),
 						upload.getClientFileName())) {
 
-					error(new StringResourceModel("error.file.save.failed",
-							this, null).getString());
+					log.error("unable to save gallery image");
+					setFeedbackMessage("error.file.save.failed", "alertMessage");
 					return;
 				}
 
@@ -360,10 +358,15 @@ public class MyPictures extends BasePage {
 				setResponsePage(new MyPictures(gridView.getPageCount()));
 
 			}
-
+		}
+		
+		private void setFeedbackMessage(String feedback, String attributeModifier) {
+			
+			fileFeedback.setDefaultModel(new ResourceModel(feedback));
+			fileFeedback.add(new AttributeModifier("class", true,
+					new Model<String>(attributeModifier)));
 		}
 
 	}
-	
 	
 }
