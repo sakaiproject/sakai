@@ -688,13 +688,14 @@ public class CourseManagementServiceFederatedImpl implements
 		Map<String, String> courseOfferingRoleMap = new HashMap<String, String>();
 		for(Iterator implIter = implList.iterator(); implIter.hasNext();) {
 			CourseManagementService cm = (CourseManagementService)implIter.next();
-			Map map = cm.findCourseOfferingRoles(userEid);
+			Map<String, String> map = cm.findCourseOfferingRoles(userEid);
 			if(map == null) {
 				continue;
 			}
-			for(Iterator mapIter = map.keySet().iterator(); mapIter.hasNext();) {
-				String courseSetEid = (String)mapIter.next();
-				String role = (String)map.get(courseSetEid);
+			for(Iterator<Entry<String, String>> mapIter = map.entrySet().iterator(); mapIter.hasNext();) {
+				Entry<String, String> entry = mapIter.next();
+				String courseSetEid = entry.getKey();
+				String role = entry.getValue();
 				// Earlier impls take precedence, so don't overwrite what's in the map
 				if( ! courseOfferingRoleMap.containsKey(courseSetEid)) {
 					courseOfferingRoleMap.put(courseSetEid, role);
@@ -708,13 +709,14 @@ public class CourseManagementServiceFederatedImpl implements
 		Map<String, String> courseSetRoleMap = new HashMap<String, String>();
 		for(Iterator implIter = implList.iterator(); implIter.hasNext();) {
 			CourseManagementService cm = (CourseManagementService)implIter.next();
-			Map map = cm.findCourseSetRoles(userEid);
+			Map<String, String> map = cm.findCourseSetRoles(userEid);
 			if(map == null) {
 				continue;
 			}
-			for(Iterator mapIter = map.keySet().iterator(); mapIter.hasNext();) {
-				String courseSetEid = (String)mapIter.next();
-				String role = (String)map.get(courseSetEid);
+			for(Iterator<Entry<String, String>> mapIter = map.entrySet().iterator(); mapIter.hasNext();) {
+				Entry<String, String> entry = mapIter.next();
+				String courseSetEid = entry.getKey();
+				String role = entry.getValue();
 				// Earlier impls take precedence, so don't overwrite what's in the map
 				if( ! courseSetRoleMap.containsKey(courseSetEid)) {
 					courseSetRoleMap.put(courseSetEid, role);
@@ -728,13 +730,14 @@ public class CourseManagementServiceFederatedImpl implements
 		Map<String, String> sectionRoleMap = new HashMap<String, String>();
 		for(Iterator implIter = implList.iterator(); implIter.hasNext();) {
 			CourseManagementService cm = (CourseManagementService)implIter.next();
-			Map map = cm.findSectionRoles(userEid);
+			Map<String, String> map = cm.findSectionRoles(userEid);
 			if(map == null) {
 				continue;
 			}
-			for(Iterator mapIter = map.keySet().iterator(); mapIter.hasNext();) {
-				String sectionEid = (String)mapIter.next();
-				String role = (String)map.get(sectionEid);
+			for(Iterator<Entry<String, String>> mapIter = map.entrySet().iterator(); mapIter.hasNext();) {
+				Entry<String, String> entry = mapIter.next();
+				String sectionEid = entry.getKey();
+				String role = entry.getValue();
 				// Earlier impls take precedence, so don't overwrite what's in the map
 				if( ! sectionRoleMap.containsKey(sectionEid)) {
 					sectionRoleMap.put(sectionEid, role);

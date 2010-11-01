@@ -55,7 +55,7 @@ public class CourseManagementAdministrationDataLoader extends TestCase implement
 		Calendar endCal = Calendar.getInstance();
 		
 		startCal.set(2006, 8, 1);
-		endCal.set(2006, 12, 1);
+		endCal.set(2006, Calendar.DECEMBER, 1);
 		cmAdmin.createAcademicSession("f2006", "Fall 2006", "The fall term, 2006", startCal.getTime(), endCal.getTime());
 		
 		startCal.set(2007, 3, 1);
@@ -82,7 +82,7 @@ public class CourseManagementAdministrationDataLoader extends TestCase implement
 		
 		// Course Offerings
 		startCal.set(2006, 8, 1);
-		endCal.set(2006, 12, 1);
+		endCal.set(2006, Calendar.DECEMBER, 1);
 		cmAdmin.createCourseOffering("bio101_f2006", "Bio 101, Fall 2006", "Intro to Biology, Fall 06", "open", "f2006", "bio101", startCal.getTime(), endCal.getTime());
 		cmAdmin.addCourseOfferingToCourseSet("bio","bio101_f2006");
 
