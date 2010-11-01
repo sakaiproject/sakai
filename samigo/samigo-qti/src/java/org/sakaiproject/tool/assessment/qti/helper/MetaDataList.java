@@ -226,31 +226,44 @@ public class MetaDataList
       if ("AUTHORS".equals(key))
       {
         key = AssessmentMetaDataIfc.AUTHORS;
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
       else if ("ASSESSMENT_KEYWORDS".equals(key))
       {
         key = AssessmentMetaDataIfc.KEYWORDS;
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
       else if ("ASSESSMENT_OBJECTIVES".equals(key))
       {
         key = AssessmentMetaDataIfc.OBJECTIVES;
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
       else if ("ASSESSMENT_RUBRICS".equals(key))
       {
         key = AssessmentMetaDataIfc.RUBRICS;
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
       else if ("BGCOLOR".equals(key))
       {
         key = AssessmentMetaDataIfc.BGCOLOR;
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
       else if ("BGIMG".equals(key))
       {
         key = AssessmentMetaDataIfc.BGIMAGE;
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
       else if ("COLLECT_ITEM_METADATA".equals(key))
       {
         key = "hasMetaDataForQuestions";
-
+        value = meta.substring(meta.indexOf("|") + 1);
+        assessment.addAssessmentMetaData(key, value); 
       }
 
       // for backwards compatibility with version 1.5 exports.
