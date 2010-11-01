@@ -95,8 +95,7 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 	}
 
 	private HSSFCell createCell(HSSFRow row, short column) {
-		HSSFCell cell = row.createCell(column);
-		cell.setEncoding(HSSFCell.ENCODING_UTF_16);
+		HSSFCell cell = row.createCell(Integer.valueOf(column).intValue());
 		return cell;
 	}
 

@@ -39,9 +39,9 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-            <groupId>poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>2.5.1</version>
+        	<groupId>org.apache.poi</groupId>
+        	<artifactId>poi</artifactId>
+        	<version>3.7</version>
         </dependency>
     </dependencies>
 </project>
