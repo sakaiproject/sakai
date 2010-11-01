@@ -218,11 +218,6 @@
       <artifactId>dom4j</artifactId>
       <version>1.4</version>
     </dependency>
-    <dependency>
-      <groupId>poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>2.5.1</version>
-    </dependency>
 <!-- MyFaces JSF -->
     <dependency>
       <groupId>org.apache.myfaces.core</groupId>
