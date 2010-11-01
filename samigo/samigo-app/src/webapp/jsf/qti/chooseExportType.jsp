@@ -39,7 +39,7 @@ function getSelectedType(qtiUrl, cpUrl){
     if ( tables[i].id.indexOf("exportType") >=0){
 	  if (tables[i].getElementsByTagName("INPUT")[0].checked) {
 		//alert("qti");
-		window.open( qtiUrl, '_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');
+		window.open( qtiUrl, '_qti_export', 'toolbar=yes,menubar=yes,personalbar=no,width=600,height=190,scrollbars=yes,resizable=yes');
 	  }
 	  else {
 	    //alert("cp.....");
