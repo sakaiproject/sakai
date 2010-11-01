@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -100,9 +101,10 @@ public class CourseManagementGroupProvider implements GroupProvider {
 			
 				Map<String, String> rrUserRoleMap = rr.getUserRoles(cmService, section);
 
-				for(Iterator<String> rrRoleIter = rrUserRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
-					String userEid = rrRoleIter.next();
-					String existingRole = userRoleMap.get(userEid);
+				for(Iterator<Entry<String, String>> rrRoleIter = rrUserRoleMap.entrySet().iterator(); rrRoleIter.hasNext();) {
+					Entry<String, String> entry = rrRoleIter.next();
+					String userEid = entry.getKey();
+					String existingRole = entry.getValue();
 					String rrRole = rrUserRoleMap.get(userEid);
 
 					// The Role Resolver has found no role for this user
@@ -138,10 +140,11 @@ public class CourseManagementGroupProvider implements GroupProvider {
 			if(log.isDebugEnabled()) log.debug("Found " + rrGroupRoleMap.size() + " groups for " + userEid + " from resolver " + rr.getClass().getName());
 
 			// Only add the section eids if they aren't already in the map or if the new role has a higher preference.
-			for(Iterator<String> rrRoleIter = rrGroupRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
-				String sectionEid = rrRoleIter.next();
+			for(Iterator<Entry<String, String>> rrRoleIter = rrGroupRoleMap.entrySet().iterator(); rrRoleIter.hasNext();) {
+				Entry<String, String> entry = rrRoleIter.next();
+				String sectionEid = entry.getKey();
 				String existingRole = groupRoleMap.get(sectionEid);
-				String rrRole = rrGroupRoleMap.get(sectionEid);
+				String rrRole = entry.getValue();
 
 				// The Role Resolver has found no role for this section
 				if(rrRole == null) {

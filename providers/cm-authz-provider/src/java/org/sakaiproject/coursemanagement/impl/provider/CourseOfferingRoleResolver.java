@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,8 +84,6 @@ public class CourseOfferingRoleResolver extends BaseRoleResolver {
 		// Add the equivalent course offering members (but don't override any roles in the original course offering)
 		addMemberRoles(userRoleMap, equivMembers);
 		
-		if(coMembers != null) {
-		}
 		return userRoleMap;
 	}
 
@@ -129,9 +128,10 @@ public class CourseOfferingRoleResolver extends BaseRoleResolver {
 			}
 		}
 		
-		for(Iterator<String> coIter = courseOfferingRoles.keySet().iterator(); coIter.hasNext();) {
-			String coEid = coIter.next();
-			String coRole = courseOfferingRoles.get(coEid);
+		for(Iterator<Entry<String, String>> coIter = courseOfferingRoles.entrySet().iterator(); coIter.hasNext();) {
+			Entry<String, String> entry = coIter.next();
+			String coEid = entry.getKey();
+			String coRole = entry.getValue();
 			
 			// If this role shouldn't be part of the site, ignore the membership in this course offering
 			String sakaiRole = convertRole(coRole);

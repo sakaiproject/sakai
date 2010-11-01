@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -125,8 +126,8 @@ public class SectionRoleResolver extends BaseRoleResolver {
 			Map<String, String> sectionRoles = cmService.findSectionRoles(userEid);
 
 			// Convert these roles to Sakai roles
-			for(String key : sectionRoles.keySet()) {
-				groupRoleMap.put(key, convertRole((String)sectionRoles.get(key)));
+			for(Entry<String, String> entry : sectionRoles.entrySet()) {
+				groupRoleMap.put(entry.getKey(), convertRole(entry.getValue()));
 			}
 		}
 
@@ -156,8 +157,8 @@ public class SectionRoleResolver extends BaseRoleResolver {
 		}
 		
 		if(log.isDebugEnabled()) {
-			for(String sectionEid : groupRoleMap.keySet()) {
-				log.debug("User " + userEid + " has role " + groupRoleMap.get(sectionEid) + " in " + sectionEid);
+			for(Entry<String, String> sectionEid : groupRoleMap.entrySet()) {
+				log.debug("User " + userEid + " has role " + sectionEid.getValue() + " in " + sectionEid);
 			}
 		}
 		return groupRoleMap;

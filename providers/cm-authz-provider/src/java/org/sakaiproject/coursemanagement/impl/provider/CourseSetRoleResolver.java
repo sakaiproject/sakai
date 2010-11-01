@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,8 +110,8 @@ public class CourseSetRoleResolver extends BaseRoleResolver {
 		Map<String, String> courseSetRoles = cmService.findCourseSetRoles(userEid);
 		
 		// Look at each of the course sets for which this user has a role
-		for(String csEid : courseSetRoles.keySet()) {
-			String csRole = (String)courseSetRoles.get(csEid);
+		for(Entry<String, String> csEid : courseSetRoles.entrySet()) {
+			String csRole = csEid.getKey();
 			
 			// If this course set role shouldn't be added to the site, ignore this course set
 			String sakaiRole = convertRole(csRole);
@@ -119,7 +120,7 @@ public class CourseSetRoleResolver extends BaseRoleResolver {
 			}
 			
 			// Look at each of the course offerings in the course set
-			Set<CourseOffering> courseOfferings = cmService.getCourseOfferingsInCourseSet(csEid);
+			Set<CourseOffering> courseOfferings = cmService.getCourseOfferingsInCourseSet(csEid.getKey());
 			for(CourseOffering co : courseOfferings) {
 				// Get the sections in each course offering
 				Set<Section> sections = cmService.getSections(co.getEid());
