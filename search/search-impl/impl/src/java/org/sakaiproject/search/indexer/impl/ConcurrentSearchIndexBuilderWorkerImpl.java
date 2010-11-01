@@ -234,8 +234,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 		log.debug("Activity " + (lastIndexMetric > (10000L * loadFactor)) + " "
 				+ (lastIndexInterval > (60L * loadFactor)) + " " + createIndex);
 
-		if (lastIndexMetric > (10000L * loadFactor)
-				|| lastIndexInterval > (60L * loadFactor))
+		if (true)
 		{
 			log.debug("===" + process + "=============PROCESSING ");
 			if (process)
@@ -244,17 +243,17 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 				lastIndexRun = System.currentTimeMillis();
 
 				int batchSize = 100;
-				if (totalDocs > 500)
+				if (totalDocs > 100000)
 				{
-					batchSize = 200;
+					batchSize = 100000;
 				}
 				else if (totalDocs > 1000)
 				{
 					batchSize = 500;
 				}
-				else if (totalDocs > 10000)
+				else if (totalDocs > 500)
 				{
-					batchSize = 1000;
+					batchSize = 200;
 				}
 				
 				securityService.pushAdvisor(new SecurityAdvisor() {
