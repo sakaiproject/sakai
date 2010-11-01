@@ -29,7 +29,6 @@
 			onload="updateMainFrameHeight();">
 		</iframe>
 	</div>
-	Hello3
 </div>
 
 <script  type="text/javascript" language="JavaScript">
