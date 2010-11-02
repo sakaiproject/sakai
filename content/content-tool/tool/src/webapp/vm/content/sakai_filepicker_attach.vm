@@ -313,7 +313,7 @@
 										#end
 									#end
 									<!-- $pagesize  "$pagesize" -->
-									<select name="selectPageSize" onchange="javascript:blur(); document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doChange_pagesize")';submitform('attachForm');">
+									<select name="selectPageSize" onchange="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doChange_pagesize")';submitform('attachForm');">
 										<option value="5"#if("$pagesize" == "5") selected="selected"#end>$tlang.getString("lis.show5")</option>
 										<option value="10"#if("$pagesize" == "10") selected="selected"#end>$tlang.getString("lis.show10")</option>
 										<option value="20"#if("$pagesize" == "20") selected="selected"#end>$tlang.getString("lis.show20")</option>
