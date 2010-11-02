@@ -653,7 +653,7 @@ public class AuthorBean implements Serializable
 
 	  pendingActionList = new ArrayList<SelectItem>();
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
+	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
@@ -670,8 +670,8 @@ public class AuthorBean implements Serializable
 		  }
 		  pendingActionList.add(new SelectItem("settings_pending", com.getString("settings_action")));
 		  pendingActionList.add(new SelectItem("publish", com.getString("publish_action")));
-		  pendingActionList.add(new SelectItem("duplicate", res.getString("button_duplicate")));
-		  pendingActionList.add(new SelectItem("export", com.getString("action_export")));
+		  pendingActionList.add(new SelectItem("duplicate", res.getString("copy_action")));
+		  pendingActionList.add(new SelectItem("export", com.getString("export_action")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
 		  pendingActionList.add(new SelectItem("remove_pending", res.getString("action_remove")));
@@ -685,7 +685,7 @@ public class AuthorBean implements Serializable
 		  return publishedActionList;
 	  }
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
+	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
 	  publishedActionList = new ArrayList<SelectItem>();

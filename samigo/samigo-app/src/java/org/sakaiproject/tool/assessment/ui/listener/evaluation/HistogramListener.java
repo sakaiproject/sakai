@@ -1143,7 +1143,7 @@ public class HistogramListener
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
   {
 	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-	ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
+	ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
     HashMap texts = new HashMap();
     Iterator iter = labels.iterator();
     HashMap results = new HashMap();
@@ -1919,7 +1919,7 @@ public class HistogramListener
 
   private String getType(int typeId) {
 	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
-	  ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
+	  ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  if (typeId == 1) {
 		  return rc.getString("multiple_choice_sin");
 	  }
