@@ -179,10 +179,11 @@
 					<ul id="footerLinks">#foreach ( $bn in $bottomNav )<li><span>${bn}</span></li>#end</ul>
 				</div>
 				<div id="footerInfo">
-			#foreach ( $pb in $bottomNavPoweredBy )
-					<span class="skip">${rloader.site_newwindow}</span>	
+			#foreach ( $pb in $bottomNavPoweredBy )	
 					<a href="${pb.poweredByUrl}" target="_blank">
-							<img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" /></a>
+					 <img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" />
+					 <span class="skip"> (${rloader.site_newwindow})</span>
+					</a>
 			#end
 			<!-- end include Bottom -->
 				</div>
