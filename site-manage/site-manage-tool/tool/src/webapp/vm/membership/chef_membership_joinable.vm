@@ -87,7 +87,7 @@
 					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 						<label class="skip" for="pagerSelect">$tlang.getString("mb.list.select")</label>
-						<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();" id="pagerSelect">
+						<select name="selectPageSize" onchange="document.pagesizeForm.submit();" id="pagerSelect">
 						<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("mb.list.pager.show5")</option>
 							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("mb.list.pager.show10")</option>
 							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("mb.list.pager.show20")</option>

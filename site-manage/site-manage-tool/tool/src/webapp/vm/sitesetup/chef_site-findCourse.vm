@@ -125,9 +125,9 @@
 				  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
 					  <select name="$fieldName" id="id-$fieldName" 
 					  	#if ($i == $maxSelectionDepth) 
-					  		onchange="blur();document.findCourseForm.submit();" multiple 
+					  		onchange="document.findCourseForm.submit();" multiple 
 					  	#else
-					  		onchange="blur();changeLevel($i);document.findCourseForm.submit();"
+					  		onchange="changeLevel($i);document.findCourseForm.submit();"
 					  	#end>
 				  #else
 				  	  <select name="$fieldName" disabled="true" id="id$fieldName" >

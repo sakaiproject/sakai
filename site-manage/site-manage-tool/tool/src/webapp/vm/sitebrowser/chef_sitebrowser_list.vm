@@ -61,7 +61,7 @@
 				<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
 					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 						<label for="select" class="skip">$tlang.getString("list.select")</label>
-						<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();" id="select">
+						<select name="selectPageSize" onchange="document.pagesizeForm.submit();" id="select">
 							<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("list.show1")</option>
 							<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("list.show2")</option>
 							<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("list.show3")</option>

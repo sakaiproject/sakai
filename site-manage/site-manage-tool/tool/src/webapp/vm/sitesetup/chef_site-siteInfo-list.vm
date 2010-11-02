@@ -307,7 +307,7 @@ function printPreview(target){
 					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 						<label for="selectPageSize" class="skip">$tlang.getString("sitegen.siteinfolist.view.pagesize")</label>
-						<select id="selectPageSize" name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+						<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
 							#foreach ($i in $!pagesizes)
 								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("sitegen.siteinfolist.show") $i $tlang.getString("sitegen.siteinfolist.itemspage")</option>
 							#end
