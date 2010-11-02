@@ -276,7 +276,7 @@
     #if ($format=="m")
     
     #if ($onChangeAction)     
-    <select name="$monthselect_id" id="$monthselect_id" onchange="blur(); $onChangeAction">
+    <select name="$monthselect_id" id="$monthselect_id" onchange="$onChangeAction">
     #else
     <select name="$monthselect_id" id="$monthselect_id">
     #end
@@ -312,7 +312,7 @@
     
     #if ($format=="d")
     #if ($onChangeAction)
-    <select name="$dayselect_id" id="$dayselect_id" onchange="blur(); $onChangeAction">
+    <select name="$dayselect_id" id="$dayselect_id" onchange="$onChangeAction">
     #else
     <select name="$dayselect_id" id="$dayselect_id">
     #end
@@ -331,7 +331,7 @@
     
     #if ($format=="y")
       #if ($onChangeAction)
-      <select name="$yearselect_id" id="$yearselect_id" onchange="blur(); $onChangeAction">
+      <select name="$yearselect_id" id="$yearselect_id" onchange="$onChangeAction">
       #else
       <select name="$yearselect_id" id="$yearselect_id">
       #end
