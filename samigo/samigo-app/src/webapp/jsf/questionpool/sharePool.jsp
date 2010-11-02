@@ -288,7 +288,7 @@
   <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_sharePool}" action="#{questionpoolshare.sharePool}" >
   </h:commandButton>
 
-  <h:commandButton type="submit" immediate="true" id="cancel" value="#{questionPoolMessages.cancel}" action="poolList"  >
+  <h:commandButton type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}" action="poolList"  >
   </h:commandButton>
 </p>
 

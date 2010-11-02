@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
+    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>

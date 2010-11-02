@@ -50,12 +50,12 @@
 	   <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_4}" />
      </div>
        <p class="act">
-       <h:commandButton id="edit" value="#{authorMessages.button_edit}" type="submit"
+       <h:commandButton id="edit" value="#{authorMessages.action_edit}" type="submit"
          styleClass="active" action="#{author.getOutcome}" >
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
        </h:commandButton>
 
-       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="author" >
+       <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="author" >
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
        </h:commandButton>
 

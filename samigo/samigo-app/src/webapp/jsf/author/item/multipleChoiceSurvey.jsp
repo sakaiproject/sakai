@@ -56,14 +56,14 @@
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_cancel}" action="editAssessment" immediate="true">
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_cancel}" action="editPool" immediate="true">
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>
@@ -144,7 +144,7 @@
  <!-- FEEDBACK -->
  <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
  <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{authorMessages.feedback_optional}<br />" />
+  <h:outputLabel value="#{commonMessages.feedback_optional}<br />" />
 <f:verbatim><div class="tier2"></f:verbatim>
   <!-- WYSIWYG -->
   <h:panelGrid>
@@ -187,14 +187,14 @@
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_cancel}" action="editAssessment" immediate="true">
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_cancel}" action="editPool" immediate="true">
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>

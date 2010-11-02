@@ -155,14 +155,14 @@
 
 
 <!-- CANCEL BUTTON -->
-  <h:commandButton value="#{deliveryMessages.button_cancel}"  action="select" type="submit"
+  <h:commandButton value="#{commonMessages.cancel_action}"  action="select" type="submit"
      rendered="#{delivery.actionString=='previewAssessment'
              || delivery.actionString=='takeAssessment'}"
      disabled="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
-  <h:commandButton value="#{deliveryMessages.button_cancel}" type="button"
+  <h:commandButton value="#{commonMessages.cancel_action}" type="button"
      style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
 onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"

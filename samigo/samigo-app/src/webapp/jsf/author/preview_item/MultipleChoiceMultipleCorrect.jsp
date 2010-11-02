@@ -41,11 +41,11 @@ should be included in file importing DeliveryMessages
         </h:panelGroup>
         </h:column><h:column>
         <h:panelGroup rendered="#{answer.text ne null && answer.text ne '' && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1' && answer.generalAnswerFbIsNotEmpty}">    
-         <h:outputLabel value=" #{authorMessages.feedback}: " />
+         <h:outputLabel value=" #{commonMessages.feedback}: " />
          <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
 		</h:panelGroup>
         <h:panelGroup rendered="#{answer.text ne null && answer.text ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1' && answer.generalAnswerFbIsNotEmpty}">    
-         <h:outputLabel value=" #{authorMessages.feedback}: " />
+         <h:outputLabel value=" #{commonMessages.feedback}: " />
          <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
 		</h:panelGroup>
         </h:column>

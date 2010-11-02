@@ -32,7 +32,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
-        value="#{evaluationMessages.title_total}" /></title>
+        value="#{commonMessages.total_scores}" /></title>
 		<style type="text/css">
 			.disabled
 			{
@@ -95,7 +95,7 @@ return;
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h3>
-    <h:outputText value="#{evaluationMessages.title_total}"/>
+    <h:outputText value="#{commonMessages.total_scores}"/>
     <h:outputText value="#{evaluationMessages.column} "/>
     <h:outputText value="#{totalScores.assessmentName} " escape="false"/> 
   </h3>
@@ -113,7 +113,7 @@ return;
     </h:commandLink>
 
     <h:outputText value=" #{evaluationMessages.separator} " />
-    <h:outputText value="#{evaluationMessages.title_total}" />
+    <h:outputText value="#{commonMessages.total_scores}" />
 
     <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
     <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
@@ -149,8 +149,8 @@ return;
 
 
     <h:outputText value=" #{evaluationMessages.separator} " />
-    <h:commandLink title="#{evaluationMessages.t_export}" action="exportResponses" immediate="true">
-      <h:outputText value="#{evaluationMessages.export}" />
+    <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
+      <h:outputText value="#{commonMessages.export_action}" />
   	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
     </h:commandLink>
 
@@ -916,7 +916,7 @@ return;
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{evaluationMessages.cancel}" action="author"/>
+   <h:commandButton action="author"/>
 
 </p>
 </div>

@@ -62,10 +62,10 @@
      </h:panelGrid>
  </h:panelGrid>
    <p class="act">
-      <h:commandButton type="submit" value="#{authorMessages.button_remove}" action="removePart" styleClass="active">
+      <h:commandButton type="submit" value="#{commonMessages.remove_action}" action="removePart" styleClass="active">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePartListener" />
       </h:commandButton>
-       <h:commandButton value="#{authorMessages.button_cancel}" type="submit"
+       <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
          action="editAssessment" />
    </p>
  </h:form>

@@ -51,7 +51,7 @@
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
        </h:commandButton>
-       <h:commandButton value="#{evaluationMessages.cancel}" type="submit" style="act" action="author" />
+       <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="author" />
        </p>
 
  </h:form>

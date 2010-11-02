@@ -644,15 +644,16 @@ public class AuthorBean implements Serializable
   {
     return isEditable;
   }
-  
+
   public ArrayList<SelectItem> getPendingSelectActionList()
   {
 	  if (pendingActionList != null) {
 		  return pendingActionList;
 	  }
-	  
+
 	  pendingActionList = new ArrayList<SelectItem>();
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
@@ -662,51 +663,52 @@ public class AuthorBean implements Serializable
 
 	  pendingActionList.add(new SelectItem("select", res.getString("select_action")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
-		  pendingActionList.add(new SelectItem("edit_pending", res.getString("action_edit")));
-		  pendingActionList.add(new SelectItem("preview_pending", res.getString("action_preview")));
+		  pendingActionList.add(new SelectItem("edit_pending", com.getString("edit_action")));
+		  pendingActionList.add(new SelectItem("preview_pending", res.getString("t_preview")));
 		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
 			  pendingActionList.add(new SelectItem("print_pending", res.getString("action_print")));
 		  }
-		  pendingActionList.add(new SelectItem("settings_pending", res.getString("action_settings")));
-		  pendingActionList.add(new SelectItem("publish", res.getString("action_publish")));
-		  pendingActionList.add(new SelectItem("duplicate", res.getString("action_duplicate")));
-		  pendingActionList.add(new SelectItem("export", res.getString("action_export")));
+		  pendingActionList.add(new SelectItem("settings_pending", com.getString("settings_action")));
+		  pendingActionList.add(new SelectItem("publish", com.getString("publish_action")));
+		  pendingActionList.add(new SelectItem("duplicate", res.getString("button_duplicate")));
+		  pendingActionList.add(new SelectItem("export", com.getString("action_export")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
 		  pendingActionList.add(new SelectItem("remove_pending", res.getString("action_remove")));
 	  }
 	  return pendingActionList;
   }
-  
+
   public ArrayList<SelectItem> getPublishedSelectActionList()
   {
 	  if (publishedActionList != null) {
 		  return publishedActionList;
 	  }
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-	  	  
+
 	  publishedActionList = new ArrayList<SelectItem>();
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  
+
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
-		  publishedActionList.add(new SelectItem("preview_published", res.getString("action_preview")));
+		  publishedActionList.add(new SelectItem("preview_published", res.getString("t_preview")));
 		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
 			  publishedActionList.add(new SelectItem("print_published", res.getString("action_print")));
 		  }
-		  publishedActionList.add(new SelectItem("settings_published", res.getString("action_settings")));
+		  publishedActionList.add(new SelectItem("settings_published", com.getString("settings_action")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
 		  publishedActionList.add(new SelectItem("remove_published", res.getString("action_remove")));
 	  }
-	  
+
 	  return publishedActionList;
   }
-   
+
   public boolean getCanRecordAverage() {
 	  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.canRecordAverage"))) {
 		  return true;

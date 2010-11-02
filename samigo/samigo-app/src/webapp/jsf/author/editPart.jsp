@@ -195,7 +195,7 @@
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />
      </h:commandButton>
-     <h:commandButton value="#{authorMessages.button_cancel}" style="act" immediate="true" action="editAssessment" >
+     <h:commandButton value="#{commonMessages.cancel_action}" style="act" immediate="true" action="editAssessment" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPartAttachmentListener" />
         <f:actionListener

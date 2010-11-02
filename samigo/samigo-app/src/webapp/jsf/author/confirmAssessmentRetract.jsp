@@ -49,7 +49,7 @@
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
        </h:commandButton>
-       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="editPublishedAssessmentSettings" />
+       <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act" action="editPublishedAssessmentSettings" />
        </p>
 
  </h:form>

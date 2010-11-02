@@ -248,7 +248,7 @@ document.links[newindex].onclick();
 	  <h:selectOneMenu id="publishedSelectAction1" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
 		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores" />
-		<f:selectItem itemLabel="#{authorMessages.action_edit}" itemValue="edit_published" />
+		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" />
 		<f:selectItems value="#{author.publishedSelectActionList}" />
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
@@ -260,7 +260,7 @@ document.links[newindex].onclick();
 	  </h:selectOneMenu>
 	  <h:selectOneMenu id="publishedSelectAction3" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItem itemLabel="#{authorMessages.action_edit}" itemValue="edit_published"/>
+		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
@@ -474,7 +474,7 @@ document.links[newindex].onclick();
 	<h:selectOneMenu id="inactivePublishedSelectAction1" value="select" onchange="clickInactivePublishedSelectActionLink(this);" rendered="#{(author.isGradeable && inactivePublishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !inactivePublishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
 		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores" />
-		<f:selectItem itemLabel="#{authorMessages.action_edit}" itemValue="edit_published" />
+		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" />
 		<f:selectItems value="#{author.publishedSelectActionList}" />
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
@@ -486,7 +486,7 @@ document.links[newindex].onclick();
 	  </h:selectOneMenu>
 	  <h:selectOneMenu id="inactivePublishedSelectAction3" value="select" onchange="clickInactivePublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && inactivePublishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !inactivePublishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItem itemLabel="#{authorMessages.action_edit}" itemValue="edit_published"/>
+		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published"/>
 		<f:selectItems value="#{author.publishedSelectActionList}" />
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>

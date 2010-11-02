@@ -34,7 +34,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><%= request.getAttribute("html.head") %>
 <title>
-<h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} #{param.assessmentName} #{evaluationMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
+<h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} #{param.assessmentName} #{commonMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
 <h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} #{email.subject}" rendered="#{param.fromEmailLinkClick != 'true'}"/>
 </title>
 </head>
@@ -64,7 +64,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 	<h:outputText value="#{email.toName} <#{email.toEmailAddress}>" rendered="#{param.fromEmailLinkClick != 'true'}"/>
 
 	<h:outputText value="#{evaluationMessages.subject}" />  
-	<h:outputText id="subject1" value="#{param.assessmentName} #{evaluationMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
+	<h:outputText id="subject1" value="#{param.assessmentName} #{commonMessages.feedback}" rendered="#{param.fromEmailLinkClick == 'true'}"/>  
 	<h:outputText id="subject2" value="#{email.subject}" rendered="#{param.fromEmailLinkClick != 'true'}"/>
 
 	<h:outputText value="#{evaluationMessages.cc_me}" />
@@ -91,7 +91,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 			<h:panelGrid columns="2" border="0">
 				<h:commandButton id="send" styleClass="active" value="#{evaluationMessages.send}" action="#{email.send}" type="submit" />
-				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  value="#{evaluationMessages.cancel}" action="#{email.cancel}"/>
+				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  value="#{commonMessages.cancel_action}" action="#{email.cancel}"/>
 			</h:panelGrid>
 		</h:panelGrid>
 	</f:facet>

@@ -58,7 +58,7 @@
   <center>
   <h:commandButton type="submit" id="Submit" value="#{questionPoolMessages.save}"
     action="editPool"/>
-  <h:commandButton type="cancel" id="Cancel" value="#{questionPoolMessages.cancel}"
+  <h:commandButton type="cancel" id="Cancel" value="#{commonMessages.cancel_action}"
     action="cancelEditPool"/>
 
   </center>

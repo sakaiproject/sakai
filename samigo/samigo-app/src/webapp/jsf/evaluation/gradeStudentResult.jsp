@@ -34,7 +34,7 @@ $Id$
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
-        value="#{evaluationMessages.title_total}" /></title>
+        value="#{commonMessages.total_scores}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
 
       </head>
@@ -110,7 +110,7 @@ document.location='../evaluation/gradeStudentResult';
     <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{evaluationMessages.title_total}" />
+      <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
     <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}"  />
     <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
@@ -298,7 +298,7 @@ document.location='../evaluation/gradeStudentResult';
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{evaluationMessages.cancel}" action="totalScores" immediate="true">
+   <h:commandButton action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>

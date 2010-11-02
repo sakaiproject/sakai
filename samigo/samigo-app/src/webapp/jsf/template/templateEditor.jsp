@@ -423,12 +423,12 @@
 
   <!-- *** FEEDBACK *** -->
 
-  <samigo:hideDivision title="#{templateMessages.feedback}" id="div10">
+  <samigo:hideDivision title="#{commonMessages.feedback}" id="div10">
  <div class="tier2">
 
   <!-- FEEDBACK AUTHORING--> 
      <div class="longtext">
-    <h:outputLabel value="#{templateMessages.feedback_authoring}"/></div>
+    <h:outputLabel value="#{commonMessages.feedback_authoring}"/></div>
     <div class="tier3">
      <h:panelGrid columns="2"
       summary="#{templateMessages.feedback_authoring_sub}">
@@ -442,7 +442,7 @@
     <h:selectOneRadio layout="pageDirection" value="#{template.feedbackAuthoring}"
       required="true">
       <f:selectItem itemValue="1"
-        itemLabel="#{templateMessages.questionlevel_feedback}"/>
+        itemLabel="#{commonMessages.question_level_feedback}"/>
       <f:selectItem itemValue="2"
         itemLabel="#{templateMessages.sectionlevel_feedback}"/>
       <f:selectItem itemValue="3"
@@ -454,7 +454,7 @@
 
     <!-- FEEDBACK DELIVERY -->
      <div class="longtext">
-    <h:outputLabel value="#{templateMessages.feedback_delivery}"/></div>
+    <h:outputLabel value="#{commonMessages.feedback_delivery}"/></div>
  <div class="tier3">
      <h:panelGrid columns="2" 
       summary="#{templateMessages.feedback_delivery_sub}">
@@ -470,7 +470,7 @@
       <f:selectItem itemValue="1"
         itemLabel="#{templateMessages.immediate_feedback}"/>
       <f:selectItem itemValue="4"
-        itemLabel="#{templateMessages.feedback_on_submission}"/>
+        itemLabel="#{commonMessages.feedback_on_submission}"/>
       <f:selectItem itemValue="2"
         itemLabel="#{templateMessages.feedback__disp_spec_date}"/>
       <f:selectItem itemValue="3"
@@ -495,25 +495,25 @@
       <h:panelGroup>
         <h:selectBooleanCheckbox id="student_response"
           value="#{template.feedbackComponent_StudentResp}"/>
-        <h:outputLabel for="student_response" value="#{templateMessages.student_response}"/>
+        <h:outputLabel for="student_response" value="#{commonMessages.student_response}"/>
       </h:panelGroup>
 
       <h:panelGroup>
         <h:selectBooleanCheckbox id="question_level"
           value="#{template.feedbackComponent_QuestionLevel}"/>
-        <h:outputLabel for="question_level" value="#{templateMessages.question_level}"/>
+        <h:outputLabel for="question_level" value="#{commonMessages.question_level_feedback}"/>
       </h:panelGroup>
 
       <h:panelGroup>
         <h:selectBooleanCheckbox id="correct_response"
           value="#{template.feedbackComponent_CorrectResp}"/>
-        <h:outputLabel for="correct_response" value="#{templateMessages.correct_response}"/>
+        <h:outputLabel for="correct_response" value="#{commonMessages.correct_response}"/>
       </h:panelGroup>
 
       <h:panelGroup>
         <h:selectBooleanCheckbox id="selection_level"
           value="#{template.feedbackComponent_SelectionLevel}"/>
-        <h:outputLabel for="selection_level" value="#{templateMessages.selection_level}"/>
+        <h:outputLabel for="selection_level" value="#{commonMessages.selection_level_feedback}"/>
       </h:panelGroup>
 
       <h:panelGroup>
@@ -525,7 +525,7 @@
       <h:panelGroup>
         <h:selectBooleanCheckbox id="graders_comments"
           value="#{template.feedbackComponent_GraderComments}"/>
-        <h:outputLabel for="graders_comments" value="#{templateMessages.graders_comments}"/>
+        <h:outputLabel for="graders_comments" value="#{commonMessages.graders_comments}"/>
       </h:panelGroup>
 
       <h:panelGroup>
@@ -537,7 +537,7 @@
       <h:panelGroup>
         <h:selectBooleanCheckbox id="statistics_hist"
           value="#{template.feedbackComponent_Statistics}"/>
-        <h:outputLabel for="statistics_hist" value="#{templateMessages.statistics_hist}"/>
+        <h:outputLabel for="statistics_hist" value="#{commonMessages.statistics_and_histogram}"/>
       </h:panelGroup>
 
      </h:panelGrid>
@@ -673,11 +673,11 @@
         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateUpdateListener" />
                 </h:commandButton>
     <h:outputText escape="false" value="&nbsp;&nbsp;" />
-    <h:commandButton type="submit" id="Cancel" value="#{templateMessages.cancel}"
+    <h:commandButton type="submit" id="Cancel" value="#{commonMessages.cancel_action}"
       action="template"/>
   </h:panelGroup>
   <h:panelGroup rendered="#{template.typeId eq '142' && !person.isAdmin}">
-    <h:commandButton type="submit" id="Exit" value="#{templateMessages.cancel}"
+    <h:commandButton type="submit" id="Exit" value="#{commonMessages.cancel_action}"
       action="template"/>
   </h:panelGroup>
   </p>

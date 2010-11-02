@@ -65,7 +65,7 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
     <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{evaluationMessages.title_total}" />
+      <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
     
     <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
@@ -92,8 +92,8 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
 
     <h:outputText value=" #{evaluationMessages.separator} "  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
     
-    <h:commandLink title="#{evaluationMessages.t_export}" action="exportResponses" immediate="true"  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-      <h:outputText value="#{evaluationMessages.export}" />
+    <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true"  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+      <h:outputText value="#{commonMessages.export_action}" />
   	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
     </h:commandLink>
     

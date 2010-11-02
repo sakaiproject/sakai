@@ -64,7 +64,7 @@
        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
 	 </h:commandButton>
      <%-- immediate=true bypasses the valueChangeListener --%>
-     <h:commandButton value="#{authorImportExport.import_cancel_action}" type="submit"
+     <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
        style="act" action="poolList" immediate="true"/>
   </div>
 

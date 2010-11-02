@@ -60,7 +60,7 @@
 
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ExportAssessmentListener" />
     </h:commandButton>
-   <h:commandButton value="#{authorImportExport.export_cancel_action}" type="reset"
+   <h:commandButton value="#{commonMessages.cancel_action}" type="reset"
      onclick="window.close()" style="act" action="author" />
   </p>
  </h:form>

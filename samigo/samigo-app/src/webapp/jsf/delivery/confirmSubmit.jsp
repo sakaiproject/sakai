@@ -124,7 +124,7 @@ function saveTime()
 
          <h:panelGroup rendered="#{delivery.navigation eq '1'}">
             <h:outputText value="#{deliveryMessages.submit_warning_4}" />
-            <h:outputText value=" <b>#{deliveryMessages.button_cancel}</b> " escape="false"/>
+            <h:outputText value=" <b>#{commonMessages.cancel_action}</b> " escape="false"/>
             <h:outputText value="#{deliveryMessages.submit_warning_6}" />
           </h:panelGroup>
 	</h:panelGrid>
@@ -178,7 +178,7 @@ function saveTime()
     onclick="disablePrevious()" onkeypress="" />
 
   <!-- Previous button for linear assessments -->
-  <h:commandButton type="submit" value="#{deliveryMessages.button_cancel}"
+  <h:commandButton type="submit" value="#{commonMessages.cancel_action}"
     action="select" id="cancel"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment'

@@ -48,12 +48,12 @@
 
        </div>
        <p class="act">
-       <h:commandButton id="remove" value="#{templateMessages.index_button_remove}" type="submit"
+       <h:commandButton id="remove" value="#{commonMessages.remove_action}" type="submit"
          styleClass="active" action="template" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.DeleteTemplateListener" />
        </h:commandButton>
-       <h:commandButton value="#{templateMessages.cancel}" type="submit"
+       <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
          style="act" action="template" />
        </p>
 

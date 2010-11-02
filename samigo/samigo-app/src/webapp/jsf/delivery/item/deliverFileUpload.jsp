@@ -81,7 +81,7 @@ should be included in file importing DeliveryMessages
                            || delivery.actionString=='takeAssessmentViaUrl'}">
           <h:commandLink title="#{deliveryMessages.t_removeMedia}" action="confirmRemoveMedia"
             id="removeMedia" onmouseup="saveTime();">
-            <h:outputText value="#{deliveryMessages.remove}" />
+            <h:outputText value="#{commonMessages.remove_action}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
             <f:param name="mediaUrl" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
             <f:param name="mediaFilename" value="#{media.filename}"/>
@@ -107,7 +107,7 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}: " />
+    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}: " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>

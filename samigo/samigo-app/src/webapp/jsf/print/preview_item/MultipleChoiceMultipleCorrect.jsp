@@ -44,7 +44,7 @@ should be included in file importing DeliveryMessages
         <h:column>
           <%-- Show feedback answer --%>
           <h:panelGroup styleClass="feedbackBlock" rendered="#{printSettings.showKeysFeedback && answer.text !=null && answer.text!=''}">
-  			<h:outputLabel value="#{printMessages.feedback}: " />
+  			<h:outputLabel value="#{commonMessages.feedback}: " />
   			<h:outputText escape="false" value="#{answer.generalAnswerFeedback}" 
   				rendered="#{answer.generalAnswerFeedback != null && answer.generalAnswerFeedback != '' && answer.generalAnswerFeedback != '&nbsp;'}"/>
   			<h:outputText escape="false" value="--------" 

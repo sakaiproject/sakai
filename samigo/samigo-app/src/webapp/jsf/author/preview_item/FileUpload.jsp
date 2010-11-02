@@ -54,11 +54,11 @@ should be included in file importing DeliveryMessages
  </h:column>
   </h:dataTable>
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
- <h:outputLabel value="#{authorMessages.feedback}: " />
+ <h:outputLabel value="#{commonMessages.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}">
- <h:outputLabel value="#{authorMessages.feedback}: " />
+ <h:outputLabel value="#{commonMessages.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
 </h:panelGroup>
 

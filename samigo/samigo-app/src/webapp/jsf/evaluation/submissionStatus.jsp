@@ -112,7 +112,7 @@ function escapeApostrophe(name) {
     <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{evaluationMessages.title_total}" />
+      <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
     
     <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
@@ -147,8 +147,8 @@ function escapeApostrophe(name) {
 
     <h:outputText value=" #{evaluationMessages.separator} " />
     
-    <h:commandLink title="#{evaluationMessages.t_export}" action="exportResponses" immediate="true">
-      <h:outputText value="#{evaluationMessages.export}" />
+    <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
+      <h:outputText value="#{commonMessages.export_action}" />
   	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
     </h:commandLink>
 

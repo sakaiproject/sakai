@@ -116,7 +116,7 @@ document.links[newindex].onclick();
  </div>
   <p class="navViewAction">
       <h:commandLink  title="#{authorMessages.t_preview}" action="beginAssessment">
-        <h:outputText value="#{authorMessages.subnav_preview}"/>
+        <h:outputText value="#{authorMessages.t_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:param name="actionString" value="previewAssessment" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
@@ -136,7 +136,7 @@ document.links[newindex].onclick();
     <h:outputText value=" #{authorMessages.separator} " />
 	
 	<h:commandLink title="#{authorMessages.t_settings}" id="editAssessmentSettings_editAssessment" action="editAssessmentSettings" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
-        <h:outputText value="#{authorMessages.subnav_settings}" />
+        <h:outputText value="#{commonMessages.settings_action}" />
 	    <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
@@ -145,7 +145,8 @@ document.links[newindex].onclick();
 	<h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings_editAssessment" immediate="true"
           rendered="#{!author.isEditPendingAssessmentFlow}"
           action="#{author.getOutcome}">
-        <h:outputText  value="#{authorFrontDoorMessages.link_settings}" />
+        
+        <h:outputText  value="#{commonMessages.settings_action}" />
         <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
@@ -153,8 +154,8 @@ document.links[newindex].onclick();
     
     <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
 
-  	<h:commandLink title="#{authorMessages.t_publish}" id="editAssessmentSettings_editAssessment2" action="#{assessmentSettings.getOutcomePublish}" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
-      <h:outputText value="#{authorMessages.subnav_publish}" />
+  	<h:commandLink title="#{commonMessages.publish_action}" id="editAssessmentSettings_editAssessment2" action="#{assessmentSettings.getOutcomePublish}" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
+      <h:outputText value="#{commonMessages.publish_action}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
@@ -254,7 +255,8 @@ document.links[newindex].onclick();
         <h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.number ne 1 && author.isEditPendingAssessmentFlow}"/>
 
         <h:commandLink title="#{authorMessages.t_editP}" id="editPart" immediate="true" action="editPart">
-          <h:outputText value="#{authorMessages.button_modify}" />
+         
+          <h:outputText value="#{commonMessages.edit_action}" />
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
@@ -308,9 +310,9 @@ document.links[newindex].onclick();
           <h:outputText value="#{question.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
 
 	<h:panelGroup >
-     <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{authorMessages.multiple_choice_sin}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{authorMessages.multiple_correct_ms}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 12}" value=" #{authorMessages.multiple_correct_ss}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{commonMessages.multiple_choice_sin}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{commonMessages.multipl_mc_ms}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 12}" value=" #{commonMessages.multipl_mc_ss}"/>
      <h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{authorMessages.multiple_choice_surv}"/>
      <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{authorMessages.true_false}"/>
      <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{authorMessages.short_answer_essay}"/>
@@ -333,12 +335,12 @@ document.links[newindex].onclick();
         </h:panelGroup>
           <h:panelGroup>
             <h:commandLink title="#{authorMessages.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}" rendered="#{author.isEditPendingAssessmentFlow}">
-              <h:outputText value="#{authorMessages.button_remove}" />
+              <h:outputText value="#{commonMessages.remove_action}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
             <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
             <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
-              <h:outputText value="#{authorMessages.button_modify}" />
+              <h:outputText value="#{commonMessages.edit_action}" />
               <f:actionListener
                   type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>

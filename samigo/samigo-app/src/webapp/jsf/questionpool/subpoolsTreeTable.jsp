@@ -91,7 +91,7 @@
 <%--
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
 <h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
-  <h:outputText id="export" value="#{questionPoolMessages.export}"/>
+  <h:outputText id="export" value="#{commonMessages.export_action}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 --%>
@@ -99,7 +99,7 @@
 <!-- Remove Pool -->
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
 <h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
-  <h:outputText id="remove" value="#{questionPoolMessages.remove}"/>
+  <h:outputText id="remove" value="#{commonMessages.remove_action}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
  <f:verbatim></span></f:verbatim>

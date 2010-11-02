@@ -210,7 +210,7 @@ String.prototype.endsWith = function(txt)
 <h:panelGrid columns="1" width="100%" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" border="0">
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_1}"/>
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_2} <b>#{deliveryMessages.button_submit_grading}</b>  #{deliveryMessages.linear_no_contents_warning_3}"  escape="false"/>
-      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_4} <b>#{deliveryMessages.button_cancel}</b>  #{deliveryMessages.linear_no_contents_warning_5}"  escape="false"/>
+      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_4} <b>#{commonMessages.cancel_action}</b>  #{deliveryMessages.linear_no_contents_warning_5}"  escape="false"/>
 </h:panelGrid>
 
 <h:panelGroup rendered="#{!delivery.pageContents.isNoParts || delivery.navigation ne '1'}">
@@ -330,7 +330,7 @@ String.prototype.endsWith = function(txt)
   </h:panelGrid>
 
   <h:panelGrid columns="1" width="100%" border="0">
-  <h:commandButton value="#{deliveryMessages.button_cancel}" type="submit"
+  <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
      action="select" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" />
   </h:panelGrid>
 </h:panelGrid>
@@ -351,7 +351,7 @@ String.prototype.endsWith = function(txt)
 
   <%-- NEXT --%>
   <h:panelGrid columns="1" border="0" columnClasses="act">
-    <h:commandButton id="next1" type="submit" value="#{deliveryMessages.button_next}"
+    <h:commandButton id="next1" type="submit" value="#{commonMessages.action_next}"
     action="#{delivery.next_page}" disabled="#{!delivery.continue}"
     onclick="disableNext()" onkeypress="" 
 	rendered="#{(delivery.actionString=='previewAssessment'
@@ -359,7 +359,7 @@ String.prototype.endsWith = function(txt)
                  || delivery.actionString=='takeAssessmentViaUrl')
               && (delivery.previous && !delivery.continue)}" />
 
-    <h:commandButton id="next" type="submit" value="#{deliveryMessages.button_next}"
+    <h:commandButton id="next" type="submit" value="#{commonMessages.action_next}"
     action="#{delivery.next_page}" styleClass="active"
     onclick="disableNext()" onkeypress="" 
 	rendered="#{(delivery.actionString=='previewAssessment'

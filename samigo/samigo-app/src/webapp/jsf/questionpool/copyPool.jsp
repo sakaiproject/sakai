@@ -92,7 +92,7 @@
     action="#{questionpool.copyQuestion}" styleClass="active" rendered="#{questionpool.actionType == 'item'}">
   </h:commandButton>
 
-<h:commandButton id="cancel" value="#{questionPoolMessages.cancel}" action="#{questionpool.cancelPool}" immediate="true"/>
+<h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true"/>
 
 </p>
 </h:form>

@@ -60,7 +60,7 @@ should be included in file importing DeliveryMessages
 	   matching.feedback ne '' && matching.feedback != 'null' && matching.feedback != null}" >
 	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
+       <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{matching.feedback}" escape="false" />
      </h:panelGroup>
   </h:column>
@@ -91,7 +91,7 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}: " />
+    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}: " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>

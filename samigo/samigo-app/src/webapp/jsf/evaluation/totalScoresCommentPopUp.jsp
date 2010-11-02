@@ -83,7 +83,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				<h:panelGroup>
 				<h:outputText value="#{evaluationMessages.how_content_21} "/>
 				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{evaluationMessages.how_content_22} "/>
+				<h:outputText value="#{commonMessages.settings_action} "/>
 				<f:verbatim></b></f:verbatim>	
 				<h:outputText value="#{evaluationMessages.how_content_23}"/>
 				</h:panelGroup>
@@ -103,7 +103,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				<f:verbatim></b></f:verbatim>	
 				<h:outputText value="#{evaluationMessages.how_content_43} "/>
 				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{evaluationMessages.how_content_44}"/>
+				<h:outputText value="#{commonMessages.grader_comments}"/>
 				<f:verbatim></b></f:verbatim>
 				</h:panelGroup>
 

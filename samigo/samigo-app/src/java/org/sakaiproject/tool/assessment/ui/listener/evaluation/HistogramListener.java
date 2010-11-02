@@ -1139,10 +1139,11 @@ public class HistogramListener
 
 
 
-  private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
+  private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash,
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
   {
 	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
     HashMap texts = new HashMap();
     Iterator iter = labels.iterator();
     HashMap results = new HashMap();
@@ -1216,7 +1217,7 @@ public class HistogramListener
 	  }
       else
 	  {
-	      bars[i].setNumStudentsText(num + " " +rb.getString("correct_response"));
+	      bars[i].setNumStudentsText(num + " " +rc.getString("correct_response"));
 
       }
 
@@ -1915,17 +1916,18 @@ public class HistogramListener
         newMode = newMode.substring(2, newMode.length());
         return newMode;
   }
-  
+
   private String getType(int typeId) {
 	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	  ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.commonMessages");
 	  if (typeId == 1) {
-		  return rb.getString("q_mult_sing");
+		  return rc.getString("multiple_choice_sin");
 	  }
 	  if (typeId == 2) {
-		  return rb.getString("q_mult_mult_ms");
+		  return rc.getString("multipl_mc_ms");
 	  }
 	  if (typeId == 12) {
-		  return rb.getString("q_mult_mult_ss");
+		  return rc.getString("multipl_mc_ss");
 	  }
 	  if (typeId == 3) {
 		  return rb.getString("q_mult_surv");

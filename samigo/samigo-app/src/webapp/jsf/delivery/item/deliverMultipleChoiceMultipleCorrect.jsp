@@ -54,7 +54,7 @@ should be included in file importing DeliveryMessages
 	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != null && selection.answer.generalAnswerFeedback != ''&& selection.response}" > 
 	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
+       <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />
       </h:panelGroup>
     </h:column>
@@ -97,7 +97,7 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' &&  delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
+    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>

@@ -715,17 +715,17 @@ function setBlockDivs()
   <!-- *** FEEDBACK *** -->
  
 <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
- <samigo:hideDivision title="#{assessmentSettingsMessages.heading_feedback}" >
+ <samigo:hideDivision title="#{commonMessages.feedback}" >
   <f:verbatim> <div class="tier2"></f:verbatim>
   <!-- FEEDBACK AUTHORING -->
  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
    <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel for="feedbackAuthoring" value="#{assessmentSettingsMessages.feedback_authoring}"/>
+  <h:outputLabel for="feedbackAuthoring" value="#{commonMessages.feedback_authoring}"/>
     <f:verbatim> </div> </f:verbatim>
      <f:verbatim> <div class="tier3"> </f:verbatim>
      <h:panelGrid border="0" columns="1">
          <h:selectOneRadio id="feedbackAuthoring" value="#{assessmentSettings.feedbackAuthoring}" layout="pageDirection">
-           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.questionlevel_feedback}"/>
+           <f:selectItem itemValue="1" itemLabel="#{commonMessages.question_level_feedback}"/>
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.sectionlevel_feedback}"/>
            <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.both_feedback}"/>
          </h:selectOneRadio>
@@ -736,14 +736,14 @@ function setBlockDivs()
  <!-- FEEDBACK DELIVERY -->
  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
  <f:verbatim><div class="longtext"></f:verbatim>
-   <h:outputLabel for="feedbackDelivery" value="#{assessmentSettingsMessages.feedback_delivery}"/> 
+   <h:outputLabel for="feedbackDelivery" value="#{commonMessages.feedback_delivery}"/> 
     <f:verbatim></div><div class="tier3"></f:verbatim>
    
       <h:panelGrid border="0" columns="1"  >
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
            layout="pageDirection" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
-          <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.feedback_on_submission}"/>
+          <f:selectItem itemValue="4" itemLabel="#{commonMessages.feedback_on_submission}"/>
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date} "/>
         </h:selectOneRadio>
@@ -793,22 +793,22 @@ function setBlockDivs()
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"
             disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
-          <h:outputText value="#{assessmentSettingsMessages.student_response}" />
+          <h:outputText value="#{commonMessages.student_response}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"
             disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
-          <h:outputText value="#{assessmentSettingsMessages.question_level_feedback}" />
+          <h:outputText value="#{commonMessages.question_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"
             disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
-          <h:outputText value="#{assessmentSettingsMessages.correct_response}" />
+          <h:outputText value="#{commonMessages.correct_response}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"
             disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
-          <h:outputText value="#{assessmentSettingsMessages.selection_level_feedback}" />
+          <h:outputText value="#{commonMessages.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"
@@ -828,7 +828,7 @@ function setBlockDivs()
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"
             disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
-          <h:outputText value="#{assessmentSettingsMessages.statistics_and_histogram}" />
+          <h:outputText value="#{commonMessages.statistics_and_histogram}" />
         </h:panelGroup>
 
       </h:panelGrid>
@@ -979,12 +979,12 @@ function setBlockDivs()
   </h:commandButton>
 
   <!-- cancel -->
-  <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" rendered="#{author.fromPage == 'editAssessment'}">
+  <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" rendered="#{author.fromPage == 'editAssessment'}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetAssessmentAttachmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
-    <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="#{author.getFromPage}" rendered="#{author.fromPage != 'editAssessment'}">
+    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="#{author.getFromPage}" rendered="#{author.fromPage != 'editAssessment'}">
 	      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetAssessmentAttachmentListener" />
   </h:commandButton>
 

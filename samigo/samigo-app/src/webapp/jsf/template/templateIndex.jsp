@@ -132,7 +132,7 @@
       <h:panelGroup rendered="#{authorization.deleteOwnTemplate}">
         <h:commandLink title="#{templateMessages.t_removeTemplate}" id="deletelink" action="confirmDeleteTemplate" immediate="true"
             rendered="#{templateListItem.typeId ne '142' || (person.isAdmin && (templateListItem.typeId eq '142' && templateListItem.idString ne '1'))}">
-          <h:outputText value="#{templateMessages.index_button_remove}" styleClass="itemAction"/>
+          <h:outputText value="#{commonMessages.remove_action}" styleClass="itemAction"/>
             <f:param name="templateId" value="#{templateListItem.idString}"/>
             <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmDeleteTemplateListener" />
