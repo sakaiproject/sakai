@@ -63,7 +63,8 @@ public class SAXSerializablePropertiesAccess implements SerializablePropertiesAc
 		if ( properties.size() != access.properties.size() ) {
 			throw new Exception("Differing number of properties ");
 		}
-		for ( Object key: properties.keySet() ) {
+		for ( Map.Entry<String, Object> entry: properties.entrySet() ) {
+			String key = entry.getKey();
 			if ( !access.properties.containsKey(key) ) {
 				throw new Exception("Missing Property "+key);							
 			}
@@ -71,7 +72,8 @@ public class SAXSerializablePropertiesAccess implements SerializablePropertiesAc
 				throw new Exception("Property Changed "+key+"["+properties.get(key)+"]["+access.properties.get(key)+"]");											
 			}
 		}
-		for ( Object key: access.properties.keySet() ) {
+		for ( Map.Entry<String, Object> entry: access.properties.entrySet()) {
+			String key = entry.getKey();
 			if ( !properties.containsKey(key) ) {
 				throw new Exception("Missing Property "+key);							
 			}

@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
@@ -2088,11 +2089,10 @@ public class AssignmentAction extends PagedResourceActionII
 			// selected category
 			context.put("value_Category", state.getAttribute(NEW_ASSIGNMENT_CATEGORY));
 			
-			Iterator categories = categoryTable.keySet() != null?categoryTable.keySet().iterator():null;
 			List<Long> categoryList = new ArrayList<Long>();
-			while(categories.hasNext())
+			for (Map.Entry<Long, String> entry : categoryTable.entrySet())
 			{
-				categoryList.add((Long) categories.next());
+				categoryList.add(entry.getKey());
 			}
 			Collections.sort(categoryList);
 			context.put("categoryKeys", categoryList);
@@ -2764,7 +2764,7 @@ public class AssignmentAction extends PagedResourceActionII
 		letterGradeOptionsIntoContext(context);
 		
 		// ever set the default grade for no-submissions
-		if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+		if (assignment != null && assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 		{
 			// non-electronic submissions
 			context.put("form_action", "eventSubmit_doSet_defaultNotGradedNonElectronicScore");
@@ -3246,7 +3246,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// bulk add all grades for assignment into gradebook
 							Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 
-							Map m = new HashMap();
+							Map<String, String> m = new HashMap<String, String>();
 
 							// any score to copy over? get all the assessmentGradingData and copy over
 							while (submissions.hasNext())
@@ -3277,10 +3277,9 @@ public class AssignmentAction extends PagedResourceActionII
 									else if (isAssignmentDefined)
 									{
 										// the associated assignment is internal one, update records one by one
-										Iterator mKeys = m.keySet().iterator();
-										while (mKeys.hasNext())
+										for (Map.Entry<String, String> entry : m.entrySet())
 										{
-											String submitterId = (String) mKeys.next();
+											String submitterId = (String) entry.getKey();
 											String grade = StringUtils.trimToNull(displayGrade(state, (String) m.get(submitterId)));
 											if (grade != null)
 											{
@@ -4181,13 +4180,13 @@ public class AssignmentAction extends PagedResourceActionII
 									.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS)
 									: "";
 							List feedbackAttachments = sEdit.getFeedbackAttachments();
-							String att = "";
+							StringBuffer attBuffer = new StringBuffer();
 							for (int k = 0; k<feedbackAttachments.size();k++)
 							{
 								// use comma as separator for attachments
-								att = att + ((Reference) feedbackAttachments.get(k)).getReference() + ",";
+								attBuffer.append(((Reference) feedbackAttachments.get(k)).getReference() + ",");
 							}
-							feedbackAttachmentHistory = att + feedbackAttachmentHistory;
+							feedbackAttachmentHistory = attBuffer.toString() + feedbackAttachmentHistory;
 								
 							sPropertiesEdit.addProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS,
 									feedbackAttachmentHistory);
@@ -5112,10 +5111,8 @@ public class AssignmentAction extends PagedResourceActionII
 		Map<String, ? extends Object> helperParms = helperInfo
 				.getParameterMap();
 
-		for (Iterator<String> keys = helperParms.keySet().iterator(); keys
-				.hasNext();) {
-			String key = keys.next();
-			state.setAttribute(key, helperParms.get(key));
+		for (Map.Entry<String, ? extends Object> entry : helperParms.entrySet()) {
+			state.setAttribute(entry.getKey(), entry.getValue());
 		}
 	} // doHelp_items
 	
@@ -5143,10 +5140,8 @@ public class AssignmentAction extends PagedResourceActionII
 		Map<String, ? extends Object> helperParms = helperInfo
 				.getParameterMap();
 
-		for (Iterator<String> keys = helperParms.keySet().iterator(); keys
-				.hasNext();) {
-			String key = keys.next();
-			state.setAttribute(key, helperParms.get(key));
+		for (Map.Entry<String, ? extends Object> entry : helperParms.entrySet()) {
+			state.setAttribute(entry.getKey(), entry.getValue());
 		}
 	} // doHelp_item
 	
@@ -5174,8 +5169,8 @@ public class AssignmentAction extends PagedResourceActionII
 		Map<String, ? extends Object> helperParms = helperInfo
 				.getParameterMap();
 
-		for (String key : helperParms.keySet()) {
-			state.setAttribute(key, helperParms.get(key));
+		for (Map.Entry<String, ? extends Object> entry : helperParms.entrySet()) {
+			state.setAttribute(entry.getKey(), helperParms.get(entry.getValue()));
 		}
 	} // doHelp_activity
 	
@@ -5288,7 +5283,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Site site = SiteService.getSite(siteId);
 				Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
-				if (Assignment.AssignmentAccess.GROUPED.equals(range) && (groupChoice == null || groupChoice.size() == 0))
+				if (Assignment.AssignmentAccess.GROUPED.toString().equals(range) && (groupChoice == null || groupChoice.size() == 0))
 				{
 					// show alert if no group is selected for the group access assignment
 					addAlert(state, rb.getString("java.alert.youchoosegroup"));
@@ -9879,10 +9874,10 @@ public class AssignmentAction extends PagedResourceActionII
 				// ... pass the resource loader object
 				ResourceLoader pRb = new ResourceLoader("permissions");
 				HashMap<String, String> pRbValues = new HashMap<String, String>();
-				for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+				for (Iterator<Map.Entry<String, Object>> iEntries = pRb.entrySet().iterator();iEntries.hasNext();)
 				{
-					String key = (String) iKeys.next();
-					pRbValues.put(key, (String) pRb.get(key));
+					Map.Entry<String, Object> entry = iEntries.next();
+					pRbValues.put(entry.getKey(), (String) entry.getValue());
 					
 				}
 				state.setAttribute("permissionDescriptions",  pRbValues);

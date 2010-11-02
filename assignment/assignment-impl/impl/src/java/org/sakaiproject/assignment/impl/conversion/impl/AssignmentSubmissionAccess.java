@@ -196,8 +196,9 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		
 		Map<String, Object> props = this.saxSerializableProperties.getSerializableProperties();
 		
-		for(String key : props.keySet())
+		for(Map.Entry<String, Object> entry : props.entrySet())
 		{
+			String key = entry.getKey();
 			Object value = props.get(key);
 			if (value instanceof String)
 			{

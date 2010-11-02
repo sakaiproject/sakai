@@ -3811,8 +3811,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					Set rolesAllowAllSite = group.getRolesIsAllowed(SECURE_ALL_GROUPS);
 					Set rolesAllowGradeAssignment = group.getRolesIsAllowed(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
 					// save all the roles with both "all.groups" and "grade assignment" permissions
-					rolesAllowAllSite.retainAll(rolesAllowGradeAssignment);
 					if (rolesAllowAllSite != null)
+						rolesAllowAllSite.retainAll(rolesAllowGradeAssignment);
+					if (rolesAllowAllSite != null && rolesAllowAllSite.size() > 0)
 					{
 						for (Iterator iRoles = rolesAllowAllSite.iterator(); iRoles.hasNext(); )
 						{
@@ -4790,6 +4791,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	private void zipAttachments(ZipOutputStream out, String submittersName, String sSubAttachmentFolder, List attachments) {
 		int attachedUrlCount = 0;
+		InputStream content = null;
 		for (int j = 0; j < attachments.size(); j++)
 		{
 			Reference r = (Reference) attachments.get(j);
@@ -4810,11 +4812,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 
 				// buffered stream input
-				InputStream content = resource.streamContent();
+				content = resource.streamContent();
 				byte data[] = new byte[1024 * 10];
+				BufferedInputStream bContent = null;
 				try
 				{
-					BufferedInputStream bContent = new BufferedInputStream(content, data.length);
+					bContent = new BufferedInputStream(content, data.length);
 					
 					ZipEntry attachmentEntry = new ZipEntry(sSubAttachmentFolder + displayName);
 					out.putNextEntry(attachmentEntry);
@@ -4832,28 +4835,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						M_log.warn(this + ":zipAttachments: problem closing zip entry " + ioException.getMessage());
 					}
-					
-					try
-					{
-						bContent.close(); // The BufferedInputStream needs to be closed
-					}
-					catch (IOException ioException)
-					{
-						M_log.warn(this + ":zipAttachments: problem closing FileChannel " + ioException.getMessage());
-					}
-					
-					try
-					{
-						content.close(); // The input stream needs to be closed
-					}
-					catch (IOException ioException)
-					{
-						M_log.warn(this + ":zipAttachments: problem closing Inputstream content " + ioException.getMessage());
-					}
 				}
 				catch (IllegalArgumentException iException)
 				{
 					M_log.warn(this + ":zipAttachments: problem creating BufferedInputStream with content and length " + data.length + iException.getMessage());
+				}
+				finally
+				{
+					if (bContent != null)
+					{
+						try
+						{
+							bContent.close(); // The BufferedInputStream needs to be closed
+						}
+						catch (IOException ioException)
+						{
+							M_log.warn(this + ":zipAttachments: problem closing FileChannel " + ioException.getMessage());
+						}
+					}
 				}
 			}
 			catch (PermissionException e)
@@ -4880,6 +4879,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				M_log.warn(this + " zipAttachments--ServerOverloadException: submittersName="
 						+ submittersName + " attachment reference=" + r);
+			}
+			finally
+			{
+				if (content != null)
+				{
+					try
+					{
+						content.close(); // The input stream needs to be closed
+					}
+					catch (IOException ioException)
+					{
+						M_log.warn(this + ":zipAttachments: problem closing Inputstream content " + ioException.getMessage());
+					}
+				}
 			}
 		} // for
 	}
@@ -12168,10 +12181,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				User[] users2 = ((AssignmentSubmission) o2).getSubmitters();
 				if (users2 != null)
 				{
+					StringBuffer users2Buffer = new StringBuffer();
 					for (int i = 0; i < users2.length; i++)
 					{
-						rv += users2[i].getSortName() + " ";
+						users2Buffer.append(users2[i].getSortName() + " ");
 					}
+					rv = users2Buffer.toString();
 				}
 			}
 			return rv;

@@ -317,10 +317,12 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
                 // need the regular assignment attachments too
                 attachments.addAll(assignment.getContent().getAttachments());
 
-                String refs = "";
+                StringBuffer refsBuffer = new StringBuffer();
                 for (Reference comp : attachments) {
-                    refs += comp.getReference() + ":::";
+                    refsBuffer.append(comp.getReference() + ":::");
                 }
+                String refs = refsBuffer.toString();
+                
                 if (refs.lastIndexOf(":::") > 0) {
                     props.put("submissionAttachmentRefs", refs
                             .substring(0, refs.lastIndexOf(":::")));
