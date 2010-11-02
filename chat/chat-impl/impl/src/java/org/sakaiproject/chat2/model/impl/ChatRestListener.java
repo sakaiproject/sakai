@@ -38,14 +38,12 @@ public class ChatRestListener implements RoomObserver, PresenceObserver {
 	   
 	public void receivedMessage(String roomId, Object message) {
 
-		if (!roomId.equals(channel.getId())) {
-			LOG.error("Incorrect channelId: room = " + roomId + " channelId = " + channel.getId());
-			return;
-		}
+		if (channel != null) {
+			  if (!roomId.equals(channel.getId())) {
+				  LOG.error("Incorrect channelId: room = " + roomId + " channelId = " + channel.getId());
+				  return;
+			  }
 		
-	       // System.out.println("receivedmessager " + sessionId + " " + roomId + " " + channel + " " + SessionManager.getSession(sessionId));
-	       if (channel != null) {
-
 			  String address = sessionId + roomId;
 			  
 			  if (SessionManager.getSession(sessionId) == null) {
@@ -74,15 +72,12 @@ public class ChatRestListener implements RoomObserver, PresenceObserver {
 	}
 
 	public void userLeft(String location, String user) {
+		if (channel != null && SessionManager.getSession(sessionId) == null) {
+			if (!location.equals(channel.getId())) {
+				LOG.error("Incorrect channelId: room = " + location + " channelId = " + channel.getId());
+				return;
+			}
 		
-		if (!location.equals(channel.getId())) {
-			LOG.error("Incorrect channelId: room = " + location + " channelId = " + channel.getId());
-			return;
-		}
-		
-       // System.out.println("userLeft " + sessionId + " " + location + " " + channel + " " + SessionManager.getSession(sessionId));
-       if (channel != null && SessionManager.getSession(sessionId) == null) {
-       		   // System.out.println("expire session " + sessionId + " " + currentChannel);
 		   resetCurrentChannel();
 		   m_courierService.clear(sessionId+location);
        }

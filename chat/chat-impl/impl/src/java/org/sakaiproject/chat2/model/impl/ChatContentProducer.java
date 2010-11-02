@@ -74,8 +74,6 @@ public class ChatContentProducer implements EntityContentProducer {
    
    private ContextualUserDisplayService contextualUserDisplayService;
    
-   private UserDirectoryService userDirectoryService;
-   
    private SiteService siteService;
    public void setSiteService(SiteService siteService) {
 	   this.siteService = siteService;
@@ -478,8 +476,6 @@ protected void init() throws Exception {
          {
             ChatEntityProducer ms = (ChatEntityProducer) ep;
             ChatMessage m = ms.getMessage(ref);
-            //MessageHeader mh = m.getHeader();
-            Class c = m.getClass();
             String subject = getMessageFromBundle("chat_message"); //$NON-NLS-1$
             String title = subject + getMessageFromBundle("chat_from") //$NON-NLS-1$
                   + getMessageOwnerDisplayName(m.getOwner(), m.getChatChannel().getContext());

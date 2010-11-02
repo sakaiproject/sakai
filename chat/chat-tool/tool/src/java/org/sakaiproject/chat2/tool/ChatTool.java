@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.faces.application.FacesMessage;
@@ -539,10 +540,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
           if (toolSession != null) {
         	  ResourceLoader pRb = new ResourceLoader("permissions");
         	  HashMap<String, String> pRbValues = new HashMap<String, String>();
-        	  for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+        	  for (Iterator<Entry<String, String>> mapIter = pRb.entrySet().iterator();mapIter.hasNext();)
         	  {
-        		  String key = (String) iKeys.next();
-        		  pRbValues.put(key, (String) pRb.get(key));
+        		  Entry<String, String> entry = mapIter.next();
+        		  pRbValues.put(entry.getKey(), entry.getValue());
         	  }
 
         	  toolSession.setAttribute("permissionDescriptions", pRbValues); 
