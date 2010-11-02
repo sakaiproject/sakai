@@ -403,9 +403,9 @@
     </issueManagement>
     
     <scm>
-    	<connection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</connection>
-    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
-    	<url>https://source.sakaiproject.org/svn/profile2/trunk</url>
+    	<connection>scm:svn:https://source.sakaiproject.org/svn/profile2/branches/profile2-1.4.x</connection>
+    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/branches/profile2-1.4.x</developerConnection>
+    	<url>https://source.sakaiproject.org/svn/profile2/branches/profile2-1.4.x</url>
   	</scm>
     
 	<pluginRepositories>
