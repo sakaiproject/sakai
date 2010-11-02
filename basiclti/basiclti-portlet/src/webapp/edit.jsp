@@ -122,23 +122,23 @@ function switchui()
 <% if ( allow(sp,"launch") ) { %>
 <div id="url.input">
 <p>
-<%=rb.getString("tool.url") %>
-<input type="text" size="80" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
+<label for="imsti.launch"><%=rb.getString("tool.url") %></label>
+<input type="text" size="80" name="imsti.launch" id="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 <%=rb.getString("tool.url.detail") %>
 </p>
 </div>
 <% } %>
 <% if ( allow(sp,"key") ) { %>
 <p>
-<%=rb.getString("tool.key") %>
-<input type="text" name="imsti.key" value="<%=ov.getProperty("imsti.key","")%>"> 
+<label for="imsti.key"><%=rb.getString("tool.key") %></label>
+<input type="text" name="imsti.key" id="imsti.key" value="<%=ov.getProperty("imsti.key","")%>"> 
 <%=rb.getString("tool.key.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
-<%=rb.getString("tool.secret") %>
-<input type="password" name="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
+<label for="imsti.secret"><%=rb.getString("tool.secret") %></label>
+<input type="password" name="imsti.secret" id="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
 <%=rb.getString("tool.secret.detail") %>
 </p>
 <% } %>
@@ -153,15 +153,15 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <legend><%=rb.getString("display.information") %></legend>
 <% if ( allow(sp,"pagetitle") ) { %>
 <p>
-<%=rb.getString("page.title") %>
-<input type="text" name="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
+<label for="imsti.pagetitle"><%=rb.getString("page.title") %></label>
+<input type="text" name="imsti.pagetitle" id="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
 <%=rb.getString("page.title.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"tooltitle") ) { %>
 <p>
-<%=rb.getString("tool.title") %>
-<input type="text" name="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
+<label for="imsti.tooltitle"><%=rb.getString("tool.title") %></label>
+<input type="text" name="imsti.tooltitle" id="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
 <%=rb.getString("tool.title.detail") %>
 </p>
 <% } %>
@@ -194,8 +194,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <legend><%=rb.getString("launch.information") %></legend>
 <% if ( allow(sp,"newpage") ) { %>
 <p>
-<%=rb.getString("new.page") %>
-<input type="checkbox" size="10" name="imsti.newpage" 
+<label for="imsti.newpage"><%=rb.getString("new.page") %></label>
+<input type="checkbox" size="10" name="imsti.newpage" id="imsti.newpage" 
 <% if ( ov.getProperty("imsti.newpage",null) != null ) { %>
   checked="yes" />
 <% } else { %>
@@ -206,8 +206,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 <% if ( allow(sp,"maximize") ) { %>
 <p>
-<%=rb.getString("maximize.page") %>
-<input type="checkbox" size="10" name="imsti.maximize" 
+<label for="imsti.maximize"><%=rb.getString("maximize.page") %></label>
+<input type="checkbox" size="10" name="imsti.maximize" id="imsti.maximize" 
 <% if ( ov.getProperty("imsti.maximize",null) != null ) { %>
   checked="yes" />
 <% } else { %>
@@ -218,15 +218,15 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>
 <p>
-<%=rb.getString("iframe.height") %>
-<input type="text" size="10" name="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
+<label for="imsti.frameheight"><%=rb.getString("iframe.height") %></label>
+<input type="text" size="10" name="imsti.frameheight" id="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
 <%=rb.getString("iframe.height.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"debug") ) { %>
 <p>
-<%=rb.getString("debug.launch") %>
-<input type="checkbox" size="10" name="imsti.debug" 
+<label for="imsti.debug"><%=rb.getString("debug.launch") %></label>
+<input type="checkbox" size="10" name="imsti.debug" id="imsti.debug" 
 <% if ( ov.getProperty("imsti.debug",null) != null ) { %>
   checked="yes" />
 <% } else { %>
@@ -243,8 +243,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <legend><%=rb.getString("launch.privacy") %></legend>
 <% if ( allow(sp,"releasename") ) { %>
 <p>
-<%=rb.getString("privacy.releasename") %>
-<input type="checkbox" size="10" name="imsti.releasename" 
+<label for="imsti.releasename"><%=rb.getString("privacy.releasename") %></label>
+<input type="checkbox" size="10" name="imsti.releasename" id="imsti.releasename" 
 <% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
   checked="yes" />
 <% } else { %>
@@ -253,8 +253,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 <% if ( allow(sp,"releaseemail") ) { %>
 <p>
-<%=rb.getString("privacy.releaseemail") %>
-<input type="checkbox" size="10" name="imsti.releaseemail" 
+<label for="imsti.releaseemail"><%=rb.getString("privacy.releaseemail") %></label>
+<input type="checkbox" size="10" name="imsti.releaseemail" id="imsti.releaseemail" 
 <% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
   checked="yes" />
 <% } else { %>
