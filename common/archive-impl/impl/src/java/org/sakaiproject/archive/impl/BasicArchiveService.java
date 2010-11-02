@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -79,9 +80,9 @@ public class BasicArchiveService
 	/** A full path and file name to the storage file. */
 	protected String m_storagePath = "/";
 	
-	protected static HashMap userIdTrans = new HashMap();
+	protected final static HashMap userIdTrans = new HashMap();
 	
-	protected HashSet UsersListAllowImport = new HashSet(); 
+	protected HashSet usersListAllowImport = new HashSet(); 
 
 	// only the resources created by the followinng roles will be imported
 	// role sets are different to different system
@@ -96,7 +97,7 @@ public class BasicArchiveService
 	private String[] new_toolIds = {"sakai.preferences", "sakai.online", "sakai.siteinfo", "sakai.sitesetup", "sakai.discussion"};
 	
 	// only these Sakai tools will be imported
-	public String[] SakaiServicesToImport = 
+	public String[] sakaiServicesToImport = 
 		{"AnnouncementService", 
 		"AssignmentService", 
 		"ContentHostingService", 
@@ -581,9 +582,9 @@ public class BasicArchiveService
 	 */
 	 protected boolean checkSakaiService (String serviceName)
 	 {
-	 	for (int i = 0; i < SakaiServicesToImport.length; i ++)
+	 	for (int i = 0; i < sakaiServicesToImport.length; i ++)
 	 	{
-	 		if (serviceName.endsWith(SakaiServicesToImport[i]))
+	 		if (serviceName.endsWith(sakaiServicesToImport[i]))
 	 		{
 	 			return true;
 	 		}
@@ -738,9 +739,9 @@ public class BasicArchiveService
 							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, userIdTrans, new HashSet());
 						else if ((system.equalsIgnoreCase(FROM_SAKAI) || system.equalsIgnoreCase(FROM_SAKAI_2_8))
                                  && (checkSakaiService(serviceName)))
-							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, UsersListAllowImport);
+							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 						else if (system.equalsIgnoreCase(FROM_CT))
-							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, UsersListAllowImport);
+							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 							
 						results.append(msg);
 					}
@@ -850,9 +851,6 @@ public class BasicArchiveService
 		}
 
 		List roles = new Vector();
-		List maintainUsers = new Vector();
-		List accessUsers = new Vector();
-		
 		// to add this user with this role inito this realm
 		String realmId = "/site/" + siteId;
 		try
@@ -909,8 +907,10 @@ public class BasicArchiveService
 								AuthzGroupService.save(realmEdit);
 							}
 						} 
-						catch (UserNotDefinedException e) 
-						{
+						catch (UserNotDefinedException e) {
+							M_log.warn("UserNotDefined in mergeSiteRoles: " + userId);
+						} catch (AuthzPermissionException e) {
+							M_log.warn("AuthzPermissionException in mergeSiteRoles", e);
 						}
 					}
 				}
@@ -933,14 +933,14 @@ public class BasicArchiveService
 						String userId = element3.getAttribute("userId");
 					
 						// this user has a qualified role, his/her resource will be imported
-						UsersListAllowImport.add(userId);
+						usersListAllowImport.add(userId);
 					}
 				} // if - elseif - elseif
 			} // for
 		}
-		catch(Exception err)
+		catch(GroupNotDefinedException err)
 		{
-			M_log.warn("()mergeSiteRoles realm edit exception caught" + realmId);
+			M_log.warn("()mergeSiteRoles realm edit exception caught GroupNotDefinedException " + realmId);
 		}
 		return;
 	
@@ -1144,16 +1144,7 @@ public class BasicArchiveService
 	*/
 	
 	protected void mergeSite(String siteId, String fromSiteId, Element element, HashMap useIdTrans, String creatorId)
-	{
-		String source = "";
-					
-		Node parent = element.getParentNode();
-		if (parent.getNodeType() == Node.ELEMENT_NODE)
-		{
-			Element parentEl = (Element)parent;
-			source = parentEl.getAttribute("system");
-		}
-					
+	{		
 		NodeList children = element.getChildNodes();
 		final int length = children.getLength();
 		for(int i = 0; i < length; i++)

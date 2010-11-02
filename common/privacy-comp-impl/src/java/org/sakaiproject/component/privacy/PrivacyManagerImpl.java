@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.HashSet;
@@ -322,7 +323,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   			for(int i=0; i<returnedList.size(); i++)
   			{
   				pr = (PrivacyRecordImpl)returnedList.get(i);
-  				returnMap.put(pr.getUserId(), new Boolean(pr.getViewable()));
+  				returnMap.put(pr.getUserId(), Boolean.valueOf(pr.getViewable()));
   			}
   			return returnMap;
   		}
@@ -391,12 +392,11 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		}
 		
 		Set keySet = userViewableState.keySet();
-		Iterator iter = keySet.iterator();
-		while(iter.hasNext())
+		for(Iterator<Entry<String, Boolean>> mapIter = keySet.iterator(); mapIter.hasNext();)
 		{
-			String userId = (String)iter.next();
-			Boolean viewable = (Boolean) userViewableState.get(userId);
-			setViewableState(contextId, userId, viewable, recordType);
+			Entry<String, Boolean> entry = mapIter.next();
+			Boolean viewable = (Boolean) entry.getValue();
+			setViewableState(contextId, entry.getKey(), viewable, recordType);
 		}
 	}
 

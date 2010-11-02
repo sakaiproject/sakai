@@ -175,7 +175,6 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
         Element mappingElement = (Element) mapping;
         if (mappingElement.getTagName().equals(MAPPINGS))
         {
-          List maps = new ArrayList();
           NodeList mapNode = mappingElement.getChildNodes();
           final int mapLength = mapNode.getLength();
           for (int j = 0; j < mapLength; j++)
