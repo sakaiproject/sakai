@@ -43,12 +43,12 @@
           <h:outputText value="#{authorMessages.cert_rem_assmt} \"#{publishedassessment.title}\" ?" />
   </div>
 <p class="act">
-       <h:commandButton value="#{authorMessages.button_remove}" type="submit"
+       <h:commandButton value="#{commonMessages.remove_action}" type="submit"
          styleClass="active" action="removeAssessment" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
        </h:commandButton>
-       <h:commandButton value="#{authorMessages.button_cancel}" type="submit"
+       <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
          action="author" />
     </p>
  </h:form>
