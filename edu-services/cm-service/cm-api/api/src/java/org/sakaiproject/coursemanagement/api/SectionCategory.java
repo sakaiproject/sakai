@@ -26,8 +26,21 @@ package org.sakaiproject.coursemanagement.api;
  *
  */
 public interface SectionCategory {
+	
+	/**
+	 * @return
+	 */
 	public String getCategoryCode();
+	/**
+	 * @param categoryCode
+	 */
 	public void setCategoryCode(String categoryCode);
+	/**
+	 * @return
+	 */
 	public String getCategoryDescription();
+	/**
+	 * @param categoryDescription
+	 */
 	public void setCategoryDescription(String categoryDescription);
 }

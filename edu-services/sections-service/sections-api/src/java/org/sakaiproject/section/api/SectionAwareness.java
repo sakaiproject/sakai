@@ -56,7 +56,7 @@ public interface SectionAwareness {
      * {@link org.sakaiproject.section.api.coursemanagement.CourseSection CourseSections}
      * associated with this site context.
      */
-    public List getSections(String siteContext);
+    public List<CourseSection> getSections(String siteContext);
 
     /**
      * Gets the list of section categories.  In sakai 2.1, there will be only a
@@ -70,7 +70,7 @@ public interface SectionAwareness {
      * categories.  These should be internationalized for display using
      * {@link SectionAwareness#getCategoryName(String, Locale) getCategoryName}.
      */
-    public List getSectionCategories(String siteContext);
+    public List<String> getSectionCategories(String siteContext);
     
     /**
      * Gets a {@link org.sakaiproject.section.api.coursemanagement.CourseSection CourseSection}
