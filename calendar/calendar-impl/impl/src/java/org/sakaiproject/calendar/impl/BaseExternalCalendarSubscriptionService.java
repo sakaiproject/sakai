@@ -513,19 +513,19 @@ public class BaseExternalCalendarSubscriptionService implements
 		if (tc != null)
 		{
 			boolean first = true;
-			String tmpStr = "";
+			StringBuffer tmpStr = new StringBuffer();
 			for (ExternalSubscription subscription : subscriptions)
 			{
-				if (!first) tmpStr += SUBS_REF_DELIMITER;
+				if (!first) tmpStr.append(SUBS_REF_DELIMITER);
 				first = false;
 
-				tmpStr += subscription.getReference();
+				tmpStr.append(subscription.getReference());
 				if (!subscription.isInstitutional())
-					tmpStr += SUBS_NAME_DELIMITER + subscription.getSubscriptionName();
+					tmpStr.append(SUBS_NAME_DELIMITER + subscription.getSubscriptionName());
 			}
 
 			Properties config = tc.getConfig();
-			config.setProperty(TC_PROP_SUBCRIPTIONS, tmpStr);
+			config.setProperty(TC_PROP_SUBCRIPTIONS, tmpStr.toString());
 			tc.save();
 		}
 	}
@@ -1138,13 +1138,14 @@ public class BaseExternalCalendarSubscriptionService implements
 		protected String getUniqueIdBasedOnFields(String displayName, String description,
 				String type, String location)
 		{
-			String key = displayName + description + type + location;
+			StringBuffer key = new StringBuffer(); 
+			key.append(displayName + description + type + location);
 			String id = null;
 			int n = 0;
 			boolean unique = false;
 			while (!unique)
 			{
-				byte[] bytes = key.getBytes();
+				byte[] bytes = key.toString().getBytes();
 				try{
 					MessageDigest digest = MessageDigest.getInstance("SHA-1");
 					digest.update(bytes);
@@ -1156,7 +1157,7 @@ public class BaseExternalCalendarSubscriptionService implements
 					id = new String(encoded);
 				}
 				if (!m_storage.containsKey(id)) unique = true;
-				else key += n++;
+				else key.append(n++);
 			}
 			return id;
 		}

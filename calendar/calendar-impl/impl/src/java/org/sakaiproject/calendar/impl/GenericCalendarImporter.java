@@ -815,7 +815,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 									// Give up, we've run out of possible formats.
                            String msg = (String)rb.getFormattedMessage(
                                                    "err_time", 
-                                                   new Object[]{new Integer(column.getLineNumber()),
+                                                   new Object[]{Integer.valueOf(column.getLineNumber()),
                                                                 column.getColumnHeader()});
                            throw new ImportException( msg );
 								}
@@ -825,7 +825,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 						{
                      String timeFormatErrorString = (String)rb.getFormattedMessage(
                                                    "err_time", 
-                                                   new Object[]{new Integer(column.getLineNumber()),
+                                                   new Object[]{Integer.valueOf(column.getLineNumber()),
                                                                 column.getColumnHeader()});
 
 							String parts[] = value.split(":");
@@ -835,7 +835,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 								// Convert to minutes to get into one property field.
 								try
 								{
-									mapCellValue = new Integer(Integer.parseInt(parts[0]));
+									mapCellValue = Integer.valueOf(Integer.parseInt(parts[0]));
 								}
 								catch (NumberFormatException ex)
 								{
@@ -847,7 +847,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 								// Convert to hours:minutes to get into one property field.
 								try
 								{
-									mapCellValue = new Integer(Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]));
+									mapCellValue = Integer.valueOf(Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]));
 								}
 								catch (NumberFormatException ex)
 								{
@@ -872,7 +872,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 							catch (ParseException e)
 							{
                         String msg = (String)rb.getFormattedMessage("err_date", 
-                                                                    new Object[]{new Integer(column.getLineNumber()),
+                                                                    new Object[]{Integer.valueOf(column.getLineNumber()),
                                                                                  column.getColumnHeader()});
                         throw new ImportException( msg );
 							}
@@ -882,12 +882,12 @@ public class GenericCalendarImporter implements CalendarImporterService
 						{
 							try
 							{
-								mapCellValue = new Integer(column.getCellValue());
+								mapCellValue = Integer.valueOf(column.getCellValue());
 							}
 							catch (NumberFormatException ex)
 							{
                         String msg = (String)rb.getFormattedMessage("err_interval", 
-                                                                    new Object[]{new Integer(column.getLineNumber()),
+                                                                    new Object[]{Integer.valueOf(column.getLineNumber()),
                                                                                  column.getColumnHeader()});
                         throw new ImportException( msg );
 							}
@@ -947,7 +947,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 			if (timeRange == null)
 			{
             String msg = (String)rb.getFormattedMessage("err_notime", 
-                                                        new Object[]{new Integer(lineNumber)});
+                                                        new Object[]{Integer.valueOf(lineNumber)});
             throw new ImportException( msg );
 			}
 
@@ -975,7 +975,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 				if (count != null && until != null)
 				{
                String msg = (String)rb.getFormattedMessage("err_datebad", 
-                                                           new Object[]{new Integer(lineNumber)});
+                                                           new Object[]{Integer.valueOf(lineNumber)});
                throw new ImportException( msg );
 				}
 
@@ -1002,7 +1002,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 				if (recurrenceRule == null)
 				{
                String msg = (String)rb.getFormattedMessage("err_freqbad", 
-                                                           new Object[]{new Integer(lineNumber)});
+                                                           new Object[]{Integer.valueOf(lineNumber)});
                throw new ImportException( msg );
 				}
 

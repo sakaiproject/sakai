@@ -291,7 +291,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			String userName, TimeRange dailyTimeRange)
 	{
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_PDF + Entity.SEPARATOR + context + Entity.SEPARATOR + id
-				+ "?" + SCHEDULE_TYPE_PARAMETER_NAME + "=" + Validator.escapeHtml(new Integer(scheduleType).toString()) + "&"
+				+ "?" + SCHEDULE_TYPE_PARAMETER_NAME + "=" + Validator.escapeHtml(Integer.valueOf(scheduleType).toString()) + "&"
 				+ TIME_RANGE_PARAMETER_NAME + "=" + timeRangeString + "&"
 				+ Validator.escapeHtml(USER_NAME_PARAMETER_NAME) + "=" + Validator.escapeHtml(userName) + "&"
 				+ DAILY_START_TIME_PARAMETER_NAME + "=" + Validator.escapeHtml(dailyTimeRange.toString());
@@ -523,7 +523,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	public void setCaching(String value)
 	{
-		m_caching = new Boolean(value).booleanValue();
+		m_caching = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Dependency: EntityManager. */
@@ -1398,7 +1398,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
+		
 
 		String rv = "Calendar: " + ref.getReference();
 
@@ -1430,7 +1431,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		ResourceProperties props = null;
 
@@ -1484,7 +1485,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public Entity getEntity(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		Entity rv = null;
 
@@ -1533,7 +1534,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		Collection rv = new Vector();
 
@@ -1614,7 +1615,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public String getEntityUrl(Reference ref)
 	{
 		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		String rv = null;
 
@@ -2881,7 +2882,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 					// add an exclusion for where this one would have been %%% we are changing it, should it be immutable? -ggolden
 					List exclusions = ((ExclusionSeqRecurrenceRule) bedit.getExclusionRule()).getExclusions();
-					exclusions.add(new Integer(sequence));
+					exclusions.add(Integer.valueOf(sequence));
 
 					// complete the edit
 					m_storage.commitEvent(this, edit);
@@ -3101,7 +3102,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 					// add an exclusion for where this one would have been %%% we are changing it, should it be immutable? -ggolden
 					List exclusions = ((ExclusionSeqRecurrenceRule) bedit.getExclusionRule()).getExclusions();
-					exclusions.add(new Integer(sequence));
+					exclusions.add(Integer.valueOf(sequence));
 				}
 
 				// else change the entire sequence (i.e. the one initial event)

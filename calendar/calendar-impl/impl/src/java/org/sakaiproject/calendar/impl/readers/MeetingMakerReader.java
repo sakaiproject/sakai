@@ -24,8 +24,8 @@ package org.sakaiproject.calendar.impl.readers;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -247,7 +247,7 @@ public class MeetingMakerReader extends Reader
 			}
 			else
 			{
-            Integer line = new Integer(lineNumber);
+            Integer line = Integer.valueOf(lineNumber);
 				String msg = (String)rb.getFormattedMessage("err_no_stime_on", 
                                                         new Object[]{line});
 				throw new ImportException( msg );
@@ -257,7 +257,7 @@ public class MeetingMakerReader extends Reader
 
 			if ( durationInMinutes == null )
 			{
-            Integer line = new Integer(lineNumber);
+            Integer line = Integer.valueOf(lineNumber);
 				String msg = (String)rb.getFormattedMessage("err_no_dtime_on", 
                                                         new Object[]{line});
 				throw new ImportException( msg );

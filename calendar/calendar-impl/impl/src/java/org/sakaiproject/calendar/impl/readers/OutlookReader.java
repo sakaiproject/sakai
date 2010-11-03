@@ -118,10 +118,11 @@ public class OutlookReader extends CSVReader
 					if ( !lineBuffer.endsWith("\"") || lineBuffer.endsWith(",\"") )
 					{
 						String lineRead = bufferedReader.readLine();
-						
+						//we need a string buffer
+						StringBuffer sb = new StringBuffer(lineBuffer);
 						while ( lineRead != null )
 						{
-							lineBuffer += "\n" + lineRead;
+							sb.append("\n" + lineRead);
 
 							if ( lineRead.startsWith("\"") )
 							{
@@ -130,6 +131,7 @@ public class OutlookReader extends CSVReader
 							
 							lineRead = bufferedReader.readLine();
 						}
+						lineBuffer = sb.toString();
 					}
 					
 					handler.handleRow(

@@ -21,35 +21,28 @@
 
 package org.sakaiproject.calendar.impl.readers;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.DateProperty;
+import net.fortuna.ical4j.util.CompatibilityHints;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.util.ResourceLoader;
-
-import java.lang.NullPointerException;
-import java.text.DateFormat;
-
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.data.ParserException;
-
-import net.fortuna.ical4j.util.CompatibilityHints;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.DateProperty;
-import net.fortuna.ical4j.model.Property;
 
 /**
  * This class parses an import file from iCalendar.
@@ -233,7 +226,7 @@ public class IcalendarReader extends Reader
 			}
 			else
 			{
-				Integer line = new Integer(lineNumber);
+				Integer line = Integer.valueOf(lineNumber);
 				String msg = (String)rb.getFormattedMessage("err_no_stime_on", 
 																		  new Object[]{line});
 				throw new ImportException( msg );
@@ -243,7 +236,7 @@ public class IcalendarReader extends Reader
 
 			if ( durationInMinutes == null )
 			{
-				Integer line = new Integer(lineNumber);
+				Integer line = Integer.valueOf(lineNumber);
 				String msg = (String)rb.getFormattedMessage("err_no_dtime_on", 
 																		  new Object[]{line});
 				throw new ImportException( msg );

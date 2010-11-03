@@ -71,7 +71,7 @@ public class CalendarActionState
 	private String m_prevDate = "";
 	private CalendarUtil m_scalObj;
 	private String m_primaryCalendarReference = null;
-	private String PrevState = "";
+	private String prevState = "";
 
 	private String m_AttachmentFlag = "false";
 	private LocalEvent savedData = new LocalEvent();
@@ -337,10 +337,10 @@ public class CalendarActionState
 	}
 
 	
-	public void setPrevState(String state){ PrevState = state; }
+	public void setPrevState(String state){ prevState = state; }
 
 	
-	public String getPrevState(){ return PrevState; }
+	public String getPrevState(){ return prevState; }
 
 
 	

@@ -260,7 +260,7 @@ public class CSVReader extends Reader
 
 			if ( durationInMinutes == null )
 			{
-            Integer line = new Integer(lineNumber);
+            Integer line = Integer.valueOf(lineNumber);
 				String msg = (String)rb.getFormattedMessage("err_no_dur", 
                                                         new Object[]{line});
 				throw new ImportException( msg );
@@ -307,7 +307,7 @@ public class CSVReader extends Reader
 			}
 			else
 			{
-            Integer line = new Integer(lineNumber);
+            Integer line = Integer.valueOf(lineNumber);
 				String msg = (String)rb.getFormattedMessage("err_no_start", 
                                                         new Object[]{line});
 				throw new ImportException( msg );

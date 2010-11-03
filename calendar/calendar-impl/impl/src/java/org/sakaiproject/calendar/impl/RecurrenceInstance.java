@@ -40,7 +40,7 @@ public class RecurrenceInstance
 	public RecurrenceInstance(TimeRange range, int sequence)
 	{
 		m_range = range;
-		m_sequence = new Integer(sequence);
+		m_sequence = Integer.valueOf(sequence);
 
 	}	// RecurrenceInstance
 

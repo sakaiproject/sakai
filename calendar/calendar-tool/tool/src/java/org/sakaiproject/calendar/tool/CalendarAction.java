@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,6 +119,11 @@ import org.sakaiproject.util.Validator;
 public class CalendarAction
 extends VelocityPortletStateAction
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8571818334710261359L;
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(CalendarAction.class);
 
@@ -762,7 +768,7 @@ extends VelocityPortletStateAction
 		public int getduration(long x, int b)
 		{
 			
-			Long l = new Long(x);
+			Long l = Long.valueOf(x);
 			int v = l.intValue()/3600000;
 			return v;
 		}
@@ -770,7 +776,7 @@ extends VelocityPortletStateAction
 		
 		public int getFractionIn(long x,int b)
 		{
-			Long ll = new Long(x);
+			Long ll = Long.valueOf(x);
 			int y = (ll.intValue()-(b*3600000));
 			int m = (y/60000);
 			return m;
@@ -812,7 +818,7 @@ extends VelocityPortletStateAction
 		
 		public int getInt(long x)
 		{
-			Long temp = new Long(x);
+			Long temp = Long.valueOf(x);
 			return(temp.intValue());
 		}
 	}
@@ -1779,16 +1785,16 @@ extends VelocityPortletStateAction
 				if (config != null)
 				{
 					boolean first = true;
-					String propValue = "";
+					StringBuffer propValue = new StringBuffer();
 					for (String ref : subscriptionTC)
 					{
-						if (!first) propValue += REF_DELIMITER;
+						if (!first) propValue.append(REF_DELIMITER);
 						first = false;
-						propValue += ref;
+						propValue.append(ref);
 					}
 					config.setProperty(
 							ExternalCalendarSubscriptionService.TC_PROP_SUBCRIPTIONS,
-							propValue);
+							propValue.toString());
 	
 					// commit the change
 					saveOptions();
@@ -2823,8 +2829,8 @@ extends VelocityPortletStateAction
 		navigatorContextControl(portlet, context, runData, (String)sstate.getAttribute(STATE_NAV_DIRECTION));
 		boolean prevAct = sstate.getAttribute(STATE_PREV_ACT) != null;
 		boolean nextAct = sstate.getAttribute(STATE_NEXT_ACT) != null;
-		context.put("prevAct", new Boolean(prevAct));
-		context.put("nextAct", new Boolean(nextAct));
+		context.put("prevAct", Boolean.valueOf(prevAct));
+		context.put("nextAct", Boolean.valueOf(nextAct));
 		
 		Time m_time = TimeService.newTime();
 		TimeBreakdown b = m_time.breakdownLocal();
@@ -2993,13 +2999,13 @@ extends VelocityPortletStateAction
 		
 		context.put(
 				"allowDelete",
-				new Boolean(CalendarPermissions.allowDeleteEvent(
+				Boolean.valueOf(CalendarPermissions.allowDeleteEvent(
 						state.getPrimaryCalendarReference(),
 						state.getSelectedCalendarReference(),
 						state.getCalendarEventId())));
 		context.put(
 				"allowRevise",
-				new Boolean(CalendarPermissions.allowReviseEvents(
+				Boolean.valueOf(CalendarPermissions.allowReviseEvents(
 						state.getPrimaryCalendarReference(),
 						state.getSelectedCalendarReference(),
 						state.getCalendarEventId())));
@@ -3103,7 +3109,7 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		context.put("config",configProps);
 		context.put("yearArray",yearObj);
-		context.put("year",new Integer(calObj.getYear()));
+		context.put("year",Integer.valueOf(calObj.getYear()));
 		context.put("date",dateObj1);
 		state.setState("year");
 		
@@ -3208,12 +3214,12 @@ extends VelocityPortletStateAction
 		
 		// retrieve the information from day, month and year to calObj again since calObj changed during the process of CalMonth().
 		context.put("nameOfMonth",calendarUtilGetMonth(calObj.getMonthInteger()));
-		context.put("year", new Integer(calObj.getYear()));
+		context.put("year", Integer.valueOf(calObj.getYear()));
 		context.put("monthArray",monthObj2);
 		context.put("tlang",rb);
 		context.put("config",configProps);
 		int row = 5;
-		context.put("row",new Integer(row));
+		context.put("row",Integer.valueOf(row));
 		context.put("date",dateObj1);
 		context.put("realDate", TimeService.newTime());
 		
@@ -3306,13 +3312,13 @@ extends VelocityPortletStateAction
 							{
 								for(eom = 0; eom<evectorObj.size();eom++)
 								{
-									if(evectorObj.elementAt(eom)!="")
+									if(!"".equals(evectorObj.elementAt(eom)))
 									{
 										String eomId = (((EventDisplayClass)evectorObj.elementAt(eom)).getEvent()).getId();
 										newVectorObj = new Vector();
 										for(mv = 0; mv<vectorObj.size();mv++)
 										{
-											if(vectorObj.elementAt(mv)!="")
+											if(!"".equals(vectorObj.elementAt(mv)))
 											{
 												String vectorId = (((EventDisplayClass)vectorObj.elementAt(mv)).getEvent()).getId();
 												if (vectorId.equals(eomId))
@@ -3400,9 +3406,9 @@ extends VelocityPortletStateAction
 		int stateYear = b.getYear();
 		int stateMonth = b.getMonth();
 		int stateDay = b.getDay();
-		context.put("todayYear", new Integer(stateYear));
-		context.put("todayMonth", new Integer(stateMonth));
-		context.put("todayDay", new Integer(stateDay));
+		context.put("todayYear", Integer.valueOf(stateYear));
+		context.put("todayMonth", Integer.valueOf(stateMonth));
+		context.put("todayDay", Integer.valueOf(stateDay));
 		
 		if ((sstate.getAttribute(STATE_YEAR) != null) && (sstate.getAttribute(STATE_MONTH) != null) && (sstate.getAttribute(STATE_DAY) != null))
 		{	
@@ -3520,7 +3526,7 @@ extends VelocityPortletStateAction
 		} 
 	 
 		context.put("nameOfMonth",calendarUtilGetMonth(calObj.getMonthInteger()));
-		context.put("monthInt", new Integer(calObj.getMonthInteger()));
+		context.put("monthInt", Integer.valueOf(calObj.getMonthInteger()));
 		context.put("firstpage","true");
 		context.put("secondpage","false");
 		context.put("page",state.getCurrentPage());
@@ -3794,7 +3800,7 @@ extends VelocityPortletStateAction
 		context.put("calVec", calVec);
 		HashMap hm = new HashMap();
 		context.put("hm", hm);
-		Integer intObj = new Integer(0);
+		Integer intObj = Integer.valueOf(0);
 		context.put("intObj", intObj);
 		
 		context.put("pageStartTime", pageStartTime);
@@ -4315,9 +4321,9 @@ extends VelocityPortletStateAction
 				
 				TimeBreakdown b = calendarEventObj.getRange().firstTime().breakdownLocal();
 				
-				sstate.setAttribute(STATE_YEAR,	new Integer(b.getYear()));
-				sstate.setAttribute(STATE_MONTH,	 new Integer(b.getMonth()));
-				sstate.setAttribute(STATE_DAY,  new Integer(b.getDay()));
+				sstate.setAttribute(STATE_YEAR,	Integer.valueOf(b.getYear()));
+				sstate.setAttribute(STATE_MONTH,	 Integer.valueOf(b.getMonth()));
+				sstate.setAttribute(STATE_DAY,  Integer.valueOf(b.getDay()));
 				
 				sstate.setAttribute(STATE_NAV_DIRECTION, STATE_CURRENT_ACT);
 				
@@ -4404,9 +4410,9 @@ extends VelocityPortletStateAction
 		
 		m_calObj.setDay(yearInt, m_calObj.getMonthInteger(), m_calObj.getDayOfMonth());
 		
-		sstate.setAttribute(STATE_YEAR, new Integer(yearInt));
-		sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-		sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(yearInt));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 		
 		state.setState("month");
 		
@@ -4452,9 +4458,9 @@ extends VelocityPortletStateAction
 		
 		m_calObj.setDay(yearInt, m_calObj.getMonthInteger(), m_calObj.getDayOfMonth());
 		
-		sstate.setAttribute(STATE_YEAR, new Integer(yearInt));
-		sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-		sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(yearInt));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 		
 		state.setState("year");
 		
@@ -5220,9 +5226,9 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
-		sstate.setAttribute(STATE_YEAR, new Integer(Integer.parseInt(year)));
-		sstate.setAttribute(STATE_MONTH, new Integer(Integer.parseInt(month)));
-		sstate.setAttribute(STATE_DAY, new Integer(Integer.parseInt(day)));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(Integer.parseInt(year)));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(Integer.parseInt(month)));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(Integer.parseInt(day)));
 		
 		state.setPrevState(state.getState()); // remember the coming state from Month, Year or List
 		state.setState("day");
@@ -5244,9 +5250,9 @@ extends VelocityPortletStateAction
 		TimeBreakdown b = m_time.breakdownLocal();
 		m_calObj.setDay(b.getYear(), b.getMonth(), b.getDay());
 		
-		sstate.setAttribute(STATE_YEAR, new Integer(b.getYear()));
-		sstate.setAttribute(STATE_MONTH, new Integer(b.getMonth()));
-		sstate.setAttribute(STATE_DAY, new Integer(b.getDay()));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(b.getYear()));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(b.getMonth()));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(b.getDay()));
 		
 		state.setState("day");
 		
@@ -5367,9 +5373,9 @@ extends VelocityPortletStateAction
 		TimeBreakdown b = t.breakdownLocal();
 		m_calObj.setDay(b.getYear(),b.getMonth(),b.getDay()) ;
 		
-		sstate.setAttribute(STATE_YEAR, new Integer(b.getYear()));
-		sstate.setAttribute(STATE_MONTH, new Integer(b.getMonth()));
-		sstate.setAttribute(STATE_DAY, new Integer(b.getDay()));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(b.getYear()));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(b.getMonth()));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(b.getDay()));
 		
 		state.setState("day");
 		
@@ -5424,9 +5430,9 @@ extends VelocityPortletStateAction
 			m_calObj.setNextWeek();
 		}
 		
-		sstate.setAttribute(STATE_YEAR, new Integer(m_calObj.getYear()));
-		sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-		sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 		
 	}	// doNext
 	
@@ -5463,9 +5469,9 @@ extends VelocityPortletStateAction
 			String date = m_calObj.getNextDate();
 			state.setnextDate(date);
 			
-			sstate.setAttribute(STATE_YEAR, new Integer(m_calObj.getYear()));
-			sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-			sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+			sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
+			sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+			sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 			
 			// if this function is called thru "tomorrow" link
 			// the default page has to be changed to "first"
@@ -5519,9 +5525,9 @@ extends VelocityPortletStateAction
 		{
 			m_calObj.setPrevWeek();
 		}
-		sstate.setAttribute(STATE_YEAR, new Integer(m_calObj.getYear()));
-		sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-		sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 		
 	}	 // doPrev
 	
@@ -5555,9 +5561,9 @@ extends VelocityPortletStateAction
 		{
 			String date = m_calObj.getPrevDate();
 			
-			sstate.setAttribute(STATE_YEAR, new Integer(m_calObj.getYear()));
-			sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-			sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+			sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
+			sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+			sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 			
 			state.setprevDate(date);
 			
@@ -5998,9 +6004,9 @@ extends VelocityPortletStateAction
 				
 				m_calObj.setDay(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
 				
-				sstate.setAttribute(STATE_YEAR, new Integer(m_calObj.getYear()));
-				sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-				sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+				sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
+				sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+				sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 				
 				// clear the saved recurring rule and the selected frequency
 				sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
@@ -6405,9 +6411,9 @@ extends VelocityPortletStateAction
 						
 						m_calObj.setDay(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
 						
-						sstate.setAttribute(STATE_YEAR, new Integer(m_calObj.getYear()));
-						sstate.setAttribute(STATE_MONTH, new Integer(m_calObj.getMonthInteger()));
-						sstate.setAttribute(STATE_DAY, new Integer(m_calObj.getDayOfMonth()));
+						sstate.setAttribute(STATE_YEAR, Integer.valueOf(m_calObj.getYear()));
+						sstate.setAttribute(STATE_MONTH, Integer.valueOf(m_calObj.getMonthInteger()));
+						sstate.setAttribute(STATE_DAY, Integer.valueOf(m_calObj.getDayOfMonth()));
 						
 						// clear the saved recurring rule and the selected frequency
 						sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
@@ -6776,51 +6782,51 @@ extends VelocityPortletStateAction
 		String prevState = state.getState().toString();
 		if (prevState.equals("day"))
 		{
-			sY = new Integer(calObj.getYear()).toString();
-			sM = new Integer(calObj.getMonthInteger()).toString();
-			sD = new Integer(calObj.getDayOfMonth()).toString();
-			eY = new Integer(calObj.getYear()).toString();
-			eM = new Integer(calObj.getMonthInteger()).toString();
-			eD = new Integer(calObj.getDayOfMonth()).toString();
+			sY = Integer.valueOf(calObj.getYear()).toString();
+			sM = Integer.valueOf(calObj.getMonthInteger()).toString();
+			sD = Integer.valueOf(calObj.getDayOfMonth()).toString();
+			eY = Integer.valueOf(calObj.getYear()).toString();
+			eM = Integer.valueOf(calObj.getMonthInteger()).toString();
+			eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
 		}
 		else if (prevState.equals("week"))
 		{
 			int dayofweek = calObj.getDay_Of_Week(true);
 			calObj.setPrevDate(dayofweek-1);
-			sY = new Integer(calObj.getYear()).toString();
-			sM = new Integer(calObj.getMonthInteger()).toString();
-			sD = new Integer(calObj.getDayOfMonth()).toString();
+			sY = Integer.valueOf(calObj.getYear()).toString();
+			sM = Integer.valueOf(calObj.getMonthInteger()).toString();
+			sD = Integer.valueOf(calObj.getDayOfMonth()).toString();
 			
 			for(int i = 0; i<6; i++)
 			{
 				calObj.getNextDate();
 			}
-			eY = new Integer(calObj.getYear()).toString();
-			eM = new Integer(calObj.getMonthInteger()).toString();
-			eD = new Integer(calObj.getDayOfMonth()).toString();
+			eY = Integer.valueOf(calObj.getYear()).toString();
+			eM = Integer.valueOf(calObj.getMonthInteger()).toString();
+			eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
 		}
 		else if (prevState.equals("month"))
 		{
-			sY = new Integer(calObj.getYear()).toString();
-			sM = new Integer(calObj.getMonthInteger()).toString();
-			sD = new String("1");
+			sY = Integer.valueOf(calObj.getYear()).toString();
+			sM = Integer.valueOf(calObj.getMonthInteger()).toString();
+			sD = String.valueOf("1");
 			calObj.setDay(stateYear, stateMonth, 1);
 		
 			GregorianCalendar cal = new GregorianCalendar(calObj.getYear(), calObj.getMonthInteger()-1, 1);
 			int daysInMonth = cal.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
 			for (int i=1; i<daysInMonth; i++)
 				calObj.getNextDate();
-			eY = new Integer(calObj.getYear()).toString();
-			eM = new Integer(calObj.getMonthInteger()).toString();
-			eD = new Integer(calObj.getDayOfMonth()).toString();
+			eY = Integer.valueOf(calObj.getYear()).toString();
+			eM = Integer.valueOf(calObj.getMonthInteger()).toString();
+			eD = Integer.valueOf(calObj.getDayOfMonth()).toString();
 		}
 		else
 		{
 			// for other conditions: show the current year
-			sY = new Integer(stateYear).toString();
+			sY = Integer.valueOf(stateYear).toString();
 			sM = "1";
 			sD = "1";
-			eY = new Integer(stateYear).toString();
+			eY = Integer.valueOf(stateYear).toString();
 			eM = "12";
 			eD = "31";
 		}
@@ -6952,8 +6958,8 @@ extends VelocityPortletStateAction
 		String eDate; // ending date
 		
 		java.util.Calendar userCal = java.util.Calendar.getInstance();
-		context.put("ddStartYear", new Integer(userCal.get(java.util.Calendar.YEAR) - 3));
-		context.put("ddEndYear", new Integer(userCal.get(java.util.Calendar.YEAR) + 4));
+		context.put("ddStartYear", Integer.valueOf(userCal.get(java.util.Calendar.YEAR) - 3));
+		context.put("ddEndYear", Integer.valueOf(userCal.get(java.util.Calendar.YEAR) + 4));
 		
 		String sM;
 		String eM;
@@ -7139,7 +7145,7 @@ extends VelocityPortletStateAction
 		}
 		
 		boolean dateDsc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
-		context.put("currentDateSortAsc", new Boolean(!dateDsc));
+		context.put("currentDateSortAsc", Boolean.valueOf(!dateDsc));
 		
 		if (!dateDsc)
 		{
@@ -7178,7 +7184,7 @@ extends VelocityPortletStateAction
 					}
 				}
 				if (!arrayOfMonths.isEmpty())
-					yearMap.put(new Integer(yearInt), arrayOfMonths.iterator());
+					yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 			}
 		}
 		else
@@ -7218,20 +7224,20 @@ extends VelocityPortletStateAction
 					}
 				}
 				if (!arrayOfMonths.isEmpty())
-					yearMap.put(new Integer(yearInt), arrayOfMonths.iterator());
+					yearMap.put(Integer.valueOf(yearInt), arrayOfMonths.iterator());
 			}
 		}
 		
 		context.put("yearMap", yearMap);
 		
 		int row = 5;
-		context.put("row",new Integer(row));
+		context.put("row",Integer.valueOf(row));
 		calObj.setDay(stateYear, stateMonth, stateDay);
 		
 		// using session state stored year-month-day to replace saving calObj
-		sstate.setAttribute(STATE_YEAR, new Integer(stateYear));
-		sstate.setAttribute(STATE_MONTH, new Integer(stateMonth));
-		sstate.setAttribute(STATE_DAY, new Integer(stateDay));
+		sstate.setAttribute(STATE_YEAR, Integer.valueOf(stateYear));
+		sstate.setAttribute(STATE_MONTH, Integer.valueOf(stateMonth));
+		sstate.setAttribute(STATE_DAY, Integer.valueOf(stateDay));
 		
 		state.setState("list");
 		context.put("date",dateObj1);
@@ -7523,11 +7529,12 @@ extends VelocityPortletStateAction
 	 */
 	private void setFields(CalendarEventEdit edit, Map values)
 	{
-		Set keys = values.keySet();
-		for (Iterator it = keys.iterator(); it.hasNext(); )
+		Set<Entry<String, String>> keys = values.entrySet();
+		for (Iterator<Entry<String, String>> it = keys.iterator(); it.hasNext(); )
 		{
-			String name = (String) it.next();
-			String value = (String) values.get(name);
+			Entry entry = it.next();
+			String name = (String)entry.getKey() ;
+			String value = (String) entry.getValue();
 			edit.setField(name, value);
 		}
 		
@@ -7576,10 +7583,11 @@ extends VelocityPortletStateAction
 		// ... pass the resource loader object
 		ResourceLoader pRb = new ResourceLoader("permissions");
 		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+		for (Iterator<Entry<String, String>> iKeys = pRb.entrySet().iterator();iKeys.hasNext();)
 		{
-			String key = (String) iKeys.next();
-			pRbValues.put(key, (String) pRb.get(key));
+			Entry entry = iKeys.next();
+			String key = (String)entry.getKey();
+			pRbValues.put(key, (String)entry.getValue());
 
 		}
 		state.setAttribute("permissionDescriptions",  pRbValues);
@@ -7887,6 +7895,9 @@ extends VelocityPortletStateAction
 		catch ( IOException e )
 		{
 			M_log.warn("unable to load calendar.config: " + e);
+			
+		}
+		finally {
 			if(inConfig != null)
 			{
 				try
@@ -7899,6 +7910,7 @@ extends VelocityPortletStateAction
 				}
 			}
 		}
+		
 		
 	} // initState
 
