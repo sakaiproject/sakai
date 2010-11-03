@@ -35,6 +35,7 @@
 		<dependency>
 			<groupId>org.sakaiproject.jsf</groupId>
 			<artifactId>jsf-tool-sun</artifactId>
+            <version>${sakai.jsf.version}</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
@@ -62,7 +63,7 @@
 		<dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${sakai.edu-services.version}</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
@@ -85,13 +86,12 @@
        		<groupId>org.springframework</groupId>
        		<artifactId>spring</artifactId>
      	</dependency>
-      <dependency>
+        <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-api</artifactId>
-            <version>2.9-SNAPSHOT</version>
+            <version>${sakai.scheduler.version}</version>
             <scope>provided</scope>
-      </dependency>
-
+        </dependency>
 	</dependencies>
 	<build>
 		<resources>
