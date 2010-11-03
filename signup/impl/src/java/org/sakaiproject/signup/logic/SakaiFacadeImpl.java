@@ -668,7 +668,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		boolean update = true;
 		if (!signupUsers.isEmpty() && signupUsers.contains(signupUser)) {
 			for (SignupUser sUser : signupUsers) {
-				if (sUser.equals(signupUser)) {
+				if (sUser.getEid().equals(signupUser.getEid())) {
 					if (!sUser.isPublishedSite() && signupUser.isPublishedSite() || signupUser.isPublishedSite()
 							&& signupUser.getMainSiteId().equals(getCurrentLocationId())) {
 						update = true;

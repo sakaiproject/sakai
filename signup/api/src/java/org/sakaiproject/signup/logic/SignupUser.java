@@ -68,6 +68,10 @@ public class SignupUser implements Comparable {
 		this.userRole = role;
 		this.mainSiteId = siteId;
 		this.publishedSite = publishedSite;
+		if((this.lastName ==null || this.lastName.trim().length()==0) 
+			&& (this.firstName ==null || this.firstName.trim().length()==0)){
+			this.lastName = eid;
+		}
 
 	}
 
