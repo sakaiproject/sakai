@@ -139,18 +139,6 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
 
-		// use either the configured site, or if not configured, the site (context) of the resource
-		String siteId = (getSite() != null) ? getSite() : ref.getContext();
-
-		// get a site title
-		String title = siteId;
-		try
-		{
-			Site site = SiteService.getSite(siteId);
-			title = site.getTitle();
-		}
-		catch (Exception ignore) {}
-
 		// if html isn't available, convert plain-text into html
 		buf.append( msg.getFormattedBody() );
 
@@ -183,18 +171,6 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 		Reference ref = EntityManager.newReference(event.getResource());
 		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
 		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
-
-		// use either the configured site, or if not configured, the site (context) of the resource
-		String siteId = (getSite() != null) ? getSite() : ref.getContext();
-
-		// get a site title
-		String title = siteId;
-		try
-		{
-			Site site = SiteService.getSite(siteId);
-			title = site.getTitle();
-		}
-		catch (Exception ignore) {}
 
 		// if plain-text isn't available, convert html into plain text
 		if ( msg.getBody() != null && msg.getBody().length() > 0 )

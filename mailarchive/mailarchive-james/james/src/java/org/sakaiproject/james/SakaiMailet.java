@@ -24,17 +24,16 @@ package org.sakaiproject.james;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.net.URLEncoder;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
-import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -69,10 +68,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
 /**
@@ -309,7 +307,7 @@ public class SakaiMailet extends GenericMailet
 					StringBuilder bodyBuf[] = new StringBuilder[2];
 					bodyBuf[0] = new StringBuilder();
 					bodyBuf[1] = new StringBuilder();
-					List attachments = attachments = EntityManager.newReferenceList();
+					List attachments = EntityManager.newReferenceList();
 					String siteId = null;
 					if (SiteService.siteExists(channel.getContext())) {
 						siteId = channel.getContext();
@@ -602,7 +600,10 @@ public class SakaiMailet extends GenericMailet
 			
  			// remove extra line breaks added by mac Mail, perhaps others
 			// characterized by a space followed by a line break
-			txt = txt.replaceAll(" \n", " ");
+			if (txt != null)
+			{
+				txt = txt.replaceAll(" \n", " ");
+			}
 
 			// make sure previous message parts ended with newline
 			if (bodyBuf[0].length() > 0 && bodyBuf[0].charAt(bodyBuf[0].length() - 1) != '\n')
@@ -652,7 +653,10 @@ public class SakaiMailet extends GenericMailet
 			}
 
 			// remove bad image tags and naughty javascript
-			txt = Web.cleanHtml( txt );
+			if (txt !=null)
+			{
+				txt = Web.cleanHtml(txt);
+			}
 			
 			bodyBuf[1].append(txt);
 		}

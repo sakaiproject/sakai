@@ -566,7 +566,7 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 					MessageChannelEdit edit = (MessageChannelEdit) editChannel(channelRef);
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_CHANNEL_ENABLED, "true");
 					commitChannel(edit);
-					channel = edit;
+					
 				}
 				catch (IdUnusedException ignore)
 				{
@@ -579,7 +579,6 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 				}
 			}
 		}
-
 		// otherwise create it
 		else
 		{
@@ -589,7 +588,7 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 				MessageChannelEdit edit = addMailArchiveChannel(channelRef);
 				edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_CHANNEL_ENABLED, "true");
 				commitChannel(edit);
-				channel = edit;
+				
 			}
 			catch (IdUsedException e)
 			{

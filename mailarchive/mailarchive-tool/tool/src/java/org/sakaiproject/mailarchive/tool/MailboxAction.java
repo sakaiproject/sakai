@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
@@ -45,6 +46,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.Order;
@@ -199,7 +201,7 @@ public class MailboxAction extends PagedResourceActionII
 		boolean ascending = ((Boolean) state.getAttribute(STATE_ASCENDING)).booleanValue();
 		int sort = ((Integer) state.getAttribute(STATE_SORT)).intValue();		
 		String search = (String) state.getAttribute(STATE_SEARCH);
-		PagingPosition pages = new PagingPosition(first, last);
+		
 		
 		try
 		{
@@ -288,7 +290,6 @@ public class MailboxAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute(STATE_MODE);
 
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
-		String search = (String) state.getAttribute(STATE_SEARCH);
 		
 		String alertMessage = (String) state.getAttribute(STATE_ALERT_MESSAGE);
 		if ( alertMessage != null )
@@ -882,25 +883,14 @@ public class MailboxAction extends PagedResourceActionII
 		catch (Exception e)
 		{
 			addAlert(state, rb.getString("cannot1"));
-            // FIXME confusing code: this exception will cause a NPE below
-			channel = null;
+            channel = null;
 		}
 
-		// first validate - page size
-		// int size = 0;
-		// try
-		// {
-		// size = Integer.parseInt(pagesize);
-		// if (size <= 0)
-		// {
-		// addAlert(state,rb.getString("pagsiz"));
-		// }
-		// }
-		// catch (Exception any)
-		// {
-		// addAlert(state, rb.getString("pagsiz"));
-		// }
-
+		if (channel == null)
+		{
+			addAlert(state, rb.getString("theemaarc"));
+			return;
+		}
 		// validate the email alias
 		if (alias != null)
 		{
@@ -912,16 +902,15 @@ public class MailboxAction extends PagedResourceActionII
 
 		// make sure we can get to the channel
 		MailArchiveChannelEdit edit = null;
-		try
-		{
-		    // FIXME if channel is null then this causes a NPE, if this is desired it should be moved up nearer to the other code
-	        edit = (MailArchiveChannelEdit) MailArchiveService.editChannel(channel.getReference());
-		}
-		catch (Exception any)
-		{
-			addAlert(state, rb.getString("theemaarc"));
-		}
-
+		try {
+			edit = (MailArchiveChannelEdit) MailArchiveService.editChannel(channel.getReference());
+		} catch (IdUnusedException e1) {
+			addAlert(state, rb.getString("theemaali"));
+		} catch (PermissionException e1) {
+			addAlert(state, rb.getString("theemaali"));
+		} catch (InUseException e1) {
+			addAlert(state, rb.getString("theemaali"));		}
+		
 		// if all is well, save
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -1094,10 +1083,11 @@ public class MailboxAction extends PagedResourceActionII
 		// ... pass the resource loader object
 		ResourceLoader pRb = new ResourceLoader("permissions");
 		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+		for (Iterator<Entry<String, String>> iKeys = pRb.entrySet().iterator();iKeys.hasNext();)
 		{
-			String key = (String) iKeys.next();
-			pRbValues.put(key, (String) pRb.get(key));
+			Entry<String, String> entry = iKeys.next(); 
+			String key = entry.getKey();
+			pRbValues.put(key, entry.getValue());
 		}
 		state.setAttribute("permissionDescriptions",  pRbValues);
 		

@@ -253,6 +253,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			} 
 			catch (Exception e) 
 			{
+				M_log.warn("Exception decoding message body: " + e);
 				return 0;
 			}
 
