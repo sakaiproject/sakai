@@ -21,7 +21,6 @@
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
     <deploy.webappname>tbook</deploy.webappname>
     <appserver.id>${sakai.appserver.id}</appserver.id>
-    <genericdao.version>[0.9.8,1.0)</genericdao.version>
   </properties>
   <dependencies>
     <dependency>
