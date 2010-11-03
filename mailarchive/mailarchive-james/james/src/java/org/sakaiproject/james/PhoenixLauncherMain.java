@@ -119,7 +119,7 @@ public final class PhoenixLauncherMain
 			c_frontend = clazz.newInstance();
 
 			// kick the tires and light the fires....
-			final Integer integer = (Integer) method.invoke(c_frontend, new Object[] { args, data, new Boolean(blocking) });
+			final Integer integer = (Integer) method.invoke(c_frontend, new Object[] { args, data, Boolean.valueOf(blocking) });
 			exitCode = integer.intValue();
 		}
 		catch (final Exception e)

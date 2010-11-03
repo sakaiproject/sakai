@@ -318,7 +318,7 @@ public class SakaiMailet extends GenericMailet
 					try
 					{
 						StringBuilder bodyContentType = new StringBuilder();
-						Integer embedCount = parseParts(siteId, msg, id, bodyBuf, bodyContentType, attachments, new Integer(-1));
+						Integer embedCount = parseParts(siteId, msg, id, bodyBuf, bodyContentType, attachments, Integer.valueOf(-1));
 						
 						if (bodyContentType.length() > 0)
 						{
@@ -544,13 +544,13 @@ public class SakaiMailet extends GenericMailet
 		// increment embedded message counter
 		if (p instanceof Message)
 		{
-			embedCount = new Integer( embedCount.intValue() + 1 );
+			embedCount = Integer.valueOf( embedCount.intValue() + 1 );
 		}
 		
 		String type = p.getContentType();
 
 		// discard if content-type is unknown
-		if (type == null || type.equals(""))
+		if (type == null || "".equals(type))
 		{
 			M_log.warn(this+" message with unknown content-type discarded");
 		}
