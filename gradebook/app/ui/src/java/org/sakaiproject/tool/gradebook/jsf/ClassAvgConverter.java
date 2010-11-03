@@ -131,6 +131,7 @@ public class ClassAvgConverter extends PointsConverter {
 				// always display category avgs as %
 				entryMethod = PERCENT;
 				avg = category.getMean();
+				numDecimalPlaces = 2;
 		
 			} else if (value instanceof CourseGrade) {
 				// course grade is always displayed as %
