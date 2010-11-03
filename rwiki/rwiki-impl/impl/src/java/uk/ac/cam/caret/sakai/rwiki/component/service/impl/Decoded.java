@@ -95,7 +95,7 @@ public class Decoded
 	{
 		if (id == null)
 		{
-			if (container != null && container.equals("/"))
+			if (container != null && "/".equals(container))
 			{
 				id = context + container + page;
 			}

@@ -39,7 +39,7 @@ public class MockWikiRenderEngine implements RenderEngine, WikiRenderEngine
 
 	public boolean exists(String name)
 	{
-		return name.equals("SnipSnap") || name.equals("stephan");
+		return "SnipSnap".equals(name) || "stephan".equals(name);
 	}
 
 	public boolean showCreate()

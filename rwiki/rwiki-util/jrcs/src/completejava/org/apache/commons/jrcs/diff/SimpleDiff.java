@@ -278,7 +278,7 @@ public class SimpleDiff
             if (items.contains(orig[i]))
             {
                 // add it to the map
-                eqs.put(orig[i], new Integer(i));
+                eqs.put(orig[i], Integer.valueOf(i));
                 // and make sure its not considered again
                 items.remove(orig[i]);
             }

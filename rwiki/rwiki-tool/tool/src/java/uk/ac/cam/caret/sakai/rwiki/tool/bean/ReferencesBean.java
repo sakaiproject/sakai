@@ -76,7 +76,7 @@ public class ReferencesBean
 		for (int i = 0; i < references.length; i++)
 		{
 			String pageName = references[i];
-			if (pageName != null && !pageName.equals(""))
+			if (pageName != null && !"".equals(pageName))
 			{
 				vb.setPageName(pageName);
 				/*

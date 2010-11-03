@@ -161,13 +161,13 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 
 		for (int i = 0; i < criterias.length; i++)
 		{
-			if (!criterias[i].equals("")) //$NON-NLS-1$
+			if (!"".equals(criterias[i])) //$NON-NLS-1$
 			{
 				expression.append(" or lower(c.content) like ? "); //$NON-NLS-1$
 				criteriaList.add("%" + criterias[i].toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		if (criteria.equals("")) //$NON-NLS-1$
+		if ("".equals(criteria)) //$NON-NLS-1$
 		{
 			expression.append(" or lower(c.content) like ? "); //$NON-NLS-1$
 			criteriaList.add("%%"); //$NON-NLS-1$
@@ -235,7 +235,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		returnable.setName(name);
 		returnable.setRealm(realm);
 		returnable.setVersion(new Date());
-		returnable.setRevision(new Integer(0));
+		returnable.setRevision(Integer.valueOf(0));
 
 		returnable.setContent(Messages.getString("RWikiCurrentObjectDaoImpl.30") //$NON-NLS-1$
 				+ Messages.getString("RWikiCurrentObjectDaoImpl.31")); //$NON-NLS-1$

@@ -283,7 +283,7 @@ public class PreferenceDaoImpl extends HibernateDaoSupport implements
 				{
 
 					session.delete(pref);
-					return new Integer(1);
+					return Integer.valueOf(1);
 				}
 			};
 			return ((Integer) getHibernateTemplate().execute(callback))

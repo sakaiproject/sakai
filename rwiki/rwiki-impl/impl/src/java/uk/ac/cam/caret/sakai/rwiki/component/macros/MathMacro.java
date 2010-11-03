@@ -60,7 +60,7 @@ public class MathMacro extends BaseMacro
 		String display = params.get(0);
 		boolean inline = true;
 
-		if (display != null && display.equals("display")) //$NON-NLS-1$
+		if (display != null && "display".equals(display)) //$NON-NLS-1$
 		{
 			inline = false;
 		}

@@ -160,7 +160,7 @@ public class Archive
     protected Set locked = new TreeSet();
     protected Map symbols = new TreeMap();
     protected Phrases phrases = new Phrases();
-    protected String desc = new String();
+    protected String desc = "";
     protected boolean strictLocking = true;
     protected String expand;
     protected String comment = "# ";

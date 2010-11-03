@@ -33,7 +33,7 @@ public class MyWikiRenderEngine
 
   public boolean exists(String name) {
     // make a lookup in your wiki if the page exists
-    return name.equals("SnipSnap") || name.equals("stephan");
+    return "SnipSnap".equals(name) || "stephan".equals(name);
   }
 
   public boolean showCreate() {

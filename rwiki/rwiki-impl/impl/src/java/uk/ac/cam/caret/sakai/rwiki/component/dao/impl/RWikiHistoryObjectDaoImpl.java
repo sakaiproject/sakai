@@ -95,7 +95,7 @@ public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
 							.add(
 									Expression.eq("rwikiobjectid", rwo
 											.getRwikiobjectid())).add(
-									Expression.eq("revision", new Integer(
+									Expression.eq("revision", Integer.valueOf(
 											revision))).list();
 				}
 			};

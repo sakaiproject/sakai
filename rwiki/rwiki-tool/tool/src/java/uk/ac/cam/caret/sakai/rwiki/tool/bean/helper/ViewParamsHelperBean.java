@@ -136,7 +136,7 @@ public class ViewParamsHelperBean
 
 		defaultRealm = securityService.getSiteReference();
 
-		if (localSpace == null || localSpace.equals(""))
+		if (localSpace == null || "".equals(localSpace))
 		{
 			localSpace = defaultRealm;
 		}

@@ -590,7 +590,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		rwco.setOwner("The Owner");
 		rwco.setUser("The User");
 		rwco.setVersion(new Date());
-		rwco.setRevision(new Integer(5));
+		rwco.setRevision(Integer.valueOf(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -641,7 +641,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		rwco.setOwner("The Owner");
 		rwco.setUser("The User");
 		rwco.setVersion(new Date());
-		rwco.setRevision(new Integer(5));
+		rwco.setRevision(Integer.valueOf(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -713,7 +713,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		rwco.setOwner("The Owner");
 		rwco.setUser("The User");
 		rwco.setVersion(new Date());
-		rwco.setRevision(new Integer(5));
+		rwco.setRevision(Integer.valueOf(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -785,7 +785,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		rwco.setOwner("The Owner");
 		rwco.setUser("The User");
 		rwco.setVersion(new Date());
-		rwco.setRevision(new Integer(5));
+		rwco.setRevision(Integer.valueOf(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -855,7 +855,7 @@ public class XSLTEntityHandlerTest extends TestCase
 		rwco.setOwner("The Owner");
 		rwco.setUser("The User");
 		rwco.setVersion(new Date());
-		rwco.setRevision(new Integer(5));
+		rwco.setRevision(Integer.valueOf(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 

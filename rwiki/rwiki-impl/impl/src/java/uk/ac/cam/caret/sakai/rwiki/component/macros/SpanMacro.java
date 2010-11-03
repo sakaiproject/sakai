@@ -84,13 +84,13 @@ public class SpanMacro extends BaseMacro
 		String anchorName = params.get("name"); //$NON-NLS-1$
 
 		writer.write("<span"); //$NON-NLS-1$
-		if (cssClass != null && !cssClass.equals("")) //$NON-NLS-1$
+		if (cssClass != null && !"".equals(cssClass)) //$NON-NLS-1$
 		{
 			writer.write(" class='"); //$NON-NLS-1$
 			writer.write(cssClass.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
-		if (id != null && !id.equals("")) //$NON-NLS-1$
+		if (id != null && !"".equals(id)) //$NON-NLS-1$
 		{
 			writer.write(" id='"); //$NON-NLS-1$
 			char[] nameChars = id.toCharArray();
@@ -109,7 +109,7 @@ public class SpanMacro extends BaseMacro
 			writer.write('\'');
 		}
 		writer.write('>');
-		if (anchorName != null && !anchorName.equals("")) //$NON-NLS-1$
+		if (anchorName != null && !"".equals(anchorName)) //$NON-NLS-1$
 		{
 			writer.write("<a name=\""); //$NON-NLS-1$
 			char[] nameChars = anchorName.toCharArray();

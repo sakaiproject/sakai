@@ -239,7 +239,7 @@ public abstract class Node
         }
         else
         {
-            return (BranchNode) branches.get(new Integer(no));
+            return (BranchNode) branches.get(Integer.valueOf(no));
         }
     }
 
@@ -380,7 +380,7 @@ public abstract class Node
         {
             branches = new TreeMap();
         }
-        branches.put(new Integer(branchno), node);
+        branches.put(Integer.valueOf(branchno), node);
         node.parent = this;
     }
 

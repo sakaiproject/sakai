@@ -455,7 +455,7 @@ public class RenderBean
 				.getName(), rwo.getRealm()));
 		vb.setLocalSpace(vb.getPageSpace());
 		
-		if (pageName != null && !pageName.equals(""))
+		if (pageName != null && !"".equals(pageName))
 			{
 				vb.setPageName(pageName);
 				

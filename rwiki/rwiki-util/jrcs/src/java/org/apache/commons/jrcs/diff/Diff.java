@@ -363,7 +363,7 @@ public class Diff extends ToString
 		Random r = new Random(seed);
 		for (int i = 0; i < result.length; i++)
 		{
-			result[i] = new Integer(r.nextInt(size));
+			result[i] = Integer.valueOf(r.nextInt(size));
 		}
 		return result;
 	}

@@ -104,7 +104,7 @@ public class DiffBean
 
 	private void setLeftVersionNumber(String versionString)
 	{
-		if (versionString != null && !versionString.equals(""))
+		if (versionString != null && !"".equals(versionString))
 		{
 			leftVersionNumber = Integer.parseInt(versionString);
 		}
@@ -131,7 +131,7 @@ public class DiffBean
 
 	private void setRightVersionNumber(String versionString)
 	{
-		if (versionString != null && !versionString.equals(""))
+		if (versionString != null && !"".equals(versionString))
 		{
 			rightVersionNumber = Integer.parseInt(versionString);
 

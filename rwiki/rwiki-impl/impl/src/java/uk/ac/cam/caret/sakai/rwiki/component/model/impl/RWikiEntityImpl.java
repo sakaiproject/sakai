@@ -295,7 +295,7 @@ public class RWikiEntityImpl implements RWikiEntity
 		rwo.setOwnerWrite(rp.getBooleanProperty(RWikiEntity.RP_OWNER_WRITE));
 		rwo.setPublicRead(rp.getBooleanProperty(RWikiEntity.RP_PUBLIC_READ));
 		rwo.setPublicWrite(rp.getBooleanProperty(RWikiEntity.RP_PUBLIC_WRITE));
-		rwo.setRevision(new Integer(rp.getProperty(RWikiEntity.RP_REVISION)));
+		rwo.setRevision(Integer.valueOf(rp.getProperty(RWikiEntity.RP_REVISION)));
 		rwo.setVersion(new Date(rp.getLongProperty(RWikiEntity.RP_VERSION)));
 
 	}

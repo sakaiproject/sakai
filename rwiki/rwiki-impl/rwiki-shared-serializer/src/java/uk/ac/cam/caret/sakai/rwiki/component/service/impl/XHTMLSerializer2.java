@@ -83,7 +83,7 @@ public class XHTMLSerializer2 implements SerializationHandler
 	public void endElement(String namespaceURI, String localName, String name)
 			throws SAXException
 	{
-		if ((namespaceURI != null && !namespaceURI.equals("") && !namespaceURI
+		if ((namespaceURI != null && !"".equals(namespaceURI) && !namespaceURI
 				.equals(XHTML_NAMESPACE))
 				|| emptyTag.containsKey(localName.toLowerCase()))
 		{

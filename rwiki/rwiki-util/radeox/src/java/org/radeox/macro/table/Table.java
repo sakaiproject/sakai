@@ -103,7 +103,7 @@ public class Table
 	 */
 	public void addCell(String content)
 	{
-		if (!currentCell.equals(""))
+		if (!"".equals(currentCell))
 		{
 			newCell();
 		}

@@ -109,7 +109,7 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 
 		try
 		{
-			if (saveType == null || saveType.equals(""))
+			if (saveType == null || "".equals(saveType))
 			{
 				// Begin a realmEdit...
 				editDispatch(dispatcher,request, response);

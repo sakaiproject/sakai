@@ -262,7 +262,7 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 
 	protected String getWikiView(String name, String hash)
 	{
-		if (!hash.equals("")) //$NON-NLS-1$
+		if (!"".equals(hash)) //$NON-NLS-1$
 		{
 			return name + "#" + hash; //$NON-NLS-1$
 		}

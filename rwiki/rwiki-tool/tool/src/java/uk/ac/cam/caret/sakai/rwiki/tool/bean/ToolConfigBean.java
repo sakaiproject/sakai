@@ -47,7 +47,7 @@ public class ToolConfigBean
 
 	public String getHomePageName() {
 		String friendlyName = m_properties.getProperty("home-page-friendly-name", defaultHomePageName);
-		return (friendlyName == null || friendlyName.equals("")) ? defaultHomePageName : friendlyName;
+		return (friendlyName == null || "".equals(friendlyName)) ? defaultHomePageName : friendlyName;
 	}
 	
 }

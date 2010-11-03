@@ -749,7 +749,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			// special check for group-user : the grant's in the user's My
 			// Workspace site
 			String parts[] = ref.getId().split(Entity.SEPARATOR);
-			if ((parts.length > 3) && (parts[1].equals("group-user"))) //$NON-NLS-1$
+			if ((parts.length > 3) && ("group-user".equals(parts[1]))) //$NON-NLS-1$
 			{
 				rv.add(SiteService.siteReference(SiteService.getUserSiteId(parts[3])));
 			}

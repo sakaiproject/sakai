@@ -89,19 +89,19 @@ public class BlockMacro extends BaseMacro
 		String style = params.get("style"); //$NON-NLS-1$
 
 		writer.write("<div"); //$NON-NLS-1$
-		if (cssClass != null && !cssClass.equals("")) //$NON-NLS-1$
+		if (cssClass != null && !"".equals(cssClass)) //$NON-NLS-1$
 		{
 			writer.write(" class='"); //$NON-NLS-1$
 			writer.write(cssClass.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
-		if (style != null && !style.equals("")) //$NON-NLS-1$
+		if (style != null && !"".equals(style)) //$NON-NLS-1$
 		{
 			writer.write(" style='"); //$NON-NLS-1$
 			writer.write(style.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
-		if (id != null && !id.equals("")) //$NON-NLS-1$
+		if (id != null && !"".equals(id)) //$NON-NLS-1$
 		{
 			writer.write(" id='"); //$NON-NLS-1$
 			char[] nameChars = id.toCharArray();
@@ -120,7 +120,7 @@ public class BlockMacro extends BaseMacro
 			writer.write('\'');
 		}
 		writer.write('>');
-		if (anchorName != null && !anchorName.equals("")) //$NON-NLS-1$
+		if (anchorName != null && !"".equals(anchorName)) //$NON-NLS-1$
 		{
 			writer.write("<a name=\""); //$NON-NLS-1$
 			char[] nameChars = anchorName.toCharArray();

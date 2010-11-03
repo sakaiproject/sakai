@@ -227,7 +227,7 @@ public class WikiAccessServlet extends HttpServlet
 		String option = req.getPathInfo();
 		req.setAttribute(Tool.NATIVE_URL, null);
 		String[] parts = option.split("/");
-		if ((parts.length == 2) && ((parts[1].equals("login"))))
+		if ((parts.length == 2) && (("login".equals(parts[1]))))
 		{
 			doLogin(req, res, null);
 		}

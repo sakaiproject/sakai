@@ -91,7 +91,7 @@ public abstract class RWikiObjectImpl implements RWikiObject
 
 	protected boolean m_publicwrite = false;
 
-	protected Integer m_revision = new Integer(0);
+	protected Integer m_revision = Integer.valueOf(0);
 
 	// iebdelete protected List m_history = null;
 
@@ -623,7 +623,7 @@ public abstract class RWikiObjectImpl implements RWikiObject
 	{
 		this.m_revision = revision;
 		// SAK-2470
-		if (m_revision == null) m_revision = new Integer(0);
+		if (m_revision == null) m_revision = Integer.valueOf(0);
 	}
 
 	/*

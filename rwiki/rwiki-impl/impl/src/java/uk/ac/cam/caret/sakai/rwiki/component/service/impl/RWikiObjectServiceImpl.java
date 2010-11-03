@@ -160,7 +160,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public void setAutoDdl(String value)
 	{
-		autoDdl = new Boolean(value).booleanValue();
+		autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 	/**
 	 * Register this as an EntityProducer
@@ -522,7 +522,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		if (wikiSecurityService.checkAdmin((RWikiEntity) getEntity(rwo)))
 		{
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
-			rwo.setRevision(new Integer(rwo.getRevision().intValue() + 1));
+			rwo.setRevision(Integer.valueOf(rwo.getRevision().intValue() + 1));
 			rwo.setPermissions(permissions);
 			rwo.setVersion(version);
 			try
@@ -591,7 +591,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 			// set the content and increment the revision
 			rwo.setContent(content.replaceAll("\r\n?", "\n")); //$NON-NLS-1$ //$NON-NLS-2$
-			rwo.setRevision(new Integer(rwo.getRevision().intValue() + 1));
+			rwo.setRevision(Integer.valueOf(rwo.getRevision().intValue() + 1));
 
 			// render to get a list of links
 			final HashSet referenced = new HashSet();
@@ -855,7 +855,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				}
 				String newCommentName = MessageFormat.format(
 						"{0}.{1,number,000}", new Object[] { name, //$NON-NLS-1$
-								new Integer(cnum) });
+								Integer.valueOf(cnum) });
 				update(newCommentName, realm, version, content);
 				break;
 			}
