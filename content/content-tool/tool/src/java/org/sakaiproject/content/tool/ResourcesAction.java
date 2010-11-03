@@ -49,6 +49,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -3619,46 +3620,49 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	protected static String validateURL(String url) throws MalformedURLException
 	{
 		logger.debug("ResourcesAction.validateURL()");
-		if (url.equals (NULL_STRING))
-		{
-			// ignore the empty url field
+		
+		// ignore the empty url field
+		if(StringUtils.isBlank(url)){
+			return url;
 		}
-		else if (url.indexOf ("://") == -1)
-		{
-			// if it's missing the transport, add http://
+		
+		// return relative URLs untouched (SAK-13787)
+		if(StringUtils.startsWith(url, "/")){
+			return url;
+		}
+		
+		// if it's missing the transport, add http://
+		if(!StringUtils.contains(url, "://")){
 			url = "http://" + url;
 		}
-
-		if(!url.equals(NULL_STRING))
+		
+		// valid protocol?
+		try
 		{
-			// valid protocol?
+			// test to see if the input validates as a URL.
+			// Checks string for format only.
+			new URL(url);
+		}
+		catch (MalformedURLException e1)
+		{
 			try
 			{
-				// test to see if the input validates as a URL.
-				// Checks string for format only.
-				new URL(url);
-			}
-			catch (MalformedURLException e1)
-			{
-				try
+				Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
+				Matcher matcher = pattern.matcher(url);
+				if(matcher.matches())
 				{
-					Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
-					Matcher matcher = pattern.matcher(url);
-					if(matcher.matches())
-					{
-						// if URL has "unknown" protocol, check remaider with
-						// "http" protocol and accept input if that validates.
-						new URL("http://" + matcher.group(2));
-					}
-					else
-					{
-						throw e1;
-					}
+					// if URL has "unknown" protocol, check remaider with
+					// "http" protocol and accept input if that validates.
+					new URL("http://" + matcher.group(2));
 				}
-				catch (MalformedURLException e2)
+				else
 				{
 					throw e1;
 				}
+			}
+			catch (MalformedURLException e2)
+			{
+				throw e1;
 			}
 		}
 		return url;
