@@ -601,7 +601,9 @@ implements ActionListener
 			PublishedAssessmentService assessmentService) {
 		AuthorActionListener authorActionListener = new AuthorActionListener();
 		GradingService gradingService = new GradingService();
-		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, assessmentService);
+		ArrayList publishedAssessmentList = assessmentService.getBasicInfoOfAllPublishedAssessments2(
+				  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
+		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
 	}
 }
 

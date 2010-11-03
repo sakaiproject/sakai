@@ -123,14 +123,14 @@ public class PublishedAssessmentFacade
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 		  Date startDate, Date dueDate, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
-	  this(id, title, releaseTo, startDate, dueDate, null, releaseToGroups, lastModifiedDate, lastModifiedBy);
+	  this(id, title, releaseTo, startDate, dueDate, null, null, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
 
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 		  Date startDate, Date dueDate, Integer status, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this(id, title, releaseTo, startDate, dueDate, null, status, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
   }
-  
+
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 		  Date startDate, Date dueDate, Date retractDate, Integer status, String releaseToGroups, 
 		  Date lastModifiedDate, String lastModifiedBy, Integer lateHandling,

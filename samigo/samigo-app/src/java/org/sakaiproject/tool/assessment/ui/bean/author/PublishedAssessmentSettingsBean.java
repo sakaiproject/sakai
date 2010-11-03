@@ -1459,12 +1459,19 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	 * Returns the groups to which this assessment is released
 	 * @return
 	 */
-	public String[] getGroupsAuthorized() {
+	public String[] getGroupsAuthorized(String publishedAssessmentId) {
 		groupsAuthorized = null;
 		AuthzQueriesFacadeAPI authz = PersistenceService.getInstance()
 				.getAuthzQueriesFacade();
+		String id = "";
+		if (publishedAssessmentId != null) {
+			id = publishedAssessmentId;
+		}
+		else {
+			id = getAssessmentId().toString();
+		}
 		List authorizations = authz.getAuthorizationByFunctionAndQualifier(
-				"TAKE_PUBLISHED_ASSESSMENT", getAssessmentId().toString());
+				"TAKE_PUBLISHED_ASSESSMENT", id);
 		if (authorizations != null && authorizations.size() > 0) {
 			groupsAuthorized = new String[authorizations.size()];
 			Iterator authsIter = authorizations.iterator();
@@ -1475,6 +1482,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 			}
 		}
 		return groupsAuthorized;
+	}
+	
+	public String[] getGroupsAuthorized() {
+		return getGroupsAuthorized(null);
 	}
 
 	public boolean getIsMarkForReview() {

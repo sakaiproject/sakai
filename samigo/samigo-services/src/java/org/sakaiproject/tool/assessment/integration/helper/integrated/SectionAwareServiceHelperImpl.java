@@ -200,6 +200,10 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	}
 
 
+	public List getSectionEnrollmentsTrusted(String sectionUid) {
+		return getSectionEnrollmentsTrusted(sectionUid, null);
+	}
+	
 	private List getSectionEnrollmentsTrusted(String sectionUid, String userUid) {
 		return getSectionAwareness().getSectionMembersInRole(sectionUid, Role.STUDENT);
 	}

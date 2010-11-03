@@ -70,6 +70,7 @@ public interface GradingSectionAwareServiceAPI
   */
   public List getSectionEnrollments(String siteId, String sectionUid, String userUid);
 
+  public List getSectionEnrollmentsTrusted(String sectionUid);
 
   /**
   * @param searchString

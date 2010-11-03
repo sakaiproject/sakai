@@ -67,10 +67,7 @@ public class SortInactivePublishedAssessmentListener
    GradingService gradingService = new GradingService();
    ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
 		   this.getInactivePublishedOrderBy(author),author.isInactivePublishedAscending(), AgentFacade.getCurrentSiteId());
-   HashMap startedCounts = gradingService.getInProgressCounts(AgentFacade.getCurrentSiteId());
-   HashMap submittedCounts = gradingService.getSubmittedCounts(AgentFacade.getCurrentSiteId());
-   ArrayList dividedPublishedAssessmentList = authorActionListener.getTakeableList(publishedAssessmentList);
-   authorActionListener.prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1), startedCounts, submittedCounts);
+   authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
   }
 
 /**

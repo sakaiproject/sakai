@@ -105,7 +105,10 @@ public class GradingSectionAwareServiceImpl implements GradingSectionAwareServic
   public List getSectionEnrollments(String Uid, String sectionUid, String userUid){
     return helper.getSectionEnrollments(Uid, sectionUid, userUid);
   }
-
+  
+  public List getSectionEnrollmentsTrusted(String sectionUid){
+	    return helper.getSectionEnrollmentsTrusted(sectionUid);
+  }
 
   /**
    * added by gopalrc - Jan 2008

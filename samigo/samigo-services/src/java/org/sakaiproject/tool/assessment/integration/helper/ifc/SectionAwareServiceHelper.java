@@ -59,6 +59,8 @@ public interface SectionAwareServiceHelper{
 	 */
 	public List getSectionEnrollments(String siteid, String sectionUid, String userUid);
 
+	public List getSectionEnrollmentsTrusted(String sectionUid) ;
+	
 	/**
 	 * @param searchString
 	 *  a substring search for student name or display UID; the exact rules are

@@ -193,15 +193,23 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getAllAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString);
   
+  public HashMap getSiteSubmissionCountHash(String siteId);
+  
+  public HashMap getSiteInProgressCountHash(String siteId) ;
+  
   public int getActualNumberRetake(Long publishedAssessmentId, String agentIdString);
   
   public HashMap getActualNumberRetakeHash(String agentIdString);
+  
+  public HashMap getSiteActualNumberRetakeHash(String siteIdString);
   
   public List getStudentGradingSummaryData(Long publishedAssessmentId, String agentIdString);
   
   public int getNumberRetake(Long publishedAssessmentId, String agentIdString);
   
   public HashMap getNumberRetakeHash(String agentIdString);
+  
+  public HashMap getSiteNumberRetakeHash(String siteIdString);
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData);
 
@@ -219,6 +227,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public String getFilename(Long itemGradingId, String agentId, String filename);
 
   public List getUpdatedAssessmentList(String agentId, String siteId);
+  
+  public List getSiteNeedResubmitList(String siteId);
   
   public void autoSubmitAssessments();
   
