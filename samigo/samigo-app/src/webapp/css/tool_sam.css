@@ -144,7 +144,7 @@ font-size:1.2em
 }
 
 .titlePending {
-	width: 77%;
+	width: 67%;
 }
 
 .titlePub {
@@ -152,7 +152,7 @@ font-size:1.2em
 }
 
 .lastModified {
-	width: 13%;
+	width: 23%;
 }
 
 .releaseTo {
@@ -239,4 +239,70 @@ li.last {
         border: 0 none;
 }
 
-
+#samigo-create-container {
+	width: 100%;
+	overflow: hidden;
+	margin-bottom: 20px;
+	height: 180px;
+}
+#samigo-create-new {
+	background-color: #F0F0F0;
+	float: left;
+	width: 40%;
+	padding: 12px;
+	height: 180px;
+}
+#samigo-create-new h4 {
+	margin: 0 0 8px;
+}
+#samigo-create-or {
+	float: left;
+	width: 10%;
+	text-align: center;
+	vertical-align: middle;
+	height: 180px;
+	line-height: 140px;
+}
+#samigo-create-import {
+	background-color: #F3F3F3;
+	float: left;
+	width: 40%;
+	padding: 20px;
+	height: 180px;
+}
+#tabs {
+	padding: 0;
+}
+ul.ui-tabs-nav {
+	border-bottom: 2px solid #ED8F20;
+}
+ul.ui-tabs-nav li span.samigo-tab-sub {
+	text-decoration: none !important;
+	font-weight: normal !important;
+	color: #4E5356;
+}
+ul.ui-tabs-nav li a {
+	text-decoration: none !important;
+	color: #0A72AE;
+}
+ul.ui-tabs-nav li.ui-tabs-selected a {
+	color: #000000;
+}
+#authorIndexForm\:import {
+	display: block;
+	margin-top: 12px;
+}
+#authorIndexForm\:createnew {
+	margin-top: 12px;
+}
+tr.list-row-even td, tr.list-row-odd td {
+	border-bottom: 1px solid #C6C6C6;
+	padding-top: 8px;
+}
+#assessment-status-limiter {
+	margin-bottom: 12px;
+}
+#assessment-status-limiter a.active {
+	font-weight: bold;
+	text-decoration: none !important;
+}

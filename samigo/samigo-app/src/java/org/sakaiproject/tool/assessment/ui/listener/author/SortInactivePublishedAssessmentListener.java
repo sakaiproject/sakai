@@ -68,6 +68,7 @@ public class SortInactivePublishedAssessmentListener
    ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
 		   this.getInactivePublishedOrderBy(author),author.isInactivePublishedAscending(), AgentFacade.getCurrentSiteId());
    authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
+   author.setJustPublishedAnAssessment(true);
   }
 
 /**

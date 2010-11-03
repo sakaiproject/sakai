@@ -86,6 +86,10 @@ public class RepublishAssessmentListener implements ActionListener {
 		AuthorActionListener authorActionListener = new AuthorActionListener();
 		authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
 		
+		// Tell AuthorBean that we just published an assessment
+		// This will allow us to jump directly to published assessments tab
+		author.setJustPublishedAnAssessment(true);
+
 		author.setOutcome("author");
 	}
 	

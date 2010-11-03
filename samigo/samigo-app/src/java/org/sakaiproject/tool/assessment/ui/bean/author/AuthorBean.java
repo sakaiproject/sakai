@@ -101,6 +101,8 @@ public class AuthorBean implements Serializable
   private boolean isGradeable;
   private boolean isEditable;
   
+  private boolean justPublishedAnAssessment = false;
+  
   
   /**
    * @return the id
@@ -714,6 +716,13 @@ public class AuthorBean implements Serializable
 		  return true;
 	  }
 	  return false;
+  }
+  public void setJustPublishedAnAssessment(boolean justPublishedAnAssessment) {
+	  this.justPublishedAnAssessment = justPublishedAnAssessment;
+  }
+
+  public boolean getJustPublishedAnAssessment() {
+	  return justPublishedAnAssessment;
   }
   
   public void setIsErrorInSettings(boolean isErrorInSettings)

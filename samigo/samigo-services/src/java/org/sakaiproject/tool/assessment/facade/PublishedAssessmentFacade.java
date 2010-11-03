@@ -97,7 +97,8 @@ public class PublishedAssessmentFacade
   private int inProgressCount;
   private int submittedCount;
   private Date lastNeedResubmitDate;
-
+  private boolean activeStatus;
+  
   // added by gopalrc Nov 2007
   private String releaseToGroups;
   private ArrayList releaseToGroupsList = new ArrayList();
@@ -820,5 +821,12 @@ public class PublishedAssessmentFacade
   public void setTimeLimit(Integer timeLimit) {
 	  this.timeLimit = timeLimit;
   }
+  
+  public boolean getActiveStatus() {
+	  return activeStatus;
+  }
 
+  public void setActiveStatus(boolean activeStatus) {
+	  this.activeStatus = activeStatus;
+  } 
 }

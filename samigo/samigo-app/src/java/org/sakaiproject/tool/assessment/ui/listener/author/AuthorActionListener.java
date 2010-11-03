@@ -186,15 +186,17 @@ public class AuthorActionListener
 	  }
 	  
 	  ArrayList dividedPublishedAssessmentList = getTakeableList(publishedAssessmentList, gradingService);
-	  prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0));
-	  prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1));  
+	  
+	  //prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0));
+	  prepareRetractWarningText(author, (ArrayList) dividedPublishedAssessmentList.get(1)); 
+	  author.setPublishedAssessments(publishedAssessmentList);
   }
-  
+  /*
   public void prepareActivePublishedAssessmentsList(AuthorBean author, ArrayList<PublishedAssessmentFacade> activePublishedList) {
 	  author.setPublishedAssessments(activePublishedList);  
   }
-  
-  public void prepareInactivePublishedAssessmentsList(AuthorBean author, ArrayList inactivePublishedList) {	  
+  */
+  public void prepareRetractWarningText(AuthorBean author, ArrayList inactivePublishedList) {	  
 	  author.setInactivePublishedAssessments(inactivePublishedList);
 	  boolean isAnyAssessmentRetractForEdit = false;
 	  Iterator iter = inactivePublishedList.iterator();
@@ -239,9 +241,11 @@ public class AuthorActionListener
 		  Long publishedAssessmentId = f.getPublishedAssessmentId();
 		  if (isActive(f, (HashMap) submissionCountHash.get(publishedAssessmentId), (HashMap) inProgressCountHash.get(publishedAssessmentId), 
 				  (HashMap) numberRetakeHash.get(publishedAssessmentId), (HashMap) actualNumberRetake.get(publishedAssessmentId), needResubmitList)) {
+			  f.setActiveStatus(true);
 			  activeList.add(f);
 		  }
 		  else {
+			  f.setActiveStatus(false);
 			  inActiveList.add(f);
 		  }
 	  }

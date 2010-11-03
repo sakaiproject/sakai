@@ -42,7 +42,7 @@
 	<br/>
      <div>
        <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" styleClass="messageConfirmation" />
-     </div>
+
        <p class="act">
        <h:commandButton id="retract" value="#{assessmentSettingsMessages.button_retract}" type="submit"
          styleClass="active" action="author" >

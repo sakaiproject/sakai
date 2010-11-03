@@ -78,7 +78,7 @@ public class SortCoreAssessmentListener
   	}
     // get the managed bean, author and set the list
     author.setAssessments(assessmentList);
-
+    author.setJustPublishedAnAssessment(false);
   }
 
 /**

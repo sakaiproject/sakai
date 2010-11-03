@@ -37,6 +37,10 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
       <div class="portletBody">
 
+<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/samigo-app/js/info.js"></script>
+<script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
+<link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 <script language="javascript" style="text/JavaScript">
 
 function clickPendingSelectActionLink(field){
@@ -82,11 +86,42 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick();
 }
 
+// PRESENT TWO LIVE TABS USING JQUERY UI TABS
+$(document).ready(function() {
+	var selectedTab = 0;
+	<h:outputText rendered="#{author.justPublishedAnAssessment}" value="selectedTab = 1;" />
 
+	$("#tabs").tabs({ selected: selectedTab });
+
+	// ALLOW ACTIVE, ALL, INACTIVE LINKS FOR PUBLISHED ITEMS
+	$("#assessment-link-status-all").click(
+		function() {
+			$("#authorIndexForm\\:published-assessments tr").show();
+			$("#assessment-status-limiter a").removeClass('active');
+			$(this).addClass('active');
+			$("#authorIndexForm\\:assessment-retracted").show();
+		}
+	);
+	$("#assessment-link-status-active").click(
+		function() {
+			$("#authorIndexForm\\:published-assessments tbody tr").show();
+			$("#authorIndexForm\\:published-assessments tbody tr span.status_false").parent().parent().hide();
+			$("#assessment-status-limiter a").removeClass('active');
+			$(this).addClass('active');
+			$("#authorIndexForm\\:assessment-retracted").hide();
+		}
+	);
+	$("#assessment-link-status-inactive").click(
+		function() {
+			$("#authorIndexForm\\:published-assessments tbody tr").show();
+			$("#authorIndexForm\\:published-assessments tbody tr span.status_true").parent().parent().hide();
+			$("#assessment-status-limiter a").removeClass('active');
+			$(this).addClass('active');
+			$("#authorIndexForm\\:assessment-retracted").show();
+		}
+	);
+});
 </script>
-
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
-<script type="text/javascript" language="JavaScript" src="/samigo-app/js/info.js"></script>
 
 <!-- content... -->
 
@@ -94,83 +129,89 @@ document.links[newindex].onclick();
   <!-- HEADINGS -->
    <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
 
-  <h3>
+  <h2>
     <h:outputText value="#{authorFrontDoorMessages.assessments}"/>
-  </h3>
+  </h2>
 <p>
-
   <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-
-
 </p>
 
 <div class="tier1">
- <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>	
-<h:outputText value="#{authorFrontDoorMessages.assessment_new}" rendered="#{authorization.createAssessment}" />
- <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4>"/>
- <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div class=\"tier2\">"/>
+  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>
+    <h:outputText value="#{authorFrontDoorMessages.assessment_new}" rendered="#{authorization.createAssessment}" />
+  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4><br/>"/>
 
- <h:panelGrid columns="3" border="0" rendered="#{authorization.createAssessment}">
-    <h:panelGroup>
-	  <f:verbatim><span class="new_assessment"></f:verbatim>
-      <h:outputText value="#{authorFrontDoorMessages.assessment_create}"/>
-      <f:verbatim></span></f:verbatim>
-	</h:panelGroup>
-    <h:outputText value=" "/>
-    <h:panelGroup>
-	  <h:inputText id="title" value="#{author.assessTitle}" size="32" />
-      <h:commandButton type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
-      </h:commandButton>
-    </h:panelGroup>
+  <div id="samigo-create-container">
+ 	<div id="samigo-create-new">
+		<div>
+		  	<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>
+	  		<h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" />
+	  		<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4>"/>
+    	</div>
 
-    <h:outputText value=" "/>
-    <h:outputText value=" "/>
-	<h:selectOneRadio layout="lineDirection" value="#{author.assessCreationMode}">
-      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
-      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
-    </h:selectOneRadio>
+    	<div>
+		  <f:verbatim><span class="new_assessment"></f:verbatim>
+	      <h:outputText value="#{authorFrontDoorMessages.assessment_create}"/>
+	      <f:verbatim></span></f:verbatim>
+		  <h:inputText id="title" value="#{author.assessTitle}" size="32" />
+    	</div>
 
-    <h:outputText value=" " rendered="#{author.showTemplateList}"/>
-    <h:outputText value=" " rendered="#{author.showTemplateList}"/>
-	<h:panelGroup rendered="#{author.showTemplateList}">
-  	  <h:outputText value="#{authorFrontDoorMessages.assessment_choose} " />
-	  <h:selectOneMenu id="assessmentTemplate" value="#{author.assessmentTemplateId}" >
-        <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
-        <f:selectItems value="#{author.assessmentTemplateList}" />
-      </h:selectOneMenu>
-    </h:panelGroup>
+    	<div>
+			<h:selectOneRadio layout="pageDirection" value="#{author.assessCreationMode}">
+		      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
+		      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
+		    </h:selectOneRadio>
+    	</div>
 
-    <h:panelGroup>
-	  <f:verbatim><span class="new_assessment"></f:verbatim>
-      <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
-      <f:verbatim></span></f:verbatim>
-	</h:panelGroup>
-    <h:outputText value=" "/>
-    <h:outputText value=" "/>
+  		<div>
+		  	<h:outputText value="#{authorFrontDoorMessages.assessment_choose} " rendered="#{author.showTemplateList}" />
+			<h:selectOneMenu id="assessmentTemplate" accesskey="#{authorFrontDoorMessages.a_select}" value="#{author.assessmentTemplateId}" rendered="#{author.showTemplateList}">
+		      <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
+		      <f:selectItems value="#{author.assessmentTemplateList}" />
+		    </h:selectOneMenu>
+      	</div>
+    
+		<div>
+	      <h:commandButton id="createnew" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" accesskey="#{authorFrontDoorMessages.a_create}">
+	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
+	      </h:commandButton>
+    	</div>
+  </div>
 
-    <h:outputText value=" "/>
-    <h:outputText value=" "/>
-    <h:outputText value=" "/>
+  <div id="samigo-create-or">
+    <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
+  </div>
 
-    <h:panelGroup>
-	  <f:verbatim><span class="new_assessment"></f:verbatim>
-      <h:outputText value="#{authorFrontDoorMessages.assessment_import}"/>
-      <f:verbatim></span></f:verbatim>
-	</h:panelGroup>
-    <h:outputText value=" "/>
+ <div id="samigo-create-import">
+	  <div>
+		<span class="new_assessment">
+      		<h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
+		</span>
     <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
-      rendered="#{authorization.createAssessment}" action="importAssessment">
+      rendered="#{authorization.createAssessment}" accesskey="#{authorFrontDoorMessages.a_import}"
+      action="importAssessment">
     </h:commandButton>
-  </h:panelGrid>
+	  </div>
+  </div>
+</div>
 
- <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</div>"/>
+<div id="tabs">
+	<ul>
+		<h:outputText escape="false" value="<li><a href=\"#tabs-1\">" rendered="#{authorization.adminCoreAssessment}"/>
+		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pending}:" rendered="#{authorization.adminCoreAssessment}"/>
+		<h:outputText escape="false" value="<span class=\"samigo-tab-sub\">" rendered="#{authorization.adminCoreAssessment}"/>
+		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pending_sub}" rendered="#{authorization.adminCoreAssessment}"/>
+		<h:outputText escape="false" value="</span></a></li>" rendered="#{authorization.adminCoreAssessment}"/>
+		
+		<h:outputText escape="false" value="<li><a href=\"#tabs-2\">" rendered="#{authorization.adminPublishedAssessment}"/>
+		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pub}:" rendered="#{authorization.adminPublishedAssessment}"/>
+		<h:outputText escape="false" value="<span class=\"samigo-tab-sub\">" rendered="#{authorization.adminPublishedAssessment}"/>
+		<h:outputText escape="false" value="#{authorFrontDoorMessages.assessment_pub_sub}" rendered="#{authorization.adminPublishedAssessment}"/>
+		<h:outputText escape="false" value="</span></a></li>" rendered="#{authorization.adminPublishedAssessment}"/>
+	</ul>
  <!-- CORE ASSESSMENTS-->
-  <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="<h4>"/>
-<h:outputText value="#{authorFrontDoorMessages.assessment_pending}" rendered="#{authorization.adminCoreAssessment}"/>
- <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="</h4>"/>
-<div class="tier2">
-  <t:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div id=\"tabs-1\">"/>
+  <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
     <t:column headerstyleClass="selectAction" styleClass="selectAction">
       <f:facet name="header" >
 	   <h:outputText value="#{authorFrontDoorMessages.select_action}"/>
@@ -225,17 +266,28 @@ document.links[newindex].onclick();
       
     </t:column>
   </t:dataTable>
-</div>
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</div>"/>
 
 	<!-- PUBLISHED ASSESSMENTS-->
- <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<h4>"/>
-  <h:outputText value="#{authorFrontDoorMessages.assessment_pub}" rendered="#{authorization.adminPublishedAssessment}"/>
- <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="</h4>"/>
-<div class="tier2">
-<h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<h5>"/>
-  <h:outputText value="#{authorFrontDoorMessages.assessment_active}" rendered="#{authorization.adminPublishedAssessment}"/>
-<h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="</h5>"/>
-  <t:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
+<div id="tabs-2">
+  <div id="assessment-status-limiter">
+    <span><h:outputText value="#{authorFrontDoorMessages.assessment_view}" />:</span>
+    <span id="assessment-status-all">
+      <a class="active" href="#authorIndexForm:published-assessments" id="assessment-link-status-all"><h:outputText value="#{authorFrontDoorMessages.assessment_view_all}" /></a>
+    </span>
+    <span class="separator">|</span>
+    <span id="assessment-status-active">
+      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>
+    </span>
+    <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_active_sub}" />)</span>
+    <span class="separator">|</span>
+    <span id="assessment-status-inactive">
+      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>
+    </span>
+    <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive_sub}" />)</span>
+  </div>
+
+  <t:dataTable id="published-assessments" rowClasses="list-row-even,list-row-odd" cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
     value="#{author.publishedAssessments}" var="publishedAssessment" summary="#{authorFrontDoorMessages.sum_publishedAssessment}">
     <t:column headerstyleClass="selectAction" styleClass="selectAction">
 	  <f:facet name="header" >
@@ -306,7 +358,22 @@ document.links[newindex].onclick();
       </f:facet>
 
       <h:outputText id="publishedAssessmentTitle2" value="#{publishedAssessment.title}" />
+      <h:outputText value="#{authorFrontDoorMessages.asterisk_2}" rendered="#{publishedAssessment.status == 3}" styleClass="validate"/> 
     </t:column>
+
+	<%/* Status */%>
+	<t:column headerstyleClass="status" styleClass="status">
+	  <f:facet name="header">
+        <h:outputText value="#{authorFrontDoorMessages.assessment_status}"/>
+	  </f:facet>
+
+	 <h:panelGroup>
+	  <f:verbatim><span class="status_</f:verbatim><h:outputText value="#{publishedAssessment.activeStatus}" /><f:verbatim>"></f:verbatim>
+	    <h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" rendered="#{publishedAssessment.activeStatus==true}"/>
+	    <h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" rendered="#{publishedAssessment.activeStatus==false}"/>
+	  <f:verbatim></span></f:verbatim>
+     </h:panelGroup>
+	</t:column>
 
 	<%/* In Progress */%>
 	<t:column headerstyleClass="inProgress" styleClass="inProgress">
@@ -460,231 +527,8 @@ document.links[newindex].onclick();
 
   </t:dataTable>
 
-  <!--inactive-->
-<h5>
-  <h:outputText value="#{authorFrontDoorMessages.assessment_inactive}" rendered="#{authorization.adminPublishedAssessment}"/>
-</h5>
-  <t:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
-     value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" summary="#{authorFrontDoorMessages.sum_inactiveAssessment}"
-     id="inactivePublishedAssessments">
-	 <t:column headerstyleClass="selectAction" styleClass="selectAction">
-      <f:facet name="header" >
-	   <h:outputText value="#{authorFrontDoorMessages.select_action}"/>
-	  </f:facet>
-	<h:selectOneMenu id="inactivePublishedSelectAction1" value="select" onchange="clickInactivePublishedSelectActionLink(this);" rendered="#{(author.isGradeable && inactivePublishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !inactivePublishedAssessment.hasAssessmentGradingData))}">
-		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores" />
-		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published" />
-		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-	  </h:selectOneMenu>
-	  <h:selectOneMenu id="inactivePublishedSelectAction2" value="select" onchange="clickInactivePublishedSelectActionLink(this);" rendered="#{(author.isGradeable && inactivePublishedAssessment.submittedCount > 0) && !(author.isEditable && (!author.editPubAssessmentRestricted || !inactivePublishedAssessment.hasAssessmentGradingData))}">
-		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores"/>
-		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-	  </h:selectOneMenu>
-	  <h:selectOneMenu id="inactivePublishedSelectAction3" value="select" onchange="clickInactivePublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && inactivePublishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !inactivePublishedAssessment.hasAssessmentGradingData))}">
-		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItem itemLabel="#{commonMessages.edit_action}" itemValue="edit_published"/>
-		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-	  </h:selectOneMenu>
-	  <h:selectOneMenu id="inactivePublishedSelectAction4" value="select" onchange="clickInactivePublishedSelectActionLink(this);" rendered="#{!(author.isGradeable && inactivePublishedAssessment.submittedCount > 0) && (author.isEditable && !(!author.editPubAssessmentRestricted || !inactivePublishedAssessment.hasAssessmentGradingData))}">
-		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
-		<f:selectItems value="#{author.publishedSelectActionList}" />
-		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-	  </h:selectOneMenu>
-
-	  <h:commandLink id="inactivePublishedHiddenlink" action="#{author.getOutcome}" value="" >
-	    <f:param name="editType" value="publishedAssessment" />
-        <f:param name="assessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
-		<f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
-        <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
-        <f:param name="allSubmissionsT" value="3"/>
-	  </h:commandLink>
-	</t:column>
-
-	<t:column headerstyleClass="titlePub" styleClass="titlePub">
-      <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" id="sortInactiveByTitleAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='title'}" >
-          <h:outputText value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
-          <f:param name="inactiveSortType" value="title"/>
-          <f:param name="inactivePublishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-        </h:commandLink>
-		<h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='title' && author.inactivePublishedAscending }">
-          <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
-          
-           <f:param name="inactivePublishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortTitleDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='title'&& !author.inactivePublishedAscending }">
-            <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
-           <f:param name="inactivePublishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortTitleAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
-      </f:facet>
-
-      <h:outputText id="inactivePublishedAssessmentTitle2" value="#{inactivePublishedAssessment.title}" />
-	  <h:outputText value="#{authorFrontDoorMessages.asterisk_2}" rendered="#{inactivePublishedAssessment.status == 3}" styleClass="validate"/>
-    </t:column>
-
-	<%/* In Progress */%>
-	<t:column headerstyleClass="inProgress" styleClass="inProgress">
-	  <f:facet name="header">
-        <h:outputText value="#{authorFrontDoorMessages.assessment_in_progress}"/>
-	  </f:facet>
-
-	 <h:panelGroup>
-	  <h:outputText value="#{inactivePublishedAssessment.inProgressCount}"/>
-     </h:panelGroup>
-    </t:column>
-
-	<%/* Submitted */%>
-	<t:column headerstyleClass="submitted" styleClass="submitted">
-	  <f:facet name="header">
-        <h:outputText value="#{authorFrontDoorMessages.assessment_submitted}"/>
-	  </f:facet>
-
-	 <h:panelGroup>
- 	   <h:panelGroup rendered="#{inactivePublishedAssessment.submittedCount==0 or !(authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
-	    <h:outputText value="#{inactivePublishedAssessment.submittedCount}"/>
-       </h:panelGroup>
-
- 	   <h:panelGroup rendered="#{inactivePublishedAssessment.submittedCount>0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
-         <h:commandLink title="#{authorFrontDoorMessages.t_score}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore2" >
-		   <h:outputText value="#{inactivePublishedAssessment.submittedCount}" />
-           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-           <f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
-           <f:param name="allSubmissionsT" value="3"/>
-           </h:commandLink>
-       </h:panelGroup>
-     </h:panelGroup>
-    </t:column>
-
-	<t:column headerstyleClass="releaseTo" styleClass="releaseTo">
-      <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseTo}" id="sortInactivePubByreleaseToAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='releaseTo'}"  >
-          <h:outputText value="#{authorFrontDoorMessages.assessment_release} " styleClass="currentSort"/>
-          <f:param name="inactiveSortType" value="releaseTo"/>
-          <f:param name="inactivePublishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-        </h:commandLink>
-
-		<h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='releaseTo' && author.inactivePublishedAscending }">
-        <h:outputText  value="#{authorFrontDoorMessages.assessment_release} " styleClass="currentSort" />
-          
-           <f:param name="inactivePublishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseToDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='releaseTo' && !author.inactivePublishedAscending }">
-            <h:outputText  value="#{authorFrontDoorMessages.assessment_release} " styleClass="currentSort" />
-           <f:param name="inactivePublishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseToAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
-      </f:facet>
-
-      <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" rendered="#{inactivePublishedAssessment.releaseTo eq 'Anonymous Users'}" />
-	  <h:outputText value="#{authorFrontDoorMessages.entire_site}" rendered="#{inactivePublishedAssessment.releaseTo ne 'Anonymous Users' && inactivePublishedAssessment.releaseTo ne 'Selected Groups'}" />
-      <h:outputText value="#{authorFrontDoorMessages.selected_groups}" rendered="#{inactivePublishedAssessment.releaseTo eq 'Selected Groups'}" />
-  	  <f:verbatim><span class="info"></f:verbatim>
-	  <h:graphicImage id="infoImg" url="/images/info_icon.gif" alt="" rendered="#{inactivePublishedAssessment.releaseTo eq 'Selected Groups'}" styleClass="infoDiv"/>
-
-	  <t:dataTable var="releaseToGroups" styleClass="makeInfo" style="display:none;z-index:2000;" value="#{inactivePublishedAssessment.releaseToGroupsList}" 
-		rendered="#{inactivePublishedAssessment.releaseTo eq 'Selected Groups'}">
-		<t:column>
-	 	    <f:verbatim><span class="whiteSpaceNoWrap"></f:verbatim>
-			<h:outputText value="#{releaseToGroups}" />
-			<f:verbatim></span></f:verbatim>
-		</t:column>
-	  </t:dataTable>
-	  <f:verbatim></span></f:verbatim>
-
-    </t:column>
-
-	<t:column headerstyleClass="releaseDate" styleClass="releaseDate">
-      <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseDate}" id="sortInactivePubByStartDateAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='startDate'}">
-          <h:outputText value="#{authorFrontDoorMessages.assessment_date} " styleClass="currentSort"/>
-          <f:param name="inactiveSortType" value="startDate"/>
-          <f:param name="inactivePublishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-        </h:commandLink>
- <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='startDate' && author.inactivePublishedAscending }">
-        <h:outputText  value="#{authorFrontDoorMessages.assessment_date} " styleClass="currentSort" />
-         
-           <f:param name="inactivePublishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseDateDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='startDate' && !author.inactivePublishedAscending }">
-              <h:outputText  value="#{authorFrontDoorMessages.assessment_date} " styleClass="currentSort" />
-           <f:param name="inactivePublishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseDateAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
-      </f:facet>
-      <h:outputText value="#{inactivePublishedAssessment.startDate}" >
-         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
-        </h:outputText>
-    </t:column>
-	
-	<t:column headerstyleClass="dueDate" styleClass="dueDate">
-      <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortDueDate}" id="sortInactiveByDueDateAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='dueDate'}">
-          <h:outputText value="#{authorFrontDoorMessages.assessment_due} " styleClass="currentSort"/>
-          <f:param name="inactiveSortType" value="dueDate"/>
-          <f:param name="inactivePublishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-        </h:commandLink>
-<h:commandLink title="#{authorFrontDoorMessages.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='dueDate' && author.inactivePublishedAscending }">
-        <h:outputText  value="#{authorFrontDoorMessages.assessment_due} " styleClass="currentSort"/>
-          
-           <f:param name="inactivePublishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortDueDateDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='dueDate'&& !author.inactivePublishedAscending }">
-           <h:outputText  value="#{authorFrontDoorMessages.assessment_due} " styleClass="currentSort"/>
-           <f:param name="inactivePublishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortDueDateAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
-      </f:facet>
-      <h:outputText value="#{inactivePublishedAssessment.dueDate}" >
-        <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
-        </h:outputText>
-    </t:column>
-
-    <t:column headerstyleClass="lastModified" styleClass="lastModified">
-      <f:facet name="header">
-        <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
-	  </f:facet>
-
-  	  <h:outputText value="#{inactivePublishedAssessment.lastModifiedBy}" />
-      <h:outputText escape="false" value="<br />"/>
-      <h:outputText value="#{inactivePublishedAssessment.lastModifiedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
-      </h:outputText>
-    </t:column>
-  </t:dataTable>
-
   <h:panelGrid columns="1">
-    <h:outputText value="#{authorFrontDoorMessages.asterisk_2} #{authorFrontDoorMessages.retracted_for_edit}" rendered="#{author.isAnyAssessmentRetractForEdit == true}" styleClass="validate"/>
+    <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.asterisk_2} #{authorFrontDoorMessages.retracted_for_edit}" rendered="#{author.isAnyAssessmentRetractForEdit == true}" styleClass="validate"/>
   </h:panelGrid>
 
 </div>

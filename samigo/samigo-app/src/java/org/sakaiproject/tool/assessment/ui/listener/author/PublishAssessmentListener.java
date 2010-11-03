@@ -137,7 +137,10 @@ public class PublishAssessmentListener
   				return;
   			}
   			
-  			
+  			// Tell AuthorBean that we just published an assessment
+  			// This will allow us to jump directly to published assessments tab
+  			author.setJustPublishedAnAssessment(true);
+
   			publish(assessment, assessmentSettings);
 
   			GradingService gradingService = new GradingService();
