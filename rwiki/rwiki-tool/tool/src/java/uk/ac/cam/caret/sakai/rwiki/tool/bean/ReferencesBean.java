@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.sakaiproject.entity.api.Entity;
 
@@ -89,10 +90,11 @@ public class ReferencesBean
 			}
 		}
 		
-		Iterator tmiter = tmLinks.keySet().iterator();
+		Iterator<Entry<String, String>> tmiter = tmLinks.entrySet().iterator();
 		while (tmiter.hasNext()) {
-			String objLocalName = (String) tmiter.next();
-			String objViewUrl = (String) tmLinks.get(objLocalName);
+			Entry<String, String> entry = tmiter.next();
+			String objLocalName = entry.getKey();
+			String objViewUrl = entry.getValue();
 			String link = "<a href=\""
 				+ XmlEscaper.xmlEscape(objViewUrl) + "\">"
 				+ XmlEscaper.xmlEscape(objLocalName) + "</a>";
@@ -106,10 +108,10 @@ public class ReferencesBean
 	{
 		List feedsLinks = new ArrayList();
 		Map m = objectService.getHandlers();
-		for (Iterator ii = m.keySet().iterator(); ii.hasNext();)
+		for (Iterator<Entry<String, EntityHandler>> ii = m.entrySet().iterator(); ii.hasNext();)
 		{
-			String name = (String) ii.next();
-			EntityHandler eh = (EntityHandler) m.get(name);
+			Entry<String, EntityHandler> entry = ii.next();
+			EntityHandler eh = entry.getValue();
 			Entity e = objectService.getEntity(rwikiObject);
 			String displayLink = eh.getHTML(e);
 			if (displayLink != null)

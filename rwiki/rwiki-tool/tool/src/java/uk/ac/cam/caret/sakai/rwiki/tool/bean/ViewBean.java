@@ -25,8 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import java.util.Map.Entry;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
@@ -391,10 +390,11 @@ public class ViewBean
 		url.append('&').append(REALM_URL_ENCODED).append('=').append(
 				urlEncode(localSpace));
 
-		for (Iterator it = params.keySet().iterator(); it.hasNext();)
+		for (Iterator<Entry<String, String>> it = params.entrySet().iterator(); it.hasNext();)
 		{
-			String key = (String) it.next();
-			String value = (String) params.get(key);
+			Entry<String, String> entry = it.next();
+			String key = entry.getKey();
+			String value = entry.getValue();
 			if (!(PAGE_NAME_PARAM.equals(key) || ACTION_PARAM.equals(key)
 					|| PANEL_PARAM.equals(key) || SearchBean.REALM_PARAM
 					.equals(key)))

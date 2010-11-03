@@ -21,7 +21,11 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.servlet.ServletRequest;
 
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -182,9 +186,13 @@ public class ViewParamsHelperBean
 	  */
 		public String getSaveTypeFromParameters(Map parameterMap)
 		{
-			for ( Object key : parameterMap.keySet()) {
+			Set<Entry<Object, Object>> entrySet = parameterMap.entrySet();
+			Iterator<Entry<Object, Object>> it = entrySet.iterator();
+			while (it.hasNext()) {
+				Entry entry = it.next();
+				Object key = entry.getKey();
 				if ( String.valueOf(key).startsWith("command_") ) {
-					Object value = parameterMap.get(key);
+					Object value = entry.getValue();
 					if ( value != null && String.valueOf(parameterMap.get(key)).trim().length() > 0 ) {
 						return String.valueOf(key).substring("command_".length());
 					}

@@ -61,15 +61,14 @@ public class RWikiPermissionsImpl implements RWikiPermissions
 
 	public void setPermissions(boolean[] permissions)
 	{
+
 		if (permissions != null && permissions.length != PERMISSIONS_LENGTH)
 		{
-			if (permissions != null && permissions.length != PERMISSIONS_LENGTH)
-			{
-				throw new IllegalArgumentException(
-						"permissions must be a boolean array of length "
-								+ PERMISSIONS_LENGTH + " or null");
-			}
+			throw new IllegalArgumentException(
+					"permissions must be a boolean array of length "
+					+ PERMISSIONS_LENGTH + " or null");
 		}
+
 		this.permissions = permissions;
 	}
 
