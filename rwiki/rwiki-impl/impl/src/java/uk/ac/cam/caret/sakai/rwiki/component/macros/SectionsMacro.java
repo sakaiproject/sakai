@@ -89,6 +89,7 @@ public class SectionsMacro extends BaseMacro
 		{
 			throw new IllegalArgumentException(Messages.getString("SectionsMacro.5")+ siteId + " : "+e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		//Site can't be null because the not found would have thrown an exception
 		groups = site.getGroups();
 
 		for (Iterator is = groups.iterator(); is.hasNext();)
@@ -102,10 +103,7 @@ public class SectionsMacro extends BaseMacro
 			}
 			else
 			{
-				if (site != null)
-				{
-					pageName = group.getReference() + "/"; //$NON-NLS-1$
-				}
+				pageName = group.getReference() + "/"; //$NON-NLS-1$
 				pageName += "section/" + group.getTitle() + "/Home"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			writer.write("\n"); //$NON-NLS-1$

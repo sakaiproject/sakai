@@ -725,18 +725,18 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			if (paths.length > 1)
 			{
 
-				String root = Entity.SEPARATOR + paths[1] + Entity.SEPARATOR;
+				StringBuffer root = new StringBuffer(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
 				// rv.add(root);
 
-				List al = new ArrayList();
+				List<String> al = new ArrayList<String>();
 				for (int next = 2; next < paths.length; next++)
 				{
-					root = root + paths[next];
+					root.append(paths[next]);
 					if ((next < paths.length - 1) || container)
 					{
-						root = root + Entity.SEPARATOR;
+						root.append(Entity.SEPARATOR);
 					}
-					al.add(root);
+					al.add(root.toString());
 				}
 				for (int i = al.size() - 1; i >= 0; i--)
 				{

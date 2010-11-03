@@ -27,6 +27,7 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +37,6 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -81,10 +81,11 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			Map rheaders = getResponseHeaders();
 			if (rheaders != null)
 			{
-				for (Iterator i = rheaders.keySet().iterator(); i.hasNext();)
+				for (Iterator<Entry<String, String>> i = rheaders.entrySet().iterator(); i.hasNext();)
 				{
-					String name = (String) i.next();
-					String value = (String) rheaders.get(name);
+					Entry<String, String> entry = i.next();
+					String name = entry.getKey() ;
+					String value = entry.getValue();
 					res.setHeader(name, value);
 
 				}
