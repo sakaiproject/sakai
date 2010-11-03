@@ -246,7 +246,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		if (mode == null || helper_mode == null || toolSession.getAttribute(FilePickerHelper.START_HELPER) != null)
 		{
 			state.removeAttribute(FilePickerHelper.START_HELPER);
-			mode = initHelperAction(state, toolSession);
 			helper_mode = (String) toolSession.getAttribute(STATE_FILEPICKER_MODE);
 		}
 
@@ -2023,7 +2022,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				if(displayName.contains("."))
 				{
 					String[] parts = displayName.split("\\.");
-					basename = parts[0];
+					StringBuffer sb = new StringBuffer(parts[0]);
 					if(parts.length > 1)
 					{
 						extension = parts[parts.length - 1];
@@ -2031,8 +2030,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 					
 					for(int i = 1; i < parts.length - 1; i++)
 					{
-						basename += "." + parts[i];
+						sb.append("." + parts[i]);
 					}
+					
+					basename = sb.toString();
 				}
 				
 				// create resource
@@ -2085,12 +2086,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				
 				Map<String,String> values = pipe.getRevisedResourceProperties();
-				Iterator<String> valueIt = values.keySet().iterator();
-				while(valueIt.hasNext())
+				for(Iterator<Entry<String, String>> mapIter = values.entrySet().iterator(); mapIter.hasNext();) 
 				{
-					String pname = valueIt.next();
-					String pvalue = values.get(pname);
-					resourceProperties.addProperty(pname, pvalue);
+					Entry<String, String> entry = mapIter.next();
+					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				}
 				
 				// notification
@@ -3101,13 +3100,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 		 *       would result in too big a display to render in html.
 		 */
 		Map othersites = contentService.getCollectionMap();
-		Iterator<String> siteIt = othersites.keySet().iterator();
 		SortedSet sort = new TreeSet();
-		while(siteIt.hasNext())
+		for(Iterator<Entry<String, String>> mapIter = othersites.entrySet().iterator(); mapIter.hasNext();) 
 		{
-              String collId = siteIt.next();
-              String displayName = (String) othersites.get(collId);
-              sort.add(displayName + ResourcesAction.DELIM + collId);
+			  Entry<String, String> entry = mapIter.next();
+              sort.add(entry.getValue() + ResourcesAction.DELIM + entry.getKey());
 		}
 		
 		Iterator<String> sortIt = sort.iterator();

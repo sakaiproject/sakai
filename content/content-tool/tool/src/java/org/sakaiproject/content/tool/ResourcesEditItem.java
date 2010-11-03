@@ -921,7 +921,6 @@ public class ResourcesEditItem
 	  */
 	 public Object getPropertyValue(String name, int index)
 	 {
-		 String[] names = name.split(ResourcesMetadata.DOT);
 		 Object rv = null;
 		 if(m_properties == null)
 		 {
@@ -987,7 +986,7 @@ public class ResourcesEditItem
 	 {
 		 String[] names = name.split(ResourcesMetadata.DOT);
 		 Object rv = m_structuredArtifact;
-		 if(rv != null && (rv instanceof Map) && ((Map) rv).isEmpty())
+		 if(rv != null && ((Map) rv).isEmpty())
 		 {
 			 rv = null;
 		 }

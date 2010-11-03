@@ -107,11 +107,11 @@ public class ListItem
 
     private static final Log logger = LogFactory.getLog(ListItem.class);
     
-    protected static Comparator DEFAULT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
+    protected static final Comparator<ContentEntity> DEFAULT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
 
 	protected static boolean optionalPropertiesEnabled = false;
 
-    protected static final Comparator PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+    protected static final Comparator<ContentEntity> PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
 
 	public static final String DOT = "_";
 
@@ -1090,9 +1090,7 @@ public class ListItem
 		
 		this.hidden = false;
 		this.useReleaseDate = false;
-		Time releaseDate = TimeService.newTime();
 		this.useRetractDate = false;
-		Time retractDate = TimeService.newTime(defaultRetractTime.getTime());
 		this.isAvailable = parent.isAvailable();
 		
 		String refstr = contentService.getReference(id);
@@ -1326,7 +1324,6 @@ public class ListItem
 	protected void captureAccess(ParameterParser params, String index) 
 	{
 		String access_mode = params.getString("access_mode" + index);
-		SortedSet groups = new TreeSet();
 		
 		if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
 		{
@@ -1999,17 +1996,17 @@ public class ListItem
     
     public String getGroupNamesAsString()
     {
-    	String names = "";
+    	StringBuffer names = new StringBuffer();
     	String[] groups = getGroupNameArray(false);
     	for(int i = 0; i < groups.length; i++)
     	{
     		if(i > 0 && i < groups.length)
     		{
-    			names += ", ";
+    			names.append(", ");
     		}
-    		names += groups[i];
+    		names.append(groups[i]);
     	}
-    	return names;
+    	return names.toString();
     }
     
     public String getEffectiveGroupsLabel()
@@ -2030,7 +2027,6 @@ public class ListItem
 		}
 		else if(AccessMode.GROUPED == getEffectiveAccess())
 		{
-			int size = getNumberOfGroups();
 			label = (String) rb.getFormattedMessage("access.group1",  new Object[]{getGroupNamesAsString()});
 		}
 

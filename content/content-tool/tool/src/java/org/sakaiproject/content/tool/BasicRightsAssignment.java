@@ -68,7 +68,7 @@ public class BasicRightsAssignment
 			this.label = label;
 			this.renderAs = renderAs;
 			this.options = new Vector(options);
-			this.optionMapping = new Hashtable(optionMapping);
+			this.optionMapping = new Hashtable(optionsMapping);
 		}
 		
 		public String getId() 
@@ -143,7 +143,7 @@ public class BasicRightsAssignment
 		}
 	}
 	
-	public class RightsOption
+	public static class RightsOption
 	{
 		protected String id;
 		protected String label;
@@ -474,12 +474,12 @@ public class BasicRightsAssignment
 			{
 				this.setOffer(offer);
 			}
-			String ccModifcations = params.getString(getFieldNameModifications());
+			String ccModifications = params.getString(getFieldNameModifications());
 			if(ccModifications != null)
 			{
 				this.setCcModifications(ccModifications);
 			}
-			String otherModifcations = params.getString(getFieldNameOtherModifications());
+			String otherModifications = params.getString(getFieldNameOtherModifications());
 			if(otherModifications != null)
 			{
 				this.setOtherModifications(otherModifications);

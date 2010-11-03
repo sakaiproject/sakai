@@ -42,10 +42,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -151,7 +153,7 @@ public class ResourcesAction
 	 * Action
 	 *
 	 */
-	public class Action
+	public static class Action
 	{
 		protected String actionId;
 		protected String label;
@@ -383,7 +385,7 @@ public class ResourcesAction
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("content");
 	/** Resource bundle using current language locale */
-    public static ResourceLoader trb = new ResourceLoader("types");
+    public static final ResourceLoader trb = new ResourceLoader("types");
     /** Resource bundle using current language locale */
     private static ResourceLoader rrb = new ResourceLoader("right");
 	
@@ -985,13 +987,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			List<String>  copyrightValues = new ArrayList<String>(Arrays.asList(rrb.getStrings("copyrighttype")));
 
-            Hashtable copyrightTypes = new Hashtable();
+            Hashtable<Integer, String> copyrightTypes = new Hashtable<Integer, String>();
 
             int len = copyrightValues.size();
 
                 for (int i=0;i<len;i++){
 
-                               copyrightTypes.put(new Integer(i), (String)copyrightValues.get(i));
+                               copyrightTypes.put(Integer.valueOf(i), (String)copyrightValues.get(i));
 
                 }
 
@@ -1058,13 +1060,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				}
-				Map<String, String> values = pipe.getRevisedResourceProperties(); 	 
-				Iterator<String> valueIt = values.keySet().iterator(); 	 
-				while(valueIt.hasNext()) 	 
+				Map<String, String> values = pipe.getRevisedResourceProperties(); 	 	 
+				for(Iterator<Entry<String, String>> mapIter = values.entrySet().iterator(); mapIter.hasNext();) 
 				{ 	 
-					String pname = (String) valueIt.next(); 	 
-					String pvalue = (String) values.get(pname); 	 
-					resourceProperties.addProperty(pname, pvalue);
+					Entry<String, String> entry = mapIter.next();
+					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				}
 				ContentHostingService.commitCollection(edit);
 				conditionsHelper.notifyCondition(edit);
@@ -1132,7 +1132,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(name.contains("."))
 			{
 				String[] parts = name.split("\\.");
-				basename = parts[0];
+				StringBuffer sb = new StringBuffer(parts[0]);
 				if(parts.length > 1)
 				{
 					extension = parts[parts.length - 1];
@@ -1140,9 +1140,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 				for(int i = 1; i < parts.length - 1; i++)
 				{
-					basename += "." + parts[i];
+					sb.append("." + parts[i]);
 					// extension = parts[i + 1];
 				}
+				
+				basename = sb.toString();
 			}
 			try
 			{
@@ -1174,13 +1176,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				}
-				Map<String, String> values = pipe.getRevisedResourceProperties(); 	 
-				Iterator<String> valueIt = values.keySet().iterator(); 	 
-				while(valueIt.hasNext()) 	 
+				Map<String, String> values = pipe.getRevisedResourceProperties(); 	 	 
+				for(Iterator<Entry<String, String>> mapIter = values.entrySet().iterator(); mapIter.hasNext();)
 				{ 	 
-					String pname = (String) valueIt.next(); 	 
-					String pvalue = (String) values.get(pname); 	 
-					resourceProperties.addProperty(pname, pvalue);
+					Entry<String, String> entry = mapIter.next(); 	 
+					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				}
 				
 //				if(MIME_TYPE_DOCUMENT_HTML.equals(fp.getRevisedMimeType()) || MIME_TYPE_DOCUMENT_PLAINTEXT.equals(fp.getRevisedMimeType()))
@@ -1452,9 +1452,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				String id = ContentHostingService.copyIntoFolder(itemId, collectionId);
 				String mode = (String) state.getAttribute(STATE_MODE);
-				if(MODE_HELPER.equals(mode))
-				{
-				}
 			}
 			catch (PermissionException e)
 			{
@@ -3719,11 +3716,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// need a list of roots (ListItem objects) in context as $roots
 		List<ListItem> roots = new ArrayList<ListItem>();
 		Map othersites = ContentHostingService.getCollectionMap();
-		Iterator it = othersites.keySet().iterator();
-		while(it.hasNext())
+		for(Iterator<Entry<String, String>> mapIter = othersites.entrySet().iterator(); mapIter.hasNext();)
 		{
-			String rootId = (String) it.next();
-			String rootName = (String) othersites.get(rootId);
+			Entry<String, String> entry = mapIter.next();
+			String rootId = entry.getKey();
+			String rootName = entry.getValue();
 			ListItem root = new ListItem(rootId);
 			root.setName(rootName);
 			root.setHoverText(rootName);
@@ -3828,10 +3825,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// if copy or move is in progress AND user has content.new for this folder, user can paste in the collection 
 			// (the paste action will only be defined for collections)
-			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
-			
-			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-			
 			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId(), null)), registry);
 			
 			// TODO: need to deal with paste actions
@@ -3887,8 +3880,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
 				state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
-
-			String encoding = data.getRequest().getCharacterEncoding();
 
 			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
 			if(defaultRetractDate == null)
@@ -4749,14 +4740,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
-		
-		String siteId = params.getString("siteId");
-		if(siteId == null || siteId.trim().equals(""))
-		{
-			String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-			Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
-			siteId = ref.getContext();
-		}
 
 		String dropboxNotifications = params.getString(DROPBOX_NOTIFICATIONS_PARAMETER_NAME);
 		if(dropboxNotifications == null)
@@ -4820,7 +4803,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		expandedFolderSortMap.putAll(tempExpandedFolderSortMap);
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
 
-		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 
 		boolean atHome = false;
@@ -5552,7 +5534,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if(name.contains("."))
 				{
 					String[] parts = name.split("\\.");
-					basename = parts[0];
+					StringBuffer sb = new StringBuffer(parts[0]);
 					if(parts.length > 1)
 					{
 						extension = parts[parts.length - 1];
@@ -5560,8 +5542,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					
 					for(int i = 1; i < parts.length - 1; i++)
 					{
-						basename += "." + parts[i];
+						sb.append("." + parts[i]);
 					}
+					
+					basename = sb.toString();
 				}
 				
 				// create resource
@@ -5605,13 +5589,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				resource.setContentType(pipe.getRevisedMimeType());
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
-				Map values = pipe.getRevisedResourceProperties(); 	 
-				Iterator valueIt = values.keySet().iterator(); 	 
-				while(valueIt.hasNext()) 	 
-				{ 	 
-					String pname = (String) valueIt.next(); 	 
-					String pvalue = (String) values.get(pname); 	 
-					resourceProperties.addProperty(pname, pvalue); 
+				Map values = pipe.getRevisedResourceProperties(); 	 	 
+				for(Iterator<Entry<String, String>> mapIter = values.entrySet().iterator(); mapIter.hasNext();)	 
+				{
+					Entry<String, String> entry = mapIter.next(); 
+					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				
 				} 	 
 
@@ -6215,8 +6197,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			initMoveContext(state);
 		}
 
-		ParameterParser params = data.getParameters ();
-
 		List items = (List) state.getAttribute(STATE_DELETE_SET);
 
 		// List deleteIds = (List) state.getAttribute (STATE_DELETE_IDS);
@@ -6685,10 +6665,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// ... pass the resource loader object
 		ResourceLoader pRb = new ResourceLoader("permissions");
 		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+		for(Iterator<Entry<String, String>> mapIter = pRb.entrySet().iterator(); mapIter.hasNext();)
 		{
-			String key = (String) iKeys.next();
-			pRbValues.put(key, (String) pRb.get(key));
+			Entry<String, String> entry = mapIter.next();
+			pRbValues.put(entry.getKey(), entry.getValue());
 		}
 		state.setAttribute("permissionDescriptions",  pRbValues);
 		
@@ -6708,9 +6688,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
 		
-		boolean isPrioritySortEnabled = ContentHostingService.isSortByPriorityEnabled();
-
-
 		String folderId = params.getString ("folderId");
 		if(folderId == null)
 		{
@@ -8069,7 +8046,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// compute the end to a page size, adjusted for the number of messages available
 		int posEnd = posStart + (pageSize-1);
 		if (posEnd >= numMessages) posEnd = numMessages-1;
-		int numMessagesOnThisPage = (posEnd - posStart) + 1;
 
 		// select the messages on this page
 		for (int i = posStart; i <= posEnd; i++)
@@ -8204,10 +8180,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
 		
-		// set the sort values
-		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
-		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
-		
 		Boolean showRemove = (Boolean) state.getAttribute(STATE_SHOW_REMOVE_ACTION);
 		boolean showRemoveAction = showRemove != null && showRemove.booleanValue();
 		
@@ -8216,13 +8188,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		Boolean showCopy = (Boolean) state.getAttribute(STATE_SHOW_COPY_ACTION);
 		boolean showCopyAction = showCopy != null && showCopy.booleanValue();
-		
-		Set highlightedItems = (Set) state.getAttribute(STATE_HIGHLIGHTED_ITEMS);
 
 		// add user's personal workspace
 		User user = UserDirectoryService.getCurrentUser();
 		String userId = user.getId();
-		String userName = user.getDisplayName();
 		String wsId = SiteService.getUserSiteId(userId);
 		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
 		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
@@ -8260,13 +8229,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		 *       would result in too big a display to render in html.
 		 */
 		Map othersites = ContentHostingService.getCollectionMap();
-		Iterator siteIt = othersites.keySet().iterator();
 		SortedSet sort = new TreeSet();
-		while(siteIt.hasNext())
+		for(Iterator<Entry<String, String>> mapIter = othersites.entrySet().iterator(); mapIter.hasNext();) 
 		{
-              String collId = (String) siteIt.next();
-              String displayName = (String) othersites.get(collId);
-              sort.add(displayName + DELIM + collId);
+			  Entry<String, String> entry = mapIter.next();
+              sort.add(entry.getValue() + DELIM + entry.getKey());
 		}
 		
 		Iterator sortIt = sort.iterator();
@@ -8422,13 +8389,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				}
-				Map values = pipe.getRevisedResourceProperties(); 	 
-				Iterator valueIt = values.keySet().iterator(); 	 
-				while(valueIt.hasNext()) 	 
+				Map values = pipe.getRevisedResourceProperties(); 	 	 
+				for(Iterator<Entry<String, String>> mapIter = values.entrySet().iterator(); mapIter.hasNext();) 	 
 				{ 	 
-					String pname = (String) valueIt.next(); 	 
-					String pvalue = (String) values.get(pname); 	 
-					resourceProperties.addProperty(pname, pvalue);
+					Entry<String, String> entry = mapIter.next();
+					resourceProperties.addProperty(entry.getKey(), entry.getValue());
 				}
 				try
 				{
@@ -8535,9 +8500,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Map requestState = new HashMap();
 		
 		int requestStateId = 0;
+		Random random = new Random();
 		while(requestStateId == 0)
 		{
-			requestStateId = (int) (Math.random() * Integer.MAX_VALUE);
+			requestStateId = random.nextInt();
 		}
 		
 		List<String> attrNames = state.getAttributeNames();
@@ -8590,9 +8556,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-			for(String attrName : (Set<String>) requestState.keySet())
+			for(Iterator<Entry<String, String>> mapIter = requestState.entrySet().iterator(); mapIter.hasNext();) 
 			{
-				state.setAttribute(attrName, requestState.get(attrName));
+				Entry<String, String> entry = mapIter.next();
+				state.setAttribute(entry.getKey(), entry.getValue());
 			}
 		}
 		

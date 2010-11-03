@@ -46,6 +46,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ResourceLoader;
@@ -249,9 +252,13 @@ public class AttachmentAction
 
 			// sort by display name, ascending
 			Collections.sort(members, ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
-		}
-		catch (Exception e)
-		{
+		} catch (IdUnusedException e) {
+			collectionDisplayName = SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext());
+			members = new Vector();
+		} catch (TypeException e) {
+			collectionDisplayName = SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext());
+			members = new Vector();
+		} catch (PermissionException e) {
 			collectionDisplayName = SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext());
 			members = new Vector();
 		}
@@ -757,9 +764,15 @@ public class AttachmentAction
 					attachments.remove(ref);
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 	} // updateAttachments
