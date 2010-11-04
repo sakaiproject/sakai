@@ -32,13 +32,15 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
-import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
+import org.sakaiproject.profile2.tool.dataproviders.GalleryImageRandomizedDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
 import org.sakaiproject.profile2.tool.pages.ViewPicture;
 import org.sakaiproject.profile2.tool.pages.ViewPictures;
 
 /**
  * Gallery image feed component which sits on MyProfile/ViewProfile.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public class GalleryFeed extends Panel {
 
@@ -70,7 +72,7 @@ public class GalleryFeed extends Panel {
 		}
 		add(heading);
 		
-		IDataProvider dataProvider = new GalleryImageDataProvider(ownerUserId);
+		IDataProvider dataProvider = new GalleryImageRandomizedDataProvider(ownerUserId);
 
 		GridView dataView = new GridView("rows", dataProvider) {
 

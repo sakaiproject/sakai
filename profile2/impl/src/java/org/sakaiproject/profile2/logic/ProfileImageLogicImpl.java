@@ -1,6 +1,7 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -362,6 +363,16 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<GalleryImage> getGalleryImagesRandomized(String userUuid) {
+		
+		List<GalleryImage> images = getGalleryImages(userUuid);
+		Collections.shuffle(images);
+		return images;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean removeGalleryImage(String userId, long imageId) {
 		if(userId == null || new Long(imageId) == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
@@ -616,8 +627,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	private ProfileDao dao;
 	public void setDao(ProfileDao dao) {
 		this.dao = dao;
-	}
-
-	
+	}	
 	
 }

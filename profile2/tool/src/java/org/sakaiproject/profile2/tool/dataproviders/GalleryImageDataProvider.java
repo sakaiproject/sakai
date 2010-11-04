@@ -28,14 +28,16 @@ import org.sakaiproject.profile2.tool.models.DetachableGalleryImageModel;
 
 /**
  * IDataProvider implementation for retrieving gallery images.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 
 	private static final long serialVersionUID = 1L;
-	private String userUuid;
+	protected String userUuid;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
-	private ProfileImageLogic imageLogic;
+	protected ProfileImageLogic imageLogic;
 
 	public GalleryImageDataProvider(String userUuid) {
 		

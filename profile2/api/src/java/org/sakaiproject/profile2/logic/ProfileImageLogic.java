@@ -128,6 +128,15 @@ public interface ProfileImageLogic {
 	public List<GalleryImage> getGalleryImages(String userUuid);
 
 	/**
+	 * Retrieves all gallery images in randomized order for the specified user.
+	 * 
+	 * @param userUuid the ID of the user.
+	 * @return all profile gallery images in randomized order for the specified
+	 *         user.
+	 */
+	public List<GalleryImage> getGalleryImagesRandomized(String userUuid);
+	
+	/**
 	 * Remove the specified gallery image.
 	 * 
 	 * @param userUuid the user ID.
