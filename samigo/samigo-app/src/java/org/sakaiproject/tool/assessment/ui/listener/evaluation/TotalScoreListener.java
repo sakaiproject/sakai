@@ -165,7 +165,8 @@ public class TotalScoreListener
     FacesContext context = FacesContext.getCurrentInstance();
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("totalScores");
-    if (!passAuthz(context, pubAssessment.getCreatedBy())){
+
+    if (pubAssessment != null && !passAuthz(context, pubAssessment.getCreatedBy())){
       author.setOutcome("author");
       return;
     }

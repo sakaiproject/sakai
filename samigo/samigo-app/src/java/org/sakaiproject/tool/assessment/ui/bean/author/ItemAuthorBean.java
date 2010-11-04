@@ -794,11 +794,11 @@ public class ItemAuthorBean
     catch (Exception e){
 		throw new RuntimeException(e);
     }
-    Collections.sort(poolListSelectItems, new itemComparator());
+    Collections.sort(poolListSelectItems, new ItemComparator());
     return poolListSelectItems;
   }
 
-  class itemComparator implements Comparator {
+  class ItemComparator implements Comparator {
 		public int compare(Object o1, Object o2) {
 			SelectItem i1 = (SelectItem) o1;
 			SelectItem i2 = (SelectItem) o2;

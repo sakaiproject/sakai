@@ -163,10 +163,14 @@ public class XMLImportBean implements Serializable
       // remove unsuccessful file
       log.debug("****Clean up file: "+filename);
       File f1 = new File(filename);
-      f1.delete();
+      boolean success = f1.delete();
+      if (!success)
+	log.error ("Failed to delete file " + filename);
       if (isCP) {
     	  File f2 = new File(uploadFile);
-    	  f2.delete();
+    	  success = f2.delete();
+          if (!success)
+	  log.error ("Failed to delete file " + uploadFile);
     	  File f3 = new File(unzipLocation);
     	  deleteDirectory(f3);
       }
@@ -333,11 +337,15 @@ public class XMLImportBean implements Serializable
 				  deleteDirectory(files[i]);
 			  }
 			  else {
-				  files[i].delete();
+				boolean success = files[i].delete();
+    				if (!success)
+      					log.error("Delete Failed.");
 			  }
 		  }
 	  }
-	  directory.delete();
+		boolean success = directory.delete();
+    		if (!success)
+  			log.error("Delete Failed.");
   }
 
   /**
@@ -442,7 +450,9 @@ public class XMLImportBean implements Serializable
     try{
       //System.out.println("****filename="+fileName);
       File upload = new File(fileName);
-      upload.delete();
+      boolean success = upload.delete();
+      if (!success)
+	log.error ("Failed to delete file " + fileName);
     }
     catch(Exception e){
 	e.printStackTrace();

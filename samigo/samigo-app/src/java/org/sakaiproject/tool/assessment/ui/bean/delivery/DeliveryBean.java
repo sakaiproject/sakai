@@ -2032,7 +2032,14 @@ public class DeliveryBean
     gradingService.saveItemGrading(itemGradingData);
     // 3. if saveToDB, remove file from file system
     try{
-      if (SAVETODB) media.delete();
+      	if (SAVETODB) {
+		boolean success = media.delete();
+    		if (!success){
+      		log.warn("Error: media.delete() failed for mediaId =" + mediaId);
+		}
+  	}
+
+
     }
     catch(Exception e){
       log.warn(e.getMessage());

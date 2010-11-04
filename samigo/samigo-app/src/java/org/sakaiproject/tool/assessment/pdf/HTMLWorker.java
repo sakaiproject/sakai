@@ -75,7 +75,8 @@ public class HTMLWorker extends org.sakaiproject.tool.assessment.pdf.itext.HTMLW
 			if (src == null)
 				return;
 			if ((src.startsWith(ACCESSBASE)) || (src.startsWith(RELATIVEBASE))) {
-
+				FileOutputStream fos = null;
+				DataOutputStream dos = null;
 				try {
 					String imgId = src.replaceFirst(ACCESSBASE, "").replaceFirst(RELATIVEBASE, "");
 					imgId = URLDecoder.decode(imgId); 
@@ -84,8 +85,8 @@ public class HTMLWorker extends org.sakaiproject.tool.assessment.pdf.itext.HTMLW
 					//creates a temp file in the default temp file location..
 					String ext = imgId.substring(imgId.lastIndexOf("."));
 					File temp = File.createTempFile("temp" + img.hashCode(), ext);
-					FileOutputStream fos = new FileOutputStream(temp);
-					DataOutputStream dos = new DataOutputStream(fos);
+					fos = new FileOutputStream(temp);
+					dos = new DataOutputStream(fos);
 					dos.write(img.getContent(), 0, (int)img.getContentLength());
 					dos.close();
 					fos.close();
@@ -109,6 +110,22 @@ public class HTMLWorker extends org.sakaiproject.tool.assessment.pdf.itext.HTMLW
 				catch (Exception e) {
 					e.printStackTrace();
 				}
+				finally {
+					if ( dos != null ) {
+						try {
+							dos.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+					if ( fos!= null ) {
+						try {
+							fos.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+        			}
 
 			}
 			//nothing fancy for normal images

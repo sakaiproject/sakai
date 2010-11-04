@@ -393,11 +393,11 @@ private List attachmentList;
         } 
     }
 
-    Collections.sort(resultPoolList, new itemComparator());
+    Collections.sort(resultPoolList, new ItemComparator());
     return resultPoolList;
   }
 
-  class itemComparator implements Comparator {
+  class ItemComparator implements Comparator {
 	  public int compare(Object o1, Object o2) {
 		  SelectItem i1 = (SelectItem)o1;
 		  SelectItem i2 = (SelectItem)o2;

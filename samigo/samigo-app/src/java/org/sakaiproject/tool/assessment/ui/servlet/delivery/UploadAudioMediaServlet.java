@@ -432,7 +432,11 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
 
     // 3. if saveToDB, remove file from file system
     try{
-      if (SAVETODB) media.delete();
+      if (SAVETODB) {
+	boolean success = media.delete();
+	if (!success)
+		log.error ("Delete Failed for media. mediaid = " + mediaId);
+      }
     }
     catch(Exception e){
       log.warn(e.getMessage());

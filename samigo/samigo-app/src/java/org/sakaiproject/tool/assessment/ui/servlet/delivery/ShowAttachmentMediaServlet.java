@@ -122,7 +122,13 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	} catch (ServerOverloadException e) {
 		log.warn("ServerOverloadException from doPost(): " + e.getMessage());
 	}
-	
+	finally {
+		// in case of any exceptions above being caught, media would still be null 
+		if (media == null) {
+			return;
+		}
+	}
+
 	ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(media);
 	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
     int count=0;

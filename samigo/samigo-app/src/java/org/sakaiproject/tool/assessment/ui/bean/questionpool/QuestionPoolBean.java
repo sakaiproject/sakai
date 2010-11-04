@@ -216,7 +216,7 @@ public class QuestionPoolBean implements Serializable
 
   }
   
-  class titleComparator implements Comparator {
+  class TitleComparator implements Comparator {
 	  public int compare(Object o1, Object o2) {
 		  QuestionPoolFacade i1 = (QuestionPoolFacade)o1;
 		  QuestionPoolFacade i2 = (QuestionPoolFacade)o2;
@@ -234,7 +234,7 @@ public class QuestionPoolBean implements Serializable
 	  // interested in. One of them requires a database transaction.  So
 	  // optimize the sort on title, which is the one that is almost always used.
 	  if ("title".equals(sortProperty)) {
-		  Collections.sort(sortedList, new titleComparator());
+		  Collections.sort(sortedList, new TitleComparator());
 	  } else {
 		  if ("lastModified".equals(sortProperty))
 		  {
