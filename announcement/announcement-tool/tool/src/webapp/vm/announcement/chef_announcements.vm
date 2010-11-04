@@ -77,7 +77,7 @@
 						$tlang.getString("view.label")
 					</label>
 					<span class="skip">$tlang.getString("gen.listnavselect")</span>
-					<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
+					<select id="view" name="view" size="1" onchange="document.viewForm.submit();">
 						<option value="view.all" #if ($!view == "view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
 						<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
 						##if ($!groups)
@@ -116,7 +116,7 @@
 						<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 							<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 							<span class="skip">$tlang.getString("gen.listnavselect")</span>
-							<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+							<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
 								<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
 								<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
 								<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
@@ -408,7 +408,7 @@
 									$tlang.getString("view.label")
 								</label>
 								<span class="skip">$tlang.getString("gen.listnavselect")</span>
-								<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
+								<select id="view" name="view" size="1" onchange="document.viewForm.submit();">
 									<option value="view.all" #if ($!view == "'view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
 									<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
 									##if ($!groups)
@@ -446,7 +446,7 @@
 								<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 									<span class="skip">$tlang.getString("gen.listnavselect")</span>
-									<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+									<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
 										<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
 										<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
 										<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
@@ -745,7 +745,7 @@
 									<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 										<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 										<span class="skip">$tlang.getString("gen.listnavselect")</span>
-										<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+										<select name="selectPageSize" onchange="document.pagesizeForm.submit();">
 											<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("gen.show5")</option>
 											<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("gen.show10")</option>
 											<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("gen.show20")</option>
