@@ -18,7 +18,7 @@ public class DB2Dialect9 extends DB2Dialect {
        registerColumnType( Types.VARBINARY, "LONG VARCHAR FOR BIT DATA" );
        registerColumnType( Types.VARCHAR, "clob(1000000000)" );
        registerColumnType( Types.VARCHAR, 1000000000, "clob($l)" );
-       registerColumnType( Types.VARCHAR, 32704, "varchar($l)" );
+       registerColumnType( Types.VARCHAR, 3999, "varchar($l)" );
 
 
        //according to the db2 docs the max for clob and blob should be 2147438647, but this isn't working for me
