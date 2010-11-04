@@ -475,6 +475,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	//view file from db
     public String viewItem(){
 
+        if(rosterMap == null){
+    	    init();
+        }
+    	
         if(logger.isDebugEnabled())logger.debug("loading viewItem()");
 
         org.sakaiproject.tool.gradebook.Spreadsheet sp = getGradebookManager().getSpreadsheet(spreadsheetId);
