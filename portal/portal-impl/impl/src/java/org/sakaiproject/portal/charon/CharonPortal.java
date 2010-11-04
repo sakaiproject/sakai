@@ -1838,7 +1838,7 @@ public class CharonPortal extends HttpServlet
 		out.println("<div id=\"skipNav\">");
 		String accessibilityURL = ServerConfigurationService
 				.getString("accessibility.url");
-		if (accessibilityURL != null && accessibilityURL != "")
+		if (accessibilityURL != null && !accessibilityURL.equals(""))
 		{
 			out.println("<a href=\"" + accessibilityURL + "\" class=\"skip\" title=\""
 					+ Web.escapeHtml(rb.getString("sit_accessibility"))
@@ -2321,7 +2321,7 @@ public class CharonPortal extends HttpServlet
 
 		String accessibilityURL = ServerConfigurationService
 				.getString("accessibility.url");
-		if (accessibilityURL != null && accessibilityURL != "")
+		if (accessibilityURL != null && !accessibilityURL.equals(""))
 		{
 			out.println("<a href=\"" + accessibilityURL + "\" class=\"skip\" title=\""
 					+ Web.escapeHtml(rb.getString("sit_accessibility"))

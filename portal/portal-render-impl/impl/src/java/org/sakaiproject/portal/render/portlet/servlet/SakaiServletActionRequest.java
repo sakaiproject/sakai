@@ -25,12 +25,14 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
+
 
 /**
  * @author ddwolf
@@ -82,10 +84,10 @@ public class SakaiServletActionRequest extends HttpServletRequestWrapper
 	{
 		Map paramMap = new HashMap(state.getParameters());
 		Map requestParamMap = super.getParameterMap();
-		for (Iterator<String> i = requestParamMap.keySet().iterator(); i.hasNext();)
+		for (Iterator<Entry<String, String>> i = requestParamMap.entrySet().iterator(); i.hasNext();)
 		{
-			String s = i.next();
-			paramMap.put(s, requestParamMap.get(s));
+			Entry<String, String> entry = i.next();
+			paramMap.put(entry.getKey(), entry.getValue());
 		}
 		return paramMap;
 	}

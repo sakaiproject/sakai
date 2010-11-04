@@ -149,9 +149,9 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 			Comparator<Map> titleSorter = new TitleSorter();
 
 			// now loop through each section and convert the Lists to maps
-			for (String key : termsToSites.keySet())
+			for (Map.Entry<String, List> entry : termsToSites.entrySet())
 			{
-				List<Site> currentList = termsToSites.get(key);
+				List<Site> currentList = entry.getValue();
 				List<Map> temp = siteHelper.convertSitesToMaps(request, currentList, prefix,
 						currentSiteId, myWorkspaceSiteId,
 						/* includeSummary */false, /* expandSite */false,
@@ -161,7 +161,7 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 
 				Collections.sort(temp, titleSorter);
 
-				tabsMoreTerms.put(key, temp);
+				tabsMoreTerms.put(entry.getKey(), temp);
 
 			}
 

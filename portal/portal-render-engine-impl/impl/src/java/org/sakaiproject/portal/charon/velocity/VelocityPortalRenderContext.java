@@ -24,6 +24,7 @@ package org.sakaiproject.portal.charon.velocity;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -122,10 +123,11 @@ public class VelocityPortalRenderContext implements PortalRenderContext
 
 	private void dumpMap(StringBuilder sb, Object key, Map map)
 	{
-		for (Iterator i = map.keySet().iterator(); i.hasNext();)
+		for (Iterator<Entry<Object, Object>> mapIter = map.entrySet().iterator(); mapIter.hasNext();)
 		{
-			Object keyn = i.next();
-			dumpObject(sb, key + "." + keyn, map.get(keyn));
+			Entry<Object, Object> entry = mapIter.next();
+			Object keyn = entry.getKey();
+			dumpObject(sb, key + "." + keyn, entry.getValue());
 		}
 	}
 

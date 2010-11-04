@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -68,10 +69,10 @@ public class SessionRequestHolder
 		}
 		Map m = request.getParameterMap();
 		parameterMap = new HashMap();
-		for (Iterator i = m.keySet().iterator(); i.hasNext();)
+		for (Iterator<Entry<Object, Object>> i = m.entrySet().iterator(); i.hasNext();)
 		{
-			Object o = i.next();
-			parameterMap.put(o, m.get(o));
+			Entry<Object, Object> entry = i.next();
+			parameterMap.put(entry.getKey(), entry.getValue());
 		}
 		contextPath = PortalStringUtil.replaceFirst(request.getContextPath(), marker,
 				replacement);

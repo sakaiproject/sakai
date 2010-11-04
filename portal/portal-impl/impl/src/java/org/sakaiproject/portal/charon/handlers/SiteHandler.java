@@ -352,7 +352,7 @@ public class SiteHandler extends WorksiteHandler
 			String accessibilityURL = ServerConfigurationService
 					.getString("accessibility.url");
 			rcontext.put("siteNavHasAccessibilityURL", Boolean
-					.valueOf((accessibilityURL != null && accessibilityURL != "")));
+					.valueOf((accessibilityURL != null && !accessibilityURL.equals(""))));
 			rcontext.put("siteNavAccessibilityURL", accessibilityURL);
 			// rcontext.put("siteNavSitAccessability",
 			// Web.escapeHtml(rb.getString("sit_accessibility")));

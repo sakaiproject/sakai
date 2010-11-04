@@ -47,6 +47,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -109,7 +110,7 @@ public class ErrorReporter
 
 	private static String byteArrayToHexStr(byte[] data)
 	{
-		String output = "";
+		StringBuffer output = new StringBuffer();
 		String tempStr = "";
 		int tempInt = 0;
 		for (int cnt = 0; cnt < data.length; cnt++)
@@ -125,9 +126,9 @@ public class ErrorReporter
 			if (tempStr.length() == 1) tempStr = "0" + tempStr;
 			// Concatenate the two characters to the
 			// output string.
-			output = output + tempStr;
+			output.append(tempStr);
 		}// end for loop
-		return output.toUpperCase();
+		return output.toString().toUpperCase();
 	}// end byteArrayToHexStr
 
 	/**
@@ -314,10 +315,8 @@ public class ErrorReporter
 					userName = user.getDisplayName();
 					userMail = user.getEmail();
 					userEid = user.getEid();
-				}
-				catch (Exception e)
-				{
-					// nothing
+				} catch (UserNotDefinedException e) {
+					M_log.warn("logAndMail: could not find userid: " + userId);
 				}
 			}
 
@@ -506,6 +505,11 @@ public class ErrorReporter
 			
 			out.println("</body>");
 			out.println("</html>");
+			
+			if (out != null)
+			{
+				out.close();
+			}
 
 			// log and send the preliminary email
 			logAndMail(bugId, usageSessionId, userId, time, problem, problemdigest, requestURI,

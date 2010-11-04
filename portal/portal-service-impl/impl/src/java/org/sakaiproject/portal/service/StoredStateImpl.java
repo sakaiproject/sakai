@@ -106,7 +106,7 @@ public class StoredStateImpl implements StoredState
 		}
 		else
 		{
-			this.toolPathInfo = toolPathInfo;
+			this.toolPathInfo = null;
 		}
 	}
 

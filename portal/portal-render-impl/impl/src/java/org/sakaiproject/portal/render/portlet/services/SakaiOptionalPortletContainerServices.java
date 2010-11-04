@@ -564,13 +564,13 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 		{
 			if (input == null || input.length < 1) return null;
 
-			String retval = "";
+			StringBuffer retval = new StringBuffer();
 			for (int i = 0; i < input.length; i++)
 			{
-				if (i > 0) retval = retval + "!";
-				if ( input[i] != null ) retval += URLEncoder.encode(input[i]);
+				if (i > 0) retval.append("!");
+				if ( input[i] != null ) retval.append(URLEncoder.encode(input[i]));
 			}
-			return retval;
+			return retval.toString();
 		}
 
 		private String[] deSerializeStringArray(String input)

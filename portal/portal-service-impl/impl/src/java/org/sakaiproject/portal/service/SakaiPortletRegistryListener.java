@@ -124,7 +124,6 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 		if (!toolRegFile.canRead())
 		{
 			portletReg = homePath + portletName + ".xml";
-			toolRegFile = new File(portletReg);
 		}
 
 		// Attempt to read and parse the registration file
