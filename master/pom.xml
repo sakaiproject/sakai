@@ -100,7 +100,7 @@
         <sakai.edu-services.version>1.2-SNAPSHOT</sakai.edu-services.version>
         <sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
-        <sakai.hybrid.version>1.0-SNAPSHOT</sakai.hybrid.version>
+        <sakai.hybrid.version>1.1-SNAPSHOT</sakai.hybrid.version>
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
         <sakai.polls.version>1.5-SNAPSHOT</sakai.polls.version>
