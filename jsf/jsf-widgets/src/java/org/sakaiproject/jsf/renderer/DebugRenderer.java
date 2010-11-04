@@ -24,6 +24,7 @@ package org.sakaiproject.jsf.renderer;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIOutput;
@@ -87,11 +88,12 @@ public class DebugRenderer extends Renderer
 	    }
 
 	    writer.write(" " + map + " contains: \n");
-	    Iterator i = map.keySet().iterator();
+	    Iterator i = map.entrySet().iterator();
 	    while (i.hasNext())
 	    {
-	        Object name = i.next();
-	        Object value = map.get(name);
+	    	Entry entry = (Entry) i.next();
+	        Object name = entry.getKey();
+	        Object value = entry.getValue();
 	        writer.write(String.valueOf(name));
 	        writer.write(" -> ");
 	        writer.write(String.valueOf(value));

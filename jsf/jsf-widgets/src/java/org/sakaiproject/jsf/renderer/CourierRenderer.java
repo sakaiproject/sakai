@@ -76,15 +76,22 @@ public class CourierRenderer extends Renderer
 		String placementId = (String) req.getAttribute("sakai.tool.placement.id");
 		if (placementId == null)
 		{
-			// FIXME:
-			// TODO: Report an error
+			try {
+				throw new Exception("Placement ID is null in request: sakai.tool.placement.id");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 		// the current user's ID
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (userId == null)
 		{
-			//TODO: Report an error?
+			try {
+				throw new Exception("User ID is null in session");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 		writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");

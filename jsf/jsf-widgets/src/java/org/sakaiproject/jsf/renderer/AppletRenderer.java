@@ -31,6 +31,7 @@ import javax.faces.render.Renderer;
 
 import org.sakaiproject.jsf.util.RendererUtil;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -229,13 +230,14 @@ public class AppletRenderer
   private void renderEmbedParams(ResponseWriter writer, Map appParamMap)
     throws IOException
   {
-    Iterator paramIter = appParamMap.keySet().iterator();
-    while (paramIter.hasNext())
-    {
-      String name = (String) paramIter.next();
-      String value = (String) appParamMap.get(name);
-      writer.write("    " + name + "=\"" + value + "\" ");
-    }
+	  Iterator paramIter = appParamMap.entrySet().iterator();
+	  while (paramIter.hasNext())
+	  {
+		  Entry entrySet = (Entry) paramIter.next();
+		  String name = (String) entrySet.getKey();
+		  String value = (String) entrySet.getValue();
+		  writer.write("    " + name + "=\"" + value + "\" ");
+	  }
   }
 
   /**
@@ -247,11 +249,12 @@ public class AppletRenderer
   private void renderObjectParams(ResponseWriter writer, Map appParamMap)
     throws IOException
   {
-    Iterator iter = appParamMap.keySet().iterator();
+    Iterator iter = appParamMap.entrySet().iterator();
     while (iter.hasNext())
     {
-      String name = (String) iter.next();
-      String value = (String) appParamMap.get(name);
+      Entry entrySet = (Entry) iter.next();
+      String name = (String) entrySet.getKey();
+      String value = (String) entrySet.getValue();
       writer.write("    <PARAM name=\"" +
         name +
         "\" value=\"" +

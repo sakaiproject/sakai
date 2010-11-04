@@ -29,6 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIForm;
 import javax.faces.component.UIViewRoot;
@@ -206,11 +208,12 @@ public class RendererUtil
      */
     public static void writeAttributes(Map attributeMap, ResponseWriter writer) throws IOException
     {
-        Iterator iter = attributeMap.keySet().iterator();
+        Iterator iter = attributeMap.entrySet().iterator();
         while (iter.hasNext())
         {
-            String key = (String) iter.next();
-            String value = (String) attributeMap.get(key);
+            Entry entry = (Entry) iter.next();
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
             if (value == null)
                 value = "";
             writer.writeAttribute(key, value, key);
@@ -465,7 +468,7 @@ public class RendererUtil
         {
             component = component.getParent();
         }
-        if (component instanceof UIForm)
+        if (component != null)
             return ((UIForm) component).getId();
         return null;
     }

@@ -92,7 +92,7 @@ public class StylesheetRenderer extends Renderer
 
     String contextPath = (String)
       RendererUtil.getAttribute(context, component, "contextBase");
-    if (contextPath==null || contextPath=="")
+    if (contextPath==null || "".equals(contextPath))
     {
       contextPath = context.getExternalContext().getRequestContextPath();
     }

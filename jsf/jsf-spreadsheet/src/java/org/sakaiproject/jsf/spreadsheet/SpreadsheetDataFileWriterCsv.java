@@ -51,7 +51,7 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
-			out.write(csvString.getBytes());
+			out.write(csvString.getBytes("UTF-8"));
 			out.flush();
 		} catch (IOException e) {
 			if (log.isErrorEnabled()) log.error(e);
