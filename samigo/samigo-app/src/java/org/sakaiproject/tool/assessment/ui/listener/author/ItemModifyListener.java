@@ -438,7 +438,12 @@ public class ItemModifyListener implements ActionListener
 		}
 		// making sure if there is any partial credit in place we account for that --mustansar
 		if  (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
-			answerbean.setPartialCredit(answerArray[i].getPartialCredit().toString()); 
+			if (answerArray[i].getPartialCredit() != null) {
+				answerbean.setPartialCredit(Integer.toString(answerArray[i].getPartialCredit().intValue())); 
+			}
+			else {
+				answerbean.setPartialCredit("0"); 
+			}
 		}
 		answerbeanlist.add(answerbean);
          }
