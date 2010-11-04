@@ -67,6 +67,8 @@ public class PDFAssessmentBean implements Serializable {
 
 	private static ResourceBundle authorMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
+	private static ResourceBundle commonMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+
 	private String intro = "";
 
 	private String title = "";
@@ -369,7 +371,7 @@ public class PDFAssessmentBean implements Serializable {
 			content += "</td>";
 			content += "<td colspan='9'>";
 			if (printSetting.getShowKeysFeedback()) {
-				content += "<h6>" + printMessages.getString("feedback") + ": ";
+				content += "<h6>" + commonMessages.getString("feedback") + ": ";
 				if (answer.getGeneralAnswerFeedback() != null && !answer.getGeneralAnswerFeedback().equals(""))
 					content += answer.getGeneralAnswerFeedback();
 				else 
@@ -426,7 +428,7 @@ public class PDFAssessmentBean implements Serializable {
 					item.getItemData().getTypeId().equals(TypeIfc.FILE_UPLOAD)) {
 
 				content += "<br />";
-				content += printMessages.getString("feedback") + ": ";
+				content += commonMessages.getString("feedback") + ": ";
 				if (item.getItemData().getGeneralItemFeedback() != null && !item.getItemData().getGeneralItemFeedback().equals(""))
 					content += item.getItemData().getGeneralItemFeedback();
 				else 
