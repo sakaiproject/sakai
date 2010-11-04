@@ -53,6 +53,7 @@ public class DiscussionTopicBean
   private Long previousTopicId;
   private boolean readFullDesciption;
   private boolean markForDeletion;
+  private boolean markForDuplication;
   private UIPermissionsManager uiPermissionsManager;
   private DiscussionForumManager forumManager;
   private ArrayList contributorsList = new ArrayList();
@@ -498,6 +499,28 @@ public class DiscussionTopicBean
        LOG.debug("setTopic(DiscussionTopic"+ topic+")");
     }
     this.topic = topic;
+  }
+
+  /**
+   * @return Returns the markForDuplication.
+   */
+  public boolean isMarkForDuplication()
+  {
+    LOG.debug("isMarkForDuplication()");
+    return markForDuplication;
+  }
+
+  /**
+   * @param markForDuplication
+   *          The markForDuplication to set.
+   */
+  public void setMarkForDuplication(boolean markForDuplication)
+  {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setMarkForDuplication(boolean "+ markForDuplication+")");
+    }
+    this.markForDuplication = markForDuplication;
   }
 
   /**

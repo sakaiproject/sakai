@@ -31,10 +31,12 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>			
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the topic (with an editable permissions block!) to comfirm deletion --%>
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
-		<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}" />
+		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}"/>--%>
+        
 		<h:outputText styleClass="messageAlert" style="display:block" value="#{msgs.cdfm_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"/>
+        <h:outputText styleClass="messageAlert" value="#{msgs.cdfm_duplicate_topic_confirm}" rendered="#{ForumTool.selectedTopic.markForDuplication}" style="display:block" />
 		<div class="topicBloc" style="padding:0 .5em">
-			<p>	
+			<p>
 				<span class="title">
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='true'}"  style="margin-right:.3em"/>
 					<h:graphicImage url="/images/silk/lock_open.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='false'}"  style="margin-right:.3em"/>
@@ -180,13 +182,13 @@
       
        <div class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" id="revise"  
-                           value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion}"
+                           value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion && !ForumTool.selectedTopic.markForDuplication}"
                            accesskey="r" styleClass="active"> 
     	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>        
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedTopic.markForDeletion}"
+                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedTopic.markForDeletion && !ForumTool.selectedTopic.markForDuplication}"
                            >
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
@@ -195,6 +197,13 @@
                            >
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
+          
+          <h:commandButton id="duplicate" action="#{ForumTool.processActionDuplicateTopic}" 
+                           value="#{msgs.cdfm_duplicate_topic}" rendered="#{ForumTool.selectedTopic.markForDuplication}"
+                           accesskey="">
+	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+          </h:commandButton>
+          
           <h:commandButton immediate="true" action="#{ForumTool.processReturnToOriginatingPage}" id="cancel" 
                            value="#{msgs.cdfm_button_bar_cancel} " accesskey="x" />
        </div>

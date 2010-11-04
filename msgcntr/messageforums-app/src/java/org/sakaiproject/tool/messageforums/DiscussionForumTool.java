@@ -192,6 +192,7 @@ public class DiscussionForumTool
   private static final String ERROR_POSTING_THREAD = "cdfm_error_posting_thread";
   private static final String USER_NOT_ALLOWED_CREATE_FORUM="cdfm_user_not_allowed_create_forum";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM="cdfm_insufficient_privileges_delete_forum";
+  private static final String INSUFFICIENT_PRIVILEGES_TO_DUPLICATE = "cdfm_insufficient_privileges_duplicate";
   private static final String SHORT_DESC_TOO_LONG = "cdfm_short_desc_too_long";
   private static final String LAST_REVISE_BY = "cdfm_last_revise_msg"; 
   private static final String LAST_REVISE_ON = "cdfm_last_revise_msg_on";
@@ -7663,5 +7664,366 @@ public class DiscussionForumTool
 	public void setUserPreferencesManager(UserPreferencesManager userPreferencesManager) {
 		this.userPreferencesManager = userPreferencesManager;
 	}
+
+    /**
+   * Forward to duplicate forum confirmation screen
+   *
+   * @return
+   */
+  public String processActionDuplicateForumConfirm()
+  {
+    LOG.debug("processActionDuplicateForumConfirm()");
+    if (selectedForum == null)
+    {
+      LOG.debug("There is no forum selected for duplication");
+      return gotoMain();
+    }
+
+    if(!getNewForum())
+    {
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DUPLICATE));
+      return gotoMain();
+    }
+    //in case XSS was slipped in, make sure we remove it:
+    StringBuilder alertMsg = new StringBuilder();
+    selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setTitle(FormattedText.processFormattedText(selectedForum.getForum().getTitle(), alertMsg));
+    selectedForum.getForum().setShortDescription(FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg));
+
+    selectedForum.setMarkForDuplication(true);
+    return FORUM_SETTING;
+  }
+
+   /**
+   * Action for the duplicate option present the main forums page
+   * @return
+   */
+
+  public String processActionDuplicateForumMainConfirm()
+  {
+
+	  LOG.debug("processActionDuplicateForumMainConfirm()");
+
+	  String forumId = getExternalParameterByKey(FORUM_ID);
+	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
+	  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+
+	  selectedForum.setMarkForDuplication(true);
+	  return FORUM_SETTING;
+  }
+
+
+  /**
+   * @return
+   */
+  public String processActionDuplicateForum()
+  {
+    if (uiPermissionsManager == null)
+    {
+      throw new IllegalStateException("uiPermissionsManager == null");
+    }
+    if (selectedForum == null)
+    {
+      throw new IllegalStateException("selectedForum == null");
+    }
+    if(!getNewForum())
+    {
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DUPLICATE));
+      return gotoMain();
+   }
+
+    Long forumId = selectedForum.getForum().getId();
+
+	duplicateForum(forumId);
+	  reset();
+	  return gotoMain();
+  }
+
+   /**
+   * @return
+   */
+  public String processActionDuplicateTopicConfirm()
+  {
+    LOG.debug("processActionDuplicateTopicConfirm()");
+
+    if (selectedTopic == null)
+    {
+      LOG.debug("There is no topic selected for duplication");
+      return gotoMain();
+    }
+    if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
+    {
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
+      return gotoMain();
+    }
+    //in case XSS was slipped in, make sure we remove it:
+    StringBuilder alertMsg = new StringBuilder();
+    selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(selectedTopic.getTopic().getTitle(), alertMsg));
+    selectedTopic.getTopic().setShortDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg));
+    selectedTopic.setMarkForDuplication(true);
+    return TOPIC_SETTING;
+  }
+
+    /**
+   * @return
+   */
+  public String processActionDuplicateTopicMainConfirm()
+  {
+	  {
+		  LOG.debug("processActionDuplicateTopicMainConfirm()");
+
+		  DiscussionTopic topic = null;
+		  if(getExternalParameterByKey(TOPIC_ID) != "" && getExternalParameterByKey(TOPIC_ID) != null){
+			  topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(Long.valueOf(getExternalParameterByKey(TOPIC_ID)));
+		  } else if(selectedTopic != null) {
+			  topic = selectedTopic.getTopic();
+		  }
+		  if (topic == null)
+		  {
+			  return gotoMain();
+		  }
+		  setSelectedForumForCurrentTopic(topic);
+		  if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
+		  {
+			  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
+			  return gotoMain();
+		  }
+		  selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),uiPermissionsManager, forumManager);
+
+		  selectedTopic.setMarkForDuplication(true);
+		    return TOPIC_SETTING;
+	  }
+  }
+
+  public String processActionDuplicateTopic()
+  {
+    LOG.debug("processActionDuplicateTopic()");
+    if (selectedTopic == null)
+    {
+      LOG.debug("There is no topic selected for duplication");
+      return gotoMain();
+    }
+    if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
+    {
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
+      return gotoMain();
+    }
+
+    HashMap<String, Integer> beforeChangeHM = null;
+	DiscussionForum forum = selectedForum.getForum();
+    Long topicId = selectedTopic.getTopic().getId();
+
+	duplicateTopic(topicId, forum, false);
+
+    reset();
+    return gotoMain();
+  }
+
+  private DiscussionTopicBean duplicateTopic(Long originalTopicId, DiscussionForum forum, boolean forumDuplicate) {
+	LOG.debug("duplicateTopic(" + originalTopicId + ")");
+
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+    {
+    	selectedForum.setReadFullDesciption(true);
+    }
+
+    DiscussionTopic newTopic = forumManager.createTopic(forum);
+    if (newTopic == null)
+    {
+      setErrorMessage(getResourceBundleString(FAILED_CREATE_TOPIC));
+      return null;
+    }
+	DiscussionTopic fromTopic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(originalTopicId);
+	String newTitle = fromTopic.getTitle();
+	if (forumDuplicate) {
+		newTopic.setSortIndex(fromTopic.getSortIndex());
+	} else {
+		if (newTitle.length() + 5 > 255) {
+			newTitle = newTitle.substring(0, 250);
+		}
+		newTitle += " copy";
+	}
+	newTopic.setTitle(newTitle);
+	LOG.debug("New Topic Title = " + newTopic.getTitle());
+	if (fromTopic.getShortDescription() != null && fromTopic.getShortDescription().length() > 0)
+		newTopic.setShortDescription(fromTopic.getShortDescription());
+	if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0)
+		newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
+	newTopic.setLocked(fromTopic.getLocked());
+	newTopic.setDraft(fromTopic.getDraft());
+	newTopic.setModerated(fromTopic.getModerated());
+	newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
+
+	// Get/set the topic's permissions
+
+	Set topicMembershipItemSet = uiPermissionsManager.getTopicItemsSet(fromTopic);
+
+	if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() ) { //&& allowedPermNames != null && !allowedPermNames.isEmpty()
+		LOG.debug("About to assign topicMembershipItemSet's iterator");
+		Iterator membershipIter = topicMembershipItemSet.iterator();
+		while (membershipIter.hasNext()) {
+			LOG.debug("About to get a member of membershipIter");
+			DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+				LOG.debug("About to getMembershipItemCopy()");
+				DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+				if (newItem != null) {
+					permissionLevelManager.saveDBMembershipItem(newItem);
+					newTopic.addMembershipItem(newItem);
+				}
+		}
+	}
+	// Add the attachments
+	List fromTopicAttach = forumManager.getTopicByIdWithAttachments(originalTopicId).getAttachments();
+	if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
+		for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {
+			Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
+			Attachment thisDFAttach = forumManager.createDFAttachment(
+					thisAttach.getAttachmentId(),
+					thisAttach.getAttachmentName());
+			newTopic.addAttachment(thisDFAttach);
+		}
+	}
+
+//	// get/add the gradebook assignment associated with the topic
+	if (isGradebookDefined())
+	{
+		String fromAssignmentTitle = fromTopic.getDefaultAssignName();
+		newTopic.setDefaultAssignName(fromAssignmentTitle);
+	}
+	
+	// copy the release/end dates
+	
+	if(fromTopic.getAvailabilityRestricted()){
+		newTopic.setAvailabilityRestricted(true);
+		newTopic.setOpenDate(fromTopic.getOpenDate());
+		newTopic.setCloseDate(fromTopic.getCloseDate());
+	}
+
+	newTopic.setBaseForum(forum);
+	forumManager.saveTopic(newTopic);
+	selectedTopic = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
+
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+    {
+    	selectedTopic.setReadFullDesciption(true);
+    }
+
+    setNewTopicBeanAssign();
+
+    DiscussionTopicBean thisDTB = new DiscussionTopicBean(newTopic, forum, uiPermissionsManager, forumManager);
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+    {
+    	thisDTB.setReadFullDesciption(true);
+    }
+
+    setNewTopicBeanAssign(selectedForum, thisDTB);
+    return selectedTopic;
+  }
+
+  	private DBMembershipItem getMembershipItemCopy(DBMembershipItem itemToCopy) {
+		LOG.debug("getMembershipItemCopy()");
+		DBMembershipItem newItem = permissionLevelManager.createDBMembershipItem(itemToCopy.getName(), itemToCopy.getPermissionLevelName(),
+				itemToCopy.getType());
+		PermissionLevel oldPermLevel = itemToCopy.getPermissionLevel();
+		if (newItem.getPermissionLevelName().equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM)) {
+			PermissionsMask mask = new PermissionsMask();
+			List customPermList = permissionLevelManager.getCustomPermissions();
+			for (int c = 0; c < customPermList.size(); c++) {
+				String customPermName = (String) customPermList.get(c);
+				Boolean hasPermission = permissionLevelManager.getCustomPermissionByName(customPermName, oldPermLevel);
+				mask.put(customPermName, hasPermission);
+			}
+
+			PermissionLevel level = permissionLevelManager.createPermissionLevel(newItem.getPermissionLevelName(), typeManager.getCustomLevelType(), mask);
+			newItem.setPermissionLevel(level);
+		}
+		return newItem;
+	}
+
+	private DiscussionForumBean duplicateForum(Long originalForumId) {
+		LOG.debug("DuplicateForum() FORUM-ID=" + originalForumId.toString());
+	    forumClickCount = 0;
+	    topicClickCount = 0;
+
+	    setEditMode(true);
+	    setPermissionMode(PERMISSION_MODE_FORUM);
+
+		DiscussionForum oldForum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(Long.valueOf(originalForumId));
+
+		DiscussionForum forum = forumManager.createForum();
+		forum.setModerated(oldForum.getModerated());
+		forum.setAutoMarkThreadsRead(oldForum.getAutoMarkThreadsRead()); // default to template setting
+		selectedForum = null;
+		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+		if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+		{
+			selectedForum.setReadFullDesciption(true);
+		}
+		String oldShortDescription = oldForum.getShortDescription();
+		if (oldShortDescription == null) oldShortDescription = " ";
+		forum.setShortDescription(oldShortDescription);
+		String oldExtendedDescription = oldForum.getExtendedDescription();
+		if (oldExtendedDescription == null) oldExtendedDescription = "";
+		forum.setExtendedDescription(oldExtendedDescription);
+		String oldTitle = oldForum.getTitle();
+		if (oldTitle.length() + 5 > 255) oldTitle = oldTitle.substring(0, 250);
+		forum.setTitle(oldTitle + " copy");
+
+		List fromForumAttach = oldForum.getAttachments();
+		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {
+			for (int topicAttach=0; topicAttach < fromForumAttach.size(); topicAttach++) {
+				Attachment thisAttach = (Attachment)fromForumAttach.get(topicAttach);
+				Attachment thisDFAttach = forumManager.createDFAttachment(
+						thisAttach.getAttachmentId(),
+						thisAttach.getAttachmentName());
+				forum.addAttachment(thisDFAttach);
+			}
+		}
+
+		if (isGradebookDefined())
+		{
+			String fromAssignmentTitle = oldForum.getDefaultAssignName();
+			forum.setDefaultAssignName(fromAssignmentTitle);
+		}
+
+		if(oldForum.getAvailabilityRestricted()){
+			forum.setAvailabilityRestricted(true);
+			forum.setOpenDate(oldForum.getOpenDate());
+			forum.setCloseDate(oldForum.getCloseDate());
+		}
+
+		forum = saveForumSettings(true);
+
+		forum = forumManager.getForumById(forum.getId());
+		List attachList = forum.getAttachments();
+		if (attachList != null)
+		{
+		  for (int i = 0; i < attachList.size(); i++)
+		  {
+			attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
+		  }
+		}
+
+		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+		if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
+		{
+			selectedForum.setReadFullDesciption(true);
+		}
+
+		setForumBeanAssign();
+		setFromMainOrForumOrTopic();
+
+		List oldTopics = oldForum.getTopics();
+		Iterator itr = oldTopics.iterator();
+		while (itr.hasNext()) {
+			Topic oldTopic = (Topic) itr.next();
+			Long oldTopicId = oldTopic.getId();
+			duplicateTopic(oldTopicId, forum, true);
+		}
+		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+		return selectedForum;
+	}
+
 }
 

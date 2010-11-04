@@ -35,9 +35,10 @@
 			});
 		</script>
 <!--jsp/discussionForum/forum/dfForumSettings.jsp-->
-		<sakai:tool_bar_message value="#{msgs.cdfm_delete_forum_title}" />
+		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_forum_title}" />--%>
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the forum (with an editable permissions block!) to comfirm deletion --%>
 		<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}" style="display:block" />	
+        <h:outputText styleClass="messageAlert" value="#{msgs.cdfm_duplicate_forum_confirm}" rendered="#{ForumTool.selectedForum.markForDuplication}" style="display:block" />
 		<table class="forumHeader">
 			  <tr>
 					<td>
@@ -194,20 +195,26 @@
 		</div>
       --%>      
        <div class="act">
-          <h:commandButton id ="revise" rendered="#{!ForumTool.selectedForum.markForDeletion}" 
+          <h:commandButton id ="revise" rendered="#{!ForumTool.selectedForum.markForDeletion && !ForumTool.selectedForum.markForDuplication}" 
                            immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" 
                            value="#{msgs.cdfm_button_bar_revise}" accesskey="r"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>    	 	  	
           </h:commandButton>
           
           <h:commandButton id="delete_confirm" action="#{ForumTool.processActionDeleteForumConfirm}" 
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion}"
+                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion && !ForumTool.selectedForum.markForDuplication}"
                            accesskey="">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           
           <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForum}" 
                            value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedForum.markForDeletion}"
+                           accesskey="">
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+          </h:commandButton>
+          
+          <h:commandButton id="duplicate" action="#{ForumTool.processActionDuplicateForum}" 
+                           value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.selectedForum.markForDuplication}"
                            accesskey="">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>

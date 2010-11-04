@@ -27,7 +27,13 @@
 		      <f:param value="#{forum.forum.id}" name="forumId"/>				
 	      </h:commandLink>
 
-				<h:outputText  value=" | " rendered="#{forum.changeSettings}"/>
+				<h:outputText  value=" | " rendered="#{ForumTool.newForum}"/>
+
+				<h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
+					<f:param value="#{forum.forum.id}" name="forumId"/>
+				</h:commandLink>
+                
+                <h:outputText  value=" | " rendered="#{forum.changeSettings}"/>
 
 				<h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{forum.changeSettings}"
 						accesskey="d">
@@ -117,6 +123,14 @@
 				       <f:param value="#{forum.forum.id}" name="forumId"/>
 				     </h:commandLink>
 							
+                           <h:outputText  value=" | " rendered="#{forum.newTopic}"/>
+                           
+                           <h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
+							title=" #{msgs.cdfm_topic_settings}">
+									<f:param value="#{topic.topic.id}" name="topicId"/>
+									<f:param value="#{forum.forum.id}" name="forumId"/>
+							</h:commandLink>
+                            
 							<h:outputText  value=" | " rendered="#{topic.changeSettings}"/>
 							
 							<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{topic.changeSettings}"

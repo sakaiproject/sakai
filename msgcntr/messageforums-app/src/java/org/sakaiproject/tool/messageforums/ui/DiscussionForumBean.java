@@ -45,6 +45,7 @@ public class DiscussionForumBean
   .getLog(DiscussionForumBean.class);
   private DiscussionForum forum;
   private boolean markForDeletion;
+  private boolean markForDuplication;
   private UIPermissionsManager uiPermissionsManager;
   private DiscussionForumManager forumManager;
   private boolean readFullDesciption; 
@@ -251,7 +252,28 @@ public class DiscussionForumBean
     this.markForDeletion = markForDeletion;
   }
 
-  
+  /**
+   * @return Returns the markForDuplication.
+   */
+  public boolean isMarkForDuplication()
+  {
+    LOG.debug("isMarkForDuplication()");
+    return markForDuplication;
+  }
+
+  /**
+   * @param markForDuplication
+   *          The markForDuplication to set.
+   */
+  public void setMarkForDuplication(boolean markForDuplication)
+  {
+    if(LOG.isDebugEnabled())
+    {
+      LOG.debug("setMarkForDuplication(boolean"+ markForDuplication+")");
+    }
+    this.markForDuplication = markForDuplication;
+  }
+
   /**
    * @return
    */
