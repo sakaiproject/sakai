@@ -72,7 +72,7 @@
     <dependency>
       <groupId>org.sakaiproject.accountvalidator</groupId>
       <artifactId>accountvalidator-api</artifactId>
-      <version>[2.7,3.0]</version>
+      <version>${sakai.resetpass.version}</version>
       <scope>provided</scope>
     </dependency>
 <!-- Commons JARS put in shared/lib by Sakai -->
