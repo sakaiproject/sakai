@@ -30,6 +30,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -1103,6 +1106,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   public void sendPrivateMessage(PrivateMessage message, Set recipients, boolean asEmail)
   {
 
+    try 
+    {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("sendPrivateMessage(message: " + message + ", recipients: "
@@ -1163,7 +1168,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     List<PrivateForum> privateForums = null;
     Map<String, PrivateForum> pfMap = null;
     
-    if (!asEmail) {
     	currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
 
     	//this is fairly inneficient and should realy be a convenience method to lookup
@@ -1177,6 +1181,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     		pfMap.put(pf1.getOwner(), pf1);
     	}
 
+		boolean forwardingEnabled = false;
+		List<InternetAddress> fAddresses = new ArrayList<InternetAddress>();
     	//this only needs to be done if the message is not being sent
     	for (Iterator i = recipients.iterator(); i.hasNext();)
     	{
@@ -1185,25 +1191,26 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
 
 
-    		boolean forwardingEnabled = false;
-    		String forwardAddress = null;
-    		//as this is a hefty overhead only do this if we're not sending as email
+    		//boolean forwardingEnabled = false;
+    		//String forwardAddress = null;
     		
     		PrivateForum pf = null;
     		if (pfMap.containsKey(userId))
     			pf = pfMap.get(userId);
 
-    		if (pf != null && pf.getAutoForward().booleanValue()){
+			if (pf != null && pf.getAutoForward().booleanValue() && pf.getAutoForwardEmail() != null){
     			forwardingEnabled = true;
-    			forwardAddress = pf.getAutoForwardEmail();
+				fAddresses.add(new InternetAddress(pf.getAutoForwardEmail()));
+				//forwardAddress = pf.getAutoForwardEmail();
     		}
     		if( pf == null)  
     		{
     			//only check for default settings if the pf is null
     			PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
-    			if (oldPf != null && oldPf.getAutoForward().booleanValue()) {
-    				forwardAddress = oldPf.getAutoForwardEmail();
+				if (oldPf != null && oldPf.getAutoForward().booleanValue() && pf.getAutoForwardEmail() != null) {
+					//forwardAddress = oldPf.getAutoForwardEmail();
     				forwardingEnabled = true;
+					fAddresses.add(new InternetAddress(oldPf.getAutoForwardEmail()));
     			}
     		}
 
@@ -1211,49 +1218,28 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     		Boolean isRecipientCurrentUser = 
     			(currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
 
-    		if (forwardingEnabled){
-    			emailService.send(systemEmail, forwardAddress, message.getTitle(), 
-    					bodyString, u.getEmail(), null, additionalHeaders);
-
-
-    			// use forwarded address if set
 
     			PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
     					userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
     					isRecipientCurrentUser);
     			recipientList.add(receiver);                    
     		}      
-    		else {        
-    			PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-    					userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-    					isRecipientCurrentUser);
-    			recipientList.add(receiver);
-    		}
-    	}
 
-    } else {
+		if (asEmail)
+		{
     	//send as 1 action to all recipients
     	//we need to add som headers
     	additionalHeaders.add("From: " + systemEmail);
     	additionalHeaders.add("Subject: " + message.getTitle());
     	emailService.sendToUsers(recipients, additionalHeaders, bodyString);
-    	
-    	//After send message to the campus email, send message to Sakai Message recipient(s)'s receive folder.
-    	for (Iterator i = recipients.iterator(); i.hasNext();) {
-    		User u = (User) i.next();      
-    		String userId = u.getId();
-
-    		/** determine if current user is equal to recipient */
-    		Boolean isRecipientCurrentUser = 
-    			(currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
-
-
-    		PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-    				userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-    				isRecipientCurrentUser);
-    		recipientList.add(receiver);
     	}   	
 
+	if(forwardingEnabled)
+	{
+		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
+		fAddressesArr = fAddresses.toArray(fAddressesArr);
+		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
+				bodyString, fAddressesArr, null, additionalHeaders);
     }
     
     
@@ -1268,6 +1254,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     message.setRecipients(recipientList);
 
     savePrivateMessage(message, false);
+  }
+    catch (MessagingException e) 
+    {
+    	LOG.warn("PrivateMessageManagerImpl.sendPrivateMessage: exception: " + e.getMessage(), e);
+	}
   }
 
 
