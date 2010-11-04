@@ -150,6 +150,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 		this.prefs = prefs;
 		this.size = size;
 		this.cache = cache;
+		
 	}
 	
 	
@@ -253,7 +254,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 		}
 		
 		//do default
-		tag.put("src", getDefaultImage());
+		tag.put("src", getDefaultImage(size));
 		
 		//add alt text
 		tag.put("alt", image.getAltText());
@@ -265,10 +266,19 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	
 	/**
 	 * Get the default image URL
+	 * 
+	 * @param size image size: 1 for main, 2 for thumbnail.
 	 * @return
 	 */
-	private String getDefaultImage() {
-		return getRequest().getRelativePathPrefixToContextRoot() + ProfileConstants.UNAVAILABLE_IMAGE;
+	private String getDefaultImage(int size) {
+
+		if (ProfileConstants.PROFILE_IMAGE_THUMBNAIL == size) {
+			return getRequest().getRelativePathPrefixToContextRoot()
+					+ ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL;
+		} else {
+			return getRequest().getRelativePathPrefixToContextRoot()
+					+ ProfileConstants.UNAVAILABLE_IMAGE;
+		}
 	}
 	
 	/**

@@ -108,6 +108,12 @@ public interface ProfileImageLogic {
 	public String getUnavailableImageURL();
 	
 	/**
+	 * Get the full URL to the default unavailable image thumbnail defined in ProfileConstants
+	 * @return
+	 */
+	public String getUnavailableImageThumbnailURL();
+	
+	/**
 	 * Add a gallery image for the specified user.
 	 * 
 	 * @param userUuid the ID of the user.

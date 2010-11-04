@@ -50,7 +50,12 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		boolean isSameUser = false;
 		String officialImageSource;
 		
-		String defaultImageUrl = getUnavailableImageURL();
+		String defaultImageUrl;
+		if (ProfileConstants.PROFILE_IMAGE_THUMBNAIL == size) {
+			defaultImageUrl = getUnavailableImageThumbnailURL();
+		} else {
+			defaultImageUrl = getUnavailableImageURL();
+		}
 		
 		//get current user
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -414,14 +419,25 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return false;
 	}
 	
+	private String getUnavailableImageURL(String imagePath) {
+		StringBuilder path = new StringBuilder();
+		path.append(sakaiProxy.getServerUrl());
+		path.append(imagePath);
+		return path.toString();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getUnavailableImageURL() {
-		StringBuilder path = new StringBuilder();
-		path.append(sakaiProxy.getServerUrl());
-		path.append(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
-		return path.toString();
+		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUnavailableImageThumbnailURL() {
+		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL);
 	}
 	
 	/**
