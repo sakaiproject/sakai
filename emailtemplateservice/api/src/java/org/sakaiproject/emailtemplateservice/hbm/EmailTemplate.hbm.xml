@@ -31,7 +31,7 @@
         </property>
         <!-- the email template message in html-->
         <property name="htmlMessage" type="text">
-            <column name="HTMLMESSAGE" not-null="false" />
+            <column name="HTMLMESSAGE" not-null="false" length="100000000"/>
         </property>
         <property name="key" type="java.lang.String" index="email_templ_key">
         	<column name="TEMPLATE_KEY" not-null="true" length="255"/>
