@@ -434,6 +434,7 @@ else
 	{else}
 		{if true == viewSingleColumn}
 			<tr>
+				<td>
 				{for member in membership}
 				{if true == firstNameLastName}
 					{var memberName = member.displayName}
@@ -495,6 +496,7 @@ else
 					{/if}
 				</div>
 				{/for}
+				</td>
 			</tr>
 		{else}
 		<tr>
