@@ -49,8 +49,8 @@ public class ProfileConstants {
 	//default if not specified in sakai.properties as profile.picture.max (megs)
 	public static final int MAX_IMAGE_UPLOAD_SIZE = 2; 
 	
-	//one side will be scaled to this if larger. 400 is large enough
-	public static final int MAX_IMAGE_XY = 400; 	
+	//one side will be scaled to this if larger. 200 is large enough
+	public static final int MAX_IMAGE_XY = 200; 	
 	
 	//one side will be scaled to this if larger. 
 	public static final int MAX_THUMBNAIL_IMAGE_XY = 100; 	
@@ -68,7 +68,7 @@ public class ProfileConstants {
 	public static final String GALLERY_IMAGE_THUMBNAILS = "thumbnails";
 	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "gallery.image.upload";
 	public static final String GALLERY_IMAGE_DEFAULT_DESCRIPTION = "Gallery image";
-	public static final int MAX_GALLERY_IMAGE_XY = 800;
+	public static final int MAX_GALLERY_IMAGE_XY = 575;
 	public static final int MAX_GALLERY_THUMBNAIL_IMAGE_XY = 125;
 	public static final int MAX_GALLERY_FILE_UPLOADS = 10;
 	public static final int MAX_GALLERY_IMAGES_PER_PAGE = 12; //max before pager kicks in

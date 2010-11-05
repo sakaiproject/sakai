@@ -86,7 +86,7 @@ div#footer {
 
 #myPhoto img {
 	max-width: 200px;
-	width: expression(Math.min(parseInt(this.offsetWidth),200) + "px"); /* ie6 max-width hack */
+	width: 200px;
 	background-color: transparent;
 	text-align:center;
 }
@@ -1200,7 +1200,6 @@ div.wicket-aa ul li.selected {
 }
 
 .gallery-image-form img {
-	width: expression(Math.min(parseInt(this.offsetWidth),575) + "px");
 	max-width: 575px;
 }
 
