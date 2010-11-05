@@ -433,9 +433,9 @@ else
 		<tr><td>${no_participants}</td></tr>
 	{else}
 		{if true == viewSingleColumn}
-			<tr>
+			{for member in membership}
+				<tr>
 				<td>
-				{for member in membership}
 				{if true == firstNameLastName}
 					{var memberName = member.displayName}
 				{else}
@@ -495,9 +495,9 @@ else
 						{/if}
 					{/if}
 				</div>
-				{/for}
 				</td>
-			</tr>
+				</tr>
+			{/for}
 		{else}
 		<tr>
 		{for member in membership}
