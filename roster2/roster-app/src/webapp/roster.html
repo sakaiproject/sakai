@@ -433,6 +433,8 @@ else
 		<tr><td>${no_participants}</td></tr>
 	{else}
 		{if true == viewSingleColumn}
+			<table class="rosterPicturesSingleColumn">
+			<tbody>
 			{for member in membership}
 				<tr>
 				<td>
@@ -448,6 +450,7 @@ else
 						<img class="rosterPicture" src="${member.profileImageUrl}" title="${profile_picture_alt} ${member.displayName}" />
 					{/if}
 				</div>
+				<td>
 				{if false == hideNames}
 					{if true == viewUserDisplayId}
 						<div><span title="${memberName}">${memberName}</span></div>
@@ -494,11 +497,16 @@ else
 							{/if}
 						{/if}
 					{/if}
+				</td>
 				</div>
 				</td>
 				</tr>
 			{/for}
+			</tbody>
+			</table>
 		{else}
+		<table class="rosterPictures">
+		<tbody>
 		<tr>
 		{for member in membership}
 			{var count = +member_index + 1}
@@ -569,6 +577,8 @@ else
 		{/if}
 		{/for}
 		</tr>
+		</tbody>
+		</table>
 		{/if}
 	{/if}
 	</tbody>

@@ -84,7 +84,16 @@ table.rosterPictures td {
 	vertical-align:top;
 	word-break:break-all;
 	word-wrap:break-word;
-	padding-bottom:5px;
+	padding-bottom:1em;
+}
+
+table.rosterPicturesSingleColumn {
+	width:40em;
+}
+
+table.rosterPicturesSingleColumn td {
+	vertical-align:top;
+	padding-bottom:1em;
 }
 
 .rosterPicture {
