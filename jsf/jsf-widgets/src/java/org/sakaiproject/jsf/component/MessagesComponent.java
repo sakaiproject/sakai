@@ -31,6 +31,7 @@ public class MessagesComponent extends HtmlMessages
 		setStyleClass("alertMessage");
 		setShowSummary(false);
 		setShowDetail(true);
+		
 	}
 }
 
