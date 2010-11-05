@@ -84,6 +84,7 @@ table.rosterPictures td {
 	vertical-align:top;
 	word-break:break-all;
 	word-wrap:break-word;
+	padding-bottom:5px;
 }
 
 .rosterPicture {
