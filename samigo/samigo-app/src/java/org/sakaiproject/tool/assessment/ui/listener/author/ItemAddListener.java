@@ -1361,7 +1361,7 @@ public class ItemAddListener
 					log.debug("oneLabel = " + oneLabel);
 					answer.setText(oneAnswer);
 					answer.setLabel(oneLabel);
-					if (choiceSequence == matchSequence) {
+					if (choiceSequence.longValue() == matchSequence.longValue()) {
 						answer.setIsCorrect(Boolean.TRUE);
 					} else {
 						answer.setIsCorrect(Boolean.FALSE);

@@ -256,13 +256,6 @@ log.debug("after getting item.getItemType() ");
 	    // reset insertToSection to null;
         //itemauthorbean.setInsertToSection(null);
 
-
-        if (item.getItemType().equals("10")) {
-         // do not set section here, sections are set by the editPool form
-    	  // QuestionPoolBean qpoolBean= (QuestionPoolBean) cu.lookupBean("questionpool");
-	  //qpoolBean.setSelectedSection(item.getSelectedSection());
-        }
-
     }
     else {
      // for question pool , always show metadata as default

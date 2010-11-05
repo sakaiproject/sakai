@@ -311,10 +311,7 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 						e.printStackTrace();
 					}
 				}
-				//verical space
-				if (vspace != null && !"".equals(vspace)) {
 
-				}
 				// horizontal alignment
 				if (align != null && (align.equalsIgnoreCase("left") || align.equalsIgnoreCase("right"))) {
 					endElement("p");

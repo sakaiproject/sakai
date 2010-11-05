@@ -198,12 +198,6 @@ public class ItemHelper20Impl extends ItemHelperBase
       return;
     }
 
-    if (itemXml.isMatching())
-    {
-//      process matching
-//      return;
-    }
-
     String text = ( (ItemTextIfc) itemTextList.get(0)).getText();
     log.debug("item text: " + text);
     if (itemXml.isFIB())

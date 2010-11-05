@@ -73,11 +73,11 @@ public class TimedAssessmentGradingModel
     this.timeLimit = timeLimit;
     this.timeLeft = timeLeft;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000);
-    this.bufferedExpirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000L);
+    this.bufferedExpirationDate = new Date(beginDate.getTime() + timeLeft*1000L + latencyBuffer*1000);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000L);
     this.timerId = timerId;
     this.publishedAssessment = publishedAssessment;
   }
@@ -93,11 +93,11 @@ public class TimedAssessmentGradingModel
     this.latencyBuffer = latencyBuffer;
     this.transactionBuffer = transactionBuffer;
     this.beginDate = beginDate;
-    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000);
-    this.bufferedExpirationDate = new Date(beginDate.getTime() + timeLeft*1000 + latencyBuffer*1000);
+    this.expirationDate = new Date(beginDate.getTime() + timeLeft*1000L);
+    this.bufferedExpirationDate = new Date(beginDate.getTime() + timeLeft*1000L + latencyBuffer*1000);
     this.submittedForGrade = submittedForGrade;
     this.localBeginDate = localBeginDate;
-    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000);
+    this.localExpirationDate = new Date(localBeginDate.getTime() + timeLeft*1000L);
     this.timerId = timerId;
     this.publishedAssessment = publishedAssessment;
   }

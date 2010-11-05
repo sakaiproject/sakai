@@ -1582,9 +1582,11 @@ public class ExtractionHelper
       else {
         List<String> scoreList = (List<String>) itemMap.get("scoreList");
         Iterator<String> iter = scoreList.iterator();
+        StringBuffer buf = new StringBuffer(); 
           while (iter.hasNext()) {
-            score += iter.next();
+       	    buf.append(iter.next()); 
 	      }
+          score = buf.toString();
       }
 	}
 	else {

@@ -136,62 +136,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	public IdImpl getAssessmentTemplateId(long id) {
 		return new IdImpl(id);
 	}
-
-	public static void main(String[] args) throws DataFacadeException {
-		AssessmentFacadeQueriesAPI instance = new AssessmentFacadeQueries();
-		// add an assessmentTemplate
-		if (args[0].equals("addTemplate")) {
-			Long assessmentTemplateId = instance.addTemplate();
-			AssessmentTemplateData a = instance
-					.loadTemplate(assessmentTemplateId);
-			print(a);
-			AssessmentTemplateFacade af = new AssessmentTemplateFacade(a);
-			printFacade(af);
-		}
-		if (args[0].equals("removeT")) {
-			instance.removeTemplate(new Long(args[1]));
-		}
-		if (args[0].equals("addA")) {
-			Long assessmentId = instance.addAssessment(new Long(args[1]));
-			AssessmentData a = instance.loadAssessment(assessmentId);
-			print(a);
-		}
-		if (args[0].equals("loadT")) {
-			AssessmentTemplateData a = (AssessmentTemplateData) instance
-					.load(new Long(args[1]));
-			print(a);
-		}
-		if (args[0].equals("loadA")) {
-			AssessmentData a = (AssessmentData) instance
-					.load(new Long(args[1]));
-			print(a);
-		}
-		System.exit(0);
-	}
-
-	public static void print(AssessmentBaseData a) {
-		if (a.getIsTemplate().equals(Boolean.FALSE)) {
-		}
-		/*
-		 * log.debug("**assessment due date: " +
-		 * a.getAssessmentAccessControl().getDueDate()); log.debug("**assessment
-		 * control #" + a.getAssessmentAccessControl()); log.debug("**assessment
-		 * metadata" + a.getAssessmentMetaDataSet()); log.debug("**Objective not
-		 * lazy = " + a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVES"));
-		 */
-	}
-
-	public static void printFacade(AssessmentTemplateFacade a) {
-		/*
-		 * log.debug("**assessmentId #" + a.getAssessmentTemplateId());
-		 * log.debug("**assessment due date: " +
-		 * a.getAssessmentAccessControl().getDueDate()); log.debug("**assessment
-		 * control #" + a.getAssessmentAccessControl()); log.debug("**assessment
-		 * metadata" + a.getAssessmentMetaDataSet()); log.debug("**Objective not
-		 * lazy = " + a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
-		 */
-	}
-
+	
 	public Long addTemplate() {
 		AssessmentTemplateData assessmentTemplate = new AssessmentTemplateData(
 			 Long.valueOf(0), "title", "description", "comments",

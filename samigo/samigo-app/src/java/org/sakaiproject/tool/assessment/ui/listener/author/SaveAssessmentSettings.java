@@ -449,19 +449,19 @@ public class SaveAssessmentSettings
 		  }
 	  }
 	  Collections.sort(releaseToGroups);
-	  String releaseToGroupsAsString = "";
+	  StringBuffer releaseToGroupsAsString = new StringBuffer();
 	  if (releaseToGroups != null && releaseToGroups.size()!=0 ) {
 		  String lastGroup = (String) releaseToGroups.get(releaseToGroups.size()-1);
 		  Iterator releaseToGroupsIter = releaseToGroups.iterator();
 		  while (releaseToGroupsIter.hasNext()) {
 			  String group = (String) releaseToGroupsIter.next();
-			  releaseToGroupsAsString += group;
+			  releaseToGroupsAsString.append(group);
 			  if (!group.equals(lastGroup) ) {
-				  releaseToGroupsAsString += ", ";
+				  releaseToGroupsAsString.append(", ");
 			  }
 		  }
 	  }	
 
-	  return releaseToGroupsAsString;
+	  return releaseToGroupsAsString.toString();
   }
 }

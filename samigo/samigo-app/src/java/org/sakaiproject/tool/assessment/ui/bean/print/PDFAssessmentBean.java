@@ -205,10 +205,20 @@ public class PDFAssessmentBean implements Serializable {
 		String fTitle = FormattedText.convertFormattedTextToPlaintext(title);
 		int end = Math.min(fTitle.length(), 9);
 
+		StringBuffer name = new StringBuffer(fTitle.substring(0, end));
+		name.append(year);
+		name.append(month);
+		name.append(day);
+		name.append(hour);
+		name.append(min);
+		name.append(sec);
+		name.append(".pdf");
+		
 		if (log.isWarnEnabled())
-			log.warn(fTitle.substring(0, end) + year + month + day + hour + min + sec + ".pdf");
+			log.warn(name.toString());
+			//log.warn(fTitle.substring(0, end) + year + month + day + hour + min + sec + ".pdf");
 
-		return (fTitle.substring(0, end) + year + month + day + hour + min + sec + ".pdf").replace(" ", "_");
+		return name.toString().replace(" ", "_");
 	}
 
 	public String prepPDF() {
@@ -253,8 +263,17 @@ public class PDFAssessmentBean implements Serializable {
 			//create a new part and empty list to fill with items
 			PDFPartBean pdfPart = new PDFPartBean();
 			pdfPart.setSectionId(section.getSectionId());
-			if (printSetting.getShowPartIntros().booleanValue() && deliveryParts.size() > 1) 
-				pdfPart.setIntro("<h2>" + authorMessages.getString("p") + " " + (i+1) + ": " + section.getTitle() + "</h2>");
+			if (printSetting.getShowPartIntros().booleanValue() && deliveryParts.size() > 1) {
+				StringBuffer intro = new StringBuffer();
+				intro.append("<h2>");
+				intro.append(authorMessages.getString("p"));
+				intro.append(" ");
+				intro.append((i+1));
+				intro.append(": ");
+				intro.append(section.getTitle());
+				intro.append("</h2>");
+				pdfPart.setIntro(intro.toString());
+			}
 			ArrayList pdfItems = new ArrayList();
 
 			//for each item in a section we add a blank pdfItem to the pdfPart
@@ -263,25 +282,39 @@ public class PDFAssessmentBean implements Serializable {
 
 				ItemContentsBean item = (ItemContentsBean) items.get(j);
 
-				String legacy = "<h3>" + item.getNumber() +"</h3>";
+				StringBuffer legacy = new StringBuffer("<h3>");
+				legacy.append(item.getNumber());
+				legacy.append("</h3>");
 				pdfItem.setItemId(item.getItemData().getItemId());
-
-				String content = "<br />" + item.getItemData().getText() + "<br />";
-
+				StringBuffer contentBuffer = new StringBuffer(); 
+				contentBuffer.append("<br />");
+				contentBuffer.append(item.getItemData().getText());
+				contentBuffer.append("<br />");
+				
 				if (item.getItemData().getTypeId().equals(TypeIfc.AUDIO_RECORDING)) {
-					content += printMessages.getString("time_allowed_seconds") + ": " + item.getItemData().getDuration();
-					content += "<br />" + printMessages.getString("number_of_tries") + ": " + item.getItemData().getTriesAllowed();
-					content += "<br />";
+					contentBuffer.append(printMessages.getString("time_allowed_seconds"));
+					contentBuffer.append(":");
+					contentBuffer.append(item.getItemData().getDuration());
+					contentBuffer.append("<br />");
+					contentBuffer.append(printMessages.getString("number_of_tries"));
+					contentBuffer.append(":");
+					contentBuffer.append(item.getItemData().getTriesAllowed());
+					contentBuffer.append("<br />");
 				}
 
 				if (item.getItemData().getTypeId().equals(TypeIfc.FILE_UPLOAD)) {
-					content += printMessages.getString("upload_instruction") + "<br />";
-
-					content += printMessages.getString("file") + ": ";
-					content += "<input type='text' size='50' />";
-					content += "<input type='button' value='" + printMessages.getString("browse") + ":' />";
-					content += "<input type='button' value='" + printMessages.getString("upload") + ":' />";
-					content += "<br />";
+					contentBuffer.append(printMessages.getString("upload_instruction"));
+					contentBuffer.append("<br />");
+					contentBuffer.append(printMessages.getString("file"));
+					contentBuffer.append(":");
+					contentBuffer.append("<input type='text' size='50' />");
+					contentBuffer.append("<input type='button' value='");
+					contentBuffer.append(printMessages.getString("browse"));
+					contentBuffer.append(":' />");
+					contentBuffer.append("<input type='button' value='");
+					contentBuffer.append(printMessages.getString("upload"));
+					contentBuffer.append(":' />");
+					contentBuffer.append("<br />");
 				}
 
 				if (item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
@@ -295,42 +328,45 @@ public class PDFAssessmentBean implements Serializable {
 						PublishedItemText itemtext = (PublishedItemText)question.get(k);
 						ArrayList answers = itemtext.getAnswerArraySorted();
 
-						content += "<table cols='20' width='100%'>";
+						contentBuffer.append("<table cols='20' width='100%'>");
 						for (int t=0; t<answers.size(); t++) {
 							PublishedAnswer answer = (PublishedAnswer)answers.get(t);
 							if (answer.getText() == null) break;
-
-							content += "<tr>" + getContentAnswer(item, answer, printSetting) + "</tr>";
+							contentBuffer.append("<tr>");
+							contentBuffer.append(getContentAnswer(item, answer, printSetting));
+							contentBuffer.append("</tr>");
 						}
-						content += "</table>";
+						contentBuffer.append("</table>");
 					}
 				}
 				if (item.getItemData().getTypeId().equals(TypeIfc.MATCHING)) {
-
-					content += "<table cols='20' width='100%'>";
+					contentBuffer.append("<table cols='20' width='100%'>");
 					ArrayList question = item.getMatchingArray();
 					for (int k=0; k<question.size(); k++) {
 						MatchingBean matching = (MatchingBean)question.get(k);
 						String answer = (String)item.getAnswers().get(k);
 
 						if (matching.getText() == null) break;
-
-						content += "<tr><td colspan='10'>";
-						content += matching.getText();
-						content += "</td>";
-						content += "<td colspan='10'>";		  
-						content += answer + "</td></tr>";
+						
+						contentBuffer.append("<tr><td colspan='10'>");
+						contentBuffer.append(matching.getText());
+						contentBuffer.append("</td>");
+						contentBuffer.append("<td colspan='10'>");
+						contentBuffer.append(answer);
+						contentBuffer.append("</td></tr>");
 					}
-					content += "</table>";
+
+					contentBuffer.append("</table>");
 				}
 				if (printSetting.getShowKeys().booleanValue() || printSetting.getShowKeysFeedback().booleanValue()) {
-					content += "<br />" + getContentQuestion(item, printSetting);
+					contentBuffer.append("<br />");
+					contentBuffer.append(getContentQuestion(item, printSetting));
 				}
 
-				pdfItem.setContent(content);
+				pdfItem.setContent(contentBuffer.toString());
 
 				if (legacy != null) {
-					pdfItem.setMeta(legacy); 
+					pdfItem.setMeta(legacy.toString()); 
 				}
 
 				pdfItems.add(pdfItem);
@@ -353,72 +389,84 @@ public class PDFAssessmentBean implements Serializable {
 	}
 
 	private String getContentAnswer(ItemContentsBean item, PublishedAnswer answer, PrintSettingsBean printSetting) {
-		String content = "";
-
+		StringBuffer contentBuffer = new StringBuffer();
+		
 		if (item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
 				item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
 				item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
 				item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
 
 			if (item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT))
-				content += "<td colspan='1'><img src='/samigo-app/images/unchecked.gif' /></td>";
+				contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/unchecked.gif' /></td>");
 			else
-				content += "<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>";
-			content += "<td colspan='10'>";
-			if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) 
-				content += answer.getLabel() + ". ";
-			content += answer.getText();
-			content += "</td>";
-			content += "<td colspan='9'>";
-			if (printSetting.getShowKeysFeedback()) {
-				content += "<h6>" + commonMessages.getString("feedback") + ": ";
-				if (answer.getGeneralAnswerFeedback() != null && !answer.getGeneralAnswerFeedback().equals(""))
-					content += answer.getGeneralAnswerFeedback();
-				else 
-					content += "--------";
-				content += "</h6>";
+				contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>");
+				
+			contentBuffer.append("<td colspan='10'");
+			if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
+				contentBuffer.append(answer.getLabel());
+				contentBuffer.append(". ");
 			}
-			content += "</td>";
+			
+			contentBuffer.append(answer.getText());
+			contentBuffer.append("</td>");
+			contentBuffer.append("<td colspan='9'>");
+			if (printSetting.getShowKeysFeedback()) {
+				contentBuffer.append("<h6>");
+				contentBuffer.append(commonMessages.getString("feedback"));
+				contentBuffer.append(": ");
+				if (answer.getGeneralAnswerFeedback() != null && !answer.getGeneralAnswerFeedback().equals(""))
+					contentBuffer.append(answer.getGeneralAnswerFeedback());
+				else 
+					contentBuffer.append("--------");
+				contentBuffer.append("</h6>");
+			}
+			contentBuffer.append("</td>");
 		}
 
 		if (item.getItemData().getTypeId().equals(TypeIfc.TRUE_FALSE)) {
-			content += "<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>";
-			content += "<td colspan='19'>";
-			content += answer.getText();
-			content += "</td>";
+			contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>");
+			contentBuffer.append("<td colspan='19'>");
+			contentBuffer.append(answer.getText());
+			contentBuffer.append("</td>");
 		}
 
-		return content;
+		return contentBuffer.toString();
 	}
 
 	private String getContentQuestion(ItemContentsBean item, PrintSettingsBean printSetting) {
-		String content = "<h6>";
-
-		content += printMessages.getString("answer_point") + ": " + item.getItemData().getScore();
-		content +=  " " + authorMessages.getString("points_lower_case");
+		StringBuffer contentBuffer = new StringBuffer("<h6>");
+		
+		contentBuffer.append(printMessages.getString("answer_point"));
+		contentBuffer.append(": ");
+		contentBuffer.append(item.getItemData().getScore());
+		contentBuffer.append(" ");
+		contentBuffer.append(authorMessages.getString("points_lower_case"));
 
 		if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) &&
 				!item.getItemData().getTypeId().equals(TypeIfc.AUDIO_RECORDING) &&
 				!item.getItemData().getTypeId().equals(TypeIfc.FILE_UPLOAD)) {
-
-			content += "<br />";
-			if (item.getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION))
-				content += printMessages.getString("answer_model") + ": ";
-			else
-				content += printMessages.getString("answer_key") + ": ";
-
+			contentBuffer.append("<br />");
+			if (item.getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION)) {
+				contentBuffer.append(printMessages.getString("answer_model"));
+				contentBuffer.append(": ");
+			}
+			else {
+				contentBuffer.append(printMessages.getString("answer_key"));
+				contentBuffer.append(": ");
+			}
+				
 			if (item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK) ||
 					item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) || 
 					item.getItemData().getTypeId().equals(TypeIfc.MATCHING))
-				content += item.getKey();
+				contentBuffer.append(item.getKey());
 			else if (item.getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION)) {
 				if (item.getKey() != null && !item.getKey().equals(""))
-					content += item.getKey();
+					contentBuffer.append(item.getKey());
 				else
-					content += "--------";
+					contentBuffer.append("--------");
 			}
 			else
-				content += item.getItemData().getAnswerKey();
+				contentBuffer.append(item.getItemData().getAnswerKey());
 		}
 
 		if (printSetting.getShowKeysFeedback().booleanValue()) {
@@ -426,13 +474,13 @@ public class PDFAssessmentBean implements Serializable {
 			if (item.getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION) ||
 					item.getItemData().getTypeId().equals(TypeIfc.AUDIO_RECORDING) ||
 					item.getItemData().getTypeId().equals(TypeIfc.FILE_UPLOAD)) {
-
-				content += "<br />";
-				content += commonMessages.getString("feedback") + ": ";
+				contentBuffer.append("<br />");
+				contentBuffer.append(commonMessages.getString("feedback"));
+				contentBuffer.append(": ");
 				if (item.getItemData().getGeneralItemFeedback() != null && !item.getItemData().getGeneralItemFeedback().equals(""))
-					content += item.getItemData().getGeneralItemFeedback();
+					contentBuffer.append(item.getItemData().getGeneralItemFeedback());
 				else 
-					content += "--------";
+					contentBuffer.append("--------");
 			}
 
 			if (item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
@@ -442,23 +490,25 @@ public class PDFAssessmentBean implements Serializable {
 					item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK) ||
 					item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) ||
 					item.getItemData().getTypeId().equals(TypeIfc.MATCHING)) {
-
-				content += "<br />";
-				content += printMessages.getString("correct_feedback") + ": ";
+				contentBuffer.append("<br />");
+				contentBuffer.append(printMessages.getString("correct_feedback"));
+				contentBuffer.append(": ");
 				if (item.getItemData().getCorrectItemFeedback() != null && !item.getItemData().getCorrectItemFeedback().equals(""))
-					content += item.getItemData().getCorrectItemFeedback();
+					contentBuffer.append(item.getItemData().getCorrectItemFeedback());
 				else 
-					content += "--------";
-				content += "<br />" + printMessages.getString("incorrect_feedback") + ": ";
+					contentBuffer.append("--------");
+				contentBuffer.append("<br />");
+				contentBuffer.append(printMessages.getString("incorrect_feedback"));
+				contentBuffer.append(": ");
 				if (item.getItemData().getInCorrectItemFeedback() != null && !item.getItemData().getInCorrectItemFeedback().equals(""))
-					content += item.getItemData().getInCorrectItemFeedback();
+					contentBuffer.append(item.getItemData().getInCorrectItemFeedback());
 				else 
-					content += "--------";
+					contentBuffer.append("--------");
 			}
 
 		}
-
-		return content + "</h6>";
+		contentBuffer.append("</h6>");
+		return contentBuffer.toString();
 	}
 
 	public void getPDFAttachment() {
@@ -509,12 +559,38 @@ public class PDFAssessmentBean implements Serializable {
 
 		if (log.isDebugEnabled())
 			log.debug("starting oldschoolify with: " + input);
-		input = input.replaceAll("<h1", "<div><font color='#01a5cb' size='" + (int)(baseFontSize * 1.1) + "'");
-		input = input.replaceAll("<h2", "<div><font color='#01a5cb' size='" + (int)(baseFontSize * 1.1) + "'");
-		input = input.replaceAll("<h3", "<div><font color='#CCCCCC' size='" + (int)(baseFontSize * 1) + "'");
-		input = input.replaceAll("<h4", "<div><font size='" + (int)(baseFontSize * .85) + "'");
-		input = input.replaceAll("<h5", "<div><font size='" + (int)(baseFontSize * .8) + "'");
-		input = input.replaceAll("<h6", "<div><font color='#333333' size='" + (int)(baseFontSize * .6) + "'");
+		
+		
+		StringBuffer text1 = new StringBuffer("<div><font color='#01a5cb' size='");
+		int size1 = (int)(baseFontSize * 1.1);
+		text1.append(size1);
+		text1.append("'");
+		input = input.replaceAll("<h1", text1.toString());
+		input = input.replaceAll("<h2", text1.toString());
+		
+		StringBuffer text2 = new StringBuffer("<div><font color='#CCCCCC' size='");
+		int size2 = (int)(baseFontSize * 1);
+		text2.append(size2);
+		text2.append("'");	
+		input = input.replaceAll("<h3", text2.toString());
+
+		StringBuffer text3 = new StringBuffer("<div><font size='");
+		int size3 = (int)(baseFontSize * .85);
+		text3.append(size3);
+		text3.append("'");
+		input = input.replaceAll("<h4", text3.toString());
+		
+		StringBuffer text4 = new StringBuffer("<div><font size='");
+		int size4 = (int)(baseFontSize * .8);
+		text4.append(size4);
+		text4.append("'");
+		input = input.replaceAll("<h5", text4.toString());
+		
+		StringBuffer text5 = new StringBuffer("<div><font color='#333333' size='");
+		int size5 = (int)(baseFontSize * .6);
+		text5.append(size5);
+		text5.append("'");
+		input = input.replaceAll("<h6", text5.toString());
 
 		input = input.replaceAll("</h.>", "</font></div>");
 
@@ -574,17 +650,19 @@ public class PDFAssessmentBean implements Serializable {
 
 			//TODO make a real style sheet
 			StyleSheet style = null;
+			StringBuffer head = new StringBuffer(printMessages.getString("print_name_form"));
+			head.append("<br />");
+			head.append(printMessages.getString("print_score_form"));
+			head.append("<br /><br /><h1>");
+			head.append(title);
+			head.append("</h1><br />");
+			head.append(intro);
+			head.append("<br />");
 
-			String head = printMessages.getString("print_name_form");
-			head += "<br />";
-			head += printMessages.getString("print_score_form");
-			head += "<br /><br />";
-			head += "<h1>" + title + "</h1><br />";
-			head += intro + "<br />";
 			//head = head.replaceAll("[ \t\n\f\r]+", " ");
 
 			//parse out the elements from the html
-			ArrayList elementBuffer = HTMLWorker.parseToList(safeReader(head), style, props);
+			ArrayList elementBuffer = HTMLWorker.parseToList(safeReader(head.toString()), style, props);
 			float[] singleWidth = {1f};
 			PdfPTable single = new PdfPTable(singleWidth);
 			single.setWidthPercentage(100f);

@@ -265,20 +265,17 @@ public class XmlStringBuffer
     org.xml.sax.InputSource is = null;
     try
     {
-      if(builder == null)
-      {
-        dbfi = DocumentBuilderFactory.newInstance();
-        builder = dbfi.newDocumentBuilder();
-        String s = this.xml.toString();
-        if (s==null)
-        {
-          log.warn("string value null");
-          s = "";
-        }
-        sr = new StringReader(s);
-        is = new org.xml.sax.InputSource(sr);
-        this.document = builder.parse(is);
-      }
+    	dbfi = DocumentBuilderFactory.newInstance();
+    	builder = dbfi.newDocumentBuilder();
+    	String s = this.xml.toString();
+    	if (s==null)
+    	{
+    		log.warn("string value null");
+    		s = "";
+    	}
+    	sr = new StringReader(s);
+    	is = new org.xml.sax.InputSource(sr);
+    	this.document = builder.parse(is);
     }
     catch(ParserConfigurationException e)
     {
@@ -367,56 +364,41 @@ public class XmlStringBuffer
     List list = this.selectNodes(xpath);
     if(list != null)
     {
-      int no = list.size();
-      try
-      {
-        if(list.size() > 0)
-        {
-          Document document = this.getDocument();
-          if((type != null) && type.equals("element"))
-          {
-            Element element = (Element) list.get(0);
+    	int no = list.size();
 
-            CharacterData elementText =
-              (CharacterData) element.getFirstChild();
-            Integer getTime = null;
-            if(
-              (elementText != null) && (elementText.getNodeValue() != null) &&
-                (elementText.getNodeValue().trim().length() > 0))
-            {
-              value = elementText.getNodeValue();
-            }
-          }
+    	if(list.size() > 0)
+    	{
+    		if((type != null) && type.equals("element"))
+    		{
+    			Element element = (Element) list.get(0);
 
-          if((type != null) && type.equals("attribute"))
-          {
-            Attr attr = (Attr) list.get(0);
+    			CharacterData elementText =
+    				(CharacterData) element.getFirstChild();
+    			Integer getTime = null;
+    			if(
+    					(elementText != null) && (elementText.getNodeValue() != null) &&
+    					(elementText.getNodeValue().trim().length() > 0))
+    			{
+    				value = elementText.getNodeValue();
+    			}
+    		}
 
-            CharacterData elementText =
-              (CharacterData) attr.getFirstChild();
+    		if((type != null) && type.equals("attribute"))
+    		{
+    			Attr attr = (Attr) list.get(0);
 
-            Integer getTime = null;
-            if(
-              (elementText != null) && (elementText.getNodeValue() != null) &&
-                (elementText.getNodeValue().trim().length() > 0))
-            {
-              value = elementText.getNodeValue();
-            }
-          }
-        }
-      }
-      catch(ParserConfigurationException e)
-      {
-        log.error(e.getMessage(), e);
-      }
-      catch(SAXException e)
-      {
-        log.error(e.getMessage(), e);
-      }
-      catch(IOException e)
-      {
-        log.error(e.getMessage(), e);
-      }
+    			CharacterData elementText =
+    				(CharacterData) attr.getFirstChild();
+
+    			Integer getTime = null;
+    			if(
+    					(elementText != null) && (elementText.getNodeValue() != null) &&
+    					(elementText.getNodeValue().trim().length() > 0))
+    			{
+    				value = elementText.getNodeValue();
+    			}
+    		}
+    	}
     }
 
     return value;

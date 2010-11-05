@@ -110,7 +110,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
         }
       }
       else{ //submitted, remove from queue if transaction buffer is also reached
-        if (currentTime > (bufferedExpirationTime + timedAG.getTransactionBuffer()*1000)){
+        if (currentTime > (bufferedExpirationTime + timedAG.getTransactionBuffer()*1000L)){
           //queue.remove(timedAG);
           removeTimedAGList.add(timedAG);
           log.debug("**** 4b. transaction buffer reached");
