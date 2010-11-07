@@ -125,6 +125,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("assignment");
         fieldList.add("newpage");
         fieldList.add("maximize");
+        fieldList.add("allowsettings");
+        fieldList.add("allowroster");
     }
 
     // Simple Debug Print Mechanism
@@ -256,6 +258,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	  	List<String> assignments = getGradeBookAssignments();
         	if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
 	}
+
+        String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+        request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
+        String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+        request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
     }
 
     public void addProperty(Properties values, RenderRequest request,
@@ -529,9 +536,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
         String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
         String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
         String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+        String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
 
 	// System.out.println("old placementsecret="+oldPlacementSecret);
-	if ( oldPlacementSecret == null && ("true".equals(allowOutcomes) || "true".equals(allowSettings) ) ) {
+	if ( oldPlacementSecret == null && 
+		("true".equals(allowOutcomes) || "true".equals(allowSettings) || "true".equals(allowRoster) ) ) {
                	try {
 			String uuid = UUID.randomUUID().toString();
 			Date date = new Date();

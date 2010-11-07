@@ -71,6 +71,10 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 
 List<String> assignments = (List<String>) rReq.getAttribute("assignments");
 
+Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
+
+Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
+
 %>
 <portlet:defineObjects/>
 
@@ -81,8 +85,12 @@ List<String> assignments = (List<String>) rReq.getAttribute("assignments");
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
-        allow(sp,"resource") || allow(sp,"preferwidget") || allow(sp,"height") || allow(sp,"width") || 
-        allow(sp,"frameheight") || allow(sp,"custom") || allow(sp, "releasename") || allow(sp,"releaseemail") ) { %>
+        allow(sp,"resource") || allow(sp,"preferwidget") || 
+        allow(sp,"height") || allow(sp,"width") || 
+        allow(sp,"frameheight") || allow(sp,"custom") || 
+        allow(sp, "releasename") || allow(sp,"releaseemail")  ||
+        allow(sp, "allowroster") || allow(sp,"allowsettings") 
+) { %>
 <form method="post" action="<%=launchURL.toString()%>">
 <!-- If key and secret are final, then either xml or launch final means no launch change by the user -->
 <% if ( ( allow(sp,"launch") && allow(sp,"xml") ) || allow(sp,"key") || allow(sp,"secret") ) { %>
@@ -238,7 +246,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </fieldset>
 <% } %>
 
-<% if ( allow(sp,"releasename") || allow(sp, "releaseemail") ) { %>
+<% if ( allow(sp,"releasename") || allow(sp, "releaseemail") || 
+        ( allow(sp, "allowroster") && allowRoster ) ) { %>
 <fieldset>
 <legend><%=rb.getString("launch.privacy") %></legend>
 <% if ( allow(sp,"releasename") ) { %>
@@ -263,8 +272,37 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <%=rb.getString("launch.privacy.detail") %>
 </p>
 <% } %>
+<% if ( allow(sp,"allowroster") && allowRoster ) { %>
+<p>
+<label for="imsti.allowroster"><%=rb.getString("privacy.allowroster") %></label>
+<input type="checkbox" size="10" name="imsti.allowroster" id="imsti.allowroster" 
+<% if ( ov.getProperty("imsti.allowroster",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<%=rb.getString("allowroster.detail") %>
+</p>
+<% } %>
 </fieldset>
 <% } %>
+
+<% if ( allow(sp,"allowsettings") && allowSettings ) { %>
+<fieldset>
+<legend><%=rb.getString("allowsettings.information") %></legend>
+<p>
+<label for="imsti.allowsettings"><%=rb.getString("privacy.allowsettings") %></label>
+<input type="checkbox" size="10" name="imsti.allowsettings" id="imsti.allowsettings" 
+<% if ( ov.getProperty("imsti.allowsettings",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<%=rb.getString("allowsettings.detail") %>
+</p>
+</fieldset>
+<% } %>
+
 <% if ( allow(sp,"custom") ) { %>
 <fieldset>
 <legend><%=rb.getString("launch.custom") %></legend>

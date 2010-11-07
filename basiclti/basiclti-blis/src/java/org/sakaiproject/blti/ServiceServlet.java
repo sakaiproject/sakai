@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Properties;
@@ -134,7 +135,7 @@ public class ServiceServlet extends HttpServlet {
 	}
 
 	public void doError(HttpServletRequest request,HttpServletResponse response, 
-		Map<String, String> theMap, String s, String message, Exception e) 
+		Map<String, Object> theMap, String s, String message, Exception e) 
 		throws java.io.IOException 
 	{
 		if (e != null) {
@@ -173,14 +174,18 @@ public class ServiceServlet extends HttpServlet {
 				SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
                 if ( ! "true".equals(allowSettings) ) allowSettings = null;
 
-		if (allowOutcomes == null && allowSettings == null ) {
+		String allowRoster = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+                if ( ! "true".equals(allowRoster) ) allowRoster = null;
+
+		if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
 			M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
 		// Lets return an XML Response
-		Map<String,String> theMap = new TreeMap<String,String>();
+		Map<String,Object> theMap = new TreeMap<String,Object>();
 
 		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
 		for (Map.Entry<String,String[]> param : params.entrySet()) {
@@ -204,6 +209,9 @@ public class ServiceServlet extends HttpServlet {
 		    BasicLTIUtil.equals(lti_message_type, "basic-lti-deletesetting") ) {
 			sourcedid = request.getParameter("id");
 			if ( allowSettings != null ) message_type = "toolsetting";
+		} else if( BasicLTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
+			sourcedid = request.getParameter("id");
+			if ( allowRoster != null ) message_type = "roster";
                 } else {
 			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
 			return;
@@ -360,15 +368,24 @@ public class ServiceServlet extends HttpServlet {
 		if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
 
 		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+
+		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
 	}
 
 	protected void processSetting(HttpServletRequest request, HttpServletResponse response, 
 		String lti_message_type, 
 		Site site, String siteId, ToolConfiguration placement, Properties config,
-		String user_id,  Map<String, String> theMap)
+		String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
 	{
 		String setting = null;
+
+		// Check for permission in placement
+		String allowSetting = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"allowsetting", placement));
+		if ( ! "on".equals(allowSetting) ) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+                }
 
                 pushAdvisor();
 		boolean success = false;
@@ -419,7 +436,7 @@ public class ServiceServlet extends HttpServlet {
 	protected void processOutcome(HttpServletRequest request, HttpServletResponse response, 
 		String lti_message_type, 
 		Site site, String siteId, ToolConfiguration placement, Properties config,
-		String user_id,  Map<String, String> theMap)
+		String user_id,  Map<String, Object> theMap)
 		throws java.io.IOException
 	{
 		// Make sure the user exists in the site
@@ -525,6 +542,68 @@ public class ServiceServlet extends HttpServlet {
 		String theXml = XMLMap.getXML(theMap, true);
 		PrintWriter out = response.getWriter();
 		out.println(theXml);
+	}
+
+	protected void processRoster(HttpServletRequest request, HttpServletResponse response, 
+		String lti_message_type, 
+		Site site, String siteId, ToolConfiguration placement, Properties config,
+		String user_id,  Map<String, Object> theMap)
+		throws java.io.IOException
+	{
+		// Check for permission in placement
+		String allowRoster = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"allowroster", placement));
+		if ( ! "on".equals(allowRoster) ) {
+			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+                }
+
+		String releaseName = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"releasename", placement));
+		String releaseEmail = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"releaseemail", placement));
+		String maintainRole = site.getMaintainRole();
+
+                pushAdvisor();
+		boolean success = false;
+		try { 
+			List<Map<String,String>> lm = new ArrayList<Map<String,String>>();
+			Set<Member> members = site.getMembers();
+			for (Member member : members ) {
+				Map<String,String> mm = new TreeMap<String,String>();
+				Role role = member.getRole();
+				String ims_user_id = member.getUserId();
+				mm.put("/user_id",ims_user_id);
+				String ims_role = "Learner";
+				if ( maintainRole != null && maintainRole.equals(role.getId())) ims_role = "Instructor";
+				mm.put("/role",ims_role);
+				if ( "on".equals(releaseName) || "on".equals(releaseEmail) ) {
+					User user = UserDirectoryService.getUser(ims_user_id);
+					if ( "on".equals(releaseName) ) {
+						mm.put("/person_name_given",user.getFirstName());
+						mm.put("/person_name_family",user.getLastName());
+						mm.put("/person_name_full",user.getDisplayName());
+					}
+					if ( "on".equals(releaseEmail) ) {
+						mm.put("/person_contact_email_primary",user.getEmail());
+						mm.put("/person_sourcedid",user.getEid());
+					}
+				}
+				lm.add(mm);
+			}
+			theMap.put("/message_response/members/member", lm);
+			success = true;
+                } catch (Exception e) {
+			doError(request, response, theMap, "memberships.fail", "", e);
+                } finally {
+                        popAdvisor();
+                }
+
+		if ( ! success ) return;
+
+		theMap.put("/message_response/statusinfo/codemajor", "Success");
+		theMap.put("/message_response/statusinfo/severity", "Status");
+		theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
+                String theXml = XMLMap.getXML(theMap, true);
+                PrintWriter out = response.getWriter();
+                out.println(theXml);
 	}
 
 	public void destroy() {

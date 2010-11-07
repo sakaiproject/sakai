@@ -55,6 +55,7 @@ public class SakaiBLTIUtil {
 
     public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
     public static final String BASICLTI_SETTINGS_ENABLED = "basiclti.settings.enabled";
+    public static final String BASICLTI_ROSTER_ENABLED = "basiclti.roster.enabled";
 
     public static void dPrint(String str)
     {
@@ -66,14 +67,25 @@ public class SakaiBLTIUtil {
     public static String getCorrectProperty(Properties config,
                    String propName, Placement placement)
     {
+        // Check for global overrides in properties
+        String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, null);
+        if ( "allowsettings".equals(propName) && ! "true".equals(allowSettings) ) return "false";
+
+        String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, null);
+        if ( "allowroster".equals(propName) && ! "true".equals(allowRoster) ) return "false";
+
+        // Check for explicit setting in properties
         String propertyName = placement.getToolId() + "." + propName;
         String propValue = ServerConfigurationService.getString(propertyName,null);
         if ( propValue != null && propValue.trim().length() > 0 ) {
                 // System.out.println("Sakai.home "+propName+"="+propValue);
                 return propValue;
         }
+
+	// Take it from the placement
         return config.getProperty("imsti."+propName, null);
     }
+
     // Look at a Placement and come up with the launch urls, and
     // other launch parameters to drive the launch.
     public static boolean loadFromPlacement(Properties info, Properties launch, Placement placement)
@@ -182,9 +194,11 @@ public class SakaiBLTIUtil {
                                 SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
                 if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-                String allowSettings = ServerConfigurationService.getString(
-                                SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
-                if ( ! "true".equals(allowSettings) ) allowSettings = null;
+	        String allowSettings = toNull(getCorrectProperty(config,"allowsettings", placement));
+                if ( ! "on".equals(allowSettings) ) allowSettings = null;
+
+	        String allowRoster = toNull(getCorrectProperty(config,"allowroster", placement));
+                if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
 		if ( placementSecret != null ) {
 			String suffix = ":::" +  user.getId() + ":::" + placement.getId();
@@ -192,18 +206,6 @@ public class SakaiBLTIUtil {
 			String signature = ShaUtil.sha256Hash(base_string);
 			String result_sourcedid = signature + suffix;
 
-                	if ( "true".equals(allowSettings) ) {
-				setProperty(props,"ext_ims_lti_tool_setting_id", result_sourcedid);  
-	
-				String setting = config.getProperty("toolsetting", null);
-				if ( setting != null ) {
-					setProperty(props,"ext_ims_lti_tool_setting", setting);  
-				}
-				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-        			if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
-				setProperty(props,"ext_ims_lti_tool_setting_url", service_url);  
-			}
-	
                 	if ( "true".equals(allowOutcomes) && assignment != null ) {
 				setProperty(props,"lis_result_sourcedid", result_sourcedid);  
 	
@@ -217,6 +219,26 @@ public class SakaiBLTIUtil {
         			if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
 				setProperty(props,"ext_ims_lis_basic_outcome_url", outcome_url);  
 	
+			}
+
+                	if ( "on".equals(allowSettings) ) {
+				setProperty(props,"ext_ims_lti_tool_setting_id", result_sourcedid);  
+	
+				String setting = config.getProperty("toolsetting", null);
+				if ( setting != null ) {
+					setProperty(props,"ext_ims_lti_tool_setting", setting);  
+				}
+				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
+        			if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(props,"ext_ims_lti_tool_setting_url", service_url);  
+			}
+
+                	if ( "on".equals(allowRoster) ) {
+				setProperty(props,"ext_ims_lis_memberships_id", result_sourcedid);  
+
+				String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
+        			if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+				setProperty(props,"ext_ims_lis_memberships_url", roster_url);  
 			}
 		}
 	}
