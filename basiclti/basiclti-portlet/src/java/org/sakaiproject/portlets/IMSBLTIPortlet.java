@@ -127,6 +127,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("maximize");
         fieldList.add("allowsettings");
         fieldList.add("allowroster");
+        fieldList.add("contentlink");
     }
 
     // Simple Debug Print Mechanism
@@ -263,6 +264,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
         request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
         String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
         request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
+        String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
+        request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
     }
 
     public void addProperty(Properties values, RenderRequest request,

@@ -41,6 +41,7 @@
                 <configuration name="imsti.custom" />
                 <configuration name="imsti.allowsettings" />
                 <configuration name="imsti.allowroster" />
+                <configuration name="imsti.contentlink" />
 
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
@@ -60,6 +61,7 @@
                 <configuration name="final.custom" value="false"/>
                 <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
+                <configuration name="final.contentlink" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
                 <configuration name="allowMultipleInstances" value="true" />

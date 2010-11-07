@@ -56,6 +56,7 @@ public class SakaiBLTIUtil {
     public static final String BASICLTI_OUTCOMES_ENABLED = "basiclti.outcomes.enabled";
     public static final String BASICLTI_SETTINGS_ENABLED = "basiclti.settings.enabled";
     public static final String BASICLTI_ROSTER_ENABLED = "basiclti.roster.enabled";
+    public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
 
     public static void dPrint(String str)
     {
@@ -73,6 +74,9 @@ public class SakaiBLTIUtil {
 
         String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, null);
         if ( "allowroster".equals(propName) && ! "true".equals(allowRoster) ) return "false";
+
+        String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, null);
+        if ( "contentlink".equals(propName) && ! "true".equals(allowContentLink) ) return null;
 
         // Check for explicit setting in properties
         String propertyName = placement.getToolId() + "." + propName;
@@ -299,6 +303,10 @@ public class SakaiBLTIUtil {
 		ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
 	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, 
 		ServerConfigurationService.getString("basiclti.consumer_return_url",null));
+
+	// Send along the content link
+        String contentlink = toNull(getCorrectProperty(config,"contentlink", placement));
+	if ( contentlink != null ) setProperty(props,"ext_resource_link_content",contentlink);
 
 	// Send along the CSS URL
 	String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);

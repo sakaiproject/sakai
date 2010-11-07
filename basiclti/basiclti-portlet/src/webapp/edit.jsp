@@ -75,6 +75,8 @@ Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
 
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 
+Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
+
 %>
 <portlet:defineObjects/>
 
@@ -286,6 +288,18 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 </fieldset>
 <% } %>
+
+<% if ( allow(sp,"contentlink") && allowContentLink ) { %>
+<fieldset>
+<legend><%=rb.getString("contentlink.legend") %></legend>
+<p>
+<label for="imsti.contentlink"><%=rb.getString("contentlink.label") %></label><br/>
+<input type="text" name="imsti.contentlink" size="80" id="imsti.contentlink" value="<%=ov.getProperty("imsti.contentlink","")%>"> 
+<%=rb.getString("contentlink.detail") %>
+</p>
+</fieldset>
+<% } %>
+
 
 <% if ( allow(sp,"allowsettings") && allowSettings ) { %>
 <fieldset>
