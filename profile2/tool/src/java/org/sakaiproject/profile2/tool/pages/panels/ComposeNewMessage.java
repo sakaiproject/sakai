@@ -16,13 +16,17 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.Response;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -36,6 +40,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -50,6 +55,7 @@ import org.wicketstuff.objectautocomplete.AutoCompletionChoicesProvider;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteBuilder;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteField;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteRenderer;
+import org.wicketstuff.objectautocomplete.ObjectAutoCompleteResponseRenderer;
 
 public class ComposeNewMessage extends Panel {
 
@@ -65,6 +71,9 @@ public class ComposeNewMessage extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
 	protected ProfileConnectionsLogic connectionsLogic;
 	
+	private TextField<String> toField;
+	private Label formFeedback;
+	
 	public ComposeNewMessage(String id) {
 		super(id);
 		
@@ -79,7 +88,7 @@ public class ComposeNewMessage extends Panel {
 		newMessage.setFrom(userId);
 		
 		//feedback for form submit action
-		final Label formFeedback = new Label("formFeedback");
+		formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
 		add(formFeedback);
 		
@@ -131,32 +140,33 @@ public class ComposeNewMessage extends Panel {
             	return p.getDisplayName();
             }
         };
-        	
+        
         
 		//autocompletefield builder
 		ObjectAutoCompleteBuilder<Person,String> builder = new ObjectAutoCompleteBuilder<Person,String>(provider);
 		builder.autoCompleteRenderer(renderer);
 		builder.searchLinkImage(ResourceReferences.CROSS_IMG_LOCAL);
+		builder.preselect();
 		
 		//autocompletefield
-		ObjectAutoCompleteField<Person, String> autocompleteField = builder.build("toField", new PropertyModel<String>(newMessage, "to"));
-		final TextField<String> toField = autocompleteField.getSearchTextField();
+		final ObjectAutoCompleteField<Person, String> autocompleteField = builder.build("toField", new PropertyModel<String>(newMessage, "to"));
+		toField = autocompleteField.getSearchTextField();
 		toField.add(new AttributeModifier("class", true, new Model<String>("formInputField")));
 		toField.setRequired(true);
 		form.add(autocompleteField);
-
 		
 		//subject
 		form.add(new Label("subjectLabel", new ResourceModel("message.subject")));
 		final TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(newMessage, "subject"));
+		subjectField.add(new RecipientEventBehavior("onfocus"));
 		form.add(subjectField);
 		
 		//body
 		form.add(new Label("messageLabel", new ResourceModel("message.message")));
 		final TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel<String>(newMessage, "message"));
 		messageField.setRequired(true);
+		messageField.add(new RecipientEventBehavior("onfocus"));
 		form.add(messageField);
-		
 		
 		//send button
 		IndicatingAjaxButton sendButton = new IndicatingAjaxButton("sendButton", form) {
@@ -189,6 +199,7 @@ public class ComposeNewMessage extends Panel {
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
 				}
 				
+				formFeedback.setVisible(true);
 				target.addComponent(formFeedback);
             }
 			
@@ -212,5 +223,41 @@ public class ComposeNewMessage extends Panel {
 		add(form);
 		
 	}
+	
+	
+	/**
+	 * Inner class to provide simple validation of the to field and print an error message
+	 * if it's not set. This is a bit of a hack since it should be on the toField, 
+	 * but we can't overload the onchange/onblur event of the toField itself as that event is already taken.
+	 * 
+	 * Would need to reimplement autocompletebox as plain javascript.
+	 * 
+	 * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+	 *
+	 */
+	class RecipientEventBehavior extends AjaxEventBehavior {
+
+		private static final long serialVersionUID = 1L;
+
+		public RecipientEventBehavior(String event) {
+			super(event);
+		}
+
+		@Override
+		protected void onEvent(AjaxRequestTarget target) {
+			if(StringUtils.isBlank(toField.getValue())) {
+        		formFeedback.setDefaultModel(new ResourceModel("error.message.required.to"));
+        		formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
+        	} else {
+        		formFeedback.setVisible(false);
+        	}
+    		target.addComponent(formFeedback);
+
+			
+		}
+		
+		
+	}
+	
 	
 }
