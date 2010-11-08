@@ -164,6 +164,24 @@ public class TestTriggerEventManagerHibernateImpl
     }
 
     @Test
+    public void testPurgeEventsWithNullArgumentHasNoEffect()
+        throws Exception
+    {
+        final TriggerEventManagerHibernateImpl
+            mgr = getEventManager();
+
+        generateEvents(5);
+
+        mgr.purgeEvents(null);
+
+        List<TriggerEvent>
+            results = mgr.getTriggerEvents();
+
+        Assert.assertNotNull(results);
+        Assert.assertEquals (5, results.size());
+    }
+
+    @Test
     public void testCreateTriggerEventSucceds()
         throws Exception
     {

@@ -23,7 +23,7 @@ import java.util.Map;
 public class EventPager
 {
     private static String[]
-        EVENT_TYPE_STRINGS = {"FIRED", "COMPLETED", "INFO", "DEBUG", "ERROR"};
+        EVENT_TYPE_STRINGS = {"FIRED", "COMPLETE", "INFO", "DEBUG", "ERROR"};
     private TriggerEventManager
         evtManager = null;
     private Date
@@ -134,7 +134,7 @@ public class EventPager
     private void setAllEventTypes(boolean b)
     {
         selectedEventTypes.put("FIRED", new Boolean(b));
-        selectedEventTypes.put("COMPLETED", new Boolean(b));
+        selectedEventTypes.put("COMPLETE", new Boolean(b));
         selectedEventTypes.put("INFO", new Boolean(b));
         selectedEventTypes.put("DEBUG", new Boolean(b));
         selectedEventTypes.put("ERROR", new Boolean(b));        

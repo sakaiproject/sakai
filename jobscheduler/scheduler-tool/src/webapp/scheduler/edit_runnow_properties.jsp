@@ -1,3 +1,7 @@
+<%@ page import="org.sakaiproject.tool.app.scheduler.SchedulerTool" %>
+<%@ page import="org.sakaiproject.api.app.scheduler.ConfigurableJobProperty" %>
+<%@ page import="org.sakaiproject.tool.app.scheduler.ConfigurablePropertyWrapper" %>
+<%@ page import="javax.faces.component.UIComponent" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -8,7 +12,7 @@
 <f:view>
     <sakai:view_container title="#{msgs.title_job}">
         <sakai:view_content>
-            <h:form>
+            <h:form id="propertyTableForm">
                 <h:graphicImage value="/images/quartz.jpg"/>
                 <sakai:group_box title="#{msgs.edit_trigger_properties}">
                     <h:outputText value="#{msgs.trigger_properties_instructions}"/>
@@ -19,10 +23,11 @@
                         </h:column>
                     </h:dataTable>
                     <sakai:panel_edit>
-                        <h:dataTable value="#{schedulerTool.configurableProperties}"
+                        <h:dataTable id="propertyTable" value="#{schedulerTool.configurableProperties}"
                                      var="prop"
                                      styleClass="listHier lines">
                             <h:column>
+
                                 <f:facet name="header">
                                     <h:outputText value="#{msgs.properties_name_header}"/>
                                 </f:facet>

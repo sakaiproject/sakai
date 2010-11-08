@@ -21,8 +21,12 @@ public interface ConfigurableJobBeanWrapper
      *  be configured in a wrapper which supplies a ResourceBundle to the job scheduler. That ResourceBundle will
      *  supply the strings to use in the UI.
      */
-    public ResourceBundle getResourceBundle();
+    //public ResourceBundle getResourceBundle();
 
+    //public String getResourceString(String key);
+
+    public String getResourceBundleBase();
+    
     /**
      *  Returns the definitions of the properties which should be presented to the user for configuring the job
      *  that this object wraps.

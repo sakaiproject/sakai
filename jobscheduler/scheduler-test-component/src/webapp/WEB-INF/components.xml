@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="testConfigurableBean" class="org.sakaiproject.component.app.scheduler.jobs.TestConfigurableJob"/>
+
+   <bean id="org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper.schedulerSampleTest"
+         class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+         singleton="true" init-method="init">
+       <property name="beanId">
+          <value>testConfigurableBean</value>
+       </property>
+       <property name="jobName">
+          <value>Configurable Job Test</value>
+       </property>
+       <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.Messages"/>
+       <property name="configurableJobProperties">
+           <set>
+               <bean id="integer.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="true"/>
+                    <property name="labelResourceKey" value="integer.property"/>
+                    <property name="descriptionResourceKey" value="integer.property.description"/>
+                    <property name="defaultValue" value="1"/>
+               </bean>
+               <bean id="string.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="string.property"/>
+                    <property name="descriptionResourceKey" value="string.property.description"/>
+               </bean>
+               <bean id="boolean.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="boolean.property"/>
+                    <property name="descriptionResourceKey" value="boolean.property.description"/>
+               </bean>
+           </set>
+       </property>
+       <property name="configurableJobPropertyValidator">
+           <bean class="org.sakaiproject.component.app.scheduler.jobs.TestConfigurableJobPropertyValidator"/>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+
+   </bean>
+
+    <bean id="testEventGeneratorBean" class="org.sakaiproject.component.app.scheduler.jobs.TestEventGeneratorJob">
+        <property name="triggerEventManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"/>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper.schedulerEventGenerator"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+          singleton="true" init-method="init">
+        <property name="beanId">
+           <value>testEventGeneratorBean</value>
+        </property>
+        <property name="jobName">
+           <value>Test Event Generator</value>
+        </property>
+        <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.test.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean id="startDate.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                     <property name="required" value="true"/>
+                     <property name="labelResourceKey" value="startDate.property"/>
+                     <property name="descriptionResourceKey" value="startDate.property.description"/>
+                </bean>
+                <bean id="numEvents.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                     <property name="required" value="true"/>
+                     <property name="labelResourceKey" value="numEvents.property"/>
+                     <property name="descriptionResourceKey" value="numEvents.property.description"/>
+                     <property name="defaultValue" value="168"/>
+                </bean>
+                <bean id="minInterval.property" class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                     <property name="required" value="true"/>
+                     <property name="labelResourceKey" value="minInterval.property"/>
+                     <property name="descriptionResourceKey" value="minInterval.property.description"/>
+                     <property name="defaultValue" value="60"/>
+                </bean>
+            </set>
+        </property>
+        <property name="configurableJobPropertyValidator">
+            <bean class="org.sakaiproject.component.app.scheduler.jobs.TestEventGeneratorJobPropertyValidator"/>
+        </property>
+        <property name="schedulerManager">
+           <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+
+    </bean>
+
+    <!-- this is the actual bean to execute.  This will have all
+    spring injected values intact when executed -->
+    <bean id="schedulerSampleTest"
+       class="org.sakaiproject.component.app.scheduler.jobs.TestBeanJob">
+       <property name="configMessage">
+          <value>Hello from spring and quartz!</value>
+       </property>
+    </bean>
+
+    <!-- this is the helper that will register the above bean with the schedule manager
+         things to set here are the beanId (from bean above) and the jobName
+    -->
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.schedulerSampleTest"
+       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+       singleton="true" init-method="init">
+       <property name="beanId">
+          <value>schedulerSampleTest</value>
+       </property>
+       <property name="jobName">
+          <value>Test Job</value>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+    </bean>
+    <!-- sample bean job -->
+
+   
+</beans>

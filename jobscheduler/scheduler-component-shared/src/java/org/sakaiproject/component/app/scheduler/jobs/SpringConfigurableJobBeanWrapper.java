@@ -21,8 +21,8 @@ public class SpringConfigurableJobBeanWrapper
 {
     private Set<ConfigurableJobProperty>
         jobProperties;
-    private ResourceBundle
-        rb;
+    //private ResourceBundle
+    //    rb;
     private String
         resourceBundleBase;
     private ConfigurableJobPropertyValidator
@@ -39,7 +39,7 @@ public class SpringConfigurableJobBeanWrapper
     {
         return resourceBundleBase;
     }
-
+/*
     public ResourceBundle getResourceBundle()
     {
         if (rb == null)
@@ -51,6 +51,11 @@ public class SpringConfigurableJobBeanWrapper
         return rb;
     }
 
+    public String getResourceString (String key)
+    {
+        return getResourceBundle().getString(key);
+    }
+*/    
     public void setConfigurableJobProperties (Set<ConfigurableJobProperty> properties)
     {
         jobProperties = properties;

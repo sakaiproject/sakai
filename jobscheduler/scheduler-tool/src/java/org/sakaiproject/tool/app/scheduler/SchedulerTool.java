@@ -161,10 +161,12 @@ public class SchedulerTool
       final JobDataMap
           dataMap = (jd != null) ? jd.getJobDataMap() : null;
 
+
       if (configurableJobResources == null)
       {
           LOG.error ("no resource bundle provided for jobs of type: " + job.getJobType() + ". Labels will not be rendered correctly in the scheduler UI");
       }
+
 
       //create a List of jobs, b/c JSF can't handle Sets as a backing bean for a dataTable
       if (props != null)
@@ -190,6 +192,7 @@ public class SchedulerTool
               }
 
               configurableJobProperties.add(wrapper);
+
 
               if (configurableJobResources != null)
               {
@@ -278,9 +281,12 @@ public class SchedulerTool
 
       if (job != null)
       {
+          final String
+              rbBase = job.getResourceBundleBase();
+
           //process the ResourceBundle into a map, b/c JSF won't allow method calls like rb.getString()
           final ResourceBundle
-              rb = job.getResourceBundle();
+              rb = ResourceBundle.getBundle(rbBase);
 
           if(rb != null)
           {
@@ -306,7 +312,6 @@ public class SchedulerTool
       {
           configurableJobResources = null;
       }
-
       refreshProperties();
   }
 
@@ -644,7 +649,7 @@ public class SchedulerTool
               properties = getConfigurableProperties();
 
           final ResourceBundle
-              jobRb = configurableJob.getResourceBundle();
+              jobRb = ResourceBundle.getBundle(configurableJob.getResourceBundleBase());
 
           final ConfigurableJobPropertyValidator
               validator = configurableJob.getConfigurableJobPropertyValidator();
@@ -668,6 +673,9 @@ public class SchedulerTool
                           propName = (jobRb != null)?jobRb.getString(label):label,
                           msg = null;
 
+                      if (propName == null)
+                          propName = label;
+
                       try
                       {
                           msg = rb.getString("properties_required");
@@ -687,7 +695,11 @@ public class SchedulerTool
                       }
                       catch (ConfigurableJobPropertyValidationException cjpve)
                       {
-                          configurableJobErrorMessages.add ((jobRb != null)?jobRb.getString(cjpve.getMessage()):cjpve.getMessage());
+                          String
+                              errorKey = cjpve.getMessage(),
+                              errorMessage = jobRb.getString(errorKey);
+
+                          configurableJobErrorMessages.add ((errorMessage == null)?errorKey:errorMessage);
                           continue;
                       }
                       dataMap.put(property.getLabelResourceKey(), value);
@@ -836,7 +848,7 @@ public class SchedulerTool
               properties = getConfigurableProperties();
 
           final ResourceBundle
-              jobRb = configurableJob.getResourceBundle();
+              jobRb = ResourceBundle.getBundle(configurableJob.getResourceBundleBase());
 
           final ConfigurableJobPropertyValidator
               validator = configurableJob.getConfigurableJobPropertyValidator();
@@ -858,6 +870,9 @@ public class SchedulerTool
                       propName = (jobRb != null)?jobRb.getString(label):label,
                       msg = null;
 
+                  if (propName == null)
+                      propName = label;
+
                   try
                   {
                       msg = rb.getString("properties_required");
@@ -877,7 +892,11 @@ public class SchedulerTool
                   }
                   catch (ConfigurableJobPropertyValidationException cjpve)
                   {
-                      configurableJobErrorMessages.add ((jobRb != null)?jobRb.getString(cjpve.getMessage()):cjpve.getMessage());
+                      String
+                          errorKey = cjpve.getMessage(),
+                          errorMessage = jobRb.getString(errorKey);
+
+                      configurableJobErrorMessages.add ((errorMessage == null)?errorKey:errorMessage);
                       continue;
                   }
                   dataMap.put(property.getLabelResourceKey(), value);
@@ -1101,7 +1120,7 @@ public class SchedulerTool
                       properties = getConfigurableProperties();
 
                   final ResourceBundle
-                      jobRb = configurableJob.getResourceBundle();
+                      jobRb = ResourceBundle.getBundle(configurableJob.getResourceBundleBase());
 
                   final ConfigurableJobPropertyValidator
                       validator = configurableJob.getConfigurableJobPropertyValidator();
@@ -1119,6 +1138,9 @@ public class SchedulerTool
                           String
                               propName = (jobRb != null)?jobRb.getString(label):label,
                               msg = null;
+
+                          if (propName == null)
+                              propName = label;
 
                           try
                           {
@@ -1139,7 +1161,11 @@ public class SchedulerTool
                           }
                           catch (ConfigurableJobPropertyValidationException cjpve)
                           {
-                              configurableJobErrorMessages.add ((jobRb != null)?jobRb.getString(cjpve.getMessage()):cjpve.getMessage());
+                              String
+                                  errorKey = cjpve.getMessage(),
+                                  errorMessage = jobRb.getString(errorKey);
+
+                              configurableJobErrorMessages.add ((errorMessage==null)?errorKey:errorMessage);
                               continue;
                           }
                       }

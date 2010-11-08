@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.scheduler</groupId>
+        <artifactId>scheduler</artifactId>
+        <version>2.9-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Job Scheduler Test Component Shared Library (scheduler-test-component-shared)</name>
+    <groupId>org.sakaiproject.scheduler</groupId>
+    <artifactId>scheduler-test-component-shared</artifactId>
+    <organization>
+        <name>Sakai Foundation</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scheduler-component-shared</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+
+        <!--dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency-->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensymphony.quartz</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
