@@ -81,9 +81,9 @@ ${responseHead}
 #set ( $wurflSmallDisplay = 1 )
 <div class="portletpda">
 	<!-- include site html if exist-->
-	#if ($siteHTMLInclude)
-		<div id="siteHTMLInclude">
-			$siteHTMLInclude
+	#if ($sitePdaHtmlInclude)
+		<div id="sitePdaHtmlInclude">
+			$sitePdaHtmlInclude
 		</div>
 	#end
   <ul id="pda-portlet-menu">
