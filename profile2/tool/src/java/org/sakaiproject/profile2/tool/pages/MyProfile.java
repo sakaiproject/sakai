@@ -257,17 +257,12 @@ public class MyProfile extends BasePage {
 
 			public void onClick(AjaxRequestTarget target) {
 				
-				target.addComponent(changePicture);
+				//show the panel
 				changePicture.setVisible(true);
+				target.addComponent(changePicture);
 				
-				//resize iframe
-				target.prependJavascript("setMainFrameHeight(window.name);");
-				//when the editImageButton is clicked, show the panel
-				//its possible this will push the content lower than the iframe, so make sure the iframe size is good.
-				//String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";
-				//target.appendJavascript(js);
-				//target.appendJavascript("alert('" + changePicture.getMarkupId() + "')");
-				
+				//resize iframe to fit it
+				target.appendJavascript("resizeFrame('grow');");
 			}
 						
 		};
@@ -521,7 +516,7 @@ public class MyProfile extends BasePage {
 
 			@Override
 			public void renderHead(IHeaderResponse response) {
-				response.renderOnDomReadyJavascript("setMainFrameHeight(window.name);");
+				response.renderOnDomReadyJavascript("resizeFrame('grow');");
 			}
         });
         	
@@ -542,7 +537,7 @@ public class MyProfile extends BasePage {
 
 			@Override
 			public void renderHead(IHeaderResponse response) {
-				response.renderOnDomReadyJavascript("setMainFrameHeight(window.name);");
+				response.renderOnDomReadyJavascript("resizeFrame('grow');");
 			}
 			
 		});

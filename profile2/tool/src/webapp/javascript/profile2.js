@@ -46,8 +46,8 @@ function resizeFrame(updown){
             var clientH = document.body.clientHeight;	 
         }	 
         else {	 
-            var clientH = document.body.clientHeight + 200;	 
-        }	 
+            var clientH = document.body.clientHeight + 400;	 
+        }	
         $(frame).height(clientH);	 
     }	 
     else {	 
