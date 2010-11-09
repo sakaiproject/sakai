@@ -1350,3 +1350,7 @@ div.wicket-aa ul li.selected {
 	margin-right: 1em;
 	display: inline-block;
 }
+
+.pager {
+	margin-top: 10px;
+}
