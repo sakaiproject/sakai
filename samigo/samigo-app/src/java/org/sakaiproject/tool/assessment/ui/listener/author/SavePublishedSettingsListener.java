@@ -347,7 +347,7 @@ implements ActionListener
 			if ("1".equals(nav)) {
 				assessmentSettings.setAssessmentFormat("1");
 			}
-			control.setItemNavigation(new Integer(nav));
+			control.setItemNavigation(Integer.valueOf(nav));
 		}
 		if (assessmentSettings.getAssessmentFormat() != null ) {
 			control.setAssessmentFormat(new Integer(assessmentSettings.getAssessmentFormat()));
@@ -372,19 +372,25 @@ implements ActionListener
 	    }
 
 		// set Submissions
-		if (assessmentSettings.getUnlimitedSubmissions()!=null){
-			if (!assessmentSettings.getUnlimitedSubmissions().
-					equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString())) {
-				control.setUnlimitedSubmissions(Boolean.FALSE);
-				if (assessmentSettings.getSubmissionsAllowed() != null)
-					control.setSubmissionsAllowed(new Integer(assessmentSettings.
-							getSubmissionsAllowed()));
-				else
-					control.setSubmissionsAllowed(new Integer("1"));
-			}
-			else {
-				control.setUnlimitedSubmissions(Boolean.TRUE);
-				control.setSubmissionsAllowed(null);
+		if (control.getItemNavigation() != null && control.getItemNavigation().equals(Integer.valueOf(1))) {
+			control.setUnlimitedSubmissions(Boolean.FALSE);
+			control.setSubmissionsAllowed(Integer.valueOf("1"));
+		}
+		else {
+			if (assessmentSettings.getUnlimitedSubmissions()!=null){
+				if (!assessmentSettings.getUnlimitedSubmissions().
+						equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString())) {
+					control.setUnlimitedSubmissions(Boolean.FALSE);
+					if (assessmentSettings.getSubmissionsAllowed() != null)
+						control.setSubmissionsAllowed(new Integer(assessmentSettings.
+								getSubmissionsAllowed()));
+					else
+						control.setSubmissionsAllowed(Integer.valueOf("1"));
+				}
+				else {
+					control.setUnlimitedSubmissions(Boolean.TRUE);
+					control.setSubmissionsAllowed(null);
+				}
 			}
 		}
 

@@ -628,13 +628,22 @@ function setBlockDivs()
     <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
       <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="unlimitedSubmissions" value="#{assessmentSettingsMessages.submissions}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
       <f:verbatim><table><tr><td></f:verbatim>
-        <h:selectOneRadio id="unlimitedSubmissions" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection">
+        <h:selectOneRadio id="unlimitedSubmissions1" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection" rendered="#{assessmentSettings.itemNavigation!=1}">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
           <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
         </h:selectOneRadio>
+        <h:selectOneRadio id="unlimitedSubmissions2" value="0" disabled="true" layout="pageDirection" rendered="#{assessmentSettings.itemNavigation==1}">
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
+          <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
+        </h:selectOneRadio>
+
       <f:verbatim></td><td valign="bottom"></f:verbatim>
-        <h:panelGroup>
-          <h:inputText size="5"  id="submissions_Allowed" value="#{assessmentSettings.submissionsAllowed}" />
+        <h:panelGroup rendered="#{assessmentSettings.itemNavigation!=1}">
+          <h:inputText size="5"  id="submissions_Allowed1" value="#{assessmentSettings.submissionsAllowed}" />
+          <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
+        </h:panelGroup>
+        <h:panelGroup rendered="#{assessmentSettings.itemNavigation==1}">
+          <h:inputText size="5"  id="submissions_Allowed2" value="1" disabled="true" />
           <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
         </h:panelGroup>
       <f:verbatim></td></tr></table></div></f:verbatim>
