@@ -377,7 +377,7 @@ String.prototype.endsWith = function(txt)
   <%-- SAVE --%>
   <h:panelGrid columns="1" border="0" >
   <h:commandButton id="save" type="submit" value="#{deliveryMessages.button_save}"
-    action="#{delivery.save_work}" onclick="" onkeypress="" rendered="#{delivery.actionString=='previewAssessment'
+    action="#{delivery.save_work}" onclick="disableSave();" onkeypress="disableSave()" rendered="#{delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl'}" />
   </h:panelGrid>
@@ -389,13 +389,13 @@ String.prototype.endsWith = function(txt)
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1' && !delivery.hasTimeLimit}"  
-    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" />
+    onclick="pauseTiming='false'; disableSaveAndExit();" onkeypress="pauseTiming='false'; disableSaveAndExit();" />
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
   <h:commandButton  type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin) && !delivery.hasTimeLimit}"
-    onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'"  /> 
+    onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'; disableQuit()"  /> 
 
   <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
@@ -403,7 +403,7 @@ String.prototype.endsWith = function(txt)
     rendered="#{(delivery.actionString=='previewAssessment'  
                  ||delivery.actionString=='takeAssessment')
             && delivery.navigation eq '1' && delivery.continue && !delivery.hasTimeLimit}"
-    onclick="disableSave2();" onkeypress=""/>
+    onclick="disableSaveAndExit2();" onkeypress="disableSaveAndExit2();"/>
   </h:panelGrid>
 
   <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
@@ -413,13 +413,13 @@ String.prototype.endsWith = function(txt)
     rendered="#{(delivery.actionString=='takeAssessment' ||delivery.actionString=='takeAssessmentViaUrl' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
              && !delivery.continue}"
-    onclick="disableSubmitForGrade()" onkeypress=""/>
+    onclick="disableSubmitForGrade()" onkeypress="disableSubmitForGrade()"/>
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
-    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
+    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false';disableSubmit1()"/>
 
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
@@ -428,7 +428,7 @@ String.prototype.endsWith = function(txt)
                    || delivery.actionString=='takeAssessmentViaUrl'
 				   || delivery.actionString=='previewAssessment')
 				   && delivery.navigation eq '1' && !delivery.continue}" 
-      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
+      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false';disableSubmit()"/>
 
   </h:panelGrid>
 </h:panelGrid>

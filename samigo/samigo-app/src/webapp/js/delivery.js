@@ -16,6 +16,170 @@ function printLink(){
   }
 }
 
+var beginAssessment1Disabled = 'false';
+function disableBeginAssessment1(){
+  if (beginAssessment1Disabled == 'false'){
+    beginAssessment1Disabled = 'true';
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+  }
+}
+
+
+var beginAssessment2Disabled = 'false';
+function disableBeginAssessment2(){
+  if (beginAssessment2Disabled == 'false'){
+    beginAssessment2Disabled = 'true';
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+  }
+}
+
+var beginAssessment3Disabled = 'false';
+function disableBeginAssessment3(){
+  if (beginAssessment3Disabled == 'false'){
+    beginAssessment3Disabled = 'true'
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+  }
+}
+
+var cancel1Disabled = 'false';
+function disableCancel1(){
+  if (cancel1Disabled == 'false'){
+    cancel1Disabled = 'true'
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+  }
+}
+
+var cancel2Disabled = 'false';
+function disableCancel2(){
+  if (cancel2Disabled == 'false'){
+    cancel2Disabled = 'true'
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+}
+
+var submitForGradeTOC1Disabled = 'false';
+function disableSubmitForGradeTOC1(){
+  if (submitForGradeTOC1Disabled == 'false'){
+    submitForGradeTOC1Disabled = 'true'
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC1'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC1'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC2'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'].disabled=true;
+  }
+}
+
+var submitForGradeTOC2Disabled = 'false';
+function disableSubmitForGradeTOC2(){
+  if (submitForGradeTOC2Disabled == 'false'){
+    submitForGradeTOC2Disabled = 'true'
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC1'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC1'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC2'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'].disabled=true;
+  }
+}
+
+var exitTOC1Disabled = 'false';
+function disableExitTOC1(){
+  if (exitTOC1Disabled == 'false'){
+    exitTOC1Disabled = 'true';
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC2'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC1'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC1'].disabled=true;
+  }
+}
+
+var exitTOC2Disabled = 'false';
+function disableExitTOC2(){
+  if (exitTOC2Disabled == 'false'){
+    exitTOC2Disabled = 'true';
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC1'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'])
+      document.forms[0].elements['tableOfContentsForm:submitForGradeTOC2'].disabled=true;
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC1'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC1'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+    if (document.forms[0].elements['tableOfContentsForm:exitTOC2'])
+      document.forms[0].elements['tableOfContentsForm:exitTOC2'].disabled=true;
+  }
+}
+
 var disabledFeedback = 'false';
 function disableFeedback(){
   if (disabledFeedback == 'false'){
@@ -28,6 +192,8 @@ function disableFeedback(){
       document.forms[0].elements['takeAssessmentForm:next'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:previous'])
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -61,6 +227,8 @@ function disableTOC(){
       document.forms[0].elements['takeAssessmentForm:next'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:previous'])
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;  
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -100,6 +268,8 @@ function disableNext(){
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true; 
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -126,6 +296,8 @@ function disablePrevious(){
       document.forms[0].elements['takeAssessmentForm:next'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;   
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -154,6 +326,8 @@ function disableSubmit(){
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;  
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -180,6 +354,8 @@ function disableSubmit1(){
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;  
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -206,6 +382,37 @@ function disableSave(){
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
+      document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
+      document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm'])
+      document.forms[0].elements['takeAssessmentForm:submitForm'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:submitForm1'])
+      document.forms[0].elements['takeAssessmentForm:submitForm1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:submitForGrade'])
+      document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
+  }
+  else{ // any subsequent click disable button & action
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;
+  }
+}
+
+
+var saveDisabled = 'false';
+function disableSaveAndExit(){
+  if (saveDisabled == 'false'){
+    saveDisabled = 'true'
+    disableTOCFeedback();
+    if (document.forms[0].elements['takeAssessmentForm:next'])
+      document.forms[0].elements['takeAssessmentForm:next'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:previous'])
+      document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:quit'])
+      document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;  
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm'])
@@ -222,7 +429,7 @@ function disableSave(){
 }
 
 var saveDisabled2 = 'false';
-function disableSave2(){
+function disableSaveAndExit2(){
   if (saveDisabled2 == 'false'){
     saveDisabled2 = 'true'
     disableTOCFeedback();
@@ -232,6 +439,8 @@ function disableSave2(){
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:quit'])
       document.forms[0].elements['takeAssessmentForm:quit'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;    
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:submitForm'])
@@ -302,6 +511,8 @@ function disableSubmitForGrade(){
       document.forms[0].elements['takeAssessmentForm:next'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:previous'])
       document.forms[0].elements['takeAssessmentForm:previous'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:save'])
+      document.forms[0].elements['takeAssessmentForm:save'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit'])
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:saveAndExit2'])
@@ -366,6 +577,32 @@ function enableSave(){
       document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=false;
   }
 }
+
+var continueDisabled = 'false';
+function disableContinue(){
+  if (continueDisabled == 'false'){
+    continueDisabled = 'true';
+    if (document.forms[0].elements['saveForLater:returnToAssessment'])
+      document.forms[0].elements['saveForLater:returnToAssessment'].disabled=true;  }
+  else{ // any subsequent click disable button & action
+    if (document.forms[0].elements['saveForLater:continue'])
+      document.forms[0].elements['saveForLater:continue'].disabled=true;
+  }
+}
+
+var returnToAssessmentDisabled = 'false';
+function disableReturnToAssessment(){
+    if (returnToAssessmentDisabled == 'false'){
+      returnToAssessmentDisabled = 'true';
+    if (document.forms[0].elements['saveForLater:continue'])
+      document.forms[0].elements['saveForLater:continue'].disabled=true;
+  }
+  else{ // any subsequent click disable button & action
+    if (document.forms[0].elements['saveForLater:returnToAssessment'])
+      document.forms[0].elements['saveForLater:returnToAssessment'].disabled=true;
+  }
+}
+
 
 
 //  show Processing for file upload questions 

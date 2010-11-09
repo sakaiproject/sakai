@@ -35,7 +35,10 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
-<h:form id="isRetracted">
+<!-- JAVASCRIPT -->
+<%@ include file="/js/delivery.js" %>
+
+<h:form id="saveForLater">
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
@@ -60,13 +63,13 @@
   </h:panelGroup>
 
  <p class="act">
-  <h:commandButton id="beginAssessment1" value="#{deliveryMessages.button_return_to_assessment}" 
-    action="#{delivery.validate}" type="submit" styleClass="active">
+  <h:commandButton id="returnToAssessment" value="#{deliveryMessages.button_return_to_assessment}" 
+    action="#{delivery.validate}" type="submit" styleClass="active" onclick="disableReturnToAssessment();">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
-       <h:commandButton value="#{deliveryMessages.button_continue}" type="submit"
-        action="select" disabled="#{delivery.actionString=='previewAssessment'}" >
+       <h:commandButton id="continue" value="#{deliveryMessages.button_continue}" type="submit"
+        action="select" disabled="#{delivery.actionString=='previewAssessment'}" onclick="disableContinue();">
        </h:commandButton>
  </p> 
   <!-- end content -->

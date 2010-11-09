@@ -41,6 +41,8 @@
 <!--div class="portletBody"-->
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
+
+<%@ include file="/js/delivery.js" %>
 <!--JAVASCRIPT -->
 <script language="javascript" type="text/JavaScript">
 <%@ include file="/js/browser.js" %>
@@ -137,7 +139,8 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
-			 && delivery.navigation != 1}">
+			 && delivery.navigation != 1}"
+	onclick="disableBeginAssessment1();">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
@@ -145,25 +148,26 @@
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
-			 && delivery.navigation == 1}">
+			 && delivery.navigation == 1}"
+	onclick="disableBeginAssessment2();">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
+ <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" onclick="disableBeginAssessment3();">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
 
 <!-- CANCEL BUTTON -->
-  <h:commandButton value="#{commonMessages.cancel_action}"  action="select" type="submit"
+  <h:commandButton id="cancel1" value="#{commonMessages.cancel_action}"  action="select" type="submit"
      rendered="#{delivery.actionString=='previewAssessment'
              || delivery.actionString=='takeAssessment'}"
-     disabled="#{delivery.actionString=='previewAssessment'}">
+     disabled="#{delivery.actionString=='previewAssessment'}" onclick="disableCancel1();">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
-  <h:commandButton value="#{commonMessages.cancel_action}" type="button"
-     style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
+  <h:commandButton id="cancel2" value="#{commonMessages.cancel_action}" type="button"
+     style="act" onclick="disableCancel2();javascript:window.open('#{delivery.portal}/login','_top')"
 onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
      disabled="#{delivery.actionString=='previewAssessment'}"/>
