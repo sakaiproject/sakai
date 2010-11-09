@@ -85,9 +85,9 @@
                      		<ref bean="profile2_search"/>
                      		<ref bean="profile2_connections"/>
                      		<ref bean="profile2_view"/>
+                     		<ref bean="profile2_messaging"/>
                      		<ref bean="profile2_privacy"/>
                      		<ref bean="profile2_preferences"/>
-                     		<ref bean="profile2_messaging"/>
                  		</list>
                		</property>
             	</bean>
