@@ -22,6 +22,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.site.api.SiteService;
 
@@ -42,21 +43,31 @@ public class UpdateSynopticMessageCounts implements Job{
 	private static final boolean runOracleSQL = false;
 	//this SQL is more generic but also slower
 	private static final String FIND_ALL_SYNOPTIC_SITES_QUERY_GENERIC = "select SITE_ID, TITLE from SAKAI_SITE where IS_USER = 0 and PUBLISHED = 1 and IS_SPECIAL = 0";
+	private static final String FIND_ALL_SYNOPTIC_SITES_BY_SITE_QUERY_GENERIC = FIND_ALL_SYNOPTIC_SITES_QUERY_GENERIC + " and SITE_ID like ?";
 	//this SQL works for Oracle and runs faster than the Generic Query
-	private static final String FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE = "select q.SITE_ID, q.TITLE, sum(q.Decoded) as BINARY_FLAGS from (" +
+	private static final String FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE_PART1 = "select q.SITE_ID, q.TITLE, sum(q.Decoded) as BINARY_FLAGS from (" +
 																	"select ss.SITE_ID, ss.TITLE, " +
 																	"decode (sst.REGISTRATION,'sakai.messagecenter',100,'sakai.messages',10,'sakai.forums',1,0) as Decoded " +
 																	"from SAKAI_SITE ss, SAKAI_SITE_TOOL sst " +
 																	"where ss.IS_USER = 0 " +
 																	"and ss.PUBLISHED = 1 " +
 																	"and ss.IS_SPECIAL = 0 " +
-																	"and ss.SITE_ID = sst.SITE_ID " +
-																	"and sst.REGISTRATION in ('sakai.messagecenter','sakai.messages','sakai.forums')) q " +
+																	"and ss.SITE_ID = sst.SITE_ID ";
+	private static final String FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE_PART2 = "and sst.REGISTRATION in ('sakai.messagecenter','sakai.messages','sakai.forums')) q " +
 																	"Group By q.SITE_ID, q.TITLE";
+	private static final String FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE = FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE_PART1 + FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE_PART2;
+	private static final String FIND_ALL_SYNOPTIC_SITES_BY_SITE_QUERY_ORACLE = FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE_PART1 +
+																	"and ss.SITE_ID like ? " +
+																	FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE_PART2;
 	
 	private static final String UNREAD_MESSAGES_QUERY = "SELECT message.USER_ID, message.CONTEXT_ID, count(*) unread_messages " +
 															"FROM MFR_PVT_MSG_USR_T message " +										
 															"where READ_STATUS = 0 " +
+															"group by message.USER_ID, message.CONTEXT_ID";
+	private static final String UNREAD_MESSAGES_BY_SITE_QUERY = "SELECT message.USER_ID, message.CONTEXT_ID, count(*) unread_messages " +
+															"FROM MFR_PVT_MSG_USR_T message " +										
+															"where READ_STATUS = 0 " +
+															"and message.CONTEXT_ID like ?" +
 															"group by message.USER_ID, message.CONTEXT_ID";
 	
 	private static final String TOPICS_AND_FORUMS_QUERY = "select area.CONTEXT_ID, forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy " +
@@ -75,6 +86,10 @@ public class UpdateSynopticMessageCounts implements Job{
 		ResultSet unreadMessageCountRS = null;
 		ResultSet allTopicsAndForumsRS = null;
 		ResultSet synotpicSitesRS = null;
+		PreparedStatement unreadMessagesbySitePS = null;
+		PreparedStatement findSitesbySitePS = null;		
+		String siteFilter = ServerConfigurationService.getString("msgcntr.synoptic.updateMessageCountsSiteFilter");
+		boolean filterSites = siteFilter != null && !"".equals(siteFilter);
 		
 		
 		
@@ -88,7 +103,13 @@ public class UpdateSynopticMessageCounts implements Job{
 			statement = clConnection.createStatement();	
 			
 			//CREATE HASHMAP OF UNREAD MESSAGES COUNT
-			unreadMessageCountRS = statement.executeQuery(UNREAD_MESSAGES_QUERY);
+			if(filterSites){
+				unreadMessagesbySitePS = clConnection.prepareStatement(UNREAD_MESSAGES_BY_SITE_QUERY);
+				unreadMessagesbySitePS.setString(1, siteFilter);
+				unreadMessageCountRS = unreadMessagesbySitePS.executeQuery();
+			}else{
+				unreadMessageCountRS = statement.executeQuery(UNREAD_MESSAGES_QUERY);
+			}
 			HashMap<String, HashMap<String, Integer>> siteAndUserMessageCountHM = getSiteAndUserMessageCountHM(unreadMessageCountRS);
 			
 			
@@ -101,9 +122,21 @@ public class UpdateSynopticMessageCounts implements Job{
 			int BINARY_FLAGS;
 			
 			if(runOracleSQL){
-				synotpicSitesRS = statement.executeQuery(FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE);
+				if(filterSites){
+					findSitesbySitePS = clConnection.prepareStatement(FIND_ALL_SYNOPTIC_SITES_BY_SITE_QUERY_ORACLE);
+					findSitesbySitePS.setString(1, siteFilter);
+					synotpicSitesRS = findSitesbySitePS.executeQuery();
+				}else{
+					synotpicSitesRS = statement.executeQuery(FIND_ALL_SYNOPTIC_SITES_QUERY_ORACLE);
+				}
 			}else{
-				synotpicSitesRS = statement.executeQuery(FIND_ALL_SYNOPTIC_SITES_QUERY_GENERIC);
+				if(filterSites){
+					findSitesbySitePS = clConnection.prepareStatement(FIND_ALL_SYNOPTIC_SITES_BY_SITE_QUERY_GENERIC);
+					findSitesbySitePS.setString(1, siteFilter);
+					synotpicSitesRS = findSitesbySitePS.executeQuery();
+				}else{
+					synotpicSitesRS = statement.executeQuery(FIND_ALL_SYNOPTIC_SITES_QUERY_GENERIC);
+				}
 			}
 			
 			while (synotpicSitesRS.next()) {
@@ -171,6 +204,18 @@ public class UpdateSynopticMessageCounts implements Job{
 			} catch (Exception e) {
 				LOG.warn(e);
 			}	
+			try{
+				if(unreadMessagesbySitePS != null)
+					unreadMessagesbySitePS.close();				
+			}catch(Exception e){
+				LOG.warn(e);
+			}
+			try{
+				if(findSitesbySitePS != null)
+					findSitesbySitePS.close();				
+			}catch(Exception e){
+				LOG.warn(e);
+			}
 			SqlService.returnConnection(clConnection);
 		}
 		
