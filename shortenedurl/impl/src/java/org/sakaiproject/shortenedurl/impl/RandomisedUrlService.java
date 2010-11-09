@@ -33,6 +33,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.shortenedurl.model.RandomisedUrl;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -76,6 +78,9 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 */
 	public static final int SECURE = 22;
 	
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.shortenedurl.cache";	
+	
 	
 	/**
 	 * Generate a randomised URL for the given URL
@@ -106,7 +111,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		//check values
 		if(StringUtils.isBlank(url)){
-			log.error("Url was empty, aborting...");
+			log.error("URL was empty, aborting...");
 			return null;
 		}
 		
@@ -115,7 +120,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		String key = getExistingKey(url);
 		if(key != null) {
 			//log
-			log.info("Returning existing record: " + key);
+			log.info("Returning existing URL: " + key);
 			
 			//post event
 			postEvent(ShortenedUrlService.EVENT_CREATE_EXISTS, PREFIX+key, false);
@@ -141,7 +146,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		//new key created so post event
 		if(log.isDebugEnabled()) {
-			log.debug("Created:" + newKey + " for url: " + url);
+			log.debug("Created:" + newKey + " for URL: " + url);
 		}
 		postEvent(ShortenedUrlService.EVENT_CREATE_OK, PREFIX + newKey, true);
 		
@@ -164,6 +169,13 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 */
 	public String resolve(final String key) {
 		
+		//first check cache
+		if(cache.containsKey(key)){
+			log.debug("Fetching url from cache for key: " + key);
+			return (String)cache.get(key);
+		}
+		
+		//then check db
 		RandomisedUrl randomisedUrl = null;
 		
 		HibernateCallback hcb = new HibernateCallback() {
@@ -193,6 +205,11 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		//post success event
 		postEvent(ShortenedUrlService.EVENT_GET_URL_OK, PREFIX+key, false);
 		
+		//add to cache
+		String url = randomisedUrl.getUrl();
+		log.debug("Adding URL to cache for key: " + key);
+		cache.put(key, url);
+		
 		return randomisedUrl.getUrl();
 	}
 	
@@ -207,6 +224,13 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 */
 	private String getExistingKey(final String url) {
 		
+		//first check cache
+		if(cache.containsKey(url)){
+			log.debug("Fetching key from cache for URL: " + url);
+			return (String)cache.get(url);
+		}
+		
+		//then check db
 		RandomisedUrl randomisedUrl = null;
 		
 		HibernateCallback hcb = new HibernateCallback() {
@@ -223,8 +247,13 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		if(randomisedUrl == null) {
 			return null;
 		}
+		
+		//add to cache
+		String key = randomisedUrl.getKey();
+		log.debug("Adding key to cache for URL: " + url);
+		cache.put(url, key);
 	
-		return randomisedUrl.getKey();
+		return key;
 	}
 	
 	/**
@@ -309,9 +338,14 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	private boolean saveNewShortenedUrl(final String key, final String url) {
 		
 		try {
+			//add to db
 			RandomisedUrl randomisedUrl = new RandomisedUrl(key, url);
 			getHibernateTemplate().save(randomisedUrl);
 			log.info("RandomisedUrl saved as: " + key);
+			
+			//and put it in the cache
+			cache.put(key, url);
+			
 			return true;
 		} catch (Exception e) {
 			log.error("RandomisedUrl save failed. " + e.getClass() + ": " + e.getMessage());
@@ -342,6 +376,9 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
   	
   	public void init() {
   		log.debug("Sakai RandomisedUrlService init().");
+  		
+  		//setup cache
+  		cache = memoryService.newCache(CACHE_NAME);
   	}
 
   	private ServerConfigurationService serverConfigurationService;
@@ -351,6 +388,11 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	private EventTrackingService eventTrackingService;
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
+	}
+	
+	private MemoryService memoryService;
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
 	}
 
 
