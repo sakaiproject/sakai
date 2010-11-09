@@ -43,7 +43,7 @@
 					    			valueChangeListener="#{PrivateMessagesTool.processPvtMsgParentFolderMove}">
 					      	<f:selectItem itemValue="#{topic.topic.uuid}"  
 							      	itemDisabled="#{PrivateMessagesTool.selectedTopic.topic == topic.topic}"
-					      			itemLabel="#{(topic.topic.title == 'pvt_received' || topic.topic.title == 'pvt_sent' || topic.topic.title == 'pvt_deleted')? msgs[topic.topic.title] : topic.topic.title}" />
+					      			itemLabel="#{(topic.topic.title == 'pvt_received' || topic.topic.title == 'pvt_sent' || topic.topic.title == 'pvt_deleted' || topic.topic.title == 'pvt_drafts')? msgs[topic.topic.title] : topic.topic.title}" />
 					      	<%--<f:param value="#{topic.topic.uuid}" name="pvtMsgMoveTopicId"/>--%>
 		  			    </h:selectOneRadio>
 					  </h:column>
