@@ -90,11 +90,16 @@
 			</div>
 			
 			<!--  results -->
-			<div wicket:id="numSearchResults" class="search-results-header" tabindex="0">No results or 1-5 of 20 results</div>
+			<div wicket:id="numSearchResultsContainer">
+				<div wicket:id="numSearchResults" class="search-results-header" tabindex="0">No results or 1-5 of 20 results</div>
+				<form wicket:id="clearResults">
+					<input type="submit" wicket:id="clearButton" value="Clear"/>
+				</form>
+			</div>
 			
 			<div class="search-results-wrap" wicket:id="searchResultsContainer">
-				<div wicket:id="searchResultsNavigator">[search results navigator]</div>
-				<div class="search-result" wicket:id="searchResults" >
+				<div wicket:id="searchResultsNavigator" class="pager">[search results navigator]</div>
+				<div class="search-result" wicket:id="searchResults">
 					<a wicket:id="searchResultPhotoWrap">
 						<img class="search-result-img" wicket:id="searchResultPhoto"/>
 					</a>

@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -35,7 +36,6 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -57,8 +57,13 @@ public class MySearch extends BasePage {
 	private List<Person> results = new ArrayList<Person>();
 	private static final Logger log = Logger.getLogger(MySearch.class); 
 	
-	
-	
+	private WebMarkupContainer numSearchResultsContainer;
+	private Label numSearchResults;
+	private WebMarkupContainer resultsContainer;
+	private AjaxButton clearButton;
+	private TextField<String> sbiInterestField;
+	private TextField<String> sbnNameField;
+		
 	public MySearch() {
 		
 		log.debug("MySearch()");
@@ -89,11 +94,13 @@ public class MySearch extends BasePage {
 		
 		//search field
         sbnForm.add(new Label("sbnNameLabel", new ResourceModel("text.search.byname")));
-		final TextField<String> sbnNameField = new TextField<String>("searchName", new PropertyModel<String>(sbnStringModel, "string"));
+		sbnNameField = new TextField<String>("searchName", new PropertyModel<String>(sbnStringModel, "string"));
 		sbnNameField.setRequired(true);
 		sbnNameField.setOutputMarkupId(true);
 		sbnForm.add(sbnNameField);
 		sbnForm.add(new IconWithClueTip("sbnNameToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byname.tooltip")));
+		
+		
 		
 		/* 
 		 * 
@@ -113,11 +120,12 @@ public class MySearch extends BasePage {
 		
 		//search field
         sbiForm.add(new Label("sbiInterestLabel", new ResourceModel("text.search.byinterest")));
-		final TextField<String> sbiInterestField = new TextField<String>("searchInterest", new PropertyModel<String>(sbiStringModel, "string"));
+		sbiInterestField = new TextField<String>("searchInterest", new PropertyModel<String>(sbiStringModel, "string"));
 		sbiInterestField.setRequired(true);
 		sbiInterestField.setOutputMarkupId(true);
 		sbiForm.add(sbiInterestField);
 		sbiForm.add(new IconWithClueTip("sbiInterestToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byinterest.tooltip")));
+		
 		
 		
 		/* 
@@ -125,12 +133,47 @@ public class MySearch extends BasePage {
 		 * RESULTS
 		 * 
 		 */
-				
-		//search results label
-		final Label numSearchResults = new Label("numSearchResults");
+		
+		//search results label/container
+		numSearchResultsContainer = new WebMarkupContainer("numSearchResultsContainer");
+		numSearchResultsContainer.setOutputMarkupPlaceholderTag(true);
+		numSearchResults = new Label("numSearchResults");
 		numSearchResults.setOutputMarkupId(true);
 		numSearchResults.setEscapeModelStrings(false);
-		add(numSearchResults);
+		numSearchResultsContainer.add(numSearchResults);
+		
+		//clear button
+		Form<Void> clearResultsForm = new Form<Void>("clearResults");
+		clearResultsForm.setOutputMarkupPlaceholderTag(true);
+
+		clearButton = new AjaxButton("clearButton", clearResultsForm) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				
+				//clear the fields, hide self, then repaint
+				sbnNameField.clearInput();
+				sbnNameField.updateModel();
+				
+				sbiInterestField.clearInput();
+				sbiInterestField.updateModel();
+				
+				numSearchResultsContainer.setVisible(false);
+				resultsContainer.setVisible(false);
+				clearButton.setVisible(false);
+				
+				target.addComponent(sbnNameField);
+				target.addComponent(sbiInterestField);
+				target.addComponent(numSearchResultsContainer);
+				target.addComponent(resultsContainer);
+				target.addComponent(this);
+			}				
+		};
+		clearButton.setOutputMarkupPlaceholderTag(true);
+		clearButton.setVisible(false); //invisible until we have something to clear
+		clearButton.setModel(new ResourceModel("button.search.clear"));
+		clearResultsForm.add(clearButton);
+		numSearchResultsContainer.add(clearResultsForm);
+		
+		add(numSearchResultsContainer);
 		
 		// model to wrap search results
 		LoadableDetachableModel<List<Person>> resultsModel = new LoadableDetachableModel<List<Person>>(){
@@ -142,7 +185,7 @@ public class MySearch extends BasePage {
 		};	
 				
 		//container which wraps list
-		final WebMarkupContainer resultsContainer = new WebMarkupContainer("searchResultsContainer");
+		resultsContainer = new WebMarkupContainer("searchResultsContainer");
 		resultsContainer.setOutputMarkupPlaceholderTag(true);
 		resultsContainer.setVisible(false); //hide initially
 		
@@ -354,6 +397,7 @@ public class MySearch extends BasePage {
 				
 					//clear the interest search field
 					sbiInterestField.clearInput();
+					sbiInterestField.updateModel();
 					
 					//search both UDP and SakaiPerson for matches.
 					results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
@@ -362,36 +406,45 @@ public class MySearch extends BasePage {
 					int maxResults = sakaiProxy.getMaxSearchResults();
 					int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 					
+					//show the label wrapper
+					numSearchResultsContainer.setVisible(true);
+					
 					//text
 					if(numResults == 0) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
+						clearButton.setVisible(false);
 						searchResultsNavigator.setVisible(false);
 					} else if (numResults == 1) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(false);
 					} else if (numResults == maxResults) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else if (numResults > maxResultsPerPage) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(false);
 					}
-
+					
 					//post view event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbiInterestField);
+					target.addComponent(clearButton);
+					target.addComponent(numSearchResultsContainer);
 					target.addComponent(resultsContainer);
-					target.addComponent(numSearchResults);
 					target.appendJavascript("setMainFrameHeight(window.name);");	
 				}				
             }
@@ -422,6 +475,7 @@ public class MySearch extends BasePage {
 					
 					//clear the name search field
 					sbnNameField.clearInput();
+					sbnNameField.updateModel();
 					
 					//search SakaiPerson for matches
 					results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
@@ -430,26 +484,34 @@ public class MySearch extends BasePage {
 					int maxResults = sakaiProxy.getMaxSearchResults();
 					int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 					
+					//show the label wrapper
+					numSearchResultsContainer.setVisible(true);
+					
 					//text
 					if(numResults == 0) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
+						clearButton.setVisible(false);
 						searchResultsNavigator.setVisible(false);
 					} else if (numResults == 1) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(false);
 					} else if (numResults == maxResults) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else if (numResults > maxResultsPerPage) {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(true);
 					} else {
 						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
+						clearButton.setVisible(true);
 						searchResultsNavigator.setVisible(false);
 					}
 					
@@ -458,7 +520,8 @@ public class MySearch extends BasePage {
 					
 					//repaint components
 					target.addComponent(sbnNameField);
-					target.addComponent(numSearchResults);
+					target.addComponent(clearButton);
+					target.addComponent(numSearchResultsContainer);
 					target.addComponent(resultsContainer);
 					target.appendJavascript("setMainFrameHeight(window.name);");	
 				}
