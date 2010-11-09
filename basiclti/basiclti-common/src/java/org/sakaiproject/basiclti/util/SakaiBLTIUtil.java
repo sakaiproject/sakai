@@ -192,8 +192,6 @@ public class SakaiBLTIUtil {
 		}
  
 	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
-
-		String placementSecret = toNull(getCorrectProperty(config,"placementsecret", placement));
                 String allowOutcomes = ServerConfigurationService.getString(
                                 SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
                 if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
@@ -204,11 +202,8 @@ public class SakaiBLTIUtil {
 	        String allowRoster = toNull(getCorrectProperty(config,"allowroster", placement));
                 if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
-		if ( placementSecret != null ) {
-			String suffix = ":::" +  user.getId() + ":::" + placement.getId();
-			String base_string = placementSecret + suffix;
-			String signature = ShaUtil.sha256Hash(base_string);
-			String result_sourcedid = signature + suffix;
+		String result_sourcedid = getSourceDID(user, placement, config);
+		if ( result_sourcedid != null ) {
 
                 	if ( "true".equals(allowOutcomes) && assignment != null ) {
 				setProperty(props,"lis_result_sourcedid", result_sourcedid);  
@@ -428,6 +423,17 @@ public class SakaiBLTIUtil {
 
         String [] retval = { postData, launch_url };
         return retval;
+    }
+
+
+    public static String getSourceDID(User user, Placement placement, Properties config)
+    {
+	String placementSecret = toNull(getCorrectProperty(config,"placementsecret", placement));
+	if ( placementSecret == null ) return null;
+	String suffix = ":::" +  user.getId() + ":::" + placement.getId();
+	String base_string = placementSecret + suffix;
+	String signature = ShaUtil.sha256Hash(base_string);
+	return signature + suffix;
     }
 
     public static String[] postError(String str) {

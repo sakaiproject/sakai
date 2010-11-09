@@ -559,6 +559,11 @@ public class ServiceServlet extends HttpServlet {
 
 		String releaseName = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"releasename", placement));
 		String releaseEmail = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"releaseemail", placement));
+                String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
+                String allowOutcomes = ServerConfigurationService.getString(
+                                SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+                if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+
 		String maintainRole = site.getMaintainRole();
 
                 pushAdvisor();
@@ -574,8 +579,15 @@ public class ServiceServlet extends HttpServlet {
 				String ims_role = "Learner";
 				if ( maintainRole != null && maintainRole.equals(role.getId())) ims_role = "Instructor";
 				mm.put("/role",ims_role);
+				User user = null;
+				if ( "true".equals(allowOutcomes) && assignment != null ) {
+					if ( user == null ) user = UserDirectoryService.getUser(ims_user_id);
+					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement, config);
+					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
+				}
+
 				if ( "on".equals(releaseName) || "on".equals(releaseEmail) ) {
-					User user = UserDirectoryService.getUser(ims_user_id);
+					if ( user == null ) user = UserDirectoryService.getUser(ims_user_id);
 					if ( "on".equals(releaseName) ) {
 						mm.put("/person_name_given",user.getFirstName());
 						mm.put("/person_name_family",user.getLastName());
