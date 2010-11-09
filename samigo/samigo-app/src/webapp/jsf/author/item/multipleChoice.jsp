@@ -90,7 +90,7 @@
 <!-- 1 ANSWER -->
 <div class="longtext">
   <h:outputLabel value="#{authorMessages.answer} " />  
-    <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('mcWhatsThis.faces','MCWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('mcWhatsThis.faces','MCWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
+    <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/samigo-app/jsf/author/mcWhatsThis.faces','MCWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('/samigo-app/jsf/author/mcWhatsThis.faces','MCWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
     <h:outputText  value=" (#{assessmentSettingsMessages.whats_this_link})"/>
   </h:outputLink>
 </div>
