@@ -40,3 +40,6 @@ li.search {
 li.pictures {
 	list-style-image:url("/library/image/silk/pictures.png");
 }
+li.messages {
+	list-style-image:url("/library/image/silk/comments.png");
+}

@@ -51,6 +51,12 @@
       	<property name="location"><value>/sakai_profile2/profile2_view.html</value></property>
 	</bean>
 	
+	<bean id="profile2_messaging" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_messaging</value></property>
+      	<property name="name"><value>Sending messages</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_messaging.html</value></property>
+	</bean>
+	
 	<bean id="profile2_privacy" class="org.sakaiproject.component.app.help.model.ResourceBean">
       	<property name="docId"><value>profile2_privacy</value></property>
       	<property name="name"><value>Privacy controls</value></property>
@@ -81,6 +87,7 @@
                      		<ref bean="profile2_view"/>
                      		<ref bean="profile2_privacy"/>
                      		<ref bean="profile2_preferences"/>
+                     		<ref bean="profile2_messaging"/>
                  		</list>
                		</property>
             	</bean>
