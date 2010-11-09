@@ -2029,13 +2029,17 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 
-				putSelectedProviderCourseIntoContext(context, state);
+				boolean hasRosterAttached = putSelectedProviderCourseIntoContext(context, state);
 
 				List<SectionObject> cmRequestedList = (List<SectionObject>) state
 						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
 
 				if (cmRequestedList != null) {
 					context.put("cmRequestedSections", cmRequestedList);
+					if (!hasRosterAttached && cmRequestedList.size() > 0)
+					{
+						hasRosterAttached = true;
+					}
 				}
 
 				List<SectionObject> cmAuthorizerSectionList = (List<SectionObject>) state
@@ -2044,6 +2048,10 @@ public class SiteAction extends PagedResourceActionII {
 					context
 							.put("cmAuthorizerSections",
 									cmAuthorizerSectionList);
+					if (!hasRosterAttached && cmAuthorizerSectionList.size() > 0)
+					{
+						hasRosterAttached = true;
+					}
 				}
 
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
@@ -2053,15 +2061,27 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("manualAddNumber", Integer.valueOf(number - 1));
 					context.put("manualAddFields", state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+					if (!hasRosterAttached)
+					{
+						hasRosterAttached = true;
+					}
 				} else {
 					if (site != null)
-						coursesIntoContext(state, context, site);
+						if (!hasRosterAttached)
+						{
+							hasRosterAttached = coursesIntoContext(state, context, site);
+						}
+						else
+						{
+							coursesIntoContext(state, context, site);
+						}
 
 					if (courseManagementIsImplemented()) {
 					} else {
 						context.put("templateIndex", "37");
 					}
 				}
+				context.put("hasRosterAttached", Boolean.valueOf(hasRosterAttached));
 
 				// whether to show course skin selection choices or not
 				courseSkinSelection(context, state, site, siteInfo);
@@ -3077,12 +3097,19 @@ public class SiteAction extends PagedResourceActionII {
 	 * get the titles of list of selected provider courses into context
 	 * @param context
 	 * @param state
+	 * @return true if there is selected provider course, false otherwise
 	 */
-	private void putSelectedProviderCourseIntoContext(Context context, SessionState state) {
+	private boolean putSelectedProviderCourseIntoContext(Context context, SessionState state) {
+		boolean rv = false;
 		if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
 			
 			List<String> providerSectionList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 			context.put("selectedProviderCourse", providerSectionList);
+			if (providerSectionList != null && providerSectionList.size() > 0)
+			{
+				// roster attached
+				rv = true;
+			}
 
 			HashMap<String, String> providerSectionListTitles = new HashMap<String, String>();
 			if (providerSectionList != null)
@@ -3107,6 +3134,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("selectedProviderCourseTitles", providerSectionListTitles);		
 		}
+		return rv;
 	}
 
 	/**
@@ -3532,10 +3560,19 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // doSite_search_clear
 
-	private void coursesIntoContext(SessionState state, Context context,
+	/**
+	 * 
+	 * @param state
+	 * @param context
+	 * @param site
+	 * @return true if there is any roster attached, false otherwise
+	 */
+	private boolean coursesIntoContext(SessionState state, Context context,
 			Site site) {
+		boolean rv = false;
 		List providerCourseList = SiteParticipantHelper.getProviderCourseList((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
 		if (providerCourseList != null && providerCourseList.size() > 0) {
+			rv = true;
 			state.setAttribute(SITE_PROVIDER_COURSE_LIST, providerCourseList);
 			
 			Hashtable<String, String> sectionTitles = new Hashtable<String, String>();
@@ -3561,15 +3598,29 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		// put manual requested courses into context
-		courseListFromStringIntoContext(state, context, site, STATE_CM_REQUESTED_SECTIONS, STATE_CM_REQUESTED_SECTIONS, "cmRequestedCourseList");
+		boolean rv2 = courseListFromStringIntoContext(state, context, site, STATE_CM_REQUESTED_SECTIONS, STATE_CM_REQUESTED_SECTIONS, "cmRequestedCourseList");
 		
 		// put manual requested courses into context
-		courseListFromStringIntoContext(state, context, site, PROP_SITE_REQUEST_COURSE, SITE_MANUAL_COURSE_LIST, "manualCourseList");
+		boolean rv3 = courseListFromStringIntoContext(state, context, site, PROP_SITE_REQUEST_COURSE, SITE_MANUAL_COURSE_LIST, "manualCourseList");
+		
+		return (rv || rv2 || rv3);
 	}
 
-	private void courseListFromStringIntoContext(SessionState state, Context context, Site site, String site_prop_name, String state_attribute_string, String context_string) {
+	/**
+	 * 
+	 * @param state
+	 * @param context
+	 * @param site
+	 * @param site_prop_name
+	 * @param state_attribute_string
+	 * @param context_string
+	 * @return true if there is any roster attached; false otherwise
+	 */
+	private boolean courseListFromStringIntoContext(SessionState state, Context context, Site site, String site_prop_name, String state_attribute_string, String context_string) {
+		boolean rv = false;
 		String courseListString = StringUtils.trimToNull(site != null?site.getProperties().getProperty(site_prop_name):null);
 		if (courseListString != null) {
+			rv = true;
 			List courseList = new Vector();
 			if (courseListString.indexOf("+") != -1) {
 				courseList = new ArrayList(Arrays.asList(courseListString.split("\\+")));
@@ -3608,6 +3659,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		context.put(context_string, state.getAttribute(state_attribute_string));
+		return rv;
 	}
 
 	/**
@@ -4845,6 +4897,8 @@ public class SiteAction extends PagedResourceActionII {
 			doBack(data);
 		} else if ("cancel".equals(option)) {
 			doCancel_create(data);
+		} else if ("norosters".equals(option)) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 		}
 		else if (option.equalsIgnoreCase("change")) {
 			// change term
@@ -8260,7 +8314,8 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		siteInfo.site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 		// title
-        if (siteTitleEditable(state, siteInfo.site_type) && params.getString("title") != null) 	 
+		boolean hasRosterAttached = params.getString("hasRosterAttached") != null ? Boolean.getBoolean(params.getString("hasRosterAttached")) : false;
+        if ((siteTitleEditable(state, siteInfo.site_type) || !hasRosterAttached) && params.getString("title") != null) 	 
         { 	 
 			// site titel is editable and could not be null
         	String title = StringUtils.trimToNull(params.getString("title"));

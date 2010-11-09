@@ -161,12 +161,13 @@ function submitRemoveSection(index){
 			<label for="title">
 				$tlang.getString("sitediinf.sittit")
 			</label>
-			#if ($!siteTitleEditable)
+			#if ($!siteTitleEditable || !$hasRosterAttached)
 				<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$validator.escapeHtml($!title)" />
 			#else
 				$validator.escapeHtml($!title)
 			#end
 		</p>
+		<input type="hidden" name="hasRosterAttached" id="hasRosterAttached" value="$hasRosterAttached" />
 		#if (!$!existingSite)
 			## creating new sites
 			#if ($displaySiteAlias && $!site_alias_assignable)
