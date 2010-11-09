@@ -247,12 +247,12 @@
     </distributionManagement>
 	    
     <properties>
-    	<wicket.version>1.4.5</wicket.version>
+    	<wicket.version>1.4.13</wicket.version>
     	<log4j.version>1.2.14</log4j.version>
     	<slf4j.version>1.4.2</slf4j.version>
     	<twitter4j.version>2.1.2</twitter4j.version>
-    	<wicketstuff.tinymce.version>1.4.11</wicketstuff.tinymce.version>
-    	<wicketstuff.objectautocomplete.version>1.4.11</wicketstuff.objectautocomplete.version>
+    	<wicketstuff.tinymce.version>1.4.13</wicketstuff.tinymce.version>
+    	<wicketstuff.objectautocomplete.version>1.4.13</wicketstuff.objectautocomplete.version>
         <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
     	<sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
     	<quartz.version>1.5.2</quartz.version>
