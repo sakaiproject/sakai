@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.BasicConnection;
@@ -358,6 +359,18 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("</div>");
 		}
 		
+		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
+			sb.append("<div class=\"icon profile\">");
+			
+			sb.append("<div class=\"profile2-profile-view-full\">");
+			sb.append("<a href=\"javascript:;\" onclick=\"window.open('" +
+					linkLogic.getInternalDirectUrlToUserProfile(userProfile.getUserUuid()) +
+					"','','resizable=yes,scrollbars=yes')\">" +
+					Messages.getString("profile.view.full") + "</a>");
+			sb.append("</div>");
+			sb.append("</div>");
+		}
+		
 		if(!sakaiProxy.getCurrentUserId().equals(userProfile.getUserUuid())) {
 			
 			int connectionStatus = connectionsLogic.getConnectionStatus(sakaiProxy.getCurrentUserId(), userProfile.getUserUuid());
@@ -641,7 +654,10 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		this.imageLogic = imageLogic;
 	}
 
-	
+	private ProfileLinkLogic linkLogic;
+	public void setLinkLogic(ProfileLinkLogic linkLogic) {
+		this.linkLogic = linkLogic;
+	}
 	
 	
 

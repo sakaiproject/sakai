@@ -91,6 +91,11 @@ div.profile2-profile-content-thumb {
 	margin-bottom: 2px;
 }
 
+.profile2-profile-view-full {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
 .icon {
 	background-position: center left;
     background-repeat: no-repeat;
@@ -110,5 +115,9 @@ div.profile2-profile-content-thumb {
 }
 
 .connection-self {
+	background-image: url(/library/image/silk/vcard.png);
+}
+
+.profile {
 	background-image: url(/library/image/silk/vcard.png);
 }

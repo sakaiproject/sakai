@@ -20,6 +20,7 @@
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+		<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 	</bean>
 	
 	
