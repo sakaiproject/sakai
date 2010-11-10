@@ -32,11 +32,11 @@
                   <exclusions>
                   <!-- exclude this to avoid the collision btw RI and tomahawk -->
                   <exclusion>
-                        <groupId>jsf</groupId>
+                        <groupId>javax.faces</groupId>
                         <artifactId>jsf-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>jsf</groupId>
+                        <groupId>javax.faces</groupId>
                         <artifactId>jsf-impl</artifactId>
                     </exclusion>
                   </exclusions>
@@ -54,11 +54,11 @@
                   <version>${sakai.jsf.version}</version>
                   <exclusions>
                     <exclusion>
-                        <groupId>jsf</groupId>
+                        <groupId>javax.faces</groupId>
                         <artifactId>jsf-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>jsf</groupId>
+                        <groupId>javax.faces</groupId>
                         <artifactId>jsf-impl</artifactId>
                     </exclusion>
                   </exclusions>
