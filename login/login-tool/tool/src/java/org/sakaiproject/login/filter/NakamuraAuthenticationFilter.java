@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/login/branches/SAK-17223/login-tool/tool/src/java/org/sakaiproject/login/filter/NakamuraAuthenticationFilter.java $
- * $Id: NakamuraAuthenticationFilter.java 82350 2010-09-17 15:01:25Z lance@indiana.edu $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2007, 2008 Sakai Foundation
@@ -22,11 +22,7 @@
 package org.sakaiproject.login.filter;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.Principal;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,79 +30,102 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserIdInvalidException;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.util.NakamuraAuthenticationHelper;
+import org.sakaiproject.util.NakamuraAuthenticationHelper.AuthInfo;
 import org.sakaiproject.util.XSakaiToken;
 
 /**
- * 
+ * A simple {@link Filter} which can be used for container authentication (e.g.
+ * like CAS) against a Nakamura instance. Because Nakamura does not currently
+ * have a redirecting authentication URL, the user must already be authenticated
+ * to Nakamura.
  */
 public class NakamuraAuthenticationFilter implements Filter {
 	private static final Log LOG = LogFactory
 			.getLog(NakamuraAuthenticationFilter.class);
-	private static final String COOKIE_NAME = "SAKAI-TRACKING";
-	private static final String ANONYMOUS = "anonymous";
+
+	// dependencies
 	private SessionManager sessionManager;
 	private UserDirectoryService userDirectoryService;
 	private UsageSessionService usageSessionService;
 	private EventTrackingService eventTrackingService;
 	private AuthzGroupService authzGroupService;
-	private SecureRandom random = new SecureRandom();
+	private ThreadLocalManager threadLocalManager;
+	private NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
 
 	/**
-	 * Filter will be bypassed unless enabled; see sakai.properties:
-	 * login.k2.authentication = true
+	 * All sakai.properties settings will be prefixed with this string.
+	 */
+	public static final String CONFIG_PREFIX = "org.sakaiproject.login.filter.NakamuraAuthenticationFilter";
+	/**
+	 * Is the filtered enabled? true == enabled; default = false;
+	 */
+	public static final String CONFIG_ENABLED = CONFIG_PREFIX + ".enabled";
+	/**
+	 * The principal that will be used when connecting to Nakamura REST
+	 * end-point. Must have permissions to read /var/cluster/user.cookie.json.
+	 * 
+	 * @see XSakaiToken#createToken(String, String)
+	 */
+	public static final String CONFIG_PRINCIPAL = CONFIG_PREFIX + ".principal";
+	/**
+	 * The hostname we will use to lookup the sharedSecret for access to
+	 * validateUrl.
+	 * 
+	 * @see XSakaiToken#createToken(String, String)
+	 */
+	public static final String CONFIG_HOST_NAME = CONFIG_PREFIX + ".hostname";
+	/**
+	 * The Nakamura REST end-point we will use to validate the cookie
+	 */
+	public static final String CONFIG_VALIDATE_URL = CONFIG_PREFIX
+			+ ".validateUrl";
+
+	/**
+	 * Filter will be disabled by default.
+	 * 
+	 * @see #CONFIG_ENABLED
 	 */
 	protected boolean filterEnabled = false;
 
-	public static final String CONFIG_PREFIX = "org.sakaiproject.login.filter.NakamuraAuthenticationFilter";
-	public static final String CONFIG_ENABLED = CONFIG_PREFIX + ".enabled";
-	public static final String CONFIG_PRINCIPAL = CONFIG_PREFIX + ".principal";
-	public static final String CONFIG_HOST_NAME = CONFIG_PREFIX + ".hostname";
-	public static final String CONFIG_VALIDATE_URL = CONFIG_PREFIX
-			+ ".validateUrl";
-	public static final String CONFIG_AUTO_PROVISION_USER = CONFIG_PREFIX
-			+ ".autoProvisionUser";
-
 	/**
-	 * The Nakamura RESTful service to validate authenticated users
+	 * The Nakamura RESTful service to validate authenticated users. A good
+	 * default for common hybrid implementations is supplied.
+	 * 
+	 * @see #CONFIG_VALIDATE_URL
 	 */
 	protected String validateUrl = "http://localhost/var/cluster/user.cookie.json?c=";
 
 	/**
 	 * The nakamura user that has permissions to GET
-	 * /var/cluster/user.cookie.json.
+	 * /var/cluster/user.cookie.json. A good default for common hybrid
+	 * implementations is supplied.
+	 * 
+	 * @see XSakaiToken#createToken(String, String)
+	 * @see #CONFIG_PRINCIPAL
 	 */
 	protected String principal = "admin";
 
 	/**
 	 * The hostname we will use to lookup the sharedSecret for access to
-	 * validateUrl.
+	 * validateUrl. A good default for common hybrid implementations is
+	 * supplied.
+	 * 
+	 * @see XSakaiToken#createToken(String, String)
+	 * @see #CONFIG_HOST_NAME
 	 */
 	protected String hostname = "localhost";
 
@@ -124,89 +143,25 @@ public class NakamuraAuthenticationFilter implements Filter {
 		}
 		if (filterEnabled && servletRequest instanceof HttpServletRequest) {
 			final HttpServletRequest request = (HttpServletRequest) servletRequest;
-			final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-			final List<Object> list = getPrincipalLoggedIntoK2(request);
-			final Principal principal = (Principal) list.get(0);
-			if (principal != null) {
+			final AuthInfo authInfo = nakamuraAuthenticationHelper
+					.getPrincipalLoggedIntoNakamura(request);
+			if (authInfo != null && authInfo.getPrincipal() != null) {
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("Authenticated to K2 proceeding with chain: "
-							+ principal.getName());
+					LOG.debug("Authenticated to Nakamura proceeding with chain: "
+							+ authInfo.getPrincipal());
 				}
-				chain.doFilter(new K2HttpServletRequestWrapper(request,
-						principal), servletResponse);
+				chain.doFilter(new NakamuraHttpServletRequestWrapper(request,
+						authInfo.getPrincipal()), servletResponse);
 				return;
-			} else {
-				LOG.debug("NOT authenticated to K2.");
-				if (!response.isCommitted()) {
-					// TODO redirect to K2 login URL instead of 403
-					response.sendError(HttpServletResponse.SC_FORBIDDEN);
-					return;
-				} else {
-					// what to do here?
-					throw new Error(
-							"response.isCommitted() && response.sendError(HttpServletResponse.SC_FORBIDDEN)");
-				}
-			}
-		} else { // not enabled or not HttpServletRequest - just proceed with
-			// chain
-			chain.doFilter(servletRequest, servletResponse);
-			return;
-		}
-	}
-
-	private String getSecret(HttpServletRequest req) {
-		String secret = null;
-		final Cookie[] cookies = req.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (COOKIE_NAME.equals(cookie.getName())) {
-					secret = cookie.getValue();
-				}
 			}
 		}
-		return secret;
-	}
-
-	private List<Object> getPrincipalLoggedIntoK2(HttpServletRequest request) {
-		Principal principal = null;
-		JSONObject jsonObject = null;
-		final String secret = getSecret(request);
-		if (secret != null) {
-			DefaultHttpClient http = new DefaultHttpClient();
-			try {
-				URI uri = new URI(validateUrl + secret);
-				HttpGet httpget = new HttpGet(uri);
-				// authenticate to Nakamura using x-sakai-token mechanism
-				final String token = XSakaiToken.createToken(hostname,
-						this.principal);
-				httpget.addHeader(XSakaiToken.X_SAKAI_TOKEN_HEADER, token);
-				ResponseHandler<String> responseHandler = new BasicResponseHandler();
-				String responseBody = http.execute(httpget, responseHandler);
-				jsonObject = JSONObject.fromObject(responseBody);
-				String p = jsonObject.getJSONObject("user").getString(
-						"principal");
-				if (p != null && !"".equals(p) && !ANONYMOUS.equals(p)) {
-					// only if not null and not "anonymous"
-					principal = new K2Principal(p);
-				}
-			} catch (HttpResponseException e) {
-				// usually a 404 error - could not find cookie / not valid
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("HttpResponseException: " + e.getMessage() + ": "
-							+ e.getStatusCode() + ": " + validateUrl + secret);
-				}
-			} catch (Exception e) {
-				LOG.error(e.getMessage(), e);
-			} finally {
-				http.getConnectionManager().shutdown();
-			}
-		}
-
-		List<Object> list = new ArrayList<Object>(2);
-		list.add(0, principal);
-		list.add(1, jsonObject);
-		return list;
+		/*
+		 * not enabled or not authenticated to nakamura - just proceed with
+		 * normal chain
+		 */
+		chain.doFilter(servletRequest, servletResponse);
+		return;
 	}
 
 	/**
@@ -229,13 +184,23 @@ public class NakamuraAuthenticationFilter implements Filter {
 			LOG.info("hostname=" + hostname);
 
 			// make sure container.login is turned on as well
-			boolean containerLogin = ServerConfigurationService.getBoolean(
-					"container.login", false);
+			final boolean containerLogin = ServerConfigurationService
+					.getBoolean("container.login", false);
 			if (!containerLogin) {
+				LOG.error("container.login must be enabled in sakai.properties for hybrid authentication!");
 				throw new IllegalStateException(
-						"container.login must be enabled in sakai.properties!");
+						"container.login must be enabled in sakai.properties for hybrid authentication!");
 			}
 			// what about top.login = false ?
+			/**
+			 * Whether or not to provide a login form on the portal itself
+			 * (typically on the top).
+			 */
+			final boolean topLogin = ServerConfigurationService.getBoolean(
+					"top.login", false);
+			if (topLogin) {
+				LOG.warn("top.login is usually disabled in sakai.properties for container authentication scenarios");
+			}
 
 			sessionManager = (SessionManager) ComponentManager
 					.get(SessionManager.class);
@@ -262,6 +227,13 @@ public class NakamuraAuthenticationFilter implements Filter {
 			if (authzGroupService == null) {
 				throw new IllegalStateException("AuthzGroupService == null");
 			}
+			threadLocalManager = (ThreadLocalManager) ComponentManager
+					.get(ThreadLocalManager.class);
+			if (threadLocalManager == null) {
+				throw new IllegalStateException("ThreadLocalManager == null");
+			}
+			nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
+					threadLocalManager, validateUrl, principal, hostname);
 		}
 	}
 
@@ -272,13 +244,30 @@ public class NakamuraAuthenticationFilter implements Filter {
 		// nothing to do here
 	}
 
-	public static class K2Principal implements Principal {
+	/**
+	 * A simple implementation of {@link Principal} which will be used by
+	 * {@link NakamuraHttpServletRequestWrapper}.
+	 */
+	public static final class NakamuraPrincipal implements Principal {
 		private String name = null;
 
-		public K2Principal(String name) {
+		/**
+		 * Create a {@link NakamuraPrincipal} with given name (eid).
+		 * 
+		 * @param name
+		 *            i.e. eid or username.
+		 * @throws IllegalArgumentException
+		 */
+		public NakamuraPrincipal(String name) {
+			if (name == null || "".equals(name)) {
+				throw new IllegalArgumentException("name == null OR empty");
+			}
 			this.name = name;
 		}
 
+		/**
+		 * @see Principal#getName()
+		 */
 		public String getName() {
 			return name;
 		}
@@ -288,10 +277,11 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == this)
+			if (obj == this) {
 				return true;
-			if (obj instanceof Principal) {
-				return name.equals(((Principal) obj).getName());
+			}
+			if (obj instanceof NakamuraPrincipal) {
+				return name.equals(((NakamuraPrincipal) obj).getName());
 			}
 			return false;
 		}
@@ -314,15 +304,31 @@ public class NakamuraAuthenticationFilter implements Filter {
 
 	}
 
-	public static class K2HttpServletRequestWrapper extends
+	/**
+	 * A {@link HttpServletRequestWrapper} which uses the passed
+	 * {@link NakamuraPrincipal} as the current user when completing the servlet
+	 * request.
+	 */
+	public static class NakamuraHttpServletRequestWrapper extends
 			HttpServletRequestWrapper implements HttpServletRequest {
 
 		private final Principal principal;
 
-		public K2HttpServletRequestWrapper(HttpServletRequest request,
-				Principal principal) {
+		/**
+		 * @param request
+		 * @param principal
+		 * @throws IllegalArgumentException
+		 */
+		public NakamuraHttpServletRequestWrapper(
+				final HttpServletRequest request, final String principal) {
 			super(request);
-			this.principal = principal;
+			if (request == null) {
+				throw new IllegalArgumentException("HttpServletRequest == null");
+			}
+			if (principal == null || "".equals(principal)) {
+				throw new IllegalArgumentException("principal == null OR empty");
+			}
+			this.principal = new NakamuraPrincipal(principal);
 		}
 
 		/**
