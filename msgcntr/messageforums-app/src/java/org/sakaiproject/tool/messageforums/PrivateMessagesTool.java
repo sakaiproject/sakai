@@ -1558,7 +1558,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    				forwardedText.append("<img alt=\"\" src=\"" + imageUrl + "\" />");
 	    			}
 	    			
-	    			forwardedText.append("<a href=\"" + decoAttach.getUrl() + "\" target=\"_blank\">" + decoAttach.getAttachment().getAttachmentName() + "</a></li>");
+	    			forwardedText.append("<a href=\"" + messageManager.getAttachmentUrl(decoAttach.getAttachment().getAttachmentId()) + "\" target=\"_blank\">" + decoAttach.getAttachment().getAttachmentName() + "</a></li>");
 	    		}
 	    	}
 	    	forwardedText.append("</ul>");
