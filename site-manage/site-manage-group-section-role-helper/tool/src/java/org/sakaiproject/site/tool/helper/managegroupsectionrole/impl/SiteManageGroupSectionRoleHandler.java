@@ -759,7 +759,7 @@ public class SiteManageGroupSectionRoleHandler {
     	{
     		for (Iterator<String> iterRosters= selectedRosters.keySet().iterator(); iterRosters.hasNext(); ) {
     			String roster = iterRosters.next();
-    			if (selectedRosters.get(roster) == Boolean.TRUE)
+    			if (Boolean.TRUE.equals(selectedRosters.get(roster)))
     			{
     				// selected roster
     				rosterList.add(roster);
@@ -772,7 +772,7 @@ public class SiteManageGroupSectionRoleHandler {
     	{
     		for (Iterator<String> iterRoles = selectedRoles.keySet().iterator(); iterRoles.hasNext(); ) {
     			String role = iterRoles.next();
-    			if (selectedRoles.get(role) == Boolean.TRUE)
+    			if (Boolean.TRUE.equals(selectedRoles.get(role)))
     			{
     				// selected role
     				roleList.add(role);

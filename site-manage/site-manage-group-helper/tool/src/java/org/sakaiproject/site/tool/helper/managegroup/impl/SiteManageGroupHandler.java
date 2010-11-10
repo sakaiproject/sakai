@@ -464,15 +464,8 @@ public class SiteManageGroupHandler {
 	    	for (int i = 0; i < deleteGroupIds.length; i++) {
 	    		String groupId = deleteGroupIds[i];
 	    		//
-	    		try
-	    		{
-	    			Group g = site.getGroup(groupId);
-	    			groups.add(g);
-	    		}
-	    		catch (Exception e)
-	    		{
-	    			
-	    		}
+	    		Group g = site.getGroup(groupId);
+	    		groups.add(g);
 	    	}
 	    	return "confirm";
     	}
@@ -547,15 +540,8 @@ public class SiteManageGroupHandler {
 			for (int i = 0; i<deleteGroupIds.length; i++)
 			{
 				String groupId = deleteGroupIds[i];
-				try
-				{
-					Group g = site.getGroup(groupId);
-					rv.add(g);
-				}
-				catch (Exception e)
-				{
-					M_log.debug(this + ":getSelectedGroups: cannot get group with id " + groupId);
-				}
+				Group g = site.getGroup(groupId);
+				rv.add(g);
 			}
 		}
 		return rv;
