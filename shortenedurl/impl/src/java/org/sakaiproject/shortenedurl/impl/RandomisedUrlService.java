@@ -120,7 +120,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		String key = getExistingKey(url);
 		if(key != null) {
 			//log
-			log.info("Returning existing URL: " + key);
+			log.info("Returning existing key: " + key);
 			
 			//post event
 			postEvent(ShortenedUrlService.EVENT_CREATE_EXISTS, PREFIX+key, false);
@@ -207,8 +207,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		//add to cache
 		String url = randomisedUrl.getUrl();
-		log.debug("Adding URL to cache for key: " + key);
-		cache.put(key, url);
+		addToCache(key, url);
 		
 		return randomisedUrl.getUrl();
 	}
@@ -250,8 +249,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		//add to cache
 		String key = randomisedUrl.getKey();
-		log.debug("Adding key to cache for URL: " + url);
-		cache.put(url, key);
+		addToCache(url, key);
 	
 		return key;
 	}
@@ -343,8 +341,9 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 			getHibernateTemplate().save(randomisedUrl);
 			log.info("RandomisedUrl saved as: " + key);
 			
-			//and put it in the cache
-			cache.put(key, url);
+			//and put it in the cache, both ways
+			addToCache(key, url);
+			addToCache(url, key);
 			
 			return true;
 		} catch (Exception e) {
@@ -372,6 +371,16 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
   	public void postEvent(String event,String reference,boolean modify) {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
+  	
+  	/**
+  	 * Ad data to the cache
+  	 * @param k	key
+  	 * @param v value
+  	 */
+  	private void addToCache(String k, String v){
+  		log.debug("Added entry to cache, key: " + k +", value: " + v);
+		cache.put(k, v);
+  	}
 
   	
   	public void init() {
