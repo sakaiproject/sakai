@@ -60,7 +60,7 @@
 				#if($oldSelectedTools.contains($toolId))
 					#set($toolExist=true)
 				#end
-				#if(!$toolExist)
+				#if(!$toolExist && $!multipleToolIdTitleMap.containsKey($toolId))
 					#set($originToolId = false)
 					#foreach ($tId in $!multipleToolIdSet)
 						#if ($toolId!=$!homeToolId && $toolId.indexOf($tId) != -1)
@@ -123,6 +123,8 @@
 						#end
 					#end
 				#end
+				## and update the oldOriginalToolId
+				#set($oldOriginToolId = $originToolId)
 			#end
 			#if ($!oldOriginToolId && $!oldOriginToolId.equals($!originToolId))
 				##about to show a different tool
@@ -138,8 +140,6 @@
 								#end
 					</select>	
 				</div>
-			 ## and update the oldOriginalToolId
-				#set($oldOriginToolId = $originToolId)
 		#end
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
