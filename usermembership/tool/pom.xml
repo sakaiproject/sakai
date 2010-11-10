@@ -49,7 +49,7 @@
       <artifactId>jsf-app</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>java.faces</groupId>
+          <groupId>javax.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
