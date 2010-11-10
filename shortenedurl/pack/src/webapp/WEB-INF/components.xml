@@ -19,7 +19,6 @@
     	init-method="init">
 	</bean>
 
-
 	<!--  RandomisedUrlService config -->
 	<!--  
 	To configure this implementation, set the following in sakai.properties:
@@ -61,10 +60,7 @@
     	<property name="login"><value>${shortenedurl.implementation.bitly.login}</value></property>
     	<property name="apiKey"><value>${shortenedurl.implementation.bitly.key}</value></property>
 	</bean>
-	
-	
-	
-	
+		
 	<!-- Add our HBM files to the Sakai global session factory -->
 	<bean id="org.sakaiproject.shortenedurl.hbm.HBMMappingList"
     	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
