@@ -136,7 +136,7 @@
 					  <h:outputText value=" "  styleClass="actionLinks"/>
 					  <%--//designNote: for paralellism to other views, need to move the "Post new thread" link below, but it is a sakai:toolbar item above...same for Topic Settings --%>
 					  <sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
-					  	rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked}" />
+					  	rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}" />
 					<h:outputText  value=" | " rendered="#{ForumTool.selectedTopic.changeSettings && !ForumTool.selectedForum.forum.locked == 'true' && !ForumTool.selectedTopic.topic.locked == 'true'}" />
 					<sakai:tool_bar_item action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
 					rendered="#{ForumTool.selectedTopic.changeSettings}" /> 
