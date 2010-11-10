@@ -99,7 +99,9 @@ public class SiteAssocJsfTool extends JsfTool {
 
 		if (logger.isDebugEnabled()) {
 			Map<String, String[]> reqParms = req.getParameterMap();
-			for (String reqParmKey : reqParms.keySet()) {
+			for(Map.Entry<String, String[]> entry : reqParms.entrySet())
+			{
+				String reqParmKey = entry.getKey();
 				StringBuffer sb = new StringBuffer();
 				sb.append("REQ_PARM: ");
 				sb.append(reqParmKey);

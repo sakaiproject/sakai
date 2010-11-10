@@ -773,8 +773,8 @@ public class SiteAddParticipantHandler {
 					// automatically add nonOfficialAccount account
 					Participant participant = new Participant();
 					User u = null;
-					String eidsForAllMatches = "";
-					String eidsForAllMatchesAlert = "";
+					StringBuffer eidsForAllMatches = new StringBuffer();
+					StringBuffer eidsForAllMatchesAlertBuffer = new StringBuffer();
 					
 					if (officialAccount.indexOf(at) == -1)
 					{
@@ -821,20 +821,21 @@ public class SiteAddParticipantHandler {
 									for (User user : usersWithEmail)
 									{
 										String eid = user.getEid();
-										eidsForAllMatches += eid + "\n";
-										eidsForAllMatchesAlert += eid + ", ";
+										eidsForAllMatches.append(eid).append("\n");
+										eidsForAllMatchesAlertBuffer.append(eid).append(", ");
 										
 										// this is to mark the eid so that it won't be used again for email lookup in the future
 										officialAccountEidOnly.add(eid);
 									}
 									// trim the alert message
+									String eidsForAllMatchesAlert = eidsForAllMatchesAlertBuffer.toString();
 									if (eidsForAllMatchesAlert.endsWith(", "))
 									{
 										eidsForAllMatchesAlert = eidsForAllMatchesAlert.substring(0, eidsForAllMatchesAlert.length()-2);
 									}
 									
 									// update ui input
-									updateOfficialAccountParticipant(officialAccount, u, eidsForAllMatches);
+									updateOfficialAccountParticipant(officialAccount, u, eidsForAllMatches.toString());
 									
 									// show alert message
 									targettedMessageList.addMessage(new TargettedMessage("java.username.multiple", 

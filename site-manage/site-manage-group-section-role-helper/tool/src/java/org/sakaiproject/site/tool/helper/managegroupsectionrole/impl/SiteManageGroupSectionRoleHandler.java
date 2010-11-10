@@ -890,12 +890,12 @@ public class SiteManageGroupSectionRoleHandler {
 		else
 		{
 			// simply concat strings
-			String rv = "";
+			StringBuffer rv = new StringBuffer();
 			for(String sArrayString:sArray)
 			{
-				rv = rv + " " + sArrayString;
+				rv.append(" ").append(sArrayString);
 			}
-			return rv;
+			return rv.toString();
 		}
     }
     /**

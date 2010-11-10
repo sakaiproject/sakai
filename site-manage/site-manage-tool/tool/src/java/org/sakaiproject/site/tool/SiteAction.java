@@ -1815,17 +1815,13 @@ public class SiteAction extends PagedResourceActionII {
 								&& gradToolsSiteTypes.contains(siteType)) {
 							isGradToolSite = true;
 						}
-						if (siteType == null || siteType != null
-								&& !isGradToolSite) {
+						if (!isGradToolSite) {
 							// hide site access for GRADTOOLS
 							// type of sites
 							b.add(new MenuEntry(
 									rb.getString("java.siteaccess"),
 									"doMenu_edit_site_access"));
-						}
-						
-						if (siteType == null || siteType != null
-								&& !isGradToolSite) {
+							
 							// hide site duplicate and import
 							// for GRADTOOLS type of sites
 							if (SiteService.allowAddSite(null))
@@ -2585,7 +2581,7 @@ public class SiteAction extends PagedResourceActionII {
 						// remove included sites
 						for (Iterator i = courses.iterator(); i.hasNext();) {
 							CourseObject c = (CourseObject) i.next();
-							if (providerCourseList == null || providerCourseList != null && !providerCourseList.contains(c.getEid())) {
+							if (providerCourseList == null || !providerCourseList.contains(c.getEid())) {
 								notIncludedCourse.add(c);
 							}
 						}
@@ -3003,11 +2999,12 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private String getSelectionString(List selections, int numSelections) {
-		String eid = "";
+		StringBuffer eidBuffer = new StringBuffer();
 		for (int i = 0; i < numSelections;i++)
 		{
-			eid = eid + selections.get(i) + ",";
+			eidBuffer.append(selections.get(i)).append(",");
 		}
+		String eid = eidBuffer.toString();
 		// trim off last ","
 		if (eid.endsWith(","))
 			eid = eid.substring(0, eid.lastIndexOf(","));
@@ -9031,9 +9028,10 @@ public class SiteAction extends PagedResourceActionII {
 		
 		if (attributes != null)
 		{
-			for(String attribute : attributes.keySet())
+			for(Map.Entry<String, String> attributeEntry : attributes.entrySet())
 			{
-				String attributeValue = attributes.get(attribute);
+				String attribute = attributeEntry.getKey();
+				String attributeValue = attributeEntry.getValue();
 				// if we have a value
 				if (attributeValue != null)
 				{
@@ -9896,9 +9894,12 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		// add those toolids without specified order
-		for (String toolId : toolIdList) {
-			if (!rv.contains(toolId)) {
-				rv.add(toolId);
+		if (toolIdList != null)
+		{
+			for (String toolId : toolIdList) {
+				if (!rv.contains(toolId)) {
+					rv.add(toolId);
+				}
 			}
 		}
 		return rv;
@@ -11206,7 +11207,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		public String getAuthorizerString() {
-			String rv = "";
+			StringBuffer rv = new StringBuffer();
 			if (authorizer != null && !authorizer.isEmpty())
 			{
 				for (int count = 0; count < authorizer.size(); count++)
@@ -11214,12 +11215,12 @@ public class SiteAction extends PagedResourceActionII {
 					// concatenate all authorizers into a String
 					if (count > 0)
 					{
-						rv+=", ";
+						rv.append(", ");
 					}
-					rv += authorizer.get(count);
+					rv.append(authorizer.get(count));
 				}
 			}
-			return rv;
+			return rv.toString();
 		}
 
 		public void setAuthorizer(List<String> authorizer) {
@@ -11523,14 +11524,10 @@ public class SiteAction extends PagedResourceActionII {
 		if (courseSets != null)
 		{
 			// Hieriarchy of CourseSet, CourseOffering and Section are multiple levels in CourseManagementService
-			if (courseSets != null)
+			List<SectionField> sectionFields = sectionFieldProvider.getRequiredFields();
+			for (SectionField field : sectionFields)
 			{
-				// Hieriarchy of CourseSet, CourseOffering and Section are multiple levels in CourseManagementService
-				List<SectionField> sectionFields = sectionFieldProvider.getRequiredFields();
-				for (SectionField field : sectionFields)
-				{
-					rv.add(field.getLabelKey());
-				}
+				rv.add(field.getLabelKey());
 			}
 		}
 		return rv;

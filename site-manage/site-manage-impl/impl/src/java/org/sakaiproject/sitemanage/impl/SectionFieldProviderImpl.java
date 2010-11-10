@@ -49,14 +49,14 @@ public class SectionFieldProviderImpl implements SectionFieldProvider {
 			return "";
 		}
 		
-		String sectionEid = "";
+		StringBuffer sectionEid = new StringBuffer();
 		for(int i = 0; i < fields.size(); i++) {
 			SectionField sf = fields.get(i);
-			sectionEid += sf.getValue() + "_";
+			sectionEid.append(sf.getValue()).append("_");
 		}
-		sectionEid += academicSessionEid;
-		if(log.isDebugEnabled()) log.debug(this + ":getSectionEid: Generated section eid = " + sectionEid);
-		return sectionEid;
+		sectionEid.append(academicSessionEid);
+		if(log.isDebugEnabled()) log.debug(this + ":getSectionEid: Generated section eid = " + sectionEid.toString());
+		return sectionEid.toString();
 	}
 	
 	public String getSectionTitle(String academicSessionEid, List<SectionField> fields) {
@@ -65,16 +65,16 @@ public class SectionFieldProviderImpl implements SectionFieldProvider {
 			return "";
 		}
 		
-		String rv = "";
+		StringBuffer rv = new StringBuffer();
 		
 		String[] values = new String[fields.size()+1];
 		for(int i = 0; i < fields.size(); i++) {
 			SectionField sf = fields.get(i);
-			rv += sf.getValue() + " ";
+			rv.append(sf.getValue()).append(" ");
 		}
-		rv += academicSessionEid;
+		rv.append(academicSessionEid);
 		
-		return rv;
+		return rv.toString();
 	}
 
 	public void init() {

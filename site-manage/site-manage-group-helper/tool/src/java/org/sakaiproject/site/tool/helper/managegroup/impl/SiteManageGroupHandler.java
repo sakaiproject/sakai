@@ -461,7 +461,7 @@ public class SiteManageGroupHandler {
     	{
     		List<Group> groups = new Vector<Group>();
     		
-	    	for (int i = 0; i < deleteGroupIds.length; i ++) {
+	    	for (int i = 0; i < deleteGroupIds.length; i++) {
 	    		String groupId = deleteGroupIds[i];
 	    		//
 	    		try
@@ -485,7 +485,7 @@ public class SiteManageGroupHandler {
     	
     	if (site != null)
     	{
-	    	for (int i = 0; i < deleteGroupIds.length; i ++) {
+	    	for (int i = 0; i < deleteGroupIds.length; i++) {
 		    	String groupId = deleteGroupIds[i];
 		    	Group g = site.getGroup(groupId);
 				if (g != null) {
