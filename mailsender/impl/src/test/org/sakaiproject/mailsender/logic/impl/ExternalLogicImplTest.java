@@ -480,7 +480,6 @@ public class ExternalLogicImplTest {
 		MimeMessage mimeMsg = msg.getMimeMessage();
 		assertEquals(subject, mimeMsg.getSubject());
 		String content = getContent(mimeMsg);
-		assertTrue(content.contains(QUOTED_PRINTABLE));
 		assertFalse(content.contains("åæÆÐ"));
 		assertTrue(content.contains(CONTENT_DISPOSITION_ATTACHMENT));
 		assertTrue(content.contains("filename=" + attachment.getName()));
