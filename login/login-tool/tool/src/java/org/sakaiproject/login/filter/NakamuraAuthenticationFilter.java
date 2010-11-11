@@ -36,11 +36,10 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.NakamuraAuthenticationHelper;
@@ -63,8 +62,8 @@ public class NakamuraAuthenticationFilter implements Filter {
 	private UsageSessionService usageSessionService;
 	private EventTrackingService eventTrackingService;
 	private AuthzGroupService authzGroupService;
-	private ThreadLocalManager threadLocalManager;
 	private NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
+	private ComponentManager componentManager;
 
 	/**
 	 * All sakai.properties settings will be prefixed with this string.
@@ -202,38 +201,38 @@ public class NakamuraAuthenticationFilter implements Filter {
 				LOG.warn("top.login is usually disabled in sakai.properties for container authentication scenarios");
 			}
 
-			sessionManager = (SessionManager) ComponentManager
+			componentManager = (ComponentManager) org.sakaiproject.component.cover.ComponentManager
+					.get(ComponentManager.class);
+			if (componentManager == null) {
+				throw new IllegalStateException("componentManager == null");
+			}
+			sessionManager = (SessionManager) componentManager
 					.get(SessionManager.class);
 			if (sessionManager == null) {
 				throw new IllegalStateException("SessionManager == null");
 			}
-			userDirectoryService = (UserDirectoryService) ComponentManager
+			userDirectoryService = (UserDirectoryService) componentManager
 					.get(UserDirectoryService.class);
 			if (userDirectoryService == null) {
 				throw new IllegalStateException("UserDirectoryService == null");
 			}
-			usageSessionService = (UsageSessionService) ComponentManager
+			usageSessionService = (UsageSessionService) componentManager
 					.get(UsageSessionService.class);
 			if (usageSessionService == null) {
 				throw new IllegalStateException("UsageSessionService == null");
 			}
-			eventTrackingService = (EventTrackingService) ComponentManager
+			eventTrackingService = (EventTrackingService) componentManager
 					.get(EventTrackingService.class);
 			if (eventTrackingService == null) {
 				throw new IllegalStateException("EventTrackingService == null");
 			}
-			authzGroupService = (AuthzGroupService) ComponentManager
+			authzGroupService = (AuthzGroupService) componentManager
 					.get(AuthzGroupService.class);
 			if (authzGroupService == null) {
 				throw new IllegalStateException("AuthzGroupService == null");
 			}
-			threadLocalManager = (ThreadLocalManager) ComponentManager
-					.get(ThreadLocalManager.class);
-			if (threadLocalManager == null) {
-				throw new IllegalStateException("ThreadLocalManager == null");
-			}
 			nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
-					threadLocalManager, validateUrl, principal, hostname);
+					componentManager, validateUrl, principal, hostname);
 		}
 	}
 
