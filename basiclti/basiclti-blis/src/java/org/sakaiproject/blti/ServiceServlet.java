@@ -381,7 +381,7 @@ public class ServiceServlet extends HttpServlet {
 		String setting = null;
 
 		// Check for permission in placement
-		String allowSetting = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"allowsetting", placement));
+		String allowSetting = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"allowsettings", placement));
 		if ( ! "on".equals(allowSetting) ) {
 			doError(request, response, theMap, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
 			return;
