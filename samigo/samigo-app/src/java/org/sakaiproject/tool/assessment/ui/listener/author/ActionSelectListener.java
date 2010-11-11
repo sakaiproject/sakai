@@ -94,6 +94,7 @@ public class ActionSelectListener implements ValueChangeListener {
 			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();
 			authorSettingsListener.processAction(null);
 			author.setFromPage("author");
+			author.setFirstFromPage("author");
 			author.setJustPublishedAnAssessment(false);
 		}
 		else if ("publish".equals(newValue)) {
