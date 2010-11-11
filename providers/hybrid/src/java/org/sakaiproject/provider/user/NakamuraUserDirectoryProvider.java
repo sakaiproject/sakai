@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -97,8 +98,9 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	protected String hostname = "localhost";
 
 	// dependencies
-	private ThreadLocalManager threadLocalManager; // injected
-	private NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
+	ComponentManager componentManager; // injected
+	ThreadLocalManager threadLocalManager; // injected
+	NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
 
 	/**
 	 * @see org.sakaiproject.user.api.UserDirectoryProvider#authenticateUser(java.lang.String,
@@ -216,7 +218,7 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 		hostname = ServerConfigurationService.getString(CONFIG_HOST_NAME,
 				hostname);
 		nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
-				threadLocalManager, validateUrl, principal, hostname);
+				componentManager, validateUrl, principal, hostname);
 	}
 
 	/**
@@ -224,6 +226,16 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 *            the threadLocalManager to inject
 	 */
 	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		LOG.debug("setThreadLocalManager(ThreadLocalManager threadLocalManager)");
 		this.threadLocalManager = threadLocalManager;
+	}
+
+	/**
+	 * @param componentManager
+	 *            the componentManager to set
+	 */
+	public void setComponentManager(ComponentManager componentManager) {
+		LOG.debug("setComponentManager(ComponentManager componentManager)");
+		this.componentManager = componentManager;
 	}
 }
