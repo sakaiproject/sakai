@@ -46,6 +46,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class SkinnableLogin extends HttpServlet implements Login {
 
@@ -68,10 +69,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
 	
-	private LoginService loginService;
+	private transient LoginService loginService;
 	
 	private String loginContext;
-	
 	
 	public void init(ServletConfig config) throws ServletException
 	{
@@ -148,6 +148,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		}
 
 		// see if we need to check container
+		// @SuppressWarnings(value = "HRS_REQUEST_PARAMETER_TO_HTTP_HEADER",
+		// justification = "Looks like the data is already URL encoded")
 		boolean checkContainer = ServerConfigurationService.getBoolean("container.login", false);
 		if (checkContainer && !skipContainer)
 		{
@@ -164,6 +166,11 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				String queryString = req.getQueryString();
 				if (queryString != null) containerCheckUrl = containerCheckUrl + "?" + queryString;
 
+				/*
+				 * FindBugs: HRS_REQUEST_PARAMETER_TO_HTTP_HEADER Looks like the
+				 * data is already URL encoded. Cannot get the @SuppressWarnings
+				 * as expected.
+				 */
 				res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
 				return;
 			}
@@ -173,7 +180,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
 		boolean isPDA = false;
 		if ( portalUrl != null ) {
-			isPDA = (portalUrl.indexOf (PDA_PORTAL_SUFFIX) > 0);
+			isPDA = (portalUrl.indexOf (PDA_PORTAL_SUFFIX) > -1);
 		}
 		log.debug("isPDA: " + isPDA);
 

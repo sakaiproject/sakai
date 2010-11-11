@@ -72,6 +72,13 @@
     	<type>jar</type>
     	<scope>provided</scope>
     </dependency>
+    <dependency>
+    	<groupId>com.google.code.findbugs</groupId>
+    	<artifactId>annotations</artifactId>
+    	<version>1.3.9</version>
+    	<type>jar</type>
+    	<scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <resources>

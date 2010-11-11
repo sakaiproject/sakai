@@ -56,6 +56,8 @@ import org.sakaiproject.util.Web;
  */
 public class LoginTool extends HttpServlet
 {
+	private static final long serialVersionUID = 2294941885434572487L;
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(LoginTool.class);
 
@@ -231,9 +233,6 @@ public class LoginTool extends HttpServlet
 		// get the Sakai session
 		Session session = SessionManager.getCurrentSession();
 
-		// get my tool registration
-		Tool tool = (Tool) req.getAttribute(Tool.TOOL);
-
 		// fragment or not?
 		boolean fragment = Boolean.TRUE.toString().equals(req.getAttribute(Tool.FRAGMENT));
 
@@ -350,7 +349,6 @@ public class LoginTool extends HttpServlet
 		String pw = req.getParameter("pw");
 
 		// one of these will be there, one null, depending on how the submit was done
-		String submit = req.getParameter("submit");
 		String cancel = req.getParameter("cancel");
 
 		// cancel

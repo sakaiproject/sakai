@@ -49,6 +49,8 @@ import org.sakaiproject.util.ExternalTrustedEvidence;
  */
 public class ContainerLogin extends HttpServlet
 {
+	private static final long serialVersionUID = -3589514330633190919L;
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ContainerLogin.class);
 	

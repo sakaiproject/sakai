@@ -310,7 +310,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 	 * request.
 	 */
 	public static class NakamuraHttpServletRequestWrapper extends
-			HttpServletRequestWrapper implements HttpServletRequest {
+			HttpServletRequestWrapper {
 
 		private final Principal principal;
 
