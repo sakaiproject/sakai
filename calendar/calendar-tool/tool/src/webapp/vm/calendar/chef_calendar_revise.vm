@@ -586,7 +586,7 @@ function resizeFrame(){
 				#set($type = $savedData.getType())
 			#end
 	
-			<select name="eventType" id="eventType" onchange="blur()">
+			<select name="eventType" id="eventType">
 				#if ($type =="Academic Calendar") 
 				<option selected="selected" value="Academic Calendar">$tlang.getString("legend.key1")</option> 
 				#else  

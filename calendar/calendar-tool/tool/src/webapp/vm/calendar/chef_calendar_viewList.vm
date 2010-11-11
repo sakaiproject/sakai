@@ -20,7 +20,7 @@
 				<form name="viewForm" class="inlineForm" action="#toolForm("$action")" method="post">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<label for="view">$tlang.getString('view.view')</label>
-					<select name="view" size="1"  onchange="blur();document.viewForm.submit();" id="view">
+					<select name="view" size="1"  onchange="document.viewForm.submit();" id="view">
 						#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
 							#if ($selectedView.equals($view))
 								<option value="$view" selected="selected" >$view</option>
@@ -35,7 +35,7 @@
 				<form name="listform2" class="inlineForm" method="post" action="#toolForm("$action")">
 					<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
 					<label for="timeFilterOption">$tlang.getString('view.show')</label>
-					<select name="timeFilterOption" onchange="blur();document.listform2.submit();" id="timeFilterOption">
+					<select name="timeFilterOption" onchange="document.listform2.submit();" id="timeFilterOption">
 						<option value="SHOW_ALL" #if ($timeFilterOption == "SHOW_ALL") selected="selected" #end >$tlang.getString('view.all')</option>
 						<option value="SHOW_DAY" #if ($timeFilterOption == "SHOW_DAY") selected="selected" #end >$tlang.getString('view.activ')</option>
 						<option value="SHOW_WEEK" #if ($timeFilterOption == "SHOW_WEEK") selected="selected" #end >$tlang.getString('view.activw')</option>

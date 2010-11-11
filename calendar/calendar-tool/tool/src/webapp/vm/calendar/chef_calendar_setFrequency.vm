@@ -52,7 +52,7 @@
 					$tlang.getString("set.every")
 				</label>	
 				#set ($interval = $rule.Interval)
-				<select name="interval" id="interval" onchange="blur()">
+				<select name="interval" id="interval">
 					#foreach($i in [1..31])
 						#if($interval == $i)
 							<option selected="selected">$i</option>
@@ -81,7 +81,7 @@
 				#end
 				<p class="checkbox">
 					<input type="radio" name="CountOrTill" value="Count" id="count" $isCountChecked><label for="count"> $tlang.getString("set.after")</label>
-					<select name="count" onchange="blur()">
+					<select name="count">
 						#set ($count = $rule.Count)
 						#foreach($c in [1..100])
 							#if($count == $c)
