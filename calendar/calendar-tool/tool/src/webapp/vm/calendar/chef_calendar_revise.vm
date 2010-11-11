@@ -249,11 +249,11 @@ function resizeFrame(){
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="activitytitle">$tlang.getString("new.title")</label>
-			#if($savedData.getTitle().length() != 0)
+			#if("$!savedData.getTitle()" != "")
 				#set($str = $savedData.getTitle().trim())
 				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
 			#elseif ($calEventFlag != "false")
-				#if ($event.getDisplayName().length() != 0)
+				#if ("$!event.getDisplayName()" != "")
 					#set($str = $event.getDisplayName().trim())
 					<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value="$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
 				#end
@@ -334,7 +334,7 @@ function resizeFrame(){
 				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
 		 
-			#if($$savedData.getAm().length() != 0)
+			#if("$!savedData.getAm()" != "")
 				#set($timeType = $savedData.getAm())
 			#else
 				#set($hourType = $event.getRange().firstTime().breakdownLocal().getHour())
@@ -469,11 +469,11 @@ function resizeFrame(){
 				$tlang.getString("new.descr")
 			</label>	
 			<table border="0" summary="layout"><tr><td>
-			#if($savedData.getDescription().length() != 0)
+			#if("$!savedData.getDescription()" != "")
 			<textarea name="description"  id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
 			#chef_setupformattedtextarea("description")
 		   #elseif ($calEventFlag != "false")
-			#if($event.getDescriptionFormatted().length() != 0)
+			#if("$!event.getDescriptionFormatted()" != "")
 			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($event.getDescriptionFormatted())</textarea>
 			#chef_setupformattedtextarea("description")
 			#else
@@ -576,13 +576,13 @@ function resizeFrame(){
 				$tlang.getString("new.itemtype")
 			</label>
 			
-			#if ($event.getType().length()!=0)
+			#if ("$!event.getType()" != "")
 				#set($type = $event.getType())
 			#else
 				#set($type = "Activity")
 			#end
 		
-			#if($savedData.getType().length() != 0)
+			#if("$!savedData.getType()" != "")
 				#set($type = $savedData.getType())
 			#end
 	
@@ -687,11 +687,11 @@ function resizeFrame(){
 			<label for="location">	
 				$tlang.getString("new.location")
 			</label>	
-			#if ($savedData.Location.length() !=0)
+			#if ("$!savedData.Location" != "")
 				#set($str = $savedData.getLocation())
 				<textarea id="location"  name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 			#elseif ($calEventFlag != "false")
-				#if ($event.Location.length() != 0)
+				#if ("$!event.Location" != "")
 					#set($str = $event.Location)
 					<textarea name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 				#else
@@ -707,11 +707,11 @@ function resizeFrame(){
 				<label for="$addfield">
 					$addfield
 				</label>	
-				#if ($savedData.getAddfieldValue($addfield).length() != 0)
+				#if ("$!savedData.getAddfieldValue($addfield)" != "")
 					#set($afv = $savedData.getAddfieldValue($addfield))
 					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($afv)</textarea>
 				#elseif ($calEventFlag != "false")
-					#if ($event.getField($addfield).length() != 0)
+					#if ("$!event.getField($addfield)" != "")
 						#set($str = $event.getField($addfield))
 						<textarea name="$addfield" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
 					#else
@@ -775,7 +775,7 @@ function resizeFrame(){
 		#end
 		#if ($event.RecurrenceRule)
 			<select name="intention">
-				#if ($savedData.IntentionStr.length() !=0)
+				#if ("$!savedData.IntentionStr" != "")
 					#set($str = $savedData.IntentionStr)
 					<option value="a" #if($str.equals("a"))selected="selected"#end>$tlang.getString("rev.modify")</option>
 					<option value="t" #if($str.equals("t"))selected="selected"#end>$tlang.getString("rev.modifyonly")</option>
