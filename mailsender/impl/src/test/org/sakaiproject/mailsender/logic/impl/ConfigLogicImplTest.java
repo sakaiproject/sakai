@@ -104,6 +104,11 @@ public class ConfigLogicImplTest {
 	@Test
 	public void getUploadDirectory() {
 		String tmp = System.getProperty("java.io.tmpdir");
+		// trim ending / to match what is done in ConfigLogicImpl
+		if (tmp.endsWith("/")) {
+			tmp = tmp.substring(0, tmp.length() - 1);
+		}
+
 		String newDir = tmp + "/configLogicImplTest";
 		File f = new File(newDir);
 		if (!f.exists()) {
