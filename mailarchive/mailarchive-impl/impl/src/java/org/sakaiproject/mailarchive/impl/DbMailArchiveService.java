@@ -459,7 +459,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 						}
 						return null;
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 						return null;
 					}
