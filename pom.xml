@@ -1,21 +1,27 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
         <version>2.9-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
-    <name>Sakai Core Project </name>
+
+    <name>Sakai base-all pom</name>
     <groupId>org.sakaiproject</groupId>
     <artifactId>base-all</artifactId>
     <packaging>pom</packaging>
+
+    <organization>
+        <name>The Sakai Foundation</name>
+        <url>http://www.sakaiproject.org/</url>
+    </organization>
+
     <url>http://www.sakaiproject.org/</url>
-    <issueManagement>
-        <system>Jira</system>
-        <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
-    </issueManagement>
+
     <licenses>
         <license>
             <name>Educational Community License, Version 2.0</name>
@@ -23,54 +29,21 @@
             <distribution>svn</distribution>
         </license>
     </licenses>
+
+    <issueManagement>
+        <system>Jira</system>
+        <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
+    </issueManagement>
+
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/sakai/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/branches/sakai-trunk-all</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/branches/sakai-trunk-all</developerConnection>
+        <url>https://source.sakaiproject.org/svn/sakai/branches/sakai-trunk-all</url>
     </scm>
-    <organization>
-        <name>The Sakai Foundation</name>
-        <url>http://www.sakaiproject.org/</url>
-    </organization>
+
     <profiles>
         <profile>
-            <id>pack-demo</id>
-            <modules>
-                <module>pack-demo</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>framework</id>
-            <modules>
-                <module>kernel-deploy</module>
-		<module>framework-shared-deploy</module>
-                <module>jstl-shared-deploy</module>
-                <module>access</module>
-                <module>alias</module>
-                <module>announcement/announcement-api/api</module>
-                <module>authz</module>
-                <module>config</module>
-                <module>content</module>
-                <module>courier</module>
-                <module>dav</module>
-                <module>login</module>
-                <module>master</module>
-                <module>memory</module>
-                <module>message/message-api/api</module>
-                <module>portal</module>
-                <module>presence/presence-api/api</module>
-                <!-- <module>jobscheduler/scheduler-api</module> -->
-                <module>reference/library</module>
-                <module>site</module>
-                <module>site-manage</module>
-                <module>tool</module>
-                <module>user</module>
-                <module>velocity</module>
-                <module>web</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>full</id>
+            <id>all</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -160,7 +133,7 @@
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <!-- <module>roster</module> -->
+                <module>roster2</module>
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
@@ -174,69 +147,6 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>cafe</id>
-            <modules>
-                <module>kernel-deploy</module>
-                <module>core-deploy</module>
-                <module>framework-shared-deploy</module>
-                <module>jstl-shared-deploy</module>
-                <module>access</module>
-                <module>alias</module>
-                <module>announcement/announcement-api/api</module>
-                <module>announcement/announcement-impl/impl</module>
-                <module>announcement/announcement-impl/pack</module>
-                <module>archive</module>
-                <module>authz</module>
-                <module>config</module>
-                <module>content/content-bundles</module>
-                <module>content/content-help</module>
-                <module>content/content-tool/tool</module>
-                <module>courier</module>
-                <module>help</module>
-                <module>login</module>
-                <module>master</module>
-                <module>message</module>
-                <module>memory</module>
-                <module>portal</module>
-                <module>presence/presence-api/api</module>
-                <module>reference</module>
-                <module>site</module>
-                <module>site-manage</module>
-                <module>tool</module>
-                <module>user/user-tool/tool</module>
-                <module>velocity</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>taglib</id>
-            <modules>
-                <module>gradebook/app/ui</module>
-                <module>help/help-tool</module>
-                <!-- <module>jsf/jsf-widgets</module> -->
-                <module>metaobj/metaobj-util/tool-lib</module>
-                <module>msgcntr/messageforums-app</module>
-                <module>osp/common/tool-lib</module>
-                <module>osp/glossary/tool-lib</module>
-                <module>osp/jsf/widgets</module>
-                <module>osp/presentation/tool-lib</module>
-                <module>podcasts/podcasts-app</module>
-                <module>postem/postem-app</module>
-                <!-- <module>profile/profile-app</module> -->
-                <module>roster/roster-app</module>
-                <module>rwiki/rwiki-tool/tool</module>
-                <!-- <module>sam/samigo-app</module> -->
-                <module>sections/sections-app</module>
-                <module>sections/sections-app-util</module>
-                <module>syllabus/syllabus-app</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>was</id>
-            <modules>
-                <module>was</module>
             </modules>
         </profile>
     </profiles>
@@ -256,16 +166,10 @@
                     <breakiterator>true</breakiterator>
                     <verbose>false</verbose>
                     <aggregate>true</aggregate>
-                        <maxmemory>512m</maxmemory>
-                        <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+                    <maxmemory>512m</maxmemory>
+                    <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
                 </configuration>
             </plugin>
-            <!--
-                <plugin> <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration> <aggregate>true</aggregate>
-                </configuration> </plugin>
-            -->
         </plugins>
     </reporting>
 </project>
