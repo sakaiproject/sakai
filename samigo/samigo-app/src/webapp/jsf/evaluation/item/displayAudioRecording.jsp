@@ -50,11 +50,9 @@ should be included in file importing DeliveryMessages
       <f:verbatim><br /></f:verbatim>    
 	  
 	  <div>
-      <h:outputText value="#{evaluationMessages.can_you_hear_1}"  escape="false"/>
-      <h:outputLink value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
-        <h:outputText value=" #{evaluationMessages.can_you_hear_2} " escape="false" />
-      </h:outputLink>
-      <h:outputText value="#{evaluationMessages.can_you_hear_3}"  escape="false"/>
+	   <h:outputFormat value=" #{deliveryMessages.can_you_hear}" escape="false">
+			<f:param value="<a href=\"#{author.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false\"/> #{deliveryMessages.can_you_hear_2}</a>" />
+      </h:outputFormat>
       </div>
 	  
 	</h:column>

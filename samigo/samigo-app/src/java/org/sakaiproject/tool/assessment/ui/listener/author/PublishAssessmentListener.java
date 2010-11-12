@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -326,53 +327,20 @@ public class PublishAssessmentListener
 	  message.append("\"");
 	  message.append(" ");
 	  
-	  if (startDateString != null && !startDateString.trim().equals("")) {
-		  message.append(rl.getString("will_be"));
-		  message.append(" ");
-		  message.append(bold_open);
-		  message.append(rl.getString("available_on"));
-		  message.append(" ");
-		  message.append(startDateString);
-		  message.append(bold_close);
-	  }
-	  else {
-		  message.append(rl.getString("is"));
-		  message.append(" ");
-		  message.append(bold_open);
-		  message.append(rl.getString("available_immediately_2"));
-		  message.append(bold_close);
-	  }
-	  message.append(newline);
-	  
 	  if ("Anonymous Users".equals(releaseTo)) {
-		  message.append(rl.getString("to_take_anonymously"));
+		  message.append(MessageFormat.format(rl.getString("available_anonymously_at"), startDateString, publishedURL));
 	  }
 	  else if (AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo)) {
-		  message.append(rl.getString("to"));
-		  message.append(" ");
-		  message.append(releaseToGroupsAsString);
-		  message.append(startDateString);
+		  message.append(MessageFormat.format(rl.getString("available_group_at"), startDateString, releaseToGroupsAsString, publishedURL));
 	  }
 	  else {
-		  message.append(rl.getString("to_the_entire_class"));
+		  message.append(MessageFormat.format(rl.getString("available_class_at"), startDateString, publishedURL));
 	  }
-	  
-	  message.append(" ");
-	  message.append(rl.getString("at"));
-	  message.append(" ");
-	  message.append(publishedURL);
-	  message.append(". ");
 	  
 	  if (dueDateString != null && !dueDateString.trim().equals("")) {
 		  message.append(newline);
-		  message.append(rl.getString("it_is"));
-		  message.append(" ");
-		  message.append(bold_open);
-		  message.append(rl.getString("due"));
-		  message.append(" ");
-		  message.append(dueDateString);
-		  message.append(bold_close);
-		  message.append(". ");
+		  message.append(newline);
+		  message.append(MessageFormat.format(rl.getString("it_is_due"), dueDateString));
 	  }
 	  
 	  message.append(newline);
@@ -405,11 +373,7 @@ public class PublishAssessmentListener
 		  message.append(rl.getString("student_submit_unlimited_times"));
 	  }
 	  else {
-		  message.append(rl.getString("student_submit"));
-		  message.append(" ");
-		  message.append(submissionsAllowed);
-		  message.append(" ");
-		  message.append(rl.getString("times"));
+		  message.append(MessageFormat.format(rl.getString("student_submit_certain_time"), submissionsAllowed));
 	  }
 
 	  // Scoring type
@@ -425,50 +389,33 @@ public class PublishAssessmentListener
 	  message.append(newline);
 
 	  // Feedback
-	  message.append(rl.getString("students_will_receive"));
-	  message.append(" ");
 	  if ("1".equals(feedbackDelivery)) {
-		  message.append(bold_open);
-		  message.append(rl.getString("immediate_feedback_2"));
-		  message.append(bold_close);
+		  message.append(rl.getString("receive_immediate"));
 	  }
 	  else if ("4".equals(feedbackDelivery)) {
-		  message.append(bold_open);
-		  message.append(rl.getString("feedback_on_submission_1"));
-		  message.append(bold_close);
+		  message.append(rl.getString("receive_feedback_on_submission"));
 	  }
 	  else if ("3".equals(feedbackDelivery)) {
-		  message.append(bold_open);
-		  message.append(rl.getString("no_feedback_short_2"));
-		  message.append(bold_close);
+		  message.append(rl.getString("receive_no_feedback"));
 	  }
 	  else {
-		  message.append(bold_open);
-		  message.append(rl.getString("feedback_2"));
-		  message.append(bold_close);
-		  message.append(" ");
-		  message.append(rl.getString("at"));
-		  message.append(" ");
-		  message.append(bold_open);
-		  message.append(feedbackDateString);
-		  message.append(bold_close);
+		  message.append(MessageFormat.format(rl.getString("feedback_available_on"), feedbackDateString));
 	  }
-	  message.append(". ");
 	  message.append(newline);
 	  message.append(newline);
 	  
+	  StringBuffer siteTitleSb = new StringBuffer();
+	  siteTitleSb.append(" \"");
+	  siteTitleSb.append(siteTitle);
+	  siteTitleSb.append("\" ");
+	  StringBuffer portalUrlSb = new StringBuffer();
+	  portalUrlSb.append(" <a href=\"");
+	  portalUrlSb.append(ServerConfigurationService.getPortalUrl());
+	  portalUrlSb.append("\">");
+	  portalUrlSb.append(ServerConfigurationService.getPortalUrl());
+	  portalUrlSb.append("</a>");
+	  message.append(MessageFormat.format(rl.getString("notification_content"), siteTitleSb.toString(), portalUrlSb.toString()));
 	  
-	  message.append(rl.getString("notification_content_1"));
-	  message.append(" \"");
-	  message.append(siteTitle);
-	  message.append("\" ");
-	  message.append(rl.getString("notification_content_2"));
-	  message.append(" <a href=\"");
-	  message.append(ServerConfigurationService.getPortalUrl());
-	  message.append("\">");
-	  message.append(ServerConfigurationService.getPortalUrl());
-	  message.append("</a>");
-	  message.append(".");
 	  message.append(newline);
 	  message.append(newline);
 

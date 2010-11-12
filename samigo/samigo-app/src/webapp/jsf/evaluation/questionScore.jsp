@@ -148,7 +148,11 @@ document.location='../evaluation/questionScore';
 	    </h:column>
       </samigo:dataLine>
 
-	  <h:outputText value="#{evaluationMessages.random_draw_info_1} #{partinit.numberQuestionsDraw} #{evaluationMessages.random_draw_info_2} #{partinit.numberQuestionsTotal} #{evaluationMessages.random_draw_info_3} " rendered="#{partinit.isRandomDrawPart}" />
+	  <h:outputFormat value="#{evaluationMessages.random_draw_info}" >
+	  	<f:param value="#{partinit.numberQuestionsDraw}" />
+		<f:param value="#{partinit.numberQuestionsTotal}" />
+	  </h:outputFormat>
+
 	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{partinit.isRandomDrawPart}" >
         <h:column>
           <h:commandLink title="#{evaluationMessages.t_questionScores}"action="questionScores" immediate="true" >

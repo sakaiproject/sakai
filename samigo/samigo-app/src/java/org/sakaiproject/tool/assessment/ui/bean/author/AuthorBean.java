@@ -102,6 +102,7 @@ public class AuthorBean implements Serializable
   private boolean isEditable;
   
   private boolean justPublishedAnAssessment = false;
+  private String protocol;
   
   
   /**
@@ -735,4 +736,12 @@ public class AuthorBean implements Serializable
     return isErrorInSettings;
   }
   
+  public String getProtocol(){
+	  return protocol;
+  }
+  
+  public void setProtocol(String protocol){
+	  this.protocol = protocol;
+  }
+
 }

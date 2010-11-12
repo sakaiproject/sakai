@@ -110,23 +110,10 @@ function saveTime()
 
   <h:panelGroup styleClass="validation">
     <h:panelGrid border="0">
-	  <h:outputText value="#{deliveryMessages.submit_warning_1}" />
-	  <h:panelGroup>
-	    <h:outputText value="#{deliveryMessages.submit_warning_2}" />
-        <h:outputText value=" <b>#{deliveryMessages.button_submit_grading}</b> "  escape="false"/>
-	    <h:outputText value="#{deliveryMessages.submit_warning_3}" />
-	  </h:panelGroup>
-	  <h:panelGroup rendered="#{delivery.navigation ne '1'}">
-	    <h:outputText value="#{deliveryMessages.submit_warning_4}" />
-	    <h:outputText value=" <b>#{deliveryMessages.previous}</b> " escape="false"/>
-	    <h:outputText value="#{deliveryMessages.submit_warning_5}" />
-	  </h:panelGroup>
-
-         <h:panelGroup rendered="#{delivery.navigation eq '1'}">
-            <h:outputText value="#{deliveryMessages.submit_warning_4}" />
-            <h:outputText value=" <b>#{commonMessages.cancel_action}</b> " escape="false"/>
-            <h:outputText value="#{deliveryMessages.submit_warning_6}" />
-          </h:panelGroup>
+	  <h:outputText value="#{deliveryMessages.submit_warning_1}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_2}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_3_non_linear}" rendered="#{delivery.navigation ne '1'}" escape="false"/>
+	  <h:outputText value="#{deliveryMessages.submit_warning_3_linear}" rendered="#{delivery.navigation eq '1'}" escape="false"/>
 	</h:panelGrid>
   </h:panelGroup>
 

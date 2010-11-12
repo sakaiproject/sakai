@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.text.MessageFormat;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
@@ -101,9 +103,7 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "is_available_immediately"));
 				}
 				else {
-					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "will_be_available_on"));
-					subject.append(" ");
-					subject.append(startDateString);
+					subject.append(MessageFormat.format(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "is_available_on"), startDateString));
 				}
 			}
 			else {

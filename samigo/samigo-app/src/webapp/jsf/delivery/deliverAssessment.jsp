@@ -209,8 +209,8 @@ String.prototype.endsWith = function(txt)
 
 <h:panelGrid columns="1" width="100%" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" border="0">
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_1}"/>
-      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_2} <b>#{deliveryMessages.button_submit_grading}</b>  #{deliveryMessages.linear_no_contents_warning_3}"  escape="false"/>
-      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_4} <b>#{commonMessages.cancel_action}</b>  #{deliveryMessages.linear_no_contents_warning_5}"  escape="false"/>
+      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_2}" escape="false"/>
+      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_3}" escape="false"/>
 </h:panelGrid>
 
 <h:panelGroup rendered="#{!delivery.pageContents.isNoParts || delivery.navigation ne '1'}">

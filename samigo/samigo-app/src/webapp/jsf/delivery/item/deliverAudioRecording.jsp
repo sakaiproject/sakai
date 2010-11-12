@@ -63,9 +63,9 @@ should be included in file importing DeliveryMessages
       <f:verbatim></span></f:verbatim>
       <h:outputText value="#{deliveryMessages.close_bracket}"/>
       <f:verbatim><br /></f:verbatim>
-      <h:outputText value="#{deliveryMessages.can_you_hear_1}"  escape="false"/>
-      <f:verbatim><a id="</f:verbatim><h:outputText value="link#{question.itemData.itemId}" /><f:verbatim>" href="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&setMimeType=false" /><f:verbatim>" ></f:verbatim><h:outputText value=" #{deliveryMessages.can_you_hear_2} " escape="false" /><f:verbatim></a></f:verbatim>
-      <h:outputText value="#{deliveryMessages.can_you_hear_3}"  escape="false"/>
+      <h:outputFormat value=" #{deliveryMessages.can_you_hear}" escape="false">
+		<f:param value="<a href=\"#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&setMimeType=false\"/> #{deliveryMessages.can_you_hear_2}</a>" />
+      </h:outputFormat>
     </h:panelGroup>
   </h:panelGrid>
 <f:verbatim></div></f:verbatim>

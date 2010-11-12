@@ -91,7 +91,8 @@ public class AuthorActionListener
     GradingService gradingService = new GradingService();
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
                        "author");
-
+    author.setProtocol(ContextUtil.getProtocol());
+    
     //#1 - prepare active template list. Note that we only need the title. We don't need the
     // full template object - be cheap.
     String showAssessmentTypes = ServerConfigurationService.getString("samigo.showAssessmentTypes");

@@ -80,40 +80,10 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 			  </h:panelGrid>
 
 			  <h:panelGrid columns="1" border="0">
-				<h:panelGroup>
-				<h:outputText value="#{evaluationMessages.how_content_21} "/>
-				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{commonMessages.settings_action} "/>
-				<f:verbatim></b></f:verbatim>	
-				<h:outputText value="#{evaluationMessages.how_content_23}"/>
-				</h:panelGroup>
-
-				<h:panelGroup>
-				<h:outputText value="#{evaluationMessages.how_content_31} "/>
-				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{evaluationMessages.how_content_32}"/>
-				<f:verbatim></b></f:verbatim>	
-				<h:outputText value="#{evaluationMessages.how_content_33}"/>
-				</h:panelGroup>
-
-				<h:panelGroup>
-				<h:outputText value="#{evaluationMessages.how_content_41} "/>
-				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{evaluationMessages.how_content_42}"/>
-				<f:verbatim></b></f:verbatim>	
-				<h:outputText value="#{evaluationMessages.how_content_43} "/>
-				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{commonMessages.grader_comments}"/>
-				<f:verbatim></b></f:verbatim>
-				</h:panelGroup>
-
-				<h:panelGroup>
-				<h:outputText value="#{evaluationMessages.how_content_51} "/>
-				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{evaluationMessages.how_content_52} "/>
-				<f:verbatim></b></f:verbatim>	
-				<h:outputText value="#{evaluationMessages.how_content_53}"/>
-				</h:panelGroup>
+			  	<h:outputText value="#{evaluationMessages.how_content_2}" escape="false"/>
+			  	<h:outputText value="#{evaluationMessages.how_content_3}" escape="false"/>
+			  	<h:outputText value="#{evaluationMessages.how_content_4}" escape="false"/>
+			  	<h:outputText value="#{evaluationMessages.how_content_5}" escape="false"/>
 			  </h:panelGrid>
 
               <f:verbatim><br /></f:verbatim>
