@@ -104,6 +104,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		return "Sakai Login";
 	}
 	
+	@SuppressWarnings(value = "HRS_REQUEST_PARAMETER_TO_HTTP_HEADER", justification = "Looks like the data is already URL encoded")
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 		throws ServletException, IOException 
 	{
@@ -148,8 +149,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		}
 
 		// see if we need to check container
-		// @SuppressWarnings(value = "HRS_REQUEST_PARAMETER_TO_HTTP_HEADER",
-		// justification = "Looks like the data is already URL encoded")
 		boolean checkContainer = ServerConfigurationService.getBoolean("container.login", false);
 		if (checkContainer && !skipContainer)
 		{
@@ -168,8 +167,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 				/*
 				 * FindBugs: HRS_REQUEST_PARAMETER_TO_HTTP_HEADER Looks like the
-				 * data is already URL encoded. Cannot get the @SuppressWarnings
-				 * as expected.
+				 * data is already URL encoded. Had to @SuppressWarnings
+				 * the entire method.
 				 */
 				res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
 				return;
