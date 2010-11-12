@@ -16,7 +16,15 @@ html {
 .portletpda .portletBody > *{
 	padding:0 .5em;
 }
-
+/*
+Def above pads all direct descendants of .portletBody.
+Pages where "form" is the only direct descendant (jsf) need a negative
+margin below on the toolbar if there is one to make it flush horiz.
+*/
+.portletpda .portletBody > form > .navIntraTool{
+	margin:0 -.5em
+}
+    
 .portletpda .portletBody input[type="button"],
 	.portletpda .portletBody input[type="submit"],
 	.portletpda .portletBody input[type="reset"],
@@ -24,11 +32,11 @@ html {
 	.portletpda .portletBody input[type="radio"],
 	.portletpda .portletBody input[type="checkbox"],
 	.portletpda .portletBody select{
-		margin:.3em 0;
+    	margin:.3em 0;
 		font-size: .8em !important;
 }
 
-	.portletpda .portletBody input[type="text"]{
+.portletpda .portletBody input[type="text"]{
 		margin:.3em 0;
 		font-size: 1.1em !important;
 		
@@ -54,7 +62,7 @@ html {
 	font-size: 14px;
 	font-family: Helvetica, Arial, sans-serif;
 	width:100%;
-	background:#09C url(images/pda-menu-back.gif) top left repeat-x;
+	background:#1D4EA3 url(images/pda-menu-back.gif) center left repeat-x;
 	list-style: none;
 	color:#fff;
 	margin:0;
@@ -72,17 +80,19 @@ html {
 	display: inline;
 	float:left;
 }
+#pda-portlet-menu li.resetToolLink a, #pda-portlet-menu  li.jsreditLink a{
+    padding-left:10px;
+} 
+#pda-portlet-menu a img{
+    border:none
+} 
 
-#pda-portlet-menu li.resetToolLink{
-    padding-left:5px;
-}
 #pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteParentLink:before,#pda-portlet-menu li.currentSiteChildLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
 	content: "\00BB \0020";
 	color: #ff9;
 	font-weight: bold;
 }
 
-/*the first item in the menu - may contain an instance string "CamTools" or "OnCourse"*/
 #pda-portlet-menu li.instanceNote:before{
 	content: "";
 	visibility:hidden;
@@ -93,22 +103,21 @@ html {
     display:block;
     width:45px;
     height:25px
-    
 }
 #pda-portlet-menu li.sitesLink:before{
 	content: "\00BB";
 	visibility:hidden;
 	color: #fff;
 }
-
+/*the first item in the menu - contains small logo*/
 #pda-portlet-menu li.instanceNote{
 	color:#fff;
-    padding:0 4px 4px 4px;
-    background:#09c url(images/pda-menu-instance-icon.gif) top left no-repeat;
+    padding:0 10px 4px 4px;
+    background:transparent url(images/pda-menu-instance-icon.gif) center left no-repeat;
 	width:40px;
 }
 /*put non site links to the right*/
-#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink  {
+#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink {
 	background: none;
 	float:right;
 }
@@ -163,69 +172,21 @@ html {
 	color:#aaa;
 }
 #pda-portlet-page-menu li:hover, #pda-portlet-site-menu li:hover{
-	background:#eee
+	background:#eee url(images/pda-list-arrow.png) center right no-repeat;
 	}
+#pda-portlet-site-menu li, #pda-portlet-page-menu li{
+   background:url(images/pda-list-arrow.png) center right no-repeat;
+   }     
+	
+
 #pda-portlet-site-menu a, #pda-portlet-page-menu a{
 	color:#333;
 	text-decoration:none;
 	padding:0;
-	background:url(images/pda-list-arrow.png) center right no-repeat;
 	display:block;
 	margin:0;
 	width: 100%;
 }	
-
-/*external login form formatting*/
-.loginPDA{
-		border-top: 1px solid #aaa;
-		margin: 3em auto;
-		width: auto;
-}
-.login th, .loginPDA th{
-		background: #ccc;
-		height:24px;
-		padding:0;
-		color:#000;
-		border:none;
-}
-
-.login td.logo, .loginPDA td.logo{
-	width: 160px;
-	background:#fff url(images/sak-small.png) 40% 20%  no-repeat
-}
-
-.login td.form, .loginPDA td.form{
-	padding: .5em;
-
-}
-
-.loginform td{
-	color: #000;
-}
-
-.loginform label{
-}
-
-.loginform td{
-	padding: .3em;
-}
-
-.loginPDA .loginform td{
-	padding: 0;
-	color: #fff;
-}
-
-.loginform td #eid, .loginform td #pw {
-	padding:.2em;
-	font-family:verdana, arial, helvetica, sans-serif;
-	border: 1px solid #AAAAAA;
-}
-
-.loginform td #submit{
-	color:#09C;
-	float: right;
-}
-
 #presdiv {
 	position:absolute;
 	top:25px;right:5px;
@@ -239,19 +200,20 @@ html {
 	overflow:auto;
 }
 
+
 #pda-footer {
-	font-size: 14px !important;
-	font-weight:bold;
-	background-color:#09C;
-	padding: 1em 0;
-    vertical-align:middle;	
-	text-align: center;
+	padding: .8em;
+	height:100%;
+    text-align:center;
+    background:#1D4EA3 url(images/pda-menu-back.gif) center left repeat-x;
+	overflow:hidden;
 }
+
 
 .switch-link, .switch-link:visited{
 	color:#000 !important;
 	background:#fff;
-	padding:10px;
+	padding:5px;
 	text-decoration:none;
 	-webkit-border-radius:10px;
 	-moz-border-radius:10px;
@@ -269,7 +231,78 @@ html {
 	height: 0;
 }
 /*
-next block has overrides optimizing for certail mobile devices
+next block has overrides optimizing for certain mobile devices
+*/
+/*
+iPad:
+ Gets overall same treatment as default above (full breadcrumb) + some iOS browser enhancements
+*/
+
+/*
+pad the top menu so user no longer clicks on the iPad OS toolbar by mistake
+*/
+@media only screen and (max-device-width: 1024px){
+    #pda-portlet-menu{
+        height:25px;
+        padding-top:10px;
+        padding-bottom:10px;
+        }
+#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before, #pda-portlet-menu li.currentSiteParentLink:before, #pda-portlet-menu li.currentSiteChildLink:before{
+    margin-left:5px;
+    margin-right:5px;
+}
+.logoutLink, .loginLink, .switch-link{
+	position:absolute;
+	top:5px;
+    margin-top:4px;
+	right:4px;
+    -webkit-border-image: url(images/pda-button.png) 10 stretch;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+    font: normal  bold 13px / 21px Helvetica, sans-serif;
+	height:22px;
+	padding:0px !important;
+    border-width: 5px;
+	text-decoration: none;
+}
+
+.logoutLink a, .loginLink a,.logoutLink a:active, .loginLink a:active, .logoutLink a:focus, .loginLink a:focus{
+		text-decoration: none !important;
+        color:#fff !important
+}
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    -webkit-tap-highlight-color: #fff;
+    -webkit-text-size-adjust: none;
+}
+
+#pda-footer {
+	padding:5px 0 2px;
+	height:34px;
+    background:#1D4EA3 url(images/pda-menu-back.gif) top left repeat-x;
+	overflow:hidden;
+}
+
+.switch-link, .switch-link:visited {
+	position:relative;
+    top:5px;
+	color:#fff !important;
+	background:none;
+	padding:5px !important;
+	text-decoration:none !important;
+	-webkit-border-radius:0;
+	-moz-border-radius:0;
+	border-radius:0;
+}
+.logoutLink, .loginLink{
+	top:3px;
+	right:3px;
+}
+	
+}
+/*
+iPhone, iPod Touch
+Breadcrumb is minimized (logo: link to sites list; site title: link to tool list, tool reload icon link, lti/jsr168 settings icon link).
+Tool title, explicit link to sites, parent site link, help link are hidden. This might disorient the few current users just a little bit, but
+it will make the experience better for any new takers 
 */
 @media screen and (max-device-width: 480px){
 html {
@@ -278,24 +311,31 @@ html {
 #pda-portlet-menu{
 	position:absolute;
 	top:0;
+    padding:0;
 	height:35px;
 	font-size: 14px !important;
 	width:100%;
-	background:#09C url(images/pda-menu-back-ip.png) top left repeat-x;
+	background:#1D4EA3 url(images/pda-menu-back.gif) top left repeat-x;
 	border-bottom:1px solid #222
 }
 #pda-portlet-site-menu, #pda-portlet-page-menu, .portletpda .portletBody{
 	margin-top:36px;
 }
-#pda-portlet-menu li.sitesLink:before, #pda-portlet-menu li.currentSiteLink:before, #pda-portlet-menu li.currentToolTitle:before {
+#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteParentLink:before,#pda-portlet-menu li.currentSiteChildLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
     content: "";
 }
+#pda-portlet-menu a:focus,#pda-portlet-menu a:active{
+    text-decoration:none
+}   
+    
 #pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
     font-size: 14px;
 	padding-top:10px;
+    padding-left:10px;
+    background:url(images/pda-site-home.png) 0  10px no-repeat;
 	position:relative;
 	height:35px;
-    width: 11em !important;
+    width: 9em !important;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -313,13 +353,16 @@ html {
 	position:relative;
     margin: -6px 3px 0;
     padding: 5px 5px 5px 0 !important;
-    background: url(images/pda-menu-instance-icon-ip.png) center left no-repeat;
+    background: url(images/pda-menu-instance-icon.gif) 0 4px no-repeat;
     width: 55px;
 }
-#pda-portlet-menu li.resetToolLink{
-    padding:10px 5px;
+#pda-portlet-menu li.resetToolLink a, #pda-portlet-menu  li.jsreditLink a{
+   	position:relative;
+	top:3px;    
+    height:35px;
+    display:block;
+    padding:0 2px;
 }
-
 #pda-portlet-menu li.helpLink, .currentSiteParentLink, .currentToolTitle, #pda-portlet-menu li.sitesLink {
     display: none  !important
 }
@@ -328,34 +371,43 @@ html {
 }
 .logoutLink, .loginLink, .switch-link{
 	position:absolute;
-	top:2px;
+	top:-1px;
 	right:2px;
     -webkit-border-image: url(images/pda-button.png) 10 stretch;
     text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
-    font: normal  bold 13px / 20px Helvetica, sans-serif;
-	height:20px;
-	padding:2px !important;
-    border-width: 3px;
+    font: normal  bold 12px / 20px Helvetica, sans-serif;
+	height:18px;
+	padding:0  !important;
+    border-width: 6px;
 	text-decoration: none;
 }
-
-.logoutLink a, .loginLink a,.logoutLink a:active, .loginLink a:active, .logoutLink a:focus, .loginLink a:focus{
-		text-decoration: none !important;
-}
-#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+.logoutLink:active, .loginLink:active, .switch-link:active,.logoutLink:focus, .loginLink:focus, .switch-link:focus,{
+    	text-decoration: none !important;
+    }
+#pda-portlet-site-menu li, #pda-portlet-page-menu li{
     -webkit-tap-highlight-color: #fff;
     -webkit-text-size-adjust: none;
+}    
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    width:280px !important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 
-
+.portletMainWrap+#pda-footer{
+    margin-top:50px
+}
 #pda-footer {
-	padding: .7em 0 1em 0;
+	padding: .7em 0 .9em 0;
 	height:100%;
+    background:#03348E url(images/pda-menu-back.gif) top left repeat-x;
 	overflow:hidden;
 }
 
 .switch-link, .switch-link:visited {
 	position:relative;
+    top:2px;
 	color:#fff !important;
 	background:none;
 	padding:5px !important;
@@ -365,4 +417,108 @@ html {
 	border-radius:0;
 }	
 
+/*
+tweak the resources and dropbox list to make it usable in this format
+*/
+/*
+hide some columns
+*/
+form#showForm table th#access,form#showForm table th#creator,form#showForm table th#modified,form#showForm table th#size,form#showForm table td[headers='access'],form#showForm table td[headers='creator'],form#showForm table td[headers='modified'],form#showForm table td[headers='size'],form#showForm table td[colspan='4']{
+    display:none
 }
+/*
+set the width of other columns
+*/
+form#showForm table td[headers='expansion'], form#showForm table td[headers='checkboxes']{
+    width:3px;
+}
+/*
+make menus smaller
+*/
+form#showForm table .menuOpen{
+    font-size:85%;
+    white-space:nowrap;
+}
+.navIntraToolLink input.enabled{
+    border:none !important;
+}
+/*
+set the size of resource names (default for portrait orientation) and add a trim and ellipsis if longer
+*/
+form#showForm table td[headers='title'] h3,form#showForm table td[headers='title'] h4, form#showForm table td[headers='title'] h5, form#showForm table td[headers='title'] h6{
+    width:120px !important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-size:90%;
+    font-weight:bold;
+    white-space:nowrap;
+}
+/*
+tweak the announcement list to make it usable in this format
+*/
+form[name='announcementListForm'] table td{
+    font-size:90%
+}
+/*
+hide some metadata columns
+*/
+form[name='announcementListForm'] table th#releaseDate, form[name='announcementListForm'] table th#retractDate,
+form[name='announcementListForm'] table td[headers='releaseDate'],form[name='announcementListForm'] table td[headers='retractDate']{
+    display:none;
+}
+/*
+set the size of announc titles (default for portrait orientation) and add a trim and ellipsis of longer
+*/
+
+form[name='announcementListForm'] table td[headers='subject'] h4 {
+    width:120px !important;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+}
+/*
+adjust text trimming for site link in toolbar and in Sites menu (as well as Resource titles
+for a landscape orientation of the iPhone/iPod  T
+*/ 
+@media only screen and (orientation:landscape) and (max-device-width: 480px){
+    #pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
+    width: 20em !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    width:460px !important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+/*
+resource title length in landscape orientation
+*/
+form#showForm table td[headers='title'] h3,form#showForm table td[headers='title'] h4, form#showForm table td[headers='title'] h5, form#showForm table td[headers='title'] h6{
+    width:250px !important;
+    overflow:hidden;
+}
+
+    }
+
+/*
+Overrides for specific tools that use iframes or the ability to invoke them, which will not work in the mobile portal.
+NOTE: some functionality is removed from the tool by this:
+ - rwiki: cannot create or edit comments, or preview a wiki edit
+ - chat: cannot see list of people in room
+*/
+#createCommentLink, #commentsList .itemAction, #rwiki_tabholder #preview{
+    display:none;
+}
+#chatPresenceWrapper{
+    display:none;
+}
+#chatListWrapper{
+    float:none !important;
+    clear:both !important;
+    width:100% !important
+}
+

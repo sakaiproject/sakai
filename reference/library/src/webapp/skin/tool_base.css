@@ -517,7 +517,7 @@ ie - site creation*/
 	color: #888;
 	font-size: 1em;
 	margin: 5px 0px;
-	padding: 5px 5px 5px 25px;
+	padding: 5px 5px 5px 25px !important;
 }
 
 /*indicate success*/
@@ -534,7 +534,7 @@ ie - site creation*/
 	color: #000;
 	font-size: 1em;
 	margin: 5px 0px;
-	padding: 5px 5px 5px 25px;
+	padding: 5px 5px 5px 25px !important;
 }
 
 /*indicate failed validation, non-system errors*/
@@ -549,7 +549,7 @@ ie - site creation*/
 	clear: both;
 	color: #b11;
 	margin: 5px 0;
-	padding: 5px 5px 5px 25px;
+	padding: 5px 5px 5px 25px !important;
 }
 
 /*yet another way to indicate a field that failed validation - treats just the label color via inheritance*/
@@ -597,7 +597,7 @@ h3 .breadCrumb{
 new message types - see http://bugs.sakaiproject.org/jira/browse/SAK-14197 
 and for usage http://www.umich.edu/~gsilver/messages/
 */
-.messageError,.messageValidation,.messageConfirmation,.messageSuccess,.messageInformation,.messageInstruction,.messageProgress{/*common to all messages types*/ margin:.5em 0;padding:3px 3px 3px 2em;background-position:3px 3px;background-repeat:no-repeat;height:100%;overflow:hidden;clear:both}
+.messageError,.messageValidation,.messageConfirmation,.messageSuccess,.messageInformation,.messageInstruction,.messageProgress{/*common to all messages types*/ margin:.5em 0;padding:3px 3px 3px 2em !important;background-position:3px 3px;background-repeat:no-repeat;height:100%;overflow:hidden;clear:both}
 .messageError{background-image:url(images/exclamation.png);background-color:#fbb;border:1px solid #c00}
 .messageValidation{background-image:url(images/error.png);background-color:#fee;border:1px solid #f55}
 .messageConfirmation{background-image:url(images/asterisk_orange.png);background-color:#ffe;border:1px solid #b71}
