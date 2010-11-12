@@ -9,7 +9,7 @@
     </parent>
     <name>Sakai Core Project </name>
     <groupId>org.sakaiproject</groupId>
-    <artifactId>base</artifactId>
+    <artifactId>base-all</artifactId>
     <packaging>pom</packaging>
     <url>http://www.sakaiproject.org/</url>
     <issueManagement>
