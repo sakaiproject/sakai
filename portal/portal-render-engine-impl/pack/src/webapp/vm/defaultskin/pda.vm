@@ -126,7 +126,7 @@ ${responseHead}
   #end
 #end
 #if (${currentPlacement.toolJSR168Edit} )
-	<li class="jsreditLink"><span><a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a></span></li>
+	<li class="jsreditLink"><span><a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}"><img src="${pageSkinRepo}/${pageSkin}/images/pda-edit-sett.png" alt="${rloader.sit_edit}" /></a></span></li>
 #end
 #if ( ${wurflSmallDisplay} ) 
   <!-- WURFL Small Display -->
