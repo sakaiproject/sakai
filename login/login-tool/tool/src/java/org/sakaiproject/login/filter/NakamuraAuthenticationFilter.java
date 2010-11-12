@@ -201,8 +201,8 @@ public class NakamuraAuthenticationFilter implements Filter {
 				LOG.warn("top.login is usually disabled in sakai.properties for container authentication scenarios");
 			}
 
-			componentManager = (ComponentManager) org.sakaiproject.component.cover.ComponentManager
-					.get(ComponentManager.class);
+			componentManager = org.sakaiproject.component.cover.ComponentManager
+					.getInstance();
 			if (componentManager == null) {
 				throw new IllegalStateException("componentManager == null");
 			}
