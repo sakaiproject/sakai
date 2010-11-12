@@ -20,6 +20,8 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -63,7 +65,10 @@ public class MySearch extends BasePage {
 	private AjaxButton clearButton;
 	private TextField<String> sbiInterestField;
 	private TextField<String> sbnNameField;
-		
+	
+	// Cookie isn't serializable
+	private transient Cookie cookie = null;
+	
 	public MySearch() {
 		
 		log.debug("MySearch()");
@@ -76,6 +81,9 @@ public class MySearch extends BasePage {
 		//get current user info
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		final String currentUserType = sakaiProxy.getUserType(currentUserUuid);
+		
+		//check for search cookie
+		cookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.SEARCH_COOKIE);
 		
 		/* 
 		 * 
@@ -149,6 +157,11 @@ public class MySearch extends BasePage {
 		clearButton = new AjaxButton("clearButton", clearResultsForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
+				// clear cookie if present
+				if (null != cookie) {
+					getWebRequestCycle().getWebResponse().clearCookie(cookie);
+				}
+				
 				//clear the fields, hide self, then repaint
 				sbnNameField.clearInput();
 				sbnNameField.updateModel();
@@ -168,7 +181,9 @@ public class MySearch extends BasePage {
 			}				
 		};
 		clearButton.setOutputMarkupPlaceholderTag(true);
-		clearButton.setVisible(false); //invisible until we have something to clear
+		if (null == cookie) {
+			clearButton.setVisible(false); //invisible until we have something to clear
+		}
 		clearButton.setModel(new ResourceModel("button.search.clear"));
 		clearResultsForm.add(clearButton);
 		numSearchResultsContainer.add(clearResultsForm);
@@ -187,7 +202,9 @@ public class MySearch extends BasePage {
 		//container which wraps list
 		resultsContainer = new WebMarkupContainer("searchResultsContainer");
 		resultsContainer.setOutputMarkupPlaceholderTag(true);
-		resultsContainer.setVisible(false); //hide initially
+		if (null == cookie) {
+			resultsContainer.setVisible(false); //hide initially
+		}
 		
 		//connection window
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
@@ -392,66 +409,23 @@ public class MySearch extends BasePage {
 					//get the model and text entered
 	        		StringModel stringModel = (StringModel) form.getModelObject();
 					String searchText = FormattedText.processFormattedText(stringModel.getString(), new StringBuffer());
-					
+										
 					log.debug("MySearch() search.getSearchName(): " + searchText);
 				
-					//clear the interest search field
-					sbiInterestField.clearInput();
-					sbiInterestField.updateModel();
-					
-					//search both UDP and SakaiPerson for matches.
-					results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
-	
-					int numResults = results.size();
-					int maxResults = sakaiProxy.getMaxSearchResults();
-					int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
-					
-					//show the label wrapper
-					numSearchResultsContainer.setVisible(true);
-					
-					//text
-					if(numResults == 0) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
-						resultsContainer.setVisible(false);
-						clearButton.setVisible(false);
-						searchResultsNavigator.setVisible(false);
-					} else if (numResults == 1) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(false);
-					} else if (numResults == maxResults) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(true);
-					} else if (numResults > maxResultsPerPage) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(true);
-					} else {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(false);
-					}
-					
+					// set cookie
+					setCookie(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_NAME, searchText);
+									
 					//post view event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					
-					//repaint components
-					target.addComponent(sbiInterestField);
-					target.addComponent(clearButton);
-					target.addComponent(numSearchResultsContainer);
-					target.addComponent(resultsContainer);
-					target.appendJavascript("setMainFrameHeight(window.name);");	
+					searchByName(resultsListView, searchResultsNavigator,
+							target, searchText);	
 				}				
             }
 		};
 		sbnSubmitButton.setModel(new ResourceModel("button.search.byname"));
 		sbnForm.add(sbnSubmitButton);
-        add(sbnForm);        
+        add(sbnForm);
         
         /* 
 		 * 
@@ -473,62 +447,158 @@ public class MySearch extends BasePage {
 
 					log.debug("MySearch() search.getSearchInterest(): " + searchText);
 					
-					//clear the name search field
-					sbnNameField.clearInput();
-					sbnNameField.updateModel();
-					
-					//search SakaiPerson for matches
-					results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
-										
-					int numResults = results.size();
-					int maxResults = sakaiProxy.getMaxSearchResults();
-					int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
-					
-					//show the label wrapper
-					numSearchResultsContainer.setVisible(true);
-					
-					//text
-					if(numResults == 0) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
-						resultsContainer.setVisible(false);
-						clearButton.setVisible(false);
-						searchResultsNavigator.setVisible(false);
-					} else if (numResults == 1) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(false);
-					} else if (numResults == maxResults) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(true);
-					} else if (numResults > maxResultsPerPage) {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(true);
-					} else {
-						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
-						resultsContainer.setVisible(true);
-						clearButton.setVisible(true);
-						searchResultsNavigator.setVisible(false);
-					}
+					// set cookie
+					setCookie(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_INTEREST, searchText);
 					
 					//post view event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
 					
-					//repaint components
-					target.addComponent(sbnNameField);
-					target.addComponent(clearButton);
-					target.addComponent(numSearchResultsContainer);
-					target.addComponent(resultsContainer);
-					target.appendJavascript("setMainFrameHeight(window.name);");	
+					searchByInterest(resultsListView, searchResultsNavigator,
+							target, searchText);
 				}
             }
 		};
 		sbiSubmitButton.setModel(new ResourceModel("button.search.byinterest"));
 		sbiForm.add(sbiSubmitButton);
         add(sbiForm);
+        
+        if (null != cookie) {
+        	
+        	String searchString = cookie.getValue().substring(
+        			cookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR) + 1);
+        	
+        	if (cookie.getValue().startsWith(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_NAME)) {
+				searchByName(resultsListView, searchResultsNavigator, null, searchString);
+				sbnStringModel.setString(searchString);
+        	} else if (cookie.getValue().startsWith(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_INTEREST)) {
+        		searchByInterest(resultsListView, searchResultsNavigator, null, searchString);
+        		sbiStringModel.setString(searchString);
+        	}
+        }
+	}
+	
+	// use null target when using cookie
+	private void searchByName(
+			final PageableListView<Person> resultsListView,
+			final PagingNavigator searchResultsNavigator,
+			AjaxRequestTarget target, String searchText) {
+		//clear the interest search field
+		sbiInterestField.clearInput();
+		sbiInterestField.updateModel();
+		
+		//search both UDP and SakaiPerson for matches.
+		results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
+
+		int numResults = results.size();
+		int maxResults = sakaiProxy.getMaxSearchResults();
+		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
+		
+		//show the label wrapper
+		numSearchResultsContainer.setVisible(true);
+		
+		//text
+		if(numResults == 0) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
+			resultsContainer.setVisible(false);
+			clearButton.setVisible(false);
+			searchResultsNavigator.setVisible(false);
+		} else if (numResults == 1) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(false);
+		} else if (numResults == maxResults) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(true);
+		} else if (numResults > maxResultsPerPage) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(true);
+		} else {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(false);
+		}
+		
+		if (null != target) {
+			//repaint components
+			target.addComponent(sbiInterestField);
+			target.addComponent(clearButton);
+			target.addComponent(numSearchResultsContainer);
+			target.addComponent(resultsContainer);
+			target.appendJavascript("setMainFrameHeight(window.name);");
+		}
+	}
+	
+	// use null target when using cookie
+	private void searchByInterest(
+			final PageableListView<Person> resultsListView,
+			final PagingNavigator searchResultsNavigator,
+			AjaxRequestTarget target, String searchText) {
+		//clear the name search field
+		sbnNameField.clearInput();
+		sbnNameField.updateModel();
+		
+		//search SakaiPerson for matches
+		results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
+							
+		int numResults = results.size();
+		int maxResults = sakaiProxy.getMaxSearchResults();
+		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
+		
+		//show the label wrapper
+		numSearchResultsContainer.setVisible(true);
+		
+		//text
+		if(numResults == 0) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
+			resultsContainer.setVisible(false);
+			clearButton.setVisible(false);
+			searchResultsNavigator.setVisible(false);
+		} else if (numResults == 1) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(false);
+		} else if (numResults == maxResults) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults, maxResults } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(true);
+		} else if (numResults > maxResultsPerPage) {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchText } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(true);
+		} else {
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
+			resultsContainer.setVisible(true);
+			clearButton.setVisible(true);
+			searchResultsNavigator.setVisible(false);
+		}
+		
+		if (null != target) {
+			//repaint components
+			target.addComponent(sbnNameField);
+			target.addComponent(clearButton);
+			target.addComponent(numSearchResultsContainer);
+			target.addComponent(resultsContainer);
+			target.appendJavascript("setMainFrameHeight(window.name);");
+		}
+	}
+	
+	private void setCookie(String searchCookieValuePrefixName, String searchText) {
+		
+		Cookie cookie = new Cookie(ProfileConstants.SEARCH_COOKIE,
+				searchCookieValuePrefixName +
+				ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR +
+				searchText);
+		// don't persist indefinitely
+		cookie.setMaxAge(-1);
+		getWebRequestCycle().getWebResponse().addCookie(cookie);
 	}
 }

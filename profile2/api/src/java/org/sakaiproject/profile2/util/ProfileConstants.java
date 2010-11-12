@@ -122,6 +122,10 @@ public class ProfileConstants {
 	 */
 	public static final int DEFAULT_MAX_SEARCH_RESULTS = 50;
 	public static final int DEFAULT_MAX_SEARCH_RESULTS_PER_PAGE = 25;
+	public static final String SEARCH_COOKIE = "profile2-search";
+	public static final String SEARCH_COOKIE_VALUE_PREFIX_NAME = "name";
+	public static final String SEARCH_COOKIE_VALUE_PREFIX_INTEREST = "interest";
+	public static final String SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR = ":";
 	
 	/*
 	 * PREFERENCES
