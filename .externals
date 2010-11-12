@@ -82,8 +82,8 @@ reflectutils http://reflectutils.googlecode.com/svn/trunk/
 
 # Fluid Project Reasonable Server Faces (RSF)
 rsf-ponderutilcore http://rsf.fluidproject.org/svn/projects/PonderUtilCore/trunk
-rsf-rsfutil co http://rsf.fluidproject.org/svn/projects/RSFUtil/trunk
+rsf-rsfutil http://rsf.fluidproject.org/svn/projects/RSFUtil/trunk
 rsf-rsfcomponents http://rsf.fluidproject.org/svn/projects/RSFComponents/trunk
 rsf-sakairsf http://rsf.fluidproject.org/svn/projects/SakaiRSF/trunk
 rsf-sakairsfsamples http://rsf.fluidproject.org/svn/projects/SakaiRSFSamples/trunk
-rsf-servletutil co http://rsf.fluidproject.org/svn/projects/ServletUtil/trunk
+rsf-servletutil http://rsf.fluidproject.org/svn/projects/ServletUtil/trunk
