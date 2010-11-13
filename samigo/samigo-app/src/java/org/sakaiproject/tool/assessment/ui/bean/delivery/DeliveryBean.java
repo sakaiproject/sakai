@@ -1314,6 +1314,55 @@ public class DeliveryBean
     forGrade = newfor;
   }
 
+  public String submitForGradeFromTimer()
+  {
+	  if (this.actionMode == PREVIEW_ASSESSMENT) {
+		  return "editAssessment";
+		}	  
+	    String nextAction = checkBeforeProceed(true);
+	    log.debug("***** next Action="+nextAction);
+	    if (!("safeToProceed").equals(nextAction)){
+	      return nextAction;
+	    }
+
+	    setForGrade(true);
+	    SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
+	    
+	    SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
+	    // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
+	    // SubmitToGradingListener
+	    listener.processAction(null);
+	    
+	    // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
+	    // because each ItemGradingData is created when it is viewed/answered 
+	    if (!"1".equals(navigation)) {
+	    	GradingService gradingService = new GradingService();
+	    	gradingService.completeItemGradingData(adata);
+	    }
+	    
+	    syncTimeElapsedWithServer();
+
+	    String returnValue="submitAssessment";
+	    if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
+	    {
+	      returnValue="anonymousThankYou";
+	      PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+	      String siteId = publishedAssessmentService.getPublishedAssessmentOwner(adata.getPublishedAssessmentId());
+	      EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit.via_url", "submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));      
+	    }
+	    else {
+	        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit", "submissionId=" + adata.getAssessmentGradingId(), true));
+	    }
+	    forGrade = false;
+	    SelectActionListener l2 = new SelectActionListener();
+	    l2.processAction(null);
+	    reload = true;
+
+	    // finish within time limit, clean timedAssessment from queue
+	    removeTimedAssessmentFromQueue();
+	    return returnValue;
+  }
+  
   public String submitForGrade()
   {
 	if (this.actionMode == PREVIEW_ASSESSMENT) {

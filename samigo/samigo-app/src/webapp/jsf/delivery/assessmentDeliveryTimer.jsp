@@ -64,7 +64,7 @@ onkeypress="document.getElementById('remText').style.display=document.getElement
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
-<h:commandLink title="#{deliveryMessages.t_submit}" id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
+<h:commandLink title="#{deliveryMessages.t_submit}" id="submitforgrade" action="#{delivery.submitForGradeFromTimer}" value="" />
 
 <script language="javascript" type="text/JavaScript">
 <!--
