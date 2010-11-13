@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- filename=qtiv1p2.xsd -->
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+        <!-- **************************** -->
+        <!-- ** Inclusions and Imports ** -->
+        <!-- **************************** -->
+
+	<!-- ****************** -->
+	<!-- ** Root Element ** -->
+	<!-- ****************** -->
+
+	<xs:element name="questestinterop" type="questestinteropType"/>
+
+        <!-- ********************* -->
+        <!-- ** questestinterop ** -->
+        <!-- ********************* -->
+        <xs:complexType name="questestinteropType">
+                <xs:sequence>
+			<xs:element name="assessment" minOccurs="1"/>
+                </xs:sequence>
+        </xs:complexType>
+
+</xs:schema>
+
