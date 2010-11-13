@@ -10,9 +10,9 @@
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
-    <name>Sakai base-all pom</name>
+    <name>Sakai base pom</name>
     <groupId>org.sakaiproject</groupId>
-    <artifactId>base-all</artifactId>
+    <artifactId>base</artifactId>
     <packaging>pom</packaging>
 
     <organization>
@@ -48,7 +48,35 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>kernel-deploy</module>
+                <!-- Indie purepoms -->
+                <module>purepoms</module>
+            
+                <!-- Indie services -->
+                <module>kernel</module>
+                <module>common</module>
+                <module>content-review</module>
+                <module>edu-services</module>
+                <module>emailtemplateservice</module>
+                <module>entitybroker</module>
+                <module>jsf</module>
+                <module>sakai-mock</module>
+                <module>webservices</module>
+                
+                <!-- Indie tools -->
+                <module>basiclti</module>
+                <module>jobscheduler</module>
+                <module>msgcntr</module>
+                <module>polls</module>
+                <module>profile</module>
+                <module>profile2</module>
+                <module>reset-pass</module>
+                <module>samigo</module>
+                <module>search</module>
+                <module>shortenedurl</module>
+                <module>sitestats</module>
+                
+                <!-- Monolithic Sakai -->
+                <!-- <module>kernel-deploy</module> -->
                 <module>master</module>
                 <!-- <module>core-deploy</module> -->
                 <module>jstl-shared-deploy</module>
@@ -91,18 +119,46 @@
                 <module>textarea</module>
                 <module>tool</module>
                 <module>user</module>
+                <module>usermembership</module>
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
-                <module>usermembership</module>
             </modules>
         </profile>
         <profile>
             <id>experimental</id>
             <modules>
-                <module>kernel-deploy</module>
+                <!-- Indie purepoms -->
+                <module>purepoms</module>
+            
+                <!-- Indie services -->
+                <module>kernel</module>
+                <module>common</module>
+                <module>content-review</module>
+                <module>edu-services</module>
+                <module>emailtemplateservice</module>
+                <module>entitybroker</module>
+                <module>jsf</module>
+                <module>sakai-mock</module>
+                <module>webservices</module>
+                
+                <!-- Indie tools -->
+                <module>basiclti</module>
+                <module>jobscheduler</module>
+                <module>msgcntr</module>
+                <module>polls</module>
+                <module>profile</module>
+                <module>profile2</module>
+                <module>reset-pass</module>
+                <module>samigo</module>
+                <module>search</module>
+                <module>shortenedurl</module>
+                <module>sitestats</module>
+                
+                <!-- Monolithic Sakai -->
+                <!-- <module>kernel-deploy</module> -->
                 <module>master</module>
-                <module>core-deploy</module>
+                <!-- <module>core-deploy</module> -->
                 <module>jstl-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
@@ -133,7 +189,7 @@
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <module>roster2</module>
+                <!-- <module>roster</module> -->
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
@@ -147,6 +203,10 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
+                
+                <!-- Experimental -->
+                <module>hybrid</module>
+                <module>roster2</module> 
             </modules>
         </profile>
     </profiles>
