@@ -581,7 +581,7 @@ public class ServiceServlet extends HttpServlet {
 				mm.put("/role",ims_role);
 				User user = null;
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
-					if ( user == null ) user = UserDirectoryService.getUser(ims_user_id);
+					user = UserDirectoryService.getUser(ims_user_id);
 					String result_sourcedid = SakaiBLTIUtil.getSourceDID(user, placement, config);
 					if ( result_sourcedid != null ) mm.put("/lis_result_sourcedid",result_sourcedid);
 				}

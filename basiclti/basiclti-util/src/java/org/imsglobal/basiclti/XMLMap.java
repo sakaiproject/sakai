@@ -230,8 +230,7 @@ public class XMLMap {
       if (value instanceof String) {
         String svalue = (String) value;
         // doDebug(d,key+" = " + value);
-        if (value != null)
-          retval.put(key, svalue);
+        retval.put(key, svalue);
       }
     }
     return retval;
@@ -569,7 +568,7 @@ public class XMLMap {
 	{
 		doDebug(d,"> storeInDom"+key+"@"+ nodePos + " = " + value + " parent="+ nodeToString(parentNode));
 		d++;
-		if ( document == null | key == null || value == null ) return;
+		if ( document == null || key == null || value == null ) return;
 		if ( parentNode == null ) parentNode = document;
 		doDebug(d,"parentNode I="+ nodeToString(parentNode));
 
@@ -609,7 +608,7 @@ public class XMLMap {
 			Text newNode = document.createTextNode(value);
 			parentNode.appendChild(newNode);
 		}
-		d--;
+		// d--;
 		// doDebug(d,"xml="+documentToString(document,false));
 		// doDebug(d,"< storeInDom"+key+" = " + value);
 	}

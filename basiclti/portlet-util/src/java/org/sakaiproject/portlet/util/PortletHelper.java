@@ -46,9 +46,6 @@ public class PortletHelper {
         String remoteUser = request.getRemoteUser();
 	retval += "getRemoteUser()="+remoteUser+"\n";
 
-        PortletSession pSession = request.getPortletSession(true);
-        PortletPreferences prefs = request.getPreferences();
-
         Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
 	retval += "UserInfo (needs Pluto 1.1.1 or later)\n"+userInfo+"\n";
 

@@ -51,18 +51,36 @@ public class LinkToolUtil {
 	private static SecretKey secretKey = null;
 	private static SecretKey salt = null;
 
-        private static SecretKey readSecretKey(String filename, String alg) {
+        private static SecretKey readSecretKey(String filename, String alg) 
+        {
+            FileInputStream file = null;
+            SecretKey privkey = null;
             try {
-                        FileInputStream file = new FileInputStream(filename);
-                        byte[] bytes = new byte[file.available()];
-                        file.read(bytes);
-                        file.close();
-                        SecretKey privkey = new SecretKeySpec(bytes, alg);
-                        return privkey;
-                } catch (Exception ignore) {
-                        M_log.error("Unable to read key from " + filename);
-                        return null;
+                file = new FileInputStream(filename);
+                byte[] bytes = new byte[file.available()];
+                file.read(bytes);
+                privkey = new SecretKeySpec(bytes, alg);
             }
+            catch (Exception e)
+            {
+                M_log.error("Unable to read key from " + filename);
+                privkey = null;
+            }
+            finally
+            {
+                if ( file != null ) 
+                {
+                    try
+                    {
+                        file.close();
+                    }
+                    catch (Exception e)
+                    {
+                        M_log.error("Unable to close file " + filename);
+                    }
+                }
+            }
+            return privkey;
         }
 
 	private static char[] hexChars = {
@@ -117,19 +135,33 @@ public class LinkToolUtil {
          */
         private static void writeKey(Key key, String filename) 
 	{
+            FileOutputStream file = null;
             try
             {
-                        FileOutputStream file = new FileOutputStream(filename);
-                        file.write(key.getEncoded());
-                        file.close();
+                file = new FileOutputStream(filename);
+                file.write(key.getEncoded());
             }
             catch (FileNotFoundException e)
             {
-                        M_log.error("Unable to write new key to " + filename);
+                M_log.error("Unable to write new key to " + filename);
             }
             catch (IOException e)
             {
+                M_log.error("Unable to write new key to " + filename);
+            }
+            finally
+            {
+                if ( file != null ) 
+                {
+                    try
+                    {
+                        file.close();
+                    }
+                    catch (Exception e)
+                    {
                         M_log.error("Unable to write new key to " + filename);
+                    }
+                }
             }
         }
 
@@ -158,17 +190,17 @@ public class LinkToolUtil {
             if ( secretKey == null ) return null;
             try {
 
-                        Cipher ecipher = Cipher.getInstance("Blowfish");
-                        ecipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                Cipher ecipher = Cipher.getInstance("Blowfish");
+                ecipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-                        // Encode the string into bytes using utf-8
-                        byte[] utf8 = str.getBytes("UTF8");
+                // Encode the string into bytes using utf-8
+                byte[] utf8 = str.getBytes("UTF8");
 
-                        // Encrypt
-                        byte[] enc = ecipher.doFinal(utf8);
+                // Encrypt
+                byte[] enc = ecipher.doFinal(utf8);
 
-                        // Encode bytes to base64 to get a string
-                        return byteArray2Hex(enc);
+                // Encode bytes to base64 to get a string
+                return byteArray2Hex(enc);
             } catch (javax.crypto.BadPaddingException e) {
                 M_log.warn("linktool encrypt bad padding");
             } catch (javax.crypto.IllegalBlockSizeException e) {
@@ -188,21 +220,18 @@ public class LinkToolUtil {
         public static String decrypt (String enc) {
             LinkToolSetup();
             if ( secretKey == null ) return null;
-                if (secretKey == null)
-                        secretKey = readSecretKey("privkey", "Blowfish");
-
-                try {
-                        Cipher dcipher = Cipher.getInstance("Blowfish");
-                        dcipher.init(Cipher.DECRYPT_MODE, secretKey);
-                        byte[] dec = hex2byte(enc);
-                        // Decrypt
-                        byte[] utf8 = dcipher.doFinal(dec);
-                        // Decode using utf-8
-                        return new String(utf8, "UTF8");
-                } catch (Exception ignore) {
-                        M_log.warn("linktool decrypt failed");
-                }
-                return null;
+            try {
+                Cipher dcipher = Cipher.getInstance("Blowfish");
+                dcipher.init(Cipher.DECRYPT_MODE, secretKey);
+                byte[] dec = hex2byte(enc);
+                // Decrypt
+                byte[] utf8 = dcipher.doFinal(dec);
+                // Decode using utf-8
+                return new String(utf8, "UTF8");
+             } catch (Exception ignore) {
+                M_log.warn("linktool decrypt failed");
+             }
+             return null;
         }
 
 

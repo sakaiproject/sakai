@@ -156,8 +156,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
         response.setContentType("text/html; charset=UTF-8");
 
         PrintWriter out = response.getWriter();
-        PortletSession pSession = request.getPortletSession(true);
-        PortletPreferences prefs = request.getPreferences();
 
 	String title = getTitleString(request);
 	if ( title != null ) response.setTitle(title);
@@ -345,7 +343,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
         dPrint("==== doEdit called ====");
 
         PortletSession pSession = request.getPortletSession(true);
-        PortletPreferences prefs = request.getPreferences();
 
 	String title = getTitleString(request);
 	if ( title != null ) response.setTitle(title);
@@ -371,7 +368,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
     public void doHelp(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         dPrint("==== doHelp called ====");
-        PortletPreferences prefs = request.getPreferences();
 
 	String title = getTitleString(request);
 	if ( title != null ) response.setTitle(title);
@@ -447,6 +443,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		dPrint("Preference removed");
         } catch (ReadOnlyException e) {
 		setErrorMessage(request, rb.getString("error.modify.prefs")) ;
+		return;
         }
         prefs.store();
 
@@ -498,8 +495,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
         if ( imsTIUrl != null && imsTIUrl.trim().length() < 1 ) imsTIUrl = null;
 	String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
         if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
-	String imsTISecret  = getFormParameter(request,sakaiProperties,"secret");
-        if ( imsTISecret != null && imsTISecret.trim().length() < 1 ) imsTISecret = null;
 
         // imsType will be null if launch or xml is coming from final properties
         if ( imsType != null ) {
@@ -555,6 +550,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
                        	changed = true;
                	} catch (ReadOnlyException e) {
                        	setErrorMessage(request, rb.getString("error.modify.prefs") );
+			return;
                	} 
         }
 
@@ -603,6 +599,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			SiteService.save(site);
         	} catch (Exception e) {
                		setErrorMessage(request, rb.getString("error.page.title"));
+			return;
 		}
 	}
 
@@ -615,6 +612,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
                         changed = true;
                 } catch (ReadOnlyException e) {
                         setErrorMessage(request, rb.getString("error.modify.prefs") );
+			return;
                 }
         }
 
@@ -713,7 +711,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	        String gradebookUid = getContext();
                 if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
                 List gradebookAssignments = g.getAssignments(gradebookUid);
-                List gradebookAssignmentsExceptSamigo = new ArrayList();
 
                 // filtering out anything externally provided
                 for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
