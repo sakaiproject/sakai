@@ -697,7 +697,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			// If the tool has requested it, pre-fetch render output.
 			String doPreFetch  = placement.getConfig().getProperty(Portal.JSR_168_PRE_RENDER);
-			if ( "true".equals(doPreFetch) ) 
+			if ( ! "false".equals(doPreFetch) ) 
 			{
 				result.getContent();
 			}
