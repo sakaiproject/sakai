@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -33,7 +34,12 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -52,6 +58,12 @@ public class ChangeProfilePictureUrl extends Panel{
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
 	private ProfileImageLogic imageLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	protected ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
     
 
 	/**
@@ -99,12 +111,16 @@ public class ChangeProfilePictureUrl extends Panel{
 		//setup SimpleText object to back the single form field 
 		StringModel stringModel = new StringModel();
 		
-		//do they already have a URL that should be loaded in here?
-		//String externalUrl = profileLogic.getExternalImageUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
-		String externalUrl = null;
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
+		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 		
-		if(externalUrl != null) {
-			stringModel.setString(externalUrl);
+		//do they already have a URL that should be loaded in here?
+		ProfileImage profileImage = imageLogic.getProfileImage(userUuid, prefs, privacy,  ProfileConstants.PROFILE_IMAGE_MAIN);		
+		
+		//if its not blank AND it's not equalt to the default image url, show it
+		String externalUrl = profileImage.getExternalImageUrl();
+		if(StringUtils.isNotBlank(externalUrl) && !StringUtils.equals(externalUrl, imageLogic.getUnavailableImageURL())) {
+			stringModel.setString(profileImage.getExternalImageUrl());
 		}
 		
 		
