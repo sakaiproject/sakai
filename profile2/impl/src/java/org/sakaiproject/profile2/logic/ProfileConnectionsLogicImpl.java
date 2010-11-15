@@ -54,8 +54,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 */	
 	public List<Person> getConnectionRequestsForUser(final String userId) {
 		
-		List<User> users = new ArrayList<User>();
-		users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
+		List<User> users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
 		
 		return profileLogic.getPersons(users);
 	}
@@ -80,7 +79,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		
 		//get friends of current user
 		//TODO change this to be a single lookup rather than iterating over a list
-		List<String> friendUuids = new ArrayList<String>(dao.getConfirmedConnectionUserIdsForUser(userY));
+		List<String> friendUuids = dao.getConfirmedConnectionUserIdsForUser(userY);
 		
 		//if list of confirmed friends contains this user, they are a friend
 		if(friendUuids.contains(userX)) {

@@ -69,9 +69,6 @@ public class ComposeNewMessage extends Panel {
 	public ComposeNewMessage(String id) {
 		super(id);
 		
-		//this panel
-		final Component thisPanel = this;
-		
 		//current user
 		final String userId = sakaiProxy.getCurrentUserId();
 		

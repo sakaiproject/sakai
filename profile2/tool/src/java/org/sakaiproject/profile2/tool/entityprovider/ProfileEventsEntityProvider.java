@@ -18,10 +18,9 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  */
 public class ProfileEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
 
-    public final static String PREFIX = "profile-events";
-    public final static String TOOL_ID = "sakai.profile2";
+    private final static String PREFIX = "profile-events";
     
-    public final static String[] EVENT_KEYS = new String[] {
+    private final static String[] EVENT_KEYS = new String[] {
     	ProfileConstants.EVENT_PROFILE_VIEW_OWN,
 		ProfileConstants.EVENT_PROFILE_VIEW_OTHER,
 		ProfileConstants.EVENT_FRIEND_REQUEST,

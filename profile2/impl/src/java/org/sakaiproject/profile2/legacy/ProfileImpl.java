@@ -158,7 +158,7 @@ public class ProfileImpl implements Profile
 	
 	/** additional methods from original Profile API but are just stubs as we don't use them */
 	public Boolean getLocked() {
-		return null;
+		return Boolean.FALSE;
 	}
 	public SakaiPerson getSakaiPerson() {
 		return null;

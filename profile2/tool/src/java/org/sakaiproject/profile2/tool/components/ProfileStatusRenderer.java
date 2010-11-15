@@ -59,7 +59,7 @@ public class ProfileStatusRenderer extends Panel {
 	 * @param msgClass	- class for the message text
 	 * @param dateClass - class for the date text
 	 */
-	public ProfileStatusRenderer(String id, String userUuid, String msgClass, String dateClass) {
+	public ProfileStatusRenderer(final String id, final String userUuid, final String msgClass, final String dateClass) {
 		super(id);
 		
 		//set incoming
@@ -82,7 +82,7 @@ public class ProfileStatusRenderer extends Panel {
 	 * @param msgClass	- class for the message text
 	 * @param dateClass - class for the date text
 	 */
-	public ProfileStatusRenderer(String id, String userUuid, ProfilePrivacy privacy, String msgClass, String dateClass) {
+	public ProfileStatusRenderer(final String id, final String userUuid, final ProfilePrivacy privacy, final String msgClass, final String dateClass) {
 		super(id);
 		
 		//set incoming
@@ -103,7 +103,7 @@ public class ProfileStatusRenderer extends Panel {
 	 * @param msgClass	- class for the message text
 	 * @param dateClass - class for the date text
 	 */
-	public ProfileStatusRenderer(String id, Person person, String msgClass, String dateClass) {
+	public ProfileStatusRenderer(final String id, final Person person, final String msgClass, final String dateClass) {
 		super(id);
 		
 		//set incoming

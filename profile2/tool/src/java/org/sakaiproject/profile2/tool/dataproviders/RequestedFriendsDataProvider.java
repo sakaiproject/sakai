@@ -17,7 +17,6 @@
 package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +46,7 @@ public class RequestedFriendsDataProvider implements IDataProvider<Person>, Seri
 	private String userUuid; 
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
-	protected ProfileConnectionsLogic connectionsLogic;
+	private ProfileConnectionsLogic connectionsLogic;
 	
 	public RequestedFriendsDataProvider(final String userUuid) {
 		
@@ -58,8 +57,7 @@ public class RequestedFriendsDataProvider implements IDataProvider<Person>, Seri
 		this.userUuid = userUuid;
 		
 		//get list of requests for user
-		List<Person> requests = new ArrayList<Person>();
-		requests = connectionsLogic.getConnectionRequestsForUser(userUuid);
+		List<Person> requests = connectionsLogic.getConnectionRequestsForUser(userUuid);
 		
 		//sort list based on natural sort of Person model
 		Collections.sort(requests);

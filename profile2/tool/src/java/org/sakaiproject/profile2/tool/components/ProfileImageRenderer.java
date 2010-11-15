@@ -55,7 +55,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param id		markup ID
 	 * @param userUuid	uuid of the user to retrieve the image for
 	 */
-	public ProfileImageRenderer(String id, String userUuid) {
+	public ProfileImageRenderer(final String id, final String userUuid) {
 		super(id);
 		
 		//set incoming
@@ -75,7 +75,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param userUuid	uuid of the user to retrieve the image for
 	 * @param prefs		ProfilePreferences object for the user
 	 */
-	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs) {
+	public ProfileImageRenderer(final String id, final String userUuid, final ProfilePreferences prefs) {
 		super(id);
 		
 		//set incoming
@@ -98,7 +98,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param cache		if this image is allowed to be cached by the browser or not. If having issues with
 	 * 					dynamic images sticking from AJAX updates, set this to false to ensure the image is updated every request.
 	 */
-	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs, int size, boolean cache) {
+	public ProfileImageRenderer(final String id, final String userUuid, final ProfilePreferences prefs, final int size, final boolean cache) {
 		super(id);
 		
 		//set incoming
@@ -118,7 +118,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param prefs		ProfilePreferences object for the user
 	 * @param privacy	ProfilePrivacy object for the user
 	 */
-	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy) {
+	public ProfileImageRenderer(final String id, final String userUuid, final ProfilePreferences prefs, final ProfilePrivacy privacy) {
 		super(id);
 		
 		//set incoming
@@ -141,7 +141,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param cache		if this image is allowed to be cached by the browser or not. If having issues with
 	 * 					dynamic images sticking from AJAX updates, set this to false to ensure the image is updated every request.
 	 */
-	public ProfileImageRenderer(String id, String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, boolean cache) {
+	public ProfileImageRenderer(final String id, final String userUuid, final ProfilePreferences prefs, final ProfilePrivacy privacy, final int size, final boolean cache) {
 		super(id);
 		
 		//set incoming
@@ -160,7 +160,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param id		markup ID
 	 * @param person	Person object for the user containing all data
 	 */
-	public ProfileImageRenderer(String id, Person person) {
+	public ProfileImageRenderer(final String id, final Person person) {
 		super(id);
 		
 		//extract data
@@ -184,7 +184,7 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param cache		if this image is allowed to be cached by the browser or not. If having issues with
 	 * 					dynamic images sticking from AJAX updates, set this to false to ensure the image is updated every request.
 	 */
-	public ProfileImageRenderer(String id, Person person, int size, boolean cache) {
+	public ProfileImageRenderer(final String id, final Person person, final int size, final boolean cache) {
 		super(id);
 				
 		//extract data
@@ -270,15 +270,13 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @param size image size: 1 for main, 2 for thumbnail.
 	 * @return
 	 */
-	private String getDefaultImage(int size) {
+	private String getDefaultImage(final int size) {
 
 		if (ProfileConstants.PROFILE_IMAGE_THUMBNAIL == size) {
-			return getRequest().getRelativePathPrefixToContextRoot()
-					+ ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL;
-		} else {
-			return getRequest().getRelativePathPrefixToContextRoot()
-					+ ProfileConstants.UNAVAILABLE_IMAGE;
-		}
+			return getRequest().getRelativePathPrefixToContextRoot() + ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL;
+		} 
+		
+		return getRequest().getRelativePathPrefixToContextRoot() + ProfileConstants.UNAVAILABLE_IMAGE;
 	}
 	
 	/**
@@ -308,9 +306,12 @@ public class ProfileImageRenderer extends Image implements IResourceListener {
 	 * @return
 	 */
 	private void addNoCacheNoise(ComponentTag tag) {
-		String url = tag.getAttributes().getString("src");
-		url = url + ((url.indexOf("?") >= 0) ? "&" : "?");
-		url = url + "wicket:antiCache=" + System.currentTimeMillis();
+		StringBuilder url = new StringBuilder();
+		String tagSrc = tag.getAttributes().getString("src");
+		url.append(tagSrc);
+		
+		url.append((tagSrc.indexOf('?') >= 0) ? "&" : "?");
+		url.append("wicket:antiCache=" + System.currentTimeMillis());
 		
 		tag.put("src", url);
 	}

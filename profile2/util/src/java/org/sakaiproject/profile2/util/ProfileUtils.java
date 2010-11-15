@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,6 @@ import java.util.UUID;
 
 import javax.swing.ImageIcon;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
@@ -191,7 +191,7 @@ public class ProfileUtils {
 	        log.debug("Profile.convertStringToDate(): Input date string: " + dateStr); 
 	        log.debug("Profile.convertStringToDate(): Converted date: " + date.toString()); 
 			return date;
-		} catch (Exception e) {
+		} catch (ParseException e) {
 			log.error("Profile.convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage());  
 			return null;
 		}       

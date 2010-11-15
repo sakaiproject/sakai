@@ -29,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class MessageThread implements Serializable, Comparable {
+public class MessageThread implements Serializable, Comparable<Object> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -93,7 +93,7 @@ public class MessageThread implements Serializable, Comparable {
 	 * Natural sort by order
 	 */
 	public int compareTo(Object o) {
-		Date thisDate = this.getMostRecentMessage().getDatePosted();
+		Date thisDate = getMostRecentMessage().getDatePosted();
 		Date otherDate = ((MessageThread)o).getMostRecentMessage().getDatePosted();
         int lastCmp = thisDate.compareTo(otherDate);
         return (lastCmp != 0 ? lastCmp : thisDate.compareTo(otherDate));

@@ -379,7 +379,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	 * {@inheritDoc}
 	 */
 	public boolean removeGalleryImage(String userId, long imageId) {
-		if(userId == null || new Long(imageId) == null){
+		if(userId == null || Long.valueOf(imageId) == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
 	  	}
 		

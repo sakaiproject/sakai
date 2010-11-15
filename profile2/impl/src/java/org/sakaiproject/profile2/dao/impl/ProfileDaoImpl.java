@@ -48,9 +48,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 * {@inheritDoc}
  	 */
 	public List<String> getRequestedConnectionUserIdsForUser(final String userId) {
-		
-		List<String> requests = new ArrayList<String>();
-		
+				
 		//get friends of this user [and map it automatically to the Friend object]
 		//updated: now just returns a List of Strings
 		HibernateCallback hcb = new HibernateCallback() {
@@ -65,8 +63,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	requests = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return requests;
+	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -74,7 +71,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<String> getConfirmedConnectionUserIdsForUser(final String userId) {
 		
-		List<String> userUuids = new ArrayList<String>();
+		List<String> userUuids;
 		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
@@ -88,17 +85,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return userUuids;
+	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<String> findSakaiPersonsByNameOrEmail(final String search) {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
+				
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -109,16 +103,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return userUuids;
+	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<String> findSakaiPersonsByInterest(final String search) {
-		
-		List<String> userUuids = new ArrayList<String>();
 		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
@@ -130,17 +121,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return userUuids;
+	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public List<ProfileImageUploaded> getCurrentProfileImageRecords(final String userId) {
-		
-		List<ProfileImageUploaded> images = new ArrayList<ProfileImageUploaded>();
-		
+				
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -151,8 +139,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	images = (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
-	  	return images;
+	  	return (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -176,9 +163,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 * {@inheritDoc}
  	 */
 	public List<ProfileImageUploaded> getOtherProfileImageRecords(final String userId) {
-		
-		List<ProfileImageUploaded> images = new ArrayList<ProfileImageUploaded>();
-		
+				
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -189,8 +174,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	images = (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
-	  	return images;
+	  	return (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -270,8 +254,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getConnectionRequestsForUserCount(final String userId) {
 		
-		int count = 0;
-		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -283,8 +265,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	  	return count;
+	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
 	}
 	
 	/**
@@ -499,8 +480,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<CompanyProfile> getCompanyProfiles(final String userId) {
 		
-		List<CompanyProfile> companyProfiles = new ArrayList<CompanyProfile>();
-		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
@@ -510,8 +489,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	companyProfiles = (List<CompanyProfile>) getHibernateTemplate().executeFind(hcb);
-		return companyProfiles;
+	  	return (List<CompanyProfile>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -547,8 +525,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<GalleryImage> getGalleryImages(final String userId) {
 		
-		List<GalleryImage> galleryImages = new ArrayList<GalleryImage>();
-		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
@@ -558,8 +534,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	galleryImages = (List<GalleryImage>) getHibernateTemplate().executeFind(hcb);
-		return galleryImages;
+	  	return (List<GalleryImage>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -630,7 +605,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public boolean addNewProfileImage(final ProfileImageUploaded profileImage) {
 		
 		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				public Object doInHibernate(Session session){
 					try {
 						//first get the current ProfileImage records for this user
 						List<ProfileImageUploaded> currentImages = new ArrayList<ProfileImageUploaded>(getCurrentProfileImageRecords(profileImage.getUserUuid()));
@@ -665,9 +640,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 * {@inheritDoc}
  	 */
 	public List<String> getAllSakaiPersonIds() {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
+				
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -676,8 +649,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return userUuids;
+	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -701,8 +673,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<UserProfile> getUserProfiles(final int start, final int count) {
 		
-		List<UserProfile> profiles = new ArrayList<UserProfile>();
-
 		//get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into UserProfile pojo
 		//the idea is we *dont* want a SakaiPerson object
 		HibernateCallback hcb = new HibernateCallback() {
@@ -719,8 +689,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	profiles = (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
-	  	return profiles;
+	  	return (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	
@@ -845,8 +814,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<MessageThread> getMessageThreads(final String userId) {
 		
-		List<MessageThread> threads = new ArrayList<MessageThread>();
-		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
@@ -856,8 +823,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	threads = (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
-	  	return threads;
+	  	return (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -899,8 +865,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<Message> getMessagesInThread(final String threadId) {
 		
-		List<Message> messages = new ArrayList<Message>();
-		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
@@ -910,8 +874,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	messages = (List<Message>) getHibernateTemplate().executeFind(hcb);
-	  	return messages;
+	  	return (List<Message>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -1020,8 +983,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<String> getThreadParticipants(final String threadId) {
 		
-		List<String> participants = new ArrayList<String>();
-		
 		//get
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1032,8 +993,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		}
 	  	};
 	  	
-	  	participants = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	return participants;
+	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**

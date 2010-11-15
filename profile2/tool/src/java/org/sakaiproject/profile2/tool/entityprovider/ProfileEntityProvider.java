@@ -100,7 +100,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
 		
-		ProfileImage image = new ProfileImage();
+		ProfileImage image = null;
 		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
 		
 		//optional siteid

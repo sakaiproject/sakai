@@ -659,14 +659,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 						return;
 					}
 					
-					List<User> receivers = new ArrayList<User>();
-					receivers.add(user);
-					
 					//do it
-					emailService.sendToUsers(receivers, getHeaders(user.getEmail(), subject), formatMessage(subject, message));
+					emailService.sendToUsers(Collections.singleton(user), getHeaders(user.getEmail(), subject), formatMessage(subject, message));
 					
 					log.info("Email sent to: " + userId);
-				} catch (Exception e) {
+				} catch (UserNotDefinedException e) {
 					log.error("SakaiProxy.sendEmail() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 				}
 			}
@@ -1208,13 +1205,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public String getToolSkinCSS(String skinRepo){
 		
-		String skin = null;
-		try {
-			skin = siteService.findTool(sessionManager.getCurrentToolSession().getPlacementId()).getSkin();			
-		}
-		catch(Exception e) {
-			skin = serverConfigurationService.getString("skin.default");
-		}
+		String skin = siteService.findTool(sessionManager.getCurrentToolSession().getPlacementId()).getSkin();			
 		
 		if(skin == null) {
 			skin = serverConfigurationService.getString("skin.default");

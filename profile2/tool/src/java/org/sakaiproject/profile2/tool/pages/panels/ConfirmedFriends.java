@@ -16,9 +16,6 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,7 +35,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -79,7 +75,7 @@ public class ConfirmedFriends extends Panel {
 		//get info for user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		User currentUser = sakaiProxy.getUserQuietly(currentUserUuid);
-		final String currentUserType = currentUser.getType(); //to be used for checking if connection between users is allowed, when this is added
+		//final String currentUserType = currentUser.getType(); //to be used for checking if connection between users is allowed, when this is added
 		
 		//if viewing own friends, you can manage them.
 		if(userUuid.equals(currentUserUuid)) {

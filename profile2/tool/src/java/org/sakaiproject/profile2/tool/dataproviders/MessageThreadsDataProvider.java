@@ -41,7 +41,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	private final String userUuid;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
-	protected ProfileMessagingLogic messagingLogic;
+	private ProfileMessagingLogic messagingLogic;
 	
 	public MessageThreadsDataProvider(String userUuid) {
 		
@@ -59,15 +59,10 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	 */
 	public Iterator<MessageThread> iterator(int first, int count){
 		
-		try {
-			List<MessageThread> slice = messagingLogic.getMessageThreads(userUuid).subList(first, first + count);
-			Collections.sort(slice, Collections.reverseOrder());
-			return slice.iterator();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Collections.EMPTY_LIST.iterator();
-		}
+		List<MessageThread> slice = messagingLogic.getMessageThreads(userUuid).subList(first, first + count);
+		Collections.sort(slice, Collections.reverseOrder());
+		return slice.iterator();
+		
 	}
 
 	/**

@@ -233,7 +233,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	 * {@inheritDoc}
 	 */
 	public boolean removeCompanyProfile(String userId, long companyProfileId) {
-		if (userId == null || new Long(companyProfileId) == null) {
+		if (userId == null || Long.valueOf(companyProfileId) == null) {
 			throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeCompanyProfile()");
 		}
 
@@ -290,13 +290,10 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 * {@inheritDoc}
  	 */
 	public List<Person> findUsersByNameOrEmail(String search) {
-		
-		List<User> users = new ArrayList<User>();
-		List<String> sakaiPersonUuids = new ArrayList<String>();
-		
+				
 		//add users from SakaiPerson (clean list)
-		sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);
-		users.addAll(sakaiProxy.getUsers(sakaiPersonUuids));
+		List<String> sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);
+		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
 
 		//add local users from UserDirectoryService
 		users.addAll(sakaiProxy.searchUsers(search));
@@ -327,13 +324,10 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 * {@inheritDoc}
  	 */
 	public List<Person> findUsersByInterest(String search) {
-		
-		List<User> users = new ArrayList<User>();
-		List<String> sakaiPersonUuids = new ArrayList<String>();
-		
+				
 		//add users from SakaiPerson		
-		sakaiPersonUuids = dao.findSakaiPersonsByInterest(search);
-		users.addAll(sakaiProxy.getUsers(sakaiPersonUuids));
+		List<String> sakaiPersonUuids = dao.findSakaiPersonsByInterest(search);
+		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
 		
 		//restrict to only return the max number. UI will print message
 		int maxResults = sakaiProxy.getMaxSearchResults();

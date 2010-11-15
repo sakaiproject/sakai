@@ -147,7 +147,7 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_TWITTER_UPDATE, "/profile/"+userUuid, true);
 				}
-				catch (Exception e) {
+				catch (TwitterException e) {
 					log.error("ProfileLogic.sendMessageToTwitter() failed. " + e.getClass() + ": " + e.getMessage());  
 				}
 			}
@@ -160,9 +160,6 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 			
 		//get user info
 		ExternalIntegrationInfo info = getExternalIntegrationInfo(userUuid);
-		if(info == null){
-			return;
-		}
 		String token = info.getTwitterToken();
 		String secret = info.getTwitterSecret();
 		if(StringUtils.isBlank(token) || StringUtils.isBlank(secret)) {

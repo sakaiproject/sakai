@@ -52,10 +52,6 @@ public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 	}
 
 	public IModel<GalleryImage> model(GalleryImage object) {
-		if (!(object instanceof GalleryImage)) {
-			throw new IllegalArgumentException("object not an instance of GalleryImage");
-		}
-
 		return new DetachableGalleryImageModel(object);
 	}
 

@@ -48,7 +48,7 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 	private int subListSize = 0;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
-	protected ProfileConnectionsLogic connectionsLogic;
+	private ProfileConnectionsLogic connectionsLogic;
 	
 	public FriendsFeedDataProvider(final String userUuid) {
 		
@@ -59,8 +59,7 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 		this.userUuid = userUuid;
 		
 		//get all friends of userX visible by userY
-		List<Person> allFriends = new ArrayList<Person>();
-		allFriends = connectionsLogic.getConnectionsForUser(userUuid);
+		List<Person> allFriends = connectionsLogic.getConnectionsForUser(userUuid);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);

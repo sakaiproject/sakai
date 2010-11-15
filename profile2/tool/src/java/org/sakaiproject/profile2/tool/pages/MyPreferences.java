@@ -69,7 +69,7 @@ public class MyPreferences extends BasePage{
 		String emailAddress = sakaiProxy.getUserEmail(userUuid);
 		//if no email, set a message into it fo display
 		if(emailAddress == null || emailAddress.length() == 0) {
-			emailAddress = new ResourceModel("preferences.email.none").getObject().toString();
+			emailAddress = new ResourceModel("preferences.email.none").getObject();
 		}
 		
 				
@@ -103,8 +103,8 @@ public class MyPreferences extends BasePage{
 
 		//request emails
 		final RadioGroup<Boolean> emailRequests = new RadioGroup<Boolean>("requestEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "requestEmailEnabled"));
-		emailRequests.add(new Radio<Boolean>("requestsOn", new Model<Boolean>(new Boolean(true))));
-		emailRequests.add(new Radio<Boolean>("requestsOff", new Model<Boolean>(new Boolean(false))));
+		emailRequests.add(new Radio<Boolean>("requestsOn", new Model<Boolean>(Boolean.valueOf(true))));
+		emailRequests.add(new Radio<Boolean>("requestsOff", new Model<Boolean>(Boolean.valueOf(false))));
 		emailRequests.add(new Label("requestsLabel", new ResourceModel("preferences.email.requests")));
 		form.add(emailRequests);
 		
@@ -118,8 +118,8 @@ public class MyPreferences extends BasePage{
 		
 		//confirm emails
 		final RadioGroup<Boolean> emailConfirms = new RadioGroup<Boolean>("confirmEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "confirmEmailEnabled"));
-		emailConfirms.add(new Radio<Boolean>("confirmsOn", new Model<Boolean>(new Boolean(true))));
-		emailConfirms.add(new Radio<Boolean>("confirmsOff", new Model<Boolean>(new Boolean(false))));
+		emailConfirms.add(new Radio<Boolean>("confirmsOn", new Model<Boolean>(Boolean.valueOf(true))));
+		emailConfirms.add(new Radio<Boolean>("confirmsOff", new Model<Boolean>(Boolean.valueOf(false))));
 		emailConfirms.add(new Label("confirmsLabel", new ResourceModel("preferences.email.confirms")));
 		form.add(emailConfirms);
 		
@@ -133,8 +133,8 @@ public class MyPreferences extends BasePage{
 		
 		//new message emails
 		final RadioGroup<Boolean> emailNewMessage = new RadioGroup<Boolean>("messageNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageNewEmailEnabled"));
-		emailNewMessage.add(new Radio<Boolean>("messageNewOn", new Model<Boolean>(new Boolean(true))));
-		emailNewMessage.add(new Radio<Boolean>("messageNewOff", new Model<Boolean>(new Boolean(false))));
+		emailNewMessage.add(new Radio<Boolean>("messageNewOn", new Model<Boolean>(Boolean.valueOf(true))));
+		emailNewMessage.add(new Radio<Boolean>("messageNewOff", new Model<Boolean>(Boolean.valueOf(false))));
 		emailNewMessage.add(new Label("messageNewLabel", new ResourceModel("preferences.email.message.new")));
 		form.add(emailNewMessage);
 		
@@ -148,8 +148,8 @@ public class MyPreferences extends BasePage{
 		
 		//message reply emails
 		final RadioGroup<Boolean> emailReplyMessage = new RadioGroup<Boolean>("messageReplyEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageReplyEmailEnabled"));
-		emailReplyMessage.add(new Radio<Boolean>("messageReplyOn", new Model<Boolean>(new Boolean(true))));
-		emailReplyMessage.add(new Radio<Boolean>("messageReplyOff", new Model<Boolean>(new Boolean(false))));
+		emailReplyMessage.add(new Radio<Boolean>("messageReplyOn", new Model<Boolean>(Boolean.valueOf(true))));
+		emailReplyMessage.add(new Radio<Boolean>("messageReplyOff", new Model<Boolean>(Boolean.valueOf(false))));
 		emailReplyMessage.add(new Label("messageReplyLabel", new ResourceModel("preferences.email.message.reply")));
 		form.add(emailReplyMessage);
 		
