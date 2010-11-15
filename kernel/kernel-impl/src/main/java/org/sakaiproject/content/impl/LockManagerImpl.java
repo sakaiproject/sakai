@@ -71,7 +71,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 	{
 		try
 		{
-			getHibernateTemplate().setCacheQueries(true);
+			
 			return (Lock) safePopList(getHibernateTemplate().findByNamedQuery("getLock", new Object[] { assetId, qualifierId }));
 		}
 		catch (HibernateSystemException e)
@@ -133,7 +133,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		}
 		try
 		{
-			getHibernateTemplate().setCacheQueries(true);
+			
 			locks = getHibernateTemplate().findByNamedQuery("activeByAsset", assetId);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
@@ -182,7 +182,6 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		}
 		try
 		{
-			getHibernateTemplate().setCacheQueries(true);
 			locks = getHibernateTemplate().findByNamedQuery("activeByQualifier", qualifier);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
