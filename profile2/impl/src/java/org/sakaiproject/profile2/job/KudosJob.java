@@ -55,69 +55,69 @@ public class KudosJob implements StatefulJob {
 
 		{
 			//points for profile completeness
-			put("nickname", new BigDecimal(1));
-			put("birthday", new BigDecimal(0.5));
+			put("nickname", new BigDecimal("1"));
+			put("birthday", new BigDecimal("0.5"));
 			
-			put("email", new BigDecimal(1));
-			put("homePage", new BigDecimal(1));
-			put("workPhone", new BigDecimal(1));
-			put("homePhone", new BigDecimal(1));
-			put("mobilePhone", new BigDecimal(1));
+			put("email", new BigDecimal("1"));
+			put("homePage", new BigDecimal("1"));
+			put("workPhone", new BigDecimal("1"));
+			put("homePhone", new BigDecimal("1"));
+			put("mobilePhone", new BigDecimal("1"));
 			
-			put("position", new BigDecimal(0.5));
-			put("department", new BigDecimal(0.5));
-			put("school", new BigDecimal(0.5));
-			put("room", new BigDecimal(0.5));
-			put("course", new BigDecimal(0.5));
-			put("subjects", new BigDecimal(0.5));
+			put("position", new BigDecimal("0.5"));
+			put("department", new BigDecimal("0.5"));
+			put("school", new BigDecimal("0.5"));
+			put("room", new BigDecimal("0.5"));
+			put("course", new BigDecimal("0.5"));
+			put("subjects", new BigDecimal("0.5"));
 
-			put("favouriteBooks", new BigDecimal(0.25));
-			put("favouriteTvShows", new BigDecimal(0.25));
-			put("favouriteMovies", new BigDecimal(0.25));
-			put("favouriteQuotes", new BigDecimal(0.25));
-			put("personalSummary", new BigDecimal(2));
+			put("favouriteBooks", new BigDecimal("0.25"));
+			put("favouriteTvShows", new BigDecimal("0.25"));
+			put("favouriteMovies", new BigDecimal("0.25"));
+			put("favouriteQuotes", new BigDecimal("0.25"));
+			put("personalSummary", new BigDecimal("2"));
 
 			//points for openness in privacy
-			put("profileImageShared", new BigDecimal(0.05));
-			put("profileImageBonus", new BigDecimal(0.05));
-			put("basicInfoShared", new BigDecimal(0.05));
-			put("basicInfoBonus", new BigDecimal(0.05));
-			put("contactInfoShared", new BigDecimal(0.05));
-			put("contactInfoBonus", new BigDecimal(0.05));
-			put("personalInfoShared", new BigDecimal(0.05));
-			put("personalInfoBonus", new BigDecimal(0.05));
-			put("staffInfoShared", new BigDecimal(0.05));
-			put("staffInfoBonus", new BigDecimal(0.05));
-			put("studentInfoShared", new BigDecimal(0.05));
-			put("studentInfoBonus", new BigDecimal(0.05));
-			put("viewConnectionsShared", new BigDecimal(0.05));
-			put("viewConnectionsBonus", new BigDecimal(0.05));
-			put("viewStatusShared", new BigDecimal(0.05));
-			put("viewStatusBonus", new BigDecimal(0.05));
-			put("viewPicturesShared", new BigDecimal(0.05));
-			put("viewPicturesBonus", new BigDecimal(0.05));
+			put("profileImageShared", new BigDecimal("0.05"));
+			put("profileImageBonus", new BigDecimal("0.05"));
+			put("basicInfoShared", new BigDecimal("0.05"));
+			put("basicInfoBonus", new BigDecimal("0.05"));
+			put("contactInfoShared", new BigDecimal("0.05"));
+			put("contactInfoBonus", new BigDecimal("0.05"));
+			put("personalInfoShared", new BigDecimal("0.05"));
+			put("personalInfoBonus", new BigDecimal("0.05"));
+			put("staffInfoShared", new BigDecimal("0.05"));
+			put("staffInfoBonus", new BigDecimal("0.05"));
+			put("studentInfoShared", new BigDecimal("0.05"));
+			put("studentInfoBonus", new BigDecimal("0.05"));
+			put("viewConnectionsShared", new BigDecimal("0.05"));
+			put("viewConnectionsBonus", new BigDecimal("0.05"));
+			put("viewStatusShared", new BigDecimal("0.05"));
+			put("viewStatusBonus", new BigDecimal("0.05"));
+			put("viewPicturesShared", new BigDecimal("0.05"));
+			put("viewPicturesBonus", new BigDecimal("0.05"));
 
-			put("showBirthYear", new BigDecimal(0.1));
+			put("showBirthYear", new BigDecimal("0.1"));
 			
 			//points for usage - more points for the heavier usage
-			put("hasImage", new BigDecimal(5));
+			put("hasImage", new BigDecimal("5"));
 
-			put("hasOneConnection", new BigDecimal(2));
-			put("hasMoreThanTenConnections", new BigDecimal(3));
+			put("hasOneConnection", new BigDecimal("2"));
+			put("hasMoreThanTenConnections", new BigDecimal("3"));
 
-			put("hasOneSentMessage", new BigDecimal(2));
-			put("hasMoreThanTenSentMessages", new BigDecimal(3));
+			put("hasOneSentMessage", new BigDecimal("2"));
+			put("hasMoreThanTenSentMessages", new BigDecimal("3"));
 			
-			put("hasOneStatusUpdate", new BigDecimal(0.25));
+			put("hasOneStatusUpdate", new BigDecimal("0.25"));
 			
 			// add when PRFL-191 is added
 			//put("hasMoreThanTenStatusUpdates", new BigDecimal(1));
 			//put("hasMoreThanOneHundredStatusUpdates", new BigDecimal(2));
 
-			put("twitterEnabled", new BigDecimal(2));
+			put("twitterEnabled", new BigDecimal("2"));
 
-			put("hasOneGalleryPicture", new BigDecimal(0.25));
-			put("hasMoreThanTenGalleryPictures", new BigDecimal(1));
+			put("hasOneGalleryPicture", new BigDecimal("0.25"));
+			put("hasMoreThanTenGalleryPictures", new BigDecimal("1"));
 
 			//points for others viewing their profile, not yet implemented
 			//put("hasMoreThanOneVisitor", new BigDecimal(0.05));
@@ -498,7 +498,7 @@ public class KudosJob implements StatefulJob {
 	 */
 	private BigDecimal getTotal() {
 		
-		BigDecimal total = new BigDecimal(0);
+		BigDecimal total = new BigDecimal("0");
 		
 		if(RULES != null) {
 			for(Map.Entry<String,BigDecimal> entry : RULES.entrySet()) {
@@ -515,7 +515,7 @@ public class KudosJob implements StatefulJob {
 	 * @return
 	 */
 	private BigDecimal getScoreAsPercentage(BigDecimal score, BigDecimal total) {
-		return score.divide(total, 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).stripTrailingZeros();
+		return score.divide(total, 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100")).stripTrailingZeros();
 	}
 	
 	/**
@@ -525,7 +525,7 @@ public class KudosJob implements StatefulJob {
 	 * @return
 	 */
 	private static int getScoreOutOfTen(BigDecimal score, BigDecimal total) {
-		return score.divide(total, 1, RoundingMode.HALF_UP).multiply(new BigDecimal(10)).intValue();
+		return score.divide(total, 1, RoundingMode.HALF_UP).multiply(new BigDecimal("10")).intValue();
 	}
 	
 	
