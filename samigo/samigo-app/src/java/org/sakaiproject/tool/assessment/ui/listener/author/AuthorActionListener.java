@@ -274,6 +274,18 @@ public class AuthorActionListener
 	  ArrayList userIdList = new ArrayList();
 	  if (f.getReleaseTo() != null && !("").equals(f.getReleaseTo())) {
 		  if (f.getReleaseTo().indexOf("Anonymous Users") >= 0) {
+			  if (submissionCountHash != null) {
+				  f.setSubmittedCount(submissionCountHash.size());
+			  }
+			  else {
+				  f.setSubmittedCount(0);
+			  }
+			  if (inProgressCountHash != null) {
+				  f.setInProgressCount(inProgressCountHash.size());
+			  }
+			  else {
+				  f.setInProgressCount(0);
+			  }
 			  if (dueDate != null && dueDate.before(currentDate)) {
 				  return false;
 			  }

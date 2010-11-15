@@ -126,14 +126,4 @@ public class SortInactivePublishedAssessmentListener
     }
 
   }
-  
-  private void setSubmissionSize(ArrayList list, HashMap map) {
-	  for (int i = 0; i < list.size(); i++) {
-	      PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
-	      Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-	      if (size != null) {
-	        p.setSubmissionSize(size.intValue());
-	      }
-	  }
-  }
 }
