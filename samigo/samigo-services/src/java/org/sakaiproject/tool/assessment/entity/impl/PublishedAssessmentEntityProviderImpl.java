@@ -39,6 +39,7 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
   public boolean entityExists(String id) {
     boolean rv = false;
 
+    try {
     PublishedAssessmentService service = new PublishedAssessmentService();
 
     //TODO: Should we refrence Published Assessments via ID or via alias as they are now?
@@ -46,7 +47,10 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
     if (pub != null) {
       rv = true;
     }
-
+    }
+    catch (Exception e){
+    	rv=false;
+    }
     return rv;
   }
 
