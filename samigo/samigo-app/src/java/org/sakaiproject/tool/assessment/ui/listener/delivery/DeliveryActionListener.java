@@ -320,13 +320,35 @@ public class DeliveryActionListener
             	  setTimer(delivery, publishedAssessment, true);
             	  setStatus(delivery, pubService, Long.valueOf(id));
             	  
-               	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
-            		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), true));
+            	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
+            		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
+            		  eventRef.append(delivery.getAssessmentId());
+            		  eventRef.append(", agentId=");
+            		  eventRef.append(getAgentString());
+            		  if (delivery.isTimeRunning()) {
+            			  eventRef.append(", elapsed=");
+            			  eventRef.append(delivery.getTimeElapse());
+            			  eventRef.append(", remaining=");
+            			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
+            			  eventRef.append(timeRemaining);
+            		  }
+            		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), true));
             	  }
             	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
+            		  StringBuffer eventRef = new StringBuffer("publishedAssessmentId");
+            		  eventRef.append(delivery.getAssessmentId());
+            		  eventRef.append(", agentId=");
+            		  eventRef.append(getAgentString());
+            		  if (delivery.isTimeRunning()) {
+            			  eventRef.append(", elapsed=");
+            			  eventRef.append(delivery.getTimeElapse());
+            			  eventRef.append(", remaining=");
+            			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
+            			  eventRef.append(timeRemaining);
+            		  }
             		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
-            		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", "publishedAssessmentId=" + delivery.getAssessmentId() + ", agentId=" + getAgentString(), siteId, true, NotificationService.NOTI_REQUIRED));
+            		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.take.via_url", eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED));
             	  }
               }
               else {
