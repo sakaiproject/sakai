@@ -37,7 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -62,8 +62,9 @@ public class NakamuraAuthenticationFilter implements Filter {
 	private UsageSessionService usageSessionService;
 	private EventTrackingService eventTrackingService;
 	private AuthzGroupService authzGroupService;
-	private NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
+	protected NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
 	private ComponentManager componentManager;
+	private ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * All sakai.properties settings will be prefixed with this string.
@@ -168,22 +169,62 @@ public class NakamuraAuthenticationFilter implements Filter {
 	 */
 	public void init(FilterConfig filterConfig) throws ServletException {
 		LOG.debug("init(FilterConfig filterConfig)");
-		filterEnabled = ServerConfigurationService.getBoolean(CONFIG_ENABLED,
+		if (componentManager == null) { // may be in a test case
+			componentManager = org.sakaiproject.component.cover.ComponentManager
+					.getInstance();
+		}
+		if (componentManager == null) {
+			throw new IllegalStateException("componentManager == null");
+		}
+		serverConfigurationService = (ServerConfigurationService) componentManager
+				.get(ServerConfigurationService.class);
+		if (serverConfigurationService == null) {
+			throw new IllegalStateException(
+					"ServerConfigurationService == null");
+		}
+		sessionManager = (SessionManager) componentManager
+				.get(SessionManager.class);
+		if (sessionManager == null) {
+			throw new IllegalStateException("SessionManager == null");
+		}
+		userDirectoryService = (UserDirectoryService) componentManager
+				.get(UserDirectoryService.class);
+		if (userDirectoryService == null) {
+			throw new IllegalStateException("UserDirectoryService == null");
+		}
+		usageSessionService = (UsageSessionService) componentManager
+				.get(UsageSessionService.class);
+		if (usageSessionService == null) {
+			throw new IllegalStateException("UsageSessionService == null");
+		}
+		eventTrackingService = (EventTrackingService) componentManager
+				.get(EventTrackingService.class);
+		if (eventTrackingService == null) {
+			throw new IllegalStateException("EventTrackingService == null");
+		}
+		authzGroupService = (AuthzGroupService) componentManager
+				.get(AuthzGroupService.class);
+		if (authzGroupService == null) {
+			throw new IllegalStateException("AuthzGroupService == null");
+		}
+
+		filterEnabled = serverConfigurationService.getBoolean(CONFIG_ENABLED,
 				filterEnabled);
 		if (filterEnabled) {
 			LOG.info("NakamuraAuthenticationFilter ENABLED.");
-			validateUrl = ServerConfigurationService.getString(
+
+			validateUrl = serverConfigurationService.getString(
 					CONFIG_VALIDATE_URL, validateUrl);
 			LOG.info("vaildateUrl=" + validateUrl);
-			principal = ServerConfigurationService.getString(CONFIG_PRINCIPAL,
+			principal = serverConfigurationService.getString(CONFIG_PRINCIPAL,
 					principal);
 			LOG.info("principal=" + principal);
-			hostname = ServerConfigurationService.getString(CONFIG_HOST_NAME,
+			hostname = serverConfigurationService.getString(CONFIG_HOST_NAME,
 					hostname);
 			LOG.info("hostname=" + hostname);
 
 			// make sure container.login is turned on as well
-			final boolean containerLogin = ServerConfigurationService
+			final boolean containerLogin = serverConfigurationService
 					.getBoolean("container.login", false);
 			if (!containerLogin) {
 				LOG.error("container.login must be enabled in sakai.properties for hybrid authentication!");
@@ -195,45 +236,35 @@ public class NakamuraAuthenticationFilter implements Filter {
 			 * Whether or not to provide a login form on the portal itself
 			 * (typically on the top).
 			 */
-			final boolean topLogin = ServerConfigurationService.getBoolean(
+			final boolean topLogin = serverConfigurationService.getBoolean(
 					"top.login", false);
 			if (topLogin) {
 				LOG.warn("top.login is usually disabled in sakai.properties for container authentication scenarios");
 			}
 
-			componentManager = org.sakaiproject.component.cover.ComponentManager
-					.getInstance();
-			if (componentManager == null) {
-				throw new IllegalStateException("componentManager == null");
+			if (nakamuraAuthenticationHelper == null) { // may be in a test case
+				nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
+						componentManager, validateUrl, principal, hostname);
 			}
-			sessionManager = (SessionManager) componentManager
-					.get(SessionManager.class);
-			if (sessionManager == null) {
-				throw new IllegalStateException("SessionManager == null");
-			}
-			userDirectoryService = (UserDirectoryService) componentManager
-					.get(UserDirectoryService.class);
-			if (userDirectoryService == null) {
-				throw new IllegalStateException("UserDirectoryService == null");
-			}
-			usageSessionService = (UsageSessionService) componentManager
-					.get(UsageSessionService.class);
-			if (usageSessionService == null) {
-				throw new IllegalStateException("UsageSessionService == null");
-			}
-			eventTrackingService = (EventTrackingService) componentManager
-					.get(EventTrackingService.class);
-			if (eventTrackingService == null) {
-				throw new IllegalStateException("EventTrackingService == null");
-			}
-			authzGroupService = (AuthzGroupService) componentManager
-					.get(AuthzGroupService.class);
-			if (authzGroupService == null) {
-				throw new IllegalStateException("AuthzGroupService == null");
-			}
-			nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
-					componentManager, validateUrl, principal, hostname);
 		}
+	}
+
+	/**
+	 * Only used for unit testing setup.
+	 * 
+	 * @param componentManager
+	 */
+	protected void setupTestCase(ComponentManager componentManager,
+			NakamuraAuthenticationHelper nakamuraAuthenticationHelper) {
+		if (componentManager == null) {
+			throw new IllegalArgumentException("componentManager == null");
+		}
+		this.componentManager = componentManager;
+		if (nakamuraAuthenticationHelper == null) {
+			throw new IllegalArgumentException(
+					"nakamuraAuthenticationHelper == null");
+		}
+		this.nakamuraAuthenticationHelper = nakamuraAuthenticationHelper;
 	}
 
 	/**
@@ -321,9 +352,6 @@ public class NakamuraAuthenticationFilter implements Filter {
 		public NakamuraHttpServletRequestWrapper(
 				final HttpServletRequest request, final String principal) {
 			super(request);
-			if (request == null) {
-				throw new IllegalArgumentException("HttpServletRequest == null");
-			}
 			if (principal == null || "".equals(principal)) {
 				throw new IllegalArgumentException("principal == null OR empty");
 			}
