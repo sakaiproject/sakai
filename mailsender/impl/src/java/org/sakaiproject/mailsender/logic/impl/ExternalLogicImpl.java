@@ -53,6 +53,7 @@ import javax.mail.internet.MimeMultipart;
 
 import net.htmlparser.jericho.Source;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.mail.Email;
@@ -150,8 +151,8 @@ public class ExternalLogicImpl implements ExternalLogic
 		}
 		useTls = configService.getBoolean(SAKAI_USE_TLS, DEFAULT_USE_TLS);
 		sendPartial = configService.getBoolean(MailConstants.SAKAI_SENDPARTIAL, Boolean.TRUE);
-
 		smtpHost = configService.getString(SAKAI_HOST, DEFAULT_SMTP_HOST);
+		
 		smtpPort = configService.getInt(SAKAI_PORT, DEFAULT_SMTP_PORT);
 		smtpUser = configService.getString(SAKAI_USER);
 		smtpPassword = configService.getString(SAKAI_PASSWORD);
@@ -507,7 +508,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			// send if not in test mode
 			if (!configLogic.isEmailTestMode())
 			{
-				if (smtpUser != null && smtpPassword != null)
+				if (StringUtils.isNotBlank(smtpUser) && StringUtils.isNotBlank(smtpPassword))
 				{
 					emailMsg.setAuthentication(smtpUser, smtpPassword);
 				}
@@ -523,11 +524,11 @@ public class ExternalLogicImpl implements ExternalLogic
 				// timeout)
 				Session session = emailMsg.getMailSession();
 				Properties sessionProps = session.getProperties();
-				if (connectionTimeout != null) {
+				if (StringUtils.isNotBlank(connectionTimeout)) {
 					sessionProps.put(propName(MAIL_CONNECTIONTIMEOUT), Integer.valueOf(connectionTimeout));
 				}
 
-				if (timeout != null) {
+				if (StringUtils.isNotBlank(timeout)) {
 					sessionProps.put(propName(MAIL_TIMEOUT), Integer.valueOf(timeout));
 				}
 
