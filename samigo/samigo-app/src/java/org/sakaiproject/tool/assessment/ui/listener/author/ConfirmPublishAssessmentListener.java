@@ -71,6 +71,7 @@ public class ConfirmPublishAssessmentListener
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
       IntegrationContextFactory.getInstance().isIntegrated();
+  private boolean isFromActionSelect = false;
 
   public ConfirmPublishAssessmentListener() {
   }
@@ -80,6 +81,7 @@ public class ConfirmPublishAssessmentListener
     ExternalContext extContext = context.getExternalContext();
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     //#1 - permission checking before proceeding - daisyf
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
@@ -88,6 +90,7 @@ public class ConfirmPublishAssessmentListener
         assessmentId);
     if (!passAuthz(context, assessment.getCreatedBy())){
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      author.setIsErrorInSettings(true);
       return;
     }
 
@@ -153,16 +156,104 @@ public class ConfirmPublishAssessmentListener
     	error=true;
     }
     
-    if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-    	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
-    	if (groupsAuthorized == null || groupsAuthorized.length == 0) {
-    		String releaseGroupError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_one_group");
-        	context.addMessage(null,new FacesMessage(releaseGroupError));
-        	error=true;
-        	assessmentSettings.setNoGroupSelectedError(true);
+    if (!isFromActionSelect) {
+    	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+    		String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
+    		if (groupsAuthorized == null || groupsAuthorized.length == 0) {
+    			String releaseGroupError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_one_group");
+    			context.addMessage(null,new FacesMessage(releaseGroupError));
+    			error=true;
+    			assessmentSettings.setNoGroupSelectedError(true);
+    		}
+    		else {
+    			assessmentSettings.setNoGroupSelectedError(false);
+    		}
     	}
-    	else {
-    		assessmentSettings.setNoGroupSelectedError(false);
+
+
+    	//#2c - validate if this is a time assessment, is there a time entry?
+    	Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
+    	boolean isTime=false;
+    	if (time!=null) {
+    		// Because different flow might get different type, we test it before cast.
+    		if (time instanceof java.lang.String) {
+    			isTime = Boolean.getBoolean((String) time);
+    		}
+    		else if (time instanceof java.lang.Boolean) {
+    			isTime=((Boolean)time).booleanValue();
+    		}
+    	}
+
+
+    	if ((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
+    		String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
+    		context.addMessage(null,new FacesMessage(time_err));
+    		error=true;
+    	}
+    	boolean ipErr=false;
+    	String ipString = assessmentSettings.getIpAddresses().trim(); 
+    	String[]arraysIp=(ipString.split("\n"));
+    	//System.out.println("arraysIp.length: "+arraysIp.length);
+    	for(int a=0;a<arraysIp.length;a++){
+    		String currentString=arraysIp[a];
+    		if(!currentString.trim().equals("")){
+    			if(a<(arraysIp.length-1))
+    				currentString=currentString.substring(0,currentString.length()-1);           
+    			if(!s.isIpValid(currentString)){
+    				ipErr=true;
+    				break;
+    			}
+    		}
+
+    	}
+    	if(ipErr){
+    		error=true;
+    		String  ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+    		context.addMessage(null,new FacesMessage(ip_err));
+    	}
+
+    	String unlimitedSubmissions = assessmentSettings.getUnlimitedSubmissions();
+    	if (unlimitedSubmissions != null && unlimitedSubmissions.equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
+    		String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
+    		try {
+    			int submissionAllowed = Integer.parseInt(submissionsAllowed);
+    			if (submissionAllowed < 1) {
+    				throw new RuntimeException();
+    			}
+    		}
+    		catch (RuntimeException e){
+    			error=true;
+    			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","submissions_allowed_error");
+    			context.addMessage(null,new FacesMessage(submission_err));
+    		}
+    	}
+
+    	String scoringType=assessmentSettings.getScoringType();
+    	if ((scoringType).equals(EvaluationModelIfc.AVERAGE_SCORE.toString()) && "0".equals(assessmentSettings.getUnlimitedSubmissions())) {
+    		try {
+    			String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
+    			int submissionAllowed = Integer.parseInt(submissionsAllowed);
+    			if (submissionAllowed < 2) {
+    				throw new RuntimeException();
+    			}
+    		}
+    		catch (RuntimeException e){
+    			error=true;
+    			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","averag_grading_single_submission");
+    			context.addMessage(null,new FacesMessage(submission_err));
+    		}
+    	}
+
+    	//check feedback - if at specific time then time should be defined.
+    	if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
+    		error=true;
+    		String date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+    		context.addMessage(null,new FacesMessage(date_err));
+    	}
+    }
+    else {
+    	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+    		assessmentSettings.getGroupsAuthorized(); //populate groupsAuthorized;
     	}
     }
     
@@ -171,13 +262,11 @@ public class ConfirmPublishAssessmentListener
 	{
  	    if(assessmentBean.getTotalScore()<=0)
 		{
-                String gb_err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
-		context.addMessage(null, new FacesMessage(gb_err));
-		error=true;
+ 	    	String gb_err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
+            context.addMessage(null, new FacesMessage(gb_err));
+            error=true;
 		}
 	}
-
-
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
     GradebookService g = null;
@@ -197,100 +286,22 @@ public class ConfirmPublishAssessmentListener
     catch(Exception e){
       log.warn("external assessment in GB has the same title:"+e.getMessage());
     }
-
-    //#2c - validate if this is a time assessment, is there a time entry?
-    Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
-    boolean isTime=false;
-    if (time!=null) {
-    	// Because different flow might get different type, we test it before cast.
-    	if (time instanceof java.lang.String) {
-    		isTime = Boolean.getBoolean((String) time);
-    	}
-    	else if (time instanceof java.lang.Boolean) {
-    		isTime=((Boolean)time).booleanValue();
-    	}
-    }
-      
-  
-    if ((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
-      String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
-      context.addMessage(null,new FacesMessage(time_err));
-      error=true;
-    }
-        boolean ipErr=false;
-        String ipString = assessmentSettings.getIpAddresses().trim(); 
-        String[]arraysIp=(ipString.split("\n"));
-        //System.out.println("arraysIp.length: "+arraysIp.length);
-        for(int a=0;a<arraysIp.length;a++){
-            String currentString=arraysIp[a];
-	    if(!currentString.trim().equals("")){
-		if(a<(arraysIp.length-1))
-		    currentString=currentString.substring(0,currentString.length()-1);           
-		if(!s.isIpValid(currentString)){
-		ipErr=true;
-		break;
-		}
-	    }
-	
-	}
-	if(ipErr){
-	    error=true;
-	    String  ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
-	    context.addMessage(null,new FacesMessage(ip_err));
-    }
-	
-	String unlimitedSubmissions = assessmentSettings.getUnlimitedSubmissions();
-	if (unlimitedSubmissions != null && unlimitedSubmissions.equals(AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString())) {
-		String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
-		try {
-			int submissionAllowed = Integer.parseInt(submissionsAllowed);
-			if (submissionAllowed < 1) {
-				throw new RuntimeException();
-			}
-		}
-		catch (RuntimeException e){
-			error=true;
-			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","submissions_allowed_error");
-			context.addMessage(null,new FacesMessage(submission_err));
-		}
-	}
-	
-	String scoringType=assessmentSettings.getScoringType();
-	if ((scoringType).equals(EvaluationModelIfc.AVERAGE_SCORE.toString()) && "0".equals(assessmentSettings.getUnlimitedSubmissions())) {
-		try {
-			String submissionsAllowed = assessmentSettings.getSubmissionsAllowed().trim();
-			int submissionAllowed = Integer.parseInt(submissionsAllowed);
-			if (submissionAllowed < 2) {
-				throw new RuntimeException();
-			}
-		}
-		catch (RuntimeException e){
-			error=true;
-			String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","averag_grading_single_submission");
-			context.addMessage(null,new FacesMessage(submission_err));
-		}
-	}
-	
-    //check feedback - if at specific time then time should be defined.
-    if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
-	error=true;
-	String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
-	context.addMessage(null,new FacesMessage(date_err));
-
-    }
-
    
     if (error){
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
+      author.setIsErrorInSettings(true);
       return;
     }
 
     //#3 now u can proceed to save core assessment
-    assessment = s.save(assessmentSettings);
-    //unEscape the TextFormat.convertPlaintextToFormattedTextNoHighUnicode in s.save()
-    assessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
-    assessmentSettings.setAssessment(assessment);
+    if (!isFromActionSelect) {
+    	assessment = s.save(assessmentSettings, true);
 
+    	//unEscape the TextFormat.convertPlaintextToFormattedTextNoHighUnicode in s.save()
+    	assessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+    	assessmentSettings.setAssessment(assessment);
+    }
+    
     //  we need a publishedUrl, this is the url used by anonymous user
     String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
     if (releaseTo != null) {
@@ -305,7 +316,6 @@ public class ConfirmPublishAssessmentListener
       //log.info("servletPath=" + server);
       String url = server + extContext.getRequestContextPath();
       assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
-
     }
    
     //#4 - before going to confirm publishing, check if the title is unique
@@ -314,7 +324,6 @@ public class ConfirmPublishAssessmentListener
       String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","published_assessment_title_not_unique_error");
       context.addMessage(null,new FacesMessage(err));
       assessmentSettings.setOutcomePublish("editAssessmentSettings");
-      AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
       author.setIsErrorInSettings(true);
       return;
     }
@@ -324,8 +333,7 @@ public class ConfirmPublishAssessmentListener
     // get the managed bean, author and reset the list.
     // Yes, we need to do that just in case the user change those delivery
     // dates and turning an inactive pub to active pub and then go back to assessment list page
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-	ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
 	// get the managed bean, author and set the list
 	author.setAssessments(assessmentList);
 	
@@ -356,5 +364,9 @@ public class ConfirmPublishAssessmentListener
     String agentId = AgentFacade.getAgentString();
     isOwner = agentId.equals(ownerId);
     return isOwner;
+  }  
+
+  public void setIsFromActionSelect(boolean isFromActionSelect){
+	  this.isFromActionSelect = isFromActionSelect;
   }  
 }

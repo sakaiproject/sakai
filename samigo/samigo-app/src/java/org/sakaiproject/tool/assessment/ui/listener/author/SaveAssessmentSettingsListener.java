@@ -109,31 +109,6 @@ public class SaveAssessmentSettingsListener
     	error=true;
     }
     
-    Date startDate = assessmentSettings.getStartDate();
-    Date dueDate = assessmentSettings.getDueDate();
-    Date retractDate = assessmentSettings.getRetractDate();
-    boolean isRetractEarlierThanAvaliable = false;
-    if ((dueDate != null && startDate != null && dueDate.before(startDate)) ||
-    	(dueDate != null && startDate == null && dueDate.before(new Date()))) {
-    	String dateError1 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_earlier_than_avaliable");
-    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError1, null));
-    	error=true;
-    	assessmentSettings.setStartDate(new Date());
-    }
-    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
-        (retractDate != null && startDate == null && retractDate.before(new Date()))) {
-    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
-    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
-    	error=true;
-    	isRetractEarlierThanAvaliable = true;
-    	assessmentSettings.setStartDate(new Date());
-    }
-    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
-    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
-    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
-    	error=true;
-    }
-
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
     	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
     	if (groupsAuthorized == null || groupsAuthorized.length == 0) {
@@ -249,7 +224,7 @@ public class SaveAssessmentSettingsListener
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     assessmentSettings.setOutcomeSave(author.getFromPage());
 
-    s.save(assessmentSettings);
+    s.save(assessmentSettings, false);
 
     // reset the core listing in case assessment title changes
     ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(

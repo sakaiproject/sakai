@@ -102,6 +102,7 @@ public class ActionSelectListener implements ValueChangeListener {
 			authorSettingsListener.processAction(null);
 			author.setIsErrorInSettings(false);
 			ConfirmPublishAssessmentListener confirmPublishAssessmentListener = new ConfirmPublishAssessmentListener();
+			confirmPublishAssessmentListener.setIsFromActionSelect(true);
 			confirmPublishAssessmentListener.processAction(null);
 			if (author.getIsErrorInSettings()) {
 				author.setOutcome("editAssessmentSettings");	

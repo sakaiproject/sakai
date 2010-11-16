@@ -76,7 +76,7 @@ public class SaveAssessmentSettings
 {
   private static Log log = LogFactory.getLog(SaveAssessmentSettings.class);
 
-  public AssessmentFacade save(AssessmentSettingsBean assessmentSettings)
+  public AssessmentFacade save(AssessmentSettingsBean assessmentSettings, boolean isFromConfirmPublishAssessmentListener)
   {
     // create an assessment based on the title entered and the assessment
     // template selected
@@ -104,11 +104,16 @@ public class SaveAssessmentSettings
       control.setAssessmentBase(assessment.getData());
     }
     // a. LATER set dueDate, retractDate, startDate, releaseTo
-    if (assessmentSettings.getStartDate() != null) {
-    	control.setStartDate(assessmentSettings.getStartDate());
+    if (isFromConfirmPublishAssessmentListener) {
+    	if (assessmentSettings.getStartDate() != null) {
+    		control.setStartDate(assessmentSettings.getStartDate());
+    	}
+    	else {
+    		control.setStartDate(new Date());
+    	}
     }
     else {
-    	control.setStartDate(new Date());
+    	control.setStartDate(assessmentSettings.getStartDate());
     }
     control.setDueDate(assessmentSettings.getDueDate());
     control.setRetractDate(assessmentSettings.getRetractDate());
