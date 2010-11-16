@@ -69,6 +69,15 @@
             </roles>
             <timezone>-5</timezone>
         </developer>
+        <developer>
+            <id>nfgrilo</id>
+            <name>Nuno Fernandez</name>
+            <organization>Universidate Fernando Pessoa</organization>
+            <roles>
+                <role>translator</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
     </developers>
 
     <scm>
