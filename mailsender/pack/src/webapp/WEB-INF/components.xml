@@ -37,7 +37,8 @@
 	</bean>
 
 	<bean id="org.sakaiproject.mailsender.logic.ExternalLogic"
-			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicImpl">
+			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicImpl"
+			init-method="init">
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
