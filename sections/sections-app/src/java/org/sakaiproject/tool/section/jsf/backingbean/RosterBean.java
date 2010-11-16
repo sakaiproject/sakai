@@ -21,9 +21,18 @@
 package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
-import java.util.*;
-import java.util.Map.Entry;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
@@ -37,16 +46,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
-import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.tool.section.decorator.EnrollmentDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 
 
 /**
@@ -299,7 +306,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
     }
 
     public void export(ActionEvent event){
-
+    	log.info("export(");
         List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
         // Get the section enrollments
         Set<String> studentUids = new HashSet<String>();
@@ -319,15 +326,17 @@ public class RosterBean extends CourseDependentBean implements Serializable {
             header.add(categoryName);
         }
         spreadsheetData.add(header);
-        for(Iterator<EnrollmentDecorator> enrollmentIter = enrollments.iterator(); enrollmentIter.hasNext();) {
-            EnrollmentDecorator enrollment = enrollmentIter.next();
+        for(Iterator enrollmentIter = siteStudents.iterator(); enrollmentIter.hasNext();) {
+            //EnrollmentDecorator enrollment = enrollmentIter.next();
+        	ParticipationRecord record = (ParticipationRecord)enrollmentIter.next();
             List<Object> row = new ArrayList<Object>();
-            row.add(enrollment.getUser().getSortName());
-            row.add(enrollment.getUser().getDisplayId());
+            
+            row.add(record.getUser().getSortName());
+            row.add(record.getUser().getDisplayId());
 
             for (Iterator iter = getUsedCategories().iterator(); iter.hasNext();){
                 String category = (String)iter.next();
-                CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
+                CourseSection section = sectionEnrollments.getSection(record.getUser().getUserUid(), category);
 
                 if(section!=null){
                     row.add(section.getTitle());
