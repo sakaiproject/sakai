@@ -74,7 +74,7 @@ public class NakamuraAuthenticationFilterTest {
 	AuthzGroupService authzGroupService;
 	@Mock
 	ComponentManager componentManager;
-	@Mock(name = "serverConfigurationService LDS")
+	@Mock
 	ServerConfigurationService serverConfigurationService;
 	@Mock
 	FilterConfig filterConfig;
