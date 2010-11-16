@@ -1201,7 +1201,11 @@ public class DiscussionForumTool
     	return FORUM_SETTING_REVISE;
     }
     
-    if(selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
+    if (selectedForum == null)
+        throw new IllegalStateException("selectedForum == null");
+    
+    if(selectedForum.getForum() != null
+            && selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
     		&& selectedForum.getForum().getAvailabilityRestricted()){
     	//check whether the close date is after the open date or not:
     	if(selectedForum.getForum().getOpenDate().after(selectedForum.getForum().getCloseDate())){
@@ -1210,7 +1214,7 @@ public class DiscussionForumTool
     	}
     }
     
-    if(selectedForum !=null && selectedForum.getForum()!=null &&
+    if(selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
     	StringBuilder alertMsg = new StringBuilder();
@@ -1221,15 +1225,14 @@ public class DiscussionForumTool
     	}
     }
 
-    if(selectedForum!=null && selectedForum.getForum()!=null && 
+    if(selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
     {
       setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }
-    if (selectedForum == null)
-			throw new IllegalStateException("selectedForum == null");
+    
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
@@ -1272,7 +1275,11 @@ public class DiscussionForumTool
     	return FORUM_SETTING_REVISE;
     }
     
-    if(selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
+    if (selectedForum == null)
+        throw new IllegalStateException("selectedForum == null");
+    
+    if(selectedForum.getForum() != null 
+            && selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
     		&& selectedForum.getForum().getAvailabilityRestricted()){
     	//check whether the close date is after the open date or not:
     	if(selectedForum.getForum().getOpenDate().after(selectedForum.getForum().getCloseDate())){
@@ -1281,7 +1288,7 @@ public class DiscussionForumTool
     	}
     }
     
-    if(selectedForum !=null && selectedForum.getForum()!=null &&
+    if(selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
     	StringBuilder alertMsg = new StringBuilder();
@@ -1292,14 +1299,12 @@ public class DiscussionForumTool
     	}
     }    
 	
-    if (selectedForum == null)
-		throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return gotoMain();
     }
-    if(selectedForum!=null && selectedForum.getForum()!=null && 
+    if(selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
     {
@@ -1324,7 +1329,10 @@ public class DiscussionForumTool
     	return FORUM_SETTING_REVISE;
     }
     
-    if(selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
+    if (selectedForum == null)
+        throw new IllegalStateException("selectedForum == null");
+    
+    if(selectedForum.getForum() != null && selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
     		&& selectedForum.getForum().getAvailabilityRestricted()){
     	//check whether the close date is after the open date or not:
     	if(selectedForum.getForum().getOpenDate().after(selectedForum.getForum().getCloseDate())){
@@ -1333,7 +1341,7 @@ public class DiscussionForumTool
     	}
     }
     
-    if(selectedForum !=null && selectedForum.getForum()!=null &&
+    if(selectedForum.getForum()!=null &&
     		(selectedForum.getForum().getShortDescription()!=null))
     {
     	StringBuilder alertMsg = new StringBuilder();
@@ -1344,14 +1352,12 @@ public class DiscussionForumTool
     	}
     }
 
-    if (selectedForum == null)
-		throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return gotoMain();
     }
-    if(selectedForum!=null && selectedForum.getForum()!=null && 
+    if(selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
     {
@@ -1626,7 +1632,8 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
     
-    if(selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
+    if(selectedTopic != null && selectedTopic.getTopic() != null
+            && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
     		&& selectedTopic.getTopic().getAvailabilityRestricted()){
     	//check whether the close date is after the open date or not:
     	if(selectedTopic.getTopic().getOpenDate().after(selectedTopic.getTopic().getCloseDate())){
@@ -1696,7 +1703,8 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicSettings()");
     
-    if(selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
+    if(selectedTopic != null && selectedTopic.getTopic() != null 
+            && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
     		&& selectedTopic.getTopic().getAvailabilityRestricted()){
     	//check whether the close date is after the open date or not:
     	if(selectedTopic.getTopic().getOpenDate().after(selectedTopic.getTopic().getCloseDate())){
@@ -1772,7 +1780,8 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicAsDraft()");
     
-    if(selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
+    if(selectedTopic != null && selectedTopic.getTopic() != null
+            && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
     		&& selectedTopic.getTopic().getAvailabilityRestricted()){
     	//check whether the close date is after the open date or not:
     	if(selectedTopic.getTopic().getOpenDate().after(selectedTopic.getTopic().getCloseDate())){
@@ -1894,7 +1903,7 @@ public class DiscussionForumTool
 		  LOG.debug("processActionTopicSettings()");
 
 		  DiscussionTopic topic = null;
-		  if(getExternalParameterByKey(TOPIC_ID) != "" && getExternalParameterByKey(TOPIC_ID) != null){
+		  if(getExternalParameterByKey(TOPIC_ID) != null && !"".equals(getExternalParameterByKey(TOPIC_ID))){
 			  topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(Long.valueOf(getExternalParameterByKey(TOPIC_ID)));
 		  } else if(selectedTopic != null) {
 			  topic = selectedTopic.getTopic();
@@ -2750,13 +2759,11 @@ public class DiscussionForumTool
     {
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
-      if (topic.getDraft().equals(Boolean.FALSE)
+      if (topic != null && topic.getDraft().equals(Boolean.FALSE)
               ||isInstructor()
               ||SecurityService.isSuperUser()
               ||forumManager.isTopicOwner(topic))
       { 
-        if (topic != null)
-        {
           DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
               uiPermissionsManager, forumManager);
           if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -2791,7 +2798,6 @@ public class DiscussionForumTool
           
           decoForum.addTopic(decoTopic);
         }
-      } 
     }
     return decoForum;
   }

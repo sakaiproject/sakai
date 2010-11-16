@@ -206,7 +206,7 @@ private RequestStorage requestStorage;
 						  readStatus = Boolean.FALSE;
 
 					  DecoratedMessage dMessage = new DecoratedMessage(message
-							  .getId(), new Long(topicId), message.getTitle(),
+							  .getId(), topicId, message.getTitle(),
 							  message.getBody(), "" + message.getModified().getTime(),
 							  attachments, findReplies(messages, message.getId(),
 									  topicId, msgIdReadStatusMap), message.getAuthor(), message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),

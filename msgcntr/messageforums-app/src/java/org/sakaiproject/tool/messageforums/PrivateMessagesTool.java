@@ -443,8 +443,6 @@ public class PrivateMessagesTool
         for (int indexlittlethanTHREE=0;indexlittlethanTHREE<3;indexlittlethanTHREE++)//Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)//only three times
         {
           PrivateTopic topic = (PrivateTopic) iterator.next();
-          String CurrentTopicTitle= topic.getTitle();//folder name
-          String CurrentTopicUUID= topic.getUuid();
           
           if (topic != null)
           {
@@ -1711,19 +1709,11 @@ private   int   getNum(char letter,   String   a)
 						    	
 						    	
 						    }
-						    String tmp1=new String(ccSS[numberofAuther-1]);
+						    String tmp1=ccSS[numberofAuther-1];
 						    String tmp2= String.valueOf(currentUserasAuther);
 						    boolean b = ccSS[numberofAuther-1].equals(currentUserasAuther);
 						    boolean a = tmp1.equals(tmp2);
 						    
-						    if(!tmp1.equals(tmp2))//last letter have no: ";"
-						    {
-						  
-						    }
-						    else if(tmp1.equals(tmp2)){
-						    	if(tmpCC.length()>1){
-						    	}
-						    }
 						    if(tmpCC.length()>1)
 						    {
 							    	tmpCC=tmpCC.substring(0,tmpCC.length()-2);//remove the ";"

@@ -346,13 +346,13 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 				{
 					if(column.getId().endsWith("_msg_subject"))
 					{
-						String indent = "";
+						StringBuilder indent = new StringBuilder();
 						int indentInt = dmb.getDepth() * 4;
 						for(int i=0; i<indentInt; i++)
 						{
-							indent += "&nbsp;";
+							indent.append("&nbsp;");
 						}
-						writer.write(indent);
+						writer.write(indent.toString());
 					}
 				}
 				else
@@ -369,8 +369,7 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 							String hideTr = "";
 							for(int i=0; i<childNo; i++)
 							{
-								hideTr += "javascript:showHideDiv('_id_" + new
-								Integer(hideDivNo+i).toString() + "', '" + RESOURCE_PATH +
+								hideTr += "javascript:showHideDiv('_id_" + (hideDivNo+i) + "', '" + RESOURCE_PATH +
 								"');";
 							}
 							writer.write(hideTr);
@@ -406,8 +405,7 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 				if(expanded.equalsIgnoreCase("true"))
 				{*/
 					writer.write("<script type=\"text/javascript\">");
-					writer.write(" showHideDiv('_id_" + new
-							Integer(hideDivNo).toString() +
+					writer.write(" showHideDiv('_id_" + hideDivNo +
 							"', '" + RESOURCE_PATH + "');");
 					writer.write("</script>");
 //////				}

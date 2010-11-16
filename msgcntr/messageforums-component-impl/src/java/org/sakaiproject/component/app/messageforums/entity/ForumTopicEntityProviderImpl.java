@@ -220,7 +220,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 			if(privateMessages && siteId != null){
 				
-				DecoratedForumInfo dForum = new DecoratedForumInfo(new Long(0), "Messages");
+				DecoratedForumInfo dForum = new DecoratedForumInfo(0L, "Messages");
 
 				Area area = getPrivateMessageManager().getPrivateMessageArea(siteId);
 
@@ -253,11 +253,10 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					{
 
 						PrivateTopic topic = (PrivateTopic) iterator.next();
-						String CurrentTopicTitle= topic.getTitle();//folder name
-						String CurrentTopicUUID= topic.getUuid();
 
 						if (topic != null)
 						{
+						    String CurrentTopicTitle= topic.getTitle();//folder name
 
 							/** filter topics by context and type*/                                                    
 							if (topic.getTypeUuid() != null
@@ -588,7 +587,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	}
 	private String getLanguage(String navName)
 	{
-		String Tmp= new String();
+		String Tmp= "";
 		Locale loc = null;
 		//getLocale( String userId )
 		ResourceLoader rl = new ResourceLoader();
@@ -653,8 +652,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 
 
-		String stringCurrentTopicTitle=new String();
-		stringCurrentTopicTitle=navMode;//most important
+
 
 		String current_NAV2= rb.getString("pvt_message_nav");
 		String typeUuid="";  // folder uuid

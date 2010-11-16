@@ -296,7 +296,7 @@ public class DiscussionMessageBean
    */
   public boolean isMsgApproved()
   {
-	  return message.getApproved() == Boolean.TRUE;
+	  return message.getApproved();
   }
   /**
    * returns true if message has approval pending
@@ -313,7 +313,7 @@ public class DiscussionMessageBean
    */
   public boolean isMsgDenied()
   {
-	  return message.getApproved() == Boolean.FALSE;
+	  return !message.getApproved();
   }
   
   public void setRevise(boolean revise)
@@ -336,7 +336,7 @@ public class DiscussionMessageBean
 
   public boolean getDeleted() 
   {
-	return message.getDeleted() == Boolean.TRUE;
+	return message.getDeleted();
   }
 
   public void setDeleted(boolean deleted) 

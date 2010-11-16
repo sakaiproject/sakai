@@ -542,7 +542,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
 										Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
 										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
-										if (newTopic != null && newAttachment != null)
+										if (newAttachment != null)
 											newTopic.addAttachment(newAttachment);
 									}			
 								}
