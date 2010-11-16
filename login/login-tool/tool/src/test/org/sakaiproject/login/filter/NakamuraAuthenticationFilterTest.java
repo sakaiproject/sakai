@@ -16,20 +16,27 @@
  **********************************************************************************/
 package org.sakaiproject.login.filter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -184,7 +191,7 @@ public class NakamuraAuthenticationFilterTest {
 	/**
 	 * @see NakamuraAuthenticationFilter#init(FilterConfig)
 	 */
-	 @Test
+	@Test
 	public void testInitNullSessionManager() {
 		when(componentManager.get(SessionManager.class)).thenReturn(null);
 		try {
