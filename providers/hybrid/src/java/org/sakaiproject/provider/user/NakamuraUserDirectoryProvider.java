@@ -15,7 +15,6 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.sakaiproject.provider.user;
 
 import java.util.Collection;
@@ -25,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -44,7 +43,7 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 * Key in the ThreadLocalManager for access to the current
 	 * {@link HttpServletRequest} object.
 	 */
-	private static final String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
+	static final String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
 	/**
 	 * All sakai.properties settings will be prefixed with this string.
 	 */
@@ -100,6 +99,7 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	// dependencies
 	ComponentManager componentManager; // injected
 	ThreadLocalManager threadLocalManager; // injected
+	ServerConfigurationService serverConfigurationService; // injected
 	NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
 
 	/**
@@ -196,7 +196,7 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 * 
 	 * @return
 	 */
-	private HttpServletRequest getHttpServletRequest() {
+	protected HttpServletRequest getHttpServletRequest() {
 		LOG.debug("getHttpServletRequest()");
 		final HttpServletRequest request = (HttpServletRequest) threadLocalManager
 				.get(CURRENT_HTTP_REQUEST);
@@ -211,14 +211,16 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 */
 	public void init() {
 		LOG.debug("init()");
-		validateUrl = ServerConfigurationService.getString(CONFIG_VALIDATE_URL,
+		validateUrl = serverConfigurationService.getString(CONFIG_VALIDATE_URL,
 				validateUrl);
-		principal = ServerConfigurationService.getString(CONFIG_PRINCIPAL,
+		principal = serverConfigurationService.getString(CONFIG_PRINCIPAL,
 				principal);
-		hostname = ServerConfigurationService.getString(CONFIG_HOST_NAME,
+		hostname = serverConfigurationService.getString(CONFIG_HOST_NAME,
 				hostname);
-		nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
-				componentManager, validateUrl, principal, hostname);
+		if (nakamuraAuthenticationHelper == null) {
+			nakamuraAuthenticationHelper = new NakamuraAuthenticationHelper(
+					componentManager, validateUrl, principal, hostname);
+		}
 	}
 
 	/**
@@ -237,5 +239,15 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	public void setComponentManager(ComponentManager componentManager) {
 		LOG.debug("setComponentManager(ComponentManager componentManager)");
 		this.componentManager = componentManager;
+	}
+
+	/**
+	 * @param serverConfigurationService
+	 *            the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		LOG.debug("setServerConfigurationService(ServerConfigurationService serverConfigurationService)");
+		this.serverConfigurationService = serverConfigurationService;
 	}
 }

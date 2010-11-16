@@ -205,6 +205,9 @@
    		<property name="componentManager">
    			<ref bean="org.sakaiproject.component.api.ComponentManager" />
    		</property>
+   		<property name="serverConfigurationService">
+   			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+   		</property>
  	</bean>
   -->
 
