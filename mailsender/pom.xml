@@ -81,9 +81,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/mailsender</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/mailsender</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/mailsender</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/mailsender/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/mailsender/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/contrib/mailsender/trunk</url>
     </scm>
 
     <distributionManagement>
