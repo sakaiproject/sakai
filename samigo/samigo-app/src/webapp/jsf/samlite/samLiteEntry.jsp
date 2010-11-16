@@ -104,7 +104,7 @@
 				   	<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
 					     	
 				   	<%-- activates the valueChangeListener --%>
-				   	<h:commandButton value="#{samLiteMessages.action_next} >" type="submit" styleClass="active" action="samLiteValidation">
+				   	<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="samLiteValidation">
 				   		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
 					</h:commandButton>	     
 				</div>
