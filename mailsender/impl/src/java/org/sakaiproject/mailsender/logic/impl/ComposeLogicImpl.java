@@ -21,18 +21,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
@@ -44,7 +46,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.StringUtil;
 
 public class ComposeLogicImpl implements ComposeLogic
 {
@@ -56,6 +57,8 @@ public class ComposeLogicImpl implements ComposeLogic
 	protected UserDirectoryService userDirectoryService;
 	protected ExternalLogic externalLogic;
 	protected ToolManager toolManager;
+	protected ServerConfigurationService serverConfigurationService;
+	protected HashSet<String> ignoreRoles = new HashSet<String>();
 
 	public void init()
 	{
@@ -82,34 +85,36 @@ public class ComposeLogicImpl implements ComposeLogic
 		{
 			Role r = (Role) i.next();
 			String rolename = r.getId();
-			String singular = null;
-			String plural = null;
-
-			EmailRole configRole = findConfigRole(realmId, rolename, configRoles);
-			// check first for an override from config
-			if (configRole != null)
-			{
-				singular = configRole.getRoleSingular();
-				plural = configRole.getRolePlural();
+			if (!ignoreRoles.contains(rolename)) {
+				String singular = null;
+				String plural = null;
+	
+				EmailRole configRole = findConfigRole(realmId, rolename, configRoles);
+				// check first for an override from config
+				if (configRole != null)
+				{
+					singular = configRole.getRoleSingular();
+					plural = configRole.getRolePlural();
+				}
+				// default case
+				else
+				{
+					singular = rolename;
+					plural = rolename;
+				}
+				// create email role and add to list
+				EmailRole emailrole = null;
+				if (getGroupAwareRole().equals(rolename))
+				{
+					emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE,
+							true);
+				}
+				else
+				{
+					emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE);
+				}
+				theRoles.add(emailrole);
 			}
-			// default case
-			else
-			{
-				singular = rolename;
-				plural = rolename;
-			}
-			// create email role and add to list
-			EmailRole emailrole = null;
-			if (getGroupAwareRole().equals(rolename))
-			{
-				emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE,
-						true);
-			}
-			else
-			{
-				emailrole = new EmailRole(realmId, rolename, singular, plural, EmailRole.Type.ROLE);
-			}
-			theRoles.add(emailrole);
 		}
 		Collections.sort(theRoles, new EmailRoleComparator(EmailRoleComparator.SORT_BY.PLURAL));
 		return theRoles;
@@ -128,10 +133,10 @@ public class ComposeLogicImpl implements ComposeLogic
 		// check for and add in the manual roles from the config file
 		for (int i = 1; i < (NUMBER_ROLES + 1); i++)
 		{
-			String rolerealm = StringUtil.trimToNull(props.getProperty("role" + i + "realmid"));
-			String rolename = StringUtil.trimToNull(props.getProperty("role" + i + "id"));
-			String rolesingular = StringUtil.trimToNull(props.getProperty("role" + i + "singular"));
-			String roleplural = StringUtil.trimToNull(props.getProperty("role" + i + "plural"));
+			String rolerealm = StringUtils.trimToNull(props.getProperty("role" + i + "realmid"));
+			String rolename = StringUtils.trimToNull(props.getProperty("role" + i + "id"));
+			String rolesingular = StringUtils.trimToNull(props.getProperty("role" + i + "singular"));
+			String roleplural = StringUtils.trimToNull(props.getProperty("role" + i + "plural"));
 			// only add role if all data is present
 			if (rolerealm != null && rolename != null && rolesingular != null && roleplural != null)
 			{
@@ -212,7 +217,7 @@ public class ComposeLogicImpl implements ComposeLogic
 	public String getGroupAwareRole()
 	{
 		String retval = null;
-		String gar = ServerConfigurationService.getString("mailsender.group.aware.role");
+		String gar = serverConfigurationService.getString("mailsender.group.aware.role", "");
 		String[] gartokens = gar.split(",");
 		try
 		{
@@ -406,6 +411,32 @@ public class ComposeLogicImpl implements ComposeLogic
 	public void setUserDirectoryService(UserDirectoryService uds)
 	{
 		userDirectoryService = uds;
+	}
+
+	/**
+	 * Dependency injection method
+	 *
+	 * @param scs
+	 */
+	public void setServerConfigurationService(ServerConfigurationService scs) {
+		serverConfigurationService = scs;
+	}
+
+	/**
+	 * Inject method for setting any roles that should be ignored.
+	 *
+	 * @param ignoreRoles
+	 */
+	public void setIgnoreRoles(String ignoreRoles)
+	{
+		if (ignoreRoles != null)
+		{
+			this.ignoreRoles.clear();
+			String[] roles = StringUtils.split(ignoreRoles, ",");
+			for (String role : roles) {
+				this.ignoreRoles.add(role.trim());
+			}
+		}
 	}
 
 	/**
