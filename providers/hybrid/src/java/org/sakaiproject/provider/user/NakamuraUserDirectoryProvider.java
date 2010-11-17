@@ -211,6 +211,10 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 */
 	public void init() {
 		LOG.debug("init()");
+		if (componentManager == null) { // may be in a test
+			componentManager = org.sakaiproject.component.cover.ComponentManager
+					.getInstance();
+		}
 		validateUrl = serverConfigurationService.getString(CONFIG_VALIDATE_URL,
 				validateUrl);
 		principal = serverConfigurationService.getString(CONFIG_PRINCIPAL,

@@ -202,9 +202,6 @@
    		<property name="threadLocalManager">
    			<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
    		</property>
-   		<property name="componentManager">
-   			<ref bean="org.sakaiproject.component.api.ComponentManager" />
-   		</property>
    		<property name="serverConfigurationService">
    			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
    		</property>
