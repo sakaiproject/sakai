@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Copyright (c) 2005, 2006, 2007, 2008 Sakai Foundation
+ * Copyright (c) 2010 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Properties;
+
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -88,6 +93,20 @@ public class NakamuraAuthenticationFilterTest {
 	NakamuraAuthenticationHelper nakamuraAuthenticationHelper;
 	@Mock
 	AuthInfo authInfo;
+
+	@BeforeClass
+	public static void setupClass() {
+		Properties log4jProperties = new Properties();
+		log4jProperties.put("log4j.rootLogger", "ALL, A1");
+		log4jProperties.put("log4j.appender.A1",
+				"org.apache.log4j.ConsoleAppender");
+		log4jProperties.put("log4j.appender.A1.layout",
+				"org.apache.log4j.PatternLayout");
+		log4jProperties.put("log4j.appender.A1.layout.ConversionPattern",
+				PatternLayout.TTCC_CONVERSION_PATTERN);
+		log4jProperties.put("log4j.threshold", "ALL");
+		PropertyConfigurator.configure(log4jProperties);
+	}
 
 	/**
 	 * @throws java.lang.Exception
