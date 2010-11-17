@@ -71,13 +71,13 @@
         <dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${sakai.edu-services.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>
             <artifactId>sections-api</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${sakai.edu-services.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
