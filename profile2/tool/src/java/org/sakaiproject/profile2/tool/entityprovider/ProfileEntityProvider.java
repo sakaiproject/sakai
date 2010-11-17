@@ -360,7 +360,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
-			sb.append("<div class=\"icon profile\">");
+			sb.append("<div class=\"icon profile-image\">");
 			
 			sb.append("<div class=\"profile2-profile-view-full\">");
 			sb.append("<a href=\"javascript:;\" onclick=\"window.open('" +
