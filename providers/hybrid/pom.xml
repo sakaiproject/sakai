@@ -45,11 +45,6 @@
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
-    <dependency>
-    	<groupId>org.sakaiproject</groupId>
-    	<artifactId>sakai-portal-impl</artifactId>
-    	<version>2.9-SNAPSHOT</version>
-    </dependency>
     <!-- TODO bind to release version when it is ready 0.1? -->
     <dependency>
       <groupId>org.sakaiproject.hybrid</groupId>
