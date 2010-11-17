@@ -105,9 +105,9 @@
       <artifactId>entitybroker-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>poi</groupId>
+      <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
-      <version>2.5.1</version>
+      <version>3.7</version>
     </dependency>
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
