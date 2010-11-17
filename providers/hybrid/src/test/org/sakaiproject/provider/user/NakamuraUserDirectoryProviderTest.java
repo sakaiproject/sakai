@@ -17,12 +17,25 @@
  */
 package org.sakaiproject.provider.user;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,9 +46,6 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.NakamuraAuthenticationHelper;
 import org.sakaiproject.util.NakamuraAuthenticationHelper.AuthInfo;
-
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @see NakamuraUserDirectoryProvider
@@ -63,6 +73,20 @@ public class NakamuraUserDirectoryProviderTest {
 	AuthInfo authInfo;
 	@Mock
 	UserEdit userEdit;
+
+	@BeforeClass
+	public static void setupClass() {
+		Properties log4jProperties = new Properties();
+		log4jProperties.put("log4j.rootLogger", "ALL, A1");
+		log4jProperties.put("log4j.appender.A1",
+				"org.apache.log4j.ConsoleAppender");
+		log4jProperties.put("log4j.appender.A1.layout",
+				"org.apache.log4j.PatternLayout");
+		log4jProperties.put("log4j.appender.A1.layout.ConversionPattern",
+				PatternLayout.TTCC_CONVERSION_PATTERN);
+		log4jProperties.put("log4j.threshold", "ALL");
+		PropertyConfigurator.configure(log4jProperties);
+	}
 
 	/**
 	 * @throws java.lang.Exception
@@ -381,6 +405,7 @@ public class NakamuraUserDirectoryProviderTest {
 	 */
 	@Test
 	public void testGetUser() {
+		// test good path
 		when(userEdit.getEid()).thenReturn(MOCK_PRINCIPAL);
 		Boolean answer = null;
 		try {
@@ -393,6 +418,13 @@ public class NakamuraUserDirectoryProviderTest {
 		verify(userEdit, times(1)).setFirstName(MOCK_FIRSTNAME);
 		verify(userEdit, times(1)).setLastName(MOCK_LASTNAME);
 		verify(userEdit, times(1)).setEmail(MOCK_EMAIL);
+		// test bad parameter
+		try {
+			answer = nakamuraUserDirectoryProvider.getUser(null);
+		} catch (Throwable e) {
+			fail("No exception should be thrown");
+		}
+		assertFalse(answer);
 	}
 
 	/**
