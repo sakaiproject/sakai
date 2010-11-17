@@ -4792,6 +4792,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private void zipAttachments(ZipOutputStream out, String submittersName, String sSubAttachmentFolder, List attachments) {
 		int attachedUrlCount = 0;
 		InputStream content = null;
+		HashMap<String, Integer> done = new HashMap<String, Integer> ();
 		for (int j = 0; j < attachments.size(); j++)
 		{
 			Reference r = (Reference) attachments.get(j);
@@ -4819,7 +4820,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					bContent = new BufferedInputStream(content, data.length);
 					
-					ZipEntry attachmentEntry = new ZipEntry(sSubAttachmentFolder + displayName);
+					String candidateName = sSubAttachmentFolder + displayName;
+					String realName = null;
+					Integer already = done.get(candidateName);
+					if (already == null) {
+					    realName = candidateName;
+					    done.put(candidateName, 1);
+					} else {
+					    realName = candidateName + "+" + already;
+					    done.put(candidateName, already + 1);
+					}
+
+					ZipEntry attachmentEntry = new ZipEntry(realName);
 					out.putNextEntry(attachmentEntry);
 					int bCount = -1;
 					while ((bCount = bContent.read(data, 0, data.length)) != -1) 
@@ -4873,7 +4885,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			catch (IOException e)
 			{
 				M_log.warn(this + " zipAttachments--IOException: Problem in creating the attachment file: submittersName="
-								+ submittersName + " attachment reference=" + r);
+								+ submittersName + " attachment reference=" + r + " error " + e);
 			}
 			catch (ServerOverloadException e)
 			{
