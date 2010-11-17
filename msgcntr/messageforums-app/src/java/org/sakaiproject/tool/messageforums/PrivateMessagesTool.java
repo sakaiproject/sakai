@@ -1677,7 +1677,7 @@ private   int   getNum(char letter,   String   a)
 	    String[] ccSS = new String[numberofAuther];
 	    ccSS=msgCClistStringwithoutAuthor.split(";");
 	  
-	    String tmpCC="";
+	    StringBuffer tmpCC = new StringBuffer("");
 	    
 			if((numberofAuther>0)&&(numberofAuther<=msgCClistStringwithoutAuthor.length()))
 					      {
@@ -1690,8 +1690,7 @@ private   int   getNum(char letter,   String   a)
 						    		
 							    	if(!ccSS[indexCC].trim().equals(currentUserasAuther.replaceAll(" ", ", "))&&(!ccSS[indexCC].trim().equals(msgautherString)))//not equal current auther and not equal old auther
 							    	{						    		
-							    		tmpCC=tmpCC+ccSS[indexCC].trim();
-							    		tmpCC=tmpCC+"; ";
+							    		tmpCC.append(ccSS[indexCC].trim()).append("; ");
 							    		
 							    	}
 						    	}
@@ -1700,8 +1699,7 @@ private   int   getNum(char letter,   String   a)
 						    		
 						    		if(!ccSS[indexCC].trim().equals(currentUserasAuther.replaceAll(" ", ", "))||(!ccSS[indexCC].trim().equals(msgautherString)))//not equal current auther and not equal old auther
 							    	{						    		
-							    		tmpCC=tmpCC+ccSS[indexCC].trim();
-							    		tmpCC=tmpCC+"; ";
+							    		tmpCC.append(ccSS[indexCC].trim()).append("; ");
 							    		
 							    	}
 						    		
@@ -1709,18 +1707,14 @@ private   int   getNum(char letter,   String   a)
 						    	
 						    	
 						    }
-						    String tmp1=ccSS[numberofAuther-1];
-						    String tmp2= String.valueOf(currentUserasAuther);
-						    boolean b = ccSS[numberofAuther-1].equals(currentUserasAuther);
-						    boolean a = tmp1.equals(tmp2);
 						    
 						    if(tmpCC.length()>1)
 						    {
-							    	tmpCC=tmpCC.substring(0,tmpCC.length()-2);//remove the ";"
+							    	tmpCC.delete(tmpCC.length()-2, tmpCC.length());//remove the ";"
 							}
 						 
-						    getDetailMsg().setSendToStringDecorated(tmpCC);
-						    getDetailMsg().getMsg().setRecipientsAsText(tmpCC);
+						    getDetailMsg().setSendToStringDecorated(tmpCC.toString());
+						    getDetailMsg().getMsg().setRecipientsAsText(tmpCC.toString());
 						 
 						  }
 						    
@@ -2043,13 +2037,13 @@ private   int   getNum(char letter,   String   a)
       
       // Add the recipientList as String for display in Sent folder
       // Any hidden users will be tacked on at the end
-      String sendToString="";
-      String sendToHiddenString = "";
+      StringBuffer sendToString = new StringBuffer("");
+      StringBuffer sendToHiddenString = new StringBuffer("");
       
       if (selectedComposeToList.size() == 1) {
           MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
           if (membershipItem != null) {
-        	  sendToString +=membershipItem.getName()+"; " ;
+        	  sendToString.append(membershipItem.getName()).append("; ");
           }
       }
       else {
@@ -2059,25 +2053,25 @@ private   int   getNum(char letter,   String   a)
     		  if(membershipItem != null)
     		  {
     			  if (membershipItem.isViewable()) {
-    				  sendToString +=membershipItem.getName()+"; " ;
+    				  sendToString.append(membershipItem.getName()).append("; ");
     			  }
     			  else {
-    				  sendToHiddenString += membershipItem.getName() + "; ";
+    				  sendToHiddenString.append(membershipItem.getName()).append("; ");
     			  }
     		  }
     	  }
       }
 
-      if (! "".equals(sendToString)) {
-    	  sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+      if (! "".equals(sendToString.toString())) {
+    	  sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
       }
       
-      if ("".equals(sendToHiddenString)) {
-    	  aMsg.setRecipientsAsText(sendToString);
+      if ("".equals(sendToHiddenString.toString())) {
+    	  aMsg.setRecipientsAsText(sendToString.toString());
       }
       else {
-    	  sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space
-    	  aMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+    	  sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space
+    	  aMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
       }
       
     }
@@ -2548,14 +2542,14 @@ private   int   getNum(char letter,   String   a)
     	// Since some users may be hidden, if some of these are recipients
     	// filter them out (already checked if no recipients)
     	// if only 1 recipient no need to check visibility
-    	String sendToString="";
-    	String sendToHiddenString="";
+    	StringBuffer sendToString = new StringBuffer("");
+    	StringBuffer sendToHiddenString = new StringBuffer("");
 
     	if (selectedComposeToList.size() == 1) {
     		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
     		if(membershipItem != null)
     		{
-    			sendToString +=membershipItem.getName()+"; " ;
+    			sendToString.append(membershipItem.getName()).append("; ");
     		}          
     	}
     	else {
@@ -2565,25 +2559,25 @@ private   int   getNum(char letter,   String   a)
     			if(membershipItem != null)
     			{
     				if (membershipItem.isViewable()) {
-    					sendToString +=membershipItem.getName()+"; " ;
+    					sendToString.append(membershipItem.getName()).append("; ");
     				}
     				else {
-    					sendToHiddenString += membershipItem.getName() + "; ";
+    					sendToHiddenString.append(membershipItem.getName()).append("; ");
     				}
     			}          
     		}
     	}
 
-    	if (! "".equals(sendToString)) {
-    		sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+    	if (! "".equals(sendToString.toString())) {
+    		sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
     	}
 
-    	if ("".equals(sendToHiddenString)) {
-    		rrepMsg.setRecipientsAsText(sendToString);
+    	if ("".equals(sendToHiddenString.toString())) {
+    		rrepMsg.setRecipientsAsText(sendToString.toString());
     	}
     	else {
-    		sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
-    		rrepMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+    		sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space    
+    		rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
     	}    
 
     	//Add attachments
@@ -2701,14 +2695,14 @@ private   int   getNum(char letter,   String   a)
     	// Since some users may be hidden, if some of these are recipients
     	// filter them out (already checked if no recipients)
     	// if only 1 recipient no need to check visibility
-    	String sendToString="";
-    	String sendToHiddenString="";
+    	StringBuffer sendToString = new StringBuffer();
+    	StringBuffer sendToHiddenString = new StringBuffer();
 
     	if (selectedComposeToList.size() == 1) {
     		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
     		if(membershipItem != null)
     		{
-    			sendToString +=membershipItem.getName()+"; " ;
+    			sendToString.append(membershipItem.getName()).append("; ");
     		}          
     	}
     	else {
@@ -2718,25 +2712,25 @@ private   int   getNum(char letter,   String   a)
     			if(membershipItem != null)
     			{
     				if (membershipItem.isViewable()) {
-    					sendToString +=membershipItem.getName()+"; " ;
+    					sendToString.append(membershipItem.getName()).append("; ");
     				}
     				else {
-    					sendToHiddenString += membershipItem.getName() + "; ";
+    					sendToHiddenString.append(membershipItem.getName()).append("; ");
     				}
     			}          
     		}
     	}
 
-    	if (! "".equals(sendToString)) {
-    		sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+    	if (! "".equals(sendToString.toString())) {
+    		sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
     	}
 
-    	if ("".equals(sendToHiddenString)) {
-    		rrepMsg.setRecipientsAsText(sendToString);
+    	if ("".equals(sendToHiddenString.toString())) {
+    		rrepMsg.setRecipientsAsText(sendToString.toString());
     	}
     	else {
-    		sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
-    		rrepMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+    		sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space    
+    		rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
     	}    
 
     	//Add attachments
@@ -2846,9 +2840,6 @@ private   int   getNum(char letter,   String   a)
 		  }
 		  return null ;
 	  }
-	  
-	  int selcomposetolistsize=getSelectedComposeToList().size();
-
 
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
@@ -2900,7 +2891,7 @@ private   int   getNum(char letter,   String   a)
 	  List tmpRecipList = currentMessage.getRecipients();
 
 	  Set returnSet = new HashSet();
-	  String sendToStringreplyall="";
+	  StringBuffer sendToStringreplyall = new StringBuffer();
 
 	  Iterator iter = tmpRecipList.iterator();
 	  while (iter.hasNext())
@@ -2926,31 +2917,31 @@ private   int   getNum(char letter,   String   a)
 	  }
 
 	  if(currentMessage.getRecipientsAsText() != null && !"".equals(currentMessage.getRecipientsAsText())){
-		  sendToStringreplyall += currentMessage.getRecipientsAsText() + "; ";
+		  sendToStringreplyall.append(currentMessage.getRecipientsAsText()).append("; ");
 	  }
 	  if(returnSet.isEmpty()) {
 		  returnSet.add(autheruser);
-		  if(!sendToStringreplyall.contains(msgauther)){
+		  if(!sendToStringreplyall.toString().contains(msgauther)){
 			  //only add it to the reply string if it doesn't exist
-			  sendToStringreplyall+= msgauther+"; " ;
+			  sendToStringreplyall.append(msgauther).append("; ");
 		  }
 	  }
-	  if(returnSet.contains(autheruser) && !sendToStringreplyall.contains(msgauther)){
-		  sendToStringreplyall+= msgauther+"; " ;
+	  if(returnSet.contains(autheruser) && !sendToStringreplyall.toString().contains(msgauther)){
+		  sendToStringreplyall.append(msgauther).append("; ");
 	  }
 
 	  //Add the recipientList as String for display in Sent folder
 	  // Since some users may be hidden, if some of these are recipients
 	  // filter them out (already checked if no recipients)
 	  // if only 1 recipient no need to check visibility
-	  String sendToString= sendToStringreplyall;
-	  String sendToHiddenString="";
+	  StringBuffer sendToString = new StringBuffer(sendToStringreplyall);
+	  StringBuffer sendToHiddenString = new StringBuffer();
 
 	  if (selectedComposeToList.size() == 1) {
 		  MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
 		  if(membershipItem != null)
 		  {
-			  sendToString +=membershipItem.getName()+"; " ;
+			  sendToString.append(membershipItem.getName()).append("; ");
 		  }          
 	  }
 	  else {
@@ -2959,12 +2950,12 @@ private   int   getNum(char letter,   String   a)
 			  MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));
 			  if(membershipItem != null)
 			  {
-				  if(!sendToStringreplyall.contains(membershipItem.getName())){
+				  if(!sendToStringreplyall.toString().contains(membershipItem.getName())){
 					  if (membershipItem.isViewable()) {
-						  sendToString +=membershipItem.getName()+"; " ;
+						  sendToString.append(membershipItem.getName()).append("; ");
 					  }
 					  else {
-						  sendToHiddenString += membershipItem.getName() + "; ";
+						  sendToHiddenString.append(membershipItem.getName()).append("; ");
 					  }
 				  }
 			  }          
@@ -2973,15 +2964,15 @@ private   int   getNum(char letter,   String   a)
 
 
 	  if (! "".equals(sendToString)) {
-		  sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+		  sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
 	  }
 
-	  if ("".equals(sendToHiddenString)) {
-		  rrepMsg.setRecipientsAsText(sendToString);
+	  if ("".equals(sendToHiddenString.toString())) {
+		  rrepMsg.setRecipientsAsText(sendToString.toString());
 	  }
 	  else {
-		  sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
-		  rrepMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+		  sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space    
+		  rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
 	  }
 
 
