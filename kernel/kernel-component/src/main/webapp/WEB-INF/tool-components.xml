@@ -72,6 +72,11 @@
 				<entry key="org.sakaiproject:name=Sessions" value-ref="org.sakaiproject.tool.impl.JMXSessionComponent" />
 			</map>
 		</property>
+		<property name="server">
+			<!-- KNL-616 - Get the platform MBeanServer, this is to stop JMXUtils logging a warning about multiple MBeanServers
+			     when the MBeanServer isn't created by the JVM at startup. -->
+			<bean class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
+		</property>
 		<property name="assembler">
 			<bean
 				class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
