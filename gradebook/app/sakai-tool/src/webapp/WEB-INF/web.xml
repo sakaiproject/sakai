@@ -73,7 +73,7 @@
     
     <!--  Servlet for RSF Helper -->
     <servlet>
-    	<servlet-name>sakai-gradebook-item-helper</servlet-name>
+    	<servlet-name>sakai-gradebook-helper</servlet-name>
      
 	    <servlet-class>
 	      uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
