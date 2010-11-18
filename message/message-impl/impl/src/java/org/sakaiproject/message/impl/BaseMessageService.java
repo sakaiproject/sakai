@@ -874,7 +874,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// NEW for security - some might suggest that this should wait for the commit
 		// But it *has* been added - so we should know this happenned one
 		// way or another.
-		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel.getReference(), true);
+		String channel_reference = "";
+		if (channel != null) 
+			channel_reference = channel.getReference();
+		else
+			M_log.info("addChannel: null channel returned from putChannel("+ref+")");
+		
+		Event event = m_eventTrackingService.newEvent(eventId(SECURE_CREATE), channel_reference, true);
 		m_eventTrackingService.post(event);
 
 		return channel;
