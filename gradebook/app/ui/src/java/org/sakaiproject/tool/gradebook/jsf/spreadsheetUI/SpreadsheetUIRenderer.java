@@ -137,14 +137,15 @@ public class SpreadsheetUIRenderer extends Renderer
     public void encodeChildren(FacesContext context, UIComponent component)
       throws IOException
     {
-	    if (!component.isRendered())
+        if ((context == null) || (component == null)) {
+            return;
+        }
+
+        if (!component.isRendered())
 	    {
 		  return;
 	    }
 
-	    if ((context == null) || (component == null)) {
-	    	return;
-	    }
 		UIData data = (UIData) component;
 			
 		ValueBinding msgsBinding = component.getValueBinding("value");

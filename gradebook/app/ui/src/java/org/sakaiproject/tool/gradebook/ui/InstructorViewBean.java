@@ -413,13 +413,14 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		List rosterGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentIdItemIdFunctionMap.keySet());
 		Map gradeRecordMap = new HashMap();
 		
-		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+        if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords, studentIdItemIdFunctionMap);
 			// we need to re-sort these records b/c some may actually be null based upon permissions.
 			// retrieve updated grade recs from gradeRecordMap
 			List updatedGradeRecs = new ArrayList();
-			for (Iterator iter = gradeRecordMap.keySet().iterator(); iter.hasNext();) {
-				String studentId = (String)iter.next();
+			for (Iterator<Map.Entry<String, Map>> iter = gradeRecordMap.entrySet().iterator(); iter.hasNext();) {
+                Map.Entry<String, Map> entry = iter.next();
+				String studentId = entry.getKey();
 				Map itemIdGradeRecMap = (Map)gradeRecordMap.get(studentId);
 				if (!itemIdGradeRecMap.isEmpty()) {
 					updatedGradeRecs.addAll(itemIdGradeRecMap.values());

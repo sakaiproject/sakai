@@ -385,14 +385,15 @@ public class GradebookItemTableRenderer extends Renderer {
 					if(hasChildBoolean && isCategory)
 					{
 						String imgId = "_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_";
-						String hideTr = "";
+						StringBuffer hideTr = new StringBuffer();
 						for(int i=0; i<childNo; i++)
 						{
-							hideTr += "javascript:showHideDiv('_id_" + new Integer(hideDivNo+i).toString() + 
-								"', '" +  path + "', '" + imgExpandAlt  + "', '" + imgCollapseAlt  + "', '" + imgExpandTitle + "', '" + imgCollapseTitle + "');";
+							hideTr.append("javascript:showHideDiv('_id_").append(new Integer(hideDivNo+i).toString()).append("', '")
+							      .append(path).append("', '").append(imgExpandAlt).append("', '").append(imgCollapseAlt).append("', '")
+							      .append(imgExpandTitle).append("', '").append(imgCollapseTitle).append("');");
 						}
 						
-						hideTr += "mySetMainFrameHeight('Main" + ToolManager.getCurrentPlacement().getId().replace('-','x') + "');";
+						hideTr.append("mySetMainFrameHeight('Main").append(ToolManager.getCurrentPlacement().getId().replace('-','x')).append("');");
 
 						writer.startElement(HTML.IMG_ELEM, image);
 						writer.writeURIAttribute("src", image.getValue(), null);

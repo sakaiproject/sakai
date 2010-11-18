@@ -1330,16 +1330,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		List studentScores = scoreRow.getRowcontent();
 
     		// verify that a student doesn't appear more than once in the ss
-    		String username = (String)studentScores.get(0);
-    		if (username != null) {
-    		    if (uploadedStudents.contains(username)) {
-    		        FacesUtil.addErrorMessage(getLocalizedString("import_assignment_duplicate_student", new String[] {username}));
-                    return false;
-    		    }
-
-    		    uploadedStudents.add(username);
+    		if(studentScores != null) {
+        		String username = (String)studentScores.get(0);
+        		if (username != null) {
+        		    if (uploadedStudents.contains(username)) {
+        		        FacesUtil.addErrorMessage(getLocalizedString("import_assignment_duplicate_student", new String[] {username}));
+                        return false;
+        		    }
+    
+        		    uploadedStudents.add(username);
+        		}
     		}
-
+    		
     		// start with col 2 b/c the first two are eid and name
     		if (studentScores != null && studentScores.size() > 2) {
     			for (int i=2; i < studentScores.size(); i++) {
@@ -2211,7 +2213,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
 
     private String fromHSSFRowtoCSV(HSSFRow row){
-        String csvRow = "";
+        StringBuffer csvRow = new StringBuffer();
         int l = row.getLastCellNum();
         for (int i=0;i<l;i++){
             HSSFCell cell = row.getCell((short)i);
@@ -2226,13 +2228,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 cellValue = "\"" + cellValue + "\"";
             }
 
-            csvRow = csvRow + cellValue;
+            csvRow.append(cellValue);
 
             if (i<l){
-                csvRow = csvRow + getCsvDelimiter().toCharArray()[0];
+                csvRow.append(getCsvDelimiter().toCharArray()[0]);
             }
         }
-        return csvRow;
+        return csvRow.toString();
 
     }
 

@@ -602,9 +602,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	boolean isIquizCall = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_call"));
                 	boolean isStudentView = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_student_view"));
 
-                	Map iquizAssignmentMap = new HashMap();            
+                	Map iquizAssignmentMap = null;            
                 	List legacyUpdates = new ArrayList();            
-                	Map convertedEidUidRecordMap = new HashMap();
+                	Map convertedEidUidRecordMap = null;
 
                 	convertedEidUidRecordMap = synchronizer.convertEidUid(gradeRecordsFromCall);
                 	if (!isUpdateAll && synchronizer !=null && !synchronizer.isProjectSite()){
@@ -770,9 +770,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	boolean isStudentView = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_student_view"));
            
                 	List legacyUpdates = new ArrayList();            
-                	Map convertedEidUidRecordMap = new HashMap();
-
-                	convertedEidUidRecordMap = synchronizer.convertEidUid(gradeRecordsFromCall);
+                	Map convertedEidUidRecordMap = synchronizer.convertEidUid(gradeRecordsFromCall);
      
                 	Map recordsFromCLDb = null;
                 	if(synchronizer != null && isIquizCall && isUpdateAll)
@@ -1112,7 +1110,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	for (AssignmentGradeRecord gradeRec : gradeRecs) {
     		Double pointsEarned = gradeRec.getPointsEarned();
     		Assignment go = gradeRec.getAssignment();
-    		if (go.isCounted() && pointsEarned != null) {
+    		if (go != null && go.isCounted() && pointsEarned != null) {
     			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
     			{
     				totalPointsEarned += pointsEarned.doubleValue();
@@ -2212,7 +2210,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     private Double calculateDoublePointForRecord(AssignmentGradeRecord gradeRecordFromCall)
     {
     	Assignment assign = getAssignment(gradeRecordFromCall.getAssignment().getId()); 
-    	Gradebook gradebook = getGradebook(assign.getGradebook().getId());
     	if(gradeRecordFromCall.getPercentEarned() != null)
     	{
     		if(gradeRecordFromCall.getPercentEarned().doubleValue() / 100.0 < 0)
@@ -2252,7 +2249,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     private Double calculateDoublePointForLetterGrade(AssignmentGradeRecord gradeRecordFromCall)
     {
     	Assignment assign = getAssignment(gradeRecordFromCall.getAssignment().getId()); 
-    	Gradebook gradebook = getGradebook(assign.getGradebook().getId());
     	if(gradeRecordFromCall.getLetterEarned() != null)
     	{
     		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(assign.getGradebook());
@@ -2300,8 +2296,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		for(int i=0; i<assignRecordsFromDB.size(); i++)
     		{
     			AssignmentGradeRecord agr = (AssignmentGradeRecord) assignRecordsFromDB.get(i);
-    			agr.setDateRecorded(agr.getDateRecorded());
-    			agr.setGraderId(agr.getGraderId());
+    			if(agr != null) {
+        			agr.setDateRecorded(agr.getDateRecorded());
+        			agr.setGraderId(agr.getGraderId());
+    			}
     			if(agr != null && agr.getPointsEarned() != null)
     			{
     				agr.setPercentEarned(calculateEquivalentPercent(pointPossible, agr.getPointsEarned()));
@@ -2327,8 +2325,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		for(int i=0; i<assignRecordsFromDB.size(); i++)
     		{
     			AssignmentGradeRecord agr = (AssignmentGradeRecord) assignRecordsFromDB.get(i);
-      		agr.setDateRecorded(agr.getDateRecorded());
-      		agr.setGraderId(agr.getGraderId());
+      		if(agr != null) {
+      		    agr.setDateRecorded(agr.getDateRecorded());
+                agr.setGraderId(agr.getGraderId());
+      		}
       		if(agr != null && agr.getPointsEarned() != null )
       		{
         		String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointPossible, agr.getPointsEarned()));
@@ -2463,7 +2463,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
     
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
-    	List categories = getCategories(gradebookId);
     	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List allAssignments;
     	
@@ -2582,8 +2581,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		lgpm = getLetterGradePercentMapping(gradebook);
     	}
     	
-    	for (Iterator goIter = gradableObjectEventListMap.keySet().iterator(); goIter.hasNext();) {
-    		GradableObject go = (GradableObject)goIter.next();
+    	for (Iterator<Map.Entry<GradableObject, List>> goIter = gradableObjectEventListMap.entrySet().iterator(); goIter.hasNext();) {
+            Map.Entry<GradableObject, List> entry = goIter.next();
+            GradableObject go = entry.getKey();
+
     		if (go instanceof Assignment) {
     			Assignment assign = (Assignment) go;
     			Double pointsPossible = assign.getPointsPossible();
@@ -2922,7 +2923,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	private Map<String,List<AssignmentGradeRecord>> getGradeRecordMapForStudents(Session session, Long gradebookId, Collection<String> studentUids) {
 	    Map<String,List<AssignmentGradeRecord>> filteredGradeRecs = new HashMap<String,List<AssignmentGradeRecord>>();
 	    if (studentUids != null) {
-	        List<AssignmentGradeRecord> allGradeRecs = new ArrayList<AssignmentGradeRecord>();
+	        List<AssignmentGradeRecord> allGradeRecs = null;
 
 	        if (studentUids.size() >= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
 	            allGradeRecs = session.createQuery(
