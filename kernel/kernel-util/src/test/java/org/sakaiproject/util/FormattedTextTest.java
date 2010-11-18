@@ -245,4 +245,55 @@ public class FormattedTextTest extends TestCase {
     	String result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
         assertNull(result);
     }
+
+    public void testKNL_579() {
+        // http://jira.sakaiproject.org/browse/KNL-579
+
+        String SCRIPT1 = "<div>testing</div><SCRIPT>alert(\"XSS\");//</SCRIPT>";
+        String SCRIPT2 = "<div>testing</div><SCRIPT>alert(\"XSS\");//<</SCRIPT>";
+        String SCRIPT3 = "<div>testing</div><<SCRIPT>alert(\"XSS\");//<</SCRIPT>";
+        String SCRIPT4 = "<div>testing</div><<SCRIPT>>alert(\"XSS\");//<</SCRIPT>";
+
+        String strFromBrowser = null;
+        String result = null;
+        StringBuilder errorMessages = null;
+        
+        strFromBrowser = SCRIPT1;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertTrue( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+
+        strFromBrowser = SCRIPT2;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertTrue( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+
+        strFromBrowser = SCRIPT3;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertTrue( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+
+        strFromBrowser = SCRIPT4;
+        errorMessages = new StringBuilder();
+        result = FormattedText.processFormattedText(strFromBrowser, errorMessages, true);
+        assertNotNull(result);
+        assertTrue( errorMessages.length() > 10 );
+        assertTrue( result.contains("<div>testing</div>"));
+        assertTrue( result.contains("XSS"));
+        assertFalse( result.contains("<SCRIPT"));
+
+    }
+
 }

@@ -772,29 +772,36 @@ public class FormattedText
 		StringBuilder buf = new StringBuilder();
 		boolean escape = true;
 
+        // Fix up tags that look like: <<<tag>
+        String realTag = tag;
+        while (realTag.startsWith("<<")) {
+            // chop off one char until we get down to a real tag
+            realTag = realTag.substring(1);
+        }
+
 		// if it's a good open tag, don't escape the HTML
 		for (int i = 0; i < M_goodTags.length; i++)
 		{
-			if (M_goodTagsPatterns[i].matcher(tag).matches())
+		    if (M_goodTagsPatterns[i].matcher(realTag).matches())
 			{
-				if (M_patternAnchorTag.matcher(tag).matches()
-						&& !M_patternCloseAnchorTag.matcher(tag).matches())
+				if (M_patternAnchorTag.matcher(realTag).matches()
+						&& !M_patternCloseAnchorTag.matcher(realTag).matches())
 				{
 					// if it's an anchor tag, sanitize it
-					buf.append(checkAttributes(processAnchor(tag), errorMessages));
+					buf.append(checkAttributes(processAnchor(realTag), errorMessages));
 					escape = false;
 				}
 				else
 				{
 					// otherwise just include it
-					buf.append(checkAttributes(tag, errorMessages));
+					buf.append(checkAttributes(realTag, errorMessages));
 					escape = false;
 				}
 			}
-			else if (M_goodCloseTagsPatterns[i].matcher(tag).matches())
+			else if (M_goodCloseTagsPatterns[i].matcher(realTag).matches())
 			{
 				// if it's a good close tag, don't escape the HTML
-				buf.append(checkAttributes(tag, errorMessages));
+				buf.append(checkAttributes(realTag, errorMessages));
 				escape = false;
 			}
 		}
@@ -804,7 +811,7 @@ public class FormattedText
 		{
 			buf.append((String) escapeHtml(tag, false));
 
-			Matcher fullTag = M_patternTagPieces.matcher(tag);
+			Matcher fullTag = M_patternTagPieces.matcher(realTag);
 			if (fullTag.matches() && fullTag.groupCount() > 2)
 			{
 				errorMessages.append("The HTML tag '" + fullTag.group(1)
