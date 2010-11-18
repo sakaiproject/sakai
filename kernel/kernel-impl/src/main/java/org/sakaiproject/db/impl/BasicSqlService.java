@@ -426,13 +426,13 @@ public abstract class BasicSqlService implements SqlService
 	}
 
 	/**
-	 * Read a single field from the db, from multiple records, returned as string[], one per record.
+	 * Read a single field from the db, from multiple records, returned as List<String>, one per record.
 	 * 
 	 * @param sql
 	 *        The sql statement.
 	 * @return The List of Strings of single fields of the record found, or empty if none found.
 	 */
-	public List dbRead(String sql)
+	public List<String> dbRead(String sql)
 	{
 		if (LOG.isDebugEnabled())
 		{
