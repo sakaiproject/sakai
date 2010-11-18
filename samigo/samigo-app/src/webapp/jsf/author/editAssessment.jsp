@@ -323,7 +323,7 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
 
      <h:outputText value=" #{authorMessages.dash} " />
-     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" size="6" onkeydown="inIt()" onchange="toPoint(this.id);" >
+     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" size="6" onkeydown="inIt()" onchange="toPoint(this.id);" disabled="#{question.itemData.typeId== 3}">
 	<f:validateDoubleRange /></h:inputText>
 
 		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
