@@ -42,10 +42,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper.AuthInfo;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.util.NakamuraAuthenticationHelper;
-import org.sakaiproject.util.NakamuraAuthenticationHelper.AuthInfo;
 
 /**
  * @see NakamuraUserDirectoryProvider

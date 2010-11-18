@@ -25,12 +25,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper.AuthInfo;
+import org.sakaiproject.hybrid.util.XSakaiToken;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.util.NakamuraAuthenticationHelper;
-import org.sakaiproject.util.NakamuraAuthenticationHelper.AuthInfo;
-import org.sakaiproject.util.XSakaiToken;
 
 /**
  * Authenticates users who have already been authenticated to a Nakamura
