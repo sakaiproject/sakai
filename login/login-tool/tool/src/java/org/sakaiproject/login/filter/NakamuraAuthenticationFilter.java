@@ -40,11 +40,11 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper.AuthInfo;
+import org.sakaiproject.hybrid.util.XSakaiToken;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.NakamuraAuthenticationHelper;
-import org.sakaiproject.util.NakamuraAuthenticationHelper.AuthInfo;
-import org.sakaiproject.util.XSakaiToken;
 
 /**
  * A simple {@link Filter} which can be used for container authentication (e.g.

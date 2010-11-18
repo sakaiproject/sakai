@@ -48,12 +48,12 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper;
+import org.sakaiproject.hybrid.util.NakamuraAuthenticationHelper.AuthInfo;
 import org.sakaiproject.login.filter.NakamuraAuthenticationFilter.NakamuraHttpServletRequestWrapper;
 import org.sakaiproject.login.filter.NakamuraAuthenticationFilter.NakamuraPrincipal;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.NakamuraAuthenticationHelper;
-import org.sakaiproject.util.NakamuraAuthenticationHelper.AuthInfo;
 
 /**
  * @see NakamuraAuthenticationFilter
