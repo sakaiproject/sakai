@@ -62,14 +62,14 @@ public class MyMessages extends BasePage {
 		buttons.add(new AjaxFallbackButton(buttons.newChildId(), new ResourceModel("link.messages.mymessages"), tabs) {
 			private static final long serialVersionUID = 1L;
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				log.error("message list");
+				log.debug("Showing message list");
 				switchContentPanel(new MessageThreadsView("tabPanel"), target);
 			}
 		});
 		buttons.add(new AjaxFallbackButton(buttons.newChildId(), new ResourceModel("link.messages.compose"), tabs) {
 			private static final long serialVersionUID = 1L;
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				log.error("compose");
+				log.debug("Showing compose panel");
 				switchContentPanel(new ComposeNewMessage("tabPanel"), target);
 			}
 		});
