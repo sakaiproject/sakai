@@ -23,6 +23,7 @@ package org.sakaiproject.news.tool;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 import java.util.Vector;
 
 import org.sakaiproject.cheftool.Context;
@@ -86,10 +87,12 @@ public class NewsAction extends VelocityPortletPaneledAction
 	private static final String FULL_STORY_TEXT = "full_story";
 
 	/** Basic feed access event. */
-	private static final String FEED_ACCESS = "news.read";
+	protected static final String FEED_ACCESS = "news.read";
 	
 	/** Basic feed update event. */
-	private static final String FEED_UPDATE = "news.revise";
+	protected static final String FEED_UPDATE = "news.revise";
+	
+	protected static final String STATE_DETECT_REGISTERED_EVENT = "detectRegisteredEvent";
 	
 	/**
 	 * Populate the state object, if needed.
@@ -97,6 +100,8 @@ public class NewsAction extends VelocityPortletPaneledAction
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		PortletConfig config = portlet.getPortletConfig();
+		
+		Placement placement = ToolManager.getCurrentPlacement();
 
 		// detect that we have not done this, yet
 		if (state.getAttribute(STATE_CHANNEL_TITLE) == null)
@@ -198,9 +203,21 @@ public class NewsAction extends VelocityPortletPaneledAction
  
 		try 
 		{
-			EventTrackingService.post(EventTrackingService.newEvent(FEED_ACCESS, "/news/site/" +
-				SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
-				"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), false));
+			// tracking event
+			if(state.getAttribute(FEED_ACCESS) == null) {
+				if(state.getAttribute(STATE_DETECT_REGISTERED_EVENT) == null) {
+					// is News tool
+					EventTrackingService.post(EventTrackingService.newEvent(FEED_ACCESS, "/news/site/" +
+						SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
+						"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), false));
+				}
+			}
+			else {
+				// extends News tool
+				EventTrackingService.post(EventTrackingService.newEvent((String)state.getAttribute(FEED_ACCESS), "/news/site/" +
+						SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
+						"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), false));
+			}
 			
 		} 
 		catch (IdUnusedException e)
@@ -375,9 +392,21 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 			try 
 			{
-				EventTrackingService.post(EventTrackingService.newEvent(FEED_UPDATE, "/news/site/" +
-					SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
-					"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), true));
+				// tracking event
+				if(state.getAttribute(FEED_UPDATE) == null) {
+					if(state.getAttribute(STATE_DETECT_REGISTERED_EVENT) == null) {
+						// is News tool
+						EventTrackingService.post(EventTrackingService.newEvent(FEED_UPDATE, "/news/site/" +
+							SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
+							"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), true));
+					}
+				}
+				else {
+					// extends News tool
+					EventTrackingService.post(EventTrackingService.newEvent((String)state.getAttribute(FEED_UPDATE) , "/news/site/" +
+							SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getId() +
+							"/placement/" + SessionManager.getCurrentToolSession().getPlacementId(), true));
+				}
 				
 			} 
 			catch (IdUnusedException e)
