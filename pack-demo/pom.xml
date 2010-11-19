@@ -20,6 +20,23 @@
 		<sakai.plugin.version>2.2</sakai.plugin.version>
 		<sakai.tomcat.version>5.5.31</sakai.tomcat.version>
 	</properties>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sakai.skip.tests>false</sakai.skip.tests>
+            </properties>
+        </profile>
+        <profile>
+            <id>skip-tests</id>
+            <properties>
+                <sakai.skip.tests>true</sakai.skip.tests>
+            </properties>
+        </profile>
+    </profiles>
 	<dependencies>
 		<dependency>
 			<groupId>tomcat.tomcat</groupId>
@@ -62,25 +79,18 @@
 									
 								<delete dir="${basedir}/target/unpack" />
 								-->
-								
-								<echo>
-									Executing cd ../;mvn clean
-								</echo>
-                                <exec dir="../" executable="mvn" failonerror="true">
-                                    <arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
-                                    <arg value="clean" />
-                                </exec>
 
                                 <echo>
-                                    Executing cd ../;mvn -Dmaven.tomcat.home=${basedir}/target/pack -Dmaven.test.skip=true install sakai:deploy
+                                    Executing cd ../;mvn -Dmaven.tomcat.home=${basedir}/target/pack -Dmaven.test.skip=${sakai.skip.tests} clean install sakai:deploy
                                 </echo>
 								<exec dir="../" executable="mvn" failonerror="true">
 									<arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
-									<arg value="-Dmaven.test.skip=true" />
+									<arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
 									<arg value="-Dkeystore=${keystore}" />
 									<arg value="-Dalias=${alias}" />
 									<arg value="-Dstorepass=${storepass}" />
-									<arg value="install" />
+									<arg value="clean" />
+                                    <arg value="install" />
 									<arg value="sakai:deploy" />
 								</exec>
 								
