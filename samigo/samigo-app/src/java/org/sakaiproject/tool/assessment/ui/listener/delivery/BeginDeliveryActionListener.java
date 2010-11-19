@@ -78,7 +78,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-    log.info("****DeliveryBean= "+delivery);
+    log.debug("****DeliveryBean= "+delivery);
     String actionString = ContextUtil.lookupParam("actionString");
     if (actionString != null && !actionString.trim().equals("")) {
       // if actionString is null, likely that action & actionString has been set already, 
