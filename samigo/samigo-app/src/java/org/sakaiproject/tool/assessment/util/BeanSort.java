@@ -123,7 +123,12 @@ public class BeanSort
     }
     else if(numeric)
     {
-      bsc = new BeanFloatComparator(property);
+      if ("timeElapsed".equals(property)) {
+    	  bsc = new BeanIntegerComparator(property);
+      }
+      else {
+    	  bsc = new BeanFloatComparator(property);
+      }
     }
     else if(date)
     {
@@ -150,7 +155,7 @@ public class BeanSort
   {
     string = false;
     numeric = true;
-       date = false;
+    date = false;
   }
 
   /**

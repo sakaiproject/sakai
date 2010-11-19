@@ -667,20 +667,20 @@ return;
     </h:column>
 
     <!-- TIME -->
-    <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType!='time'}">
+    <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType!='timeElapsed'}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortTime}" id="time" action="totalScores">
           <h:outputText value="#{evaluationMessages.time}" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-        <f:param name="sortBy" value="time" />
+        <f:param name="sortBy" value="timeElapsed" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
       <h:outputText value="#{description.formatedTimeElapsed}" />
     </h:column>
 
-	<h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='time' && totalScores.sortAscending}">
+	<h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='timeElapsed' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortTime}" action="totalScores">
           <h:outputText value="#{evaluationMessages.time}" />
@@ -693,7 +693,7 @@ return;
       <h:outputText value="#{description.formatedTimeElapsed}" />
     </h:column>
     
-    <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='time'  && !totalScores.sortAscending}">
+    <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='timeElapsed'  && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortTime}" action="totalScores">
         <h:outputText value="#{evaluationMessages.time}" />

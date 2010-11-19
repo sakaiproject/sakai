@@ -66,23 +66,43 @@ public class BeanIntegerComparator
    */
   public int compare(Object o1, Object o2)
   {
-    Map m1 = describeBean(o1);
-    Map m2 = describeBean(o2);
-    String s1 = (String) m1.get(propertyName);
-    String s2 = (String) m2.get(propertyName);
-    Integer i1 = null;
-    Integer i2 = null;
-    try
-    {
-      i1 = new Integer(s1);
-      i2 = new Integer(s2);
-    }
-    catch(Throwable t)
-    {
-      throw new java.lang.UnsupportedOperationException(
-        "Error in comparing integer objects:" + t);
-    }
+	  Map m1 = describeBean(o1);
+	  Map m2 = describeBean(o2);
+	  String s1 = (String) m1.get(propertyName);
+	  String s2 = (String) m2.get(propertyName);
+	  Integer i1 = null;
+	  Integer i2 = null;
+	  boolean firstIntegerValid = true;
+	  boolean secondIntegerValid = true;
 
-    return i1.compareTo(i2);
+	  try
+	  {
+		  i1 = Integer.valueOf(s1);
+	  }
+	  catch (NumberFormatException e)
+	  {
+		  firstIntegerValid = false;
+	  }
+
+	  try
+	  {
+		  i2 = Integer.valueOf(s2);
+	  }
+	  catch (NumberFormatException e)
+	  {
+		  secondIntegerValid = false;
+	  }
+
+	  int returnValue=0;
+	  if (firstIntegerValid && secondIntegerValid) {
+		  if (i1 != null) {
+			  returnValue = i1.compareTo(i2);
+		  }
+	  }
+	  if (firstIntegerValid && !secondIntegerValid) returnValue = 1;
+	  if (!firstIntegerValid && secondIntegerValid) returnValue = -1;
+	  if (!firstIntegerValid && !secondIntegerValid) returnValue = 0;
+
+	  return returnValue;  
   }
 }

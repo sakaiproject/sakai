@@ -781,7 +781,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     if ((sortProperty).equals("totalAutoScore")) bs.toNumericSort();
     if ((sortProperty).equals("totalOverrideScore")) bs.toNumericSort();
     if ((sortProperty).equals("finalScore")) bs.toNumericSort();
-
+    if ((sortProperty).equals("timeElapsed")) bs.toNumericSort();
+    
     if (sortAscending) {
     	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
     	agents = (ArrayList)bs.sort();
