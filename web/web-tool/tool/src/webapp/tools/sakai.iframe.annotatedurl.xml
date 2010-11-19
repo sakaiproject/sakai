@@ -17,6 +17,13 @@
 		
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 
+				
+		<!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+		<configuration name="webcontent.read" value="webcontent.read.annotatedurl" /> 
+		
+		<!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+		<configuration name="webcontent.revise" value="webcontent.revise.annotatedurl" /> 
+		
 	</tool>
 
 </registration>

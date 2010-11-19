@@ -331,6 +331,15 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
 		}
 		
+		// if events found in tool registration file put them in state
+		if((StringUtil.trimToNull(config.getProperty(EVENT_ACCESS_WEB_CONTENT)) != null)) {
+			state.setAttribute(EVENT_ACCESS_WEB_CONTENT, config.getProperty(EVENT_ACCESS_WEB_CONTENT));
+		}
+		if((StringUtil.trimToNull(config.getProperty(EVENT_REVISE_WEB_CONTENT)) != null)) {
+			state.setAttribute(EVENT_REVISE_WEB_CONTENT, config.getProperty(EVENT_REVISE_WEB_CONTENT));
+		}
+
+		
 		if (m_eventTrackingService == null)
 		{
 			m_eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
@@ -774,21 +783,35 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 	
 		// tracking event
+		String siteId = "";
+		try
+		{
+			Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			siteId = s.getId();
+		}
+		catch (Throwable e)
+		{
+			
+		}
 		if (special == null)
 		{
-			String siteId = "";
-			try
-			{
-				Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-				siteId = s.getId();
-			}
-			catch (Throwable e)
-			{
-				
-			}
+			if(state.getAttribute(EVENT_ACCESS_WEB_CONTENT) == null) {
 			
-			// this is a Web Content tool
-			m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_ACCESS_WEB_CONTENT, url, siteId, false, NotificationService.NOTI_NONE));
+				// this is a Web Content tool
+				m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_ACCESS_WEB_CONTENT, url, siteId, false, NotificationService.NOTI_NONE));
+			}
+			else {
+				
+				// event in tool registration file will be used
+				m_eventTrackingService.post(m_eventTrackingService.newEvent((String)state.getAttribute(EVENT_ACCESS_WEB_CONTENT), url, siteId, false, NotificationService.NOTI_NONE));
+			}
+		}
+		else {
+			if(state.getAttribute(EVENT_ACCESS_WEB_CONTENT) != null) {
+				
+				// special and event in tool registration file
+				m_eventTrackingService.post(m_eventTrackingService.newEvent((String)state.getAttribute(EVENT_ACCESS_WEB_CONTENT), url, siteId, false, NotificationService.NOTI_NONE));
+			}
 		}
 
 		return (String) getContext(rundata).get("template");
@@ -948,11 +971,36 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			template = template + "-customize";
 		}
 
+		
 		// tracking event
+		if(siteId.length() == 0) {
+			try
+			{
+				Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				siteId = s.getId();
+			}
+			catch (Throwable e)
+			{
+				
+			}
+		}
 		if (special == null)
 		{
-			// this is a Web Content tool
-			m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_REVISE_WEB_CONTENT, source, siteId, true, NotificationService.NOTI_NONE));
+			if(state.getAttribute(EVENT_REVISE_WEB_CONTENT) == null) {
+				
+				// this is a Web Content tool
+				m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_REVISE_WEB_CONTENT, source, siteId, true, NotificationService.NOTI_NONE));
+			}
+			else {
+				// event in tool registration file will be used
+				m_eventTrackingService.post(m_eventTrackingService.newEvent((String)state.getAttribute(EVENT_REVISE_WEB_CONTENT), source, siteId, true, NotificationService.NOTI_NONE));
+			}
+		}
+		else {
+			if(state.getAttribute(EVENT_REVISE_WEB_CONTENT) != null) {
+				// special and event in tool registration file 
+				m_eventTrackingService.post(m_eventTrackingService.newEvent((String)state.getAttribute(EVENT_REVISE_WEB_CONTENT), source, siteId, true, NotificationService.NOTI_NONE));
+			}
 		}
 		
 		return template;
