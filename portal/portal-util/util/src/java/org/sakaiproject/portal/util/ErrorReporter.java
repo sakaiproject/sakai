@@ -78,6 +78,7 @@ public class ErrorReporter
 	{
 		censoredParameters.put("pw", "pw");
 		censoredParameters.put("eid", "eid");
+		censoredParameters.put("javax.faces.ViewState", "javax.faces.ViewState");
 		censoredHeaders.put("cookie","cookie");
 		censoredHeaders.put("authorization","authorization");
 	}
