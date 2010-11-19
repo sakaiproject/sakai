@@ -133,7 +133,7 @@
  <!-- WYSIWYG -->
  <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
+     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
 <br/>

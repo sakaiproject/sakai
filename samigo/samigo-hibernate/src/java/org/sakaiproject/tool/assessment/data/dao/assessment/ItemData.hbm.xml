@@ -110,7 +110,7 @@
       column="ITEMTEXTID" not-null="true" index="SAM_ANSWER_ITEMTEXTID_I" />
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
       column="ITEMID" not-null="true" />
-    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
+    <property name="text" type="text" column="TEXT" not-null="false" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="label" type="string" length="20" column="LABEL" not-null="false" />
     <property name="isCorrect" type="boolean" column="ISCORRECT" not-null="false" />
