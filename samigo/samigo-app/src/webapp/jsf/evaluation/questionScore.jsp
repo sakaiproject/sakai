@@ -1080,7 +1080,7 @@ document.location='../evaluation/questionScore';
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
    </h:commandButton>
-   <h:commandButton action="totalScores" immediate="true"/>
+   <h:commandButton value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
 </div>
 </h:form>
 </div>

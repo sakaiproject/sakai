@@ -916,7 +916,7 @@ return;
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton action="author"/>
+   <h:commandButton value="#{commonMessages.cancel_action}" action="author"/>
 
 </p>
 </div>
