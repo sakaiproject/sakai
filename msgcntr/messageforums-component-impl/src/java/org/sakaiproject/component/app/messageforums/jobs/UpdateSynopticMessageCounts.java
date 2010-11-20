@@ -74,6 +74,8 @@ public class UpdateSynopticMessageCounts implements Job{
 															"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " +
 															"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey";
 	
+	private boolean updateNewMembersOnly = ServerConfigurationService.getBoolean("msgcntr.synoptic.updateMessageCounts.updateNewMembersOnly", false);
+	
 	public void init() {
 		
 	}
@@ -283,9 +285,17 @@ public class UpdateSynopticMessageCounts implements Job{
 		ResultSet usersMap = null;
 
 		try{
-			getAllUsersInSiteQuery = clConnection.prepareStatement("select USER_ID from SAKAI_SITE_USER where SITE_ID = ?");
+			String allUsersQuery = "select USER_ID from SAKAI_SITE_USER where SITE_ID = ?";
+			if(updateNewMembersOnly){
+				allUsersQuery += " and USER_ID not in (select USER_ID from MFR_SYNOPTIC_ITEM where SITE_ID = ?)";
+			}
+			getAllUsersInSiteQuery = clConnection.prepareStatement(allUsersQuery);
+			
 			getAllUsersInSiteQuery.setString(1, siteId);
-
+			if(updateNewMembersOnly){
+				getAllUsersInSiteQuery.setString(2, siteId);
+			}
+			
 			usersMap = getAllUsersInSiteQuery.executeQuery();
 
 			//loop through all users in site and update their information:
@@ -376,7 +386,7 @@ public class UpdateSynopticMessageCounts implements Job{
 				}
 
 				//update synoptic tool info:
-				if(unreadPrivate != 0 || unreadForum != 0){
+				if(unreadPrivate != 0 || unreadForum != 0 || updateNewMembersOnly){
 					SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userId, siteId, siteTitle, unreadPrivate, unreadForum);
 				}
 			}
