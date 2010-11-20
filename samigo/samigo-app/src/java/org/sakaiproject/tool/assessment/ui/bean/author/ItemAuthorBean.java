@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -58,6 +59,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
+import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import org.sakaiproject.tool.api.ToolSession;
@@ -1066,6 +1068,7 @@ public class ItemAuthorBean
     // 1. load resources into session for resources mgmt page
     //    then redirect to resources mgmt page
     try	{
+      prepareMCcorrAnswers();
       List filePickerList = prepareReferenceList(attachmentList);
       ToolSession currentToolSession = SessionManager.getCurrentToolSession();
       currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
@@ -1215,6 +1218,31 @@ public class ItemAuthorBean
   public void setResourceHash(HashMap resourceHash)
   {
       this.resourceHash = resourceHash;
+  }
+  
+  private void prepareMCcorrAnswers() {
+	  if (Long.valueOf(currentItem.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT) || Long.valueOf(currentItem.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
+		  ArrayList multipleChoiceAnswers = currentItem.getMultipleChoiceAnswers();
+		  if (multipleChoiceAnswers == null) {
+			  return;
+		  }
+		  int corrsize = multipleChoiceAnswers.size();
+		  String[] corrChoices = new String[corrsize];
+		  int counter=0;
+		  boolean isCorrectChoice = false;
+		  String label="";
+		  ItemAddListener itemAddListener = new ItemAddListener();
+		  for (int i = 0; i < corrsize; i++){
+			  AnswerBean answerbean = (AnswerBean) multipleChoiceAnswers.get(i);
+			  label = answerbean.getLabel();
+			  isCorrectChoice = itemAddListener.isCorrectChoice(currentItem, label);
+			  if(isCorrectChoice){
+				  corrChoices[counter]=label;
+				  counter++;
+			  }
+		  }
+		  currentItem.setCorrAnswers(corrChoices);  
+	  }
   }
 
 }

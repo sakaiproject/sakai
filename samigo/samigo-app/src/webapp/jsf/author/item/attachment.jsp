@@ -43,19 +43,18 @@
     <h:outputText escape="false" value="#{authorMessages.no_attachments}" />
   </h:panelGroup>
 
+
   <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
     <sakai:button_bar>
-     <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
-           value="#{authorMessages.add_attachments}" immediate="true"/>
+     <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{itemauthor.hasAttachment}">
     <sakai:button_bar>
-     <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
-           value="#{authorMessages.add_remove_attachments}" immediate="true"/>
+     <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_remove_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
-
-</div>
+  
+ </div>
 
