@@ -3,7 +3,7 @@ create table PROFILE_COMPANY_PROFILES_T (
 	ID number(19,0) not null,
 	USER_UUID varchar2(99) not null,
 	COMPANY_NAME varchar2(255),
-	COMPANY_DESCRIPTION varchar2(255),
+	COMPANY_DESCRIPTION varchar2(4000),
 	COMPANY_WEB_ADDRESS varchar2(255),
 	primary key (ID)
 );
