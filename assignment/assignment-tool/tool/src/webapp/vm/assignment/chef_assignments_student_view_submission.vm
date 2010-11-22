@@ -61,9 +61,10 @@ var notifyDeleteControl = function(){
 		#set($closeTime = $submission.CloseTime)
 	#end
 	#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
-	#if (!$!canSubmit)
+	#if ($allowSubmit && !$submission && $!closeTime && $currentTime.after($closeTime) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
-	#else
+	#end
+	#if ($!canSubmit)
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 		#if ($!submission && $timeSubmitted)
 			## if there is a submitted submission
@@ -771,12 +772,12 @@ var notifyDeleteControl = function(){
 					#if ($!previousGrades.length() == 0 )
 						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
 					#end
-					#if ($!previousGrades.length() != 0 )
+					#if ($!previousGrades.length() > 0 )
 						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.pregra")
 						</h4>
 						<div class="gradecoms  toggledContent">		
-							$previousGrades
+							$!previousGrades.length()$!previousGrades
 						</div>
 					#end
 				#end
@@ -965,14 +966,16 @@ var notifyDeleteControl = function(){
 					#end
 					#if ($withGrade)
 						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
-						#if ($!previousGrades.length() != 0 )
-							<br />$tlang.getString("gradingsub.pregra") $previousGrades
-						#else
+						#if ($!previousGrades.length() == 0 )
 							#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
-							#if ($!previousGrades.length() != 0 )
-
-									<br />$tlang.getString("gradingsub.pregra") $previousGrades
-							#end
+						#end
+						#if ($!previousGrades.length() > 0 )
+							<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+								$tlang.getString("gradingsub.pregra")
+							</h4>
+							<div class="gradecoms  toggledContent">		
+								$!previousGrades.length()$!previousGrades
+							</div>
 						#end
 					#end
 			<p class="act">

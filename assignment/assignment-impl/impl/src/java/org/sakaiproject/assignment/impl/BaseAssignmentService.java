@@ -6086,6 +6086,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (!allowAddSubmission(context)) return false;
 		
 		String userId = SessionManager.getCurrentSessionUserId();
+
+		// if user can submit to this assignment
+		List visibleAssignments = assignments(context, userId);
+		if (visibleAssignments == null || !visibleAssignments.contains(a)) return false;
+		
 		try
 		{
 			// get user
