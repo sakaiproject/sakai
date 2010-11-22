@@ -288,7 +288,7 @@ public class TotalScoreListener
       // 'question scores' page. then if you click on 'totalscores' page again from 'question scores' 
       // page, this firstTime = false;
 
-      if ((bean.getPublishedId()).equals(p.getPublishedAssessmentId().toString())){
+      if (bean.getPublishedId() != null && bean.getPublishedId().equals(p.getPublishedAssessmentId().toString())){
         firstTime = false;
       }
 
@@ -299,14 +299,14 @@ public class TotalScoreListener
       }
       
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
-      if (ac.getTimeLimit().equals(Integer.valueOf(0))) {
+      if (ac.getTimeLimit() != null && ac.getTimeLimit().equals(Integer.valueOf(0))) {
     	  bean.setIsTimedAssessment(false);
       }
       else {
     	  bean.setIsTimedAssessment(true);
       }
       
-      if (ac.getLateHandling().equals(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION)) {
+      if (ac.getLateHandling() != null && ac.getLateHandling().equals(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION)) {
     	  bean.setAcceptLateSubmission(true);
       }
       else {
@@ -754,7 +754,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
     if (bean.getSortType() == null)
     {
-      if (bean.getAnonymous().equals("true"))
+      if (bean.getAnonymous() != null && bean.getAnonymous().equals("true"))
       {
         bean.setSortType("totalAutoScore");
       }
