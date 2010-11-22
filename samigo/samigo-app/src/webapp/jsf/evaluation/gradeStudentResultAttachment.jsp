@@ -75,13 +75,13 @@ document.links[newindex].onclick();
     <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}" />
   </h:panelGroup>
 
-  <h:commandButton value="#{assessmentSettingsMessages.add_attachments}" type="button" id="addAttachments" rendered="#{!question.hasItemGradingAttachment}"
+  <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_attachments}" type="button" id="addAttachments" rendered="#{!question.hasItemGradingAttachment}"
        style="act" onclick="addAttachments(this);" onkeypress="addAttachments(this);" />
 
-  <h:commandButton value="#{assessmentSettingsMessages.add_remove_attachments}" type="button" id="addRemoveAttachments" rendered="#{question.hasItemGradingAttachment}"
+  <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_remove_attachments}" type="button" id="addRemoveAttachments" rendered="#{question.hasItemGradingAttachment}"
        style="act" onclick="addRemoveAttachments(this);" onkeypress="addRemoveAttachments(this);" />
 
-    <h:commandLink id="hiddenlink" action="#{studentScores.addAttachmentsRedirect}">
+    <h:commandLink tabindex="-1" id="hiddenlink" action="#{studentScores.addAttachmentsRedirect}">
       <f:param name="itemGradingId" value="#{question.itemGradingIdForFilePicker}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreAttachmentListener"/>
     </h:commandLink>

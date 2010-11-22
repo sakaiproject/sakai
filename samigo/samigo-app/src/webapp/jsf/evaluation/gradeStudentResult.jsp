@@ -278,11 +278,11 @@ document.location='../evaluation/gradeStudentResult';
 <h:outputText value="#{author.updateFormTime}" />
 <h:inputHidden value="#{author.currentFormTime}" />
 
-<h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{studentScores.firstName} #{studentScores.lastName}\", \"#{studentScores.email}\", \"#{totalScores.assessmentName}\");" value="#"> 
+<h:outputLink tabindex="-1" id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{studentScores.firstName} #{studentScores.lastName}\", \"#{studentScores.email}\", \"#{totalScores.assessmentName}\");" value="#"> 
   <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 </h:outputLink>
 
-<h:commandLink id="hiddenlink1" value="" action="studentScores">
+<h:commandLink tabindex="-1" id="hiddenlink1" value="" action="studentScores">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
   <f:param name="toUserId" value="#{studentScores.studentId}" />
 </h:commandLink>
