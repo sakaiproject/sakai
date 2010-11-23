@@ -91,22 +91,24 @@ public class SubmitTimedAssessmentThread extends TimerTask
           // set all the properties right and persist status to DB
           GradingService service = new GradingService();
           AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString());
-          ag.setForGrade(Boolean.TRUE);
-          ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
-          ag.setStatus(AssessmentGradingIfc.SUBMITTED); // this will change status 0 -> 1
-          ag.setIsLate(islate(ag.getPublishedAssessmentId()));
-          ag.setSubmittedDate(new Date());
-          // SAK-7302, users taking a timed assessment may exit without completing the assessment
-          // set these two scores to 0 instaed of null
-    	  if (ag.getFinalScore() == null) ag.setFinalScore(Float.valueOf("0"));
-    	  if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Float.valueOf("0"));
-    	  service.completeItemGradingData(ag);
-          service.saveOrUpdateAssessmentGrading(ag);
-          PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-          String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
-          EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
-          notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
-          log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
+          if (!ag.getForGrade()) {
+            ag.setForGrade(Boolean.TRUE);
+            ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
+            ag.setStatus(AssessmentGradingIfc.SUBMITTED); // this will change status 0 -> 1
+            ag.setIsLate(islate(ag.getPublishedAssessmentId()));
+            ag.setSubmittedDate(new Date());
+            // SAK-7302, users taking a timed assessment may exit without completing the assessment
+            // set these two scores to 0 instaed of null
+    	    if (ag.getFinalScore() == null) ag.setFinalScore(Float.valueOf("0"));
+    	    if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Float.valueOf("0"));
+    	    service.completeItemGradingData(ag);
+            service.saveOrUpdateAssessmentGrading(ag);
+            PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+            String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
+            EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
+            notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
+            log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
+          }
         }
       }
       else{ //submitted, remove from queue if transaction buffer is also reached
