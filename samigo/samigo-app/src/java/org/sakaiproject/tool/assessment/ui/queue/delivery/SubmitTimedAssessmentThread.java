@@ -91,7 +91,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
           // set all the properties right and persist status to DB
           GradingService service = new GradingService();
           AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString());
-          if (!ag.getForGrade()) {
+          if (!ag.getForGrade().booleanValue()) {
             ag.setForGrade(Boolean.TRUE);
             ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
             ag.setStatus(AssessmentGradingIfc.SUBMITTED); // this will change status 0 -> 1
