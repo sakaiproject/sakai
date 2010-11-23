@@ -1,23 +1,4 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-<script type ="text/javascript" src ="/library/js/jquery-latest.min.js">
-</script>
-<script  type ="text/javascript">
-$(document).ready(function() {
-	jQuery.noConflict();
-	$('#saveChanges').attr('disabled','disabled')
-	$('input:file').live('change', function() {
-		var changed=false
-		$("input:file").each(function(i){
-			if ($(this).val() !==''){
-				changed=true
-			}
-		})
-		if (changed){
-			$('#saveChanges').attr('disabled','')
-		}
-	});
-});
-</script>
 <div class="portletBody specialLink">
 	<h3>
 		$tlang.getString("create.uploads")
@@ -119,7 +100,7 @@ $(document).ready(function() {
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" disabled="true" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 		</p>

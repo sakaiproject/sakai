@@ -1036,6 +1036,7 @@
 					}
 				}
 				target_element.value = displayName;
+				document.getElementById('saveChanges').disabled=false
 			}
 			target_element.focus();
 			target_element.select();
