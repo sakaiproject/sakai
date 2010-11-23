@@ -97,7 +97,7 @@ public class HelpFrameSetRender extends Renderer
 
     EventTrackingService.post(EventTrackingService.newEvent("help.access", helpParameter, false));
 
-    helpWindowTitle = ServerConfigurationService.getString("ui.service") + " Help";
+    helpWindowTitle = ServerConfigurationService.getString("ui.service") + " " + component.getAttributes().get("helpWindowTitle");;
     
     writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>\n");

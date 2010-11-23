@@ -9,7 +9,7 @@
 
 <f:view>
 	<help:helpFrameSet 
-    	helpWindowTitle="Sakai Help" 
+    	helpWindowTitle="#{msgs.help}"
 	    searchToolUrl="#{requestScope.searchURL}" 
     	tocToolUrl="#{requestScope.tocURL}" 
     	helpUrl="#{requestScope.helpURL}"
