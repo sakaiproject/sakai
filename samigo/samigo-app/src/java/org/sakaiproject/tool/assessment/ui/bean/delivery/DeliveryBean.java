@@ -1506,7 +1506,7 @@ public class DeliveryBean
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
-    if ("1".equals(navigation)) {
+    if ("1".equals(navigation) && this.actionMode != PREVIEW_ASSESSMENT) {
     	LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
     	linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
     }
