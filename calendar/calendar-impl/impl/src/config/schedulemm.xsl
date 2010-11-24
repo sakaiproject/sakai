@@ -68,6 +68,7 @@
             padding-top="0pt">      
          <xsl:value-of select="$sched"/><xsl:text> </xsl:text><xsl:value-of select="schedule/uid"/> 
            - <xsl:call-template name="prMonth">
+           	 <xsl:with-param name="mm" select="schedule/month/@month"/>
            	 <xsl:with-param name="dt" select="schedule/list[1]/@dt"/>
            </xsl:call-template>
     	</fo:block>    	
@@ -285,8 +286,8 @@
 <!-- Print month name -->
 <xsl:template name="prMonth">
 <xsl:param name="dt"/>
+<xsl:param name="mm"/>
 
-	<xsl:variable name="mm" select="substring-before($dt, '/')"/>
 	<xsl:variable name="yy" select="substring-after(substring-after($dt, '/'), '/')"/>
 	
 	<xsl:choose>
