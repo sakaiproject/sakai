@@ -49,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -3397,6 +3398,54 @@ public class DiscussionForumTool
     return ALL_MESSAGES;
   }
   
+  private void updateThreadLastUpdatedValue(Message message, int numOfAttempts) throws Exception{
+  	try{
+  		message.setDateThreadlastUpdated(new Date());
+  		if (message.getInReplyTo() != null) {
+  			message.setThreadId(message.getInReplyTo().getThreadId());
+  		}
+  		if (message.getInReplyTo() != null) {
+  			Message m = null;
+  			if (message.getThreadId() != null)
+  				m = forumManager.getMessageById(message.getThreadId());
+  			else 
+  				m = message.getInReplyTo();
+  			//otherwise we get an NPE when we try to save this message
+  			Topic topic = message.getTopic();
+  			BaseForum bf  = topic.getBaseForum();
+  			m.setTopic(topic);
+  			m.getTopic().setBaseForum(bf);
+  			m.setThreadLastPost(message.getId());
+  			m.setDateThreadlastUpdated(new Date());
+  			forumManager.saveMessage(m);
+  		}
+  	}catch (HibernateOptimisticLockingFailureException holfe) {
+  	// failed, so wait and try again
+		try {
+			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+			//grab the message again fresh from the DB:
+			if (message.getInReplyTo() != null) {
+				message.setInReplyTo(forumManager.getMessageById(message.getInReplyTo().getId()));
+			}
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		numOfAttempts--;
+
+		if (numOfAttempts <= 0) {
+			LOG.error("DiscussionForumTool: updateThreadLastUpdatedValue: HibernateOptimisticLockingFailureException no more retries left", holfe);
+			throw new Exception(holfe);
+		} else {
+			LOG.info("DiscussionForumTool: updateThreadLastUpdatedValue: HibernateOptimisticLockingFailureException: attempts left: "
+							+ numOfAttempts);
+			updateThreadLastUpdatedValue(message, numOfAttempts);
+		}
+  	}
+
+  }
+  
   /**
    * if updateCurrentUser is set to true, then update the current user
    * even if he is not in the recipients list
@@ -4152,6 +4201,10 @@ public class DiscussionForumTool
   		}
 
   		sendEmailNotification(dMsg,selectedThreadHead);
+  		
+  		//now update the parent thread:
+    	updateThreadLastUpdatedValue(dMsg, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+  		
   	}catch(Exception e){
   		LOG.error("DiscussionForumTool: processDfReplyMsgPost", e);
   		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
