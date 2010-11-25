@@ -165,14 +165,14 @@ $(document).ready(function() {
 
   		<div>
 		  	<h:outputText value="#{authorFrontDoorMessages.assessment_choose} " rendered="#{author.showTemplateList}" />
-			<h:selectOneMenu id="assessmentTemplate" accesskey="#{authorFrontDoorMessages.a_select}" value="#{author.assessmentTemplateId}" rendered="#{author.showTemplateList}">
+			<h:selectOneMenu id="assessmentTemplate" value="#{author.assessmentTemplateId}" rendered="#{author.showTemplateList}">
 		      <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
 		      <f:selectItems value="#{author.assessmentTemplateList}" />
 		    </h:selectOneMenu>
       	</div>
     
 		<div>
-	      <h:commandButton id="createnew" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" accesskey="#{authorFrontDoorMessages.a_create}">
+	      <h:commandButton id="createnew" type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
 	      </h:commandButton>
     	</div>
@@ -188,7 +188,7 @@ $(document).ready(function() {
       		<h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
 		</span>
     <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
-      rendered="#{authorization.createAssessment}" accesskey="#{authorFrontDoorMessages.a_import}"
+      rendered="#{authorization.createAssessment}"
       action="importAssessment">
     </h:commandButton>
 	  </div>
