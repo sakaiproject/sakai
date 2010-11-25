@@ -5336,6 +5336,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	protected static final String MONTH_ATTRIBUTE_NAME = "month";
 
+	protected static final String YEAR_ATTRIBUTE_NAME = "yyyy";
+
 	protected static final String START_TIME_ATTRIBUTE_NAME = "start-time";
 
 	protected static final String SUB_EVENT_NODE_NAME = "subEvent";
@@ -6259,6 +6261,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				Element monthElement = doc.createElement(MONTH_NODE_NAME);
 				monthElement.setAttribute(START_DAY_WEEK_ATTRIBUTE_NAME, Integer.toString(firstDayOfMonth));
 				monthElement.setAttribute(MONTH_ATTRIBUTE_NAME, Integer.toString(breakDown.getMonth()));
+				monthElement.setAttribute(YEAR_ATTRIBUTE_NAME, Integer.toString(breakDown.getYear()));
 
 				root.appendChild(monthElement);
 			}
