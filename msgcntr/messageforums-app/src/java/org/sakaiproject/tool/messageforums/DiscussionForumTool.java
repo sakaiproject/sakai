@@ -3733,23 +3733,37 @@ public class DiscussionForumTool
   
   public String processDfMsgReplyMsgFromEntire()
   {
-	  	String messageId = getExternalParameterByKey(MESSAGE_ID);
-	    String topicId = getExternalParameterByKey(TOPIC_ID);
-	    if (messageId == null)
+	  	String messageIdStr = getExternalParameterByKey(MESSAGE_ID);
+	    String topicIdStr = getExternalParameterByKey(TOPIC_ID);
+	    if (messageIdStr == null || "".equals(messageIdStr))
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    if (topicId == null)
+	    if (topicIdStr == null || "".equals(topicIdStr))
 	    {
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
+	    long messageId, topicId;
+	    try{
+	    	messageId = Long.valueOf(messageIdStr);
+	    }catch (NumberFormatException e) {
+	    	LOG.error(e);
+	    	setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	    	return gotoMain();
+		}
+	    try{
+	    	topicId = Long.valueOf(topicIdStr);
+	    }catch (NumberFormatException e) {
+	    	LOG.error(e);
+	    	setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	    	return gotoMain();
+		}
+	    
 	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
-	    messageManager.markMessageReadForUser(Long.valueOf(topicId),
-	        Long.valueOf(messageId), true);
-	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
-		        messageId));
+	    messageManager.markMessageReadForUser(topicId, messageId, true);
+	    Message message = messageManager.getMessageByIdWithAttachments(messageId);
 	    if (message == null)
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
