@@ -22,6 +22,7 @@
 	   	<property name="useOfficialImage" column="USE_OFFICIAL_IMAGE" not-null="true" />
 	   	<property name="showKudos" column="SHOW_KUDOS" not-null="true" />
 	   	<property name="showGalleryFeed" column="SHOW_GALLERY_FEED" not-null="true" />
+	   	<property name="useGravatar" column="USE_GRAVATAR" not-null="true" />
 	   
   	</class>
 

@@ -479,12 +479,14 @@ public interface SakaiProxy {
 	
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
-	 * <p>Possible values for the sakai property are 'upload', 'url', and 'official'.
+	 * <p>Possible values for the sakai property are 'upload', 'url', 'official' and 'gravatar'.
 	 * If not set, defaults to 'upload'.</p>
-	 * <p>This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD, ProfileConstants.PICTURE_SETTING_URL, ProfileConstants.PICTURE_SETTING_OFFICIAL</p>
+	 * <p>This returns an int which matches one of: ProfileConstants.PICTURE_SETTING_UPLOAD, 
+	 * ProfileConstants.PICTURE_SETTING_URL, ProfileConstants.PICTURE_SETTING_OFFICIAL,
+	 * ProfileConstants.PICTURE_SETTINGS_GRAVATAR.</p>
 	 * 
 	 * <p>Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which
-	 * users can add their own image. ie by uploading their own image, providing a URL, or not at all (for official).</p>
+	 * users can add their own image. ie by uploading their own image, providing a URL, not at all (for official), or creating a gravatar URL</p>
 	 * 
 	 * @return
 	 */
@@ -694,4 +696,10 @@ public interface SakaiProxy {
 	 * Get the profile2.search.maxSearchResultsPerPage value from sakai.properties
 	 */
 	public int getMaxSearchResultsPerPage();
+	
+	/**
+	 * Is profile2.gravatar.image.enabled true? If so, allow use of this image and preference.
+	 * @return
+	 */
+	public boolean isGravatarImageEnabledGlobally();
 }

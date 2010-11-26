@@ -40,6 +40,7 @@ import java.util.UUID;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
@@ -476,5 +477,14 @@ public class ProfileUtils {
 		}
 		//otherwise, return number required +1 (to account for remainder)
 		return d[0].intValue()+1;
+	}
+	
+	/**
+	 * Calculate an MD5 hash of a string
+	 * @param s	String to hash
+	 * @return	MD5 hash as a String
+	 */
+	public static String calculateMD5(String s){
+		return DigestUtils.md5Hex(s);
 	}
 }

@@ -41,6 +41,7 @@ public class ProfilePreferences implements Serializable {
 	private boolean useOfficialImage;
 	private boolean showKudos;
 	private boolean showGalleryFeed;
+	private boolean useGravatar;
 
 	/** 
 	 * Empty constructor
@@ -108,9 +109,16 @@ public class ProfilePreferences implements Serializable {
 		return showGalleryFeed;
 	}
 
-
 	public void setShowGalleryFeed(boolean showGalleryFeed) {
 		this.showGalleryFeed = showGalleryFeed;
+	}
+	
+	public boolean isUseGravatar() {
+		return useGravatar;
+	}
+
+	public void setUseGravatar(boolean useGravatar) {
+		this.useGravatar = useGravatar;
 	}
 
 	@Override

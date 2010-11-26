@@ -133,6 +133,15 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			}
 		}
 		
+		//prefs for gravatar, only if enabled
+		if(prefs != null && sakaiProxy.isGravatarImageEnabledGlobally()) {
+			if(prefs.isUseGravatar()){
+				imageType = ProfileConstants.PICTURE_SETTING_GRAVATAR;
+			}
+		}
+		
+		log.debug("imageType: " + imageType);
+		
 		//get the image based on the global type/preference
 		switch (imageType) {
 			case ProfileConstants.PICTURE_SETTING_UPLOAD:
@@ -166,6 +175,17 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 					}
 				}
 				image.setAltText(getAltText(userUuid, isSameUser, true));
+			break;
+			
+			case ProfileConstants.PICTURE_SETTING_GRAVATAR:
+				String gravatarUrl = getGravatarUrl(userUuid);
+				if(StringUtils.isBlank(gravatarUrl)) {
+					image.setExternalImageUrl(defaultImageUrl);
+					image.setAltText(getAltText(userUuid, isSameUser, false));
+				} else {
+					image.setExternalImageUrl(gravatarUrl);
+					image.setAltText(getAltText(userUuid, isSameUser, true));
+				}
 			break;
 			
 			default:
@@ -419,6 +439,25 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return false;
 	}
 	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getGravatarUrl(final String userUuid) {
+		
+		String email = sakaiProxy.getUserEmail(userUuid);
+		if(StringUtils.isBlank(email)){
+			return null;
+		}
+				
+		return ProfileConstants.GRAVATAR_BASE_URL + ProfileUtils.calculateMD5(email) + "?s=200";
+	}
+
+	/**
+	 * Generate the full URL to the default image (either full or thumbnail)
+	 * @param imagePath
+	 * @return
+	 */
 	private String getUnavailableImageURL(String imagePath) {
 		StringBuilder path = new StringBuilder();
 		path.append(sakaiProxy.getServerUrl());

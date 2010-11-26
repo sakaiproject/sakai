@@ -178,4 +178,15 @@ public interface ProfileImageLogic {
 	 */
 	public int getGalleryImagesCount(final String userUuid);
 	
+	/**
+	 * Generate a gravatar URL for a user
+	 * 
+	 * <p>URLs are of the form http://www.gravatar.com/avatar/HASH?s=200 where HASH is an MD5 hash of the user's email address and s is the size.
+	 * We always use the larger size (200) and then scale it in the markup where required, to take advantage of caching.</p>
+	 * <p>If no email address for the user, returns null.</p>
+	 * @param userUuid	uuid for the user
+	 * @return gravatar URL or null
+	 */
+	public String getGravatarUrl(final String userUuid);
+	
 }

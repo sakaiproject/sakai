@@ -104,7 +104,10 @@ public class ProfileConstants {
 	public static final String PICTURE_SETTING_URL_PROP = "url";
 	public static final int PICTURE_SETTING_OFFICIAL = 3;
 	public static final String PICTURE_SETTING_OFFICIAL_PROP = "official";
-
+	public static final int PICTURE_SETTING_GRAVATAR = 4;
+	//n.b a gravatar is not an enforceable setting, hence no property here. it is purely a choice.
+	//it can be disabled in sakai.properties if required.
+	
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 	
 	// if using official photo, where does that image come from?
@@ -116,6 +119,10 @@ public class ProfileConstants {
 
 	//the property that an external provider may set into the user properties for the jpegPhoto field.
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
+	
+	//gravatar base URL
+	public static final String GRAVATAR_BASE_URL = "http://www.gravatar.com/avatar/";
+	
 	
 	/*
 	 * SEARCH
@@ -146,6 +153,8 @@ public class ProfileConstants {
 	public static final boolean DEFAULT_OFFICIAL_IMAGE_SETTING = false;
 	public static final boolean DEFAULT_SHOW_KUDOS_SETTING = true;
 	public static final boolean DEFAULT_SHOW_GALLERY_FEED_SETTING = true;
+	public static final boolean DEFAULT_GRAVATAR_SETTING = false;
+
 	
 	//if no record, this is the default for sending email messages
 	public static final boolean DEFAULT_EMAIL_NOTIFICATION_SETTING = true;
@@ -214,7 +223,8 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_GALLERY_ENABLED = true; //profile2.gallery.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED = false; //profile2.profile.business.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED = false; //profile2.official.image.enabled
-	
+	public static final boolean SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED = true; //profile2.gravatar.image.enabled
+
 	
 	/*
 	 * MESSAGING

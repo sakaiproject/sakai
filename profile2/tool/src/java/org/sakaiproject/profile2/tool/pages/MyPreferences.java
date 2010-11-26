@@ -23,6 +23,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -39,6 +40,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.pages.panels.TwitterPrefsPane;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -48,6 +50,10 @@ public class MyPreferences extends BasePage{
 	private static final Logger log = Logger.getLogger(MyPreferences.class);
 	private transient ProfilePreferences profilePreferences;
 
+	private CheckBox officialImage;
+	private CheckBox gravatarImage;
+	
+	
 	public MyPreferences() {
 		
 		log.debug("MyPreferences()");
@@ -186,38 +192,73 @@ public class MyPreferences extends BasePage{
 		}
 		
 		
-		// OFFICIAL IMAGE SECTION
+		// IMAGE SECTION
+		//only one of these can be selected at a time
 		WebMarkupContainer is = new WebMarkupContainer("imageSettingsContainer");
 		is.setOutputMarkupId(true);
 				
-		//official photo settings
+		// headings
 		is.add(new Label("imageSettingsHeading", new ResourceModel("heading.section.image")));
 		is.add(new Label("imageSettingsText", new ResourceModel("preferences.image.message")));
 
+		//official image
 		//checkbox
 		WebMarkupContainer officialImageContainer = new WebMarkupContainer("officialImageContainer");
 		officialImageContainer.add(new Label("officialImageLabel", new ResourceModel("preferences.image.official")));
-		CheckBox officialImage = new CheckBox("officialImage", new PropertyModel<Boolean>(preferencesModel, "useOfficialImage"));
+		officialImage = new CheckBox("officialImage", new PropertyModel<Boolean>(preferencesModel, "useOfficialImage"));
+		officialImage.setOutputMarkupId(true);
 		officialImageContainer.add(officialImage);
 
 		//updater
 		officialImage.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
+				
+				//set gravatar to false
+				gravatarImage.setModelObject(false);
+				target.addComponent(gravatarImage);
+				
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		is.add(officialImageContainer);
 		
-		//if using official images but alternate choice isn't allowed
+		//if using official images but alternate choice isn't allowed, hide this section
 		if(!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled()) {
 			profilePreferences.setUseOfficialImage(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
+			officialImageContainer.setVisible(false);
+		}
+				
+		//gravatar
+		//checkbox
+		WebMarkupContainer gravatarContainer = new WebMarkupContainer("gravatarContainer");
+		gravatarContainer.add(new Label("gravatarLabel", new ResourceModel("preferences.image.gravatar")));
+		gravatarImage = new CheckBox("gravatarImage", new PropertyModel<Boolean>(preferencesModel, "useGravatar"));
+		gravatarContainer.add(gravatarImage);
+
+		//updater
+		gravatarImage.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+				
+				//set official to false
+				officialImage.setModelObject(false);
+            	target.addComponent(officialImage);
+            	
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		is.add(gravatarContainer);
+		
+		//if gravatar's are disabled, hide this section (and the container)
+		if(!sakaiProxy.isGravatarImageEnabledGlobally()) {
+			profilePreferences.setUseGravatar(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
+			officialImageContainer.setVisible(false);
 			is.setVisible(false);
 		}
 		
 		form.add(is);
-		
-		
+
 		
 		// WIDGET SECTION
 		WebMarkupContainer ws = new WebMarkupContainer("widgetSettingsContainer");
