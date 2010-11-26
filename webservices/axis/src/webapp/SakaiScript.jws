@@ -2268,7 +2268,7 @@ public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, S
  *
  * @param	sessionid		the id of a valid session
  * @param	authzgroupid	the id of the authzgroup, site or group you want to get the users in (if site: /site/SITEID, if group: /site/SITEID/group/GROUPID)
- * @param	authzgrouproles	the roles that you want to filter on (string with spaces as delimiters)
+ * @param	authzgrouproles	the roles that you want to filter on (string with commas as delimiters)
  * @return		        	xml doc of the list of users, display name and roleid
  * @throws	AxisFault		returns <exception /> string if exception encountered and logs it	
  *
@@ -2290,13 +2290,9 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 		Node list = dom.createElement("list");
 		dom.appendChild(list);
 
-		//split the authzgroup roles into a string[] then add into arraylist. 
-		//Done this way so we dont need any extra imports (ie using List<String> authzgrouprolesList = Arrays.asList(authzgrouprolesArr));
-		String[] authzgrouprolesArr = authzgrouproles.split(" ");
-		ArrayList<String> authzgrouprolesList = new ArrayList<String>();
-		for(int i=0; i< authzgrouprolesArr.length; i++) {
-			authzgrouprolesList.add(authzgrouprolesArr[i]);
-		}
+		//get the authzgroup role(s)
+		String[] authzgrouprolesArr = StringUtils.split(authzgrouproles, ',');
+		List<String> authzgrouprolesList = Arrays.asList(authzgrouprolesArr)
 
 		//iterate over each role in the list...
 		for (Iterator j = authzgrouprolesList.iterator(); j.hasNext(); ) {
