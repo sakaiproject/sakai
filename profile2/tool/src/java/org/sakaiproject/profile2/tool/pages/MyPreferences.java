@@ -224,7 +224,8 @@ public class MyPreferences extends BasePage{
 		is.add(officialImageContainer);
 		
 		//if using official images but alternate choice isn't allowed, hide this section
-		if(!sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled()) {
+		boolean officialImageEnabled = sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled();
+		if(!officialImageEnabled) {
 			profilePreferences.setUseOfficialImage(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
 			officialImageContainer.setVisible(false);
 		}
@@ -250,10 +251,15 @@ public class MyPreferences extends BasePage{
         });
 		is.add(gravatarContainer);
 		
-		//if gravatar's are disabled, hide this section (and the container)
-		if(!sakaiProxy.isGravatarImageEnabledGlobally()) {
+		//if gravatar's are disabled, hide this section
+		boolean gravatarEnabled = sakaiProxy.isGravatarImageEnabledGlobally();
+		if(!gravatarEnabled) {
 			profilePreferences.setUseGravatar(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
-			officialImageContainer.setVisible(false);
+			gravatarContainer.setVisible(false);
+		}
+		
+		//if official image disabled and gravatar disabled, hide the entire container
+		if(!officialImageEnabled && !gravatarEnabled) {
 			is.setVisible(false);
 		}
 		
