@@ -68,7 +68,7 @@ public class ExternalIntegrationInfo implements Serializable {
 	 * @return
 	 */
 	public boolean isTwitterAlreadyConfigured() {
-		return (StringUtils.isNotBlank(getTwitterSecret()) && (StringUtils.isNotBlank(getTwitterSecret())));
+		return (StringUtils.isNotBlank(getTwitterToken()) && (StringUtils.isNotBlank(getTwitterSecret())));
 	}
 	
 }
