@@ -3,7 +3,7 @@
 			<div class="divColor" id="toolMenuWrap">
 				<div id="worksiteLogo">
 			#if (!${sitePages.pageNavPublished})
-					<p id="siteStatus">unpublished site</p>
+					<p id="siteStatus">${rloader.sit_unpublished}</p>
 			#end
 			#if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
 					<p id="siteType">$sitePages.pageNavType</p>
