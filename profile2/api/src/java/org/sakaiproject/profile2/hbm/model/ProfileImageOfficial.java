@@ -18,6 +18,10 @@ package org.sakaiproject.profile2.hbm.model;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 
 /**
  * Hibernate model for an officially provided external image
@@ -25,6 +29,9 @@ import java.io.Serializable;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfileImageOfficial implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -32,38 +39,4 @@ public class ProfileImageOfficial implements Serializable {
 	private String userUuid;
 	private String url;
 
-	
-	/** 
-	 * Empty constructor
-	 */
-	public ProfileImageOfficial(){
-	}
-	
-	/**
-	 * Full constructor
-	 */
-	public ProfileImageOfficial(String userUuid, String url){
-		this.userUuid=userUuid;
-		this.url=url;
-	}
-	
-	
-
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	
 }

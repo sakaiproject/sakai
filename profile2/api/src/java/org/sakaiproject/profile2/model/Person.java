@@ -18,6 +18,10 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 /** 
  * This the main object that represents a full person in Profile2. It is essentially a wrapper object around several other objects and data.
@@ -28,45 +32,18 @@ import java.io.Serializable;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@NoArgsConstructor
 public class Person extends BasicPerson implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	//private transient User user;
+	@Getter @Setter
 	private UserProfile profile;
+	
+	@Getter @Setter
 	private ProfilePrivacy privacy;
+	
+	@Getter @Setter
 	private ProfilePreferences preferences;
-	
-	/**
-	 * No arg constructor
-	 */
-	public Person() {
-		super();
-	}
-	
-	public UserProfile getProfile() {
-		return profile;
-	}
-
-	public void setProfile(UserProfile profile) {
-		this.profile = profile;
-	}
-
-	public ProfilePrivacy getPrivacy() {
-		return privacy;
-	}
-
-	public void setPrivacy(ProfilePrivacy privacy) {
-		this.privacy = privacy;
-	}
-
-	public ProfilePreferences getPreferences() {
-		return preferences;
-	}
-
-	public void setPreferences(ProfilePreferences preferences) {
-		this.preferences = preferences;
-	}
-	
 	
 }

@@ -18,6 +18,9 @@ package org.sakaiproject.profile2.tool.models;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * A helper model that contains all fields that a new message should contain. 
  * This is not persisted - it is separated out into its constituent parts instead.
@@ -25,6 +28,8 @@ import java.io.Serializable;
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
+@Data
+@NoArgsConstructor
 public class NewMessageModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -33,34 +38,4 @@ public class NewMessageModel implements Serializable {
 	private String subject;
 	private String message;
 	
-	/**
-	 * No arg constructor
-	 */
-	public NewMessageModel() {
-	}
-
-	public String getTo() {
-		return to;
-	}
-	public void setTo(String to) {
-		this.to = to;
-	}
-	public String getFrom() {
-		return from;
-	}
-	public void setFrom(String from) {
-		this.from = from;
-	}
-	public String getSubject() {
-		return subject;
-	}
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
 }

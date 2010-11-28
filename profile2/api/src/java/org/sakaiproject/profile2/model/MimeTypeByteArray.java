@@ -1,5 +1,8 @@
 package org.sakaiproject.profile2.model;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Wrapper class to hold a byte[] and preserve the mimetype.
  * Based on net.sf.ehcache.MimeTypeByteArray
@@ -7,27 +10,12 @@ package org.sakaiproject.profile2.model;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+
+@Data
+@NoArgsConstructor
 public class MimeTypeByteArray {
 
 	private byte[] bytes;
 	private String mimeType;
 	
-	public MimeTypeByteArray() {}
-	
-	
-	public byte[] getBytes() {
-		return bytes;
-	}
-
-	public void setBytes(byte[] bytes) {
-		this.bytes = bytes;
-	}
-
-	public String getMimeType() {
-		return mimeType;
-	}
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
 }

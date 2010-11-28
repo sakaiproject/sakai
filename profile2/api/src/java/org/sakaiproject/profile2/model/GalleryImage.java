@@ -18,9 +18,15 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Gallery image container and hibernate model.
  */
+
+@Data
+@NoArgsConstructor
 public class GalleryImage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -32,14 +38,7 @@ public class GalleryImage implements Serializable {
 	private String displayName;
 	
 	/**
-	 * Empy constructor
-	 */
-	public GalleryImage() {
-		
-	}
-
-	/**
-	 * Creates a new instance of GalleryImage.
+	 * Additional constructor to create a new instance of GalleryImage.
 	 */
 	public GalleryImage(String userUuid, String mainResource,
 			String thumbnailResource, String displayName) {
@@ -50,44 +49,4 @@ public class GalleryImage implements Serializable {
 		this.displayName = displayName;
 	}
 
-	public long getId() {
-		return id;
-	}
-	
-	public void setId(long id) {
-		this.id = id;
-	}
-	
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-
-	public String getMainResource() {
-		return mainResource;
-	}
-
-	public void setMainResource(String mainResource) {
-		this.mainResource = mainResource;
-	}
-
-	public String getThumbnailResource() {
-		return thumbnailResource;
-	}
-
-	public void setThumbnailResource(String thumbnailResource) {
-		this.thumbnailResource = thumbnailResource;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-	
 }

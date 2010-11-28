@@ -1,5 +1,8 @@
 package org.sakaiproject.profile2.model;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 
@@ -20,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Data
+@NoArgsConstructor
 public class ProfileImage {
 
 	private byte[] uploadedImage;
@@ -28,10 +33,7 @@ public class ProfileImage {
 	private String officialImageEncoded;
 	private String altText;
 	private String mimeType;
-	
-	public ProfileImage() {}
-	
-	
+		
 	/**
 	 * Get access to the binary data from either the uploaded image or the base64 encoded data
 	 * @return byte[] or null if none
@@ -59,58 +61,5 @@ public class ProfileImage {
 		}
 		return null;
 	}
-	
-	
-	
-	
-	
-	public byte[] getUploadedImage() {
-		return uploadedImage;
-	}
-
-	public void setUploadedImage(byte[] uploadedImage) {
-		this.uploadedImage = uploadedImage;
-	}
-
-	public String getExternalImageUrl() {
-		return externalImageUrl;
-	}
-
-	public void setExternalImageUrl(String externalImageUrl) {
-		this.externalImageUrl = externalImageUrl;
-	}
-
-	public String getOfficialImageUrl() {
-		return officialImageUrl;
-	}
-
-	public void setOfficialImageUrl(String officialImageUrl) {
-		this.officialImageUrl = officialImageUrl;
-	}
-
-	public String getOfficialImageEncoded() {
-		return officialImageEncoded;
-	}
-
-	public void setOfficialImageEncoded(String officialImageEncoded) {
-		this.officialImageEncoded = officialImageEncoded;
-	}
-
-	public String getAltText() {
-		return altText;
-	}
-
-	public void setAltText(String altText) {
-		this.altText = altText;
-	}
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-	public String getMimeType() {
-		return mimeType;
-	}
-	
-	
 	
 }

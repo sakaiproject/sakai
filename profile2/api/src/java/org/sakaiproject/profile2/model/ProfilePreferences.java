@@ -18,9 +18,8 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Hibernate and EntityProvider model
@@ -28,11 +27,12 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
+@Data
+@NoArgsConstructor
 public class ProfilePreferences implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	@EntityId
 	private String userUuid;
 	private boolean requestEmailEnabled;
 	private boolean confirmEmailEnabled;
@@ -42,91 +42,5 @@ public class ProfilePreferences implements Serializable {
 	private boolean showKudos;
 	private boolean showGalleryFeed;
 	private boolean useGravatar;
-
-	/** 
-	 * Empty constructor
-	 */
-	public ProfilePreferences(){
-	}
-	
-	
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-
-	public void setRequestEmailEnabled(boolean requestEmailEnabled) {
-		this.requestEmailEnabled = requestEmailEnabled;
-	}
-
-	public boolean isRequestEmailEnabled() {
-		return requestEmailEnabled;
-	}
-
-	public void setConfirmEmailEnabled(boolean confirmEmailEnabled) {
-		this.confirmEmailEnabled = confirmEmailEnabled;
-	}
-
-	public boolean isConfirmEmailEnabled() {
-		return confirmEmailEnabled;
-	}
-	public void setMessageNewEmailEnabled(boolean messageNewEmailEnabled) {
-		this.messageNewEmailEnabled = messageNewEmailEnabled;
-	}
-
-	public boolean isMessageNewEmailEnabled() {
-		return messageNewEmailEnabled;
-	}
-	public void setMessageReplyEmailEnabled(boolean messageReplyEmailEnabled) {
-		this.messageReplyEmailEnabled = messageReplyEmailEnabled;
-	}
-	
-	public boolean isMessageReplyEmailEnabled() {
-		return messageReplyEmailEnabled;
-	}
-
-	public boolean isUseOfficialImage() {
-		return useOfficialImage;
-	}
-
-	public void setUseOfficialImage(boolean useOfficialImage) {
-		this.useOfficialImage = useOfficialImage;
-	}
-	
-	public boolean isShowKudos() {
-		return showKudos;
-	}
-
-	public void setShowKudos(boolean showKudos) {
-		this.showKudos = showKudos;
-	}
-	
-	public boolean isShowGalleryFeed() {
-		return showGalleryFeed;
-	}
-
-	public void setShowGalleryFeed(boolean showGalleryFeed) {
-		this.showGalleryFeed = showGalleryFeed;
-	}
-	
-	public boolean isUseGravatar() {
-		return useGravatar;
-	}
-
-	public void setUseGravatar(boolean useGravatar) {
-		this.useGravatar = useGravatar;
-	}
-
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this);
-	}
-	
-
-	
 
 }

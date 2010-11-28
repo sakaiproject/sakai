@@ -19,6 +19,9 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Friend.java
  * 
@@ -27,7 +30,8 @@ import java.util.Date;
  * with each friend having one of these objects for fast access to the info required.
  */
 
-
+@Data
+@NoArgsConstructor
 public class Friend implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -38,44 +42,5 @@ public class Friend implements Serializable {
 	private Date statusDate;
 	private boolean confirmed;
 	private Date requestedDate;
-
-	
-	public String getUserUuid() {
-		return userUuid;
-	}
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-	public String getDisplayName() {
-		return displayName;
-	}
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-	public String getStatusMessage() {
-		return statusMessage;
-	}
-	public void setStatusMessage(String statusMessage) {
-		this.statusMessage = statusMessage;
-	}
-	public Date getStatusDate() {
-		return statusDate;
-	}
-	public void setStatusDate(Date statusDate) {
-		this.statusDate = statusDate;
-	}
-	public boolean isConfirmed() {
-		return confirmed;
-	}
-	public void setConfirmed(boolean confirmed) {
-		this.confirmed = confirmed;
-	}
-	
-	public void setRequestedDate(Date requestedDate) {
-		this.requestedDate = requestedDate;
-	}
-	public Date getRequestedDate() {
-		return requestedDate;
-	}
 
 }

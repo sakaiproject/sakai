@@ -18,6 +18,9 @@ package org.sakaiproject.profile2.tool.models;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.apache.wicket.Component;
 
 /**
@@ -30,6 +33,8 @@ import org.apache.wicket.Component;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
 
+@Data
+@NoArgsConstructor
 public class FriendAction implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -39,48 +44,5 @@ public class FriendAction implements Serializable {
 	private boolean removed;
 	private boolean ignored;
 	private Component updateThisComponentOnSuccess;
-	
-	public boolean isRequested() {
-		return requested;
-	}
-	public void setRequested(boolean requested) {
-		this.requested = requested;
-	}
-	public boolean isConfirmed() {
-		return confirmed;
-	}
-	public void setConfirmed(boolean confirmed) {
-		this.confirmed = confirmed;
-	}
-	public boolean isRemoved() {
-		return removed;
-	}
-	public void setRemoved(boolean removed) {
-		this.removed = removed;
-	}
-	
-	public void setIgnored(boolean ignored) {
-		this.ignored = ignored;
-	}
-	public boolean isIgnored() {
-		return ignored;
-	}
-	
-	
-	public Component getUpdateThisComponentOnSuccess() {
-		return updateThisComponentOnSuccess;
-	}
-	public void setUpdateThisComponentOnSuccess(
-			Component updateThisComponentOnSuccess) {
-		this.updateThisComponentOnSuccess = updateThisComponentOnSuccess;
-	}
-	/**
-	 * Default constructor
-	 */
-	public FriendAction() {
-	
-	}
-	
-	
 	
 }	

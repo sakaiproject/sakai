@@ -18,6 +18,9 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * MessageThread.java
@@ -28,6 +31,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Data
+@NoArgsConstructor
 public class MessageParticipant implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -56,55 +61,5 @@ public class MessageParticipant implements Serializable {
 	 * Has this message been deleted by the user?
 	 */
 	private boolean deleted;
-	
-	
-	/**
-	 * No-arg constructor
-	 */
-	public MessageParticipant() {
-	}
-	
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
-	public String getMessageId() {
-		return messageId;
-	}
-	public void setMessageId(String messageId) {
-		this.messageId = messageId;
-	}
-	public String getUuid() {
-		return uuid;
-	}
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-	public boolean isRead() {
-		return read;
-	}
-	public void setRead(boolean read) {
-		this.read = read;
-	}
-	public boolean isDeleted() {
-		return deleted;
-	}
-	public void setDeleted(boolean deleted) {
-		this.deleted = deleted;
-	}
-
-
-	@Override 
-	public String toString() {
-		return new ToStringBuilder(this).
-			append("id", id).
-			append("messageId", messageId).
-			append("uuid", uuid).
-			append("read", read).
-			append("deleted", deleted).
-			toString();
-	}
 	
 }

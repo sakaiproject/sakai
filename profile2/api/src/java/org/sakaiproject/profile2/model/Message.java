@@ -19,7 +19,8 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 /**
  * Message.java
  * 
@@ -29,6 +30,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+
+@Data
+@NoArgsConstructor
 public class Message implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -57,53 +61,5 @@ public class Message implements Serializable {
 	 * date this message was posted
 	 */
 	private Date datePosted;
-	
-	/**
-	 * No-arg constructor
-	 */
-	public Message() {
-	}
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getFrom() {
-		return from;
-	}
-	public void setFrom(String from) {
-		this.from = from;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	public String getThread() {
-		return thread;
-	}
-	public void setThread(String thread) {
-		this.thread = thread;
-	}
-	public Date getDatePosted() {
-		return datePosted;
-	}
-	public void setDatePosted(Date datePosted) {
-		this.datePosted = datePosted;
-	}
-	
-	@Override 
-	public String toString() {
-		return new ToStringBuilder(this).
-			append("id", id).
-			append("from", from).
-			append("message", message).
-			append("thread", thread).
-			append("datePosted", datePosted).
-			toString();
-	   }
 	
 }

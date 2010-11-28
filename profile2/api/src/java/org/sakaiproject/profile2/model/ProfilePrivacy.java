@@ -18,8 +18,8 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -28,11 +28,13 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
+
+@Data
+@NoArgsConstructor
 public class ProfilePrivacy implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	@EntityId
 	private String userUuid;
 	private int profileImage;
 	private int basicInfo;
@@ -48,148 +50,5 @@ public class ProfilePrivacy implements Serializable {
 	private int staffInfo;
 	private int socialNetworkingInfo;
 	private int myKudos;
-	
-	/** 
-	 * Empty constructor
-	 */
-	public ProfilePrivacy(){
-	}
-	
-
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-
-
-	public int getProfileImage() {
-		return profileImage;
-	}
-
-
-	public void setProfileImage(int profileImage) {
-		this.profileImage = profileImage;
-	}
-
-
-	public int getBasicInfo() {
-		return basicInfo;
-	}
-
-
-	public void setBasicInfo(int basicInfo) {
-		this.basicInfo = basicInfo;
-	}
-
-
-	public int getContactInfo() {
-		return contactInfo;
-	}
-
-
-	public void setContactInfo(int contactInfo) {
-		this.contactInfo = contactInfo;
-	}
-
-	public int getBusinessInfo() {
-		return businessInfo;
-	}
-	
-	public void setBusinessInfo(int businessInfo) {
-		this.businessInfo = businessInfo;
-	}
-	
-	public int getPersonalInfo() {
-		return personalInfo;
-	}
-
-
-	public void setPersonalInfo(int personalInfo) {
-		this.personalInfo = personalInfo;
-	}
-
-
-	public void setShowBirthYear(boolean showBirthYear) {
-		this.showBirthYear = showBirthYear;
-	}
-
-	public boolean isShowBirthYear() {
-		return showBirthYear;
-	}
-
-
-	public void setMyFriends(int myFriends) {
-		this.myFriends = myFriends;
-	}
-
-	public int getMyFriends() {
-		return myFriends;
-	}
-
-	public void setMyStatus(int myStatus) {
-		this.myStatus = myStatus;
-	}
-
-	public int getMyStatus() {
-		return myStatus;
-	}
-	
-	public void setMyPictures(int myPictures) {
-		this.myPictures = myPictures;
-	}
-	
-	public int getMyPictures() {
-		return myPictures;
-	}
-
-	public void setMessages(int messages) {
-		this.messages = messages;
-	}
-
-	public int getMessages() {
-		return messages;
-	}
-
-	public void setStaffInfo(int staffInfo) {
-		this.staffInfo = staffInfo;
-	}
-	
-	public int getStaffInfo() {
-		return staffInfo;
-	}
-	
-	public void setStudentInfo(int studentInfo) {
-		this.studentInfo = studentInfo;
-	}
-
-	public int getStudentInfo() {
-		return studentInfo;
-	}
-
-	public void setSocialNetworkingInfo(int socialNetworkingInfo) {
-		this.socialNetworkingInfo = socialNetworkingInfo;
-	}
-	
-	public int getSocialNetworkingInfo() {
-		return socialNetworkingInfo;
-	}
-	
-	public void setMyKudos(int myKudos) {
-		this.myKudos = myKudos;
-	}
-
-	public int getMyKudos() {
-		return myKudos;
-	}
-
-
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.toString(this);
-	}
 	
 }

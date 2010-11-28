@@ -4,16 +4,25 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Model for a kudos score for a user - persistent
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfileKudos implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String userUuid;
+	
 	/**
 	 * Calculated score out of 100, more accurate if you need better reporting.
 	 */
@@ -27,43 +36,5 @@ public class ProfileKudos implements Serializable {
 	 */
 	private int score;
 	private Date dateAdded;
-	
-	/** 
-	 * Empty constructor
-	 */
-	public ProfileKudos() {		
-	}
-
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-	
-	public BigDecimal getPercentage() {
-		return percentage;
-	}
-
-	public void setPercentage(BigDecimal percentage) {
-		this.percentage = percentage;
-	}
-	
-	public int getScore() {
-		return score;
-	}
-
-	public void setScore(int score) {
-		this.score = score;
-	}
-
-	public Date getDateAdded() {
-		return dateAdded;
-	}
-
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = dateAdded;
-	}
 	
 }

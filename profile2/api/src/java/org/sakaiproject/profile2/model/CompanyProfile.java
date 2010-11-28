@@ -17,14 +17,17 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * <code>CompanyProfile</code> is a model for storing information about a
  * business user's company profile. Business users may have more than one
  * company profile.
  */
+@Data
+@NoArgsConstructor
 public class CompanyProfile implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -35,81 +38,13 @@ public class CompanyProfile implements Serializable {
 	private String companyDescription;
 	private String companyWebAddress;
 	
-	private Map<String, String> props;
-	
-	public CompanyProfile() {
-		
-	}
-
-	public CompanyProfile(String userUuid, String companyName,
-			String companyDescription, String companyWebAddress) {
-
+	/** Additional constructor **/
+	public CompanyProfile(String userUuid, String name, String desc, String url) {
 		this.userUuid = userUuid;
-		this.companyName = companyName;
-		this.companyDescription = companyDescription;
-		this.companyWebAddress = companyWebAddress;
+		this.companyName = name;
+		this.companyDescription = desc;
+		this.companyWebAddress = url;
 	}
 
-	public long getId() {
-		return id;
-	}
 
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-
-	public String getCompanyName() {
-		return companyName;
-	}
-
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
-	}
-
-	public String getCompanyDescription() {
-		return companyDescription;
-	}
-
-	public void setCompanyDescription(String companyDescription) {
-		this.companyDescription = companyDescription;
-	}
-
-	public String getCompanyWebAddress() {
-		return companyWebAddress;
-	}
-
-	public void setCompanyWebAddress(String companyWebAddress) {
-		this.companyWebAddress = companyWebAddress;
-	}
-	
-	public void setProps(Map<String, String> props) {
-		this.props = props;
-	}
-
-	public Map<String, String> getProps() {
-		return props;
-	}
-	
-	public void setProperty(String key, String value) {
-        if (props == null) {
-            props = new HashMap<String, String>();
-        }
-        props.put(key, value);
-    }
-
-    public String getProperty(String key) {
-        if (props == null) {
-            return null;
-        }
-        return props.get(key);
-    }
-    
 }

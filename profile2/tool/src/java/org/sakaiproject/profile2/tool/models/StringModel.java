@@ -18,6 +18,9 @@ package org.sakaiproject.profile2.tool.models;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Simple model to back a simple single text field. To be used only by the Profile2 tool.
  * 
@@ -25,29 +28,11 @@ import java.io.Serializable;
  *
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
+@Data
+@NoArgsConstructor
 public class StringModel implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private String string;
 	
-	public void setString(String string) {
-		this.string = string;
-	}
-	public String getString() {
-		return string;
-	}
-	
-	
-	/**
-	 * Default constructor
-	 */
-	public StringModel() {
-	
-	}
-	
-	
-
-
-
-
 }

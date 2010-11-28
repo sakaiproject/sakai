@@ -221,6 +221,10 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+			<id>projectlombok.org</id>
+			<url>http://projectlombok.org/mavenrepo</url>
+		</repository>
 	</repositories>
 	
 	<distributionManagement>
@@ -264,6 +268,7 @@
         <search-api.version>1.4-SNAPSHOT</search-api.version>
 		<entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
 		<yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
+		<lombok.version>0.9.3</lombok.version>
 	</properties>
     
     <!-- Profile2 related dependencies -->
@@ -356,20 +361,26 @@
 				<artifactId>log4j</artifactId>
 				<version>${log4j.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+				<scope>provided</scope>
+			</dependency>
    			
+   			<!-- additional sakai dependencies -->
 		    <dependency>
     			<groupId>org.sakaiproject.emailtemplateservice</groupId>
     			<artifactId>emailtemplateservice-api</artifactId>
     			<version>${sakai.ets.version}</version>
     			<scope>provided</scope>
     		</dependency>
-
             <dependency>
                 <groupId>org.sakaiproject.search</groupId>
                 <artifactId>search-api</artifactId>
                 <version>${search-api.version}</version>
             </dependency>
-		    
+            
 		    <!-- legacy dependency-->
 		    <dependency>
 		      	<groupId>org.sakaiproject.profile</groupId>
@@ -378,10 +389,6 @@
 		      	<scope>provided</scope>
 		    </dependency>
 		    
-		    <!--  testing dependencies -->
-		    
-		    
-  	
     	</dependencies>
     </dependencyManagement>
 
@@ -488,6 +495,18 @@
                 </executions>
                 -->
             </plugin>
+            
+            <!-- enforce Java 6 compiler -->
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerVersion>1.6</compilerVersion>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+            
         </plugins>
     </build>
 </project>

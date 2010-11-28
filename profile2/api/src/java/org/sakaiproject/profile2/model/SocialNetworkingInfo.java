@@ -18,10 +18,15 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * <code>SocialNetworkingInfo</code> is a model for storing a user's social
  * networking details.
  */
+@Data
+@NoArgsConstructor
 public class SocialNetworkingInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -33,62 +38,9 @@ public class SocialNetworkingInfo implements Serializable {
 	private String skypeUsername;
 	private String twitterUsername;
 	
-	public SocialNetworkingInfo() {
-		
-	}
-
+	// additional constructor
 	public SocialNetworkingInfo(String userUuid) {
-
 		this.userUuid = userUuid;
 	}
-
-	public String getUserUuid() {
-		return userUuid;
-	}
-
-	public void setUserUuid(String userUuid) {
-		this.userUuid = userUuid;
-	}
-
-	public String getFacebookUsername() {
-		return facebookUsername;
-	}
-
-	public void setFacebookUsername(String facebookUsername) {
-		this.facebookUsername = facebookUsername;
-	}
-
-	public String getLinkedinUsername() {
-		return linkedinUsername;
-	}
-
-	public void setLinkedinUsername(String linkedinUsername) {
-		this.linkedinUsername = linkedinUsername;
-	}
-
-	public String getMyspaceUsername() {
-		return myspaceUsername;
-	}
-
-	public void setMyspaceUsername(String myspaceUsername) {
-		this.myspaceUsername = myspaceUsername;
-	}
-
-	public String getSkypeUsername() {
-		return skypeUsername;
-	}
-
-	public void setSkypeUsername(String skypeUsername) {
-		this.skypeUsername = skypeUsername;
-	}
-
-	public String getTwitterUsername() {
-		return twitterUsername;
-	}
-
-	public void setTwitterUsername(String twitterUsername) {
-		this.twitterUsername = twitterUsername;
-	}
-	
 	
 }
