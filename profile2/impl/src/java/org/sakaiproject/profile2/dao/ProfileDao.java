@@ -21,16 +21,12 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 
 /**
- * Internal DAO Interface for Profile2
+ * Internal DAO Interface for Profile2.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 public interface ProfileDao {
-
-	
-
-	
 
 	/**
 	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
@@ -66,7 +62,6 @@ public interface ProfileDao {
 	 */
 	public List<String> findSakaiPersonsByInterest(final String search);
 	
-	
 	/**
 	 * Get the current ProfileImage records from the database.
 	 * There should only ever be one, but in case things get out of sync this returns all.
@@ -95,79 +90,202 @@ public interface ProfileDao {
 	 */
 	public List<ProfileImageUploaded> getOtherProfileImageRecords(final String userId);
 
-	
-	
+	/**
+	 * Get the ProfileImageOfficial record from the database for the given user
+	 * @param userUuid		uuid of the user
+	 * @return
+	 */
 	public ProfileImageOfficial getOfficialImageRecordForUser(final String userUuid);
 	
+	/**
+	 * Save the ProfileImageOfficial record the database
+	 * @param officialImage		ProfileImageOfficial object
+	 * @return
+	 */
 	public boolean saveOfficialImageUrl(ProfileImageOfficial officialImage);
 	
-	
-	
+	/**
+	 * Get the number of connection requests a user has
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public int getConnectionRequestsForUserCount(final String userId);
 	
-	//gets a friend record and tries both column arrangements
+	/**
+	 * Get a connection record for a user/friend pair
+	 * <p>This tries both column arrangements, ie user/friend and friend/user</p>
+	 * @param userId		uuid of the user
+	 * @param friendId		uuid of the other user
+	 * @return
+	 */
 	public ProfileFriend getConnectionRecord(final String userId, final String friendId);
 	
-	
+	/**
+	 * Save a new connection record
+	 * @param profileFriend		ProfileFriend record
+	 * @return
+	 */
 	public boolean addNewConnection(ProfileFriend profileFriend);
 	
+	/**
+	 * Update a connection record
+	 * @param profileFriend		ProfileFriend record
+	 * @return
+	 */
 	public boolean updateConnection(ProfileFriend profileFriend);
 
+	/**
+	 * Remove a connection record
+	 * @param profileFriend		ProfileFriend record
+	 * @return
+	 */
 	public boolean removeConnection(ProfileFriend profileFriend);
 
+	/**
+	 * Get a connection record that is pending
+	 * @param userId			uuid of the user
+	 * @param friendId			uuid of the friend
+	 * @return
+	 */
 	public ProfileFriend getPendingConnection(final String userId, final String friendId);
 
-	
+	/**
+	 * Get a ProfileStatus record for a user, but only if the date of the record is within the given time
+	 * @param userId				uuid of the user
+	 * @param oldestStatusDate		oldest date to search until
+	 * @return
+	 */
 	public ProfileStatus getUserStatus(final String userId, final Date oldestStatusDate);
 	
+	/**
+	 * Set the status for a user
+	 * @param profileStatus		ProfileStatus object
+	 * @return	
+	 */
 	public boolean setUserStatus(ProfileStatus profileStatus);
 	
+	/**
+	 * Remove the ProfileStatus record for a user
+	 * @param profileStatus		ProfileStatus object
+	 * @return	
+	 */
 	public boolean clearUserStatus(ProfileStatus profileStatus);
-		
+	
+	/**
+	 * Get a count of all status updates for a user
+	 * @param userUuid			uuid of the user
+	 * @return
+	 */
 	public int getStatusUpdatesCount(final String userUuid);
 	
-	
-	
-	
+	/**
+	 * Add a new ProfilePrivacy record
+	 * @param privacy		ProfilePrivacy object
+	 * @return
+	 */
 	public ProfilePrivacy addNewPrivacyRecord(ProfilePrivacy privacy);
 	
+	/**
+	 * Get the ProfilePrivacy record for the user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public ProfilePrivacy getPrivacyRecord(final String userId);
 	
+	/**
+	 * Update the ProfilePrivacy record
+	 * @param privacy		ProfilePrivacy object
+	 * @return
+	 */
 	public boolean updatePrivacyRecord(final ProfilePrivacy privacy);
 
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * Save a new CompanyProfile record
+	 * @param companyProfile	CompanyProfile record
+	 * @return
+	 */
 	public boolean addNewCompanyProfile(final CompanyProfile companyProfile);
 	
+	/**
+	 * Update a CompanyProfile record
+	 * @param companyProfile	CompanyProfile record
+	 * @return
+	 */
 	public boolean updateCompanyProfile(final CompanyProfile companyProfile);
 	
+	/**
+	 * Get the CompanyProfile record for a user and company ID
+	 * @param userId				uuid of the user
+	 * @param companyProfileId		id of the company
+	 * @return
+	 */
 	public CompanyProfile getCompanyProfile(final String userId, final long companyProfileId);
 
+	/**
+	 * Get all CompanyProfile records for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public List<CompanyProfile> getCompanyProfiles(final String userId);
 	
+	/**
+	 * Remove a CompanyProfile record
+	 * @param companyProfile	CompanyProfile record
+	 * @return
+	 */
 	public boolean removeCompanyProfile(final CompanyProfile companyProfile);
 	
-	
-	
+	/**
+	 * Add a new GalleryImage record
+	 * 
+	 * @param galleryImage		GalleryImage record
+	 * @return
+	 */
 	public boolean addNewGalleryImage(final GalleryImage galleryImage);
 	
+	/**
+	 * Get the GalleryImage record for a user and image ID
+	 * @param userId		uuid of the user
+	 * @param imageId		id of the image
+	 * @return
+	 */
 	public GalleryImage getGalleryImageRecord(final String userId, final long imageId);
 
+	/**
+	 * Get all GalleryImage records for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public List<GalleryImage> getGalleryImages(final String userId);
 	
+	/**
+	 * Remove a GalleryImage record
+	 * 
+	 * @param galleryImage		GalleryImage record
+	 * @return
+	 */
 	public boolean removeGalleryImage(final GalleryImage galleryImage);
 	
+	/**
+	 * Get a count of all gallery images that a user has
+	 * @param userUuid		uuid of the user
+	 * @return
+	 */
 	public int getGalleryImagesCount(final String userUuid);
 
 	
-	
+	/**
+	 * Get a SocialNetworkingInfo record for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId);
 	
+	/**
+	 * Save a SocialNetworkingInfo record
+	 * @param socialNetworkingInfo	SocialNetworkingInfo object
+	 * @return
+	 */
 	public boolean saveSocialNetworkingInfo(final SocialNetworkingInfo socialNetworkingInfo);
 	
 	/**
@@ -196,6 +314,11 @@ public interface ProfileDao {
 	 */
 	public ProfileImageExternal getExternalImageRecordForUser(final String userId);
 	
+	/**
+	 * Save a ProfileImageExternal record
+	 * @param externalImage		ProfileImageExternal record
+	 * @return
+	 */
 	public boolean saveExternalImage(final ProfileImageExternal externalImage);
 	
 	/**
@@ -205,53 +328,144 @@ public interface ProfileDao {
 	 */
 	public ProfilePreferences addNewPreferencesRecord(ProfilePreferences prefs);
 
+	/**
+	 * Get a ProfilePreferences record for the user
+	 * @param userId	uuid for the user
+	 * @return
+	 */
 	public ProfilePreferences getPreferencesRecordForUser(final String userId);
 	
+	/**
+	 * Save a ProfilePreferences record
+	 * @param prefs		ProfilePreferences record
+	 * @return
+	 */
 	public boolean savePreferencesRecord(ProfilePreferences prefs);
 	
-	
-	
-	
-	
-	
-	
+	/**
+	 * Get a count of all unread messages for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public int getAllUnreadMessagesCount(final String userId);
 	
+	/**
+	 * Get a count of all threads with unread messages for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public int getThreadsWithUnreadMessagesCount(final String userId);
 	
+	/**
+	 * Get a count of all sent messages for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public int getSentMessagesCount(final String userId);
 
+	/**
+	 * Get a list of MessageThreads for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public List<MessageThread> getMessageThreads(final String userId);
 	
+	/**
+	 * Get a count of all message threads for a user
+	 * @param userId		uuid of the user
+	 * @return
+	 */
 	public int getMessageThreadsCount(final String userId);
 	
+	/**
+	 * Get a list of all Messages in a given thread
+	 * @param threadId		id of the thread
+	 * @return
+	 */
 	public List<Message> getMessagesInThread(final String threadId);
 	
+	/**
+	 * Get a count of all Messages in a given thread
+	 * @param threadId		id of the thread
+	 * @return
+	 */
 	public int getMessagesInThreadCount(final String threadId);
 	
+	/**
+	 * Get a Message record
+	 * @param id		uuid of the Message
+	 * @return
+	 */
 	public Message getMessage(final String id);
 	
+	/**
+	 * Get a MessageThread record
+	 * @param threadId		id of the thread
+	 * @return
+	 */
 	public MessageThread getMessageThread(final String threadId);
 	
+	/**
+	 * Get the latest Message in a MessageThread
+	 * @param threadId		id of the thread
+	 * @return
+	 */
 	public Message getLatestMessageInThread(final String threadId);
 	
+	/**
+	 * Toggle a Message as being read by the given participant
+	 * @param participant		MessageParticipant
+	 * @param status			true/false for read/unread	
+	 * @return
+	 */
 	public boolean toggleMessageRead(MessageParticipant participant, final boolean status);
 	
+	/**
+	 * Get a MessageParticipant record for the given message and user id
+	 * @param messageId			uuid of the message
+	 * @param userUuid			uuid of the user
+	 * @return
+	 */
 	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid);
 	
+	/**
+	 * Get a list of uuids of all perticipants in a thread
+	 * @param threadId			id of the thread
+	 * @return
+	 */
 	public List<String> getThreadParticipants(final String threadId);
 	
-	
+	/**
+	 * Save a MessageThread record
+	 * @param thread	MessageThread object
+	 */
 	public void saveNewThread(MessageThread thread);
 	
+	/**
+	 * Save a Message record
+	 * @param thread	Message object
+	 */
 	public void saveNewMessage(Message message);
 	
+	/**
+	 * Save a MessageParticipant record
+	 * @param thread	MessageParticipant object
+	 */
 	public void saveNewMessageParticipant(MessageParticipant participant);
 	
+	/**
+	 * Save a list of MessageParticipants
+	 * @param participants	List of MessageParticipant objects
+	 */
 	public void saveNewMessageParticipants(List<MessageParticipant> participants);
 	
 	
-	
+	/**
+	 * Get a list of UserProfiles withing the given pageing parameters
+	 * @param start		first record
+	 * @param count		total number of records
+	 * @return
+	 */
 	public List<UserProfile> getUserProfiles(final int start, final int count);
 	
 	/**
