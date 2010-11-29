@@ -190,16 +190,16 @@ public class ResourceConditionsHelper {
 		//TODO look this data up
 		//Using LinkedHashMap to maintain order
 		Map<String,String> conditionSelections = new LinkedHashMap<String,String>();
-		conditionSelections.put("1|gradebook.updateAssignment|dueDateHasPassed|no_operator","due date has passed.");
-		conditionSelections.put("2|gradebook.updateAssignment|dueDateHasNotPassed|no_operator","due date has not passed.");
-		conditionSelections.put("3|gradebook.updateAssignment|isReleasedToStudents|no_operator","is released to students.");
-		conditionSelections.put("4|gradebook.updateAssignment|isNotReleasedToStudents|no_operator","is not released to students.");
-		conditionSelections.put("5|gradebook.updateAssignment|isIncludedInCourseGrade|no_operator","is included in course grade.");
-		conditionSelections.put("6|gradebook.updateAssignment|isNotIncludedInCourseGrade|no_operator","is not included in course grade.");
-		conditionSelections.put("7|gradebook.updateItemScore|isScoreBlank|no_operator", "grade is blank.");
-		conditionSelections.put("8|gradebook.updateItemScore|isScoreNonBlank|no_operator", "grade is non-blank.");
-		conditionSelections.put("9|gradebook.updateItemScore|getScore|less_than","grade is less than:");
-		conditionSelections.put("10|gradebook.updateItemScore|getScore|greater_than_equal_to","grade is greater than or equal to:");	
+		conditionSelections.put("1|gradebook.updateAssignment|dueDateHasPassed|no_operator",rb.getString("conditional.duedate_passed"));
+		conditionSelections.put("2|gradebook.updateAssignment|dueDateHasNotPassed|no_operator",rb.getString("conditional.duedate_notpassed"));
+		conditionSelections.put("3|gradebook.updateAssignment|isReleasedToStudents|no_operator",rb.getString("conditional.released_to_students"));
+		conditionSelections.put("4|gradebook.updateAssignment|isNotReleasedToStudents|no_operator",rb.getString("conditional.not_released_to_students"));
+		conditionSelections.put("5|gradebook.updateAssignment|isIncludedInCourseGrade|no_operator",rb.getString("conditional.included_in_course_grade"));
+		conditionSelections.put("6|gradebook.updateAssignment|isNotIncludedInCourseGrade|no_operator",rb.getString("conditional.not_included_in_course_grade"));
+		conditionSelections.put("7|gradebook.updateItemScore|isScoreBlank|no_operator", rb.getString("conditional.grade_blank"));
+		conditionSelections.put("8|gradebook.updateItemScore|isScoreNonBlank|no_operator", rb.getString("conditional.grade_non_blank"));
+		conditionSelections.put("9|gradebook.updateItemScore|getScore|less_than",rb.getString("conditional.grade_less_than"));
+		conditionSelections.put("10|gradebook.updateItemScore|getScore|greater_than_equal_to",rb.getString("conditional.grade_greather_or_equal"));	
 		
 		//This isn't the final resting place for this data..see the buildReviseMetadataContext method in this class
 		state.setAttribute("resourceSelections", resourceSelections);

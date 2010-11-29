@@ -394,7 +394,7 @@
 					</td>
 					<td colspan="3">
 						<label for="cbCondition${DOT}$i">
-							Only if the following condition is met:
+							$tlang.getString("conditional.only_if_condition_is_met")
 						</label>
 					</td>
 				</tr>
@@ -413,7 +413,7 @@
 						#if($resourceSelections.size() == 0)
 							$tlang.getString("no.gradebook.assignments")
 						#else						
-							Gradebook 
+							$tlang.getString("conditional.gradebook_tool_name") 
 							<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
 							#foreach ($key in $resourceSelections.keySet())
 							    #if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease()) 
