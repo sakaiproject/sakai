@@ -62,7 +62,7 @@ public class MyPrivacy extends BasePage {
 		
 		//if null, throw exception
 		if(profilePrivacy == null) {
-			throw new ProfilePrivacyNotDefinedException("Couldn't create default privacy record for " + userUuid);
+			throw new ProfilePrivacyNotDefinedException("Couldn't retrieve privacy record for " + userUuid);
 		}
 		
 		Label heading = new Label("heading", new ResourceModel("heading.privacy"));
