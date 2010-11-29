@@ -122,12 +122,14 @@
 					</label>
 					<input type="text" id="$days_form"  name="$days_form" value="$days" size="3" />
 				</p>
+				#if ($toolId!="sakai.motd")
 				<p class="shorttext">
 					<label for="$items_form">
 						$tlang.getString("cus.numof") $all_items
 					</label>
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="3" />
 				</p>
+				#end
 				
 			#end
 			
