@@ -188,8 +188,7 @@ $(document).ready(function() {
       		<h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
 		</span>
     <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
-      rendered="#{authorization.createAssessment}"
-      action="importAssessment">
+      rendered="#{authorization.createAssessment}" action="importAssessment">
     </h:commandButton>
 	  </div>
   </div>
@@ -216,11 +215,23 @@ $(document).ready(function() {
       <f:facet name="header" >
 	   <h:outputText value="#{authorFrontDoorMessages.select_action}"/>
 	  </f:facet>
-	  <h:selectOneMenu id="pendingSelectAction" value="select" onchange="clickPendingSelectActionLink(this);" >
-		<f:selectItems value="#{author.pendingSelectActionList}" />
+
+	  <h:selectOneMenu id="pendingSelectAction1" value="select" onchange="clickPendingSelectActionLink(this);" rendered="#{coreAssessment.questionSize > 0 }">
+		<f:selectItems value="#{author.pendingSelectActionList1}" />
 		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
 	  </h:selectOneMenu>
-	  <h:commandLink id="pendingHiddenlink" action="#{author.getOutcome}" value="" >
+	  
+	  <h:selectOneMenu id="pendingSelectAction2" value="select" onchange="clickPendingSelectActionLink(this);" rendered="#{coreAssessment.questionSize == 0 }">
+		<f:selectItems value="#{author.pendingSelectActionList2}" />
+		<f:valueChangeListener	type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+	  </h:selectOneMenu>
+ 
+	  <h:commandLink id="pendingHiddenlink1" action="#{author.getOutcome}" value="" >
+	    <f:param name="editType" value="pendingAssessment" />
+        <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
+	  </h:commandLink>
+	
+	<h:commandLink id="pendingHiddenlink2" action="#{author.getOutcome}" value="" >
 	    <f:param name="editType" value="pendingAssessment" />
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
 	  </h:commandLink>

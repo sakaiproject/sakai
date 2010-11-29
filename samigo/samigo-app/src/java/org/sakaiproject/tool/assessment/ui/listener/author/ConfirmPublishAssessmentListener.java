@@ -95,6 +95,10 @@ public class ConfirmPublishAssessmentListener
     }
 
     assessmentBean.setAssessment(assessment);
+    
+    // Only if the assessment already have question, this page will be excuted
+    assessmentSettings.setHasQuestions(true);
+    
     //proceed to look for error, save assessment setting and confirm publish
     //#2a - look for error: check if core assessment title is unique
     boolean error=false;

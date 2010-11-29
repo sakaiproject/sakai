@@ -96,7 +96,8 @@ public class AuthorBean implements Serializable
   private boolean isAnyAssessmentRetractForEdit = false;
   private String assessCreationMode; // assessment build (1)or markup text (2)
 
-  private ArrayList<SelectItem> pendingActionList;
+  private ArrayList<SelectItem> pendingActionList1;
+  private ArrayList<SelectItem> pendingActionList2;
   private ArrayList<SelectItem> publishedActionList;
   private boolean isGradeable;
   private boolean isEditable;
@@ -648,13 +649,15 @@ public class AuthorBean implements Serializable
     return isEditable;
   }
 
-  public ArrayList<SelectItem> getPendingSelectActionList()
+  // Split pendingActionList into pendingActionList1 and pendingActionList2 because of "Publish"
+  // "Publish" has to be show/hide depending on the question size. So we need to have two ActionList
+  public ArrayList<SelectItem> getPendingSelectActionList1()
   {
-	  if (pendingActionList != null) {
-		  return pendingActionList;
+	  if (pendingActionList1 != null) {
+		  return pendingActionList1;
 	  }
 
-	  pendingActionList = new ArrayList<SelectItem>();
+	  pendingActionList1 = new ArrayList<SelectItem>();
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
@@ -664,22 +667,55 @@ public class AuthorBean implements Serializable
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  pendingActionList.add(new SelectItem("select", res.getString("select_action")));
+	  pendingActionList1.add(new SelectItem("select", res.getString("select_action")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
-		  pendingActionList.add(new SelectItem("edit_pending", com.getString("edit_action")));
-		  pendingActionList.add(new SelectItem("preview_pending", res.getString("t_preview")));
+		  pendingActionList1.add(new SelectItem("edit_pending", com.getString("edit_action")));
+		  pendingActionList1.add(new SelectItem("preview_pending", res.getString("t_preview")));
 		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
-			  pendingActionList.add(new SelectItem("print_pending", res.getString("action_print")));
+			  pendingActionList1.add(new SelectItem("print_pending", res.getString("action_print")));
 		  }
-		  pendingActionList.add(new SelectItem("settings_pending", com.getString("settings_action")));
-		  pendingActionList.add(new SelectItem("publish", com.getString("publish_action")));
-		  pendingActionList.add(new SelectItem("duplicate", res.getString("copy_action")));
-		  pendingActionList.add(new SelectItem("export", com.getString("export_action")));
+		  pendingActionList1.add(new SelectItem("settings_pending", com.getString("settings_action")));
+		  pendingActionList1.add(new SelectItem("publish", com.getString("publish_action")));
+		  pendingActionList1.add(new SelectItem("duplicate", res.getString("copy_action")));
+		  pendingActionList1.add(new SelectItem("export", com.getString("export_action")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  pendingActionList.add(new SelectItem("remove_pending", res.getString("action_remove")));
+		  pendingActionList1.add(new SelectItem("remove_pending", res.getString("action_remove")));
 	  }
-	  return pendingActionList;
+	  return pendingActionList1;
+  }
+  
+  public ArrayList<SelectItem> getPendingSelectActionList2()
+  {
+	  if (pendingActionList2 != null) {
+		  return pendingActionList2;
+	  }
+
+	  pendingActionList2 = new ArrayList<SelectItem>();
+	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+
+	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
+	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
+	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
+	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
+
+	  pendingActionList2.add(new SelectItem("select", res.getString("select_action")));
+	  if (isEditAnyAssessment || isEditOwnAssessment) {
+		  pendingActionList2.add(new SelectItem("edit_pending", com.getString("edit_action")));
+		  pendingActionList2.add(new SelectItem("preview_pending", res.getString("t_preview")));
+		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
+			  pendingActionList2.add(new SelectItem("print_pending", res.getString("action_print")));
+		  }
+		  pendingActionList2.add(new SelectItem("settings_pending", com.getString("settings_action")));
+		  pendingActionList2.add(new SelectItem("duplicate", res.getString("copy_action")));
+		  pendingActionList2.add(new SelectItem("export", com.getString("export_action")));
+	  }
+	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
+		  pendingActionList2.add(new SelectItem("remove_pending", res.getString("action_remove")));
+	  }
+	  return pendingActionList2;
   }
 
   public ArrayList<SelectItem> getPublishedSelectActionList()

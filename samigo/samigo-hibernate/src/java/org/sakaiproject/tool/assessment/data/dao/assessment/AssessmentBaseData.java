@@ -65,6 +65,7 @@ public class AssessmentBaseData
   private HashMap assessmentMetaDataMap = new HashMap();
   private HashMap assessmentFeedbackMap = new HashMap();
   private Set securedIPAddressSet;
+  private Integer questionSize;
 
   public AssessmentBaseData() {}
 
@@ -90,7 +91,7 @@ public class AssessmentBaseData
     this.title = title;
     this.lastModifiedDate = lastModifiedDate;
   }
-  
+
   /**
    * This is another cheap object created for holding just the Id, title &
    * lastModifiedDate. This object is merely used for display. It is not used
@@ -102,6 +103,14 @@ public class AssessmentBaseData
 	    this.lastModifiedDate = lastModifiedDate;
 	    this.lastModifiedBy = lastModifiedBy;
 	  }
+  
+  public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, String lastModifiedBy, Integer questionSize){
+	    this.assessmentBaseId = assessmentBaseId;
+	    this.title = title;
+	    this.lastModifiedDate = lastModifiedDate;
+	    this.lastModifiedBy = lastModifiedBy;
+	    this.questionSize = questionSize;
+  }
 
   public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, Long typeId){
     this.assessmentBaseId = assessmentBaseId;
@@ -363,5 +372,13 @@ public class AssessmentBaseData
     return typeD;
       */
     return null;
+  }
+  
+  public Integer getQuestionSize() {
+    return this.questionSize;
+  }
+
+  public void setQuestionSize(Integer questionSize) {
+    this.questionSize = questionSize;
   }
 }

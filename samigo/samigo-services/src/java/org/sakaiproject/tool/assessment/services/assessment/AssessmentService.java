@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -255,7 +256,12 @@ public class AssessmentService {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getQuestionSize(new Long(assessmentId));
 	}
-
+	
+	public HashMap getQuestionSizeMap() {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getQuestionSizeMap();
+	}
+	
 	public void update(AssessmentFacade assessment) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(assessment);

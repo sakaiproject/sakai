@@ -971,16 +971,14 @@ function setBlockDivs()
 
  <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}" onclick="setBlockDivs();" >
+      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
   </h:commandButton>
 
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" disabled="true">
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
-  </h:commandButton>
-
+      action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
+      
 <!-- save -->
   <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>

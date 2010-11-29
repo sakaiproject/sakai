@@ -409,12 +409,6 @@ function uncheckOther(field){
   <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
   <samigo:hideDivision id="div5" title="#{assessmentSettingsMessages.t_timedAssessment}">
 <f:verbatim><div class="tier2"></f:verbatim>
-<%--DEBUGGING:
-     Time Limit= <h:outputText value="#{publishedSettings.timeLimit}" /> ;
-     Hours= <h:outputText value="#{publishedSettings.timedHours}" /> ;
-     Min= <h:outputText value="#{publishedSettings.timedMinutes}" /> ;
-     hasQuestions?= <h:outputText value="#{not publishedSettings.hasQuestions}" />
---%>
     <h:panelGrid summary="#{templateMessages.timed_assmt_sec}">
 	  <h:panelGroup>
         <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();"

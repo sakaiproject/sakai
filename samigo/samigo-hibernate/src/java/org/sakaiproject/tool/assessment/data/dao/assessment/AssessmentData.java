@@ -68,6 +68,10 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
 	    // in the case of template assessmentBaseId is the assessmentTemplateId
 	    super(assessmentTemplateId,title,lastModifiedDate,lastModifiedBy);
   }
+  
+  public AssessmentData(Long assessmentTemplateId, String title, Date lastModifiedDate, String lastModifiedBy, Integer questionSize){
+	  super(assessmentTemplateId,title,lastModifiedDate,lastModifiedBy,questionSize);
+  }
 
   public AssessmentData(Long parentId,
                   String title, String description, String comments,

@@ -117,8 +117,7 @@ public class PublishedAssessmentSettingsBean
   private String title;
   private String creator;
   private String description;
-  private boolean hasQuestions;
-
+  
   // meta data
   private String objectives;
   private String keywords;
@@ -511,14 +510,6 @@ public class PublishedAssessmentSettingsBean
 	  else this.bgImage="";
   }
   
-  public boolean getHasQuestions() {
-    return this.hasQuestions;
-  }
-
-  public void setHasQuestions(boolean hasQuestions) {
-    this.hasQuestions = hasQuestions;
-  }
-
   // copied from AssessmentAccessControl ;-)
   public Date getStartDate() {
     return this.startDate;

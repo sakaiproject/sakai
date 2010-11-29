@@ -724,10 +724,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
 			final String siteAgentId, boolean ascending) {
-		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.lastModifiedBy) "
-				+ " from AssessmentData a, AuthorizationData z where a.status=? and "
-				+ " a.assessmentBaseId=z.qualifierId and z.functionId=? "
-				+ " and z.agentIdString=? order by a." + orderBy;
+		// Get the list of assessment 
+		StringBuilder sb = new StringBuilder("select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.lastModifiedBy) ");
+		sb.append("from AssessmentData a, AuthorizationData z where a.status=? and ");
+		sb.append("a.assessmentBaseId=z.qualifierId and z.functionId=? ");
+		sb.append("and z.agentIdString=? order by a.");
+		sb.append(orderBy);
+		
+		String query = sb.toString();
 		if (ascending)
 			query += " asc";
 		else
@@ -746,9 +750,28 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		};
 		List list = getHibernateTemplate().executeFind(hcb);
 
-		// List list = getHibernateTemplate().find(query,
-		// new Object[] {siteAgentId},
-		// new org.hibernate.type.Type[] {Hibernate.STRING});
+		// Get the number of question in each assessment
+		HashMap questionSizeMap = new HashMap();
+		HibernateCallback hcb2 = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				StringBuilder sb2 = new StringBuilder("select a.assessmentBaseId, count(*) ");
+				sb2.append("from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z ");
+				sb2.append("where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId ");
+				sb2.append("and z.functionId=? and z.agentIdString=? ");
+				Query q2 = session.createQuery(sb2.toString());
+				q2.setString(0, "EDIT_ASSESSMENT");
+				q2.setString(1, siteAgentId);
+				return q2.list();
+			};
+		};
+		List size = getHibernateTemplate().executeFind(hcb2);
+		Iterator iter = size.iterator();
+		if (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next();
+			questionSizeMap.put(o[0], o[1]);
+		}
+		
 		ArrayList assessmentList = new ArrayList();
 		String lastModifiedBy = "";
 		AgentFacade agent = null;
@@ -758,8 +781,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			if (agent != null) {
 				lastModifiedBy = agent.getFirstName() + " " + agent.getLastName();
 			}
+			int questionSize = 0;
+			if (questionSizeMap.get(a.getAssessmentBaseId()) != null) {
+				questionSize = (Integer) questionSizeMap.get(a.getAssessmentBaseId());
+			}
 			AssessmentFacade f = new AssessmentFacade(a.getAssessmentBaseId(),
-					a.getTitle(), a.getLastModifiedDate(), lastModifiedBy);
+					a.getTitle(), a.getLastModifiedDate(), lastModifiedBy, questionSize);
 			assessmentList.add(f);
 		}
 		return assessmentList;
@@ -865,6 +892,31 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		} else {
 			return 0;
 		}
+	}
+	
+	public HashMap getQuestionSizeMap() {
+		HashMap questionSizeMap = new HashMap();
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				StringBuilder sb = new StringBuilder("select a.assessmentBaseId, count(i) ");
+				sb.append("from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z ");
+				sb.append("where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId ");
+				sb.append("and z.functionId=? and z.agentIdString=? ");
+				Query q = session.createQuery(sb.toString());
+				q.setString(1, "EDIT_ASSESSMENT");
+				q.setString(2, AgentFacade.getCurrentSiteId());
+				return q.list();
+			};
+		};
+		List size = getHibernateTemplate().executeFind(hcb);
+		
+		Iterator iter = size.iterator();
+		if (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next();
+			questionSizeMap.put(o[0], o[1]);
+		}
+		return questionSizeMap;
 	}
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment) {
