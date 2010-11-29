@@ -120,7 +120,7 @@
 <h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
 
-  <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{questionPoolMessages.cancel}" action="#{questionpool.cancelImport}"  >
+  <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelImport}"  >
   </h:commandButton>
 </p>
 

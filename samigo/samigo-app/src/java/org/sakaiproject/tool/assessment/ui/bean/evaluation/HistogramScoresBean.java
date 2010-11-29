@@ -1032,7 +1032,7 @@ publishedId = ppublishedId;
          * UNLESS part.title = "Default" in which case omit it, i.e. use:
          * Part <part.sequence>
          */
-        String defaultStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","default");
+        String defaultStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.CommonMessages","default");
         String partStr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","part") + " ";
         String poolStr = ", " + ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","pool") + ": ";
         String text = null;
