@@ -68,7 +68,7 @@ public class MyPreferences extends BasePage{
 		
 		//if null, throw exception
 		if(profilePreferences == null) {
-			throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
+			throw new ProfilePreferencesNotDefinedException("Couldn't retrieve preferences record for " + userUuid);
 		}
 		
 		//get email address for this user
