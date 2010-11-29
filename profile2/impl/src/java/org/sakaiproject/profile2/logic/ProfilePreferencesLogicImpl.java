@@ -36,9 +36,6 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPreferencesRecordForUser"); 
 	  	}
 		
-		//will stay null if we can't get or create a record
-		ProfilePreferences prefs = null;
-		
 		//check cache
 		if(useCache){
 			if(cache.containsKey(userId)){
@@ -48,18 +45,19 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 			}
 		}
 		
-		if(prefs == null) {
-			prefs = dao.getPreferencesRecordForUser(userId);
-			log.debug("Fetching preferences record from dao for: " + userId);
+		//will stay null if we can't get or create a record
+		ProfilePreferences prefs = null;
 		
-			if(prefs == null) {
-				prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
-				if(prefs != null) {
-					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
-					log.info("Created default preferences record for user: " + userId); 
-				}
-			}			
-		}
+		prefs = dao.getPreferencesRecordForUser(userId);
+		log.debug("Fetching preferences record from dao for: " + userId);
+	
+		if(prefs == null) {
+			prefs = dao.addNewPreferencesRecord(getDefaultPreferencesRecord(userId));
+			if(prefs != null) {
+				sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
+				log.info("Created default preferences record for user: " + userId); 
+			}
+		}			
 		
 		//add to cache
 		if(prefs != null){
