@@ -2669,7 +2669,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		// announce to public?
 		String announceTo = params.getString("announceTo");
 		state.setTempAnnounceTo(announceTo);
-		if (announceTo.equals("groups"))
+		if (announceTo != null && announceTo.equals("groups"))
 		{
 			String[] groupChoice = params.getStrings("selectedGroups");
 			if (groupChoice != null)
@@ -2884,7 +2884,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				{
 					Site site = SiteService.getSite(channel.getContext());
 
-					if (announceTo.equals("pubview")
+					if (announceTo != null && announceTo.equals("pubview")
 							|| Boolean.valueOf((String) sstate.getAttribute(AnnouncementAction.SSTATE_PUBLICVIEW_VALUE))
 									.booleanValue()) // if from the post in preview, get the setting from sstate object
 					{
@@ -2899,11 +2899,11 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 
 					// announce to site?
-					if (announceTo.equals("site"))
+					if (announceTo != null && announceTo.equals("site"))
 					{
 						header.clearGroupAccess();
 					}
-					else if (announceTo.equals("groups"))
+					else if (announceTo != null && announceTo.equals("groups"))
 					{
 						// get the group ids selected
 						Collection groupChoice = state.getTempAnnounceToGroups();
