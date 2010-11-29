@@ -1405,7 +1405,7 @@ public class DiscussionForumTool
 	}
     forum.setShortDescription(shortDescFormatted);
     
-    if (forum.getExtendedDescription().equals("<br/>"))
+    if ("<br/>".equals(forum.getExtendedDescription()))
 	{
 		forum.setExtendedDescription("");
 	}
