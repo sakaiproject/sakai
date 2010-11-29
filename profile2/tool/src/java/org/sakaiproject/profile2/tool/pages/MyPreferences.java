@@ -64,7 +64,7 @@ public class MyPreferences extends BasePage{
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the prefs record for this user from the database, or a default if none exists yet
-		profilePreferences = preferencesLogic.getPreferencesRecordForUser(userUuid);
+		profilePreferences = preferencesLogic.getPreferencesRecordForUser(userUuid, false);
 		
 		//if null, throw exception
 		if(profilePreferences == null) {

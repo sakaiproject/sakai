@@ -20,11 +20,17 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.preferences";	
 	
-	
 	/**
  	 * {@inheritDoc}
  	 */
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
+		return getPreferencesRecordForUser(userId, true);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePreferences getPreferencesRecordForUser(final String userId, final boolean useCache) {
 		
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPreferencesRecordForUser"); 
@@ -34,10 +40,12 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		ProfilePreferences prefs = null;
 		
 		//check cache
-		if(cache.containsKey(userId)){
-			log.debug("Fetching preferences record from cache for: " + userId);
-			//log.debug((ProfilePreferences)cache.get(userId));
-			return (ProfilePreferences)cache.get(userId);
+		if(useCache){
+			if(cache.containsKey(userId)){
+				log.debug("Fetching preferences record from cache for: " + userId);
+				//log.debug((ProfilePreferences)cache.get(userId));
+				return (ProfilePreferences)cache.get(userId);
+			}
 		}
 		
 		if(prefs == null) {
