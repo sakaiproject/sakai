@@ -26,15 +26,24 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
  	 * {@inheritDoc}
  	 */
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
+		return getPrivacyRecordForUser(userId, true);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePrivacy getPrivacyRecordForUser(final String userId, final boolean useCache) {
 		
 		if(userId == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getPrivacyRecordForUser"); 
 	  	}
 		
 		//check cache
-		if(cache.containsKey(userId)){
-			log.debug("Fetching privacy record from cache for: " + userId);
-			return (ProfilePrivacy)cache.get(userId);
+		if(useCache) {
+			if(cache.containsKey(userId)){
+				log.debug("Fetching privacy record from cache for: " + userId);
+				return (ProfilePrivacy)cache.get(userId);
+			}
 		}
 		
 		//will stay null if we can't get or create one

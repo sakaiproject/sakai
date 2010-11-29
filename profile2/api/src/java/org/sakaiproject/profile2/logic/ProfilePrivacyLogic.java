@@ -13,11 +13,23 @@ public interface ProfilePrivacyLogic {
 	/**
 	 * Retrieve the profile privacy record from the database for this user. If none exists, will
 	 * attempt to create one for the user. If that also fails, will return null.
+	 * 
+	 * <p>Defaults to using the cached version where possible</p>
 	 *
 	 * @param userId	uuid of the user to retrieve the record for
 	 * @return ProfilePrivacy record or null
 	 */
 	public ProfilePrivacy getPrivacyRecordForUser(String userId);
+	
+	/**
+	 * Retrieve the privacy record from the database for this user but the caller has the option
+	 * on whether or not to use the cached version (PRFL-504)
+	 *
+	 * @param userId		uuid of the user to retrieve the record for
+	 * @param useCache		whether or not to use the cache
+	 * @return ProfilePrivacy record or null
+	 */
+	public ProfilePrivacy getPrivacyRecordForUser(final String userId, boolean useCache);
 	
 	/**
 	 * Save the profile privacy record to the database
