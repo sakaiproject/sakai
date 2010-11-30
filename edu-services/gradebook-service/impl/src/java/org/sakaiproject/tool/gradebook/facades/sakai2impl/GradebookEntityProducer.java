@@ -100,7 +100,7 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 
 	public void transferCopyEntities(String fromContext, String toContext, List ids) {
 		String fromGradebookXml = gradebookService.getGradebookDefinitionXml(fromContext);
-		gradebookService.mergeGradebookDefinitionXml(toContext, fromGradebookXml);
+		gradebookService.transferGradebookDefinitionXml(fromContext, toContext, fromGradebookXml);
 	}
 	
 	public void transferCopyEntitiesWithSettings(String fromContext, String toContext, List ids) {
