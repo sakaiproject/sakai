@@ -562,6 +562,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (placement == null) return false;
 		Tool t = placement.getTool();
+		if (t == null) return false;
 		Properties toolProps = t.getFinalConfig();
 		if (toolProps == null) return false;
 		String portletContext = toolProps
