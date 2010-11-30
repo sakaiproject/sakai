@@ -110,7 +110,7 @@ public class JournalOptimizationOperation implements ManagementOperation
 		{
 			if (journalOptimizationTransaction != null)
 			{
-				log.warn("Failed to compete Optimize ", jex);
+				log.warn("Failed to complete Optimize ", jex);
 			}
 			else
 			{
@@ -131,7 +131,7 @@ public class JournalOptimizationOperation implements ManagementOperation
 		catch (IndexTransactionException iupex)
 		{
 
-			log.warn("Failed to compete optimize ", iupex);
+			log.warn("Failed to complete optimize ", iupex);
 			try
 			{
 				if (journalOptimizationTransaction != null) {

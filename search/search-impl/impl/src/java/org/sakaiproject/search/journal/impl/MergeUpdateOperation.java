@@ -117,7 +117,7 @@ public class MergeUpdateOperation implements ManagementOperation
 								{
 									if (optimizeUpdateTransaction != null)
 									{
-										log.warn("Failed to compete Optimize ", jex);
+										log.warn("Failed to complete Optimize ", jex);
 									}
 									else
 									{
@@ -141,7 +141,7 @@ public class MergeUpdateOperation implements ManagementOperation
 								catch (IndexTransactionException iupex)
 								{
 
-									log.warn("Failed to compete optimize ", iupex);
+									log.warn("Failed to complete optimize ", iupex);
 									try
 									{
 										optimizeUpdateTransaction.rollback();
@@ -169,7 +169,7 @@ public class MergeUpdateOperation implements ManagementOperation
 						{
 							if (mergeUpdateTransaction != null)
 							{
-								log.warn("Failed to compete merge of "
+								log.warn("Failed to complete merge of "
 										+ mergeUpdateTransaction.getJournalEntry() + " ",
 										jex);
 								try
@@ -192,7 +192,7 @@ public class MergeUpdateOperation implements ManagementOperation
 						{
 							if (mergeUpdateTransaction != null)
 							{
-								log.warn("Failed to compete merge of "
+								log.warn("Failed to complete merge of "
 										+ mergeUpdateTransaction.getJournalEntry() + "",
 										iupex);
 								try
