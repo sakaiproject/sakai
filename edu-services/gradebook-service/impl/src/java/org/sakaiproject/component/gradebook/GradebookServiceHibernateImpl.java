@@ -880,11 +880,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Long gradebookId = thisGradebook.getId();
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
-			Map enrollmentMap;
-			String userUid = authn.getUserUid();
-			
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
-			enrollmentMap = new HashMap();
+			Map enrollmentMap = new HashMap();
 
 			Map enrollmentMapUid = new HashMap();
 			for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
@@ -894,7 +891,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
 			}
 			List gradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet());
-			ArrayList grades = new ArrayList();
 			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
 			{
 				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
@@ -1089,7 +1085,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		Object[] returned = (Object[])scoresIter.next();
   		Double pointsEarned = (Double)returned[0];
   		Assignment go = (Assignment) returned[1];
-  		if (go.isCounted() && pointsEarned != null) {
+  		if (go != null && go.isCounted() && pointsEarned != null) {
   			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
   			{
   				totalPointsEarned += pointsEarned.doubleValue();
@@ -1446,9 +1442,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
       Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
 
-      Map<EnrollmentRecord, String> enrRecFunctionMap = new HashMap();
-
-      enrRecFunctionMap = authz.findMatchingEnrollmentsForItemForUser(userUid, gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
+      Map<EnrollmentRecord, String> enrRecFunctionMap = enrRecFunctionMap = authz.findMatchingEnrollmentsForItemForUser(userUid, gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
       if (enrRecFunctionMap == null) {
           return new HashMap();
       }
@@ -2018,7 +2012,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		Object[] returned = (Object[])scoresIter.next();
   		Double pointsEarned = (Double)returned[0]; 
   		Assignment go = (Assignment) returned[1];  		
-  		if (go.isCounted() && pointsEarned != null) {
+  		if (go != null && go.isCounted() && pointsEarned != null) {
   			Double fixingPointsEarned = fixingPointsEarned(pointsEarned, go, gradebook);
   			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
   			{
@@ -2147,8 +2141,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 			Map enrollmentMap;
-			String userUid = authn.getUserUid();
-			
+
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 			enrollmentMap = new HashMap();
 
@@ -2160,7 +2153,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
 			}
 			List gradeRecords = getPointsEarnedCourseGradeRecordsFixing(courseGrade, enrollmentMap.keySet());
-			ArrayList grades = new ArrayList();
 			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
 			{
 				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
@@ -2236,7 +2228,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 			Map enrollmentMap;
-			String userUid = authn.getUserUid();
 			
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 			enrollmentMap = new HashMap();
@@ -2249,12 +2240,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
 			}
 			List gradeRecords = getPointsEarnedCourseGradeRecordsFixing(courseGrade, enrollmentMap.keySet());
-			ArrayList grades = new ArrayList();
 			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
 			{
 				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
-
-				GradeMapping gradeMap= thisGradebook.getSelectedGradeMapping();
 
 				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
 				if(enr != null)
@@ -2290,7 +2278,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 			Map enrollmentMap;
-			String userUid = authn.getUserUid();
 			
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 			enrollmentMap = new HashMap();
@@ -2303,7 +2290,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
 			}
 			List gradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet());
-			ArrayList grades = new ArrayList();
 			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
 			{
 				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
@@ -2349,7 +2335,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 				Map enrollmentMap;
-				String userUid = authn.getUserUid();
 
 				Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 				enrollmentMap = new HashMap();
@@ -2406,7 +2391,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 			Map enrollmentMap;
-			String userUid = authn.getUserUid();
 			
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 			enrollmentMap = new HashMap();
@@ -2419,7 +2403,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
 			}
 			List gradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet());
-			ArrayList grades = new ArrayList();
 			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
 			{
 				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();

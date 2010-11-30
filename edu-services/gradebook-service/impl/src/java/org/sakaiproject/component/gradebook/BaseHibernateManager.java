@@ -1295,10 +1295,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	for(int i=0; i < studentRecordsFromDB.size(); i++)
     	{
     		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		Double pointsPossible = agr.getAssignment().getPointsPossible();
-    		agr.setDateRecorded(agr.getDateRecorded());
-    		agr.setGraderId(agr.getGraderId());
-    		if (agr != null) {
+    		if(agr != null) {
+        		Double pointsPossible = agr.getAssignment().getPointsPossible();
+        		agr.setDateRecorded(agr.getDateRecorded());
+        		agr.setGraderId(agr.getGraderId());
     			if (pointsPossible == null || agr.getPointsEarned() == null) {
     				agr.setLetterEarned(null);
         			letterGradeList.add(agr);

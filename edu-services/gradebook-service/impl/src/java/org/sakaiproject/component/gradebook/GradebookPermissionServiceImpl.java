@@ -211,9 +211,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				if(perms != null)
 				{
 					Map studentMapForGroups = filterPermissionForGrader(perms, studentIds, sectionIdStudentIdsMap);
-					for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+                    for(Iterator<Map.Entry<String, String>> iter = studentMapForGroups.entrySet().iterator(); iter.hasNext();)
 					{
-						String key = (String)iter.next();
+                        Map.Entry<String, String> entry = iter.next();
+                        String key = entry.getKey();
 						if((studentMap.containsKey(key) && ((String)studentMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
 								|| !studentMap.containsKey(key))
 							studentMap.put(key, studentMapForGroups.get(key));
@@ -413,9 +414,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				{
 					String studentId = (String) iter.next();
 					if (sectionIdStudentIdsMap != null) {
-						for(Iterator groupIter = sectionIdStudentIdsMap.keySet().iterator(); groupIter.hasNext();)
+						for(Iterator<Map.Entry<String, List>> groupIter = sectionIdStudentIdsMap.entrySet().iterator(); groupIter.hasNext();)
 						{
-							String grpId = (String) groupIter.next();
+						    Map.Entry<String, List> entry = groupIter.next();
+							String grpId = entry.getKey();
 							List sectionMembers = (List)sectionIdStudentIdsMap.get(grpId);
 
 							if(sectionMembers != null && sectionMembers.contains(studentId) && permMap.containsKey(grpId))
@@ -518,7 +520,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudent");
 		
 		List cateList = new ArrayList(catIdCategoryMap.values());
-		List courseSections = new ArrayList(sectionIdCourseSectionMap.values());
 		
 		if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
 		{
@@ -553,9 +554,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			if(allPermsForUser != null)
 			{
 				Map assignsMapForGroups = filterPermissionForGrader(allPermsForUser, studentId, assignments, sectionIdStudentIdsMap);
-				for(Iterator iter = assignsMapForGroups.keySet().iterator(); iter.hasNext();)
-				{
-					Long key = (Long)iter.next();
+                for(Iterator<Map.Entry<Long, String>> iter = assignsMapForGroups.entrySet().iterator(); iter.hasNext();)
+                {
+                    Map.Entry<Long, String> entry = iter.next();
+                    Long key = entry.getKey();
 					if((assignMap.containsKey(key) && ((String)assignMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
 							|| !assignMap.containsKey(key))
 						assignMap.put(key, assignsMapForGroups.get(key));
@@ -752,9 +754,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				for(Iterator iter = assignmentList.iterator(); iter.hasNext();)
 				{
 					Long assignId = ((Assignment)iter.next()).getId();
-					for(Iterator groupIter = sectionIdStudentIdsMap.keySet().iterator(); groupIter.hasNext();)
-					{
-						String grpId = (String) groupIter.next();
+	                for(Iterator<Map.Entry<String, List>> groupIter = sectionIdStudentIdsMap.entrySet().iterator(); groupIter.hasNext();)
+	                {
+	                    Map.Entry<String, List> entry = groupIter.next();
+	                    String grpId = entry.getKey();
 						List sectionMembers = (List) sectionIdStudentIdsMap.get(grpId);
 						
 						if(sectionMembers != null && sectionMembers.contains(studentId) && permMap.containsKey(grpId))
@@ -800,9 +803,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 									if(as != null && sectionIdStudentIdsMap != null)
 									{
 										Long assignId = as.getId();
-										for(Iterator groupIter = sectionIdStudentIdsMap.keySet().iterator(); groupIter.hasNext();)
-										{
-											String grpId = (String) groupIter.next();
+                                        for(Iterator<Map.Entry<String, List>> groupIter = sectionIdStudentIdsMap.entrySet().iterator(); groupIter.hasNext();)
+					                    {
+					                        Map.Entry<String, List> entry = groupIter.next();
+					                        String grpId = entry.getKey();
 											List sectionMembers = (List) sectionIdStudentIdsMap.get(grpId);
 
 											if(sectionMembers != null && sectionMembers.contains(studentId) && as.getCategory() != null)
@@ -879,11 +883,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			Map studentsMap = new HashMap();
 			for(Iterator iter = studentIds.iterator(); iter.hasNext();)
 			{
-				Map assignMap = new HashMap();
 				String studentId = (String) iter.next();
 				if(studentId != null)
 				{
-					assignMap = getAvailableItemsForStudent(gradebook, userId, studentId, sectionIdCourseSectionMap, catIdCategoryMap, assignments, permsForUserAnyGroup, allPermsForUser, permsForAnyGroupForCategories, permsForUserAnyGroupAnyCategory, permsForGroupsAnyCategory, permsForUserForCategories, sectionIdStudentIdsMap);
+				    Map assignMap = getAvailableItemsForStudent(gradebook, userId, studentId, sectionIdCourseSectionMap, catIdCategoryMap, assignments, permsForUserAnyGroup, allPermsForUser, permsForAnyGroupForCategories, permsForUserAnyGroupAnyCategory, permsForGroupsAnyCategory, permsForUserForCategories, sectionIdStudentIdsMap);
 					studentsMap.put(studentId, assignMap);
 				}
 			}
@@ -916,9 +919,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			if(perms != null)
 			{
 				Map studentMapForGroups = filterPermissionForGraderForAllStudent(perms, studentIds);
-				for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+				for(Iterator<Map.Entry<String, String>> iter = studentMapForGroups.entrySet().iterator(); iter.hasNext();)
 				{
-					String key = (String)iter.next();
+                    Map.Entry<String, String> entry = iter.next();
+                    String key = entry.getKey();
 					if((studentsMap.containsKey(key) && ((String)studentsMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
 							|| !studentsMap.containsKey(key))
 						studentsMap.put(key, studentMapForGroups.get(key));
@@ -975,7 +979,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 							cateIdList.add(cate.getId());
 					}
 					perms = getPermissionsForUserAnyGroupForCategory(gradebookId, userId, cateIdList);
-					Map studentMap = new HashMap();
 					if(perms != null && perms.size() > 0)
 					{
 						Map studentMapForGroups = filterForAllCategoryStudentsAnyGroup(perms, courseSections, studentIds, cateList);
@@ -1023,9 +1026,10 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				studentCateMap.put(studentId, new HashMap());
 				if(studentId != null)
 				{
-					for(Iterator grpIter = sectionIdStudentIdsMap.keySet().iterator(); grpIter.hasNext();)
+					for(Iterator<Map.Entry<String, List>> grpIter = sectionIdStudentIdsMap.entrySet().iterator(); grpIter.hasNext();)
 					{
-						String grpId = (String) grpIter.next();
+                        Map.Entry<String, List> entry = grpIter.next();
+                        String grpId = entry.getKey();
 						
 						if(grpId != null)
 						{				
@@ -1173,7 +1177,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			return viewableStudents;
 		}
 		
-		List studentMembers = new ArrayList();
 		for (Iterator permsIter = permsForGroupsAnyCategory.iterator(); permsIter.hasNext();) {
 			Permission perm = (Permission) permsIter.next();
 			String groupId = perm.getGroupId();

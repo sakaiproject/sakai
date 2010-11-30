@@ -34,6 +34,7 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 
+import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
@@ -268,8 +269,9 @@ public class AuthzSectionsImpl implements Authz {
 			}
 		} else {
 			// return all sections that the current user is a TA for
-			for (Iterator iter = sectionIdCourseSectionMap.keySet().iterator(); iter.hasNext(); ) {
-				String sectionUuid = (String) iter.next();
+			for (Iterator<Map.Entry<String, CourseSection>> iter = sectionIdCourseSectionMap.entrySet().iterator(); iter.hasNext(); ) {
+	            Map.Entry<String, CourseSection> entry = iter.next();
+	            String sectionUuid = entry.getKey();
 				if (isUserTAinSection(sectionUuid)) {
 					CourseSection viewableSection = (CourseSection)sectionIdCourseSectionMap.get(sectionUuid);
 					if (viewableSection != null)
@@ -409,8 +411,9 @@ public class AuthzSectionsImpl implements Authz {
 				}
 				
 				if (!viewableStudentIdItemsMap.isEmpty()) {
-					for (Iterator enrIter = viewableStudentIdItemsMap.keySet().iterator(); enrIter.hasNext();) {
-						String studentId = (String) enrIter.next();
+					for (Iterator<Map.Entry<String, EnrollmentRecord>> enrIter = viewableStudentIdItemsMap.entrySet().iterator(); enrIter.hasNext();) {
+		                Map.Entry<String, EnrollmentRecord> entry = enrIter.next();
+						String studentId = entry.getKey();
 						EnrollmentRecord enrRec = (EnrollmentRecord)studentIdEnrRecMap.get(studentId);
 						if (enrRec != null) {	
 							Map itemIdFunctionMap = (Map)viewableStudentIdItemsMap.get(studentId);
@@ -565,8 +568,9 @@ public class AuthzSectionsImpl implements Authz {
 				}
 				
 				if (!viewableEnrollees.isEmpty()) {
-					for (Iterator enrIter = viewableEnrollees.keySet().iterator(); enrIter.hasNext();) {
-						String studentId = (String) enrIter.next();
+					for (Iterator<Map.Entry<String, EnrollmentRecord>> enrIter = viewableEnrollees.entrySet().iterator(); enrIter.hasNext();) {
+                        Map.Entry<String, EnrollmentRecord> entry = enrIter.next();
+						String studentId = entry.getKey();
 						EnrollmentRecord enrRec = (EnrollmentRecord)studentIdEnrRecMap.get(studentId);
 						if (enrRec != null) {
 							enrollmentMap.put(enrRec, (String)viewableEnrollees.get(studentId));
