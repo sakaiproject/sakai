@@ -580,6 +580,7 @@ public class DbJournalOptimizationManager implements JournalManager
 						sb
 								.append("\tThis is an error as only one copy of this node should be ");
 						sb.append("\tActive in the cluster");
+						sb.append("see http://jira.sakaiproject.org/browse/SRCH-38");
 					}
 					else if (iw.startsWith(serverId))
 					{
@@ -588,6 +589,7 @@ public class DbJournalOptimizationManager implements JournalManager
 						sb
 								.append("\tThis is an error as only one copy of this node should be ");
 						sb.append("\tActive in the cluster");
+						sb.append("see http://jira.sakaiproject.org/browse/SRCH-38");
 					}
 				}
 				sb.append("\t==========================\n");
@@ -610,6 +612,7 @@ public class DbJournalOptimizationManager implements JournalManager
 						sb
 								.append("\tThis is an error as only one copy of this node should be ");
 						sb.append("\tActive in the cluster");
+						sb.append("see http://jira.sakaiproject.org/browse/SRCH-38");
 					}
 					else if (iw.startsWith(serverId))
 					{
@@ -621,6 +624,7 @@ public class DbJournalOptimizationManager implements JournalManager
 						sb
 								.append("\tThis is an error as only one copy of this node should be ");
 						sb.append("\tActive in the cluster");
+						sb.append("see http://jira.sakaiproject.org/browse/SRCH-38");
 					}
 				}
 				if (sb.length() == 0)
