@@ -2760,10 +2760,10 @@ public class DiscussionForumTool
     {
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
-      if (topic != null && topic.getDraft().equals(Boolean.FALSE)
+      if (topic != null && (topic.getDraft().equals(Boolean.FALSE)
               ||isInstructor()
               ||SecurityService.isSuperUser()
-              ||forumManager.isTopicOwner(topic))
+              ||forumManager.isTopicOwner(topic)))
       { 
           DiscussionTopicBean decoTopic = new DiscussionTopicBean(topic, forum,
               uiPermissionsManager, forumManager);
