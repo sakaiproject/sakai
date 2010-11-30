@@ -284,7 +284,7 @@ public class MembershipManagerImpl implements MembershipManager{
       	memberItem.setRole(userRole);             
 
       	// Don't want admin as part of the list
-      	if(!(userId).equals("admin"))
+      	if(!"admin".equals(userId))
       	{                                       
   			returnMap.put(memberItem.getId(), memberItem);
       	}                                
@@ -349,7 +349,7 @@ public class MembershipManagerImpl implements MembershipManager{
       	memberItem.setUser(user);
       	memberItem.setRole(userRole);             
 
-      	if(!(userId).equals("admin"))
+      	if(!"admin".equals(userId))
       	{                                               
       		userMap.put(memberItem.getId(), memberItem);                
       	}

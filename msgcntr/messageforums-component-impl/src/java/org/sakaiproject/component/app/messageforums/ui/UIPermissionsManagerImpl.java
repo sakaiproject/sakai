@@ -1093,13 +1093,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 				thisForumItemSet.add((DBMembershipItem)thisItem);
 			}
 		}
-		if(thisForumItemSet.size()==0&&getAnonRole()==true&&forum.getCreatedBy().equals(".anon")&&forum.getTopicsSet()==null){
+		if(thisForumItemSet.size()==0&&getAnonRole()==true&&".anon".equals(forum.getCreatedBy())&&forum.getTopicsSet()==null){
 			Set newForumMembershipset=forum.getMembershipItemSet();
 	        Iterator iterNewForum = newForumMembershipset.iterator();
 	        while (iterNewForum.hasNext())
 	        {
 	          DBMembershipItem item = (DBMembershipItem)iterNewForum.next();
-	          if (item.getName().equals(".anon"))
+	          if (".anon".equals(item.getName()))
 	          {
 	        	  thisForumItemSet.add(item);
 	          }       

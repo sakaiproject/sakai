@@ -1855,7 +1855,7 @@ public class DiscussionForumTool
     	topic.setShortDescription(shortDescFormatted);
     	topic.setExtendedDescription(FormattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
     	
-    	if (topic.getExtendedDescription().equals("<br/>"))
+    	if ("<br/>".equals(topic.getExtendedDescription()))
     	{
     		topic.setExtendedDescription("");
     	}
@@ -3039,7 +3039,7 @@ public class DiscussionForumTool
     					isOwn = decoMsg.getMessage().getCreatedBy().equals(getUserId());
     				}
     				else if(getUserId()==null&&this.forumManager.getAnonRole()==true){
-    					isOwn = decoMsg.getMessage().getCreatedBy().equals(".anon");
+    					isOwn = ".anon".equals(decoMsg.getMessage().getCreatedBy());
     				}
     				decoMsg.setRevise(decoTopicGetIsReviseAny 
     						|| (decoTopicGetIsReviseOwn && isOwn));

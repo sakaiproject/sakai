@@ -4421,7 +4421,7 @@ private   int   getNum(char letter,   String   a)
    */
   protected boolean hasValue(String eval)
   {
-    if (eval != null && !eval.trim().equals(""))
+    if (eval != null && !"".equals(eval.trim()))
     {
       return true;
     }

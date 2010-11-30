@@ -114,10 +114,10 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 			newEmailNotification.setContextId(getContextId());
 			newEmailNotification.setUserId(userId);
 			LOG.debug("notificationDefault= "+notificationDefault);
-			if (notificationDefault.equals("0")) {
+			if ("0".equals(notificationDefault)) {
 			    newEmailNotification
 					.setNotificationLevel(EmailNotification.EMAIL_NONE);
-			} else if (notificationDefault.equals("2")) {
+			} else if ("2".equals(notificationDefault)) {
 			    newEmailNotification
 					.setNotificationLevel(EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
 			} else {
