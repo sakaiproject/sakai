@@ -923,7 +923,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFolder.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getString("invalid.condition.argument.outside.range") + " " + newFolder.getConditionAssignmentPoints() + ".");
+				addAlert(state, rb.getFormattedMessage("invalid.condition.argument.outside.range", new String[] { newFolder.getConditionAssignmentPoints() }));
 				return;
 			}
 
@@ -1185,7 +1185,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getString("invalid.condition.argument.outside.range") + " " + newFile.getConditionAssignmentPoints() + ".");
+				addAlert(state, rb.getFormattedMessage("invalid.condition.argument.outside.range", new String[] { newFile.getConditionAssignmentPoints() }));
 				return;
 			}
 			// notification
