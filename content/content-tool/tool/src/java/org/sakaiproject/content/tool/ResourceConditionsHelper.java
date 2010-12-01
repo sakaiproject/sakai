@@ -105,7 +105,7 @@ public class ResourceConditionsHelper {
 				return;
 			}
 			if (((Double)argument < 0) || ((Double)argument > assignmentPoints)) {
-			    VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outside.range", new String[] { assignmentPointsString }));
+			    VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { assignmentPointsString }));
 				return;
 			}
 			logger.debug("argument: " + argument);
