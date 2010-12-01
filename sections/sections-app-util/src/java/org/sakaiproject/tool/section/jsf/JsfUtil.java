@@ -21,13 +21,11 @@
 package org.sakaiproject.tool.section.jsf;
 
 import java.sql.Time;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -37,8 +35,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.util.ConversionUtil;
-import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.tool.section.jsf.MessagingBean;
+
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * A utility to help deal with common tasks in JSF.
@@ -143,7 +142,8 @@ public class JsfUtil {
      * Gets a localized message from the message bundle.
      */
     public static String getLocalizedMessage(String key) {
-    	return LocaleUtil.getLocalizedString(FacesContext.getCurrentInstance(), "sections", key);
+		ResourceLoader rl = new ResourceLoader("sections");
+		return rl.getString(key);
 	}
 
     /**
@@ -155,9 +155,8 @@ public class JsfUtil {
      * @return
      */
     public static String getLocalizedMessage(String key, String[] params) {
-    	String rawString = getLocalizedMessage(key);
-        MessageFormat format = new MessageFormat(rawString);
-        return format.format(params);
+		ResourceLoader rl = new ResourceLoader("sections");
+		return rl.getFormattedMessage(key, params);
     }
 
 
