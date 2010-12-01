@@ -129,9 +129,9 @@ $(document).ready(function() {
   <!-- HEADINGS -->
    <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
 
-  <h2>
+  <h3>
     <h:outputText value="#{authorFrontDoorMessages.assessments}"/>
-  </h2>
+  </h3>
 <p>
   <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 </p>
@@ -288,14 +288,14 @@ $(document).ready(function() {
     </span>
     <span class="separator">|</span>
     <span id="assessment-status-active">
-      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>
+      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>:
     </span>
     <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_active_sub}" />)</span>
     <span class="separator">|</span>
     <span id="assessment-status-inactive">
-      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>
+      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>:
     </span>
-    <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive_sub}" />)</span>
+    <span><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive_sub}" /></span>
   </div>
 
   <t:dataTable id="published-assessments" rowClasses="list-row-even,list-row-odd" cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
