@@ -919,11 +919,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			// capture properties
 			newFolder.captureProperties(params, ListItem.DOT + i);
 			if (newFolder.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("invalid.condition.argument"));
+				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
 				return;
 			}
 			if (newFolder.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("invalid.condition.argument.outside.range", new String[] { newFolder.getConditionAssignmentPoints() }));
+				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outside.range", new String[] { newFolder.getConditionAssignmentPoints() }));
 				return;
 			}
 
@@ -1181,11 +1181,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
 			if (newFile.numberFieldIsInvalid) {
-				addAlert(state, rb.getString("invalid.condition.argument"));
+				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, rb.getFormattedMessage("invalid.condition.argument.outside.range", new String[] { newFile.getConditionAssignmentPoints() }));
+				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outside.range", new String[] { newFile.getConditionAssignmentPoints() }));
 				return;
 			}
 			// notification
@@ -1203,7 +1203,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				return;
 			}
 			if (newFile.numberFieldIsOutOfRange) {
-				addAlert(state, contentResourceBundle.getString("conditions.condition.argument.outofrange") + " " + newFile.getConditionAssignmentPoints() + ".");
+			    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outside.range", new String[] { newFile.getConditionAssignmentPoints() }));
 				return;
 			}
 			ResourceConditionsHelper.saveCondition(newFile, params, state, i);
@@ -1480,7 +1480,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 				if (newFile.numberFieldIsOutOfRange) {
-					addAlert(state, contentResourceBundle.getString("conditions.condition.argument.outofrange") + " " + newFile.getConditionAssignmentPoints() + ".");
+				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outside.range", new String[] { newFile.getConditionAssignmentPoints() }));
 					return;
 				}
 				ResourceConditionsHelper.saveCondition(newFile, params, state, i);
