@@ -166,7 +166,24 @@ public void init()
           }
         }
       }
+   // run ddl
+      if (autoDdl.booleanValue()){
+        try
+        {
+           sqlService.ddl(this.getClass().getClassLoader(), "quartz");
+        }
+        catch (Throwable t)
+        {
+          LOG.warn(this + ".init(): ", t);
+        }
+      }
 
+      boolean isInitialStartup = isInitialStartup(sqlService);
+      if (isInitialStartup && autoDdl.booleanValue())
+      {
+    	  LOG.info("Performing initial population of the Quartz tables.");
+    	  sqlService.ddl(this.getClass().getClassLoader(), "init_locks");
+      }
       /*
          Determine whether or not to load the jobs defined in the initialJobSchedules list. These jobs will be loaded
          under the following conditions:
@@ -179,27 +196,19 @@ public void init()
 
       List<SpringInitialJobSchedule>
           initSchedules = getInitialJobSchedules();
+      
       boolean
           loadInitSchedules = (initSchedules != null) && (initSchedules.size() > 0) &&
-                                (("init".equalsIgnoreCase(loadJobs) && isInitialStartup(sqlService)) ||
+                                (("init".equalsIgnoreCase(loadJobs) && isInitialStartup) ||
                                  "true".equalsIgnoreCase(loadJobs));
 
       if (loadInitSchedules)
           LOG.debug ("Preconfigured jobs will be loaded");
       else
           LOG.debug ("Preconfigured jobs will not be loaded");
+      
+      
 
-      // run ddl
-      if (autoDdl.booleanValue()){
-        try
-        {
-           sqlService.ddl(this.getClass().getClassLoader(), "quartz");
-        }
-        catch (Throwable t)
-        {
-          LOG.warn(this + ".init(): ", t);
-        }
-      }
 
       // start scheduler and load jobs
       schedFactory = new StdSchedulerFactory(qrtzProperties);
@@ -276,11 +285,11 @@ public void init()
   }
 
     /**
-     * Runs an SQL select statement to determine if the Quartz tables exist in the database. If the tables do not exist
+     * Runs an SQL select statement to determine if the Quartz lock rows exist in the database. If the rows do not exist
      * this method assumes this is the first time the scheduler has been started. The select statement will be defined
      * in the {vendor}/checkTables.sql file within the shared library deployed by this project. The statement should be
-     * of the form "SELECT 1 FROM QRTZ_TRIGGERS;". If the statement fails it is assumed the table does not exist and
-     * this is a new install. If the statement succeeds it is assumed the table exists and this is not a new install.
+     * of the form "SELECT COUNT(*) from QUARTZ_LOCKS;". If the count is zero it is assumed this is a new install. 
+     * If the count is non-zero it is assumed the QUARTZ_LOCKS table has been initialized and this is not a new install.
      *
      * @param sqlService
      * @return
@@ -327,16 +336,15 @@ public void init()
           catch (Exception e){}
       }
 
-      Log
-          sqlSvcLog = LogFactory.getLog("org.sakaiproject.db.impl.BaseSqlService");
-
-      sqlSvcLog.warn("TESTING FOR QRTZ_TRIGGERS TABLE - an error and stack trace may follow relating to the failure of the query \"SELECT 1 FROM QRTZ_TRIGGERS\". This is not an error. It is an expected possible result of the test for the QRTZ_TRIGGERS table and it should not appear after the first startup of Sakai.");
-
-      List l = sqlService.dbRead(chkStmt);
-
-      sqlSvcLog.warn("TEST FOR QRTZ_TRIGGERS TABLE COMPLETE");
-
-      return (l == null || l.size() < 1);
+      List<String> l = sqlService.dbRead(chkStmt);
+      if (l != null && l.size() > 0) 
+      {
+    	  return (l.get(0).equalsIgnoreCase("0"));
+      }
+      else 
+      {
+    	  return false;
+      }
   }
 
     /**
