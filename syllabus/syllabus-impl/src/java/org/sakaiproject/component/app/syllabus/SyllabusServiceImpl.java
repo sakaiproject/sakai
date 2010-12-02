@@ -937,8 +937,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
     public String getReference()
     {
-      String thisString = getAccessPoint(true) + m_reference;
-			return getAccessPoint(true) + m_reference;
+        return getAccessPoint(true) + m_reference;
     }
 
 	/**

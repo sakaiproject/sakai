@@ -144,18 +144,6 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 			siteId = syllabusItem.getContextId();
 		}
 		
-
-		// get a site title
-		String title = siteId;
-		try
-		{
-			Site site = SiteService.getSite(siteId);
-			title = site.getTitle();
-		}
-		catch (Exception ignore)
-		{
-		}
-
 		if (SyllabusService.EVENT_SYLLABUS_POST_NEW.equals(event.getEvent())
 				|| SyllabusService.EVENT_SYLLABUS_POST_CHANGE.equals(event.getEvent()))
 		{

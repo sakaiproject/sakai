@@ -1349,7 +1349,7 @@ public class SyllabusTool
     Placement placement = ToolManager.getCurrentPlacement();
     String currentSiteId = placement.getContext();
     boolean allowOrNot = SiteService.allowUpdateSite(currentSiteId);
-    return SiteService.allowUpdateSite(currentSiteId);
+    return allowOrNot;
   }
   
   public String getTitle()
@@ -1472,8 +1472,6 @@ public class SyllabusTool
         
         String ss = thisAttach.getUrl();
         String fileWithWholePath = thisAttach.getUrl();
-        
-        ContentResource getAttach = contentHostingService.getResource(thisAttach.getId());
         
         String s = ss;
         
@@ -1619,7 +1617,6 @@ public class SyllabusTool
           }
         }
         
-        ContentResource cr = contentHostingService.getResource(id);
         syllabusManager.removeSyllabusAttachmentObject(sa);
         if(id.toLowerCase().startsWith("/attachment"))
           contentHostingService.removeResource(id);

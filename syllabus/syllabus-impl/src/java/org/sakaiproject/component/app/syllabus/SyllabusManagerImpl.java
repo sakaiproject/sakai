@@ -192,7 +192,6 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
             SQLException
         {            
           // load objects from hibernate
-          SyllabusItem item = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
           SyllabusData data1 = (SyllabusData) session.get(SyllabusDataImpl.class, d1.getSyllabusId());
           SyllabusData data2 = (SyllabusData) session.get(SyllabusDataImpl.class, d2.getSyllabusId());
           

@@ -72,8 +72,6 @@ public class SyllabusShowAreaRender extends Renderer
   public void encodeEnd(FacesContext context, UIComponent component)
   throws IOException
   {
-    ResponseWriter writer = context.getResponseWriter();
-    
     String value = (String) component.getAttributes().get("value");
 
     if((value!=null) && (!value.equals("")))

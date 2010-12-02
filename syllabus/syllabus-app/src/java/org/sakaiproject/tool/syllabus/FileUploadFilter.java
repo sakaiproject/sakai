@@ -45,8 +45,8 @@ import org.apache.commons.fileupload.FileUploadException;
 
 public class FileUploadFilter implements Filter 
 {
-  private int sizeThreshold = 2;
-  private long sizeMax = 2048;
+  protected int sizeThreshold = 2;
+  protected long sizeMax = 2048;
   private String repositoryPath = "/fileUpload";
   private FileWriter fw;
   
