@@ -56,7 +56,8 @@ public class AssessmentFacade extends AssessmentBaseFacade
   private Set sectionSet;
   private Set assessmentAttachmentSet;
   private Integer questionSize;
-
+  private String lastModifiedDateForDisplay;
+  
   public AssessmentFacade() {
     //super();
     this.data = new AssessmentData();
@@ -288,5 +289,12 @@ public class AssessmentFacade extends AssessmentBaseFacade
   public void setQuestionSize(Integer questionSize) {
 	  this.questionSize = questionSize;
   }
+  
+  public String getLastModifiedDateForDisplay() {
+	  return lastModifiedDateForDisplay;
+  }
 
+  public void setLastModifiedDateForDisplay(String lastModifiedDateForDisplay) {
+	  this.lastModifiedDateForDisplay = lastModifiedDateForDisplay;
+  }
 }

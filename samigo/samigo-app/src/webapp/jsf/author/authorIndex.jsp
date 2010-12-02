@@ -271,10 +271,7 @@ $(document).ready(function() {
 	  </f:facet>
   	  <h:outputText value="#{coreAssessment.lastModifiedBy}" />
       <h:outputText escape="false" value="<br />"/>
-      <h:outputText value="#{coreAssessment.lastModifiedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
-      </h:outputText>
-      
+      <h:outputText value="#{coreAssessment.lastModifiedDateForDisplay}"/>      
     </t:column>
   </t:dataTable>
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</div>"/>
@@ -531,9 +528,7 @@ $(document).ready(function() {
 
   	  <h:outputText value="#{publishedAssessment.lastModifiedBy}" />
       <h:outputText escape="false" value="<br />"/>
-      <h:outputText value="#{publishedAssessment.lastModifiedDate}">
-         <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
-      </h:outputText>
+      <h:outputText value="#{publishedAssessment.lastModifiedDateForDisplay}"/>
     </t:column>
 
   </t:dataTable>

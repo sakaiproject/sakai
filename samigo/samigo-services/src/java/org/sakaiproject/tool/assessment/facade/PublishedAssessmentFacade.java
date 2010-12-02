@@ -104,7 +104,8 @@ public class PublishedAssessmentFacade
   private ArrayList releaseToGroupsList = new ArrayList();
   private int enrolledStudentCount;
   private Integer timeLimit;
-
+  private String lastModifiedDateForDisplay;
+  
   public PublishedAssessmentFacade() {
   }
 
@@ -829,4 +830,12 @@ public class PublishedAssessmentFacade
   public void setActiveStatus(boolean activeStatus) {
 	  this.activeStatus = activeStatus;
   } 
+  
+  public String getLastModifiedDateForDisplay() {
+	  return lastModifiedDateForDisplay;
+  }
+
+  public void setLastModifiedDateForDisplay(String lastModifiedDateForDisplay) {
+	  this.lastModifiedDateForDisplay = lastModifiedDateForDisplay;
+  }
 }

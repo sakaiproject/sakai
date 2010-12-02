@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -61,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -75,7 +77,9 @@ public class AuthorActionListener
 {
   private static Log log = LogFactory.getLog(AuthorActionListener.class);
   private HashMap hm = new HashMap();
-  //private static ContextUtil cu;
+  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
+  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
+  private TimeUtil tu = new TimeUtil();
 
   public AuthorActionListener()
   {
@@ -138,6 +142,13 @@ public class AuthorActionListener
 		while (iter.hasNext()) {
 			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
 			assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+			try {
+				String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, assessmentFacade.getLastModifiedDate());
+				assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
+			}
+			catch (Exception ex) {
+				log.warn("Unable to format date: " + ex.getMessage());
+			}
 		}
 		// get the managed bean, author and set the list
 		author.setAssessments(assessmentList);
@@ -249,6 +260,13 @@ public class AuthorActionListener
 			  f.setActiveStatus(false);
 			  inActiveList.add(f);
 		  }
+		  try {
+				String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, f.getLastModifiedDate());
+				f.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
+			}
+			catch (Exception ex) {
+				log.warn("Unable to format date: " + ex.getMessage());
+			}
 	  }
 	  list.add(activeList);
 	  list.add(inActiveList);
