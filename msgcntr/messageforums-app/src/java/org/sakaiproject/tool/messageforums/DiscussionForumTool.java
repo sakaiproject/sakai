@@ -1479,6 +1479,13 @@ public class DiscussionForumTool
 		      while (iter.hasNext())
 		      {
 		        PermissionBean permBean = (PermissionBean) iter.next();
+		        if(permBean.getItem().getId() == null){
+					//this is a new permission set, a group more than likely, so update b/c this rarely happens anyways
+		        	//and state isn't positive
+		        	update = true;
+		        	break;
+		        }
+		        
 		        Iterator iter2 = oldMembershipItemSet.iterator();
 				while(iter2.hasNext())
 				{
