@@ -185,17 +185,17 @@ public class NewsAction extends VelocityPortletPaneledAction
 		catch (NewsConnectionException e)
 		{
 			// display message
-			addAlert(state, rb.getString("unavailable") + "\n\n[" + e.getLocalizedMessage() + "]");
+			addAlert(state, rb.getFormattedMessage("unavailable", new Object[]{e.getLocalizedMessage()}));
 		}
 		catch (NewsFormatException e)
 		{
 			// display message
-			addAlert(state, rb.getString("unavailable") + "\n\n[" + e.getLocalizedMessage() + "]");
+			addAlert(state, rb.getFormattedMessage("unavailable", new Object[]{e.getLocalizedMessage()}));
 		}
 		catch (Exception e)
 		{
 			// display message
-			addAlert(state, rb.getString("unavailable") + "\n\n[" + e.getLocalizedMessage() + "]");
+			addAlert(state, rb.getFormattedMessage("unavailable", new Object[]{e.getLocalizedMessage()}));
 		}
 
 		context.put("channel", channel);
@@ -374,19 +374,19 @@ public class NewsAction extends VelocityPortletPaneledAction
 			catch (NewsConnectionException e)
 			{
 				// display message
-				addAlert(state, newChannelUrl + " " + rb.getString("invalidfeed"));
+				addAlert(state, rb.getFormattedMessage("invalidfeed", new Object[]{newChannelUrl}));
 				return;
 			}
 			catch (NewsFormatException e)
 			{
 				// display message
-				addAlert(state, newChannelUrl + " " + rb.getString("invalidfeed"));
+				addAlert(state, rb.getFormattedMessage("invalidfeed", new Object[]{newChannelUrl}));
 				return;
 			}
 			catch (Exception e)
 			{
 				// display message
-				addAlert(state, newChannelUrl + " " + rb.getString("invalidfeed"));
+				addAlert(state, rb.getFormattedMessage("invalidfeed", new Object[]{newChannelUrl}));
 				return;
 			}
 
