@@ -6558,7 +6558,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (anySubmitted)
 						{
 							// if there is any submitted submission to this assignment, show alert
-							addAlert(state, rb.getString("gen.assig") + " " + a.getTitle() + " " + rb.getString("hassum"));
+							addAlert(state, rb.getFormattedMessage("hassum", new Object[]{a.getTitle()}));
 						}
 						
 						if (anyDraft)
@@ -11073,7 +11073,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if(fileFromUpload == null)
 		{
 			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
+			addAlert(state, rb.getFormattedMessage("uploadall.size", new Object[]{max_file_size_mb}));
 		}
 		else 
 		{	
