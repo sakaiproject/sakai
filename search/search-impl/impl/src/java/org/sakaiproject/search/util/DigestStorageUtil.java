@@ -96,6 +96,12 @@ public class DigestStorageUtil {
 	 * @param content
 	 */
 	public  void saveContentToStore(String ref, String content, int version) {
+		
+		//there must be some content
+		if (content == null) {
+			return;
+		}
+		
 		String storePath = searchService.getDigestStoragePath();
 		if (storePath != null ) {
 			FileOutputStream fileOutput = null;

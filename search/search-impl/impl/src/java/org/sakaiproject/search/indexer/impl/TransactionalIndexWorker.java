@@ -371,24 +371,26 @@ public class TransactionalIndexWorker implements IndexWorker
 								else
 								{
 									String content = sep.getContent(ref);
-									if (log.isDebugEnabled())
-									{
-										log.debug("Adding Content for " + ref + " as ["
-												+ content + "]");
-									}
-									int docCount = digestStorageUtil.getDocCount(ref) + 1;
-									doc.add(new Field(SearchService.FIELD_CONTENTS,
-											filterNull(content), Field.Store.NO,
-											Field.Index.ANALYZED, Field.TermVector.YES));
-							if (sep instanceof StoredDigestContentProducer) {
-										doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
-												Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
-										digestStorageUtil.saveContentToStore(ref, content, docCount);
-										if (docCount > 2) {
-											digestStorageUtil.cleanOldDigests(ref);
+									//its possible that there is no content to index
+									if (content != null && content.trim().length() > 0) {
+										if (log.isDebugEnabled())
+										{
+											log.debug("Adding Content for " + ref + " as ["
+													+ content + "]");
+										}
+										int docCount = digestStorageUtil.getDocCount(ref) + 1;
+										doc.add(new Field(SearchService.FIELD_CONTENTS,
+												filterNull(content), Field.Store.NO,
+												Field.Index.ANALYZED, Field.TermVector.YES));
+										if (sep instanceof StoredDigestContentProducer) {
+											doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
+													Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
+											digestStorageUtil.saveContentToStore(ref, content, docCount);
+											if (docCount > 2) {
+												digestStorageUtil.cleanOldDigests(ref);
+											}
 										}
 									}
-
 								}
 
 								doc.add(new Field(SearchService.FIELD_TITLE,
