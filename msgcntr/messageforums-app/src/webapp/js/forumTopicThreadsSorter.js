@@ -191,14 +191,18 @@ jQuery.fn.threadsSorter = function() {
 							grandChildrenRows.push(tempRowIndex);
 							next = next + 1;
 							tempRowIndex = tempRowIndex +1;
-							row = table.rows[next];
-							leftpadding = $(row).find("td").eq(1).css("padding-left");
-							if(leftpadding.indexOf("px") >= 0){
-								var pixels = parseInt(leftpadding.replace("px", ""));
-								paddingDigitValue = parseInt($(pixels).toEm().replace("em",""));
-							}
-							else{
-								paddingDigitValue = parseInt(leftpadding.replace("em",""));
+							if(next < table.rows.length){
+								row = table.rows[next];
+								leftpadding = $(row).find("td").eq(1).css("padding-left");
+								if(leftpadding.indexOf("px") >= 0){
+									var pixels = parseInt(leftpadding.replace("px", ""));
+									paddingDigitValue = parseInt($(pixels).toEm().replace("em",""));
+								}
+								else{
+									paddingDigitValue = parseInt(leftpadding.replace("em",""));
+								}
+							}else{
+								paddingDigitValue = -1;
 							}
 						} //end of while loop
 						c.grandChildrenCount = grandChildrenCount;
