@@ -130,8 +130,8 @@ public class AttachmentAction
 		// look for a failed upload, which leaves the /special/upload in the URL %%%
 		if (StringUtil.trimToNull(rundata.getParameters().getString("special")) != null)
 		{
-			VelocityPortletPaneledAction.addAlert(state, rb.getString("theupsiz") + " " + state.getAttribute(FILE_UPLOAD_MAX_SIZE)
-					+ "MB " + rb.getString("hasbeeexc"));
+			VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("sizelimitexceeded", 
+			    new Object[] {state.getAttribute(FILE_UPLOAD_MAX_SIZE)}));
 		}
 
 		if (state.getAttribute(FILE_UPLOAD_MAX_SIZE) == null)
@@ -157,7 +157,7 @@ public class AttachmentAction
 		state.setAttribute(VelocityPortletPaneledAction.STATE_HELPER, AttachmentAction.class.getName());
 
 		// set the "from" message
-		context.put("from", rb.getString("attfor") + " " + state.getAttribute(STATE_FROM_TEXT));
+		context.put("from", rb.getFormattedMessage("attfor", new Object[] {state.getAttribute(STATE_FROM_TEXT)}));
 
 		// get the mode
 		String mode = (String) state.getAttribute(STATE_MODE);

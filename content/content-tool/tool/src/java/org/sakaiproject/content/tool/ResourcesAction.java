@@ -1344,7 +1344,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+				addAlert(state, rb.getFormattedMessage("notpermis8", new String[] {originalDisplayName}));
 			}
 			catch (IdUnusedException e)
 			{
@@ -1352,15 +1352,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (InUseException e)
 			{
-				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
+				addAlert(state, rb.getFormattedMessage("someone", new String[] {originalDisplayName}));
 			}
 			catch (TypeException e)
 			{
-				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+				addAlert(state, rb.getFormattedMessage("pasteitem.mismatch", new String[] {originalDisplayName}));
 			}
 			catch (InconsistentException e)
 			{
-				addAlert(state, rb.getString("recursive") + " " + itemId);
+				addAlert(state, rb.getFormattedMessage("recursive", new String[] {itemId}));
 			}
 			catch(IdUsedException e)
 			{
@@ -1455,7 +1455,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+				addAlert(state, rb.getFormattedMessage("notpermis8", new String[] {originalDisplayName}));
 			}
 			catch (IdUnusedException e)
 			{
@@ -1463,11 +1463,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (InUseException e)
 			{
-				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
+				addAlert(state, rb.getFormattedMessage("someone", new String[] {originalDisplayName}));
 			}
 			catch (TypeException e)
 			{
-				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+				addAlert(state, rb.getFormattedMessage("pasteitem.mismatch", new String[] {originalDisplayName}));
 			}
 			catch(IdUsedException e)
 			{
@@ -1487,7 +1487,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(InconsistentException e)
 			{
-				addAlert(state, rb.getString("recursive") + " " + itemId);
+				addAlert(state, rb.getFormattedMessage("recursive", new String[] {itemId}));
 			}
 			catch (OverQuotaException e)
 			{
@@ -1614,7 +1614,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+			addAlert(state, rb.getFormattedMessage("notpermis8", new String[] {originalDisplayName}));
 		}
 		catch (IdUnusedException e)
 		{
@@ -1622,7 +1622,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (IdUsedException e)
 		{
-			addAlert(state, rb.getString("notaddreso") + " " + originalDisplayName + " " + rb.getString("used2"));
+			addAlert(state, rb.getFormattedMessage("notaddreso.used2", new String[] {originalDisplayName}));
 		}
 		catch(IdLengthException e)
 		{
@@ -1638,7 +1638,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(InUseException e)
 		{
-			addAlert(state, rb.getString("someone") + " " + originalDisplayName + ". ");
+			addAlert(state, rb.getFormattedMessage("someone", new String[] {originalDisplayName}));
 		}
 		catch(OverQuotaException e)
 		{
@@ -1660,7 +1660,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (TypeException e)
 		{
-			addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+			addAlert(state, rb.getFormattedMessage("pasteitem.mismatch", new String[] {originalDisplayName}));
 		}	// try-catch
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -2480,11 +2480,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("notpermis2") + " " + id + ". " );
+			addAlert(state, rb.getFormattedMessage("notpermis2", new String[] {id}));
 		}
 		catch(TypeException e)
 		{
-			addAlert(state," " + rb.getString("typeex") + " "  + id);
+			addAlert(state," " + rb.getFormattedMessage("typeex", new String[] {id}));
 		}
 		catch(ServerOverloadException e)
 		{
@@ -5226,7 +5226,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					notDeleteNames += " and " + item.getName();
 				}
 			}
-			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
+			addAlert(state, rb.getFormattedMessage("notpermis14", new String[] {notDeleteNames}));
 		}
 
 		if(state.getAttribute(STATE_MESSAGE) == null)
@@ -5322,7 +5322,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					notDeleteNames += " and " + item.getName();
 				}
 			}
-			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
+			addAlert(state, rb.getFormattedMessage("notpermis14", new String[] {notDeleteNames}));
 		}
 
 		state.setAttribute (STATE_DELETE_SET, deleteItems);
@@ -6566,15 +6566,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(PermissionException e)
 		{
-			addAlert(state, " " + rb.getString("notpermis3") + " " );
+			addAlert(state, rb.getString("notpermis3"));
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, " " + rb.getString("notexist2") + " ");
+			addAlert(state, rb.getString("notexist2"));
 		}
 		catch (TypeException e)
 		{
-			addAlert(state," " + rb.getString("notexist2") + " ");
+			addAlert(state, rb.getString("notexist2"));
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -7567,7 +7567,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
 
 		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal ();
-		String mycopyright = rb.getString("cpright1") + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";
+		String mycopyright = rb.getFormattedMessage("cpright1", new Object[] { Integer.valueOf(timeBreakdown.getYear()), UserDirectoryService.getCurrentUser().getDisplayName()});
 		state.setAttribute (STATE_MY_COPYRIGHT, mycopyright);
 
 		if(state.getAttribute(STATE_MODE) == null)

@@ -3179,15 +3179,15 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		catch(PermissionException e)
 		{
-			addAlert(state, " " + rb.getString("notpermis3") + " " );
+			addAlert(state, rb.getString("notpermis3"));
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, " " + rb.getString("notexist2") + " ");
+			addAlert(state, rb.getString("notexist2"));
 		}
 		catch (TypeException e)
 		{
-			addAlert(state," " + rb.getString("notexist2") + " ");
+			addAlert(state, rb.getString("notexist2"));
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
