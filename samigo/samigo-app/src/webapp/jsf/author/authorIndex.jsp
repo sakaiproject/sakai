@@ -285,12 +285,12 @@ $(document).ready(function() {
     </span>
     <span class="separator">|</span>
     <span id="assessment-status-active">
-      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>:
+      <a href="#" id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>:
     </span>
     <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_active_sub}" />)</span>
     <span class="separator">|</span>
     <span id="assessment-status-inactive">
-      <a href="#authorIndexForm:published-assessments" id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>:
+      <a href="#" id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>:
     </span>
     <span><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive_sub}" /></span>
   </div>
