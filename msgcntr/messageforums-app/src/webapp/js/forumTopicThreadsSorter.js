@@ -44,20 +44,21 @@ var emCache = {};
 
 /* This helps to convert padding value from px to relative value */	
 $.fn.toEm = function(settings){
-	settings = jQuery.extend({
+	
+		
+	if(!emCache[this[0]]){
+		settings = jQuery.extend({
 			scope: 'body'
 		}, settings);
-		
-	if(!emCache[settings.toString()]){
 		
 		var that = parseInt(this[0],10);
 		var scopeTest = jQuery('<div style="display: none; font-size: 1em; margin: 0; padding:0; height: auto; line-height: 1; border:0;">&nbsp;</div>').appendTo(settings.scope);
 		var scopeVal = scopeTest.height();
 		scopeTest.remove();
 		
-		emCache[settings.toString()] = (that / scopeVal).toFixed(0) + 'em';
+		emCache[this[0]] = (that / scopeVal).toFixed(0) + 'em';
 	}
-	return emCache[settings.toString()];
+	return emCache[this[0]];
 };
 
 
