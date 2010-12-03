@@ -565,7 +565,7 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			Log.warn("chef", "RealmsAction.doEdit: realm not found: " + id);
 
-			addAlert(state, rb.getString("realm.realm") + " " + id + " " + rb.getString("realm.notfound"));
+			addAlert(state, rb.getFormattedMessage("realm.notfound", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -660,7 +660,7 @@ public class RealmsAction extends PagedResourceActionII
 				}
 				catch (AuthzPermissionException e)
 				{
-					addAlert(state, rb.getString("realm.notpermis2") + " " + realm.getId());
+					addAlert(state, rb.getFormattedMessage("realm.notpermis2", new Object[]{realm.getId()}));
 				}
 			}
 		}
@@ -712,7 +712,7 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (AuthzPermissionException e)
 			{
-				addAlert(state, rb.getString("realm.notpermis2") + " " + realm.getId());
+				addAlert(state, rb.getFormattedMessage("realm.notpermis2", new Object[]{realm.getId()}));
 			}
 	
 			// cleanup
@@ -764,7 +764,7 @@ public class RealmsAction extends PagedResourceActionII
 				{
 					// if provider id isn't found or is null then an empty collection should be returned.
 					// is it proper to issue the following alert?
-					addAlert(state, rb.getString("realm.noProviderIdFound") + " " +  rb.getString("realm.edit.provider") + providers[i] + ". ");
+					addAlert(state, rb.getFormattedMessage("realm.noProviderIdFound", new Object[]{providers[i]}));
 				}
 			}
 			
@@ -995,7 +995,7 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (RoleAlreadyDefinedException e)
 			{
-				addAlert(state, rb.getString("realm.arole") + id + rb.getString("realm.defined"));
+				addAlert(state, rb.getFormattedMessage("realm.defined", new Object[]{id}) );
 				return false;
 				// TODO: would be nice to read the locks, and restore them when the form returns -ggolden
 			}
@@ -1055,7 +1055,7 @@ public class RealmsAction extends PagedResourceActionII
 			}
 			catch (RoleAlreadyDefinedException e)
 			{
-				addAlert(state, rb.getString("realm.arole") + id + rb.getString("realm.defined"));
+				addAlert(state, rb.getFormattedMessage("realm.defined", new Object[]{id}) );
 				return false;
 			}
 		}
