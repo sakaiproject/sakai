@@ -565,7 +565,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserPermissionException e)
 		{
-			addAlert(state, rb.getString("useact.youdonot1") + " " + id);
+			addAlert(state, rb.getFormattedMessage("useact.youdonot1", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -573,7 +573,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserLockedException e)
 		{
-			addAlert(state, rb.getString("useact.somone") + " " + id);
+			addAlert(state, rb.getFormattedMessage("useact.somels", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -620,7 +620,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserPermissionException e)
 		{
-			addAlert(state, rb.getString("useact.youdonot1") + " " + id);
+			addAlert(state, rb.getFormattedMessage("useact.youdonot1", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -628,7 +628,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserLockedException e)
 		{
-			addAlert(state, rb.getString("useact.somone") + " " + id);
+			addAlert(state, rb.getFormattedMessage("useact.somels", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -730,7 +730,7 @@ public class UsersAction extends PagedResourceActionII
 				}
 				catch (UserPermissionException e)
 				{
-					addAlert(state, rb.getString("useact.youdonot2") + " " + user.getId());
+					addAlert(state, rb.getFormattedMessage("useact.youdonot2", new Object[]{user.getId()}));
 				}
 			}
 			else
@@ -789,7 +789,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		catch (UserPermissionException e)
 		{
-			addAlert(state, rb.getString("useact.youdonot2") + " " + user.getId());
+			addAlert(state, rb.getFormattedMessage("useact.youdonot2", new Object[]{user.getId()}));
 		}
 
 		// cleanup
