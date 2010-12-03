@@ -100,7 +100,7 @@
 			#end
 			</p>	
 #end
-#if ($user)
+#if ($user && $service.allowUpdateUserPassword($user.Id))
 			<p class="shorttext">
 				<label>$tlang.getString("useedi.creby")</label>
 				$validator.escapeHtml($user.CreatedBy.DisplayName)

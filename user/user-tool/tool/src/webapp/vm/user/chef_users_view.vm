@@ -61,7 +61,7 @@
 						</td>
 					</tr>
 				</table>
-
+#if($viewCreatedModifiedBy)
 			<table class="itemSummary" summary="$tlang.getString("usevie.revuseinf")">
 				<tr>
 					<th>$tlang.getString("useedi.creby")</th>
@@ -88,6 +88,7 @@
 					</td>
 				</tr>
 			</table>
+#end
 			<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
 #if($enableEdit)
 			<div class="act">
