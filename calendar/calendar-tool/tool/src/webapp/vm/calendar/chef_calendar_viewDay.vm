@@ -26,7 +26,7 @@
 			</div>
 			<div class="listNav">
 				<div class="instruction">	
-					$dayName $nameOfMonth $date.Day, $date.Year $timezone</div>
+					$today $timezone</div>
 				
 				#set($isToday = false)
 				#if ($date.Year == $todayYear)

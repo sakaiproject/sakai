@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Date;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -356,4 +357,12 @@ public class CalendarUtil
 		return m_calendar.getFirstDayOfWeek();
 	}
 	
+	public Date getTime(){
+		return m_calendar.getTime();
+	}
+	public Date getPrevTime(int days){
+		setPrevDate(days);
+		return m_calendar.getTime();
+
+	}
 }	 // CalendarUtil

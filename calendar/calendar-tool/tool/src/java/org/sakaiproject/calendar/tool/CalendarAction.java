@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -3538,6 +3539,13 @@ extends VelocityPortletStateAction
 		state.setState("day");
 		context.put("message", state.getState());
 		
+		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());			
+		try{
+			context.put("today",formatter.format(calObj.getTime()));
+		}catch(Exception e){
+			context.put("today", calObj.getTodayDate());
+		}		
+		
 		state.setPrevState("");
 		
 		buildMenu(
@@ -3759,8 +3767,20 @@ extends VelocityPortletStateAction
 		state.setState("week");
 		context.put("tlang",rb);
 		context.put("config",configProps);
-		
 		context.put("message",state.getState());
+
+		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());			
+		try{
+			context.put("beginWeek",formatter.format(calObj.getPrevTime(7-dayofweek)));
+		}catch(Exception e){
+			context.put("beginWeek", calObj.getTodayDate());
+		}
+		try{
+			calObj.setNextWeek();
+			context.put("endWeek",formatter.format(calObj.getPrevTime(dayofweek)));
+		}catch(Exception e){
+			context.put("endWeek", calObj.getTodayDate());
+		}
 		
 		buildMenu(
 			portlet,
