@@ -24,13 +24,15 @@ package org.sakaiproject.authz.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.Vector;
 
@@ -43,9 +45,11 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.db.api.SqlServiceDeadlockException;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -59,7 +63,7 @@ import org.sakaiproject.util.StringUtil;
  * DbAuthzGroupService is an extension of the BaseAuthzGroupService with database storage.
  * </p>
  */
-public abstract class DbAuthzGroupService extends BaseAuthzGroupService
+public abstract class DbAuthzGroupService extends BaseAuthzGroupService implements Observer
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DbAuthzGroupService.class);
@@ -127,6 +131,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	{
 		this.dbAuthzGroupSql = (databaseBeans.containsKey(vendor) ? databaseBeans.get(vendor) : databaseBeans.get("default"));
 	}
+	
+	private MemoryService m_memoryService;
+	public void setMemoryService(MemoryService memoryService) {
+		this.m_memoryService = memoryService;
+	}
+	
+	private Cache m_realmRoleGRCache;
 
 	/**
 	 * @return the ServerConfigurationService collaborator.
@@ -207,7 +218,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// pre-cache role and function names
 			cacheRoleNames();
 			cacheFunctionNames();
-
+			m_realmRoleGRCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
 			M_log.info("init(): table: " + m_realmTableName + " external locks: " + m_useExternalLocks);
 		}
 		catch (Exception t)
@@ -570,48 +581,62 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// read the role grants
 			sql = dbAuthzGroupSql.getSelectRealmRoleGroup1Sql();
-			all = m_sql.dbRead(conn, sql, fields, new SqlReader()
+			
+			
+			if ((Map)m_realmRoleGRCache.get(realm.getId()) == null) 
 			{
-				public Object readSqlResultRecord(ResultSet result)
+				all = m_sql.dbRead(conn, sql, fields, new SqlReader()
 				{
-					try
+					public Object readSqlResultRecord(ResultSet result)
 					{
-						// get the fields
-						String roleName = result.getString(1);
-						String userId = result.getString(2);
-						String active = result.getString(3);
-						String provided = result.getString(4);
-
-						// give the user one and only one role grant - there should be no second...
-						BaseMember grant = (BaseMember) realm.m_userGrants.get(userId);
-						if (grant == null)
+						try
 						{
-							// find the role - if it does not exist, create it for this grant
-							// NOTE: it would have no functions or description
-							BaseRole role = (BaseRole) realm.m_roles.get(roleName);
-							if (role == null)
+							// get the fields
+							String roleName = result.getString(1);
+							String userId = result.getString(2);
+							String active = result.getString(3);
+							String provided = result.getString(4);
+
+							// give the user one and only one role grant - there should be no second...
+							BaseMember grant = (BaseMember) realm.m_userGrants.get(userId);
+							if (grant == null)
 							{
-								role = new BaseRole(roleName);
-								realm.m_roles.put(role.getId(), role);
+								// find the role - if it does not exist, create it for this grant
+								// NOTE: it would have no functions or description
+								BaseRole role = (BaseRole) realm.m_roles.get(roleName);
+								if (role == null)
+								{
+									role = new BaseRole(roleName);
+									realm.m_roles.put(role.getId(), role);
+								}
+
+								grant = new BaseMember(role, "1".equals(active), "1".equals(provided), userId);
+
+								realm.m_userGrants.put(userId, grant);
+							}
+							else
+							{
+								M_log.warn("completeGet: additional user - role grant: " + userId + " " + roleName);
 							}
 
-							grant = new BaseMember(role, "1".equals(active), "1".equals(provided), userId);
-
-							realm.m_userGrants.put(userId, grant);
+							return null;
 						}
-						else
+						catch (SQLException ignore)
 						{
-							M_log.warn("completeGet: additional user - role grant: " + userId + " " + roleName);
+							return null;
 						}
-
-						return null;
 					}
-					catch (SQLException ignore)
-					{
-						return null;
-					}
+				});
+				if (serverConfigurationService().getBoolean("authz.cacheGrants", false))
+				{
+					m_realmRoleGRCache.put(realm.getId(), realm.m_roles);
 				}
-			});
+
+			}
+			else 
+			{
+				realm.m_roles = (Map)m_realmRoleGRCache.get(realm.getId());
+			}
 		}
 
 		/**
@@ -2635,5 +2660,25 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			List result = sqlService().dbRead(sqlQuery, new Object[] {bindParameter}, null);
 			return (result.size() > 0 ? result.get(0) : null);
 		}
+	}
+	
+	
+	public void update(Observable arg0, Object arg)
+	{
+		// arg is Event
+		if (!(arg instanceof Event))
+			return;
+		Event event = (Event) arg;
+		
+		
+		// check the event function against the functions we have notifications watching for
+		String function = event.getEvent();
+		
+		if (SECURE_UPDATE_AUTHZ_GROUP.equals(function) || SECURE_UPDATE_OWN_AUTHZ_GROUP.equals(function) || SECURE_REMOVE_AUTHZ_GROUP.endsWith(function))
+		{
+			m_realmRoleGRCache.remove(event.getResource());
+		}
+		
+		
 	}
 }

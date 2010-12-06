@@ -21,7 +21,6 @@
 
 package org.sakaiproject.authz.impl;
 
-import java.util.Collection;
 
 /**
  * methods for accessing authz data in a mysql database.
