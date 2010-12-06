@@ -5164,15 +5164,13 @@ public class SiteAction extends PagedResourceActionII {
 			try {
 				AliasService.removeAlias(aliasId);
 			} catch ( PermissionException e ) {
-				addAlert(state, rb.getString("java.delalias") + " ");
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.delalias"), e);
+				addAlert(state, rb.getFormattedMessage("java.delalias", new Object[]{aliasId}));
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}), e);
 			} catch ( IdUnusedException e ) {
 				// no problem
 			} catch ( InUseException e ) {
-				addAlert(state, rb.getString("java.delalias") + " " + aliasId + ". " + 
-						rb.getString("java.aliaslocked") + " " + aliasId + "");
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.delalias") + ". " + 
-						rb.getString("java.aliaslocked") + " " + aliasId + "", e);
+				addAlert(state, rb.getFormattedMessage("java.delalias", new Object[]{aliasId}) + rb.getFormattedMessage("java.alias.locked", new Object[]{aliasId}));
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}) + rb.getFormattedMessage("java.alias.locked", new Object[]{aliasId}), e);
 	 			}
 	 		}
 		for ( String aliasId : aliasIdsToAdd ) {
@@ -5182,15 +5180,11 @@ public class SiteAction extends PagedResourceActionII {
 				addAlert(state, rb.getString("java.addalias") + " ");
 				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias"), e);
 			} catch ( IdInvalidException e ) {
-				addAlert(state, rb.getString("java.alias") + " " + aliasId
-						+ " " + rb.getString("java.isinval"));
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias") 
-						+ " " + rb.getString("java.isinval"), e);
+				addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}));
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}), e);
 			} catch ( IdUsedException e ) {
-				addAlert(state, rb.getString("java.alias") + " " + aliasId
-						+ " " + rb.getString("java.exists"));
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias")
-						+ ". " + rb.getString("java.exists"), e);
+				addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}));
+				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}), e);
 			}
 		}
 	}
@@ -8421,8 +8415,7 @@ public class SiteAction extends PagedResourceActionII {
 
 	private boolean validateSiteAlias(String aliasId, SessionState state) {
 		if ( (aliasId = StringUtils.trimToNull(aliasId)) == null ) {
-			addAlert(state, rb.getString("java.alias") + " " + aliasId
-					+ " " + rb.getString("java.isinval"));
+			addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}));
 			return false;
 		}
 		boolean isSimpleResourceName = aliasId.equals(Validator.escapeResourceName(aliasId));
@@ -8433,8 +8426,7 @@ public class SiteAction extends PagedResourceActionII {
 			// here and disallow any aliases which would require special 
 			// encoding or would simply be ignored when building a valid 
 			// resource reference or outputting that reference as a URL.
-			addAlert(state, rb.getString("java.alias") + " " + aliasId
-					+ " " + rb.getString("java.isinval"));
+			addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}));
 			return false;
 		} else {
 			String currentSiteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
@@ -8445,13 +8437,11 @@ public class SiteAction extends PagedResourceActionII {
 					String siteRef = SiteService.siteReference(currentSiteId);
 					boolean targetsCurrentSite = siteRef.equals(targetRef);
 					if ( !(targetsCurrentSite) ) {
-						addAlert(state, rb.getString("java.alias") + " " + aliasId
-							+ " " + rb.getString("java.exists"));
+						addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}));
 						return false;
 					}
 				} else {
-					addAlert(state, rb.getString("java.alias") + " " + aliasId
-							+ " " + rb.getString("java.exists"));
+					addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}));
 					return false;
 				}
 			} catch (IdUnusedException e) {
@@ -9399,13 +9389,13 @@ public class SiteAction extends PagedResourceActionII {
 				commitSite(site);
 
 			} catch (IdUsedException e) {
-				addAlert(state, rb.getString("java.sitewithid") + " " + id + " " + rb.getString("java.exists"));
-				M_log.warn(this + ".addNewSite: " + rb.getString("java.sitewithid") + " " + id + " " + rb.getString("java.exists"), e);
+				addAlert(state, rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}));
+				M_log.warn(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}), e);
 				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			} catch (IdInvalidException e) {
-				addAlert(state, rb.getString("java.thesiteid") + " " + id + " " + rb.getString("java.notvalid"));
-				M_log.warn(this + ".addNewSite: " + rb.getString("java.thesiteid") + " " + id + " " + rb.getString("java.notvalid"), e);
+				addAlert(state, rb.getFormattedMessage("java.sitewithid.notvalid", new Object[]{id}));
+				M_log.warn(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.notvalid", new Object[]{id}), e);
 				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			} catch (PermissionException e) {
@@ -10631,12 +10621,13 @@ public class SiteAction extends PagedResourceActionII {
 				try {
 					AliasService.setAlias(alias, channelReference);
 				} catch (IdUsedException ee) {
-					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
-					M_log.warn(this + ".addGradToolsFeatures:" + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"), ee);
+					addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{alias}));
+					M_log.warn(this + ".addGradToolsFeatures:" + rb.getFormattedMessage("java.alias.exists", new Object[]{alias}), ee);
 				} catch (IdInvalidException ee) {
-					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));
-					M_log.warn(this + ".addGradToolsFeatures:" + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"), ee);
+					addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}));
+					M_log.warn(this + ".addGradToolsFeatures:" + rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}), ee);
 				} catch (PermissionException ee) {
+					addAlert(state, rb.getString("java.addalias"));
 					M_log.warn(this + ".addGradToolsFeatures:" + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
 				}
 			}
