@@ -255,7 +255,7 @@ public class MembershipAction extends PagedResourceActionII
 				
 		if (id==null){
 			state.setAttribute(STATE_CONFIRM_VIEW_MODE, "noSelectionUnjoin");
-			addAlert(state, rb.getString("gen.alert")+ rb.getString("mb.noselection.unjoin"));
+			addAlert(state, rb.getString("mb.noselection.unjoin"));
 		}
 		else
 		{

@@ -530,7 +530,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		{
 			Log.warn("chef", "SiteBrowserAction.doEdit: site not found: " + id);
 
-			addAlert(state, rb.getString("site") + " " + id + " " + rb.getString("notfound"));
+			addAlert(state, rb.getFormattedMessage("notfound", new Object[]{id}));
 			state.removeAttribute(MODE);
 
 			// make sure auto-updates are enabled

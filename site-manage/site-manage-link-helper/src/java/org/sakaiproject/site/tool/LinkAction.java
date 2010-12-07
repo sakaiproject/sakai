@@ -156,7 +156,7 @@ public class LinkAction extends VelocityPortletPaneledAction
                 			context.put("parentTitle", parentSite.getTitle());
 					return "sakai_link";
 				} catch (Exception e) {
-					addAlert(state,rb.getString("alert.parent.removed")+" "+parentId);
+					addAlert(state,rb.getFormattedMessage("alert.parent.removed", new Object[]{parentId}));
 					ResourcePropertiesEdit rpe = site.getPropertiesEdit();
 					rpe.removeProperty("sakai:parent-id");
 					SiteService.save(site);
