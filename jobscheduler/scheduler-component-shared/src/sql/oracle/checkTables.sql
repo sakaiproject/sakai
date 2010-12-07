@@ -1,1 +1,1 @@
-SELECT COUNT(*) FROM qrtz_locks;
+SELECT COUNT(*) FROM qrtz_locks
