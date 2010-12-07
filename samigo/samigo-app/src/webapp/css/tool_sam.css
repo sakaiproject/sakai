@@ -159,20 +159,24 @@ font-size:1.2em
 	width: 11%;
 }
 
+.status {
+	width: 8%;
+}
+
 .inProgress {
-	width: 9%;
+	width: 6%;
 }
 
 .submitted {
-	width: 9%;
+	width: 6%;
 }
 
 .releaseDate {
-	width: 9%;
+	width: 8%;
 }
 
 .dueDate {
-	width: 9%;
+	width: 8%;
 }
 
 .listAssessments th{

@@ -405,3 +405,53 @@
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .ui-tabs .ui-tabs-panel { padding: 1em 1.4em; display: block; border-width: 0; background: none; }
 .ui-tabs .ui-tabs-hide { display: none !important; }
+
+table.tablesorter {
+	font-size: 1em;
+	width: 100%;
+	clear: both;
+	margin-top: .5em;
+	border:none; /*keep ff from giving it a border*/
+}
+table.tablesorter th {
+	font-weight: normal;
+	text-align: left;
+	white-space: nowrap;
+	padding: .3em;
+	background-color: #ddd;
+	border: 1px solid #999;
+}
+table.tablesorter td {
+	padding: .3em;
+}
+
+table.tablesorter td img{
+	margin-right: .2em;
+	vertical-align: text-top;
+}
+
+table.tablesorter td a:hover,
+table.tablesorter th a:hover{
+	text-decoration: none;
+}
+
+table.tablesorter .header {
+	background-image: url(images/bg.gif);
+	background-repeat: no-repeat;
+	background-position:right center;
+	padding-left: 0px;
+	padding-top: 4px;
+	height: auto;
+}
+
+table.tablesorter .headerSortUp {
+	background-image: url(images/desc.gif);
+	background-repeat: no-repeat;
+	background-position:right center;
+}
+
+table.tablesorter .headerSortDown {
+	background-image: url(images/asc.gif);
+	background-repeat: no-repeat;
+	background-position:right center;
+}

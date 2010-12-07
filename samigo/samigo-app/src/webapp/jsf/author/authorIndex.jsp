@@ -40,6 +40,7 @@
 <script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
 <script type="text/javascript" language="JavaScript" src="/samigo-app/js/info.js"></script>
 <script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery.tablesorter.js"></script>
 <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 <script language="javascript" style="text/JavaScript">
 
@@ -120,6 +121,24 @@ $(document).ready(function() {
 			$("#authorIndexForm\\:assessment-retracted").show();
 		}
 	);
+	
+	$("#authorIndexForm\\:published-assessments").tablesorter( {
+		sortList: [[2,0], [1,0]],
+		headers: { 
+            0: { 
+                sorter: false 
+            }, 
+            3: { 
+                sorter: false 
+            }, 
+            4: { 
+                sorter: false 
+            }, 
+            8: { 
+                sorter: false 
+            }            
+		}
+	}); 
 });
 </script>
 
@@ -281,21 +300,21 @@ $(document).ready(function() {
   <div id="assessment-status-limiter">
     <span><h:outputText value="#{authorFrontDoorMessages.assessment_view}" />:</span>
     <span id="assessment-status-all">
-      <a class="active" href="#authorIndexForm:published-assessments" id="assessment-link-status-all"><h:outputText value="#{authorFrontDoorMessages.assessment_view_all}" /></a>
+      <a class="active" id="assessment-link-status-all"><h:outputText value="#{authorFrontDoorMessages.assessment_view_all}" /></a>
     </span>
     <span class="separator">|</span>
     <span id="assessment-status-active">
-      <a href="#" id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>:
+      <a id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>:
     </span>
     <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_active_sub}" />)</span>
     <span class="separator">|</span>
     <span id="assessment-status-inactive">
-      <a href="#" id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>:
+      <a id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>:
     </span>
     <span><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive_sub}" /></span>
   </div>
 
-  <t:dataTable id="published-assessments" rowClasses="list-row-even,list-row-odd" cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
+  <t:dataTable id="published-assessments" rowClasses="list-row-even,list-row-odd" cellpadding="0" cellspacing="0" styleClass="tablesorter" rendered="#{authorization.adminPublishedAssessment}"
     value="#{author.publishedAssessments}" var="publishedAssessment" summary="#{authorFrontDoorMessages.sum_publishedAssessment}">
     <t:column headerstyleClass="selectAction" styleClass="selectAction">
 	  <f:facet name="header" >
@@ -341,28 +360,7 @@ $(document).ready(function() {
 
 	<t:column headerstyleClass="titlePub" styleClass="titlePub">
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" id="sortPubByTitleAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='title'}">
-          <h:outputText value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
-          <f:param name="pubSortType" value="title"/>
-          <f:param name="publishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title' && author.publishedAscending }">
-         <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
-         
-           <f:param name="publishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortTitleDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title'&& !author.publishedAscending }">
-           <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort" />
-           <f:param name="publishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortTitleAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
+        <h:outputText value="#{authorFrontDoorMessages.assessment_title} " />
       </f:facet>
 
       <h:outputText id="publishedAssessmentTitle2" value="#{publishedAssessment.title}" />
@@ -419,29 +417,7 @@ $(document).ready(function() {
 
 	<t:column headerstyleClass="releaseTo" styleClass="releaseTo">
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseTo}" id="sortPubByreleaseToAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='releaseTo'}">
-          <h:outputText value="#{authorFrontDoorMessages.assessment_release} " styleClass="currentSort" />
-          <f:param name="pubSortType" value="releaseTo"/>
-          <f:param name="publishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-        </h:commandLink>
-
-		<h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='releaseTo' && author.publishedAscending }">
-
-        <h:outputText  value="#{authorFrontDoorMessages.assessment_release} " styleClass="currentSort" />
-        
-           <f:param name="publishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseToDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='releaseTo'&& !author.publishedAscending }">
-		   <h:outputText  value="#{authorFrontDoorMessages.assessment_release} " styleClass="currentSort" />
-           <f:param name="publishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseToAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
+        <h:outputText value="#{authorFrontDoorMessages.assessment_release} "/>
       </f:facet>
 
       <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" rendered="#{publishedAssessment.releaseTo eq 'Anonymous Users'}" />
@@ -464,28 +440,7 @@ $(document).ready(function() {
 
     <t:column headerstyleClass="releaseDate" styleClass="releaseDate">
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseDate}" id="sortPubByStartDateAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='startDate'}" >
-          <h:outputText value="#{authorFrontDoorMessages.assessment_date} " styleClass="currentSort" />
-          <f:param name="pubSortType" value="startDate"/>
-          <f:param name="publishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-        </h:commandLink>
-
- <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='startDate' && author.publishedAscending }">
-        <h:outputText  value="#{authorFrontDoorMessages.assessment_date} " styleClass="currentSort" />
-         
-           <f:param name="publishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseDateDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='startDate'&& !author.publishedAscending }">
-            <h:outputText  value="#{authorFrontDoorMessages.assessment_date} " styleClass="currentSort" />
-           <f:param name="publishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortReleaseDateAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
+        <h:outputText value="#{authorFrontDoorMessages.assessment_date} " />
       </f:facet>
       <h:outputText value="#{publishedAssessment.startDate}" >
           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
@@ -494,27 +449,7 @@ $(document).ready(function() {
    
 	<t:column headerstyleClass="dueDate" styleClass="dueDate">
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortDueDate}" id="sortPubByDueDateAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='dueDate'}">
-          <h:outputText value="#{authorFrontDoorMessages.assessment_due} " styleClass="currentSort" />
-          <f:param name="pubSortType" value="dueDate"/>
-          <f:param name="publishedAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-        </h:commandLink>
- <h:commandLink title="#{authorFrontDoorMessages.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='dueDate' && author.publishedAscending }">
-         <h:outputText  value="#{authorFrontDoorMessages.assessment_due} " styleClass="currentSort"  />
-         
-           <f:param name="publishedAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortDueDateDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='dueDate'&& !author.publishedAscending }">
-            <h:outputText  value="#{authorFrontDoorMessages.assessment_due} " styleClass="currentSort"  />
-           <f:param name="publishedAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortDueDateAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
+        <h:outputText value="#{authorFrontDoorMessages.assessment_due} " />
       </f:facet>
       <h:outputText value="#{publishedAssessment.dueDate}" >
           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
