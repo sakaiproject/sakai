@@ -942,6 +942,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 				"profile2.profile.business.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isWallEnabledGlobally() {
+		return serverConfigurationService.getBoolean(
+				"profile2.wall.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_ENABLED);		
+	}
 	
 	/**
  	* {@inheritDoc}

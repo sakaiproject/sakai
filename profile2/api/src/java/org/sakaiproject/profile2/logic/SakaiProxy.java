@@ -425,6 +425,15 @@ public interface SakaiProxy {
 	public boolean isBusinessProfileEnabled();
 	
 	/**
+	 * Is the profile2.wall.enabled flag set in sakai.properties? If not set,
+	 * defaults to <code>false</code>.
+	 * 
+	 * @return <code>true</code> if the profile2.wall.enabled flag is set,
+	 *         otherwise returns <code>false</code>.
+	 */
+	public boolean isWallEnabledGlobally();
+	
+	/**
 	 * Is the profile2.convert flag set in sakai.properties?
 	 * If not set, defaults to false
 	 * 
