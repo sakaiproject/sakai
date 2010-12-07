@@ -783,7 +783,7 @@ public class SiteAddParticipantHandler {
 							// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
-							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
+							M_log.debug(this + ".checkAddParticipant: " + messageLocator.getMessage("java.username",officialAccount));
 						}
 					}
 					else
@@ -793,7 +793,7 @@ public class SiteAddParticipantHandler {
 							// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
-							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
+							M_log.debug(this + ".checkAddParticipant: " + messageLocator.getMessage("java.username",officialAccount));
 						}
 						
 						//Changed user lookup to satisfy BSP-1010 (jholtzman)
