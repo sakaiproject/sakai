@@ -564,6 +564,34 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			
     			// first, we deal with the categories and their associated assignments
     			if (categoryList != null && !categoryList.isEmpty()) {
+    				Comparator catComparator = null;
+    				if(SORT_BY_POINTS_EARNED.equals(sortColumn)){
+    					//need to figure out the weight for the student before you can order by this:
+    					Iterator catIter = categoryList.iterator();
+        				while (catIter.hasNext()) {
+        					Object catObject = catIter.next();
+        					if (catObject instanceof Category) {
+        						Category category = (Category) catObject;        						
+        						List catAssign = category.getAssignmentList();
+        						if (catAssign != null && !catAssign.isEmpty()) {
+        							// we want to create the grade rows for these assignments
+        							category.calculateStatisticsPerStudent(gradeRecords, studentUid);
+        						}
+        					}
+        				}   					
+    					catComparator = Category.averageScoreComparator;
+    				}else if(Category.SORT_BY_WEIGHT.equals(sortColumn)){
+    					catComparator = Category.weightComparator;
+    				}else if(Category.SORT_BY_NAME.equals(sortColumn)){
+    					catComparator = Category.nameComparator;
+    				}
+    				if(catComparator != null){
+    					Collections.sort(categoryList, catComparator);
+    					if(!sortAscending){
+    						Collections.reverse(categoryList);
+    					}
+    				}
+    				
     				Iterator catIter = categoryList.iterator();
     				while (catIter.hasNext()) {
     					Object catObject = catIter.next();

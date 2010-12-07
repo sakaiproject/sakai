@@ -25,11 +25,14 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.text.NumberFormat;
 
@@ -76,6 +79,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 	// Used to generate IDs for the dynamically created assignment columns.
 	private static final String ASSIGNMENT_COLUMN_PREFIX = "asg_";
+	private static final String CATEGORY_COLUMN_PREFIX = "_categoryCol_";
 
 	// View maintenance fields - serializable.
 	private List gradableObjectColumns;	// Needed to build table columns
@@ -409,7 +413,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
         if (logger.isDebugEnabled()) logger.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
 
-
         if (!isEnrollmentSort()) {
         	// Need to sort and page based on a scores column.
         	String sortColumn = getSortColumn();
@@ -419,6 +422,60 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
 					scoreSortedEnrollments.add(studentIdEnrRecMap.get(agr.getStudentId()));
 				}
+			}
+
+			//In order to order by category score, first create 2 lists: students who have no score (null)
+			//and a map of student Id's and their category score.
+			//Next, sort the existing score then and put the sorted students in the scoreSortedEnrollments list 
+			if(sortColumn.startsWith(CATEGORY_COLUMN_PREFIX) && sortColumn.length() > CATEGORY_COLUMN_PREFIX.length()){
+				Map<String, Double> studentCatScore = new HashMap<String, Double>();
+				String sortColumnIdStr = sortColumn.substring(CATEGORY_COLUMN_PREFIX.length());
+				Long sortColumnId = null;
+				try{
+					sortColumnId = Long.parseLong(sortColumnIdStr);
+				}catch (NumberFormatException e) {
+				}
+				
+				List emptyCatList = new ArrayList();
+				if(sortColumnId != null){
+					for(Iterator iterator = categoryResultMap.entrySet().iterator(); iterator.hasNext();){
+						Entry entry = (Entry) iterator.next();
+						Map catMap = (Map) entry.getValue();
+						String studentId = (String) entry.getKey();
+						if(catMap.containsKey(sortColumnId)){
+							Map sortCat = (Map) catMap.get(sortColumnId);
+							//break up the students into two categories: scores and no score
+							if(sortCat.containsKey("studentMean") && sortCat.get("studentMean") != null){
+								studentCatScore.put(studentId, (Double) sortCat.get("studentMean"));
+							}else{
+								emptyCatList.add(studentIdEnrRecMap.get(studentId));
+							}
+						}
+					}
+				}
+				
+				//sort category scores:
+				List studentCatEntrySet = new LinkedList(studentCatScore.entrySet());
+				Collections.sort(studentCatEntrySet, new Comparator() {
+			          public int compare(Object o1, Object o2) {
+			               return ((Comparable) ((Map.Entry) (o1)).getValue())
+			              .compareTo(((Map.Entry) (o2)).getValue());
+			          }
+			     });
+				
+				
+				//add it to the scoreSortedEnrollments list now that it has been ordered
+				for (Iterator it = studentCatEntrySet.iterator(); it.hasNext();) {
+					Map.Entry entry = (Map.Entry)it.next();
+					scoreSortedEnrollments.add(studentIdEnrRecMap.get(entry.getKey()));
+				}
+
+				// remove and re-add the empty score users
+	            workingEnrollments.removeAll(emptyCatList);
+
+	            // by adding it back in, they will be in a group together (in order)
+	            workingEnrollments.addAll(emptyCatList);
+				
 			}
 
             // Put enrollments with no scores at the beginning of the final list.
@@ -582,11 +639,38 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	                }
 				} else {
 					//if we are dealing with a category
-					HtmlOutputText headerText = new HtmlOutputText();
-					headerText.setId(ASSIGNMENT_COLUMN_PREFIX + "hrd_" + colpos);
-					headerText.setValue(columnData.getName());
-					
-					col.setHeader(headerText);
+					String categoryId = CATEGORY_COLUMN_PREFIX;
+					if(columnData.getId() != null){
+						categoryId += columnData.getId().toString();
+
+						HtmlCommandSortHeader sortHeader = new HtmlCommandSortHeader();
+						sortHeader.setId(ASSIGNMENT_COLUMN_PREFIX + "sorthdr_" + colpos);
+						sortHeader.setRendererType("org.apache.myfaces.SortHeader");	// Yes, this is necessary.
+						sortHeader.setArrow(true);
+						sortHeader.setColumnName(categoryId);
+						sortHeader.setActionListener(app.createMethodBinding("#{rosterBean.sort}", new Class[] {ActionEvent.class}));
+						// Allow word-wrapping on assignment name columns.
+						if(columnData.getInactive()){
+							sortHeader.setStyleClass("inactive-column allowWrap");
+						} else {
+							sortHeader.setStyleClass("allowWrap");
+						}
+
+						HtmlOutputText headerText = new HtmlOutputText();
+						headerText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_" + colpos);
+						// Try straight setValue rather than setValueBinding.
+						headerText.setValue(columnData.getName());
+
+						sortHeader.getChildren().add(headerText);
+						col.setHeader(sortHeader);
+					}else{
+						//Unassigned Category
+						HtmlOutputText headerText = new HtmlOutputText();
+						headerText.setId(ASSIGNMENT_COLUMN_PREFIX + "hrd_" + colpos);
+						headerText.setValue(columnData.getName());
+
+						col.setHeader(headerText);
+					}
 				}
 
 				HtmlOutputText contents = new HtmlOutputText();

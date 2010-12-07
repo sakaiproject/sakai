@@ -31,33 +31,37 @@ function gethandles(){
    q1_width = $("#q1").width();
    $(q3_div).width(q1_width);
    
-   total = 0; count = 0;
+   // #q2 contains the "data" headers that contain the assignment titles
+   // the structure is #q2 div:div:ul:li.  #q4 is the table that contains the grade info
    
+   total = 0; count = 0;
    $(q2_ul_li).each(function(c){
-      var q2_heading_width = $(this).width();
-      if(q2_heading_width < 50) {
-        $(this).css("width", "45px"); 
-        q2_heading_width = 45;
-      }
+	   var q2_heading_width = $(this).width() + paddingRight *2;
+	   // make sure all of the assignment name headers have a minimum width
+	   if(q2_heading_width < 50) {
+		   q2_heading_width = 45;
+	   }
 
-      total += q2_heading_width + paddingRight * 2; count=c+1;
-      
-      q4_tr_td = $(q4_top_row).get(c);
-      $(q4_tr_td).width(q2_heading_width);
+	   q4_tr_td = $("#q4 tr:first td:eq(" + c + ")");
+	   q4_data_width = $(q4_tr_td).width() + 20;
+	   new_width = (q4_data_width < q2_heading_width ? q2_heading_width : q4_data_width);
+	   $(q4_tr_td).width(new_width);
+	   $(this).width(new_width);       
+
+	   total += new_width + paddingRight * 2; count=c+1;
    });
    
+   // now we need to set the width of the header section and the associated
+   // table containing the grade data
    total += count * 2;
    q4_table = $("#q4 table")
-   var q4_table_width = $(q4_table).width();
-   if(q4_table_width > total){
-      $(q2_div_ul).width(q4_table_width);
-   }else{
-      q4_table_width = total;
-      $(q4_table).width(q4_table_width);
-   }   
+   q4_table_width = total;
+   $(q4_table).width(total);
+   $(q2_div_ul).width(total);
+   q4_table_width = total;
    
-   // this takes a lot of processing and doesn't seem to change anything
-   /*$("#q3 tr").each(function(i){
+   // this makes sure the height of the data cells matches up for all rows
+   $("#q3 tr").each(function(i){
       thisHeight = $(this).height();
       thatHeight = $("#q4 tr:eq(" + i + ")").height();
       if(thisHeight > thatHeight){
@@ -67,7 +71,7 @@ function gethandles(){
          ie ? $(this).css("height", thatHeight - 12 + "px") 
             :$(this).css("height",thatHeight + "px");
       }
-   });*/
+   });
    
    //check if we need scrollbars - SAK-9969
    

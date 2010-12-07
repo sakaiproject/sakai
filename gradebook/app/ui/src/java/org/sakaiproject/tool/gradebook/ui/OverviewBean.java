@@ -125,6 +125,21 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			}
 
 			if (categoryList != null && !categoryList.isEmpty()) {
+				Comparator catComparator = null;
+				if(Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())){
+					catComparator = Category.averageScoreComparator;
+				}else if(Category.SORT_BY_WEIGHT.equals(getAssignmentSortColumn())){
+					catComparator = Category.weightComparator;
+				}else if(Category.SORT_BY_NAME.equals(getAssignmentSortColumn())){
+					catComparator = Category.nameComparator;
+				}
+				if(catComparator != null){
+					Collections.sort(categoryList, catComparator);
+					if(!isAssignmentSortAscending()){
+						Collections.reverse(categoryList);
+					}
+				}				
+				
 				Iterator catIter = categoryList.iterator();
 				while (catIter.hasNext()) {
 					Category myCat = (Category)catIter.next();
