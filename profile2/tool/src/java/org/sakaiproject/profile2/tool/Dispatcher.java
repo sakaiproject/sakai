@@ -16,15 +16,26 @@
 
 package org.sakaiproject.profile2.tool;
 
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.pages.BasePage;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.tool.pages.MyWall;
 
 public class Dispatcher extends BasePage {
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
 	
 	public Dispatcher() {
 		super();
 		
-		setResponsePage(new MyProfile());
-		
+		if (true == sakaiProxy.isWallEnabledGlobally() &&
+				true == sakaiProxy.isWallDefaultProfile2Page()) {
+			
+			setResponsePage(new MyWall());	
+		} else {
+			setResponsePage(new MyProfile());
+		}
 	}
 }

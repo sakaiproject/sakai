@@ -434,6 +434,15 @@ public interface SakaiProxy {
 	public boolean isWallEnabledGlobally();
 	
 	/**
+	 * Is the profile2.wall.default flag set in sakai.properties? If not set,
+	 * defaults to <code>false</code>.
+	 * 
+	 * @return <code>true</code> if the profile2.wall.default flag is set,
+	 *         otherwise returns <code>false</code>.
+	 */
+	public boolean isWallDefaultProfile2Page();
+	
+	/**
 	 * Is the profile2.convert flag set in sakai.properties?
 	 * If not set, defaults to false
 	 * 
