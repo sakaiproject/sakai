@@ -793,7 +793,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					for (int i2 = 0; i2 < refs.length; i2++)  // iterate through the groups to see if there is a swapped state in the variable
 					{
 						roleswap = SecurityService.getUserEffectiveRole("/site/" + refs[i2]);
-						if (roleswap!=null) // break from this loop if a swapped state is found
+						
+						 // break from this loop if the user is the current user and a swapped state is found
+						if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
 							break;
 					}
 					if (roleswap!=null)
@@ -1520,10 +1522,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			fields[1] = lock;
 			fields[2] = realmId;
 
-			// checks to see if the user has the roleswap variable set in the session
+			// checks to see if the user is the current user and has the roleswap variable set in the session
 			String roleswap = SecurityService.getUserEffectiveRole(realmId);
 			
-            if (roleswap != null)
+            if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
             {
             	fields[0] = roleswap; // set the field to the student role for the alternate sql
             	statement = dbAuthzGroupSql.getCountRoleFunctionSql(); // set the function for our alternate sql
@@ -1616,7 +1618,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			
 			List results = null;
 			
-			if (roleswap != null)
+			// Only check roleswap if the method is being called for the current user
+			if (roleswap != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId()))
             {
 				
 				// First check in the user's own my workspace site realm if it's in the list
@@ -2438,8 +2441,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			if ((userId == null) || (azGroupId == null)) return null;
 
-			// checks to see if the user has the roleswap variable set in the session
-			String rv = SecurityService.getUserEffectiveRole(azGroupId);
+			// checks to see if the user is the current user and has the roleswap variable set in the session
+			String rv = null;
+			
+			if (userId.equals(sessionManager().getCurrentSessionUserId())) {
+				rv = SecurityService.getUserEffectiveRole(azGroupId);
+			}
 
 			// otherwise drop through to the usual check
 			if (rv == null) {
