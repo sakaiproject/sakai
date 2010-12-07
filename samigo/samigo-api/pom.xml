@@ -37,6 +37,7 @@
 				<includes>
 					<include>**/*.xml</include>
 					<include>**/*.xsl</include>
+					<include>**/*.xsd</include>
 				</includes>
 			</resource>
 		</resources>

@@ -37,6 +37,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.*;
+import org.xml.sax.SAXException;
+
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,6 +101,8 @@ public class AuthoringHelper
   private AuthoringXml ax;
 
   private int qtiVersion;
+  private static final String VALIDATE_XSD_PATH ="xml/xsd/";
+
 
   private AuthoringHelper()
   {
@@ -487,6 +495,37 @@ public class AuthoringHelper
 	  return createImportedAssessment(document, unzipLocation, templateId, false, null, siteId);
   }
 
+  private boolean validateImportXml(Document doc) throws SAXException, IOException{
+      // 1. Lookup a factory for the W3C XML Schema language
+      SchemaFactory factory =
+          SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+
+      // 2. Compile the schema.
+      // Here the schema is loaded from a java.io.File, but you could use
+      // a java.net.URL or a javax.xml.transform.Source instead.
+      String schemaFile = VALIDATE_XSD_PATH + "qtiv1p2.xsd";
+      log.debug("schemaFile = " + schemaFile);
+      Schema schema = factory.newSchema(new StreamSource(AuthoringHelper.class.getClassLoader().getResourceAsStream(schemaFile)));
+
+      // 3. Get a validator from the schema.
+      Validator validator = schema.newValidator();
+
+      // 4. Parse the document you want to check.
+      Source source = new DOMSource(doc);
+
+      // 5. Check the document
+      try {
+          validator.validate(source);
+          log.debug("The xml is valid.");
+          return true;
+      }
+      catch (SAXException ex) {
+          log.debug("The xml is not valid QTI format.");
+      }
+      return false;
+  }
+
+
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, ArrayList failedMatchingQuestions, String siteId)
   {
 	AssessmentFacade assessment = null;
@@ -504,6 +543,16 @@ public class AuthoringHelper
       // we need to remove a default namespace if present
       Document removeNamespace = exHelper.getTransformDocument(exHelper.REMOVE_NAMESPACE_TRANSFORM);
       Document flatNamespaceXml = XmlUtil.transformDocument(document, removeNamespace);
+	
+      // validate xml
+
+      // validate xml first
+      boolean success = validateImportXml(flatNamespaceXml);
+      if (!success) {
+      	throw( new RuntimeException("Invalid QTI XML format."));
+      }
+      // else continue;
+ 
       Assessment assessmentXml = new Assessment(flatNamespaceXml);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
       String description = (String) assessmentMap.get("description");
