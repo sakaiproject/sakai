@@ -283,17 +283,17 @@ public abstract class StaticHandler extends BasePortalHandler
 	 * @param f
 	 * @return
 	 */
-	private String getContentType(File f)
+	String getContentType(File f)
 	{
 		String name = f.getName();
 		int dot = name.lastIndexOf(".");
-		String contentType = "application/octet-stream";
-		if (dot >= 0)
+		String contentType = null;
+		if (dot >= 0 && dot < name.length())
 		{
-			String ext = name.substring(dot);
+			String ext = name.substring(dot+1);
 			contentType = contentTypes.getProperty(ext);
 		}
-		return contentType;
+		return (contentType == null)?"application/octet-stream":contentType;
 	}
 
 	/**
@@ -303,7 +303,7 @@ public abstract class StaticHandler extends BasePortalHandler
 	 * @param sc
 	 * @throws IOException
 	 */
-	private void sendContent(HttpServletResponse res, StaticCache sc) throws IOException
+	void sendContent(HttpServletResponse res, StaticCache sc) throws IOException
 	{
 		if (sc.contenttype != null) {
 			res.setContentType(sc.contenttype);
