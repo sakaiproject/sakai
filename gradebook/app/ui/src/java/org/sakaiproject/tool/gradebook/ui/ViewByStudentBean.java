@@ -231,10 +231,13 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			courseGrade = gradeRecord;
     			courseGradeLetter = gradeRecord.getDisplayGrade();
     		}
+    		if(gradeRecord.getPointsEarned() != null){
+    			pointsEarned = gradeRecord.getPointsEarned();
+    		}
     	}
     	
     	totalPoints = getGradebookManager().getTotalPoints(gradebook.getId());
-    	pointsEarned = gradeRecord.getPointsEarned();
+    	
     	
     	initializeStudentGradeData();
     }
