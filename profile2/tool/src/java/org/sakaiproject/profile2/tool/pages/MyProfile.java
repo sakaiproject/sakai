@@ -442,8 +442,7 @@ public class MyProfile extends BasePage {
 		add(myStatusPanel);
 		
 		List<ITab> tabs = new ArrayList<ITab>();
-		// TODO resource string
-		tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
+		tabs.add(new AbstractTab(new ResourceModel("profile.tab.profile")) {
 
 			private static final long serialVersionUID = 1L;
 
