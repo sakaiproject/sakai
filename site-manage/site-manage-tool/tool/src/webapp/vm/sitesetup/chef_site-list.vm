@@ -6,76 +6,30 @@
 <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
 <div id="dialog"></div>
 <script type="text/javascript">
-<!--
     $(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
 		sakai.setupSelectList('siteList','selunselallid','selectedSelected');
+		$('.siteSelectCheckbox').click(function(){
+			if($('.siteSelectCheckbox:checked').length >= 1){
+				$('#actionToolBar .realToolBarLink').show();
+				$('#actionToolBar .dummyToolBarLink').hide();
+			}
+			else{
+				$('#actionToolBar .realToolBarLink').hide();
+				$('#actionToolBar .dummyToolBarLink').show();
+			}
+		})
     });
-    function resetSelectedItemsCount()
-	{
-		var anyItemSelected = false;
-		var selectedMembers=document.getElementsByName("selectedMembers");
-		for (var i=0; i < selectedMembers.length && !anyItemSelected; i++)
-		{
-			if (selectedMembers[i].checked)
-			{
-				anyItemSelected = true;
-				break;
-			}
-		}
-		var ul = document.getElementById("actionToolBar");
-		var j = 0;
-		// count all menu items
-		var totalLI = 0;
-		for (;j<ul.childNodes.length;j++) {
-        	var item = ul.childNodes[j];
-            if (item.nodeName == "LI") 
-            {
-            	totalLI++;
-            }
-        }
-        var liCount = 0;
-		for (j=0;j<ul.childNodes.length;j++) {
-        	var item = ul.childNodes[j];
-            if (item.nodeName == "LI") 
-            {
-	            liCount++;
-				if (liCount==(totalLI-3) || liCount==(totalLI-2))
-				{
-					item.style.display= anyItemSelected ? "none":"";
-				}
-				else if (liCount==(totalLI-1) || liCount==totalLI)
-				{
-					item.style.display= anyItemSelected ? "":"none";
-				}
-			}
-		}
-	}
-	
-	function toggleSelectAll(caller, elementName)
-    {
-		var newValue = caller.checked;
-		var elements = document.getElementsByName(elementName);
-			
-		if(elements)
-		{
-			for(var i = 0; i < elements.length; i++)
-			{
-				elements[i].checked = newValue;
-			}
-		}
-   	}
-	// -->
 </script>
 <div class ="portletBody">
-	<ul id="actionToolBar" id="actionToolBar" class="navIntraTool actionToolBar">
+	<ul id="actionToolBar" class="navIntraTool actionToolBar">
 		#if($allowAddSite)
 			<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_site")" title="$tlang.getString('java.new')">$tlang.getString("java.new").trim()</a></span></li>
 		#end
-		<li><span style="current">$tlang.getString("java.revise")</span></li>
-		<li><span style="current">$tlang.getString("java.delete")</span></li>
-		<li style="display:none"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise").trim()</a></span></li>
-		<li style="display:none"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete").trim()</span></a></li>
+		<li class="dummyToolBarLink"><span style="current">$tlang.getString("java.revise")</span></li>
+		<li class="dummyToolBarLink"><span style="current">$tlang.getString("java.delete")</span></li>
+		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise").trim()</a></span></li>
+		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete").trim()</span></a></li>
 	</ul>
 
 	<div class="navIntraToolLink viewNav">
@@ -265,7 +219,7 @@
 						<tr>
 							<td headers="checkbox" class="screenOnly attach">
 								#if ($service.allowUpdateSite($site.Id))
-									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount" onchange="resetSelectedItemsCount();" />
+									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount"  class="siteSelectCheckbox"  />
 									<label class="skip" for="site$siteCount">Select $validator.escapeHtml($site.getTitle())</label>
 								#end
 							</td>
