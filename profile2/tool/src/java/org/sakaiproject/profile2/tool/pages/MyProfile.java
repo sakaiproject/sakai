@@ -17,9 +17,8 @@
 package org.sakaiproject.profile2.tool.pages;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -30,6 +29,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -53,17 +55,10 @@ import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
-import org.sakaiproject.profile2.tool.pages.panels.MyBusinessDisplay;
-import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
-import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
-import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
-import org.sakaiproject.profile2.tool.pages.panels.MySocialNetworkingDisplay;
-import org.sakaiproject.profile2.tool.pages.panels.MyStaffDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyProfilePanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
-import org.sakaiproject.profile2.tool.pages.panels.MyStudentDisplay;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 
 public class MyProfile extends BasePage {
@@ -157,7 +152,7 @@ public class MyProfile extends BasePage {
 		
 		//create instance of the UserProfile class
 		//we then pass the userProfile in the constructor to the child panels
-		UserProfile userProfile = new UserProfile();
+		final UserProfile userProfile = new UserProfile();
 				
 		//get rest of values from SakaiPerson and setup UserProfile
 		userProfile.setUserUuid(userUuid);
@@ -446,46 +441,21 @@ public class MyProfile extends BasePage {
 		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
 		add(myStatusPanel);
 		
-		//info panel - load the display version by default
-		Panel myInfoDisplay = new MyInfoDisplay("myInfo", userProfile);
-		myInfoDisplay.setOutputMarkupId(true);
-		add(myInfoDisplay);
-		
-		//contact panel - load the display version by default
-		Panel myContactDisplay = new MyContactDisplay("myContact", userProfile);
-		myContactDisplay.setOutputMarkupId(true);
-		add(myContactDisplay);
-		
-		//university staff panel - load the display version by default
-		Panel myStaffDisplay = new MyStaffDisplay("myStaff", userProfile);
-		myStaffDisplay.setOutputMarkupId(true);
-		add(myStaffDisplay);
-		
-		//business panel - load the display version by default
-		Panel myBusinessDisplay;
-		if (sakaiProxy.isBusinessProfileEnabled()) {
-			myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
-			myBusinessDisplay.setOutputMarkupId(true);
-		} else {
-			myBusinessDisplay = new EmptyPanel("myBusiness");
-		}
-		add(myBusinessDisplay);
-		
-		//student panel
-		Panel myStudentDisplay = new MyStudentDisplay("myStudent", userProfile);
-		myStudentDisplay.setOutputMarkupId(true);
-		add(myStudentDisplay);
-		
-		//social networking panel
-		Panel mySocialNetworkingDisplay = new MySocialNetworkingDisplay("mySocialNetworking", userProfile);
-		mySocialNetworkingDisplay.setOutputMarkupId(true);
-		add(mySocialNetworkingDisplay);
-		
-		//interests panel - load the display version by default
-		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
-		myInterestsDisplay.setOutputMarkupId(true);
-		add(myInterestsDisplay);
+		List<ITab> tabs = new ArrayList<ITab>();
+		// TODO resource string
+		tabs.add(new AbstractTab(new ResourceModel("profile.business.company.profile")) {
 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Panel getPanel(String panelId) {
+
+				return new MyProfilePanel(panelId, userProfile,
+						sakaiProxy.isBusinessProfileEnabled());
+			}
+
+		});
+		add(new AjaxTabbedPanel("myProfileTabs", tabs));
 		
 		//kudos panel
 		add(new AjaxLazyLoadPanel("myKudos"){
