@@ -68,6 +68,7 @@
 				</div>
 			#end
 			#if (${sitePages.pageNavShowPresenceLoggedIn})
+				<h1 class="skip">${rloader.sit_presencehead}</h1>
 				<div id="presenceWrapper">
 					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
 #if (${sitePages.pageNavPresenceIframe})
