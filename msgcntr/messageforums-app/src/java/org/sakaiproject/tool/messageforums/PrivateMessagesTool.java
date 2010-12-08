@@ -370,7 +370,7 @@ public class PrivateMessagesTool
     	area.setEnabled(true);
     }
     
-    if (getPvtAreaEnabled() || isInstructor() || isEmailPermit()){      
+    if (getUserId() != null && (getPvtAreaEnabled() || isInstructor() || isEmailPermit())){      
       PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area, aggregateList);
       pf = prtMsgManager.initializationHelper(pf, area);
       pvtTopics = pf.getTopics();
@@ -436,7 +436,7 @@ public class PrivateMessagesTool
 	    
       int totalUnreadMessages = 0;
     	  
-      if (getPvtAreaEnabled()){  
+      if (getPvtAreaEnabled() && decoratedForum.getForum() != null){  
     	  
     	int countForFolderNum = 0;// only three folder 
     	Iterator iterator = pvtTopics.iterator(); 
@@ -500,7 +500,9 @@ public class PrivateMessagesTool
       
       
       //update syntopic info:
-      setMessagesSynopticInfoHelper(getUserId(), getSiteId(), totalUnreadMessages, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      if(getUserId() != null){
+    	  setMessagesSynopticInfoHelper(getUserId(), getSiteId(), totalUnreadMessages, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
       
     return decoratedForum ;
   }
@@ -1264,7 +1266,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
   public void initializeFromSynoptic()
   {
 	  
-	  
+	  if(getUserId() != null){
 	  
 	    /** reset sort type */
 	    sortType = SORT_DATE_DESC;    
@@ -1290,6 +1292,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    
 	    //set prev/next topic details
 	    setPrevNextTopicDetails(msgNavMode);
+	  }
   }
   
   public String processPvtMsgTopic()

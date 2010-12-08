@@ -23,6 +23,7 @@ import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -226,6 +227,19 @@ public class MessageForumSynopticBeanLite {
 		SynopticMsgcntrItem synItem;
 		if(isMyWorkspace()){
 			//do nothing
+		}else if(getCurrentUser() == null){
+			//return empty synopticMsgcntrItem for anon users
+			Site site;
+			try {
+				site = SiteService.getSite(getContext());
+				synItem = new SynopticMsgcntrItemImpl();
+				synItem.setSiteId(site.getId());
+				siteHomepageContent = new DecoratedSynopticMsgcntrItem(synItem, site);
+			} catch (IdUnusedException e) {
+				//we not longer need this record so delete it
+				e.printStackTrace();
+			}
+			
 		}else{
 			//findSiteSynopticMsgcntrItems
 			synItem = getSynopticMsgcntrManager().getSiteSynopticMsgcntrItem(getCurrentUser(), getContext());
@@ -777,7 +791,7 @@ public class MessageForumSynopticBeanLite {
 	    		if ((receivedTopicUuid = getUuidFromMap(contextId)) == null) {
 	    			Area area = getAreaManager().getAreaByContextIdAndTypeId(contextId, getTypeManager().getPrivateMessageAreaType());
 
-	    			if (area != null) {
+	    			if (area != null && getCurrentUser() != null) {
 	    				if (isMessagesPageInSite() || area.getEnabled().booleanValue() || getPvtMessageManager().isInstructor()){
 			    			/* TODO: determine if receivedTopicUuid = ""; // is OK? */
 			    			PrivateForum pf = getPvtMessageManager().initializePrivateMessageArea(area, new ArrayList());

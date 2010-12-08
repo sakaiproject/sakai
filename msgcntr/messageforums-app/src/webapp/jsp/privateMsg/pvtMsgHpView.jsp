@@ -8,20 +8,25 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
-
+<f:view>
+	<sakai:view title="#{msgs.cdfm_message_pvtarea}">
+		<!--jsp/privateMsg/pvtMsgHpView.jsp-->
+		<h:form id="msgForum">
+		
 <%  
   /** initialize user's private message area per request **/
   FacesContext context = FacesContext.getCurrentInstance();
   Application app = context.getApplication();
   ValueBinding binding = app.createValueBinding("#{PrivateMessagesTool}");
   PrivateMessagesTool pmt = (PrivateMessagesTool) binding.getValue(context);
+  
+  if(pmt.getUserId() != null){
+  //show entire page, otherwise, don't allow anon user to use this tool:
   pmt.initializePrivateMessageArea();
 %>
 
-<f:view>
-	<sakai:view title="#{msgs.cdfm_message_pvtarea}">
-		<!--jsp/privateMsg/pvtMsgHpView.jsp-->
-		<h:form id="msgForum">
+
+
 		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 
@@ -156,6 +161,17 @@
 
 			<h:inputHidden id="mainOrHp" value="pvtMsgHpView" />
 
+
+<%
+}else{
+//user is an anon user, just show a message saying they can't use this tool:
+%>
+
+<h:outputText value="#{msgs.pvt_anon_warning}" styleClass="information"/>
+
+<%
+}
+%>
 		</h:form>
 	</sakai:view>
 </f:view>

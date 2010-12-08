@@ -6,19 +6,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 
-<%
-// FOR WHEN COMING FROM SYNOPTIC TOOL 
-    FacesContext context = FacesContext.getCurrentInstance();
-    ExternalContext exContext = context.getExternalContext();
-    Map paramMap = exContext.getRequestParameterMap();
-    
-     if ( "pvt_received".equals((String) paramMap.get("selectedTopic")) ) {
-	  Application app = context.getApplication();
-	  ValueBinding binding = app.createValueBinding("#{PrivateMessagesTool}");
-	  PrivateMessagesTool pmt = (PrivateMessagesTool) binding.getValue(context);
-	  pmt.initializeFromSynoptic();
-    }
-%>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
@@ -28,6 +15,23 @@
 	<sakai:view title="#{msgs.pvtarea_name}">
 <!--jsp/privateMsg/pvtMsg.jsp-->
 		<h:form id="prefs_pvt_form">
+<%
+// FOR WHEN COMING FROM SYNOPTIC TOOL 
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExternalContext exContext = context.getExternalContext();
+    Map paramMap = exContext.getRequestParameterMap();
+    Application app = context.getApplication();
+    ValueBinding binding = app.createValueBinding("#{PrivateMessagesTool}");
+    PrivateMessagesTool pmt = (PrivateMessagesTool) binding.getValue(context);
+    
+     if ( "pvt_received".equals((String) paramMap.get("selectedTopic")) ) {
+	  pmt.initializeFromSynoptic();
+    }
+    
+    if(pmt.getUserId() != null){
+  	//show entire page, otherwise, don't allow anon user to use this tool:
+%>
+
 		       		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
@@ -239,6 +243,17 @@
 
      toggleBulkOperations(numberChecked > 0, 'prefs_pvt_form');
      </script>
+     
+<%
+}else{
+//user is an anon user, just show a message saying they can't use this tool:
+%>
+
+<h:outputText value="#{msgs.pvt_anon_warning}" styleClass="information"/>
+
+<%
+}
+%>
 
 		 </h:form>
 	</sakai:view>
