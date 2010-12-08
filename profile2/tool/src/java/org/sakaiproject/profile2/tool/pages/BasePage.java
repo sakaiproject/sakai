@@ -74,7 +74,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
 	
-	Link<Void> myWallLink;
 	Link<Void> myPicturesLink;
 	Link<Void> myProfileLink;
 	Link<Void> myFriendsLink;
@@ -105,20 +104,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
 		myProfileLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.profile.tooltip")));
 		add(myProfileLink);
-		
-		// wall link
-		myWallLink = new Link<Void>("myWallLink") {
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new MyWall());
-			}
-		};
-		myWallLink.add(new Label("myWallLabel",new ResourceModel("link.my.wall")));
-		myWallLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.wall.tooltip")));
-		add(myWallLink);
-		
-		// enabled/disable wall link as required
-		myWallLink.setVisible(sakaiProxy.isWallEnabledGlobally());
 		
 		//my pictures link
 		myPicturesLink = new Link<Void>("myPicturesLink") {

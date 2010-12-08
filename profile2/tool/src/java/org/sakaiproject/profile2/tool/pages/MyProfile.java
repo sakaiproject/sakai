@@ -57,6 +57,7 @@ import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyProfilePanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
+import org.sakaiproject.profile2.tool.pages.panels.MyWallPanel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -442,6 +443,9 @@ public class MyProfile extends BasePage {
 		add(myStatusPanel);
 		
 		List<ITab> tabs = new ArrayList<ITab>();
+		
+		AjaxTabbedPanel tabbedPanel = new AjaxTabbedPanel("myProfileTabs", tabs);
+		
 		tabs.add(new AbstractTab(new ResourceModel("profile.tab.profile")) {
 
 			private static final long serialVersionUID = 1L;
@@ -454,7 +458,27 @@ public class MyProfile extends BasePage {
 			}
 
 		});
-		add(new AjaxTabbedPanel("myProfileTabs", tabs));
+		
+		if (true == sakaiProxy.isWallEnabledGlobally()) {
+			
+			tabs.add(new AbstractTab(new ResourceModel("profile.tab.wall")) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Panel getPanel(String panelId) {
+
+					return new MyWallPanel(panelId);
+				}
+			});
+			
+			if (true == sakaiProxy.isWallDefaultProfile2Page()) {
+				// TODO magic number
+				tabbedPanel.setSelectedTab(1);
+			}
+		}
+		
+		add(tabbedPanel);
 		
 		//kudos panel
 		add(new AjaxLazyLoadPanel("myKudos"){

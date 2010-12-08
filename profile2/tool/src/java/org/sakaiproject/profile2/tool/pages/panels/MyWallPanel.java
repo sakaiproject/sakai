@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages.panels;
+
+import org.apache.wicket.markup.html.panel.Panel;
 
 /**
- * User's own wall page.
+ * User's wall panel.
  */
-public class MyWall extends BasePage {
+public class MyWallPanel extends Panel {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 
 	 */
-	public MyWall() {
-		disableLink(myWallLink);
+	public MyWallPanel(String id) {
+		
+		super(id);
 	}
 
 }
