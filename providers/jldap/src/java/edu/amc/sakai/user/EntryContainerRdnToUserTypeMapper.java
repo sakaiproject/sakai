@@ -24,6 +24,7 @@ package edu.amc.sakai.user;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,13 +52,21 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	 * found. otherwise will return <code>null</code>
 	 */
 	private boolean returnLiteralRdnValueIfNoMapping;
+
+	/** if <code>true</code>, will recurse through all
+	 * RDN values to find a valid match.
+	 * otherwise will return <code>null</code>
+	 */
+	private boolean recurseRdnIfNoMapping;
 	
 	/**
-	 * Returns the user type associated with the most local
+	 * Returns the user type associated with a matching
 	 * RDN encountered when iterating through the specified 
 	 * <code>LDAPEntry</code>'s containing <code>DN</code>'s 
-	 * <code>RDN<code>s. {@link #mapRdn(String, String))}
-	 * implements the actual value mapping.
+	 * <code>RDN<code>s. If recurseRdnIfNoMapping is false, 
+	 * the most local RDN will be used for matching. 
+	 * {@link #mapRdn(String, String))} implements the actual 
+	 * value mapping.
 	 * 
 	 * @param ldapEntry the user's <code>LDAPEntry</code>
 	 * @param mapper a source of mapping configuration
@@ -75,9 +84,20 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 		DN dn = new DN(dnString);
 		DN containerDN = dn.getParent();
 		Vector<RDN> containerRDNs = containerDN.getRDNs();
-		RDN rdn = containerRDNs.iterator().next();
-		return mapRdn(rdn.getType(),rdn.getValue());
-		
+		Iterator<RDN> containerRDNsIterator = containerRDNs.iterator();
+		RDN rdn = containerRDNsIterator.next();
+		String mappedValue = mapRdn(rdn.getType(),rdn.getValue());
+
+		if(mappedValue == null && recurseRdnIfNoMapping) {
+				while ( containerRDNsIterator.hasNext() ) {
+						rdn = containerRDNsIterator.next();
+						mappedValue = mapRdn(rdn.getType(),rdn.getValue());
+						if ( mappedValue != null) {
+								return mappedValue;
+						}
+				}
+		}
+		return mappedValue;
 	}
 	
 	/**
@@ -158,5 +178,19 @@ public class EntryContainerRdnToUserTypeMapper implements UserTypeMapper {
 	public void setReturnLiteralRdnIfNoMapping(boolean returnLiteralRdnValueIfNoMapping) {
 		this.returnLiteralRdnValueIfNoMapping = returnLiteralRdnValueIfNoMapping;
 	}
+
+        /**
+         * {@see mapRdn(String,String)}
+         */
+        public boolean isRecurseRdnIfNoMapping() {
+                return recurseRdnIfNoMapping;
+        }
+
+        /**
+         * {@see mapRdn(String,String)}
+         */
+        public void setRecurseRdnIfNoMapping(boolean recurseRdnIfNoMapping) {
+                this.recurseRdnIfNoMapping = recurseRdnIfNoMapping;
+        }
 
 }

@@ -302,6 +302,11 @@
 				<entry key="students"><value>student</value></entry> 
 			</map>
 		</property -->
+
+		<!-- Optional. Defaults to false.  -->
+		<!-- property name="recurseRdnIfNoMapping">
+			<value>false</value>
+		</property -->
 				
 		<!-- Optional. Defaults to false.  -->
 		<!-- property name="returnLiteralRdnValueIfNoMapping">

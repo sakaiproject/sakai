@@ -112,9 +112,10 @@ implementations are available OOTB:
     the original JLDAPDirectoryProvider implementation.
 
   EntryContainerRdnToUserTypeMapper -- Maps the user's LDAPEntry's container's
-    most local RDN value to a Sakai user type. For example, if the user's
-    DN is cn=user1,ou=faculty,ou=users,dc=university,dc=edu, the ou=faculty
-    RDN can be mapped to a Sakai user type String.
+    RDN value to a Sakai user type (will use most local RDN value by default,
+    recurseRdnIfNoMapping enabled will recurse through available RDNs). For 
+    example, if the user's DN is cn=user1,ou=faculty,ou=users,dc=university,dc=edu, 
+    the ou=faculty RDN can be mapped to a Sakai user type String.
 
 SimpleLdapAttributeMapper mapping behaviors can also be extended by
 overriding mapLdapEntryOntoUserData(LDAPEntry ldapEntry, LdapUserData userData)
