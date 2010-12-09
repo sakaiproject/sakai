@@ -661,8 +661,16 @@ page estate
 .sakaiMinimizePageNavigation #toolMenu{
 	width:16px;
 }
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper, .sakaiMinimizePageNavigation #subSites li span{
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #presenceWrapper{
 	display:none
+}
+.sakaiMinimizePageNavigation #toolMenu li span,.sakaiMinimizePageNavigation #subSites li span{
+    position:absolute; 
+    left:-10000px; 
+    top:auto; 
+    width:1px; 
+    height:1px; 
+    overflow:hidden; 
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
 	width:0px;
