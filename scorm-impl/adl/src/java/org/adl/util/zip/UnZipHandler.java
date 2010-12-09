@@ -23,15 +23,17 @@
 *******************************************************************************/
 package org.adl.util.zip;
 
-import org.apache.tools.zip.ZipFile;
-import org.apache.tools.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.io.IOException;
 import java.io.File;
-import java.util.Enumeration;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.FileOutputStream;
+import java.util.Enumeration;
+import java.util.zip.ZipException;
+
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipFile;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  *
@@ -140,7 +142,7 @@ public class UnZipHandler
 
       try
       {    	 
-    	 ZipFile archive = new ZipFile( mZipFile, "Cp437" );
+    	 ZipFile archive = new ZipFile( mZipFile, ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8") );
     	 
          for ( Enumeration e = archive.getEntries(); e.hasMoreElements(); )
          {
