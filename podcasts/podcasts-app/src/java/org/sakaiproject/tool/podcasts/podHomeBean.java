@@ -701,7 +701,7 @@ public class podHomeBean {
 			podcastInfo.setSize(sizeString);
 
 			final String extn = Validator.getFileExtension(filename);
-			if (extn != "") {
+			if (! "".equals(extn)) {
 				podcastInfo.setType(Validator.getFileExtension(filename).toUpperCase());
 			}
 			else {
@@ -1447,8 +1447,9 @@ public class podHomeBean {
 				}
 
 				try {
-					fileAsStream.read(fileContents);
-					
+					if (fileAsStream != null) {
+						fileAsStream.read(fileContents);
+					}
 				} 
 				catch (IOException e) {
 					LOG.error("IOException while attempting to get file contents when revising podcast for "
@@ -1964,7 +1965,7 @@ public class podHomeBean {
 		
 		Long override = (Long) ((HttpServletRequest) context.getExternalContext().getRequest()).getAttribute("upload.limit");
 		
-		if (override != null && ! "".equals(override)) {
+		if (override != null && override > 0) {
 			uploadMaxSize = override.toString();
 		}
 
