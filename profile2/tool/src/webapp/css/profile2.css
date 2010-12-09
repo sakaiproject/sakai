@@ -709,7 +709,7 @@ h2 {
 }
 
 
-.connection-info-name, .search-result-info-name {
+.connection-info-name, .search-result-info-name, wall-item-name {
 	display: inline;
 	font-weight: bold;
 	word-break:break-all;
@@ -1326,6 +1326,45 @@ main-profile-tabpanel .tab-row a:visited.active,
 .company-profile-tabpanel .tab-row a:hover,
 .messages-tabpanel .tab-row a:hover {
     background: #fff;
+}
+
+/* wall-related */
+.wall-wrap {
+	margin-bottom: 12px;
+	width: 500px;
+}
+
+.wall-item {
+	display:block;
+	position: relative;
+	left: 0;
+	top: 0;
+	border-bottom: 1px solid #d0d0df;
+	border-collapse: collapse;
+	height: 80px;
+	padding-top: 5px;
+	/*padding-left: 5px;*/
+	padding-right: 5px;
+	padding-bottom: 5px;
+	overflow: hidden; /* to crop bigger pictures that might overhang */
+}
+
+.wall-item-img {
+	max-width: 55px;
+	width: 55px;
+   	margin:auto;
+   	cursor: pointer;
+}
+
+.wall-item-text-wrap {
+	position: absolute;
+	top: 5px;
+	left: 60px;
+}
+
+.wall-item-date {
+	margin-top: 10px;
+	color: #AAADBA;	
 }
 
 /* close button */
