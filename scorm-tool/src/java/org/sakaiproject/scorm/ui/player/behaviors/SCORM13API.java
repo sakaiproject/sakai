@@ -130,12 +130,11 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 	protected void synchResultWithGradebook() {
 		ScoBean displayingSco = getSessionBean().getDisplayingSco();
 		IDataManager dataManager = displayingSco.getDataManager();
-		String successStatus = getValueAsString("cmi.success_status", dataManager); // passed, failed, unknown
 		String mode = getValueAsString("cmi.mode", dataManager); // passed, failed, unknown
 		String credit = getValueAsString("cmi.credit", dataManager); // credit, no_credit 
 		String completionStatus = getValueAsString("cmi.completion_status", dataManager); // (completed, incomplete, not_attempted, unknown)
 		double score = getRealValue("cmi.score.scaled", dataManager) * 100d; // A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of Ð1.0 to 1.0, inclusive.
-		if ("normal".equals(mode) && "completed".equals(completionStatus) && successStatus != null && "credit".equals(credit)) {
+		if ("normal".equals(mode) && "completed".equals(completionStatus) && "credit".equals(credit)) {
 			Placement placement = ToolManager.getCurrentPlacement();
 			String context = placement.getContext();
 			long contentPackageId = getSessionBean().getContentPackage().getContentPackageId();
