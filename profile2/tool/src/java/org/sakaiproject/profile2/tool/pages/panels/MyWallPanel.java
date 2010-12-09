@@ -23,12 +23,11 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
-import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
+import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -42,8 +41,8 @@ public class MyWallPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileStatusLogic")
-	private ProfileStatusLogic statusLogic;
+//	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileStatusLogic")
+//	private ProfileStatusLogic statusLogic;
 	
 	/**
 	 * 
@@ -52,8 +51,7 @@ public class MyWallPanel extends Panel {
 
 		super(id);
 
-		// TODO WallItemDataProvider
-		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(
+		WallItemDataProvider provider = new WallItemDataProvider(
 				sakaiProxy.getCurrentUserId());
 
 		// container which wraps list
@@ -62,20 +60,20 @@ public class MyWallPanel extends Panel {
 
 		wallItemsContainer.setOutputMarkupId(true);
 		
-		// TODO WallItem
-		DataView<Person> wallItemsDataView = new DataView<Person>(
+		DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
 				"wallItems", provider) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(Item<Person> item) {
+			protected void populateItem(Item<WallItem> item) {
 
-				Person person = (Person) item.getDefaultModelObject();
+				WallItem wallItem = (WallItem) item.getDefaultModelObject();
 
 				// image wrapper, links to profile
-				Link<String> wallItem = new Link<String>("wallItemPhotoWrap",
-						new Model<String>(person.getUuid())) {
+				Link<String> wallItemPhoto = new Link<String>(
+						"wallItemPhotoWrap", new Model<String>(wallItem
+								.getCreatorUuid())) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -85,14 +83,14 @@ public class MyWallPanel extends Panel {
 				};
 
 				// image
-				wallItem.add(new ProfileImageRenderer("wallItemPhoto", person
-						.getUuid()));
-				item.add(wallItem);
+				wallItemPhoto.add(new ProfileImageRenderer("wallItemPhoto",
+						wallItem.getCreatorUuid()));
+				item.add(wallItemPhoto);
 
 				// name and link to profile
 				Link<String> wallItemProfileLink = new Link<String>(
-						"wallItemProfileLink", new Model<String>(person
-								.getUuid())) {
+						"wallItemProfileLink", new Model<String>(wallItem
+								.getCreatorUuid())) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -101,19 +99,14 @@ public class MyWallPanel extends Panel {
 					}
 
 				};
-				wallItemProfileLink.add(new Label("wallItemName", person
-						.getDisplayName()));
+				wallItemProfileLink.add(new Label("wallItemName", wallItem
+						.getCreatorName()));
 				item.add(wallItemProfileLink);
 
-				// TODO directly using ProfileStatus but this will be handled
-				// by WallItemDataProvider if that's the approach we take
-				ProfileStatus status = statusLogic.getUserStatus(person
-						.getUuid());
-
-				item.add(new Label("wallItemText", status.getMessage()));
+				item.add(new Label("wallItemText", wallItem.getText()));
 				item.add(new Label("wallItemDate", ProfileUtils
-						.convertDateToString(status.getDateAdded(),
-								"dd MMMMM @ h:mm")));
+						.convertDateToString(wallItem.getDate(),
+								"dd MMMMM, h:mm")));
 
 			}
 		};

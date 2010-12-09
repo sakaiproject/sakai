@@ -143,6 +143,13 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
     
+    <!-- ProfileWallLogicImpl -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileWallLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileWallLogicImpl">
+    		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+        	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+    </bean>
+    	
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
     	class="org.sakaiproject.profile2.cache.CacheManagerImpl">

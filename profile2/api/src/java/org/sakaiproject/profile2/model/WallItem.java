@@ -1,0 +1,47 @@
+/**
+ * Copyright (c) 2008-2010 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sakaiproject.profile2.model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+public class WallItem implements Serializable, Comparable<WallItem> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String creatorUuid;
+	private String creatorName;
+	private String text;
+	private Date date;
+	
+	@Override
+	public int compareTo(WallItem wallItem) {
+		// TODO might instead create Comparators so we can ascend or descend as needed
+		if (date.getTime() > wallItem.getDate().getTime()) {
+			return -1;
+		} else if (date.getTime() < wallItem.getDate().getTime()) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+}
