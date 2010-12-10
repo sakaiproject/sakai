@@ -97,6 +97,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
       Session s = sessionManager.getCurrentSession();
       if (s != null) {
          es = new EntitySession(s);
+         es.setId(null); // SAK-19669 - do not allow session id to be visible for current session
       }
       return es;
    }
@@ -230,9 +231,9 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
 //    }
       // just get the current session for now
       List<EntitySession> sessions = new ArrayList<EntitySession>();
-      Session s = sessionManager.getCurrentSession();
-      if (s != null) {
-         sessions.add( new EntitySession(s) );
+      EntitySession es = (EntitySession) getCurrentSession();
+      if (es != null) {
+         sessions.add( es );
       }
       return sessions;
    }
