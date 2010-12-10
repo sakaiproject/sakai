@@ -267,6 +267,11 @@ public class ProfileConstants {
 	//email constants
 	public static final String EMAIL_NEWLINE = "<br />\n";
 	
+	//tabs
+	public static final String TAB_COOKIE = "profile2-tab";
+	public static final int TAB_INDEX_PROFILE = 0;
+	public static final int TAB_INDEX_WALL = 1;
+	
 	
 	/*
 	 * EVENTS

@@ -20,6 +20,8 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -446,6 +448,8 @@ public class MyProfile extends BasePage {
 		
 		AjaxTabbedPanel tabbedPanel = new AjaxTabbedPanel("myProfileTabs", tabs);
 		
+		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		
 		tabs.add(new AbstractTab(new ResourceModel("profile.tab.profile")) {
 
 			private static final long serialVersionUID = 1L;
@@ -453,6 +457,7 @@ public class MyProfile extends BasePage {
 			@Override
 			public Panel getPanel(String panelId) {
 
+				setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
 				return new MyProfilePanel(panelId, userProfile,
 						sakaiProxy.isBusinessProfileEnabled());
 			}
@@ -468,14 +473,19 @@ public class MyProfile extends BasePage {
 				@Override
 				public Panel getPanel(String panelId) {
 
+					setTabCookie(ProfileConstants.TAB_INDEX_WALL);
 					return new MyWallPanel(panelId);
 				}
 			});
 			
-			if (true == sakaiProxy.isWallDefaultProfile2Page()) {
-				// TODO magic number
-				tabbedPanel.setSelectedTab(1);
+			if (true == sakaiProxy.isWallDefaultProfile2Page() && null == tabCookie) {
+				
+				tabbedPanel.setSelectedTab(ProfileConstants.TAB_INDEX_WALL);
 			}
+		}
+		
+		if (null != tabCookie) {
+			tabbedPanel.setSelectedTab(Integer.parseInt(tabCookie.getValue()));
 		}
 		
 		add(tabbedPanel);
@@ -534,8 +544,14 @@ public class MyProfile extends BasePage {
 			}
 			
 		});
+	}
+	
+	private void setTabCookie(int tabIndex) {
 		
-		
+		Cookie tabCookie = new Cookie(ProfileConstants.TAB_COOKIE, "" + tabIndex);
+		// don't persist indefinitely
+		tabCookie.setMaxAge(-1);
+		getWebRequestCycle().getWebResponse().addCookie(tabCookie);
 	}
 	
 	
