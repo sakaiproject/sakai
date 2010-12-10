@@ -72,9 +72,9 @@ public class MacroListMacro extends BaseLocaleMacro
 		{
 			Macro macro = (Macro) iterator.next();
 			writer.write(macro.getName());
-			writer.write(Messages.getString("|")); //$NON-NLS-1$
+			writer.write("|"); //$NON-NLS-1$
 			writer.write(macro.getDescription());
-			writer.write(Messages.getString("|")); //$NON-NLS-1$
+			writer.write("|"); //$NON-NLS-1$
 			String[] params = macro.getParamDescription();
 			if (params.length == 0)
 			{
