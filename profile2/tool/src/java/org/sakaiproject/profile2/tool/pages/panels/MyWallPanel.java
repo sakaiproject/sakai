@@ -24,7 +24,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
@@ -41,11 +40,8 @@ public class MyWallPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
-//	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileStatusLogic")
-//	private ProfileStatusLogic statusLogic;
-	
 	/**
-	 * 
+	 * Creates a new instance of <code>MyWallPanel</code>.
 	 */
 	public MyWallPanel(String id) {
 
@@ -59,6 +55,8 @@ public class MyWallPanel extends Panel {
 				"wallItemsContainer");
 
 		wallItemsContainer.setOutputMarkupId(true);
+		
+		// TODO haven't decided whether to add a navigator yet
 		
 		DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
 				"wallItems", provider) {
@@ -106,7 +104,7 @@ public class MyWallPanel extends Panel {
 				item.add(new Label("wallItemText", wallItem.getText()));
 				item.add(new Label("wallItemDate", ProfileUtils
 						.convertDateToString(wallItem.getDate(),
-								"dd MMMMM, h:mm")));
+								"dd MMMMM, kk:mm")));
 
 			}
 		};
