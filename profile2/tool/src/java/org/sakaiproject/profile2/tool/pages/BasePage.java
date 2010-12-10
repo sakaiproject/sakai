@@ -251,7 +251,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
 		
 		//for jQuery
-		response.renderJavascriptReference("javascript/jquery-1.2.5.min.js");
+		response.renderJavascriptReference("javascript/jquery-1.4.4.min.js");
 			
 		//for datepicker
 		response.renderCSSReference("css/flora.datepicker.css");
