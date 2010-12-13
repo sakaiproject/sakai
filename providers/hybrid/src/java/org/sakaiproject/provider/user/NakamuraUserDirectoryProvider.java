@@ -108,10 +108,10 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 */
 	public boolean authenticateUser(String eid, UserEdit edit, String password) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("authenticateUser(String " + eid
-					+ ", UserEdit edit, String password)");
+			LOG.debug("authenticateUser(String " + eid + ", UserEdit " + edit
+					+ ", String password)");
 		}
-		if (eid == null) {
+		if (eid == null || "null".equalsIgnoreCase(eid) || "".equals(eid)) {
 			// maybe should throw exception instead?
 			// since I assume I am in a chain, I will be quiet about it
 			LOG.debug("eid == null");
@@ -147,7 +147,8 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 */
 	public boolean findUserByEmail(UserEdit edit, String email) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("findUserByEmail(UserEdit edit, String " + email + ")");
+			LOG.debug("findUserByEmail(UserEdit " + edit + ", String " + email
+					+ ")");
 		}
 		if (email == null) {
 			LOG.debug("String email == null");
@@ -171,12 +172,21 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	 * @see org.sakaiproject.user.api.UserDirectoryProvider#getUser(org.sakaiproject.user.api.UserEdit)
 	 */
 	public boolean getUser(UserEdit edit) {
-		LOG.debug("getUser(UserEdit edit)");
-		if (edit == null) {
-			LOG.debug("UserEdit edit == null");
-			return false;
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("getUser(UserEdit " + edit + ")");
 		}
-		return this.authenticateUser(edit.getEid(), edit, null);
+		/*
+		 * For some crazy reason, the not-null String "null" can be passed in
+		 * edit.getEid(). Very odd behavior indeed.
+		 */
+		if (edit != null) {
+			final String eid = edit.getEid();
+			if (eid != null && !"null".equalsIgnoreCase(eid)) {
+				return authenticateUser(edit.getEid(), edit, null);
+			}
+		}
+		LOG.debug("UserEdit edit == null || null eid");
+		return false;
 	}
 
 	/**
@@ -185,8 +195,8 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 	public void getUsers(Collection<UserEdit> users) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("getUsers(Collection<UserEdit> " + users + ")");
-			LOG.debug("Method is not currently supported");
 		}
+		LOG.warn("Method is not currently supported");
 		// nothing to do here...
 		return;
 	}
