@@ -22,6 +22,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
@@ -47,17 +48,25 @@ public class MyWallPanel extends Panel {
 
 		super(id);
 
-		WallItemDataProvider provider = new WallItemDataProvider(
-				sakaiProxy.getCurrentUserId());
+		WallItemDataProvider provider = new WallItemDataProvider(sakaiProxy
+				.getCurrentUserId());
 
 		// container which wraps list
 		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
 				"wallItemsContainer");
 
 		wallItemsContainer.setOutputMarkupId(true);
-		
+
+		// if no wall items, display a message
+		if (0 == provider.size()) {
+			wallItemsContainer.add(new Label("wallInformationMessage",
+					new ResourceModel("text.wall.no.items")));
+		} else {
+			wallItemsContainer.add(new Label("wallInformationMessage"));
+		}
+
 		// TODO haven't decided whether to add a navigator yet
-		
+
 		DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
 				"wallItems", provider) {
 
@@ -108,10 +117,10 @@ public class MyWallPanel extends Panel {
 
 			}
 		};
-		
+
 		wallItemsDataView.setOutputMarkupId(true);
-		//wallItemsDataView.setItemsPerPage(10);
-		
+		// wallItemsDataView.setItemsPerPage(10);
+
 		wallItemsContainer.add(wallItemsDataView);
 		add(wallItemsContainer);
 	}

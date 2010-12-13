@@ -32,6 +32,8 @@
 	<div class="profileContent">
 	<div class="wall-wrap" wicket:id="wallItemsContainer">
 		
+		<span wicket:id="wallInformationMessage"></span>
+		
 		<div class="wall-item" wicket:id="wallItems">
 			
 			<a wicket:id="wallItemPhotoWrap">
@@ -39,9 +41,7 @@
 			</a>
 			
 			<div class="wall-item-text-wrap">
-	    		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>
-	    		<!-- <span wicket:id="connectionStatus" class="status-msg">[status]</span> -->
-	    		
+	    		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		
 	    		<div wicket:id="wallItemText">[wall item text]</div>
 	    		<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
 	    	</div>
