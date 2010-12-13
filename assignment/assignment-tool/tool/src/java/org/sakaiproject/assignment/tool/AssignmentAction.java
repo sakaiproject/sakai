@@ -5170,7 +5170,7 @@ public class AssignmentAction extends PagedResourceActionII
 				.getParameterMap();
 
 		for (Map.Entry<String, ? extends Object> entry : helperParms.entrySet()) {
-			state.setAttribute(entry.getKey(), helperParms.get(entry.getValue()));
+			state.setAttribute(entry.getKey(), entry.getValue());
 		}
 	} // doHelp_activity
 	
