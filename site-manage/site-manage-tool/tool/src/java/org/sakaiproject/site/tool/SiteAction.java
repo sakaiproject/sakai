@@ -5229,16 +5229,10 @@ public class SiteAction extends PagedResourceActionII {
 				M_log.warn(this + ".updateCourseSiteSections: IdUnusedException, not found, or not an AuthzGroup object", e);
 				addAlert(state, rb.getString("java.realm"));
 			}
-			// catch (AuthzPermissionException e)
-			// {
-			// M_log.warn(this + " PermissionException, user does not
-			// have permission to edit AuthzGroup object.");
-			// addAlert(state, rb.getString("java.notaccess"));
-			// return;
-			// }
-			catch (Exception e) {
-				addAlert(state, this + rb.getString("java.problem"));
-				M_log.warn(this + ".updateCourseSiteSections: " + rb.getString("java.problem"), e);
+			catch (AuthzPermissionException e)
+			{
+				M_log.warn(this + rb.getString("java.notaccess"));
+				addAlert(state, rb.getString("java.notaccess"));
 			}
 
 			sendSiteNotification(state, getStateSite(state), providerCourseList);
@@ -7455,9 +7449,9 @@ public class SiteAction extends PagedResourceActionII {
 									} catch (GroupNotDefinedException e) {
 										M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
 										addAlert(state, rb.getString("java.realm"));
-									} catch (Exception e) {
-										addAlert(state, this + rb.getString("java.problem"));
-										M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.problem"), e);
+									} catch (AuthzPermissionException e) {
+										addAlert(state, this + rb.getString("java.notaccess"));
+										M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 									}
 								}
 							
