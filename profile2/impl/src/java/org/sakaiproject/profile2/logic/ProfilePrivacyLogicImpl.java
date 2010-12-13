@@ -732,6 +732,54 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	return false;
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXWallVisibleByUserY(String userX, String userY,
+			boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	
+    	//pass to main
+    	return isUserXWallVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXWallVisibleByUserY(String userX,
+			
+			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("ProfileLogic.isUserXWallVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
+    	return false;
+	}
 
 	/**
  	 * {@inheritDoc}
@@ -785,6 +833,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		privacy.setMessages((Integer)props.get("messages"));
 		privacy.setBusinessInfo((Integer)props.get("businessInfo"));
 		privacy.setMyKudos((Integer)props.get("myKudos"));
+		privacy.setMyWall((Integer)props.get("myWall"));
 		
 		return privacy;
 	}
@@ -808,4 +857,5 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	public void setCacheManager(CacheManager cacheManager) {
 		this.cacheManager = cacheManager;
 	}
+
 }

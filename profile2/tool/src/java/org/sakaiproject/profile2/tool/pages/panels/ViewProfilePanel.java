@@ -48,9 +48,11 @@ public class ViewProfilePanel extends Panel {
 	protected ProfilePrivacyLogic privacyLogic;
 	
 	public ViewProfilePanel(String id, final String userUuid, final String currentUserId,
-			ProfilePrivacy privacy, boolean friend, SakaiPerson sakaiPerson) {
+			ProfilePrivacy privacy, boolean friend) {
 		
 		super(id);
+		
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 		
 		//holds number of profile containers that are visible
 		int visibleContainerCount = 0;

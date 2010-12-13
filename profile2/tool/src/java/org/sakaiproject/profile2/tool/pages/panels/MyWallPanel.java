@@ -48,6 +48,8 @@ public class MyWallPanel extends Panel {
 
 		super(id);
 
+		// pass in user IDs and check privacy in here.
+		
 		WallItemDataProvider provider = new WallItemDataProvider(sakaiProxy
 				.getCurrentUserId());
 
