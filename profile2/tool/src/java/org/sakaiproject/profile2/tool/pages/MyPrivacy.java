@@ -349,6 +349,23 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		// wall privacy
+		WebMarkupContainer myWallContainer = new WebMarkupContainer("myWallContainer");
+		myWallContainer.add(new Label("myWallLabel", new ResourceModel("privacy.mywall")));
+		DropDownChoice myWallChoice = new DropDownChoice("myWall", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		myWallChoice.setOutputMarkupId(true);
+		myWallContainer.add(myWallChoice);
+		myWallContainer.add(new IconWithClueTip("myWallToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mywall.tooltip")));
+		form.add(myWallContainer);
+
+		myWallChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		myWallContainer.setVisible(sakaiProxy.isWallEnabledGlobally());
+		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -397,6 +414,7 @@ public class MyPrivacy extends BasePage {
 			myStatusChoice.setEnabled(false);
 			myPicturesChoice.setEnabled(false);
 			messagesChoice.setEnabled(false);
+			myWallChoice.setEnabled(false);
 			
 			submitButton.setEnabled(false);
 			submitButton.setVisible(false);

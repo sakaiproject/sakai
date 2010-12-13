@@ -50,5 +50,6 @@ public class ProfilePrivacy implements Serializable {
 	private int staffInfo;
 	private int socialNetworkingInfo;
 	private int myKudos;
+	private int myWall;
 	
 }
