@@ -236,8 +236,13 @@ public class BaseExternalCalendarSubscriptionService implements
 		m_log.info("destroy()");
 		try
 		{
-			((SubscriptionCacheMap) institutionalSubscriptions).stopCleanerThread();
-			((SubscriptionCacheMap) userSubscriptions).stopCleanerThread();
+			if (institutionalSubscriptions != null) {
+				((SubscriptionCacheMap) institutionalSubscriptions)
+						.stopCleanerThread();
+			}
+			if (userSubscriptions != null) {
+				((SubscriptionCacheMap) userSubscriptions).stopCleanerThread();
+			}
 		}
 		catch (Throwable e)
 		{
