@@ -446,11 +446,30 @@ public class MyProfile extends BasePage {
 		
 		List<ITab> tabs = new ArrayList<ITab>();
 		
-		AjaxTabbedPanel tabbedPanel = new AjaxTabbedPanel("myProfileTabs", tabs);
+		AjaxTabbedPanel tabbedPanel = new AjaxTabbedPanel("myProfileTabs", tabs) {
+			
+			private static final long serialVersionUID = 1L;
+
+			// overridden so we can add tooltips to tabs
+			@Override
+			protected WebMarkupContainer newLink(String linkId, final int index) {
+				WebMarkupContainer link = super.newLink(linkId, index);
+				
+				if (ProfileConstants.TAB_INDEX_PROFILE == index) {
+					link.add(new AttributeModifier("title", true,
+							new ResourceModel("link.tab.profile.tooltip")));
+					
+				} else if (ProfileConstants.TAB_INDEX_WALL == index) {
+					link.add(new AttributeModifier("title", true,
+							new ResourceModel("link.tab.wall.tooltip")));	
+				}
+				return link;
+			}
+		};
 		
 		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
 		
-		tabs.add(new AbstractTab(new ResourceModel("profile.tab.profile")) {
+		tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -466,7 +485,7 @@ public class MyProfile extends BasePage {
 		
 		if (true == sakaiProxy.isWallEnabledGlobally()) {
 			
-			tabs.add(new AbstractTab(new ResourceModel("profile.tab.wall")) {
+			tabs.add(new AbstractTab(new ResourceModel("link.tab.wall")) {
 
 				private static final long serialVersionUID = 1L;
 
