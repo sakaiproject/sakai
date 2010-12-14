@@ -597,12 +597,11 @@ public class ExternalLogicImpl implements ExternalLogic
 			throws MailsenderException
 	{
 		String replyToName = null;
-		String replyToEmail = null;
+		String replyToEmail = "no-reply@" + configService.getServerName();
 
 		if (ConfigEntry.ReplyTo.no_reply_to.name().equals(config.getReplyTo()))
 		{
 			replyToName = getCurrentSiteTitle();
-			replyToEmail = "";
 		}
 		else
 		{
