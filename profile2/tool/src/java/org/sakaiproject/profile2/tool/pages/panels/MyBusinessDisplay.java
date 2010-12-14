@@ -36,6 +36,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * Panel for displaying business profile data.
@@ -82,7 +83,8 @@ public class MyBusinessDisplay extends Panel {
 		businessBiographyContainer.add(new Label("businessBiographyLabel",
 				new ResourceModel("profile.business.bio")));
 		businessBiographyContainer.add(new Label("businessBiography",
-				userProfile.getBusinessBiography()));
+				ProfileUtils.processHtml(userProfile.getBusinessBiography()))
+				.setEscapeModelStrings(false));
 		add(businessBiographyContainer);
 
 		if (StringUtils.isBlank(userProfile.getBusinessBiography())) {

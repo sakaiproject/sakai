@@ -43,7 +43,11 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.util.ProfileConstants;
+
+import wicket.contrib.tinymce.TinyMceBehavior;
+import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
 
 /**
  * Panel for displaying and editing business profile data.
@@ -115,6 +119,7 @@ public class MyBusinessEdit extends Panel {
 		TextArea<String> businessBiography = new TextArea<String>(
 				"businessBiography", new PropertyModel<String>(userProfile,
 						"businessBiography"));
+		businessBiography.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
 		businessBiographyContainer.add(businessBiography);
 		form.add(businessBiographyContainer);
 
@@ -132,6 +137,7 @@ public class MyBusinessEdit extends Panel {
 
 		AjaxFallbackButton submitButton = createSaveChangesButton(id,
 				userProfile, form, formFeedback);
+		submitButton.add(new TinyMceAjaxSubmitModifier());
 		form.add(submitButton);
 
 		AjaxFallbackButton cancelButton = createCancelChangesButton(id,
