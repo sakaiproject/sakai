@@ -41,8 +41,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -95,22 +93,7 @@ public class ViewProfile extends BasePage {
 		}
 		*/
 			
-		//get SakaiPerson for the person who's profile we are viewing
-		final SakaiPerson sakaiPerson;
-		//if null, they have no profile so just get a prototype
-		if(sakaiProxy.getSakaiPerson(userUuid) == null) {
-			log.info("No SakaiPerson for " + userUuid);
-			sakaiPerson = sakaiProxy.getSakaiPersonPrototype();
-			//if its still null, throw exception
-			if(sakaiPerson == null) {
-				throw new ProfilePrototypeNotDefinedException("Couldn't create a SakaiPerson prototype for " + userUuid);
-			}
-		} else {
-			sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		}
-		
-		//get some values from SakaiPerson or SakaiProxy if empty
-		//SakaiPerson returns NULL strings if value is not set, not blank ones
+		//get some values from User
 		User user = sakaiProxy.getUserQuietly(userUuid);
 		String userDisplayName = user.getDisplayName();
 		String userType = user.getType();
@@ -262,7 +245,7 @@ public class ViewProfile extends BasePage {
     		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
 			addFriendLink.setEnabled(false);
 		}  else {
-			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ sakaiPerson.getNickname() } ));
+			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ user.getFirstName() } ));
 			addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid)); 
 		}
 		sideLinks.add(addFriendContainer);

@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -26,6 +27,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -41,6 +43,8 @@ public class ViewProfilePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
+	private static final Logger log = Logger.getLogger(ViewProfilePanel.class);
+	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
@@ -55,7 +59,20 @@ public class ViewProfilePanel extends Panel {
 		
 		super(id);
 		
-		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		//get SakaiPerson for the person who's profile we are viewing
+		//SakaiPerson returns NULL strings if value is not set, not blank ones
+		final SakaiPerson sakaiPerson;
+		//if null, they have no profile so just get a prototype
+		if(sakaiProxy.getSakaiPerson(userUuid) == null) {
+			log.info("No SakaiPerson for " + userUuid);
+			sakaiPerson = sakaiProxy.getSakaiPersonPrototype();
+			//if its still null, throw exception
+			if(sakaiPerson == null) {
+				throw new ProfilePrototypeNotDefinedException("Couldn't create a SakaiPerson prototype for " + userUuid);
+			}
+		} else {
+			sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		}
 		
 		//holds number of profile containers that are visible
 		int visibleContainerCount = 0;
