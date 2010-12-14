@@ -34,6 +34,9 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
+/**
+ * Container for viewing the profile of someone else.
+ */
 public class ViewProfilePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;

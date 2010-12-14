@@ -27,7 +27,7 @@ import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 
 /**
- * User's wall panel.
+ * Container for viewing user's own wall.
  */
 public class MyWallPanel extends Panel {
 

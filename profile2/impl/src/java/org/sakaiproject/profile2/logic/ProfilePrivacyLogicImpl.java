@@ -754,8 +754,8 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
  	 * {@inheritDoc}
  	 */
 	public boolean isUserXWallVisibleByUserY(String userX,
-			
 			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
 		//if user is requesting own info, they ARE allowed
     	if(userY.equals(userX)) {
     		return true;

@@ -19,6 +19,9 @@ import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.sakaiproject.profile2.model.UserProfile;
 
+/**
+ * Container for viewing user's own profile.
+ */
 public class MyProfilePanel extends Panel {
 	
 	private static final long serialVersionUID = 1L;
