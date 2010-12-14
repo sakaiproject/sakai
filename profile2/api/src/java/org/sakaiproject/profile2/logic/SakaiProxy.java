@@ -440,7 +440,7 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if the profile2.wall.default flag is set,
 	 *         otherwise returns <code>false</code>.
 	 */
-	public boolean isWallDefaultProfile2Page();
+	public boolean isWallDefaultProfilePage();
 	
 	/**
 	 * Is the profile2.convert flag set in sakai.properties?

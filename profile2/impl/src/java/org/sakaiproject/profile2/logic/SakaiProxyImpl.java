@@ -955,7 +955,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isWallDefaultProfile2Page() {
+	public boolean isWallDefaultProfilePage() {
 		return serverConfigurationService.getBoolean(
 				"profile2.wall.default",
 				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_DEFAULT);	

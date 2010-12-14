@@ -210,7 +210,7 @@ public class ViewProfile extends BasePage {
 				}
 			});
 			
-			if (true == sakaiProxy.isWallDefaultProfile2Page() && null == tabCookie) {
+			if (true == sakaiProxy.isWallDefaultProfilePage() && null == tabCookie) {
 				
 				tabbedPanel.setSelectedTab(ProfileConstants.TAB_INDEX_WALL);
 			}
