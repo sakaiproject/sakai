@@ -359,6 +359,21 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("</div>");
 		}
 		
+		//status
+		if(userProfile.getStatus() != null) {
+			if(StringUtils.isNotBlank(userProfile.getStatus().getMessage())) {
+				sb.append("<div class=\"profile2-profile-statusMessage\">");
+				sb.append(userProfile.getStatus().getMessage());
+				sb.append("</div>");
+			}
+			
+			if(StringUtils.isNotBlank(userProfile.getStatus().getDateFormatted())) {
+				sb.append("<div class=\"profile2-profile-statusDate\">");
+				sb.append(userProfile.getStatus().getDateFormatted());
+				sb.append("</div>");
+			}
+		}
+		
 		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
 			sb.append("<div class=\"icon profile-image\">");
 			
@@ -389,21 +404,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			}
 			
 			sb.append("<br />");
-		}
-		
-		//status
-		if(userProfile.getStatus() != null) {
-			if(StringUtils.isNotBlank(userProfile.getStatus().getMessage())) {
-				sb.append("<div class=\"profile2-profile-statusMessage\">");
-				sb.append(userProfile.getStatus().getMessage());
-				sb.append("</div>");
-			}
-			
-			if(StringUtils.isNotBlank(userProfile.getStatus().getDateFormatted())) {
-				sb.append("<div class=\"profile2-profile-statusDate\">");
-				sb.append(userProfile.getStatus().getDateFormatted());
-				sb.append("</div>");
-			}
 		}
 		
 		//basic info
