@@ -17,21 +17,14 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
-import org.sakaiproject.profile2.tool.pages.ViewProfile;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * User's wall panel.
