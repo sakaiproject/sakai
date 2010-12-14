@@ -18,6 +18,8 @@ package org.sakaiproject.profile2.tool.pages;
 
 import java.util.Locale;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -38,6 +40,7 @@ import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import wicket.contrib.tinymce.settings.TinyMCESettings;
@@ -324,6 +327,17 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		l.setEnabled(false);
 	}
 	
-	
+	/**
+	 * Set the cookie that stores the current tab index.
+	 * 
+	 * @param tabIndex the current tab index.
+	 */
+	protected void setTabCookie(int tabIndex) {
+		
+		Cookie tabCookie = new Cookie(ProfileConstants.TAB_COOKIE, "" + tabIndex);
+		// don't persist indefinitely
+		tabCookie.setMaxAge(-1);
+		getWebRequestCycle().getWebResponse().addCookie(tabCookie);
+	}
 	
 }

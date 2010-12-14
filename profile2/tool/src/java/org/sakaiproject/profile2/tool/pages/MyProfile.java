@@ -565,15 +565,6 @@ public class MyProfile extends BasePage {
 		});
 	}
 	
-	private void setTabCookie(int tabIndex) {
-		
-		Cookie tabCookie = new Cookie(ProfileConstants.TAB_COOKIE, "" + tabIndex);
-		// don't persist indefinitely
-		tabCookie.setMaxAge(-1);
-		getWebRequestCycle().getWebResponse().addCookie(tabCookie);
-	}
-	
-	
 	private boolean locked;
 	public boolean isLocked() {
 		return locked;

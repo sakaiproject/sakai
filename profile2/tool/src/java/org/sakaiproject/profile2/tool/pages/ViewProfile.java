@@ -20,6 +20,8 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -178,6 +180,8 @@ public class ViewProfile extends BasePage {
 			}
 		};
 		
+		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		
 		tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
 
 			private static final long serialVersionUID = 1L;
@@ -185,24 +189,36 @@ public class ViewProfile extends BasePage {
 			@Override
 			public Panel getPanel(String panelId) {
 
-				//setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
+				setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
 				return new ViewProfilePanel(panelId, userUuid, currentUserId,
 						privacy, friend);
 			}
 		});
 		
-		tabs.add(new AbstractTab(new ResourceModel("link.tab.wall")) {
+		if (true == sakaiProxy.isWallEnabledGlobally()) {
+			
+			tabs.add(new AbstractTab(new ResourceModel("link.tab.wall")) {
 
-			private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 1L;
 
-			@Override
-			public Panel getPanel(String panelId) {
+				@Override
+				public Panel getPanel(String panelId) {
 
-				// setTabCookie(ProfileConstants.TAB_INDEX_WALL);
-				return new ViewWallPanel(panelId, userUuid, currentUserId,
-						privacy, friend);
+					setTabCookie(ProfileConstants.TAB_INDEX_WALL);
+					return new ViewWallPanel(panelId, userUuid, currentUserId,
+							privacy, friend);
+				}
+			});
+			
+			if (true == sakaiProxy.isWallDefaultProfile2Page() && null == tabCookie) {
+				
+				tabbedPanel.setSelectedTab(ProfileConstants.TAB_INDEX_WALL);
 			}
-		});
+		}
+		
+		if (null != tabCookie) {
+			tabbedPanel.setSelectedTab(Integer.parseInt(tabCookie.getValue()));
+		}
 		
 		add(tabbedPanel);
 		
