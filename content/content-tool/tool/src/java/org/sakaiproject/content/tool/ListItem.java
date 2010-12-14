@@ -3822,7 +3822,7 @@ public class ListItem
 		}
 		catch(Exception e)
 		{
-			hot = false;;
+			hot = false;
 		}
 		
 		return hot;
