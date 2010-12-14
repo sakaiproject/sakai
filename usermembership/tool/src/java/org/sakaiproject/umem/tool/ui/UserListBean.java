@@ -42,6 +42,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -357,8 +358,8 @@ public class UserListBean {
 	private boolean userTypeMatches(String userType) {
 		return 
 			USER_TYPE_ALL.equals(selectedUserType)
-			|| (!USER_TYPE_NONE.equals(selectedUserType) && userType.equals(selectedUserType))
-			|| (USER_TYPE_NONE.equals(selectedUserType) && "".equals(userType) );
+			|| (!USER_TYPE_NONE.equals(selectedUserType) && StringUtils.equals(userType, selectedUserType))
+			|| (USER_TYPE_NONE.equals(selectedUserType) && StringUtils.isEmpty(userType));
 	}
 
 	@Deprecated
