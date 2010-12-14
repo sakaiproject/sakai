@@ -479,7 +479,7 @@ public class AliasesAction extends PagedResourceActionII
 			}
 			catch (IdInvalidException e)
 			{
-				addAlert(state, rb.getFormattedMessage("alias.invalid", new Object[]{id}));;
+				addAlert(state, rb.getFormattedMessage("alias.invalid", new Object[]{id}));
 				return false;
 			}
 			catch (PermissionException e)
