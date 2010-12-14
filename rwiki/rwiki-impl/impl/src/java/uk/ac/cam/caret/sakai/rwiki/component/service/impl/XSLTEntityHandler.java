@@ -764,7 +764,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				boolean isuuid = false;
 				String groupID = Entity.SEPARATOR + paths[1] + Entity.SEPARATOR
 						+ paths[2] + Entity.SEPARATOR + paths[3] + Entity.SEPARATOR
-						+ paths[4];;
+						+ paths[4];
 				if (testuuid.length > 0 && testuuid.length == uuidparts.length)
 				{
 					isuuid = true;
