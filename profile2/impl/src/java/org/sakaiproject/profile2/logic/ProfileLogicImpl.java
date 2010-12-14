@@ -262,14 +262,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getSocialNetworkingInfo"); 
 	  	}
 		
-		return dao.getSocialNetworkingInfo(userId);
-	}
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId) {
-		return new SocialNetworkingInfo(userId);
+		SocialNetworkingInfo socialNetworkingInfo = dao.getSocialNetworkingInfo(userId);
+		if (null == socialNetworkingInfo) {
+			socialNetworkingInfo = new SocialNetworkingInfo(userId);
+		}
+		
+		return socialNetworkingInfo;
 	}
 
 	/**

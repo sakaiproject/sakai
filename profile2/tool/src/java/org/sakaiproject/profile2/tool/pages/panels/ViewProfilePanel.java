@@ -430,7 +430,7 @@ public class ViewProfilePanel extends Panel {
 		
 		SocialNetworkingInfo socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userUuid);
 		if (null == socialNetworkingInfo) {
-			socialNetworkingInfo = profileLogic.getDefaultSocialNetworkingInfo(userUuid);
+			socialNetworkingInfo = profileLogic.getSocialNetworkingInfo(userUuid);
 		}
 		String facebookUsername = socialNetworkingInfo.getFacebookUsername();
 		String linkedinUsername = socialNetworkingInfo.getLinkedinUsername();

@@ -91,17 +91,6 @@ public interface ProfileLogic {
 	 */
 	public boolean updateCompanyProfile(CompanyProfile companyProfile);
 	
-	
-	/**
-	 * Create a default social networking information record for the specified
-	 * user.
-	 * 
-	 * @param userId
-	 * @return
-	 * @deprecated getSocialNetworkingInfo should return a default if none exists, or null if error TODO
-	 */
-	public SocialNetworkingInfo getDefaultSocialNetworkingInfo(String userId);
-	
 	/**
 	 * Retrieves the social networking information for the specified user from
 	 * the database.
