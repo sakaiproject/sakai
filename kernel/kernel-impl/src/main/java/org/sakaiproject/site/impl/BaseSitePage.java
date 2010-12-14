@@ -555,6 +555,10 @@ public class BaseSitePage implements SitePage, Identifiable
 		{
 			return true;
 		}
+		/*if the page title matches the title of the 
+		 * first tool we can assume it hasn't been customized 
+		 * and therefore is safe to localize.
+		 */
 		else if(m_title != null && !m_title.equals(toolName))
 		{
 			return true;
