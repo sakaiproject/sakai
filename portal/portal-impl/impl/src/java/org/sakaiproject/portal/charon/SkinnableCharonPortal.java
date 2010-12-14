@@ -730,7 +730,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		//check sakai.properties to see if auto redirect is enabled
 		//defaults to true - if set to false, skip the PDA check
-		if(StringUtils.equals(ServerConfigurationService.getString("portal.pda.autoredirect", "true"), "false")){
+		if(!ServerConfigurationService.getBoolean("portal.pda.autoredirect", true)){
 			return null;
 		}
 		
@@ -745,13 +745,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			device = wurfl.getDeviceForRequest(req);
 		} catch (DeviceNotDefinedException e) {
 			//this will be hit a lot, so its at debug level to reduce log traffic
-			M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
+			if (M_log.isDebugEnabled())
+			{
+				M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
+			}
 			return null;
 		}
 		
 		String deviceName = device.getId();
 
-		// Not a device recognised by WURFL
+		// Not a device recognized by WURFL
 		if (StringUtils.isBlank(deviceName) || deviceName.startsWith("generic") ) { 
 			return null;
 		} else {
