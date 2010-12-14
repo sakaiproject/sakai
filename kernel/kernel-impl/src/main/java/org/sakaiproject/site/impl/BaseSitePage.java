@@ -550,11 +550,19 @@ public class BaseSitePage implements SitePage, Identifiable
       
 		// Get the toolId of the first tool associated with this page
 		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
-      
+		String toolName = ((BaseToolConfiguration) (getTools().get(0))).getTitle();
 		if ( "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId) )
+		{
 			return true;
+		}
+		else if(m_title != null && !m_title.equals(toolName))
+		{
+			return true;
+		}
 		else
+		{
 			return false;
+		}
 	}
    
 	/**
