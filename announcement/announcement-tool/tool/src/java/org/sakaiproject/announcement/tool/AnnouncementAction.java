@@ -1821,7 +1821,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 
 		// output the notification options
-		String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);;
+		String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);
 		if ("r".equals(notification))
 		{
 			context.put("noti", rb.getString("java.NOTI_REQUIRED"));
@@ -2154,7 +2154,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				context.put("pubview", Boolean.FALSE);
 
 			// output the notification options
-			String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);;
+			String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);
 			// "r", "o" or "n"
 			context.put("noti", notification);
 			
@@ -4225,7 +4225,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				for (int i = 0; i < disableStrgs.length; i++)
 				{
 					if ((StringUtil.trimToZero(disableStrgs[i])).equals(site.getType()))
-						state.setAttribute(PUBLIC_DISPLAY_DISABLE_BOOLEAN, Boolean.TRUE);;
+						state.setAttribute(PUBLIC_DISPLAY_DISABLE_BOOLEAN, Boolean.TRUE);
 				}
 			}
 		}
