@@ -49,8 +49,8 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
-import org.sakaiproject.profile2.tool.pages.panels.MyWallPanel;
 import org.sakaiproject.profile2.tool.pages.panels.ViewProfilePanel;
+import org.sakaiproject.profile2.tool.pages.panels.ViewWallPanel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
@@ -137,7 +137,6 @@ public class ViewProfile extends BasePage {
 		boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isKudosVisible = privacyLogic.isUserXKudosVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		final boolean isGalleryVisible = privacyLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
-		final boolean isWallVisible = privacyLogic.isUserXWallVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
@@ -199,12 +198,9 @@ public class ViewProfile extends BasePage {
 			@Override
 			public Panel getPanel(String panelId) {
 
-				//setTabCookie(ProfileConstants.TAB_INDEX_WALL);
-				if (isWallVisible) {
-					return new MyWallPanel(panelId);
-				} else {
-					return new EmptyPanel(panelId);
-				}
+				// setTabCookie(ProfileConstants.TAB_INDEX_WALL);
+				return new ViewWallPanel(panelId, userUuid, currentUserId,
+						privacy, friend);
 			}
 		});
 		

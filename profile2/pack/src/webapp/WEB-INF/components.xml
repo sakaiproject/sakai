@@ -147,6 +147,8 @@
     <bean id="org.sakaiproject.profile2.logic.ProfileWallLogic"
     	class="org.sakaiproject.profile2.logic.ProfileWallLogicImpl">
     		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
         	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
     </bean>
     	

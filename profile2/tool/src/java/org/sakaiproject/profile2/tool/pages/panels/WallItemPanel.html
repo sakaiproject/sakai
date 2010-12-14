@@ -25,21 +25,15 @@
 <body>
 
 <wicket:panel>
+	<a wicket:id="wallItemPhotoWrap">
+		<img class="wall-item-img" wicket:id="wallItemPhoto" />
+	</a>
 	
-	<!-- wall items -->
-	<!-- <span wicket:id="navigator">[dataview navigator]</span> -->
-	
-	<div class="profileContent">
-	<div class="wall-wrap" wicket:id="wallItemsContainer">
-		
-		<span wicket:id="wallInformationMessage"></span>
-		
-		<div class="wall-item" wicket:id="wallItems">
-			<div wicket:id="wallItemPanel"></div>	    	
-		</div>
-	</div>
-	</div>
-	
+	<div class="wall-item-text-wrap">
+   		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		
+   		<div wicket:id="wallItemText">[wall item text]</div>
+   		<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
+   	</div>
 </wicket:panel>
 
 </body>

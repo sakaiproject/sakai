@@ -17,12 +17,51 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
 
+/**
+ * Logic interface for the Profile2 wall.
+ */
 public interface ProfileWallLogic {
 	
+	/**
+	 * Returns the wall items for the specified user. The privacy record will
+	 * be looked up.
+	 * 
+	 * @param userUuid the user to query by.
+	 * @return the wall items for the specified user.
+	 */
 	public List<WallItem> getWallItems(String userUuid);
 	
+	/**
+	 * Returns the wall items for the specified user. Privacy settings are used
+	 * to determine if the user is allowed to access the requested wall items.
+	 * 
+	 * @param userUuid the user to query by.
+	 * @param privacy the privacy record for the user.
+	 * @return the wall items for the specified user.
+	 */
+	public List<WallItem> getWallItems(String userUuid, ProfilePrivacy privacy);
+	
+	/**
+	 * Returns the number of available wall items for the specified user. The
+	 * privacy record will be looked up.
+	 * 
+	 * @param userUuid the user to query by.
+	 * @return the number of available wall items for the specified user.
+	 */
 	public int getWallItemsCount(String userUuid);
+	
+	/**
+	 * Returns the number of available wall items for the specified user.
+	 * Privacy settings are used to determine if the user is allowed to access
+	 * the requested wall items.
+	 * 
+	 * @param userUuid the user to query by.
+	 * @param privacy the privacy record for the user.
+	 * @return the number of available wall items for the specified user.
+	 */
+	public int getWallItemsCount(String userUuid, ProfilePrivacy privacy);
 
 }
