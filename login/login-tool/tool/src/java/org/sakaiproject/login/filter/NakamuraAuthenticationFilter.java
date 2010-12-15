@@ -271,6 +271,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 	 * @see javax.servlet.Filter#destroy()
 	 */
 	public void destroy() {
+		LOG.debug("destroy()");
 		// nothing to do here
 	}
 
@@ -279,7 +280,10 @@ public class NakamuraAuthenticationFilter implements Filter {
 	 * {@link NakamuraHttpServletRequestWrapper}.
 	 */
 	public static final class NakamuraPrincipal implements Principal {
-		private String name = null;
+		private static final Log LOG = LogFactory
+				.getLog(NakamuraPrincipal.class);
+
+		private final String name;
 
 		/**
 		 * Create a {@link NakamuraPrincipal} with given name (eid).
@@ -289,6 +293,9 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 * @throws IllegalArgumentException
 		 */
 		public NakamuraPrincipal(String name) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("new NakamuraPrincipal(String " + name + ")");
+			}
 			if (name == null || "".equals(name)) {
 				throw new IllegalArgumentException("name == null OR empty");
 			}
@@ -299,6 +306,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 * @see Principal#getName()
 		 */
 		public String getName() {
+			LOG.debug("getName()");
 			return name;
 		}
 
@@ -307,6 +315,9 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public boolean equals(Object obj) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("equals(Object " + obj + ")");
+			}
 			if (obj == this) {
 				return true;
 			}
@@ -321,6 +332,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public int hashCode() {
+			LOG.debug("hashCode()");
 			return name.hashCode();
 		}
 
@@ -329,6 +341,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public String toString() {
+			LOG.debug("toString()");
 			return name;
 		}
 
@@ -341,6 +354,8 @@ public class NakamuraAuthenticationFilter implements Filter {
 	 */
 	public static class NakamuraHttpServletRequestWrapper extends
 			HttpServletRequestWrapper {
+		private static final Log LOG = LogFactory
+				.getLog(NakamuraHttpServletRequestWrapper.class);
 
 		private final Principal principal;
 
@@ -352,6 +367,10 @@ public class NakamuraAuthenticationFilter implements Filter {
 		public NakamuraHttpServletRequestWrapper(
 				final HttpServletRequest request, final String principal) {
 			super(request);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("new NakamuraHttpServletRequestWrapper(HttpServletRequest "
+						+ request + ", String " + principal + ")");
+			}
 			if (principal == null || "".equals(principal)) {
 				throw new IllegalArgumentException("principal == null OR empty");
 			}
@@ -363,6 +382,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public String getRemoteUser() {
+			LOG.debug("getRemoteUser()");
 			return principal != null ? this.principal.getName() : null;
 		}
 
@@ -371,6 +391,7 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public Principal getUserPrincipal() {
+			LOG.debug("getUserPrincipal()");
 			return this.principal;
 		}
 
@@ -379,8 +400,45 @@ public class NakamuraAuthenticationFilter implements Filter {
 		 */
 		@Override
 		public boolean isUserInRole(String role) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("isUserInRole(String " + role + ")");
+			}
 			// not needed for this filter
 			return false;
+		}
+
+		/**
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("equals(Object " + obj + ")");
+			}
+			if (obj instanceof NakamuraHttpServletRequestWrapper) {
+				final NakamuraHttpServletRequestWrapper other = (NakamuraHttpServletRequestWrapper) obj;
+				return this.principal.equals(other.principal);
+			} else {
+				return super.equals(obj);
+			}
+		}
+
+		/**
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() {
+			LOG.debug("hashCode()");
+			return principal.hashCode();
+		}
+
+		/**
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			LOG.debug("toString()");
+			return principal.toString();
 		}
 
 	}
