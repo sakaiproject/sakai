@@ -339,7 +339,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			eventTrackingService.post(eventTrackingService.newEvent("profile.update", ref, true));
 			
 			
-			LOG.info("User record updated for Id :-" + spi.getAgentUuid());
+			LOG.debug("User record updated for Id :-" + spi.getAgentUuid());
 			//update the account too -only if not system profile 
 			if (serverConfigurationService.getBoolean("profile.updateUser",false) && spi.getTypeUuid().equals(this.userMutableType.getUuid()) )
 			{
@@ -350,7 +350,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 					userEdit.setLastName(spi.getSurname());
 					userEdit.setEmail(spi.getMail());
 					userDirectoryService.commitEdit(userEdit);
-					LOG.info("Saved user object");
+					LOG.debug("Saved user object");
 				}
 				catch (Exception e) {
 					e.printStackTrace();
