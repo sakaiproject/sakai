@@ -44,6 +44,7 @@
 					<h:outputText value="#{msgs.cdfm_reply_title}" />
 				</h:outputLabel>
 					   <h:inputText value="#{ForumTool.composeTitle}" size="40" required="true" id="df_compose_title">
+						 <f:validator validatorId="MessageTitle" />
 						 <f:validateLength minimum="1" maximum="255"/>
 					   </h:inputText>
 				   </h:panelGroup>
