@@ -121,6 +121,7 @@ public class NakamuraUserDirectoryProvider implements UserDirectoryProvider {
 				.getPrincipalLoggedIntoNakamura(getHttpServletRequest());
 		if (authInfo != null) {
 			if (eid.equalsIgnoreCase(authInfo.getPrincipal())) {
+				edit.setEid(authInfo.getPrincipal());
 				edit.setFirstName(authInfo.getFirstName());
 				edit.setLastName(authInfo.getLastName());
 				edit.setEmail(authInfo.getEmailAddress());
