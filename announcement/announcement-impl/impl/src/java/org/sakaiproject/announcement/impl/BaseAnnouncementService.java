@@ -81,6 +81,7 @@ import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.impl.BaseMessageService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -119,6 +120,10 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
 
+	/** private constants definitions */
+	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
+	private final static String ANNOUNCEMENT_CHANNEL_PROPERTY = "channel";
+	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
 	
@@ -639,6 +644,33 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		
 		return  m_entityManager.newReference( refString.toString() );
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public String channelReference(String context, String id)
+	{
+	    /* SAK-19516: for MOTD and Admin Workspace Announcements, the channel reference 
+	     * is not calculated based on the context and id, but pulled from SAKAI_TOOL_PROPERTY 'channel'.
+	     */
+		String channelRef = null;
+		try {
+			ToolConfiguration tool = m_siteService.getSite(context).getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
+			if (tool != null) {
+				channelRef = tool.getConfig().getProperty(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
+			}
+		} catch (IdUnusedException e) {
+		    // ignore the error, continue with the default method
+		    M_log.debug("Could not find channelRef in channel property, falling back to default method...");
+		}
+		
+		if (channelRef == null || channelRef.trim().length() == 0) {
+			channelRef = super.channelReference(context, id);
+		}
+		return channelRef;
+
+	} // channelReference
 
 	/**
 	 * @inheritDoc
