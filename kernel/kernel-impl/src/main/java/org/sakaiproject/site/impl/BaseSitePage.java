@@ -542,6 +542,9 @@ public class BaseSitePage implements SitePage, Identifiable
 	/** Checks if this page's tool is a legacy iframe, news or linktool
 	 ** that should assumed to have a custom page title 
 	 ** (assumptions can be disabled with legacyPageTitleCustom = false).
+	 *NOTE: this will not identify any other pages that where customized before
+	 *this code was introduced see KNL-630 - DH
+	 *
 	 **/	 
 	private boolean getTitleCustomLegacy()
 	{
