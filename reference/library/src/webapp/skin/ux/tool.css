@@ -4,24 +4,10 @@
 
 /*SECTION 1 GENERIC SELECTORS*/
 body{
-	font: normal 12px/16px Arial, Helvetica, sans-serif;
-	font-family:Arial,Helvetica,sans-serif;
-	font-size:12px;
-	font-size-adjust:none;
-	font-style:normal;
-	font-variant:normal;
-	font-weight:normal;
-	line-height:16px;
+	font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+	font-size: 80%;
 }	
-.portletBody{
-	padding-left:2.3em;
-	padding-right:2.3em;
-}
-* html  .portletBody{
-	padding-left:2em;
-	padding-right:2em;
 
-	}
 /*stub in tool_base.css - skinned here */
 
 hr.itemSeparator{
@@ -33,23 +19,23 @@ hr.itemSeparator{
 
 /*SECTION 2 LINKS*/
 a:link{
-	color: #4887D9 !important
-	text-decoration: none !important;
+	color: #35b;
+	text-decoration: underline;
 }
 
 a:visited{
-	color: #4887D9;
-	text-decoration: none !important;
+	color: #53b;
+	text-decoration: underline;
 }
 
 a:hover,a:active{
-	color: #4887D9 !important;
-	text-decoration: underline !important;
+	color: #33f;
+	text-decoration: underline;
 }
 
 a:focus{
 	color: #33f;
-	text-decoration: underline !important;
+	text-decoration: underline;
 }
 
 /*links inside the calendar tool tables*/
@@ -58,37 +44,25 @@ table.calendar td a:hover{
 }
 /*links inside the <th>  of the standard list table*/
 .listHier th a:link,.listHier th a:visited{
-	color: #000;
-	text-decoration: none !important;
+	color: #35b;
+	text-decoration: underline;
 	border: none;
-	font-weight:bold
 }
 
 .listHier th a:hover{
-	color: #000;
-	text-decoration: underline !important;
-}
-
-.listHier td a:link,.listHier td a:visited{
-	color: #0287C5;
-	text-decoration: none !important;
-	border: none;
-}
-
-.listHier td a:hover{
-	color: #0287C5;
-	text-decoration: underline !important;
+	color: #33f;
+	text-decoration: underline;
 }
 
 /*some links are jscripted so the href is the same - cannot provide visited functionality - so make both the same*/
 /*see: list of assignments - the cells are classed with "specialLink" */ 
 .specialLink a:link,.specialLink a:visited{
-	color: #4887D9;
+	color: #35b;
 	text-decoration: none;
 }
 
 .specialLink a:hover{
-	color: #4887D9;
+	color: #33f;
 	text-decoration: underline;
 }
 /*links in resources - selected for move*/
@@ -103,11 +77,17 @@ tr.selectedMove a:link,tr.selectedMove a:visited{
 	_display:inline-block;
 	_margin-left:-1.5em;
 	white-space: nowrap;
+	border:0px solid #fff;
 }	
-.recentItem a:link{
-	text-decoration: none !important;
-}
+.recentItemInstruction{
+	padding:0 5px;
+	background: url(images/new_item_back_inst.png) center left no-repeat;
+}	
 
+.recentItem a:link{
+  	border:0px solid #fff;
+     text-decoration:none !important;
+} 
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
 .itemAction  a,.itemAction  a:link{
@@ -150,19 +130,18 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
 .navIntraTool a, .navIntraTool a:link{
 	margin-right:1em;
-	color:#222;
-	text-decoration: none !important;
+	text-decoration: underline;
 	white-space: nowrap;
 	display:inline-block
 }
 
 .navIntraTool a:visited{
-	color:#555;
-	text-decoration: none !important;
+	color: #35b;
+	text-decoration: underline;
 }
 
 .navIntraTool a:hover{
-	color:#555;
+	color: #33f;
 	text-decoration: underline;
 }
 
@@ -181,12 +160,13 @@ see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_
 }
 
 .breadCrumb a:link,.breadCrumb a:visited{
-	color: #0287C5;
-	text-decoration: none !important;
+	color: #35b;
+	text-decoration: none;
 }
 
 .breadCrumb a:hover{
-	text-decoration: none;
+	color: #33f;
+	text-decoration: underline;
 }
 
 
@@ -389,33 +369,27 @@ table.calendar .event{
 
 /*skinned header of standard tab. data table*/
 .listHier th{
-	background-color: #EBECED;
-	font-weight:bold;
-	line-height:28px;
-	padding:0 12px;
+	background-color: #ddd;
+	border: 1px solid #999;
 }
 /*skinned cell of standard tab. data table*/
 .listHier td{
-	line-height:28px;
 	vertical-align: top;
-	padding: .6em;
+	padding: .4em;
 }
 
 /*lines - provides rules and hover effects on some tables*/
 table.lines{
-	border-collapse: collapse;
+	border-collapse: separate;
 }
-table.lines tr.odd{
-	background:#fff
-	}
-table.lines tr.even{
-	background:#F8F9FA
-	}
+
 table.lines tr:hover{
-	background-color: #F2FCEB;
+	background-color: #ffc;
 }
 
 table.lines td{
+	border-bottom: 1px solid #bbb;
+	border-top: 1px solid #eee;
 }
 	
 /*some rows needed to be excluded from the rule and hover - see resources see other sites toggle*/
@@ -538,11 +512,15 @@ h2{
 	font-size: 130%;
 }
 
+h3{
+	font-size: 110%;
+}
+
 h4,h5,h6 {
 	font-size: 100%;
 }
 h3,h4,h5{ 
-	color: #333 !important; 
+	color: #555; 
 	padding: 0; 
 	font-weight: bold; 
 	font-family: Arial,Helvetica,sans-serif; 
@@ -550,14 +528,6 @@ h3,h4,h5{
 	background-color: transparent !important; 
 } 
 
-
-h3{
-	border-bottom:2px solid #DDDFE1;
-	color: #333 !important; 
-	font-size:15px !important;
-	font-weight:bold;
-	padding:5px 0 4px 10px;
-}
 /*headers when they occur in a table*/
 /*want to make them look like normal text - but structure the content*/
 /*see: resources, any legacy list*/
@@ -565,32 +535,21 @@ h3{
 	margin: 0;
 	padding: 0;
 	color:#000;
-	border:none;
-	font-size: 12px !important;
+	font-size: 1em;
 	background: none;
-	font-weight:bold;
-}
-.listHier th h3 a:hover{
-	text-decoration:none !important
+	font-weight: normal;
+	font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif !important;
 }
 
-.listHier th h3 a img, .listHier td h3  a img{
-	vertical-align:middle;
-	vertical-align:text-top;
-	
-} 
 /*SECTION 7 INPUTS*/
 /*see: create any item*/
 label{
 	color: #000;
 	font-family: Arial,Helvetica,sans-serif;
-	font-weight: bold !important;
+	font-weight: normal;
 	margin-top: .3em;
-	text-align:right
 }
-label.block{
-	text-align:left
-}
+
 /*a required marker for a shorttext label/input pair*/
 .shorttext .reqStar{
 	color: #b11;
@@ -599,11 +558,6 @@ label.block{
 	font-weight: bold;
 	font-size: 1em;
 	padding: 0;
-	text-align:right;
-}
-
-.reqStar + label{
-
 }
 
 
@@ -613,33 +567,7 @@ label.block{
 	margin: 0 0 0 17em !important;
 }
 
-.shorttext input[type=text]{
-	-x-system-font:none;
-	background:transparent url(images/input.png) repeat-x scroll 0 0;
-	border:1px solid #BABEC2;
-	font-family:Arial,Helvetica,sans-serif;
-	font-size:12px;
-	font-size-adjust:none;
-	font-stretch:normal;
-	font-style:normal;
-	font-variant:normal;
-	font-weight:normal;
-	line-height:16px !important;
-	padding:3px 5px 4px;
-}
-
-.shorttext select {
-	-x-system-font:none;
-	border:1px solid #BABEC2;
-	font-family:Arial,Helvetica,sans-serif;
-	font-size:12px;
-	font-size-adjust:none;
-	font-stretch:normal;
-	font-style:normal;
-	font-variant:normal;
-	font-weight:normal;
-	line-height:16px;
-	padding:2px;
+.shorttext input{
 }
 
 .shorttext input:focus{
@@ -647,20 +575,11 @@ label.block{
 }
 
 textarea{
-	-x-system-font:none;
-	background:#FFFFFF url(images/input.png) repeat-x scroll 0 0;
-	border:1px solid #BABEC2;
-	font-family:Arial,Helvetica,sans-serif;
-	font-size:12px;
-	font-size-adjust:none;
-	font-stretch:normal;
-	font-style:normal;
-	font-variant:normal;
-	font-weight:normal;
-	line-height:16px;
-	overflow:auto;
-	padding:3px;
-	}
+	padding: .1em .3em;
+	border: 1px solid #bbb;
+	font-family: Verdana,Arial,Helvetica,sans-serif;
+	font-size: 100%;
+}
 
 textarea:focus{
 	border: 1px solid #000;
@@ -679,7 +598,7 @@ textarea:focus{
 
 /* option element for actions on items in resources tool's list view */
 .actionitem{
-	background-color: #ffe;
+	background-color: #ffc;
 	padding: .3em;
 }
 
@@ -689,13 +608,13 @@ textarea:focus{
 .navIntraTool{
 	background-color: #eee;	
 	padding:.3em;
-	margin: 0 -2.3em;
-	line-height: 1.2em;
+	margin: 0;
+	line-height: 1.5em;
 	border-top:1px solid #eee;
 	border-bottom:1px solid #eee;
 	text-align: left;
-	font-size: 12px;
-	font-family: Arial,Helvetica,sans-serif;
+	font-size: .9em;
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
 }
 
 /*ie does not understand font sizing well - so fix here with the star hack*/
@@ -717,8 +636,6 @@ textarea:focus{
 .navIntraToolLink input{
 	padding: 0;
 	border: none;
-	font-size: 12px;
-	font-family: Arial,Helvetica,sans-serif;	
 	background: transparent;
 }
 
@@ -729,13 +646,13 @@ textarea:focus{
 }
 
 .navIntraToolLink input.enabled{
-	color: #0287C5;
+	color: #35b;
+	border-bottom: 1px solid #35b;
 	background: transparent;
 }
 
 .navIntraToolLink input.enabled:hover{
-	color:#0287C5;
-	border-bottom: 1px solid #0287C5;
+	color:#33f;
 	cursor: pointer;
 }
 
@@ -821,31 +738,8 @@ visibility gets toggled*/
 /*the default action in this control - keep in mind that anything you do to it (except to the font) will make 
 you loose the native buttonishness affordance of the os/browser */
 /*create any item - like an announcement*/
-.act {
-	background:#eee;
-	text-align:center;
-}
-.act input{
-	border:1px solid #BABEC2;
-	color:#333;
-	line-height:23px;
-	margin:0 auto;
-	padding:4px 10px;
-	background: #eee url(images/act-inp-back.png) top left repeat-x;
-}
-.act input:hover{
-	border:1px solid #AAAABB;
-	}
 .act .active {
-	border:2px solid #00A5E3;
-	color:#000;
-}
-
-.act .active:hover {
-	border-color:#00A5E3 #90DCF9 #90DCF9 #00A5E3;
-	border-style:solid;
-	color:#000;
-	border-width:2px;
+	color:#27d
 }
 .act .active[disabled="disabled"] {
 	color:gray
@@ -854,7 +748,7 @@ you loose the native buttonishness affordance of the os/browser */
 /*SECTION 10 DATA PANELS*/
 .highlightPanel
 {
-	border:1px solid #F4F5F7;
+	border:1px solid #eee;
 }
 
 .infoPanel{
@@ -876,6 +770,25 @@ you loose the native buttonishness affordance of the os/browser */
 	background: #fff;
 }
 
+/*see: forum/statistics --> display in thread */
+.hierItemBlockBold{
+	padding: 0 .5em .5em .5em;
+	border: 2px solid black;
+	margin-top: .5em;
+	margin-bottom: .5em;
+	width:auto;
+	background: #fff;
+}
+
+/*see: forum/statistics-->display in thread*/
+.hierItemBlockBold h4.textPanelHeaderBold{
+	border-bottom: 2px solid black;	
+	margin: 0 -.4em 1.0em -.4em;
+	padding:.5em;
+	background: #ffd !important;
+}
+
+
 table.hierItemBlock td{
 	width:100%;
 }
@@ -895,6 +808,8 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	padding:.5em;
 	background: #ffd !important;
 }
+
+
 
 .hierItemBlockChild{
 	margin:.5em 0;
@@ -1069,64 +984,12 @@ width:auto !important
 
 
 
-/*SECTION 12 TOOL TITLE SELECTORS and other PORTAL THINGS*/
-.portletTitle{
-	width: 100%;
-}
-
-.portletTitle .title img{
-	margin: 0;
-/*	vertical-align: text-bottom;*/
-	width: 18px;
-	height: 16px;
-}
-
-.portletTitle .title{
-	padding: 2px 4px 6px 4px;
-	height: 1em;
-	font-size: 120%;
-	float: left;
-	color: #000;
-}
-
-.portletTitle .title h2{
-	display: inline;
-	margin: 0 0 0 .2em;
-	padding: 0;
-	color: #555;
-	font-weight: bold;
-	font-size: 1em;
-}
-
-.portletTitle .title a{
-	background: url(images/reload.gif) center left no-repeat;
-}
-
-.portletTitle .title a:hover{
-	background: url(images/reload_h.gif) center left no-repeat;
-}
-
-.portletTitle .action{
-	padding: 2px 4px 6px 2px;
-	text-align: right;
-	vertical-align: middle;
-}
-
-.portletTitle .action img{
-	margin: 0;
-	vertical-align: text-bottom;
-	width: 16px !important;
-}
-
-.portletTitle .action a{
-	background: url(images/help.gif) center right no-repeat;
-}
-
-.portletTitle .action a:hover{
-	background: url(images/help_h.gif) center right no-repeat;
-}
+/*PORTAL THINGS*/
 
 /*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
 .presenceList{
 	font-size: .8em;
 	list-style: none;
@@ -1152,32 +1015,6 @@ width:auto !important
 	width: 11em;
 	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
 }
-/*temp work for mneme - will incorporate later to the rest 
-tables will be of various types according to their function and meaning - tableFlat, tableAction, tableHierarchical, tableItemSummary 
-right now "namespaced" for mneme only to avoid any possible conflicts*/
-.samSection .tableAction td {
-	vertical-align:middle
-}
-.samSection .tableAction td input{
-	margin: 0 5px 1px 1px;
-	vertical-align:top;
-}
-.samSection .tableAction td label{
-	border:1px solid #bbb;
-	padding:0 3px;
-	background: #ddd;
-}
-.samSection{
-	margin-left: 4em;
-	margin-right: 4em;
-	margin-top:2em;
-	margin-bottom:2em;
-}
-.samSectionHeader{
-	margin-left: -2em;
-	margin-right: -2em;
-}
-
 
 /* Make a list based css menu */
 ul.makeMenu, ul.makeMenu ul {
@@ -1209,7 +1046,6 @@ ul.makeMenu:hover{
 }
 
 ul.makeMenu li {
-  line-height:20px;
   list-style-type: none;
   margin: 0px; 
 /*  padding:5px; 

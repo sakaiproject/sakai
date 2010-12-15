@@ -26,7 +26,34 @@ body{
 /*accessibility links wrapper */
 #skipNav{
 }
-
+/*site hierarchy breadcrumb*/
+#siteHierarchy{
+        clear:both;
+        float:none;
+        margin:0;
+        list-style: none;
+        padding:.5em;
+	    background-color: #eeeeee;
+	    border-bottom: 1px solid #C3C3C3;
+}
+/*style the standard breadcrumbseparator
+can set display:none if needed because the list-style is taking care of it*/
+.breadSeparator{
+}
+a.lastBreadCrumb{
+	color: black !important;
+	text-decoration: none;
+}
+a.lastBreadCrumb:hover{
+    cursor:text
+}    
+#siteHierarchy li{
+        display:inline;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited{
+    color:#005386;
+    text-decoration: none;
+}
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	clear:both;
@@ -252,35 +279,31 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /*the <select> contextually defined*/
+#selectNav, #roleSwitch{
+	padding: .5em .4em .2em .2em;
+	text-align: right;
+	vertical-align: middle;
+	float:right;
+}
+
+/*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .8em;
-	margin: 0 0 0 3px;
-	padding: 0;
-}
-
-#selectNav select option{
-	background: #fff;
-}
-
-#roleSwitch{
-	float:right;
+	font-size: .9em;
+	margin: 0 3px;
 }
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
 	font-weight:bold;
 }
 #roleSwitch a#roleSwitchAnchor{
-	margin:10px 5px 0 0;
-	display:block;
 }	
 #roleSwitch select{
-	border:2px solid #0077B5;
 	display:inline;
 	font-size:0.9em;
-	margin:10px 2px 0 0;
 	padding:0;
-}	
+}
+
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
 /*	white-space: nowrap;*/
@@ -350,7 +373,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
-#toolMenu{
+#toolMenu, #subSites{
 	width: 12em;
 	padding: 0;
 	margin: 1em 0 0 2px;
@@ -361,7 +384,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 }
 
-#toolMenu ul{
+#toolMenu ul, #subSites ul{
 	width:auto;
 	list-style: none;
 	margin: 0;
@@ -369,7 +392,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	padding-left: 0;
 }
 
-#toolMenu li{
+#toolMenu li, #subSites li{
 	margin: 0;
 	width: auto;
 	padding: 0;
@@ -380,14 +403,12 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
-#toolMenu li span{
-/*comment this line for a return to sanity
-display:none*/
+#toolMenu li span, #subSites li span{
 }
 
 
-
-#toolMenu li a:link,#toolMenu li a{
+#toolMenu li a:link,#toolMenu li a,
+#subSites li a:link,#subSites li a{
 	display: block;
 	width:100%;
 	font-weight: bold;
@@ -399,7 +420,8 @@ display:none*/
 	margin:1px
 
 }
-#toolMenu li a:hover{
+#toolMenu li a:hover,
+#subSites li a:hover{
 	background: #DDDDFF;
 	text-decoration: none;
 	color: #702200;
@@ -417,7 +439,12 @@ display:none*/
 	color: #000;
 	cursor: text;
 }
-
+#toolMenu .hidden { 
+	font-style: italic;
+    color: #000;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
 /*
 set of special selectors when a user has chosen to minimize navigation and maximize real
 page estate
@@ -447,6 +474,11 @@ page estate
 .toggleTools #toggleNormal{
 	background:#fff url(images/toggler-back.png) -80px 0 no-repeat
  }
+.sakaiMinimizePageNavigation #worksiteLogo,.sakaiMinimizePageNavigation #subSites, .sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
+	position:absolute;
+    top:-1000px;
+    left:-1000px;
+}
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
 	width:0px;
 	margin-right:1em;

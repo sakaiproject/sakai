@@ -15,14 +15,12 @@ body{
 
 /*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
 #portalContainer{
+    margin:0 50px;
 }
 
 /*wrapper masthead  and site navigation 
  two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
-	width: 98%;
-	margin: 1em auto 0 auto;
-	height:100%;
 }
 #headerMin{
 	overflow:hidden;
@@ -32,46 +30,57 @@ body{
 /*accessibility links wrapper */
 #skipNav{
 }
+/*site hierarchy breadcrumb*/
+#siteHierarchy{
+        clear:both;
+        float:none;
+        margin:0;
+        list-style: none;
+        padding:.5em;
+	background-color: #eeeeee;
+	border-bottom: 1px solid #88d0e8;
+}
+/*style the standard breadcrumbseparator
+can set display:none if needed because the list-style is taking care of it*/
+.breadSeparator{
+}
+a.lastBreadCrumb{
+	color: black !important;
+	text-decoration: none;
+}
+a.lastBreadCrumb:hover{
+    cursor:text;
+    }
+#siteHierarchy li{
+        display:inline;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited{
+        color:#09c;
+}
 
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-	width: 98%;
 	clear:both;
 	margin: 0 auto;
-	padding-top: 10px;
-	
+
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
-/*	float: left;
-	width: 9.6em;
-*/	color: #000;
+	color: #000;
 	text-align: left;
-	padding:.5em 0;
-	border-bottom:1px solid #ddd;
+	padding:0 0 5px 0;
+    height:100%;
+    overflow:hidden;
+    border-bottom:1px solid #ccc;
 }
-
-#toolMenuWrap:hover{
-	border-bottom:1px solid #09c;
-	}
-/*depending on site type - different hover effects for the tool menu parent block
-site types are a local setting - adjust */
-.workspace #toolMenuWrap:hover{
-	border-bottom:1px solid #aaa;
-}
-.course #toolMenuWrap:hover{
-	border-bottom:1px solid #FC6;
-}
-.project #toolMenuWrap:hover{
-	border-bottom:1px solid #9CF;
-}
-
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
 #content{
 	padding: 0;
-	margin-top: .5em;
+    float:none;
+    clear:both;
+    padding-top:15px;
 }
 #footer{
 	color: #000;
@@ -95,33 +104,6 @@ site types are a local setting - adjust */
 	border:none;
 }
 
-/*PART 2 - HEADER IFRAME SETTINGS*/	
-/*iframe sizes for different states*/
-/*gone for 2.3
-.sitenav-log{
-	user not logged in
-	height: 90px;
-	width: 100%;
-	border-bottom:1px solid #09c
-}
-
-.sitenav-max{
-	user logged in 
-	height: 7.8em;
-	max-height:140px;
-	min-height:100px;
-	width: 100%;
-}
-
-* html .sitenav-max{
-	user logged in - iframe height tweak for IE
-	height: 8em;
-	}
-.sitenav-min{
-	no logos or banners
-	height: 2em;
-	width: 100%;
-}*/
 
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
 /*depending on site type - different border-bottoms for the site menu parent block
@@ -268,41 +250,28 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	float:left
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
-#selectNav{
-	padding: .4em .4em .2em .2em;
+#selectNav, #roleSwitch{
+	padding: .5em .4em .2em .2em;
 	text-align: right;
 	vertical-align: middle;
-	float:right
+	float:right;
 }
 
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .8em;
+	font-size: .9em;
 	margin: 0 3px;
-	padding: 0;
-}
-
-#selectNav select option{
-	background: #fff;
-}
-
-#roleSwitch{
-	float:right;
 }
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
 	font-weight:bold;
 }
 #roleSwitch a#roleSwitchAnchor{
-	margin:10px 5px 0 0;
-	display:block;
 }	
 #roleSwitch select{
-	border:2px solid #0077B5;
 	display:inline;
 	font-size:0.9em;
-	margin:10px 2px 0 0;
 	padding:0;
 }	
 /*a ul - the li below are outer wrappers for the links to sites */
@@ -368,32 +337,39 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	background: inherit;
 }
 
-#toolMenu ul{
-	width:auto;
+#toolMenu ul, #subSites ul {
+	display:inline;
+    width:auto;
 	list-style: none;
-	margin: 0;
+	margin: 5px 0 0 0;
 	line-height:1.5em;
 	padding-right: 0;
 	padding-left: 0;
+    float:left;
 }
-
-#toolMenu li{
+#subSites ul{
+    margin-left:2em;
+}
+#toolMenu li, #subSites li{
 	display:inline;
 	margin: 0;
 	width: auto;
-	padding: 0;
-	border: 1px solid #fff;
+	padding: 5px 0;
 	text-align:left;
 }
+#toolMenu .hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
 
 /*span shim for fine grained manipulation of link display (decorative)
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
-#toolMenu li span{
-/*comment this line for a return to sanity
-display:none*/
+#toolMenu li span, #subSites li span{
 }
+
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
 	filter:alpha(opacity=70);
@@ -404,13 +380,18 @@ display:none*/
 }
 
 
-#toolMenu li a:link,#toolMenu li a{
-	text-decoration: underline;
+#toolMenu li a:link,#toolMenu li a, #subSites  li a{
+    padding:0 5px 0 5px;
+    border-left:1px solid #ccc;
+	text-decoration: none;
 	color: #09c;
-	padding: 2px 0px 2px 4px;
-
 }
-#toolMenu li a:hover{
+#toolMenu li:first-child a, #subSites li:first-child a{
+    padding:0 0 0 10px;
+    border:none;
+}
+
+#toolMenu li a:hover, #subSites li a:hover{
 	text-decoration: none;
 	color: #09c;
 }
@@ -457,17 +438,13 @@ page estate
 .toggleTools #toggleNormal{
 	background:#fff url(images/toggler-back.png) -80px 0 no-repeat
  }  
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
-	display:none
+.sakaiMinimizePageNavigation #worksiteLogo,.sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #subSites,.sakaiMinimizePageNavigation #presenceWrapper{
+    position:absolute;
+    top:-1000px;
+    left:-1000px;
 }
-.sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
-	width:0px;
-	margin-right:0;
-	border-right:none;
-}
-.sakaiMinimizePageNavigation #content{
-	padding-left:0;
-	margin-left:0;
+.sakaiMinimizePageNavigation #toolMenuWrap{
+    border:none;
 }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{
 	display:none
@@ -478,28 +455,20 @@ page estate
 }
 
 #toolMenuWrap #toggler {
-	display:block;
-	float:right;
+    position:absolute;
+    top:125px;
+    left:20px;
 }
-.sakaiMinimizePageNavigation #toggler {
-	display:block;
-	float:none !important;
-}
-
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
 #worksiteLogo{
-	width: 100%;
-	height: auto;
-	overflow: hidden;
-	display: block;
+    display: none;
 }
 
 /*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
 #worksiteLogo img{
 	display: none;
-	margin: .5em auto;
 }
 
 /*wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific*/
@@ -542,7 +511,7 @@ page estate
 /*PART 7 - PORTLETS - children of #content*/
 /*a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet */
 #col1{
-	padding-right: .5em;
+
 }
 
 #col1of2{
@@ -563,12 +532,10 @@ page estate
 /*.portletTitleWrap are wrappers for the tool title documents,
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
-	width: 99%;
 	border-bottom: 2px solid #09c;
 }
 
 #col1 .portletMainWrap{
-	width: 99%;
 }
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
@@ -739,3 +706,4 @@ below they are contextually defined depending on the column as an example,as you
 	height: 0;
 
 }
+

@@ -1,39 +1,63 @@
 /*general body - used by main portal document */ 
 body{
-	width: 100%;
-	padding: 0;
 	font-family: 'Trebuchet MS',Verdana,sans-serif;
-	margin: 0;
 	font-size:.8em;
-	background: #fff;
+	background: #fff url(images/portal-back-lt.png) top left repeat-y;
 }
 
 /*PART 1 - MAIN LAYOUT BLOCKS*/
 /*outer wrapper for portal content (decorative - child is #portalContainer )*/
 #portalOuterContainer{
+    background: transparent url(images/portal-back-rt.png) top right repeat-y;
+    height:1000px; 
 }
 
 /*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
 #portalContainer{
+    background:#fff;
+    margin:0 50px;
 }
 
 /*wrapper for masthead  and site navigation 
  as well as accessibility links wrapper #skipNav */
 /* two possible states - logged in headerMax, not logged in - headerMin*/
 #headerMax,#headerMin{
-	width: 98%;
-	margin: 1em auto 0 auto;
 }
 
 /*accessibility links wrapper */
 #skipNav{
 }
+/*site hierarchy breadcrumb*/
+#siteHierarchy{
+        clear:both;
+        float:none;
+        margin:0;
+        list-style: none;
+        padding:.5em;
+	    background-color: #eeeeee;
+	    border-bottom: 1px solid #C3C3C3;
+}
+/*style the standard breadcrumbseparator
+can set display:none if needed because the list-style is taking care of it*/
+.breadSeparator{
+}
+a.lastBreadCrumb{
+	color: black !important;
+	text-decoration: none;
+}
+a.lastBreadCrumb:hover{
+    cursor:text
+}    
+#siteHierarchy li{
+        display:inline;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited{
+    color:#005386;
+    text-decoration: none;
+}
 
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-	width: 98%;
-	margin: 1em auto;
-	border:1px solid #fff;
 	clear:both;
 	padding-top: 10px;
 	
@@ -42,20 +66,21 @@ body{
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
 	float: left;
-	width: 9.6em;
-	color: #CBCC03;
-	text-align: right;
-	padding:0 .5em 0 0;
+	width: 11em;
+	color: #000;
+	text-align: left;
+	padding:0 .5em 0 3px;
 	border-right:2px solid #fff
+
 }
 #toolMenuWrap:hover{
 	border-right:2px solid #cbcc03
 }
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
 #content{
-	padding: 0;
+	padding: 0 0 0 10px;
 	margin-top: .5em;
-	margin-left: 11em;
+	margin-left: 12em;
 }
 
 * html #content{margin-left:11.3em}
@@ -82,30 +107,6 @@ body{
 	border:none;
 }
 
-/*PART 2 - HEADER IFRAME SETTINGS*/	
-/*iframe sizes for different states*/
-/*gone for 2.3*/
-/*.sitenav-log{
-	height: 90px;
-	width: 100%;
-	border-bottom:1px solid #004D73
-}
-
-.sitenav-max{
-	height: 7.5em;
-	max-height:140px;
-	min-height:100px;
-	width: 100%;
-}
-
-* html .sitenav-max{
-	height: 8em;
-	}
-
-.sitenav-min{
-	height: 2em;
-	width: 100%;
-}
 */
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
 /*outer wrapper for contents of site navigation */
@@ -219,7 +220,6 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	padding: 0;
 	margin: 0;
 	float: left;
 	clear:both;
@@ -228,7 +228,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
 #siteNav{
-	width:100%;
 }
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
@@ -236,41 +235,30 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	float:left;
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
-#selectNav{
-	padding: .4em .4em .2em .2em;
+#selectNav, #roleSwitch{
+	padding: .5em .4em .2em .2em;
 	text-align: right;
+	vertical-align: middle;
+	float:right;
 }
 
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .8em;
-	margin: 0 0 0 3px;
-	padding: 0;
-}
-
-#selectNav select option{
-	background: #fff;
-}
-
-#roleSwitch{
-	float:right;
+	font-size: .9em;
+	margin: 0 3px;
 }
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
 	font-weight:bold;
 }
 #roleSwitch a#roleSwitchAnchor{
-	margin:10px 5px 0 0;
-	display:block;
 }	
 #roleSwitch select{
-	border:2px solid #0077B5;
 	display:inline;
 	font-size:0.9em;
-	margin:10px 2px 0 0;
 	padding:0;
-}	
+}
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
 	line-height: 2em;
@@ -313,11 +301,8 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	color: #fff;
 	text-decoration: none;
 }
-
-.fixTabsIE{
-	visibility: hidden;
-	display: none;
-	border-width: 0;
+#siteLinkList li:last-child a{
+    border:none;
 }
 
 /*block in case need to display any decorative element above or below the .tabHolder block*/
@@ -327,33 +312,36 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
-#toolMenu{
-	width: 9.6em;
+#toolMenu, #subSites{
+	width: 11em;
 	padding: 0;
 	margin: 1em 0 0 0;
 	color: #000;
+	background: inherit;
 }
 
-#toolMenu ul{
+#toolMenu ul, #subSites ul{
 	width:auto;
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
-		padding-left: 0;
+	padding-left: 0;
 }
 
-#toolMenu li{
-
+#toolMenu li, #subSites li{
 	margin: 0;
 	width: auto;
-	padding: 0;
-	border: 1px solid #fff;
-	text-align: right;
+	padding: 3px 5px;
+	text-align: left;
 }
 
 /*span shim for fine grained manipulation of link display (decorative)
+also hide if are going to be using icon links (as background of <a> nad <li>
 */
-#toolMenu li span{
+
+
+#toolMenu li span, #subSites li span{
+
 }
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
@@ -364,40 +352,48 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	text-decoration:none
 }
 
-
-#toolMenu li a:link,#toolMenu li a{
+#toolMenu li a:link,#toolMenu li a,
+#subSites li a:link,#subSites li a{
 	display: block;
 	text-decoration: underline;
-	color: #069;
-	padding: 2px 0px 2px 4px;
-/*comment these last 3 lines for a return to sanity
-	width:2em;
-	height:2em;
-	background:url(images/warn.gif)  top left no-repeat;*/
+	color: #006699;
+	padding-bottom : 2px;
+    height:16px;
+    padding-left : 23px !important;
+    padding-top : 2px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 0px;
+    margin-top : 0px;
+    background-position : center left !important;
+    background-repeat : no-repeat !important;
+    outline:none;
 
 }
-#toolMenu li a:hover{
-	display: block;
+#toolMenu li a:hover,
+#subSites li a:hover{
 	text-decoration: none;
-	color: #069;
-	padding: 2px 0px 2px 4px;
 }
 
-#toolMenu li a.selected{
-	display: block;
-	text-decoration: none;
-	color: #000;
-	cursor: text;
-	padding: 2px 0px 2px 4px;
-}
-
-#toolMenu li a.selected:hover{
-	display: block;
+#toolMenu li a.selected,
+#subSites li a:selected{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
-	padding: 2px 0px 2px 4px;
 }
+
+#toolMenu li a.selected:hover,
+#subSites li a:selected:hover{
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+}
+
+#toolMenu .hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
 
 
 /*
@@ -436,21 +432,23 @@ page estate
 	padding-right:0 !important;
 	width:16px;
 }
-{
-	display:none;
-}
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #toolMenu, .sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #presenceWrapper{
-	display:none
+.sakaiMinimizePageNavigation #worksiteLogo,.sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #subSites li span,.sakaiMinimizePageNavigation #presenceWrapper{
+	position:absolute;
+    top:-1000px;
+    left:-1000px;
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
-	width:0px;
+	width:23px;
 	margin-right:0;
 	border-right:none;
 }
 .sakaiMinimizePageNavigation #content{
-	padding-left:1em;
+	padding-left:3em;
 	margin-left:0;
 }
+.sakaiMinimizePageNavigation #col1of2,.sakaiMinimizePageNavigation #col2of2{
+    width:49%;
+    }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{
 	display:none
 }
@@ -460,12 +458,14 @@ page estate
 }
 
 #toolMenuWrap #toggler {
-	display:block;
-	float:right;
+    display:block !important;
+    margin-left:3px;
+    height:16px;
 }
 .sakaiMinimizePageNavigation #toggler {
-	display:block;
-	float:none !important;
+    float:none;
+    height:16px;
+    overflow:hidden;
 }
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
@@ -504,14 +504,15 @@ page estate
 /*wrapper for all elements of presence display */
 #presenceWrapper{
 	width: 9.65em;
-	margin-top: .5em;
+	margin-top: 1.5em;
 }
 
 /*wrapper for title of iframe ("Users present")*/
 #presenceTitle{
 	font-size: .8em;
-	text-align: right;
-	margin-right: .5em;
+    color:#000;
+	text-align: left;
+    border-bottom:1px solid #ccc;
 }
 
 /*of presence iframe*/
@@ -712,3 +713,272 @@ below they are contextually defined depending on the column as an example,as you
 
 }
 
+/* PART 9 - Tool Icons */
+
+.icon-osp-evaluation {
+	background-image: url(../../image/silk/thumb_up.png);
+}
+
+.icon-osp-glossary {
+	background-image: url(../../image/silk/text_list_bullets.png);
+}
+
+.icon-osp-matrix {
+	background-image: url(../../image/silk/table.png);
+}
+
+.icon-osp-presentation {
+	background-image: url(../../image/silk/briefcase.png);
+}
+
+.icon-osp-presLayout {
+	background-image: url(../../image/silk/layout_content.png);
+}
+
+.icon-osp-presTemplate {
+	background-image: url(../../image/silk/application_view_tile.png);
+}
+
+.icon-osp-style {
+	background-image: url(../../image/silk/style.png);
+}
+
+.icon-osp-wizard {
+	background-image: url(../../image/silk/wand.png);
+}
+
+.icon-sakai-announcements {
+	background-image: url(../../image/silk/flag_blue.png);
+}
+
+.icon-sakai-chat {
+	background-image: url(../../image/silk/user_comment.png);
+}
+
+.icon-sakai-datapoint {
+	background-image: url(../../image/silk/chart_line.png);
+}
+
+.icon-sakai-discussion {
+	background-image: url(../../image/silk/comments.png);
+}
+
+.icon-sakai-dropbox {
+	background-image: url(../../image/silk/folder_page.png);
+}
+
+.icon-sakai-emailtemplateservice {
+	background-image: url(../../image/silk/email_edit.png);
+}
+
+.icon-sakai-gmt {
+	background-image: url(../../image/silk/award_star_gold_3.png);
+}
+
+.icon-sakai-help {
+	background-image: url(../../image/silk/help.png);
+}
+
+.icon-sakai-iframe {
+	background-image: url(../../image/silk/page_world.png);
+}
+
+.icon-sakai-iframe-site {
+	background-image: url(../../image/silk/house.png);
+}
+
+.icon-sakai-mailbox {
+	background-image: url(../../image/silk/email.png);
+}
+
+.icon-sakai-messages {
+	background-image: url(../../image/silk/comment.png );
+}
+
+.icon-sakai-metaobj {
+	background-image: url(../../image/silk/application_form.png);
+}
+
+.icon-sakai-membership {
+	background-image: url(../../image/silk/group.png);
+}
+
+.icon-sakai-news {
+	background-image: url(../../image/silk/rss.png);
+}
+
+.icon-sakai-podcasts{
+	background-image: url(../../image/silk/ipod_cast.png );
+}
+
+.icon-sakai-postem{
+	background-image: url(../../image/silk/database_table.png );
+}
+
+.icon-sakai-preferences{
+	background-image: url(../../image/silk/cog.png );
+}
+
+.icon-sakai-rutgers-linktool{
+	background-image: url(../../image/silk/application.png);
+}
+
+.icon-sakai-sections{
+	background-image: url(../../image/silk/group_gear.png );
+}
+
+.icon-sakai-singleuser{
+	background-image: url(../../image/silk/user.png );
+}
+
+.icon-sakai-syllabus{
+	background-image: url(../../image/silk/script.png );
+}
+
+.icon-blogger{
+	background-image: url(../../image/silk/book_edit.png );
+}
+
+.icon-sakai-assignment-grades{
+	background-image: url(../../image/silk/page_edit.png );
+}
+
+.icon-sakai-forums{
+	background-image: url(../../image/silk/comments.png );
+}
+
+.icon-sakai-gradebook-tool{
+	background-image: url(../../image/silk/report.png);
+}
+
+.icon-sakai-mailtool {
+	background-image: url(../../image/silk/email_go.png );
+}
+
+.icon-sakai-poll{
+	background-image: url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats {
+	background-image: url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats-admin {
+        background-image: url(../../image/silk/chart_line.png);
+}
+
+.icon-sakai-presentation {
+	background-image: url(../../image/silk/monitor.png);
+}
+
+.icon-sakai-profile {
+	background-image: url(../../image/silk/vcard_edit.png);
+}
+
+.icon-sakai-reports {
+	background-image: url(../../image/silk/report_magnify.png);
+}
+
+.icon-sakai-resetpass {
+	background-image: url(../../image/silk/key.png);
+}
+
+.icon-sakai-resources {
+	background-image: url(../../image/silk/folder.png);
+}
+
+.icon-sakai-rwiki {
+	background-image: url(../../image/silk/page_white_edit.png);
+}
+
+.icon-sakai-samigo {
+	background-image: url(../../image/silk/pencil.png);
+}
+
+.icon-sakai-schedule {
+	background-image: url(../../image/silk/calendar.png);
+}
+
+.icon-sakai-search {
+	background-image: url(../../image/silk/find.png);
+}
+
+.icon-sakai-siteinfo {
+	background-image: url(../../image/silk/application_lightning.png );
+}
+
+.icon-sakai-sitesetup{
+	background-image: url(../../image/silk/application_lightning.png );
+}
+
+.icon-sakai-site-roster {
+	background-image: url(../../image/silk/vcard.png);
+}
+
+.icon-sakai-synoptic-messagecenter{
+background-image: url(../../image/silk/comment.png);
+}
+
+.icon-sakai-conferencing {
+    background-image : url(../../image/silk/webcam.png);
+}
+
+.icon-sakai-profile2 { 
+	background-image: url(../../image/silk/vcard.png); 
+} 
+
+/*admin tools*/
+.icon-sakai-users{
+	background-image: url(../../image/silk/folder_user.png);
+}
+.icon-sakai-aliases{
+	background-image: url(../../image/silk/tag_blue.png);
+}
+.icon-sakai-sites{
+	background-image: url(../../image/silk/application_cascade.png);
+}
+.icon-sakai-realms{
+	background-image: url(../../image/silk/sitemap_color.png);
+}
+.icon-sakai-online{
+	background-image: url(../../image/silk/report_user.png);
+}
+.icon-sakai-memory{
+	background-image: url(../../image/silk/server_chart.png);
+}
+.icon-sakai-archive{
+	background-image: url(../../image/silk/page_white_compressed.png);
+}
+.icon-sakai-scheduler{
+	background-image: url(../../image/silk/clock.png);
+}
+.icon-sakai-su{
+	background-image: url(../../image/silk/user_go.png);
+}
+.icon-sakai-usermembership{
+	background-image: url(../../image/silk/drive_user.png);
+}
+
+.icon-sakai-motd { 
+	background-image: url(../../image/silk/house.png); 
+} 
+.icon-sakai-sitebrowser { 
+	background-image: url(../../image/silk/world.png); 
+} 
+.icon-sakai-createuser { 
+	background-image: url(../../image/silk/user_add.png); 
+} 
+.icon-sakai-subsite { 
+	background-image: url(../../image/silk/chart_organisation.png); 
+}
+
+.icon-sakai-iframe-service {
+	background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-iframe-myworkspace {
+	background-image: url(../../image/silk/house.png);
+}
+
+.icon-sakai-basiclti { 
+	background-image: url(../../image/silk/application_go.png); 
+}

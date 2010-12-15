@@ -25,8 +25,8 @@ body{
 	height:100%;
 }
 #headerMin{
-	border-bottom:2px solid #09C;
 	overflow:hidden;
+	border-bottom:2px solid #09C
 }
 
 /*accessibility links wrapper */
@@ -39,11 +39,19 @@ body{
         float:none;
         margin:0;
         list-style: none;
-        padding:.5em 0;
+        padding:.5em;
+	background-color: #eeeeee;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: #88d0e8;
 }
 /*style the standard breadcrumbseparator
 can set display:none if needed because the list-style is taking care of it*/
 .breadSeparator{
+}
+a.lastBreadCrumb{
+	color: black;
+	text-decoration: none;
 }
 #siteHierarchy li{
         display:inline;
@@ -529,7 +537,7 @@ html>body .dhtml_more_tabs {
 
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
-#toolMenu{
+#toolMenu, #subSites{
 	width: 11em;
 	padding: 0;
 	margin: 1em 0 0 0;
@@ -537,7 +545,7 @@ html>body .dhtml_more_tabs {
 	background: inherit;
 }
 
-#toolMenu ul{
+#toolMenu ul, #subSites ul{
 	width:auto;
 	list-style: none;
 	margin: 0;
@@ -545,7 +553,7 @@ html>body .dhtml_more_tabs {
 	padding-left: 0;
 }
 
-#toolMenu li{
+#toolMenu li, #subSites li{
 
 	margin: 0;
 	width: auto;
@@ -558,29 +566,21 @@ html>body .dhtml_more_tabs {
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
-#toolMenu li.selectedTool span{
-	display: block;
-	padding-bottom : 2px;
-    padding-right : 23px !important;
-    padding-top : 2px;
-    margin-bottom : 0px;
-    margin-left : 0px;
-    margin-right : 0px;
-    margin-top : 0px;
-    background-position : center right !important;
-    background-repeat : no-repeat !important;
-	filter:alpha(opacity=50);
-	opacity: 0.50;
-	-moz-opacity: 0.50;
-	 
-}
 
-#toolMenu li span{
+#toolMenu li span, #subSites li span{
 
 }
 
+#toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
+	filter:alpha(opacity=70);
+	color:#000;
+	opacity: 0.70;
+	-moz-opacity: 0.70;
+	text-decoration:none
+}
 
-#toolMenu li a:link,#toolMenu li a{
+#toolMenu li a:link,#toolMenu li a,
+#subSites li a:link,#subSites li a{
 	display: block;
 	text-decoration: underline;
 	color: #09c;
@@ -596,22 +596,108 @@ also hide if are going to be using icon links (as background of <a> nad <li>
     
 
 }
-#toolMenu li a:hover{
+#toolMenu li a:hover,
+#subSites li a:hover{
 	text-decoration: none;
 	color: #09c;
 }
 
-#toolMenu li a.selected{
+#toolMenu li a.selected,
+#subSites li a:selected{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
 }
 
-#toolMenu li a.selected:hover{
+#toolMenu li a.selected:hover,
+#subSites li a:selected:hover{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
 }
+
+#toolMenu .hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
+
+/*
+set of special selectors when a user has chosen to minimize navigation and maximize real
+page estate
+*/
+
+#toggleToolMenu, #toggleToolMenu:visited,#toggleToolMenu:active,#toggleToolMenu:focus{
+	outline:none;
+}
+#toggleToolMax, #toggleNormal{
+	height:16px;
+	border:1px solid #fff;
+}
+.toggleToolstoggleNav img#toggleToolMax{
+    background:#fff url(images/toggler-back.png) 0 0 no-repeat
+ }
+.toggleToolstoggleNav #toggleNormal{
+	background:#fff url(images/toggler-back.png) -16px 0 no-repeat
+ }
+.toggleNav #toggleToolMax{
+	background:#fff url(images/toggler-back.png) -32px 0 no-repeat
+ }
+.toggleNav #toggleNormal{
+	background:#fff url(images/toggler-back.png) -48px 0 no-repeat
+ }  
+ .toggleTools #toggleToolMax{
+	background:#fff url(images/toggler-back.png) -64px 0 no-repeat
+ }
+.toggleTools #toggleNormal{
+	background:#fff url(images/toggler-back.png) -80px 0 no-repeat
+ }
+.sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a{
+	display:block;
+	height:16px;
+	padding-right:0 !important;
+	width:16px;
+}
+.sakaiMinimizePageNavigation #toolMenu{
+	width:16px;
+}
+.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #presenceWrapper{
+	display:none
+}
+.sakaiMinimizePageNavigation #toolMenu li span,.sakaiMinimizePageNavigation #subSites li span{
+    position:absolute; 
+    left:-10000px; 
+    top:auto; 
+    width:1px; 
+    height:1px; 
+    overflow:hidden; 
+}
+.sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
+	width:0px;
+	margin-right:1em;
+	border-right:none;
+}
+.sakaiMinimizePageNavigation #content{
+	padding-left:2em;
+	margin-left:0;
+}
+.sakaiMinimizeSiteNavigation #siteNavWrapper{
+	display:none
+}
+.sakaiMinimizeSiteNavigation #headerMax{
+	padding:0;
+	margin:0; 
+}
+
+#toolMenuWrap #toggler {
+	display:block;
+	float:right;
+}
+.sakaiMinimizePageNavigation #toggler {
+	display:block;
+	float:none !important;
+}
+
 
 /** Portal Timeout **/
 #timeout_alert_body {
@@ -700,6 +786,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 
 /*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
 .portlet{
+	
 }
 
 /*.portletTitleWrap are wrappers for the tool title documents,
@@ -728,7 +815,6 @@ below they are contextually defined depending on the column as an example,as you
 	height:100%;
 	overflow:hidden;
 }
-
 
 .portletTitle .title img{
 	margin: 0;
@@ -760,13 +846,17 @@ below they are contextually defined depending on the column as an example,as you
 	padding: 0;
 	color: #555;
 	font-weight: bold;
-	font-size: 1.2em;
+	font-family:'Trebuchet MS',Verdana,sans-serif;
+	font-size: 1.2em !important;
 }
 
-
-.portletTitle .title a:hover{
+.portletTitle .title a:hover, .portletTitle .title a:focus{
 	background: url(images/reload_h.gif) center left no-repeat;
 }
+
+.portletTitle .title a:focus,.portletTitle .action a:focus{ 
+	outline:black dotted thin; 
+} 
 
 .portletTitle .action{
 	padding: 2px 4px 6px 2px;
@@ -792,7 +882,7 @@ below they are contextually defined depending on the column as an example,as you
 	outline:none
 }
 
-.portletTitle .action a:hover{
+.portletTitle .action a:hover, .portletTitle .action a:focus{
 	background: url(images/help_h.gif) center right no-repeat;
 }
 
@@ -818,6 +908,7 @@ below they are contextually defined depending on the column as an example,as you
 	margin-bottom: .5em;
 	height: auto;
 	border: none;
+	margin-top:0
 }
 
 /*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
@@ -923,6 +1014,10 @@ below they are contextually defined depending on the column as an example,as you
 	background-image: url(../../image/silk/folder_page.png);
 }
 
+.icon-sakai-emailtemplateservice {
+	background-image: url(../../image/silk/email_edit.png);
+}
+
 .icon-sakai-gmt {
 	background-image: url(../../image/silk/award_star_gold_3.png);
 }
@@ -1015,6 +1110,10 @@ below they are contextually defined depending on the column as an example,as you
 	background-image: url(../../image/silk/chart_bar.png);
 }
 
+.icon-sakai-sitestats-admin {
+        background-image: url(../../image/silk/chart_line.png);
+}
+
 .icon-sakai-presentation {
 	background-image: url(../../image/silk/monitor.png);
 }
@@ -1071,6 +1170,10 @@ background-image: url(../../image/silk/comment.png);
     background-image : url(../../image/silk/webcam.png);
 }
 
+.icon-sakai-profile2 { 
+	background-image: url(../../image/silk/vcard.png); 
+} 
+
 /*admin tools*/
 .icon-sakai-users{
 	background-image: url(../../image/silk/folder_user.png);
@@ -1112,8 +1215,20 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-createuser { 
 	background-image: url(../../image/silk/user_add.png); 
 } 
+.icon-sakai-subsite { 
+	background-image: url(../../image/silk/chart_organisation.png); 
+}
 
+.icon-sakai-iframe-service {
+	background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-iframe-myworkspace {
+	background-image: url(../../image/silk/house.png);
+}
 
+.icon-sakai-basiclti { 
+	background-image: url(../../image/silk/application_go.png); 
+}
 
 
 /** Privacy Popup Styles **/

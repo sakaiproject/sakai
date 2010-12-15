@@ -4,7 +4,7 @@
 .directoryIndex a{
 	text-decoration: none !important;
 }
-.directoryIndex { margin-top:2em;padding:1em}
+.directoryIndex { margin-top:2em;padding:1em;direction:rtl;}
 .directoryIndex .textPanel{
 	font-size: .95em;
 	line-height: 150%;
@@ -36,19 +36,19 @@
 	padding:3px;
 }
 .directoryIndex ul li.folder a{
-	padding-left:21px;
-	background: url(../../image/silk/folder.png) center left no-repeat !important
+	padding-right:21px;
+	background: url(../../image/silk/folder.png) center right no-repeat !important
 }	
 
 .directoryIndex ul li.folder a:hover{
-	padding-left:21px;
-	background: url(../../image/silk/folder_go.png) center left no-repeat !important
+	padding-right:21px;
+	background: url(../../image/silk/folder_page.png) center right no-repeat !important
 }	
 
 .directoryIndex ul li.upfolder{
 	position:absolute;
 	top:2px;
-	left:2px;
+	right:2px;
 	margin-bottom:2em;
 }
 .directoryIndex ul li.upfolder a{
@@ -71,50 +71,50 @@ p#toggle{text-align: right;margin:0 0 1em 0;font-weight:bold}
 
 .directoryIndex ul li.file a{
 	padding:6px;
-	padding-left:21px;
-	background: url(../../image/sakai/generic.gif) center left no-repeat;
+	padding-right:21px;
+	background: url(../../image/sakai/generic.gif) center right no-repeat;
 	}
 /*file exensions to match*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
-	background: url(../../image/sakai/word.gif) center left no-repeat !important
+	background: url(../../image/sakai/word.gif) center right no-repeat !important
 	}
 .ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
-	background: url(../../image/sakai/ppt.gif) center left no-repeat !important
+	background: url(../../image/sakai/ppt.gif) center right no-repeat !important
 	}
 .xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam{
-	background: url(../../image/sakai/excel.gif) center left no-repeat !important
+	background: url(../../image/sakai/excel.gif) center right no-repeat !important
 	}	
 .mdb{
-	background: url(../../image/sakai/access.gif) center left no-repeat !important
+	background: url(../../image/sakai/access.gif) center right no-repeat !important
 	}	
 .gif, .jpg, .jpeg, .png{
-	background: url(../../image/sakai/image.gif) center left no-repeat !important
+	background: url(../../image/sakai/image.gif) center right no-repeat !important
 	}
 .html, .htm{
-	background: url(../../image/sakai/html.gif) center left no-repeat !important
+	background: url(../../image/sakai/html.gif) center right no-repeat !important
 	}
 .txt, .java{
-	background: url(../../image/sakai/text.gif) center left no-repeat !important
+	background: url(../../image/sakai/text.gif) center right no-repeat !important
 	}
 .zip, .tar, .sit, .hqx {
-	background: url(../../image/sakai/compressed.gif) center left no-repeat !important
+	background: url(../../image/sakai/compressed.gif) center right no-repeat !important
 	}
 .mov, .mpeg, .avi {
-	background: url(../../image/sakai/movie.gif) center left no-repeat !important
+	background: url(../../image/sakai/movie.gif) center right no-repeat !important
 	}
 .mp3, .wav, .aiff{
-	background: url(../../image/sakai/audio.gif) center left no-repeat !important
+	background: url(../../image/sakai/audio.gif) center right no-repeat !important
 	}
 .pdf{
-	background: url(../../image/sakai/pdf.gif) center left no-repeat !important
+	background: url(../../image/sakai/pdf.gif) center right no-repeat !important
 	}
 .ai, .ps, .psd{
-	background: url(../../image/sakai/postscript.gif) center left no-repeat !important
+	background: url(../../image/sakai/postscript.gif) center right no-repeat !important
 	}
 .ram, .rm{
-	background: url(../../image/sakai/real.gif) center left no-repeat !important
+	background: url(../../image/sakai/real.gif) center right no-repeat !important
 	}
 .swf{
-	background: url(../../image/sakai/shockwave.gif) center left no-repeat !important
+	background: url(../../image/sakai/shockwave.gif) center right no-repeat !important
 	}
 	

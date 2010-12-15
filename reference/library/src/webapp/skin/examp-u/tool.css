@@ -448,15 +448,10 @@ tr.selectedFound{
 	background: #cff;
 }
 
-
-
-/*when a row contained a searched for item has been found*/
-
-/*see: discussion*/
-
-tr.selectedFound{
-	background: #cff;
+tr.selectedSelected{
+    background:#F7F7D4;
 }
+
 /*a row that is being sorted - see resources in Sakai 2.3*/
 tr#selectedReorder{
 	color: #000;
@@ -1013,7 +1008,7 @@ width:auto !important
 	background:#fff
 }
 .presenceList{
-	font-size: .8em;
+	font-size: .9em;
 	list-style: none;
 	margin: 0;
 	padding-left: .1em;

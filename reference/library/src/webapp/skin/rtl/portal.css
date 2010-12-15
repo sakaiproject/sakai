@@ -47,7 +47,7 @@ can set display:none if needed because the list-style is taking care of it*/
         display:inline;
 }
 #siteHierarchy li a, #siteHierarchy li a:visited{
-        color:#07b;
+        color:#BB7711;
         text-decoration:none
 }
 
@@ -248,12 +248,11 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 	display:block;
 	color:#fff;
 	font-weight: bold;
-	padding-top: 2em;
 	padding-right: 1em;
 }
 
 #headerMax #mastLogin a,#headerMax #mastLogin a:visited{
-padding-top:1em
+
 }
 
 #mastLogin a:hover{
@@ -296,17 +295,20 @@ padding-top:1em
 
 /*block for login/logout links */
 #loginLinks{
+    padding-top: 1em;
 	margin: 0;
 }
 
 /*main CAS link*/
 #loginLink1{
+    float:left;
 }
 
 /*secondary CAS link*/
 #loginLink2{
 }
-
+#loginUser{
+}
 /*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
@@ -323,7 +325,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	width:100%;
 	height:100%;
 	overflow:hidden;
-	padding-bottom:3px;
+	padding-bottom:5px;
 	border-bottom: 5px solid silver;
 }
 
@@ -334,16 +336,14 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
-/*	float:left;*/
-	text-align: right;
-	
+	float:left;
+	text-align: right;	
 }
 
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .8em;
-	margin: 3px;
+	margin:  0 10px;
 	padding: 0;
 }
 
@@ -352,24 +352,16 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 #roleSwitch{
-	position:absolute;
-	top:3px;
-	left:200px;
+    float:left;
+    font-size: .8em;
 }
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
-	font-weight:bold;
 }
 #roleSwitch a#roleSwitchAnchor{
-	margin:10px 5px 0 0;
 	display:block;
-		font-size:0.8em;
 }	
 #roleSwitch select{
-	border:2px solid #0077B5;
-	display:inline;
-	font-size:0.9em;
-	margin:10px 2px 0 0;
 	padding:0;
 }	
 /*a ul - the li below are outer wrappers for the links to sites */
@@ -573,7 +565,7 @@ html>body .dhtml_more_tabs {
 
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
-#toolMenu{
+#toolMenu, #subSites{
 	width: 12em;
 	padding: 0;
 	margin:  0;
@@ -581,14 +573,14 @@ html>body .dhtml_more_tabs {
 	color: #000;
 }
 
-#toolMenu ul{
+#toolMenu ul, #subSites ul{
 	width:auto;
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
 }
 
-#toolMenu li{
+#toolMenu li, #subSites li{
 
 	margin: 0;
 	width: auto;
@@ -598,30 +590,35 @@ html>body .dhtml_more_tabs {
 }
 
 
-#toolMenu li span{
+#toolMenu li span, #subSites li span{
 
 }
 
 
 
-#toolMenu li a:link,#toolMenu li a{
+#toolMenu li a:link,#toolMenu li a,
+#subSites li a:link,#subSites li a{    
 	display: block;
 	text-decoration: none;
 	color: #448833;
 	padding: 2px 0px 2px 4px;
 
 }
-#toolMenu li a:hover{
+#toolMenu li a:hover,#subSites li a:hover{
 	text-decoration: underline;
 }
 
-#toolMenu li.selectedTool span{
+#toolMenu li.selectedTool span,
+#subSites li a:selected{
 	display: block;
 	text-decoration: none;
 	padding: 2px 0px 2px 4px;
 	color: #BB7711;
 }
 
+#subSites{
+    margin-top:2em;
+}
 .course #toolMenu li.selectedTool span{
 	color: #E8B900;
 }
@@ -634,6 +631,11 @@ html>body .dhtml_more_tabs {
 	color: #BB7711;
 }
 
+#toolMenu .hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
 
 /*
 set of special selectors when a user has chosen to minimize navigation and maximize real
@@ -668,6 +670,11 @@ page estate
 	width:0px;
 	margin-right:0;
 	border-right:none;
+}
+.sakaiMinimizePageNavigation #toolMenuWrap li,.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #presenceWrapper{
+    position:absolute;
+    top:-1000px;
+    left:-1000px;
 }
 .sakaiMinimizePageNavigation #content{
 	padding-right:2em;

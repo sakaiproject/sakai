@@ -3,6 +3,7 @@ body{
 	width: 100%;
 	padding: 0;
 	font-family: 'Trebuchet MS',Verdana,sans-serif;
+   	font-size:.8em;
 	margin: 0;
 	background: #fff;
 }
@@ -27,19 +28,49 @@ body{
 /*accessibility links wrapper */
 #skipNav{
 }
-
+/*site hierarchy breadcrumb*/
+#siteHierarchy{
+        clear:both;
+        float:none;
+        margin:0;
+        list-style: none;
+        padding:.5em;
+	    background-color: #eeeeee;
+	    border-bottom: 1px solid #C3C3C3;
+}
+/*style the standard breadcrumbseparator
+can set display:none if needed because the list-style is taking care of it*/
+.breadSeparator{
+}
+a.lastBreadCrumb{
+	color: black !important;
+	text-decoration: none;
+}
+a.lastBreadCrumb:hover{
+    cursor:text
+}    
+#siteHierarchy li{
+        display:inline;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited{
+    color:#CB2DCC;
+    text-decoration: none;
+}
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	width: 98%;
 	margin: 0 auto;
 	border:1px solid #fff;
-	padding-top: 10px;
+	padding-top: 0px;
 	clear:both
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
 	padding:.2em;
+    background:#eee;
+    height:100%;
+    overflow:hidden;
 	border-bottom:1px solid #CB2DCC;
 	margin-bottom:.5em;
 }
@@ -107,7 +138,7 @@ body{
 
 /*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
 #mastHead{
-	font-size: .8em;
+	
 }
 
 /*container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
@@ -229,50 +260,34 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
-#selectNav{
-	padding: .2em;
-	padding: .4em .4em .2em .2em;
+#selectNav, #roleSwitch{
+	padding: .5em .4em .2em .2em;
 	text-align: right;
 	vertical-align: middle;
-	float:right
-
+	float:right;
 }
 
 /*the <select> contextually defined*/
 #selectNav select{
 	display:inline;
-	font-size: .75em;
+	font-size: .9em;
 	margin: 0 3px;
-	padding: 0;
-}
-
-#selectNav select option{
-	background: #fff;
-}
-
-#roleSwitch{
-	float:right;
 }
 #roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
 	color:#fff;
 	font-weight:bold;
 }
 #roleSwitch a#roleSwitchAnchor{
-	margin:10px 5px 0 0;
-	display:block;
 }	
 #roleSwitch select{
-	border:2px solid #0077B5;
 	display:inline;
 	font-size:0.9em;
-	margin:10px 2px 0 0;
 	padding:0;
-}	
+}
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
 /*	white-space: nowrap;*/
 	list-style: none;
-	font-size: .8em;
 	margin: 0;	
 	padding: 4px 0;
 	width: auto;
@@ -312,12 +327,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	text-decoration: none;
 }
 
-.fixTabsIE{
-	visibility: hidden;
-	display: none;
-	border-width: 0;
-}
-
 /*block in case need to display any decorative element above or below the .tabHolder block*/
 #navBottom{
 	display: none;
@@ -327,29 +336,38 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*wrapper for ul that lists the links to tools*/
 #toolMenu{
 	text-align: right;
-	width:100%;
-	font-size: 80%;
-	padding:.2em;
-	color: #000;
-	background: inherit;
 }
 
-#toolMenu ul{
+#toolMenu ul, #subSites ul {
 	width:auto;
 	list-style: none;
 	margin: 0;
-	font-size: .9em;
+	font-size: 1em;
+    float:right;
 	padding-right: 0;
 }
+#subSites ul{
+    margin-left:2em;
+}
 
-#toolMenu li{
+#toolMenu li, #subSites li{
 	display:inline;
 	margin: 0;
 	width: auto;
-	padding: 0;
-	border: 1px solid #fff;
+	padding: 0 5px;
+	border: 1px solid #eee;
 	text-align: right;
-	border-left:1px solid #CB2DCC}
+	border-right:1px solid #aaa
+}
+#toolMenu li:last-child, #subSites li {
+   border:none;
+   } 
+#toolMenu .hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
+   
 #toolMenu li.selectedTool{
 	padding-left:4px
 	filter:alpha(opacity=70);
@@ -360,15 +378,15 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 /*span shim for fine grained manipulation of link display (decorative)
 */
-#toolMenu li span{
+#toolMenu li span, #subSites li span{
 }
 
-#toolMenu li a:link,#toolMenu li a{
+#toolMenu li a:link,#toolMenu li a, #subSites  li a{
 	text-decoration: none;
 	color: #CB2DCC;
 	padding: 2px 0px 2px 4px;
 }
-#toolMenu li a:hover{
+#toolMenu li a:hover, #subSites li a:hover{
 	text-decoration: underline;
 	color: #CB2DCC;
 	padding: 2px 0px 2px 4px;
