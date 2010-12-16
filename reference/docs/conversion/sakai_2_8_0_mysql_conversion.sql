@@ -79,3 +79,8 @@ insert into MFR_TOPIC_T (UUID, MODERATED, AUTO_MARK_THREADS_READ, SORT_INDEX, MU
 --MSGCNTR-360
 --Hibernate could have missed this index, if this fails, then the index may already be in the table
 CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID(36), TYPE_UUID(36), CONTEXT_ID(36), READ_STATUS);
+
+
+-- New column for Email Template service
+-- SAK-18532/SAK-19522
+alter table EMAIL_TEMPLATE_ITEM add column EMAILFROM text;

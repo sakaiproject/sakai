@@ -8,3 +8,7 @@ alter table SAKAI_PERSON_T add UNIVERSITY_PROFILE_URL varchar(4000);
 alter table SAKAI_PERSON_T add ACADEMIC_PROFILE_URL varchar(4000);
 alter table SAKAI_PERSON_T add PUBLICATIONS varchar(4000);
 alter table SAKAI_PERSON_T add BUSINESS_BIOGRAPHY varchar(4000);
+
+-- New column for Email Template service
+-- SAK-18532/SAK-19522
+alter table EMAIL_TEMPLATE_ITEM add column EMAILFROM varchar2(255);
