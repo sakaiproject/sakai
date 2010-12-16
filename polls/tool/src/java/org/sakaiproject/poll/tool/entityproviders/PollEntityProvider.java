@@ -171,7 +171,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     public Object getEntity(EntityReference ref) {
-	System.out.println("Get Entity: "+ ref);
         String id = ref.getId();
         if (id == null) {
             return new Poll();
