@@ -35,13 +35,13 @@
       <column name="TOPIC_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
     </property>
     <property name="messageId" unique-key="uniqueUserTopicMessage">
-      <column name="MESSAGE_C" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
+      <column name="MESSAGE_C" not-null="true" index="MFR_UNREAD_STATUS_I1 MFR_UNREAD_STATUS_I2"/>
     </property>
     <property name="userId" unique-key="uniqueUserTopicMessage">
-      <column name="USER_C" length="255" not-null="true" index="MFR_UNREAD_STATUS_I1"/>
+      <column name="USER_C" length="255" not-null="true" index="MFR_UNREAD_STATUS_I1 MFR_UNREAD_STATUS_I2"/>
     </property>
     <property name="read">
-      <column name="READ_C" not-null="true" index="MFR_UNREAD_STATUS_I1" />
+      <column name="READ_C" not-null="true" index="MFR_UNREAD_STATUS_I1 MFR_UNREAD_STATUS_I2" />
     </property>      
   </class>
 
