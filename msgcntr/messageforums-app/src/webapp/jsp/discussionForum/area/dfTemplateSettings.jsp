@@ -68,7 +68,7 @@
 			  <h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>
             <h:panelGrid columns="1" columnClasses="longtext,checkbox">
               <h:panelGroup>
-                 <h:selectOneRadio layout="pageDirection" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.template.availabilityRestricted}">
+                 <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.template.availabilityRestricted}">
                   <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_forum_avail_show}"/>
                   <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}" />
                </h:selectOneRadio>
