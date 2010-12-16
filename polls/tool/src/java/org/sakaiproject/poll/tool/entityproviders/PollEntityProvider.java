@@ -193,7 +193,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             	}
             } else {
                 String userReference = developerHelperService.getCurrentUserReference();
-		System.out.println("access from : " + userReference);
                 allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, "/site/" + poll.getSiteId());
                 boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_VOTE, "/site/" + poll.getSiteId());
                 if (!allowedManage && !allowedVote) {
@@ -201,7 +200,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 }
            }
         }
-	System.out.println("Here we are!");
+	
         Boolean includeVotes = requestStorage.getStoredValueAsType(Boolean.class, "includeVotes");
         if (includeVotes == null) { includeVotes = false; }
         if (includeVotes) {
