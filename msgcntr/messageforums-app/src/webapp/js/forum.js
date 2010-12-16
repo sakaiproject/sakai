@@ -459,7 +459,9 @@ function fckeditor_word_count(editorInstance) {
         count = matches.length/2;
     }
 
-    document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + count + ")</span>";
+	if(document.getElementById('counttotal')){
+    	document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + count + ")</span>";
+    }
 
 }
 
