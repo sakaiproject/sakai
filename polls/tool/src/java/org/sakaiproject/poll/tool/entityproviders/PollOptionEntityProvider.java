@@ -157,10 +157,6 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
     }
 
     public List<?> getEntities(EntityReference ref, Search search) {
-        String currentUser = developerHelperService.getCurrentUserReference();
-        if (currentUser == null) {
-            throw new EntityException("Anonymous users cannot view poll options", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
-        }
         // get the pollId
         Restriction pollRes = search.getRestrictionByProperty("pollId");
         if (pollRes == null || pollRes.getSingleValue() == null) {
@@ -176,6 +172,22 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         Poll poll = pollListManager.getPollById(pollId);
         if (poll == null) {
             throw new IllegalArgumentException("pollId ("+pollId+") is invalid and does not match any known polls");
+        } else {
+            boolean allowedPublic = pollListManager.isPollPublic(poll);
+            if (!allowedPublic) {
+                String userReference = developerHelperService.getCurrentUserReference();
+                if (userReference == null) {
+                    throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
+                } else {
+                    boolean allowedManage = false;
+                    boolean allowedVote = false;
+                    allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, "/site/" + poll.getSiteId());
+                    allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_VOTE, "/site/" + poll.getSiteId());
+                    if ( !(allowedManage || allowedVote)) {
+                        throw new SecurityException("User ("+userReference+") not allowed to access poll data: " + ref);
+                    }
+                }
+            }
         }
         // get the options
         List<Option> options = pollListManager.getOptionsForPoll(pollId);
