@@ -184,14 +184,12 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         
         boolean allowedManage = false;
         if (! developerHelperService.isEntityRequestInternal(ref+"")) {
-            // not an internal request so we require user to be logged in
-            if (currentUserId == null) {
-            	//is this a public poll? (ie .anon role has poll.vote)
-            	if(!pollListManager.isPollPublic(poll)){
-                    throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
-            	}
-            } else {
+            if (!pollListManager.isPollPublic(poll)) {
+                //this is not a public poll? (ie .anon role has poll.vote)
                 String userReference = developerHelperService.getCurrentUserReference();
+                if(userReference == null) {
+                    throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
+                }
                 allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, "/site/" + poll.getSiteId());
                 boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_VOTE, "/site/" + poll.getSiteId());
                 if (!allowedManage && !allowedVote) {
