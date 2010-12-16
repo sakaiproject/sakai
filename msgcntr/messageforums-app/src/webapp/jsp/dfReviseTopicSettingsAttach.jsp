@@ -16,11 +16,23 @@
 	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 	
 	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>             		             		
-	
+	<%
+	  	String thisId = request.getParameter("panel");
+  		if (thisId == null) 
+  		{
+    		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  		}
+	%>
+	<script type="text/javascript">
+		function resize(){
+  			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  		}
+	</script> 
 	<script type="text/javascript">
 	function setDatesEnabled(radioButton){
 		$(".openDateSpan").toggle();
 		$(".closeDateSpan").toggle();
+		resize();
 	}
 
 	function openDateCal(){

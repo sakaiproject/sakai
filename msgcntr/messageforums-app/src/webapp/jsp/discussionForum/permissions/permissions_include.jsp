@@ -32,14 +32,7 @@
     <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
   <f:verbatim><p/></f:verbatim>
   --%>
-<%
-  String thisId = request.getParameter("panel");
-  if (thisId == null) 
-  {
-    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-  }
 
-%>
 <script type="text/javascript">
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script>   

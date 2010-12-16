@@ -7,7 +7,13 @@
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
-
+<%
+String thisId = request.getParameter("panel");
+if (thisId == null) 
+{
+	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+}
+%>
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
