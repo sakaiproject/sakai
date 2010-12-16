@@ -20,10 +20,14 @@
 
 package org.sakaiproject.poll.tool.entityproviders;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +35,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
@@ -264,6 +270,109 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
     	}
     	return ret;
     }
+    
+	/**
+	 * Allows a user to create multiple Vote objects at once, taking one or more
+	 * pollOption parameters.
+	 */
+	@EntityCustomAction(action = "vote", viewKey = EntityView.VIEW_NEW)
+	public List<Vote> vote(EntityView view, EntityReference ref, String prefix, Search search, OutputStream out,
+			Map<String, Object> params) {
+		Long pollId = null;
+		try {
+			pollId = Long.valueOf((String) params.get("pollId"));
+		} catch (NumberFormatException nfe) {
+			throw new IllegalArgumentException("No pollId found.");
+		}
+		String userId = developerHelperService.getCurrentUserId();
+		if (userId == null) {
+			throw new SecurityException("user must be logged in to create new votes");
+		}
+		Poll poll = pollListManager.getPollById(pollId, false);
+		if (poll == null) {
+			throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
+		}
+		if (!pollVoteManager.isUserAllowedVote(userId, poll.getPollId(), false)) {
+			throw new SecurityException("User (" + userId + ") is not allowed to vote in this poll ("
+					+ poll.getPollId() + ")");
+		}
+
+		Set<String> optionIds = new HashSet<String>();
+		Object param = params.get("pollOption");
+		if (param == null) {
+			throw new IllegalArgumentException("At least one pollOption parameter must be provided to vote.");
+		} else if (param instanceof String) {
+			optionIds.add((String) param);
+		} else if (param instanceof Iterable<?>) {
+			for (Object o : (Iterable<?>) param)
+				if (o instanceof String)
+					optionIds.add((String) o);
+				else
+					throw new IllegalArgumentException("Each pollOption must be a String, not "
+							+ o.getClass().getName());
+		} else if (param instanceof Object[]) {
+			for (Object o : (Object[]) param)
+				if (o instanceof String)
+					optionIds.add((String) o);
+				else
+					throw new IllegalArgumentException("Each pollOption must be a String, not "
+							+ o.getClass().getName());
+		} else
+			throw new IllegalArgumentException("pollOption must be String, String[] or List<String>, not "
+					+ param.getClass().getName());
+
+		// Turn each option String into an Option, making sure that each is a
+		// valid choice for the poll. We use a Map to make sure one cannot vote
+		// more than once for any option by specifying it using equivalent
+		// representations
+		Map<Long, Option> options = new HashMap<Long, Option>();
+		for (String optionId : optionIds) {
+			try {
+				Option option = pollListManager.getOptionById(Long.valueOf(optionId));
+				if (!poll.getPollId().equals(option.getPollId()))
+					throw new Exception();
+				options.put(option.getOptionId(), option);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid pollOption: " + optionId);
+			}
+		}
+
+		// Validate that the number of options voted for is within acceptable
+		// bounds.
+		if (options.size() < poll.getMinOptions())
+			throw new IllegalArgumentException("You must provide at least " + poll.getMinOptions() + " options, not "
+					+ options.size() + ".");
+		if (options.size() > poll.getMaxOptions())
+			throw new IllegalArgumentException("You may provide at most " + poll.getMaxOptions() + " options, not "
+					+ options.size() + ".");
+
+		// Create and save the Vote objects.
+		UsageSession usageSession = usageSessionService.getSession();
+		List<Vote> votes = new ArrayList<Vote>();
+		for (Option option : options.values()) {
+			Vote vote = new Vote();
+
+			vote.setVoteDate(new Date());
+			vote.setUserId(userId);
+			vote.setPollId(poll.getPollId());
+			vote.setPollOption(option.getOptionId());
+
+			if (vote.getSubmissionId() == null) {
+				String sid = userId + ":" + UUID.randomUUID();
+				vote.setSubmissionId(sid);
+			}
+
+			if (usageSession != null)
+				vote.setIp(usageSession.getIpAddress());
+
+			boolean saved = pollVoteManager.saveVote(vote);
+			if (!saved) {
+				throw new IllegalStateException("Unable to save vote (" + vote + ") for user (" + userId + "): " + ref);
+			}
+			votes.add(vote);
+		}
+		return votes;
+	}
 
 	public String[] getHandledOutputFormats() {
         return new String[] {Formats.XML, Formats.JSON, Formats.FORM};
