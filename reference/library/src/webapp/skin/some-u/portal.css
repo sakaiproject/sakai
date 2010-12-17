@@ -351,7 +351,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	padding-right: 0;
 }
 #subSites ul{
-    margin-left:2em;
+    margin-right:2em;
 }
 
 #toolMenu li, #subSites li{
@@ -359,12 +359,12 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	margin: 0;
 	width: auto;
 	padding: 0 5px;
-	border: 1px solid #eee;
 	text-align: right;
-	border-right:1px solid #aaa
+	border-left:1px solid #aaa
 }
-#toolMenu li:last-child, #subSites li {
+#toolMenu li:first-child, #subSites li:first-child {
    border:none;
+
    } 
 #toolMenu .hidden { 
 	font-style: italic;
