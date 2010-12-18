@@ -18,7 +18,7 @@
 		<div class="listNav">
 						#if($totalNumber>0)
 						<div class="instruction">	
-						$tlang.getString("sitedipag.list.youare") $startNumber - $endNumber $tlang.getString("sitedipag.list.of") $totalNumber $tlang.getString("sitedipag.list.results")
+						$tlang.getFormattedMessage("sitedipag.list.viewing", $startEndTotalNumbers)
 						</div>
 						#end
 						#if ($pagesize != 0)

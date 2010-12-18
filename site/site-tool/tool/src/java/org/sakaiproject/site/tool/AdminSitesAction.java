@@ -475,8 +475,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		if (totalNumber < endNumber) endNumber = totalNumber;
 
-		context.put("startNumber", Integer.valueOf(startNumber));
-		context.put("endNumber", Integer.valueOf(endNumber));
+		context.put("startEndTotalNumbers", new Integer[]{Integer.valueOf(startNumber),Integer.valueOf(endNumber),Integer.valueOf(totalNumber)});
 		context.put("totalNumber", Integer.valueOf(totalNumber));
 		pagingInfoToContext(state, context);
 
