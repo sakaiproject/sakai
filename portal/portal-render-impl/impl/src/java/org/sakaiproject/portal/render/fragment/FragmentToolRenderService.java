@@ -155,6 +155,11 @@ public class FragmentToolRenderService implements ToolRenderService
 					// include will render to the output stream
 					return "";
 				}
+	
+				public void setContent(String content) 
+				{
+					return; // Not allowed
+				}
 
 				public String getTitle() throws ToolRenderException
 				{

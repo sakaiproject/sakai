@@ -52,6 +52,8 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.sakaiproject.portal.util.BufferedServletResponse;
+
 /**
  * <p>
  * ErrorReporter helps with end-user formatted error reporting, user feedback
@@ -364,6 +366,25 @@ public class ErrorReporter
 
 	/**
 	 * Handle the inital report of an error, from an uncaught throwable, with a
+	 * user display - but returning a string that contins a fragment.
+	 * 
+	 * @param req
+	 *        The request.
+	 * @param res
+	 *        The response.
+	 * @param t
+	 *        The uncaught throwable.
+	 */
+	public String reportFragment(HttpServletRequest req, HttpServletResponse res, Throwable t)
+	{
+        	BufferedServletResponse bufferedResponse = new BufferedServletResponse(res);
+		report(req,bufferedResponse,t,false);
+		String fragment = bufferedResponse.getInternalBuffer().getBuffer().toString();
+		return fragment;
+        }
+
+	/**
+	 * Handle the inital report of an error, from an uncaught throwable, with a
 	 * user display.
 	 * 
 	 * @param req
@@ -374,6 +395,12 @@ public class ErrorReporter
 	 *        The uncaught throwable.
 	 */
 	public void report(HttpServletRequest req, HttpServletResponse res, Throwable t)
+	{
+		report(req,res,t,true);
+	}
+
+	public void report(HttpServletRequest req, HttpServletResponse res, 
+		Throwable t, boolean fullPage)
 	{
 		boolean showStackTrace = SecurityService.isSuperUser() || 
 			ServerConfigurationService.getBoolean("portal.error.showdetail", false);
@@ -421,18 +448,22 @@ public class ErrorReporter
 			} catch (Exception ex ) {
 				out = new PrintWriter(res.getOutputStream());
 			}
-			out
-					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			out
-					.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
-			if (headInclude != null)
+
+			if ( fullPage ) 
 			{
-				out.println("<head>");
-				out.println(headInclude);
-				out.println("</head>");
+				out
+					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+				out
+					.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+				if (headInclude != null)
+				{
+					out.println("<head>");
+					out.println(headInclude);
+					out.println("</head>");
+				}
+				out.println("<body" + bodyOnload + ">");
+				out.println("<div class=\"portletBody\">");
 			}
-			out.println("<body" + bodyOnload + ">");
-			out.println("<div class=\"portletBody\">");
 			out.println("<h3>" + rb.getString("bugreport.error") + "</h3>");
 			out.println("<p>" + rb.getString("bugreport.statement") + "<br /><br /></p>");
 
@@ -504,8 +535,11 @@ public class ErrorReporter
 				out.println("</pre></p>");
 			}
 			
-			out.println("</body>");
-			out.println("</html>");
+			if ( fullPage ) 
+			{
+				out.println("</body>");
+				out.println("</html>");
+			}
 			
 			if (out != null)
 			{

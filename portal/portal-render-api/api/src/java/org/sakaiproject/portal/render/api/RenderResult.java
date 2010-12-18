@@ -29,6 +29,11 @@ public interface RenderResult
 	String getContent() throws ToolRenderException;
 
 	/**
+	 * set the portlet content
+	 */
+	void setContent(String content);
+
+	/**
 	 * get the JSR168 Help Url
 	 * 
 	 * @return Url

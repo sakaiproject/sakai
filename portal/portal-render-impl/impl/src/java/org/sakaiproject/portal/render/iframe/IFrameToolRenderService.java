@@ -119,10 +119,6 @@ public class IFrameToolRenderService implements ToolRenderService
 				.append("\n").append("</iframe>");
 		
 		final String[] buffered = bufferContent(portal,request, response, configuration);
-		
-		
-		
-		
 
 		RenderResult result = new RenderResult()
 		{
@@ -143,6 +139,11 @@ public class IFrameToolRenderService implements ToolRenderService
 					return buffered[1];
 				}
 				return sb.toString();
+			}
+
+			public void setContent(String content)
+			{
+				return; // Not allowed
 			}
 
 			public String getJSR168EditUrl()

@@ -22,6 +22,9 @@
 package org.sakaiproject.portal.render.portlet;
 
 import java.io.IOException;
+import java.io.Writer;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -46,8 +49,10 @@ import org.apache.pluto.descriptors.portlet.SupportsDD;
 import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.util.BufferedServletResponse;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
@@ -58,7 +63,6 @@ import org.sakaiproject.portal.render.portlet.services.SakaiPortletContainerServ
 import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
-import org.sakaiproject.portal.render.portlet.servlet.BufferedServletResponse;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletActionRequest;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -257,7 +261,11 @@ public class PortletToolRenderService implements ToolRenderService
 
 		private PortletContainer portletContainer = null;
 
+		private String storedContent = null;
+
 		private BufferedServletResponse bufferedResponse = null;
+
+		private Exception bufferedException = null;
 
 		private SakaiPortletWindow window = null;
 
@@ -301,17 +309,57 @@ public class PortletToolRenderService implements ToolRenderService
 			}
 		}
 
+		/**
+		 * In the pre-render case the portal calls getContent then getTitle then getContent again
+		 * In the deprecated post-render case, the portal calls getTitle then getContent
+		 */
 		public String getContent() throws ToolRenderException
 		{
-			renderResponse();
-			return bufferedResponse.getInternalBuffer().getBuffer().toString();
+			if ( storedContent != null ) return storedContent;
+			if ( bufferedException != null ) 
+			{
+				final Writer result = new StringWriter();
+				final PrintWriter printWriter = new PrintWriter(result);
+				bufferedException.printStackTrace(printWriter);
+				String storedContent = "<div class=\"portlettraceback\">\n" +
+					FormattedText.escapeHtml(result.toString(),true) +
+					"\n</pre>\n";
+				return storedContent;
+			}
+			try
+			{
+				renderResponse();
+				storedContent = bufferedResponse.getInternalBuffer().getBuffer().toString();
+				return storedContent;
+			}
+			catch(ToolRenderException e)
+			{
+				bufferedException = e;
+				throw e;
+			}
+		}
+
+		public void setContent(String content) 
+		{
+			storedContent = content;
 		}
 
 		public String getTitle() throws ToolRenderException
 		{
-			renderResponse();
-			return Web.escapeHtml(PortletStateAccess.getPortletState(req, window.getId().getStringId())
-					.getTitle());
+			if ( bufferedException == null ) {
+				try 
+				{ 
+					renderResponse();
+					return Web.escapeHtml(PortletStateAccess.getPortletState(req, window.getId().getStringId())
+						.getTitle());
+				}
+				catch(Exception e)
+				{
+					bufferedException = e;
+				}
+			}
+
+			return  bufferedException.toString();
 		}
 
 		public String getJSR168EditUrl()

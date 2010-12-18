@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.render.portlet.servlet;
+package org.sakaiproject.portal.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

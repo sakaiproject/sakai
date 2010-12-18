@@ -710,7 +710,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
 					ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
 				}
-				result.getContent();
+				try {
+					result.getContent();
+				} catch (Throwable t) {
+					ErrorReporter err = new ErrorReporter();
+					String str = err.reportFragment(req, res, t);
+					result.setContent(str);
+				}
 				if ( allowNeo ) {
 					Object bread = ts.getAttribute(SAKAI_PORTAL_BREADCRUMBS);
 					if ( bread != null ) toolMap.put("breadcrumbs", bread);
