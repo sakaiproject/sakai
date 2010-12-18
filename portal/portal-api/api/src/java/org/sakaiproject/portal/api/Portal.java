@@ -145,6 +145,16 @@ public interface Portal
 	 * Name of cookie that is set to signal that the user wants us to start minimized
 	 */
 	public static final String SAKAI_NAV_MINIMIZED = "sakai_nav_minimized";
+
+	/**
+         * Constants for SAK-19455 - The NEO Portlet Feature that allows a portlet
+	 * to suppress its title and add to the system breadcrumbs.
+	 */
+        public static final String SAKAI_PORTAL_ALLOW_NEO = "sakai-portal:allow-neo";
+        public static final String SAKAI_PORTAL_HELP_ACTION = "sakai-portal:help-action";
+        public static final String SAKAI_PORTAL_RESET_ACTION = "sakai-portal:reset-action";
+        public static final String SAKAI_PORTAL_BREADCRUMBS = "sakai-portal:breadcrumbs";
+        public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
 	
 	/**
 	 * prepare the response and send it to the render engine

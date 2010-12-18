@@ -700,7 +700,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String doPreFetch  = placement.getConfig().getProperty(Portal.JSR_168_PRE_RENDER);
 			if ( ! "false".equals(doPreFetch) ) 
 			{
+				boolean allowNeo = ServerConfigurationService.getBoolean("portal.allow.neo.portlet", true);
+				Session s = SessionManager.getCurrentSession();
+				ToolSession ts = s.getToolSession(placement.getId());
+				ts.removeAttribute(SAKAI_PORTAL_BREADCRUMBS);
+				ts.removeAttribute(SAKAI_PORTAL_SUPPRESSTITLE);
+				if ( allowNeo ) {
+					ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
+					ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
+					ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
+				}
 				result.getContent();
+				if ( allowNeo ) {
+					Object bread = ts.getAttribute(SAKAI_PORTAL_BREADCRUMBS);
+					if ( bread != null ) toolMap.put("breadcrumbs", bread);
+					Object suppressTitle = ts.getAttribute(SAKAI_PORTAL_SUPPRESSTITLE);
+					if ( "true".equals(suppressTitle) ) toolMap.put("suppressTitle", Boolean.TRUE);
+				}
 			}
 
 			toolMap.put("toolPlacementIDJS", "_self");

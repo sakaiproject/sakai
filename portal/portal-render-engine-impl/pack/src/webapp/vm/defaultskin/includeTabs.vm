@@ -2,6 +2,18 @@
 ## the Site Tabs part of the standard view
 ##
 ##
+#if ( ${pageColumn0Tools} ) 
+  #foreach ( $tool in $pageColumn0Tools ) 
+    #if ( $tool.breadcrumbs ) 
+       #set ($portalBreadCrumbs = $tool.breadcrumbs ) 
+    #end
+  #end
+#end
+#foreach ( $site in $tabsSites.tabsSites)
+  #if (${site.isCurrentSite} and  $site.isChild )
+    #set ($portalPwd = $site.pwd)
+  #end
+#end
 <!-- START from includeTabs.vm -->
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}">
@@ -106,32 +118,45 @@
 				#end
 	
 			</div> <!-- /tabsCssClass -->
-				#foreach ( $site in $tabsSites.tabsSites)
- 					#if (${site.isCurrentSite})
-    					#if ( $site.isChild )
+                                #if ( $portalBreadCrumbs or $portalPwd ) 
       			<ul id="siteHierarchy"> 
-     					 	#set ($tabTotal =0)
-      						#foreach ( $pwd in $site.pwd )
-          						#set ($tabTotal =$tabTotal + 1)       
-                                                #end
-     					 	#set ($tabCountBread =0)
-      						#foreach ( $pwd in $site.pwd )
-          						#set ($tabCountBread =$tabCountBread + 1)       
+     					#set ($tabTotal =0)
+      					#foreach ( $pwd in $portalPwd )
+          					#set ($tabTotal =$tabTotal + 1)       
+                                        #end
+      					#foreach ( $crumb in $portalBreadCrumbs )
+          					#set ($tabTotal = $tabTotal + 1)       
+                                        #end
+     				 	#set ($tabCountBread =0)
+      					#foreach ( $pwd in $portalPwd )
+          					#set ($tabCountBread =$tabCountBread + 1)       
           			<li>
-          						#if ($tabCountBread > 1)
+          					#if ($tabCountBread > 1)
                 		<span class="breadSeparator">${rloader.bread_separator}</span>
-          						#end
-          						## note: keep all the tags in this block in the same line 
-							#if ($tabCountBread == $tabTotal )
+          					#end
+          					## note: keep all the tags in this block in the same line 
+						#if ($tabCountBread == $tabTotal )
                 		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
-							#else
+						#else
                 		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
-							#end
+						#end
                   	</li>
-      						#end
+      					#end
+      					#foreach ( $pwd in $portalBreadCrumbs )
+          					#set ($tabCountBread =$tabCountBread + 1)       
+          			<li>
+          					#if ($tabCountBread > 1)
+                		<span class="breadSeparator">${rloader.bread_separator}</span>
+          					#end
+          					## note: keep all the tags in this block in the same line 
+						#if ($tabCountBread == $tabTotal )
+                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
+						#else
+                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+						#end
+                  	</li>
+      					#end
       			</ul>
-   						 #end
-  					#end
 				#end
 <!-- end includeTabs -->
 <!-- END from includeTabs.vm -->
