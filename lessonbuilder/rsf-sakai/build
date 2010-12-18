@@ -1,0 +1,7 @@
+#!/bin/sh
+
+mvn install
+
+cp sakairsf-0.7.4-sakai_2.2.x.jar sakairsf-0.7.4-sakai-rutgers_2.2.x.jar
+cp m2-target/classes/uk/ac/cam/caret/sakai/rsf/helper/HelperHandlerHookBean.class uk/ac/cam/caret/sakai/rsf/helper/HelperHandlerHookBean.class
+jar uf sakairsf-0.7.4-sakai-rutgers_2.2.x.jar uk/ac/cam/caret/sakai/rsf/helper/HelperHandlerHookBean.class

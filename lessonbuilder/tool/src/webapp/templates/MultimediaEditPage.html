@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link href="/sakai-lessonbuildertool-tool/css/Simplepagetool.css" rel="stylesheet" media="all" />
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title>Edit Item</title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody">
+		<div class="firstHeader bold" id="intro" rsf:id="intro"></div>
+	
+	
+		<div class="error" id="error" rsf:id="error"></div>
+	
+		<span class="italic" rsf:id="instructions">Example: 100px<br />Leave blank for default.</span>
+		
+		<br /><br />
+	
+		<form action="#" rsf:id="edit-form">
+			<div class="border">
+			<p class="shorttext required">
+				<label rsf:id="height-label" for="height">Page Title</label>
+		 		<input type="text" name="height" rsf:id="height" length="30" /><br />
+			</p>
+		
+			<p class="shorttext required">
+				<label rsf:id="width-label" for="width">Page Title</label>
+		 		<input type="text" name="width" rsf:id="width" length="30" /><br />
+			</p>
+		
+			<p class="shorttext required">
+				<label rsf:id="alt-label" for="alt">Page Title</label>
+		 		<input type="text" name="alt" rsf:id="alt" length="30" /><br />
+			</p>
+			</div>
+			<br />
+			<div class="border">
+				<div style="margin-top:5px; margin-bottom:5px;">
+					<b style="margin-left:50px;">Delete:</b>
+					<input type="submit" style="margin-left:50px;" value="Delete" rsf:id="delete-item" />
+				</div>
+			</div>
+			
+			<br />
+			
+			<input class="bold" type="submit" value="Save!" rsf:id="edit-item" />
+			<input type="submit" value="Cancel" rsf:id="cancel-edit" />
+			
+		</form>
+	
+	</div>
+	
+	<script type="text/javascript" language="JavaScript">
+		spiffyUp();
+	</script>
+</body>
+</html>

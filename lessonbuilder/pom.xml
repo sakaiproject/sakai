@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <relativePath>../master/pom.xml</relativePath>
+    <version>2.7.0</version>
+<!--   <version>M2</version>--><!-- 2.5.x -->
+  </parent>
+  <name>lessonbuildertool</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
+  <version>1.0RC1</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>hbm</module>
+    <module>tool</module>
+    <module>components</module>
+  </modules>
+</project>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link href="/sakai-lessonbuildertool-tool/css/Simplepagetool.css" rel="stylesheet" media="all" />
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title>Show Page</title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody">
+		<div class="firstHeader bold" id="intro" rsf:id="intro"></div>
+	
+	
+		<div class="error" id="error" rsf:id="error"></div>
+	
+		<form action="#" rsf:id="title-form">
+			<p class="shorttext required">
+				<span class="reqStar">*</span>
+				<label rsf:id="pageTitleLabel" for="pageTitle">Page Title</label>
+				<input rsf:id="pageTitle" id="pageTitle"/><br/>
+			</p>
+		
+			<input class="bold" type="submit" value="Create!" rsf:id="create-title" />
+			<input type="submit" value="Cancel" rsf:id="cancel-title" />
+		</form>
+	
+	</div>
+	
+	<script type="text/javascript" language="JavaScript">
+		spiffyUp();
+	</script>
+</body>
+</html>

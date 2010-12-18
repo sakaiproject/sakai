@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title>Edit Page</title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody">
+	
+	<p rsf:id="debugstuff"> junk </p>
+
+		<form rsf:id="page_form">
+			<div rsf:id="instructions">Enter your page content bellow</div>
+			
+			<div class="longtext">
+	            <label for="description" class="block">Page Content</label>
+				<textarea rsf:id="page:">
+				</textarea>
+			</div>
+			<br />
+			<div rsf:id="delete-div" class="border" style="margin-left:50px;">
+				<div style="margin-top:5px; margin-bottom:5px;">
+					<b style="margin-left:50px;">Delete:</b>
+					<input type="submit" style="margin-left:50px;" value="Delete" rsf:id="delete" />
+				</div>
+			</div>
+			
+			<br />
+			
+			<p class="act">
+				<input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+			</p>						
+		</form>
+	</div>
+</body>
+</html>
