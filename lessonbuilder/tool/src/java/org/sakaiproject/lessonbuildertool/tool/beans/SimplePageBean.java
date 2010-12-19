@@ -39,6 +39,7 @@ import java.util.StringTokenizer;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
+import java.util.HashSet;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -1552,6 +1553,18 @@ public class SimplePageBean {
 		List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 
 		String[] split = order.split(" ");
+
+		// make sure nothing is duplicated. I know it shouldn't be, but
+		// I saw the Fluid reorderer get confused once.
+		Set<Integer> used = new HashSet<Integer>();
+		for (int i = 0; i < split.length; i++) {
+		    if (!used.add(Integer.valueOf(split[i]))) {
+			log.warn("reorder: duplicate value");
+			return "failed"; // it was already there. Oops.
+		    }
+		}
+
+		// now do the reordering
 		for (int i = 0; i < split.length; i++) {
 			int old = items.get(Integer.valueOf(split[i]) - 1).getSequence();
 			items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);

@@ -403,6 +403,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		List<SimplePageItem> itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
 
 		UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
+
+		// with this, Firefox and Safari get the widths wrong. The actual values are based
+		// on experimentation with FF3, Safari and IE 6.
+		UIOutput.make(tableContainer, "colgroup");
+		if (canEditPage)
+		    UIOutput.make(tableContainer, "col1");
+		UIOutput.make(tableContainer, "col2");
+
 		// the table header is for accessibility tools only, so it's positioned off screen
 		if (canEditPage)
 		    UIOutput.make(tableContainer, "header-edits");
