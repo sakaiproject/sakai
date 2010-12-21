@@ -30,12 +30,12 @@ Section A: Installation
 	Java JDK 1.5 version or higher.
 	Tomcat 5.5.20 version or higher.
 
- For the initial creation of the Sign-up tool database tables, an Oracle SQL script is available 
+ For the initial creation of the Sign-up tool database tables, an Oracle/mySQL SQL scripts is available 
  at the folder of Sign-up tool’s source code:
 		sign-up\resources
 
  If a MySQL Database is used, turn on the auto.ddl property value from false to true in the 
- sakai.properties. 
+ sakai.properties (Production level is not recommended and should use db-scripts). 
 
  Customize the UI and Email Contents:
    You could customize the UI labels and email message contents by modifying the following two 
@@ -142,7 +142,7 @@ signup.update.site			X			                                            X
 											
 signup.attend										X			X			                   X	
 signup.attend.all						X							
-signup.view					X			X			X			X			X		 X	       X		
+signup.view											X			X			X		 	       X		
 signup.view.all				X			X									(X)      X		 		
 ----------------------------------------------------------------------------------------------------------------
 
