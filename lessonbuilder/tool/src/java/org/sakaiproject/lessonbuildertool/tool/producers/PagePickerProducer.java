@@ -168,6 +168,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		if (summaryPage) {
 		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 		    // path defaults to null, which is next
+		    UIOutput.make(tofill, "return-div");
 		    UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
 		    UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
 		} else {
