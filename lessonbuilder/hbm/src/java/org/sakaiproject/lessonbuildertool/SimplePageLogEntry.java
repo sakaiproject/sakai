@@ -38,6 +38,8 @@ public class SimplePageLogEntry {
     // firstViewed will also be null, but I'm worried that in some databases
     // that may not be possible, so an explicit flag seems safer
         private boolean dummy;
+        private String path;
+	private String toolId;
 
 	public SimplePageLogEntry() {}
 
@@ -106,4 +108,28 @@ public class SimplePageLogEntry {
 		else
 		    dummy = d;
 	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+    // note that toolId is the tool from which this entry was
+    // actually made. Because the same page can be accessed
+    // from different locations, there's no static way to be
+    // sure which tool a page was displayed in. We need to know in order
+    // to find the last page accessed in a specific tool
+
+	public String getToolId() {
+		return toolId;
+	}
+
+	public void setToolId(String toolId) {
+		this.toolId = toolId;
+	}
+
+
 }

@@ -268,6 +268,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 		}
 
+		// remember that page tool was reset, so we need to give user the option of going to the
+		// last page from the previous session
+		SimplePageToolDao.PageData lastPage = simplePageBean.toolWasReset();
+
         	boolean canEditPage = simplePageBean.canEditPage();
 		// if starting the tool, sendingpage isn't set. the following call
 		// will give us the top page.
@@ -294,8 +298,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    return;
 		}
 
+		// need to offer to go to previous page? even if a new session, no need if we're already on that page
+		if (lastPage != null && lastPage.pageId != currentPage.getPageId()) {
+		    UIOutput.make(tofill, "refreshAlert");
+		    UIOutput.make(tofill, "refresh-message", messageLocator.getMessage("simplepage.last-visited"));
+		    // Should simply refresh
+		    GeneralViewParameters p = new GeneralViewParameters(VIEW_ID);
+		    p.setSendingPage(lastPage.pageId);
+		    p.setItemId(lastPage.itemId);
+		    // reset the path to the saved one
+		    p.setPath("set:" + lastPage.path);
+		    UIInternalLink.make(tofill, "refresh-link", lastPage.name, p);
+		}
+
 		// path is the breadcrumbs. Push, pop or reset depending upon path=
-		simplePageBean.adjustPath(((GeneralViewParameters) params).getPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
+		String newPath = 
+		    simplePageBean.adjustPath(((GeneralViewParameters) params).getPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
 
 		// potentially need time zone for setting release date
 	        if (!canEditPage && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
@@ -341,7 +359,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// note page accessed. the code checks to see whether all the required items on it
 		// have been finished, and if so marks it complete, else just updates acces date
-		simplePageBean.track(pageItem.getId(), true);
+		// save the path because if user goes to it later we want to restore the breadcrumbs
+		simplePageBean.track(pageItem.getId(), newPath);
 
 		UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 
@@ -404,8 +423,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
 
-		// with this, Firefox and Safari get the widths wrong. The actual values are based
-		// on experimentation with FF3, Safari and IE 6.
+		// without this, sometimes the browsers allocate half the page width to the status icon.
+		// I've tried lots of markup. The best seems to be to give widths for the two narrow columns
+		// and omit the long one. In theory there are better approaches, but theydon't work on all browsers
 		UIOutput.make(tableContainer, "colgroup");
 		if (canEditPage)
 		    UIOutput.make(tableContainer, "col1");

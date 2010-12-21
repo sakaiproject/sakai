@@ -789,6 +789,17 @@ public class SimplePageBean {
 		}
 	}
 
+    // if tool was reset, return last page from previous session, so we can give the user
+    // a chance to go back
+	public SimplePageToolDao.PageData toolWasReset() {
+	    if (sessionManager.getCurrentToolSession().getAttribute("current-pagetool-page") == null) {
+		// no page in session, which means it was reset
+		String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
+		return simplePageToolDao.findMostRecentlyVisitedPage(toolId);
+	    } else
+		return null;
+	}
+
     // ought to be simple, but this is typically called at the beginning of a producer, when
     // the current page isn't set yet. So if there isn't one, we use the session variable
     // to tell us what the current page is. Note that a user can add our tool using Site
@@ -891,8 +902,12 @@ public class SimplePageBean {
 
     // called at the start of showpageproducer, with page info for the page about to be displayed
     // updates the breadcrumbs, which are kept in session variables.
-	public void adjustPath(String op, Long pageId, Long pageItemId, String title) {
+    // returns string version of the new path
+
+	public String adjustPath(String op, Long pageId, Long pageItemId, String title) {
+
 	    List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
+
 	    // if no current path, op doesn't matter. we can just do the current page
 	    if (path == null || path.size() == 0) {
 		PathEntry entry = new PathEntry();
@@ -901,37 +916,69 @@ public class SimplePageBean {
 		entry.title = title;
 		path = new ArrayList<PathEntry>();
 		path.add(entry);
-		sessionManager.getCurrentToolSession().setAttribute(LESSONBUILDER_PATH, path);
-		return;
-	    }
-	    if (op == null || op.equals("") || op.equals("next")) {
+	    } else if (op == null || op.equals("") || op.equals("next")) {
 		PathEntry entry = path.get(path.size()-1); // overwrite last item
 		entry.pageId = pageId;
 		entry.pageItemId = pageItemId;
 		entry.title = title;
-		return;
-	    }
-	    if (op.equals("push")) {
+	    } else if (op.equals("push")) {
 		// a subpage
 		PathEntry entry = new PathEntry();
 		entry.pageId = pageId;
 		entry.pageItemId = pageItemId;
 		entry.title = title;
 		path.add(entry);  // put it on the end
-		return;
+	    } else if (op.startsWith("set:")) {
+		// set complete path
+		String items[] = op.substring(4).split(",");
+		// verify that items are all part of this site, and build new path list
+		path = new ArrayList<PathEntry>();
+		for(String s: items) {
+		    SimplePageItem i = findItem(Long.valueOf(s));
+		    if (i == null || i.getType() != SimplePageItem.PAGE) {
+			log.warn("attempt to set invalid path: invalid item: " + op);
+			return null;
+		    }
+		    SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+		    if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
+			log.warn("attempt to set invalid path: invalid page: " + op);
+			return null;
+		    }
+		    PathEntry entry = new PathEntry();
+		    entry.pageId = p.getPageId();
+		    entry.pageItemId = i.getId();
+		    entry.title = i.getName();
+		    path.add(entry);
+		}
+	    } else {
+		int index = Integer.valueOf(op); // better be number
+		if (index < path.size()) {
+		    // if we're going back, this should actually
+		    // be redundant
+		    PathEntry entry = path.get(index); // back to specified item
+		    entry.pageId = pageId;
+		    entry.pageItemId = pageItemId;
+		    entry.title = title;
+		    if (index < (path.size()-1))
+			path.subList(index+1, path.size()).clear();
+		}
 	    }
-	    int index = Integer.valueOf(op); // better be number
-	    if (index < path.size()) {
-		// if we're going back, this should actually
-		// be redundant
-		PathEntry entry = path.get(index); // back to specified item
-		entry.pageId = pageId;
-		entry.pageItemId = pageItemId;
-		entry.title = title;
-		if (index < (path.size()-1))
-		    path.subList(index+1, path.size()).clear();
-		return;
+
+	    // have new path; set it in session variable
+	    sessionManager.getCurrentToolSession().setAttribute(LESSONBUILDER_PATH, path);
+
+	    // and make string representation to return
+	    String ret = null;
+	    for (PathEntry entry: path) {
+		String itemString = Long.toString(entry.pageItemId);
+		if (ret == null)
+		    ret = itemString;
+		else
+		    ret = ret + "," + itemString;
 	    }
+	    if (ret == null)
+		ret = "";
+	    return ret;
 	}
 
 	public void setSubpageTitle(String st) {
@@ -1606,20 +1653,25 @@ public class SimplePageBean {
 	 * 
 	 * @param itemId
 	 *            The ID in the <b>items</b> table.
-	 * @param page
-	 *            The item is a page
+	 * @param path 
+	 *            breadcrumbs, only supplied it the item is a page
+	 *            It is valid for code to check path == null to see
+	 *            whether it is a page
 	 *       Create or update a log entry when user accesses an item.
 	 */
-	public void track(long itemId, boolean page) {
+	public void track(long itemId, String path) {
 		String userId = getCurrentUserId();
 		SimplePageLogEntry entry = getLogEntry(itemId);
 
 		if (entry == null) {
 			entry = new SimplePageLogEntry(userId, itemId);
 
-			if (page) {
+			if (path != null) {
 				boolean complete = isPageComplete(itemId);
 				entry.setComplete(complete);
+				entry.setPath(path);
+				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
+				entry.setToolId(toolId);
 				SimplePageItem i = findItem(itemId);
 				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
 			}
@@ -1627,9 +1679,12 @@ public class SimplePageBean {
 			simplePageToolDao.saveItem(entry);
 			logCache.put((Long)itemId, entry);
 		} else {
-			if (page) {
+			if (path != null) {
 				boolean complete = isPageComplete(itemId);
 				entry.setComplete(complete);
+				entry.setPath(path);
+				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
+				entry.setToolId(toolId);
 				entry.setDummy(false);
 				SimplePageItem i = findItem(itemId);
 				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));

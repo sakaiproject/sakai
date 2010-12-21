@@ -83,7 +83,7 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 
 		if (i != null && simplePageBean.isItemAvailable(i)) {
 
-		    simplePageBean.track(itemId, false);
+		    simplePageBean.track(itemId, null);
 		    String js = "window.location = \"" + params.getURL() + "\"";
 		    if (params.getRefresh())
 			js = "window.top.opener.location.reload(true);" + js;

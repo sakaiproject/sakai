@@ -26,6 +26,9 @@ package org.sakaiproject.lessonbuildertool.model;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.DetachedCriteria;
@@ -42,6 +45,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class SimplePageToolDaoImpl extends HibernateDaoSupport implements SimplePageToolDao {
@@ -90,6 +94,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return getHibernateTemplate().findByCriteria(d);
 	}
 
+        
+
 	public List<SimplePageItem> findItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
@@ -104,6 +110,34 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	    }
 	    return result;
+	}
+
+        public PageData findMostRecentlyVisitedPage(final String toolId) {
+	    Object [] fields = new Object[1];
+	    fields[0] = toolId;
+	    
+	    List<PageData> rv = SqlService.dbRead("select a.itemId, a.path, b.sakaiId, b.name from lesson_builder_log a, lesson_builder_items b where a.lastViewed = (select max(lastViewed) from lesson_builder_log where toolId = ?) and a.itemId = b.id", fields, new SqlReader() {
+		    public Object readSqlResultRecord(ResultSet result) {
+			try {
+			    PageData ret = new PageData();
+			    ret.itemId = result.getLong(1);
+			    ret.path = result.getString(2);
+			    ret.pageId = result.getLong(3);
+			    ret.name = result.getString(4);
+			    
+			    return ret;
+			} catch (SQLException e) {
+			    log.warn("findMostRecentlyVisitedPage: " + toolId + " : " + e);
+			    return null;
+			}
+		    }
+		});
+
+
+	    if (rv != null && rv.size() > 0)
+		return rv.get(0);
+	    else
+		return null;
 	}
 
 	public SimplePageItem findItem(long id) {
