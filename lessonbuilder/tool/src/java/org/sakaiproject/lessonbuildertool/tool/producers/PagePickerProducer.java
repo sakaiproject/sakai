@@ -102,23 +102,20 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
     // this is complicated. We're trying to produce a list of all pages in a reasonable order.
     // we start with a list of top level pages and traverse it recursively. But if there's a reference
-    // to a top level page on another one, we ignore it and show the page in its normal location.
-    //   then at the end if there are any pages we didn't show, we show them as if they were top level pages
     // Data:
     //   entries - the list we're building to display
     //   pageMap - a map that starts out having all pages in the site, we remove entires as we show them
     //      that lets us find at the end anything that hasn't been shown
-    //   topLevels - the list of all top level pages
 
-	public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long> topLevels, int level) {
+    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, int level) {
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
 	    // already done if page is null
-	    SimplePage page = pageMap.get(pageId);
-
-	    // we prefer to do top levels when they appear as level 0
-	    if (level > 0 && topLevels.contains(pageId))
+	    if (pageMap.get(pageId) == null)
 		return;
+
+	    // say done
+	    pageMap.remove(pageId);
 
 	    PageEntry entry = new PageEntry();
 	    entry.pageId = pageId;
@@ -129,23 +126,57 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    // add entry
 	    entries.add(entry);
 
-	    // already done; we show the page multiple times
-	    // but only show subpages and next the first time
-	    // but always do level 0
-	    if (level > 0 && page == null)
-		return;
-
-	    // say done
-	    pageMap.remove(pageId);
-	    
-
 	    // now recursively do subpages
 	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+	    List<SimplePageItem> nexts = new ArrayList<SimplePageItem>();
+
+	    // subpages done in place
 	    for (SimplePageItem item: items) {
-		if (item.getType() == SimplePageItem.PAGE)
-		    findAllPages(item, entries, pageMap, topLevels, 
-				 ("button".equals(item.getFormat()) ? level : level + 1));
+		if (item.getType() == SimplePageItem.PAGE) {
+		    Long pageNum = Long.valueOf(item.getSakaiId());
+
+		    // show all pages where they appear, but for nexts and top-level
+		    // do the full expansion later if necessary
+		    if (item.getNextPage() || item.getPageId() == 0) {
+			// if it has nexts show item here but treat it fully afterwards
+			PageEntry stub = new PageEntry();
+			stub.pageId = Long.valueOf(item.getSakaiId());
+			stub.itemId = item.getId();
+			stub.title = item.getName();
+			stub.level = level + 1;
+			entries.add(stub);
+			// if not top (which will be done anyway) schedule it to show after
+			// pageid = 0 is a top level page; it will be shown anyway
+			// if no sub pages, no need to expand it later
+			if ((item.getPageId() != 0) && hasSubPages(pageNum)) {
+			    nexts.add(item);
+			}
+		    } else
+			findAllPages(item, entries, pageMap, level +1);
+		}
 	    }
+	    // nexts done afterwards
+	    for (SimplePageItem item: nexts) {
+		if (item.getType() == SimplePageItem.PAGE) {
+		    findAllPages(item, entries, pageMap, level);
+		}
+	    }
+
+	}
+
+	public boolean hasSubPages(Long pageId) {
+	    
+	    // now recursively do subpages
+	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+
+	    // subpages done in place
+	    for (SimplePageItem item: items) {
+		if (item.getType() == SimplePageItem.PAGE) {
+		    return true;
+		}
+	    }
+
+	    return false;
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
@@ -199,20 +230,17 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		// build map of all pages, so we can see if any are left over
 		Map<Long,SimplePage> pageMap = new HashMap<Long,SimplePage>();
 			
+		// all pages
 		List<SimplePage> pages = simplePageToolDao.getSitePages(simplePageBean.getCurrentSiteId());
 		for (SimplePage p: pages)
 		    pageMap.put(p.getPageId(), p);
 
-		// list of all top level pages
+		// list of all top level pages, actually the items pointing to them
 		List<SimplePageItem> sitePages =  simplePageToolDao.findItemsInSite(toolManager.getCurrentPlacement().getContext());
-		// need it as a set also for quicker checking
-		Set<Long>topLevelIds = new HashSet<Long>();
-		for (SimplePageItem i: sitePages)
-		    topLevelIds.add(Long.valueOf(i.getSakaiId()));
 
 		// this adds everything you can find from top level pages to entires
 		for (SimplePageItem sitePageItem : sitePages) {
-		    findAllPages(sitePageItem, entries, pageMap, topLevelIds, 0);
+		    findAllPages(sitePageItem, entries, pageMap, 0);
 		}
 		// now add everything we didn't find that way
 		if (canEditPage && pageMap.size() > 0) {
