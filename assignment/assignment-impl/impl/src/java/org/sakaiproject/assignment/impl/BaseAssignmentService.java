@@ -2132,14 +2132,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// storage
 		AssignmentSubmissionEdit submission = m_submissionStorage.put(submissionId, assignmentId, submitterId, null, null, null);
 
-		submission.setContext(context);
-		
-		
+		if (submission != null)
+		{
+			submission.setContext(context);
+			// event for tracking
+			((BaseAssignmentSubmissionEdit) submission).setEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION);
 			M_log.debug(this + " LEAVING ADD SUBMISSION : REF : " + submission.getReference());
-
-		// event for tracking
-		((BaseAssignmentSubmissionEdit) submission).setEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION);
-
+		}
+		else
+		{
+			M_log.debug(this + " ADD SUBMISSION: null submission object with attempted id " + submissionId);
+		}
 		return submission;
 	}
 
