@@ -928,27 +928,33 @@ public class SimplePageBean {
 		entry.pageItemId = pageItemId;
 		entry.title = title;
 		path.add(entry);  // put it on the end
-	    } else if (op.startsWith("set:")) {
-		// set complete path
-		String items[] = op.substring(4).split(",");
-		// verify that items are all part of this site, and build new path list
+	    } else if (op.startsWith("log")) {
+		// set path to what was saved in the last log entry for this item
+		// this is used for users who go directly to a page from the 
+		// main list of pages.
 		path = new ArrayList<PathEntry>();
-		for(String s: items) {
-		    SimplePageItem i = findItem(Long.valueOf(s));
-		    if (i == null || i.getType() != SimplePageItem.PAGE) {
-			log.warn("attempt to set invalid path: invalid item: " + op);
-			return null;
+		SimplePageLogEntry logEntry = getLogEntry(pageItemId);
+		String items[] = null;
+		if (logEntry.getPath() != null)
+		    items = logEntry.getPath().split(",");
+		if (items != null) {
+		    for(String s: items) {
+			SimplePageItem i = findItem(Long.valueOf(s));
+			if (i == null || i.getType() != SimplePageItem.PAGE) {
+			    log.warn("attempt to set invalid path: invalid item: " + op);
+			    return null;
+			}
+			SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+			if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
+			    log.warn("attempt to set invalid path: invalid page: " + op);
+			    return null;
+			}
+			PathEntry entry = new PathEntry();
+			entry.pageId = p.getPageId();
+			entry.pageItemId = i.getId();
+			entry.title = i.getName();
+			path.add(entry);
 		    }
-		    SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
-		    if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
-			log.warn("attempt to set invalid path: invalid page: " + op);
-			return null;
-		    }
-		    PathEntry entry = new PathEntry();
-		    entry.pageId = p.getPageId();
-		    entry.pageItemId = i.getId();
-		    entry.title = i.getName();
-		    path.add(entry);
 		}
 	    } else {
 		int index = Integer.valueOf(op); // better be number

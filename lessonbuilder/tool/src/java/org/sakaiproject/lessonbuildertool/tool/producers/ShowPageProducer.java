@@ -307,7 +307,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    p.setSendingPage(lastPage.pageId);
 		    p.setItemId(lastPage.itemId);
 		    // reset the path to the saved one
-		    p.setPath("set:" + lastPage.path);
+		    p.setPath("log");
 		    UIInternalLink.make(tofill, "refresh-link", lastPage.name, p);
 		}
 

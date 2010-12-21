@@ -35,7 +35,6 @@ public interface SimplePageToolDao {
 	public class PageData {
 	    public Long itemId;
 	    public Long pageId;
-	    public String path;
 	    public String name;
 	}
 

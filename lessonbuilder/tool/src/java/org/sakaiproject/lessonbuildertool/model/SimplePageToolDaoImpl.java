@@ -116,12 +116,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    Object [] fields = new Object[1];
 	    fields[0] = toolId;
 	    
-	    List<PageData> rv = SqlService.dbRead("select a.itemId, a.path, b.sakaiId, b.name from lesson_builder_log a, lesson_builder_items b where a.lastViewed = (select max(lastViewed) from lesson_builder_log where toolId = ?) and a.itemId = b.id", fields, new SqlReader() {
+	    List<PageData> rv = SqlService.dbRead("select a.itemId, a.id, b.sakaiId, b.name from lesson_builder_log a, lesson_builder_items b where a.lastViewed = (select max(lastViewed) from lesson_builder_log where toolId = ?) and a.itemId = b.id", fields, new SqlReader() {
 		    public Object readSqlResultRecord(ResultSet result) {
 			try {
 			    PageData ret = new PageData();
 			    ret.itemId = result.getLong(1);
-			    ret.path = result.getString(2);
 			    ret.pageId = result.getLong(3);
 			    ret.name = result.getString(4);
 			    
