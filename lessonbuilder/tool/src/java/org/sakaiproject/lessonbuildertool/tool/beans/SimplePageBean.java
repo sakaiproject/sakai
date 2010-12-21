@@ -934,26 +934,29 @@ public class SimplePageBean {
 		// main list of pages.
 		path = new ArrayList<PathEntry>();
 		SimplePageLogEntry logEntry = getLogEntry(pageItemId);
-		String items[] = null;
-		if (logEntry.getPath() != null)
-		    items = logEntry.getPath().split(",");
-		if (items != null) {
-		    for(String s: items) {
-			SimplePageItem i = findItem(Long.valueOf(s));
-			if (i == null || i.getType() != SimplePageItem.PAGE) {
-			    log.warn("attempt to set invalid path: invalid item: " + op);
-			    return null;
+		if (logEntry != null) {
+
+		    String items[] = null;
+		    if (logEntry.getPath() != null)
+			items = logEntry.getPath().split(",");
+		    if (items != null) {
+			for(String s: items) {
+			    SimplePageItem i = findItem(Long.valueOf(s));
+			    if (i == null || i.getType() != SimplePageItem.PAGE) {
+				log.warn("attempt to set invalid path: invalid item: " + op);
+				return null;
+			    }
+			    SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+			    if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
+				log.warn("attempt to set invalid path: invalid page: " + op);
+				return null;
+			    }
+			    PathEntry entry = new PathEntry();
+			    entry.pageId = p.getPageId();
+			    entry.pageItemId = i.getId();
+			    entry.title = i.getName();
+			    path.add(entry);
 			}
-			SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
-			if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
-			    log.warn("attempt to set invalid path: invalid page: " + op);
-			    return null;
-			}
-			PathEntry entry = new PathEntry();
-			entry.pageId = p.getPageId();
-			entry.pageItemId = i.getId();
-			entry.title = i.getName();
-			path.add(entry);
 		    }
 		}
 	    } else {

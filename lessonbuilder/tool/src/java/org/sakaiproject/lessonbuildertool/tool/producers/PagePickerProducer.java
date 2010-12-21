@@ -35,6 +35,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -53,6 +54,7 @@ import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -77,6 +79,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         public class PageEntry {
 	    Long pageId;
+	    Long itemId;
 	    String title;
 	    int level;
 	}
@@ -117,20 +120,25 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    if (level > 0 && topLevels.contains(pageId))
 		return;
 
-	    // already done, except that we always do level 0
-	    if (level > 0 && page == null)
-		return;
-
 	    PageEntry entry = new PageEntry();
 	    entry.pageId = pageId;
+	    entry.itemId = pageItem.getId();
 	    entry.title = pageItem.getName();
 	    entry.level = level;
 
 	    // add entry
 	    entries.add(entry);
+
+	    // already done; we show the page multiple times
+	    // but only show subpages and next the first time
+	    // but always do level 0
+	    if (level > 0 && page == null)
+		return;
+
 	    // say done
 	    pageMap.remove(pageId);
 	    
+
 	    // now recursively do subpages
 	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 	    for (SimplePageItem item: items) {
@@ -152,6 +160,20 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		}
 
+        	boolean canEditPage = simplePageBean.canEditPage();
+
+		String source = ((GeneralViewParameters) viewparams).getSource();
+		boolean summaryPage = "summary".equals(source);
+
+		if (summaryPage) {
+		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+		    // path defaults to null, which is next
+		    UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
+		    UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
+		} else {
+		    UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.chooser"));
+		}
+
 		// this looks at pages in the site, which should be safe
 		// but need to make sure the item we update is legal
 
@@ -159,101 +181,132 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		simplePageBean.setItemId(itemId);
 
-		if (simplePageBean.canEditPage()) {
-		        
-			SimplePage page = simplePageBean.getCurrentPage();
+		SimplePage page = simplePageBean.getCurrentPage();
 
-			if (itemId != null && itemId != -1) {
-			    SimplePageItem currentItem = simplePageToolDao.findItem(itemId);
-			    if (currentItem == null)
-				return;
-			    // trying to hack on item not on this page
-			    if (currentItem.getPageId() != page.getPageId())
-				return;
-			}
+		if (itemId != null && itemId != -1) {
+		    SimplePageItem currentItem = simplePageToolDao.findItem(itemId);
+		    if (currentItem == null)
+			return;
+		    // trying to hack on item not on this page
+		    if (currentItem.getPageId() != page.getPageId())
+			return;
+		}
 
-			// list we're going to display
-			List<PageEntry> entries = new ArrayList<PageEntry> ();
+		// list we're going to display
+		List<PageEntry> entries = new ArrayList<PageEntry> ();
 
-			// build map of all pages, so we can see if any are left over
-			Map<Long,SimplePage> pageMap = new HashMap<Long,SimplePage>();
+		// build map of all pages, so we can see if any are left over
+		Map<Long,SimplePage> pageMap = new HashMap<Long,SimplePage>();
 			
-			List<SimplePage> pages = simplePageToolDao.getSitePages(simplePageBean.getCurrentSiteId());
-			for (SimplePage p: pages)
-			    pageMap.put(p.getPageId(), p);
+		List<SimplePage> pages = simplePageToolDao.getSitePages(simplePageBean.getCurrentSiteId());
+		for (SimplePage p: pages)
+		    pageMap.put(p.getPageId(), p);
 
-			// list of all top level pages
-			List<SimplePageItem> sitePages =  simplePageToolDao.findItemsInSite(toolManager.getCurrentPlacement().getContext());
-			// need it as a set also for quicker checking
-			Set<Long>topLevelIds = new HashSet<Long>();
-			for (SimplePageItem i: sitePages)
-			    topLevelIds.add(Long.valueOf(i.getSakaiId()));
+		// list of all top level pages
+		List<SimplePageItem> sitePages =  simplePageToolDao.findItemsInSite(toolManager.getCurrentPlacement().getContext());
+		// need it as a set also for quicker checking
+		Set<Long>topLevelIds = new HashSet<Long>();
+		for (SimplePageItem i: sitePages)
+		    topLevelIds.add(Long.valueOf(i.getSakaiId()));
 
-			// this adds everything you can find from top level pages to entires
-			for (SimplePageItem sitePageItem : sitePages) {
-			    findAllPages(sitePageItem, entries, pageMap, topLevelIds, 0);
+		// this adds everything you can find from top level pages to entires
+		for (SimplePageItem sitePageItem : sitePages) {
+		    findAllPages(sitePageItem, entries, pageMap, topLevelIds, 0);
+		}
+		// now add everything we didn't find that way
+		if (canEditPage && pageMap.size() > 0) {
+		    // marker
+		    PageEntry marker = new PageEntry();
+		    marker.level = -1;
+		    entries.add(marker);
+		    for (SimplePage p: pageMap.values()) {
+			PageEntry entry = new PageEntry();
+			entry.pageId = p.getPageId();
+			entry.itemId = null;
+			entry.title = p.getTitle();
+			entry.level = 0;
+			entries.add(entry);
+		    }
+		}
+
+		UIForm form = UIForm.make(tofill, "page-picker");
+
+		ArrayList<String> values = new ArrayList<String>();
+		for (PageEntry entry: entries)
+		    if (entry.level >= 0)
+			values.add(entry.pageId.toString());
+
+		UISelect select = UISelect.make(form, "page-span", values.toArray(new String[1]), "#{simplePageBean.selectedEntity}", null);
+		int index = 0;
+		for (PageEntry entry: entries) {
+		    
+		    UIBranchContainer row = UIBranchContainer.make(form, "page:", Integer.toString(index));
+		    
+		    if (entry.level < 0)
+			UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
+		    // if no itemid, it's unused. Only canedit people will see it
+		    else if (summaryPage && entry.itemId != null) {
+			int level = entry.level;
+			if (level > 5)
+			    level = 5;
+			String imagePath = "/sakai-lessonbuildertool-tool/images/";
+			String imageAlt = "";
+			SimplePageItem item = simplePageBean.findItem(entry.itemId);
+			SimplePageLogEntry logEntry = simplePageBean.getLogEntry(entry.itemId);
+			if (logEntry != null && logEntry.isComplete()) {
+			    imagePath += "checkmark.png";
+			    imageAlt = messageLocator.getMessage("simplepage.status.completed").replace("{}", entry.title);
+			} else if (logEntry != null && !logEntry.getDummy()) {
+			    imagePath += "hourglass.png";
+			    imageAlt = messageLocator.getMessage("simplepage.status.inprogress").replace("{}", entry.title);
+			} else {
+			    imagePath += "not-required.png";
+			    imageAlt = messageLocator.getMessage("simplepage.status.notrequired").replace("{}", entry.title);
 			}
-			// now add everything we didn't find that way
-			if (pageMap.size() > 0) {
-			    // marker
-			    PageEntry marker = new PageEntry();
-			    marker.level = -1;
-			    entries.add(marker);
-			    for (SimplePage p: pageMap.values()) {
-				PageEntry entry = new PageEntry();
-				entry.pageId = p.getPageId();
-				entry.title = p.getTitle();
-				entry.level = 0;
-				entries.add(entry);
-			    }
-			}
+			UIOutput.make(row, "status-image").decorate(new UIFreeAttributeDecorator("src", imagePath)).decorate(new UIFreeAttributeDecorator("alt", imageAlt)).decorate(new UITooltipDecorator(imageAlt));
+			GeneralViewParameters p = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+			p.setSendingPage(entry.pageId);
+			p.setItemId(entry.itemId);
+			// reset the path to the saved one
+			p.setPath("log");
+			UIInternalLink.make(row, "link", entry.title, p).
+			    decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (2*level) + "em"));
 
-			UIForm form = UIForm.make(tofill, "page-picker");
+	  	// for pagepicker or summary if canEdit and page doesn't have an item
+		    } else {
+			int level = entry.level;
+			if (level > 5)
+			    level = 5;
+			if (!summaryPage)  // i.e. pagepicker; for the moment to edit something you need to attach it to something
+			    UISelectChoice.make(row, "select", select.getFullID(), index);
+			GeneralViewParameters params = new GeneralViewParameters();
+			params.viewID = PreviewProducer.VIEW_ID;
+			params.setSendingPage(entry.pageId);
 
-			ArrayList<String> values = new ArrayList<String>();
-			for (PageEntry entry: entries)
-			    if (entry.level >= 0)
-				values.add(entry.pageId.toString());
+			UIInternalLink.make(row, "link", entry.title, params).
+			    decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (2*level) + "em")).
+			    decorate(new UIFreeAttributeDecorator("target", "_blank"));
 
-			UISelect select = UISelect.make(form, "page-span", values.toArray(new String[1]), "#{simplePageBean.selectedEntity}", null);
-			int index = 0;
-			for (PageEntry entry: entries) {
-
-			    UIBranchContainer row = UIBranchContainer.make(form, "page:", Integer.toString(index));
-
-			    if (entry.level < 0)
-				UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
-			    else {
-				UISelectChoice.make(row, "select", select.getFullID(), index);
-				int level = entry.level;
-				if (level > 5)
-				    level = 5;
-				GeneralViewParameters params = new GeneralViewParameters();
-				params.viewID = PreviewProducer.VIEW_ID;
-				params.setSendingPage(entry.pageId);
-
-				UIInternalLink.make(row, "link", entry.title, params).
-				    decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (2*level) + "em"));
-
-				index++;
-			    }
-
-			}
-
-			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
-
-			if (itemId == -1) {
-			    UIOutput.make(form, "hr");
-			    UIOutput.make(form, "options");
-			    UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
-			    UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
-			}
-
-			UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
-			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			index++;
+		    }
 
 		}
 
+		if (!summaryPage) {
+
+		    UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
+
+		    if (itemId == -1) {
+			UIOutput.make(form, "hr");
+			UIOutput.make(form, "options");
+			UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
+			UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
+		    }
+
+		    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
+		    UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+		}
+		
 	}
 
 	public ViewParameters getViewParameters() {

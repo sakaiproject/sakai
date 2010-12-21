@@ -330,12 +330,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    return;
 		}
 
+		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
+		showAll.setSource("summary");
+		UIInternalLink.make(tofill, "show-pages", messageLocator.getMessage("simplepage.showallpages"), showAll);
+
 		if (canEditPage) {
 			// show tool bar
 			createToolBar(tofill, currentPage);
 			UIOutput.make(tofill, "edit-title").
 			    decorate(new UIFreeAttributeDecorator("title", 
-			        messageLocator.getMessage("simplepage.editTitle")));
+				 messageLocator.getMessage("simplepage.editTitle")));
 			UIOutput.make(tofill, "dialogDiv");
 		} else if (!simplePageBean.canReadPage())
 		        return;
@@ -924,9 +928,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			UILink link;
 			if (available) {
-				link = UIInternalLink.make(container, ID, p.getTitle(), eParams);
+				link = UIInternalLink.make(container, ID, i.getName(), eParams);
 				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, true);
+				    simplePageBean.checkItemPermissions(i, true);
 				}
 			// at this point we know the page isn't available, i.e. user hasn't
 			// met all the prerequistes. Normally we give them a nonworking
@@ -936,10 +940,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// but we make it look like it's disabled so they can see what
 			// students see
 			} else if (canEditPage) {
-				link = UIInternalLink.make(container, ID, p.getTitle(), eParams);
+				link = UIInternalLink.make(container, ID, i.getName(), eParams);
 				fakeDisableLink(link, messageLocator);				
 			} else {
-				link = UILink.make(container, ID, p.getTitle(), "");
+				link = UILink.make(container, ID, i.getName(), "");
 				disableLink(link, messageLocator);
 			}
 			// not sure what screen readers will do with this bizarre HTML/CSS, so 
