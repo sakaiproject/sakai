@@ -989,153 +989,161 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	//
 	private List assignments(String context, String userId) 
 	{
-		if (userId == null)
-		{
-			userId = SessionManager.getCurrentSessionUserId();
-		}
-		List assignments = new ArrayList();
-
-		if ((m_caching) && (m_assignmentCache != null) && (!m_assignmentCache.disabled()))
-		{
-			// if the cache is complete, use it
-			if (m_assignmentCache.isComplete())
-			{
-				assignments = m_assignmentCache.getAll();
-				// TODO: filter by context
-			}
-
-			// otherwise get all the assignments from storage
-			else
-			{
-				// Note: while we are getting from storage, storage might change. These can be processed
-				// after we get the storage entries, and put them in the cache, and mark the cache complete.
-				// -ggolden
-				synchronized (m_assignmentCache)
-				{
-					// if we were waiting and it's now complete...
-					if (m_assignmentCache.isComplete())
-					{
-						assignments = m_assignmentCache.getAll();
-						return assignments;
-					}
-
-					// save up any events to the cache until we get past this load
-					m_assignmentCache.holdEvents();
-
-					assignments = m_assignmentStorage.getAll(context);
-
-					// update the cache, and mark it complete
-					for (int i = 0; i < assignments.size(); i++)
-					{
-						Assignment assignment = (Assignment) assignments.get(i);
-						m_assignmentCache.put(assignment.getReference(), assignment);
-					}
-
-					m_assignmentCache.setComplete();
-					// TODO: not reall, just for context
-
-					// now we are complete, process any cached events
-					m_assignmentCache.processEvents();
-				}
-			}
-		}
-
-		else
-		{
-			// // if we have done this already in this thread, use that
-			// assignments = (List) CurrentService.getInThread(context+".assignment.assignments");
-			// if (assignments == null)
-			// {
-			assignments = m_assignmentStorage.getAll(context);
-			//				
-			// // "cache" the assignments in the current service in case they are needed again in this thread...
-			// if (assignments != null)
-			// {
-			// CurrentService.setInThread(context+".assignment.assignments", assignments);
-			// }
-			// }
-		}
-
 		List rv = new ArrayList();
 		
-		// check for the allowed groups of the current end use if we need it, and only once
-		Collection allowedGroups = null;
-		Site site = null;
-		try
+		if (!allowGetAssignment(context))
 		{
-			site = SiteService.getSite(context);
+			// no permission to read assignment in context
+			return rv;
 		}
-		catch (IdUnusedException e)
+		else
 		{
-			M_log.warn(this + " assignments(String, String) " + e.getMessage() + " context=" + context);
-		}
-		
-		for (int x = 0; x < assignments.size(); x++)
-		{
-			Assignment tempAssignment = (Assignment) assignments.get(x);
-			if (tempAssignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
+			if (userId == null)
 			{
-				
-				// Can at least one of the designated groups been found
-				boolean groupFound = false;
-				
-				// if grouped, check that the end user has get access to any of this assignment's groups; reject if not
-
-				// check the assignment's groups to the allowed (get) groups for the current user
-				Collection asgGroups = tempAssignment.getGroups();
-
-				for (Iterator iAsgGroups=asgGroups.iterator(); site!=null && !groupFound && iAsgGroups.hasNext();)
+				userId = SessionManager.getCurrentSessionUserId();
+			}
+			List assignments = new ArrayList();
+	
+			if ((m_caching) && (m_assignmentCache != null) && (!m_assignmentCache.disabled()))
+			{
+				// if the cache is complete, use it
+				if (m_assignmentCache.isComplete())
 				{
-					String groupId = (String) iAsgGroups.next();
-					try
+					assignments = m_assignmentCache.getAll();
+					// TODO: filter by context
+				}
+	
+				// otherwise get all the assignments from storage
+				else
+				{
+					// Note: while we are getting from storage, storage might change. These can be processed
+					// after we get the storage entries, and put them in the cache, and mark the cache complete.
+					// -ggolden
+					synchronized (m_assignmentCache)
 					{
-						if (site.getGroup(groupId) != null)
+						// if we were waiting and it's now complete...
+						if (m_assignmentCache.isComplete())
 						{
-							groupFound = true;
+							assignments = m_assignmentCache.getAll();
+							return assignments;
 						}
+	
+						// save up any events to the cache until we get past this load
+						m_assignmentCache.holdEvents();
+	
+						assignments = m_assignmentStorage.getAll(context);
+	
+						// update the cache, and mark it complete
+						for (int i = 0; i < assignments.size(); i++)
+						{
+							Assignment assignment = (Assignment) assignments.get(i);
+							m_assignmentCache.put(assignment.getReference(), assignment);
+						}
+	
+						m_assignmentCache.setComplete();
+						// TODO: not reall, just for context
+	
+						// now we are complete, process any cached events
+						m_assignmentCache.processEvents();
 					}
-					catch (Exception ee)
+				}
+			}
+	
+			else
+			{
+				// // if we have done this already in this thread, use that
+				// assignments = (List) CurrentService.getInThread(context+".assignment.assignments");
+				// if (assignments == null)
+				// {
+				assignments = m_assignmentStorage.getAll(context);
+				//				
+				// // "cache" the assignments in the current service in case they are needed again in this thread...
+				// if (assignments != null)
+				// {
+				// CurrentService.setInThread(context+".assignment.assignments", assignments);
+				// }
+				// }
+			}
+			
+			// check for the allowed groups of the current end use if we need it, and only once
+			Collection allowedGroups = null;
+			Site site = null;
+			try
+			{
+				site = SiteService.getSite(context);
+			}
+			catch (IdUnusedException e)
+			{
+				M_log.warn(this + " assignments(String, String) " + e.getMessage() + " context=" + context);
+			}
+			
+			for (int x = 0; x < assignments.size(); x++)
+			{
+				Assignment tempAssignment = (Assignment) assignments.get(x);
+				if (tempAssignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
+				{
+					
+					// Can at least one of the designated groups been found
+					boolean groupFound = false;
+					
+					// if grouped, check that the end user has get access to any of this assignment's groups; reject if not
+	
+					// check the assignment's groups to the allowed (get) groups for the current user
+					Collection asgGroups = tempAssignment.getGroups();
+	
+					for (Iterator iAsgGroups=asgGroups.iterator(); site!=null && !groupFound && iAsgGroups.hasNext();)
 					{
-						M_log.warn(this + " assignments(String, String) " + ee.getMessage() + " groupId = " + groupId);
+						String groupId = (String) iAsgGroups.next();
+						try
+						{
+							if (site.getGroup(groupId) != null)
+							{
+								groupFound = true;
+							}
+						}
+						catch (Exception ee)
+						{
+							M_log.warn(this + " assignments(String, String) " + ee.getMessage() + " groupId = " + groupId);
+						}
+						
 					}
 					
-				}
-				
-				if (!groupFound)
-				{
-					// if none of the group exists, mark the assignment as draft and list it
-					String assignmentId = tempAssignment.getId();
-					try
+					if (!groupFound)
 					{
-						AssignmentEdit aEdit = editAssignment(assignmentReference(context, assignmentId));
-						aEdit.setDraft(true);
-						commitEdit(aEdit);
-						rv.add(getAssignment(assignmentId));
+						// if none of the group exists, mark the assignment as draft and list it
+						String assignmentId = tempAssignment.getId();
+						try
+						{
+							AssignmentEdit aEdit = editAssignment(assignmentReference(context, assignmentId));
+							aEdit.setDraft(true);
+							commitEdit(aEdit);
+							rv.add(getAssignment(assignmentId));
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + " assignments(String, String) " + e.getMessage() + " assignment id =" + assignmentId);
+							continue;
+						}
 					}
-					catch (Exception e)
+					else
 					{
-						M_log.warn(this + " assignments(String, String) " + e.getMessage() + " assignment id =" + assignmentId);
-						continue;
+						// we need the allowed groups, so get it if we have not done so yet
+						if (allowedGroups == null)
+						{
+							allowedGroups = getGroupsAllowGetAssignment(context, userId);
+						}
+						
+						// reject if there is no intersection
+						if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) continue;
+						
+						rv.add(tempAssignment);
 					}
 				}
 				else
 				{
-					// we need the allowed groups, so get it if we have not done so yet
-					if (allowedGroups == null)
-					{
-						allowedGroups = getGroupsAllowGetAssignment(context, userId);
-					}
-					
-					// reject if there is no intersection
-					if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) continue;
-					
+					/// if not reject, add it
 					rv.add(tempAssignment);
 				}
-			}
-			else
-			{
-				/// if not reject, add it
-				rv.add(tempAssignment);
 			}
 		}
 
