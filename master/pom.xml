@@ -881,19 +881,13 @@
                     surefire plugin.
                 -->
                 <!-- (Plugin settings don't honor Maven version ranges : MNG-2742.) -->
-                <version>2.4.3</version>
+                <version>2.6</version>
                 <configuration>
-                    <systemProperties>
+                    <systemPropertyVariables>
                         <!-- Pass through important service-integration test properties. -->
-                        <property>
-                            <name>maven.tomcat.home</name>
-                            <value>${maven.tomcat.home}</value>
-                        </property>
-                        <property>
-                            <name>test.sakai.home</name>
-                            <value>${test.sakai.home}</value>
-                        </property>
-                    </systemProperties>
+                        <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
+                        <test.sakai.home>${test.sakai.home}</test.sakai.home>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
