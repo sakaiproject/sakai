@@ -524,6 +524,11 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		dcms.setSiteName(site.getTitle());
 		dcms.setSiteId(siteId);
 		
+		//MSGCNTR-430 if this is the anon user we can't actualy do anything more -DH
+		if (userId == null) {
+			return dcms;
+		}
+		
 		if (isMessageForumsPageInSite || isMessagesPageInSite(site)) 
 		{
 			if(unreadMessagesHM != null){
