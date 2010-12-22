@@ -52,3 +52,7 @@ insert into MFR_TOPIC_T (ID, UUID, MODERATED, AUTO_MARK_THREADS_READ, SORT_INDEX
 --MSGCNTR-360
 --Hibernate could have missed this index, if this fails, then the index may already be in the table
 CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID, TYPE_UUID, CONTEXT_ID, READ_STATUS);
+
+--MSGCNTR-429
+--Hibernate could have missed this index, if this fails, then the index may already be in the table
+CREATE INDEX MFR_UNREAD_STATUS_I2 ON MFR_UNREAD_STATUS_T (MESSAGE_C, USER_C, READ_C);
