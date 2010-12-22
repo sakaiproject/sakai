@@ -1838,8 +1838,11 @@ public class DiscussionForumTool
       if (selectedForum != null)
       {
     	boolean isNew = topic.getId() == null;
-    	boolean permissionsUpdated = needToUpdateSynopticOnForumSave(topic, draft);
-    	boolean synopticUpdate = isNew ? false : permissionsUpdated;
+    	boolean permissionsUpdated = false;
+	if(!isNew){
+		permissionsUpdated = needToUpdateSynopticOnForumSave(topic, draft);
+    	}
+	boolean synopticUpdate = isNew ? false : permissionsUpdated;
         HashMap<String, Integer> beforeChangeHM = null;
         if(!isNew && synopticUpdate){
 		beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
