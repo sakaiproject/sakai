@@ -31,7 +31,7 @@ var newsize = doc.body.offsetHeight;
 
 if (newsize > 32760) newsize = 32760;
 
-iframe.style.height = (newsize + 40) + 'px';
+iframe.style.height = (newsize + 20) + 'px';
 setMainFrameHeight(window.name);
 
 }
@@ -80,17 +80,16 @@ setMainFrameHeight(window.name);
 		
 			<table class="indent" rsf:id="itemTable:" border="0">
 				<colgroup rsf:id="colgroup"/>
-                                <col width="30" rsf:id="col1"/>
-                                <col width="20" rsf:id="col2"/>
+				<col width="20" rsf:id="col1"/>
+				<col width="100%" rsf:id="col2"/>
 			        <tr style="position:absolute; top:-9999px">
 				  <th rsf:id="header-edits"><div rsf:id="msg=simplepage.edititems"></div></th>
-				  <th rsf:id="header-status"><div rsf:id="msg=simplepage.itemstatus"></div></th>
 				  <th rsf:id="header-items"><div rsf:id="msg=simplepage.items"></div></th>
 				</tr>
 				<tr rsf:id="item:" id="item">
 					<td rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></td>
-					<td rsf:id="status-td"><div><img class="status-image" rsf:id="status" height="24" width="24" style="margin-right:3px" /></div></td>
-					<td rsf:id="link-td"><div rsf:id="link-div" class="link-div"><span rsf:id="link-status" style="position:absolute;top:-9999px"></span><a class="itemlink" href="#" rsf:id="link" style="width:36px"></a><span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="itemlink" rsf:id="link-button"></a></span></div><div class="rowdescription" rsf:id="description"></div>
+					<td rsf:id="item-td"><div style="float:left"><img class="status-image" rsf:id="status" height="18" width="18" style="margin-right:3px" /></div>
+					  <div style="margin-left:30px"><div rsf:id="link-div" class="link-div"><a class="itemlink" href="#" rsf:id="link" style="width:36px"></a><span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="itemlink" rsf:id="link-button"></a></span></div><div class="rowdescription" rsf:id="description"></div></div>
 					  <div style="display:none">
 					    <span rsf:id="current-item-id2" class="current-item-id2"></span>
 					    <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
@@ -101,10 +100,10 @@ setMainFrameHeight(window.name);
 					  </div>
 					</td>
 					<td rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
-					<td rsf:id="itemSpan" colspan="2"><div rsf:id="content"></div>
+					<td rsf:id="itemSpan"><div rsf:id="content"></div>
 					</td>
 					<td rsf:id="editmm-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></td>
-					<td rsf:id="iframeSpan" colspan="2" class="hideOnDialog"><div>
+					<td rsf:id="iframeSpan" class="hideOnDialog"><div>
 					  <iframe
 					     name="SimplePageIFrame"
 					     class="portletMainIframe multimedia"
@@ -124,7 +123,7 @@ setMainFrameHeight(window.name);
 					  </div>
 					</td>
 	
-					<td rsf:id="imageSpan" colspan="2"><div>
+					<td rsf:id="imageSpan"><div>
 					    <img rsf:id="image" class="multimedia" />
 					    <div style="display:none" rsf:id="imageHeight" class="mm-height"></div>
 					    <div style="display:none" rsf:id="imageWidth" class="mm-width"></div>
@@ -135,7 +134,7 @@ setMainFrameHeight(window.name);
 					</td>
 
 					<td rsf:id="youtube-td" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"></a></div></td>
-					<td rsf:id="youtubeSpan" id="youtubeSpan"  class="hideOnDialog" colspan="2"><div>
+					<td rsf:id="youtubeSpan" id="youtubeSpan"  class="hideOnDialog"><div>
 					    <object rsf:id="youtubeObject"><param name="allowFullScreen" value="true" /><param name="allowSscriptAccess" value="always" /><param name="movie" rsf:id="youtubeURLInject" /><embed rsf:id="youtubeEmbed" allowfullscreen="true" allowScriptAccess="always"></embed></object>
 					  </div>
 					  <div style="display:none" rsf:id="youtubeId" class="youtube-id"></div>
@@ -148,7 +147,7 @@ setMainFrameHeight(window.name);
 
 					<td rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></td>
 
-					<td rsf:id="movieSpan" class="hideOnDialog" colspan="2"><div>
+					<td rsf:id="movieSpan" class="hideOnDialog"><div>
 					    <object rsf:id="movieObject"><param name="src" rsf:id="movieURLInject" /><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/><p rsf:id="msg=simplepage.noplugin"></p><br/><a href="#" rsf:id="noplugin" target="_blank"></a></object>
 					  </div>
 					  <div style="display:none" rsf:id="movieId" class="movie-id"></div>

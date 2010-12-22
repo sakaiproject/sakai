@@ -427,9 +427,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
 
-		// without this, sometimes the browsers allocate half the page width to the status icon.
-		// I've tried lots of markup. The best seems to be to give widths for the two narrow columns
-		// and omit the long one. In theory there are better approaches, but theydon't work on all browsers
+		// formatting: two columns:
+		// 1: edit buttons, omitted for student
+		// 2: main content
+		// For links, which have status icons, the main content is a flush left div with the icon
+		//   followed by a div with margin-left:30px. That takes it beyond the icon, and avoids the
+		//   wrap-around appearance you'd get without the margin.
+		// Normally the description is shown as  a second div with indentation in the CSS.
+		// That puts it below the link. However with a link that's a button, we do float left
+		// for the button so the text wraps around it. I think that's probably what people would expect.
+
 		UIOutput.make(tableContainer, "colgroup");
 		if (canEditPage)
 		    UIOutput.make(tableContainer, "col1");
@@ -438,7 +445,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// the table header is for accessibility tools only, so it's positioned off screen
 		if (canEditPage)
 		    UIOutput.make(tableContainer, "header-edits");
-		UIOutput.make(tableContainer, "header-status");
 		UIOutput.make(tableContainer, "header-items");
 
 		for (SimplePageItem i : itemList) {
@@ -473,16 +479,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    notDone = handleStatusImage(tableRow, i);
 				}
 
-				UIOutput linktd = UIOutput.make(tableRow, "link-td");
-				if (navButton)
-				    linktd.decorate(new UIFreeAttributeDecorator("colspan", "2"));
+				UIOutput linktd = UIOutput.make(tableRow, "item-td");
 				UIOutput linkdiv = UIOutput.make(tableRow, "link-div");
-				if (i.isRequired()) {
-				    if (simplePageBean.isItemComplete(i))
-					UIOutput.make(tableRow, "link-status", messageLocator.getMessage("simplepage.status.completed").replace("{}",""));
-				    else
-					UIOutput.make(tableRow, "link-status", messageLocator.getMessage("simplepage.status.required").replace("{}",""));
-				}
 
 				UIOutput descriptiondiv = null;
 
@@ -775,7 +773,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			} else {
 			    // remaining type must be a block of HTML
 				UIOutput.make(tableRow, "itemSpan");
-				UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : "<br />" + i.getHtml() + "\t"));
+				UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 
 				// editing is done using a special producer that calls FCK. 
 				if (canEditPage) {
@@ -1355,19 +1353,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// associated with
 		if (status == Status.COMPLETED) {
 			imagePath += "checkmark.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.completed").replace("{}", name);
+			imageAlt = messageLocator.getMessage("simplepage.status.completed");
 		} else if (status == Status.DISABLED) {
 			imagePath += "unavailable.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.notavailable").replace("{}", name);
+			imageAlt = messageLocator.getMessage("simplepage.status.notavailable");
 		} else if (status == Status.FAILED) {
 			imagePath += "failed.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.failed").replace("{}", name);
+			imageAlt = messageLocator.getMessage("simplepage.status.failed");
 		} else if (status == Status.REQUIRED) {
 			imagePath += "available.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.required").replace("{}", name);
+			imageAlt = messageLocator.getMessage("simplepage.status.required");
 		} else if (status == Status.NOT_REQUIRED) {
 			imagePath += "not-required.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.notrequired").replace("{}", name);
+			// it's a blank image, no need for screen readers to say anything
+			imageAlt = ""; // messageLocator.getMessage("simplepage.status.notrequired");
 		}
 
 		UIOutput.make(container, "status-td");
