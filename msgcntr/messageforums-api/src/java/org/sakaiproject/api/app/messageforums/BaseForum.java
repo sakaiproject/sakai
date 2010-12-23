@@ -83,5 +83,9 @@ public interface BaseForum extends MutableEntity {
 		public void addMembershipItem(DBMembershipItem item);
 		
 		public void removeMembershipItem(DBMembershipItem item);
+		
+	public Boolean getPostFirst();
+
+	public void setPostFirst(Boolean postFirst);
 
 }

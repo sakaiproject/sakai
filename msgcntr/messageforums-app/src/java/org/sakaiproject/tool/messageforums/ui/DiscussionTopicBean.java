@@ -78,6 +78,7 @@ public class DiscussionTopicBean
   private Boolean postToGradebook = null;
   private String locked = "";
   private String moderated = "";
+  private String postFirst = "";
   private String mustRespondBeforeReading = "";
   private String parentForumId = "";
   
@@ -437,6 +438,46 @@ public class DiscussionTopicBean
     }
   }
   
+  /**
+   * @return Returns the postFirst status.
+   */
+  public String getPostFirst()
+  {
+    LOG.debug("getPostFirst()");
+    if ("".equals(postFirst)){
+	    if (topic == null || topic.getPostFirst() == null
+	        || topic.getPostFirst().booleanValue() == false)
+	    {
+	    	postFirst = Boolean.FALSE.toString();
+	    }
+	    else
+	    {
+	    	postFirst = Boolean.TRUE.toString();
+	    }
+    }
+    return postFirst;
+  }
+  
+  /**
+   * @param postFirst
+   * Set the postFirst status.
+   */
+  public void setPostFirst(String postFirst)
+  {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setPostFirst(String "+ postFirst+")");
+    }
+    if (postFirst.equals(Boolean.TRUE.toString()))
+    {
+      topic.setPostFirst(Boolean.valueOf(true));
+    }
+    else
+    {
+      topic.setPostFirst(Boolean.valueOf(false));
+    }
+  }
+    
   /**
    * Set the autoMarkThreadsRead value for this Discussion Topic.
    */

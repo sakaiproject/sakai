@@ -136,6 +136,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             area.setModerated(Boolean.FALSE);
+            area.setPostFirst(Boolean.FALSE);
 	    area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
             area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
@@ -163,6 +164,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             area.setModerated(Boolean.FALSE);
+            area.setPostFirst(Boolean.FALSE);
             area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
 	    area.setSendEmailOut(Boolean.TRUE);
 	    	area.setAvailabilityRestricted(Boolean.FALSE);
@@ -192,6 +194,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     	forum.setTitle(getResourceBundleString("default_forum", new Object[]{(Object)siteTitle}));
     	forum.setDraft(false);
     	forum.setModerated(area.getModerated());
+    	forum.setPostFirst(area.getPostFirst());
         forumManager.saveDiscussionForum(forum);
     	DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
     	topic.setTitle(getResourceBundleString("default_topic"));

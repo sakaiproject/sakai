@@ -63,6 +63,13 @@
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
 				  </h:panelGroup>
+				  <h:panelGroup><h:outputText id="outputLabel15"   value="#{msgs.cdfm_postFirst}"/>	</h:panelGroup>
+				  <h:panelGroup>
+					  <h:selectOneRadio layout="lineDirection" disabled="#{not ForumTool.editMode}" id="postFirst"  value="#{ForumTool.template.postFirst}">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				  </h:panelGroup>
 			  </h:panelGrid>
 			  
 			  <h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>

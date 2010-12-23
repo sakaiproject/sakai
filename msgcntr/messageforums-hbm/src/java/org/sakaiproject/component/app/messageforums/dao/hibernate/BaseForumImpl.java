@@ -51,6 +51,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private Area area;
     private Integer sortIndex; 
     private Boolean moderated;
+    private Boolean postFirst;
     
     public Set getAttachmentsSet() {
         return attachmentsSet;
@@ -273,5 +274,13 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
           
       membershipItemSet.remove(item);
     }
+    
+	public Boolean getPostFirst() {
+		return postFirst;
+	}
+
+	public void setPostFirst(Boolean postFirst) {
+		this.postFirst = postFirst;
+	}
     
 }

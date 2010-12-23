@@ -113,4 +113,8 @@ public interface Topic extends MutableEntity {
 	public Boolean getAvailability();
     
     public void setAvailability(Boolean restricted);
+    
+    public Boolean getPostFirst();
+    
+    public void setPostFirst(Boolean postFirst);
 }

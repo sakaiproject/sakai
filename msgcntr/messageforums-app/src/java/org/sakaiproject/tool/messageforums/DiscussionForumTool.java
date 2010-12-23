@@ -335,6 +335,8 @@ public class DiscussionForumTool
   
   // email notification options
   private EmailNotificationBean watchSettingsBean;
+  
+  private boolean needToPostFirst;
 
    /**
    * 
@@ -919,6 +921,7 @@ public class DiscussionForumTool
     if ((area = areaManager.getDiscusionArea()) != null){
     	area.setMembershipItemSet(new HashSet());
     	area.setModerated(Boolean.FALSE);
+    	area.setPostFirst(Boolean.FALSE);
     	areaManager.saveArea(area);
     	permissions = null;
     }
@@ -1090,6 +1093,7 @@ public class DiscussionForumTool
       DiscussionForum forum = forumManager.createForum();
       forum.setModerated(areaManager.getDiscusionArea().getModerated()); // default to template setting
       forum.setAutoMarkThreadsRead(areaManager.getDiscusionArea().getAutoMarkThreadsRead()); // default to template setting
+      forum.setPostFirst(areaManager.getDiscusionArea().getPostFirst()); // default to template setting
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
       if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -2279,6 +2283,32 @@ public class DiscussionForumTool
   {
 	  return ALL_MESSAGES;
   }
+    
+  private void setNeedToPostFirst(boolean needToPostFirst){
+	  this.needToPostFirst = needToPostFirst;
+  }
+  
+  public boolean getNeedToPostFirst(){
+	  boolean needToPost = false;
+	  
+	  if(selectedTopic != null && selectedTopic.getTopic().getPostFirst() && !uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(), (DiscussionForum) selectedTopic.getTopic().getBaseForum())){
+		  needToPost = true;
+		  //make sure the user has posted before they can view all messages
+		  //only need to force this for users who do not have "ChangeSettings" permission
+		  List messages = selectedTopic.getMessages();
+		  for (DiscussionMessageBean message : (List<DiscussionMessageBean>) messages) {
+			  if(message.getIsOwn() && 
+					  !message.getMessage().getDraft() && 
+					  ((message.getMessage().getApproved() != null && message.getMessage().getApproved()) || !selectedTopic.getTopic().getModerated()) &&
+					  !message.getMessage().getDeleted()){
+				  needToPost = false;
+				  break;
+			  }
+		  }
+	  }
+	  
+	  return needToPost;
+  }
   
   public String processActionGetDisplayThread()
   {
@@ -2328,16 +2358,21 @@ public class DiscussionForumTool
 	    recursiveGetThreadedMsgsFromList(msgsList, orderedList, selectedThreadHead);
 	    selectedThread.addAll(orderedList);
 	    
-            // now process the complete list of messages in the selected thread to possibly flag as read
-            // if this topic is flagged to autoMarkThreadsRead, mark each message in the thread as read
-            if (selectedTopic.getTopic().getAutoMarkThreadsRead()) {
-                for (int i = 0; i < selectedThread.size(); i++) {
-                    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), ((DiscussionMessageBean)selectedThread.get(i)).getMessage().getId(), true);
-                    ((DiscussionMessageBean)selectedThread.get(i)).setRead(Boolean.TRUE);
-                }
-            }
+	    // now process the complete list of messages in the selected thread to possibly flag as read
+	    // if this topic is flagged to autoMarkThreadsRead, mark each message in the thread as read
+	    if (selectedTopic.getTopic().getAutoMarkThreadsRead()) {
+	    	for (int i = 0; i < selectedThread.size(); i++) {
+	    		messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), ((DiscussionMessageBean)selectedThread.get(i)).getMessage().getId(), true);
+	    		((DiscussionMessageBean)selectedThread.get(i)).setRead(Boolean.TRUE);
+	    	}
+	    }
 
-
+	    boolean postFirst = getNeedToPostFirst();	    
+	    if(postFirst){
+	    	//user can't view this message until they have posted a message:
+	    	selectedMessage = null;
+	    }
+	    
 	    return THREAD_VIEW;
   }
 /**
@@ -2444,7 +2479,7 @@ public class DiscussionForumTool
   public String processActionDisplayMessage()
   {
     LOG.debug("processActionDisplayMessage()");
-
+    
    selectedMessageCount ++;
 
     String messageId = getExternalParameterByKey(MESSAGE_ID);
@@ -3193,6 +3228,7 @@ public class DiscussionForumTool
     }
     
     selectedTopic.setModerated(selectedForum.getModerated()); // default to parent forum's setting
+    selectedTopic.setPostFirst(selectedForum.getPostFirst()); // default to parent forum's setting
     selectedTopic.setAutoMarkThreadsRead(selectedForum.getAutoMarkThreadsRead()); // default to parent forum's setting
 
     setNewTopicBeanAssign();
@@ -3630,6 +3666,7 @@ public class DiscussionForumTool
 	  if(selectedForum == null)  {
 		  DiscussionForum forum = forumManager.createForum();
 	      forum.setModerated(areaManager.getDiscusionArea().getModerated()); // default to template setting
+	      forum.setPostFirst(areaManager.getDiscusionArea().getPostFirst()); // default to template setting
 	      selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
 	      if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
 	      {
@@ -7266,6 +7303,14 @@ public class DiscussionForumTool
 				forum = selectedForum.getForum();
 			}
 
+			if(selectedTopic != null){
+				boolean postFirst = getNeedToPostFirst();
+				if(postFirst){
+					//return an empty list, b/c user needs to post before seeing any messages
+					return viewableMsgs;
+				}
+			}
+			
 			boolean hasModeratePerm = uiPermissionsManager.isModeratePostings(topic, forum);
 			
 			if (hasModeratePerm)
@@ -7933,6 +7978,7 @@ public class DiscussionForumTool
 	newTopic.setLocked(fromTopic.getLocked());
 	newTopic.setDraft(fromTopic.getDraft());
 	newTopic.setModerated(fromTopic.getModerated());
+	newTopic.setPostFirst(fromTopic.getPostFirst());
 	newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 
 	// Get/set the topic's permissions
@@ -8033,6 +8079,7 @@ public class DiscussionForumTool
 
 		DiscussionForum forum = forumManager.createForum();
 		forum.setModerated(oldForum.getModerated());
+		forum.setPostFirst(oldForum.getPostFirst());
 		forum.setAutoMarkThreadsRead(oldForum.getAutoMarkThreadsRead()); // default to template setting
 		selectedForum = null;
 		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);

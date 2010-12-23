@@ -105,6 +105,13 @@ if (thisId == null)
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
 				</h:panelGroup>
+				<h:panelGroup><h:outputLabel for="postFirst_forum"  value="#{msgs.cdfm_postFirst}" styleClass="shorttext"/>	</h:panelGroup>
+				<h:panelGroup>
+					<h:selectOneRadio layout="pageDirection" disabled="true" id="postFirst_forum"  value="#{ForumTool.selectedForum.postFirst}" styleClass="checkbox inlineForm">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				</h:panelGroup>
 			</h:panelGrid>
 		--%>
      <%--

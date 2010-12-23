@@ -174,6 +174,15 @@
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
 				</h:panelGroup>
+				<h:panelGroup>
+				  <h:outputLabel for="postFirst"  value="#{msgs.cdfm_postFirst}" styleClass="shorttext"/>	
+				</h:panelGroup>
+				<h:panelGroup>
+					<h:selectOneRadio layout="lineDirection"  id="postFirst"  value="#{ForumTool.selectedTopic.postFirst}" styleClass="checkbox inlineForm">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				</h:panelGroup>
 			</h:panelGrid>
 			</div>
 			<h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>

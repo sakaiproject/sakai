@@ -86,6 +86,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
 	private static final String MODERATED = "moderated";
+	private static final String POST_FIRST = "post_first";
 	private static final String SORT_INDEX = "sort_index";
 	private static final String PROPERTIES = "properties";
 	private static final String PROPERTY = "property";
@@ -426,6 +427,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						newForum.setDraft(fromForum.getDraft());
 						newForum.setLocked(fromForum.getLocked());
 						newForum.setModerated(fromForum.getModerated());
+						newForum.setPostFirst(fromForum.getPostFirst());
 						newForum.setAutoMarkThreadsRead(fromForum.getAutoMarkThreadsRead());
 
 						// set the forum order. any existing forums will be first
@@ -517,6 +519,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								newTopic.setLocked(fromTopic.getLocked());
 								newTopic.setDraft(fromTopic.getDraft());
 								newTopic.setModerated(fromTopic.getModerated());
+								newTopic.setPostFirst(fromTopic.getPostFirst());
 								newTopic.setSortIndex(fromTopic.getSortIndex());
 								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 
@@ -623,6 +626,16 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										else
 										{
 											dfForum.setModerated(Boolean.FALSE);
+										}
+										
+										String forumPostFirst = forumElement.getAttribute(POST_FIRST);
+										if(forumPostFirst != null && forumPostFirst.length() >0)
+										{
+											dfForum.setPostFirst(Boolean.valueOf(forumPostFirst));
+										}
+										else
+										{
+											dfForum.setPostFirst(Boolean.FALSE);
 										}
 										
 										String forumSortIndex = forumElement.getAttribute(SORT_INDEX);
@@ -738,6 +751,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 														dfTopic.setModerated(Boolean.valueOf(topicModerated));
 													else
 														dfTopic.setModerated(Boolean.FALSE);
+													
+													String topicPostFirst = forumChildElement.getAttribute(POST_FIRST);
+													if(topicPostFirst != null && topicPostFirst.length() >0)
+														dfTopic.setPostFirst(Boolean.valueOf(topicPostFirst));
+													else
+														dfTopic.setPostFirst(Boolean.FALSE);
 													
 													String sortIndex = forumChildElement.getAttribute(SORT_INDEX);
 													if (sortIndex != null) {

@@ -131,6 +131,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setLabels(getLabels());
     dtm.setLocked(Boolean.TRUE);
     dtm.setModerated(Boolean.FALSE);
+    dtm.setPostFirst(Boolean.FALSE);
     dtm.setModified(new Date());
     dtm.setModifiedBy("the moderator");
     dtm.setShortDescription("sort desc here...");
@@ -153,6 +154,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.TRUE);
     dtm1.setModerated(Boolean.FALSE);
+    dtm1.setPostFirst(Boolean.FALSE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
     dtm1.setShortDescription("sort desc here...");
@@ -175,6 +177,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm2.setLabels(getLabels());
     dtm2.setLocked(Boolean.TRUE);
     dtm2.setModerated(Boolean.FALSE);
+    dtm2.setPostFirst(Boolean.FALSE);  
     dtm2.setModified(new Date());
     dtm2.setModifiedBy("the moderator");
     dtm2.setShortDescription("sort desc here...");
@@ -197,6 +200,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm3.setLabels(getLabels());
     dtm3.setLocked(Boolean.TRUE);
     dtm3.setModerated(Boolean.FALSE);
+    dtm3.setPostFirst(Boolean.FALSE);
     dtm3.setModified(new Date());
     dtm3.setModifiedBy("the moderator");
     dtm3.setShortDescription("sort desc here...");
@@ -219,6 +223,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm13.setLabels(getLabels());
     dtm13.setLocked(Boolean.TRUE);
     dtm13.setModerated(Boolean.FALSE);
+    dtm13.setPostFirst(Boolean.FALSE);
     dtm13.setModified(new Date());
     dtm13.setModifiedBy("the moderator");
     dtm13.setShortDescription("sort desc here...");
@@ -452,6 +457,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm1.setLabels(getLabels());
     dfm1.setLocked(Boolean.FALSE);
     dfm1.setModerated(Boolean.TRUE);
+    dfm1.setPostFirst(Boolean.FALSE);
     dfm1.setModified(new Date());
     dfm1.setModifiedBy("admin");
     dfm1
@@ -475,6 +481,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm2.setLabels(getLabels());
     dfm2.setLocked(Boolean.TRUE);
     dfm2.setModerated(Boolean.FALSE);
+    dfm2.setPostFirst(Boolean.FALSE);
     dfm2.setModified(new Date());
     dfm2.setModifiedBy("the moderator");
     dfm2.setShortDescription("sort desc here...");
@@ -552,6 +559,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
     dtm1.setModerated(Boolean.TRUE);
+    dtm1.setPostFirst(Boolean.FALSE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
     dtm1.setShortDescription("sort desc here...");
@@ -585,6 +593,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
     dtm1.setModerated(Boolean.TRUE);
+    dtm1.setPostFirst(Boolean.FALSE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
     dtm1.setShortDescription("Assess the technical choices rode by KPMG following the choice not to fund the Shadow Partner project. Do you believe they made wise or risky decisions? Why?");
@@ -618,6 +627,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
     dtm1.setModerated(Boolean.TRUE);
+    dtm1.setPostFirst(Boolean.FALSE);
     dtm1.setModified(new Date());
     dtm1.setModifiedBy("the moderator");
     dtm1.setShortDescription("What lessons, if any, should the Company learn from the Maxfli experience regarding future development?");

@@ -70,6 +70,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private Date openDate;
     private Date closeDate;
     
+    private Boolean postFirst;
+    
     /**
      * availabilityRestricted: this is the radio button the users turns on or off this feature with
      */
@@ -384,6 +386,14 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
 	public void setAvailability(Boolean availability) {
 		this.availability = availability;
+	}
+	
+	public Boolean getPostFirst() {
+		return postFirst;
+	}
+
+	public void setPostFirst(Boolean postFirst) {
+		this.postFirst = postFirst;
 	}
 
 }

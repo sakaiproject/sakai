@@ -201,7 +201,8 @@
 			</f:verbatim>
 				<%--title, metadata and navigation --%>
 				<h:panelGrid columns="2"  style="width: 100%;" border="0">
-					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
+					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted && !ForumTool.needToPostFirst}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
+					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
 						<h:outputText rendered="#{ ForumTool.selectedMessage.msgDenied}" value="#{msgs.cdfm_msg_denied_label}" styleClass="messageDenied"/>
 						<h:outputText 	rendered="#{ForumTool.allowedToApproveMsg && ForumTool.allowedToDenyMsg}" value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending"/>
@@ -216,13 +217,13 @@
 					</h:panelGroup>                                                                                            
 					<%--navigation cell --%>
 					<h:panelGroup styleClass="itemNav">
-						<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 
+						<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}" 
 								title=" #{msgs.cdfm_prev_msg}">
 							<h:outputText value="#{msgs.cdfm_prev_msg}" />
 						</h:commandLink>
 						<h:outputText value="#{msgs.cdfm_prev_msg}"  rendered="#{!ForumTool.selectedMessage.hasPre}" />
 						<f:verbatim><h:outputText value=" | " /></f:verbatim>
-						<h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage.hasNext}" 
+						<h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasNext}" 
 								title=" #{msgs.cdfm_next_msg}">
 							<h:outputText value="#{msgs.cdfm_next_msg}" />
 						</h:commandLink>

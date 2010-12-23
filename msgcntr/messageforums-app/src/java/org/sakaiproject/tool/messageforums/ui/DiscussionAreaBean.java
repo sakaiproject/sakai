@@ -87,6 +87,39 @@ public class DiscussionAreaBean
 	  }
 	  
 	  /**
+	   * Returns whether the forum is postFirst or not
+	   * @return
+	   */
+	  public String getPostFirst()
+	  {
+		  LOG.debug("getPostFirst()");
+		  if (area == null || area.getPostFirst() == null || 
+			  area.getPostFirst().booleanValue() == false)
+		  {
+			  return Boolean.FALSE.toString();
+		  }
+
+		  return Boolean.TRUE.toString();
+	  }
+	  
+	  /**
+	   * Set the "postFirst" setting for the forum
+	   * @param postFirst
+	   */
+	  public void setPostFirst(String postFirst)
+	  {
+		  LOG.debug("setPostFirst()");
+		  if (postFirst.equals(Boolean.TRUE.toString()))
+		  {
+			  area.setPostFirst(Boolean.valueOf(true));
+		  }
+		  else
+		  {
+			  area.setPostFirst(Boolean.valueOf(false));
+		  }
+	  }
+	  
+	  /**
 	   * Returns whether or not the forum automatically marks messages in topics as read.
 	   */
 	  public String getAutoMarkThreadsRead() {

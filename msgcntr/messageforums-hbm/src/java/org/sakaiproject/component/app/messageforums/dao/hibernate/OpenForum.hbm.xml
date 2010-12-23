@@ -126,6 +126,9 @@
       <property name="autoMarkThreadsRead">
         <column name="AUTO_MARK_THREADS_READ" not-null="true" />
       </property>
+      <property name="postFirst">
+        <column name="POST_FIRST" not-null="true" />
+      </property> 
     </subclass>
 
   </class>

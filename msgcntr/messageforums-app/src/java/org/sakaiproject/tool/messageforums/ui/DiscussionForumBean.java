@@ -63,6 +63,7 @@ public class DiscussionForumBean
   
   private SimpleDateFormat datetimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
    
+  private String postFirst = null;
    
   /**
    * List of decorated topics
@@ -209,6 +210,44 @@ public class DiscussionForumBean
 	  else
 	  {
 		  forum.setModerated(Boolean.valueOf(false));
+	  }
+  }
+  
+  /**
+   * Returns whether the forum is postFirst or not
+   * @return
+   */
+  public String getPostFirst()
+  {
+	  LOG.debug("getPostFirst()");
+	  if (postFirst == null){
+		  if (forum == null || forum.getPostFirst() == null || 
+			  forum.getPostFirst().booleanValue() == false)
+		  {
+			  postFirst = Boolean.FALSE.toString();
+		  }
+		  else
+		  {
+			  postFirst = Boolean.TRUE.toString();
+		  }
+	  }
+	  return postFirst;
+  }
+  
+  /**
+   * Set the "postFirst" setting for the forum
+   * @param postFirst
+   */
+  public void setPostFirst(String postFirst)
+  {
+	  LOG.debug("setPostFirst()");
+	  if (postFirst.equals(Boolean.TRUE.toString()))
+	  {
+		  forum.setPostFirst(Boolean.valueOf(true));
+	  }
+	  else
+	  {
+		  forum.setPostFirst(Boolean.valueOf(false));
 	  }
   }
   
