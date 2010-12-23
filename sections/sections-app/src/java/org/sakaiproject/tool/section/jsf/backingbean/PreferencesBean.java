@@ -46,7 +46,7 @@ public class PreferencesBean extends CourseDependentBean {
 	public void init() {
 		// Get the max name length for displaying names from the app's properties file.
 		// We can't do this in the constructor, since we need to wait for our dependencies.
-        maxNameLength = Integer.parseInt(JsfUtil.getLocalizedMessage("max_name_length"));
+        maxNameLength = Integer.parseInt(JsfUtil.getConfigurationValue("max_name_length","255"));
 	}
 	
 	protected int maxNameLength;

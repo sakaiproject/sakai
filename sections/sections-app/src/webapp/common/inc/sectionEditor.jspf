@@ -15,7 +15,7 @@
 
 					<% // Title %>
 
-					<h:outputLabel for="titleInput" value="#{msgs.section_title} #{msgs.section_required}" styleClass="formLabel"/>
+					<h:outputLabel for="titleInput" value="#{msgs.section_title} #{confBean.sectionRequired}" styleClass="formLabel"/>
 					<h:panelGroup>
 						<h:message for="titleInput" styleClass="validationEmbedded"/>
 						<h:inputText
@@ -81,8 +81,8 @@
 										<h:inputText id="startTime" value="#{meeting.startTimeString}" size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_start_time_default}')" />
 
 										<t:selectOneRadio id="startTimeAm" layout="spread" value="#{meeting.startTimeAmString}">
-											<f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
-											<f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
+											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
+											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
 										</t:selectOneRadio>
 										<t:radio for="startTimeAm" index="0" />
 										<t:radio for="startTimeAm" index="1" />
@@ -91,8 +91,8 @@
 										<h:outputFormat value=" #{msgs.section_end_time} "/>
 										<h:inputText  id="endTime" value="#{meeting.endTimeString}"  size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_end_time_default}')" />
 										<t:selectOneRadio id="endTimeAm" layout="spread" value="#{meeting.endTimeAmString}">
-											<f:selectItem itemValue="true" itemLabel="#{msgs.time_of_day_am_cap}"/>
-											<f:selectItem itemValue="false" itemLabel="#{msgs.time_of_day_pm_cap}"/>
+											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
+											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
 										</t:selectOneRadio>
 										<t:radio for="endTimeAm" index="0" />
 										<t:radio for="endTimeAm" index="1" />

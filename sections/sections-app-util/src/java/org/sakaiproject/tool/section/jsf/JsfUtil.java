@@ -38,6 +38,8 @@ import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.MessagingBean;
 
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 
 /**
  * A utility to help deal with common tasks in JSF.
@@ -69,6 +71,7 @@ public class JsfUtil {
 	 * format abberviated times (with only hours and am/pm marker).
 	 */
 	public static final String TIME_PATTERN_SHORT = "h a";
+	
 
 	/**
 	 * To cut down on configuration noise, allow access to request-scoped beans from
@@ -219,5 +222,13 @@ public class JsfUtil {
 				return item1.getLabel().toString().compareTo(item2.getLabel().toString());
 			}
 		};
+	}
+	
+	/**
+     * Gets a property from sakai.properties, only in String format
+	 * For integer or other types requires a new method
+     */
+    public static String getConfigurationValue(String key,String defaultValue) {
+		return ServerConfigurationService.getString(key,defaultValue);
 	}
 }

@@ -478,7 +478,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         }
 
         public String getTimes() {
-            String timeSepChar = JsfUtil.getLocalizedMessage("time_sep_char");
+            String timeSepChar = JsfUtil.getConfigurationValue("time_sep_char",",");
 
             StringBuilder sb = new StringBuilder();
 
@@ -503,7 +503,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         }
 
         public String getAbbreviatedDays() {
-            String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+            String daySepChar = JsfUtil.getConfigurationValue("day_of_week_sep_char",",");
 
             StringBuilder sb = new StringBuilder();
             for(Iterator iter = getAbbreviatedDayList().iterator(); iter.hasNext();) {
@@ -518,7 +518,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
         }
 
         public String getDays() {
-            String daySepChar = JsfUtil.getLocalizedMessage("day_of_week_sep_char");
+            String daySepChar = JsfUtil.getConfigurationValue("day_of_week_sep_char",",");
 
             StringBuilder sb = new StringBuilder();
             for(Iterator iter = getDayList().iterator(); iter.hasNext();) {
