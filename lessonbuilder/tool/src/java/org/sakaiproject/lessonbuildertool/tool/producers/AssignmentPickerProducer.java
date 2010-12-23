@@ -45,6 +45,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -136,7 +137,8 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 
 				UIBranchContainer row = UIBranchContainer.make(form, "assignment:", String.valueOf(assignments.indexOf(a)));
 
-				UISelectChoice.make(row, "select", select.getFullID(), assignments.indexOf(a));
+				UISelectChoice.make(row, "select", select.getFullID(), assignments.indexOf(a)).
+				    decorate(new UIFreeAttributeDecorator("title", a.getTitle()));
 				UILink.make(row, "link", a.getTitle(), "/direct/assignment/" + a.getId());
 				UIOutput.make(row, "due", a.getDueTimeString());
 

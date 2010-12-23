@@ -310,7 +310,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			if (level > 5)
 			    level = 5;
 			if (!summaryPage)  // i.e. pagepicker; for the moment to edit something you need to attach it to something
-			    UISelectChoice.make(row, "select", select.getFullID(), index);
+			    UISelectChoice.make(row, "select", select.getFullID(), index).
+				decorate(new UIFreeAttributeDecorator("title", entry.title));
+
 			GeneralViewParameters params = new GeneralViewParameters();
 			params.viewID = PreviewProducer.VIEW_ID;
 			params.setSendingPage(entry.pageId);

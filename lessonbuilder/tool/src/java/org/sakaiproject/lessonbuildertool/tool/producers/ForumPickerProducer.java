@@ -45,6 +45,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -148,7 +149,9 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 				UIBranchContainer row = UIBranchContainer.make(form, "forum:", String.valueOf(topics.indexOf(topic)));
 
 				if (topic.isUsable()) {
-				    UISelectChoice.make(row, "select", select.getFullID(), topics.indexOf(topic));
+				    UISelectChoice.make(row, "select", select.getFullID(), topics.indexOf(topic)).
+					decorate(new UIFreeAttributeDecorator("title", topic.getTitle()));
+
 				    UILink.make(row, "link", topic.getTitle(), topic.getUrl());
 				} else {
 				    UIOutput.make(row, "name", topic.getTitle());
