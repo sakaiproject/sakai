@@ -107,7 +107,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     //   pageMap - a map that starts out having all pages in the site, we remove entires as we show them
     //      that lets us find at the end anything that hasn't been shown
 
-    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, int level) {
+    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, int level) {
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
 	    // already done if page is null
@@ -137,7 +137,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		    // show all pages where they appear, but for nexts and top-level
 		    // do the full expansion later if necessary
-		    if (item.getNextPage() || item.getPageId() == 0) {
+		    if (item.getNextPage() || topLevelPages.contains(pageNum)) {
 			// if it has nexts show item here but treat it fully afterwards
 			PageEntry stub = new PageEntry();
 			stub.pageId = Long.valueOf(item.getSakaiId());
@@ -148,17 +148,17 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			// if not top (which will be done anyway) schedule it to show after
 			// pageid = 0 is a top level page; it will be shown anyway
 			// if no sub pages, no need to expand it later
-			if ((item.getPageId() != 0) && hasSubPages(pageNum)) {
+			if (!topLevelPages.contains(pageNum) && hasSubPages(pageNum)) {
 			    nexts.add(item);
 			}
 		    } else
-			findAllPages(item, entries, pageMap, level +1);
+			findAllPages(item, entries, pageMap, topLevelPages, level +1);
 		}
 	    }
 	    // nexts done afterwards
 	    for (SimplePageItem item: nexts) {
 		if (item.getType() == SimplePageItem.PAGE) {
-		    findAllPages(item, entries, pageMap, level);
+		    findAllPages(item, entries, pageMap, topLevelPages, level);
 		}
 	    }
 
@@ -235,12 +235,15 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		for (SimplePage p: pages)
 		    pageMap.put(p.getPageId(), p);
 
-		// list of all top level pages, actually the items pointing to them
+		// set of all top level pages, actually the items pointing to them
 		List<SimplePageItem> sitePages =  simplePageToolDao.findItemsInSite(toolManager.getCurrentPlacement().getContext());
+		Set<Long> topLevelPages = new HashSet<Long>();
+		for (SimplePageItem i : sitePages)
+		    topLevelPages.add(Long.valueOf(i.getSakaiId()));
 
 		// this adds everything you can find from top level pages to entires
 		for (SimplePageItem sitePageItem : sitePages) {
-		    findAllPages(sitePageItem, entries, pageMap, 0);
+		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, 0);
 		}
 		// now add everything we didn't find that way
 		if (canEditPage && pageMap.size() > 0) {
