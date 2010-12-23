@@ -29,7 +29,9 @@
 		-->
 	</tool>
 
+	<!-- Functions are registered in ExternalLogicImpl.init() -->
+	<!--
 	<function name="mailtool.admin" />
 	<function name="mailtool.send" />
-
+	-->
 </registration>
