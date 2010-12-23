@@ -77,7 +77,7 @@ import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -132,6 +132,7 @@ public class ExternalLogicImpl implements ExternalLogic
 	private UserDirectoryService userDirectoryService;
     private ConfigLogic configLogic;
     private ServerConfigurationService configService;
+    private TimeService timeService;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here
@@ -139,6 +140,7 @@ public class ExternalLogicImpl implements ExternalLogic
 	public void init()
 	{
 		log.debug("init");
+
 		// register Sakai permissions for this tool
 		functionManager.registerFunction(PERM_ADMIN);
 		functionManager.registerFunction(PERM_SEND);
@@ -403,7 +405,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			header.replaceAttachments(null);
 			header.setSubject(subject);
 			header.setFromAddress(sender);
-			header.setDateSent(TimeService.newTime());
+			header.setDateSent(timeService.newTime());
 			header.setMailHeaders(mailHeaders);
 			channel.commitMessage(edit, NotificationService.NOTI_NONE);
 		}
@@ -781,6 +783,11 @@ public class ExternalLogicImpl implements ExternalLogic
 	public void setFunctionManager(FunctionManager functionManager)
 	{
 		this.functionManager = functionManager;
+	}
+
+	public void setTimeService(TimeService timeService)
+	{
+		this.timeService = timeService;
 	}
 
 	public void setMailArchiveService(MailArchiveService mailArchiveService)

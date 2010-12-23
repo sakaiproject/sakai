@@ -19,6 +19,7 @@ package org.sakaiproject.mailsender.logic.impl;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
@@ -28,7 +29,6 @@ import org.sakaiproject.mailsender.model.ConfigEntry.EditorType;
 import org.sakaiproject.mailsender.model.ConfigEntry.ReplyTo;
 import org.sakaiproject.mailsender.model.ConfigEntry.SubjectPrefixType;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.StringUtil;
 
 public class ConfigLogicImpl implements ConfigLogic
 {
@@ -118,7 +118,7 @@ public class ConfigLogicImpl implements ConfigLogic
 		String addToArchive = Boolean.toString(ce.isAddToArchive());
 		props.setProperty(ConfigParams.emailarchive.name(), addToArchive);
 
-		String replyTo = StringUtil.trimToZero(ce.getReplyTo());
+		String replyTo = StringUtils.trimToEmpty(ce.getReplyTo());
 		props.setProperty(ConfigParams.replyto.name(), replyTo);
 
 		String sendMeACopy = Boolean.toString(ce.isSendMeACopy());
@@ -129,7 +129,7 @@ public class ConfigLogicImpl implements ConfigLogic
 			String prefix = "";
 			if (SubjectPrefixType.custom.name().equals(ce.getSubjectPrefixType()))
 			{
-				prefix = StringUtil.trimToZero(ce.getSubjectPrefix());
+				prefix = StringUtils.trimToEmpty(ce.getSubjectPrefix());
 			}
 			props.setProperty(ConfigParams.subjectprefix.name(), prefix);
 		}
@@ -146,7 +146,7 @@ public class ConfigLogicImpl implements ConfigLogic
 	{
 		String uploadDir = System.getProperty("java.io.tmpdir");
 		String ud = serverConfigurationService.getString(UPLOAD_DIRECTORY_PROP);
-		ud = StringUtil.trimToNull(ud);
+		ud = StringUtils.trimToNull(ud);
 		if (ud != null)
 		{
 			File dir = new File(ud);
@@ -225,7 +225,7 @@ public class ConfigLogicImpl implements ConfigLogic
 	{
 		// check the tool config
 		String editorType = serverConfigurationService.getString(WSYIWYG_EDITOR_PROP);
-		if (StringUtil.trimToNull(editorType) != null)
+		if (StringUtils.trimToNull(editorType) != null)
 		{
 			editorType = editorType.trim().toLowerCase();
 		}
@@ -277,7 +277,7 @@ public class ConfigLogicImpl implements ConfigLogic
 		String subjectPrefix = props.getProperty(ConfigParams.subjectprefix.name());
 
 		// if no local prefix, use the system default prefix
-		if (StringUtil.trimToNull(subjectPrefix) != null
+		if (StringUtils.trimToNull(subjectPrefix) != null
 				&& !getDefaultSubjectPrefix().equals(subjectPrefix))
 		{
 			prefixType = SubjectPrefixType.custom.name();
@@ -305,11 +305,11 @@ public class ConfigLogicImpl implements ConfigLogic
 		String subjectPrefix = props.getProperty(ConfigParams.subjectprefix.name());
 
 		// if no local prefix, use the system default prefix
-		if (StringUtil.trimToNull(subjectPrefix) == null)
+		if (StringUtils.trimToNull(subjectPrefix) == null)
 		{
 			subjectPrefix = getDefaultSubjectPrefix();
 		}
-		subjectPrefix = StringUtil.trimToNull(subjectPrefix);
+		subjectPrefix = StringUtils.trimToNull(subjectPrefix);
 		if (subjectPrefix != null)
 		{
 			// add a space to the end of the prefix to separate it from the actual subject
