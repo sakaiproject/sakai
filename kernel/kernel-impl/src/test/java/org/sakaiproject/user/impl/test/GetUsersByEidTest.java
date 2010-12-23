@@ -228,7 +228,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 	}
 	
 	private static void clearUserFromServiceCaches(String userId) {
-		dbUserService.getCache().removeAll();
+		dbUserService.getIdEidCache().removeAll();
 		String ref = "/user/" + userId;
 		ThreadLocalManager.set(ref, null);
 	}

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.memory.impl;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -92,7 +94,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
-
+	
+	/**
+	 * @return the ServerConfigurationService collaborator
+	 */
+	protected abstract ServerConfigurationService serverConfigurationService();
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -450,19 +457,41 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			name = "DefaultCache" + UUID.randomUUID().toString();			
 		}
 		
-		
-		
 		// Cache creation should all go to the cache manager and be
 		// configured via the cache manager setup.
 		
 		if ( cacheManager.cacheExists(name) ) {
 			return cacheManager.getEhcache(name);
 		} 
-		cacheManager.addCache(name);
-		return cacheManager.getEhcache(name);
+
+		Ehcache cache = null;
 		
+		try{
+			Ehcache defaultCache = getDefaultCache();
+			if (defaultCache != null) {
+				cache = (Ehcache)defaultCache.clone();
+				cache.setName(cacheName);
+				
+				// Not look for any custom configuration.
+				String config = serverConfigurationService().getString(name);
+				if (config != null && config.length() > 0) {
+					M_log.debug("Found configuration for cache: "+ name+ " of: "+ config);
+					new CacheInitializer().configure(config).initialize(
+							cache.getCacheConfiguration());
+				}
+				
+				cacheManager.addCache(cache);
+			}
+		} catch (Exception ex) {
+			M_log.warn("Unable to access or close default cache", ex);
+		}
 		
+		if (cache == null) {
+			cacheManager.addCache(name);
+			cache = cacheManager.getEhcache(name);		
+		}
 		
+		return cache;
 		
 		/*
 		
@@ -513,6 +542,13 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			return cache;			
 		}
 		*/
+	}
+	
+	
+	private Ehcache getDefaultCache() throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		Field defaultCacheField = CacheManager.class.getDeclaredField("defaultCache");
+		defaultCacheField.setAccessible(true);
+		return (Ehcache) defaultCacheField.get(cacheManager);
 	}
 
 	public void setCacheManager(net.sf.ehcache.CacheManager cacheManager) {

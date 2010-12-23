@@ -120,7 +120,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/** Key for current service caching of current user */
 	protected final String M_curUserKey = getClass().getName() + ".currentUser";
 
-	/** A cache of calls to the service and the results. */
+	/** A cache of users */
 	protected Cache m_callCache = null;
 	
 	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
@@ -523,14 +523,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_anon = new BaseUserEdit("");
 
 			// <= 0 indicates no caching desired
-			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
+			if (m_cacheSeconds > 0)
 			{
-				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = memoryService()
-						.newCache(
-								"org.sakaiproject.user.api.UserDirectoryService.callCache",
-								userReference(""));
+				M_log.warn("cacheSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
+			if (m_cacheCleanerSeconds > 0) {
+				M_log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
+			}
+			m_callCache = memoryService().newCache(
+					"memory.org.sakaiproject.user.api.UserDirectoryService.callCache",
+					userReference(""));
 
 			// register as an entity producer
 			entityManager().registerEntityProducer(this, REFERENCE_ROOT);

@@ -140,7 +140,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 	 *   cacheMinutes@org.sakaiproject.user.api.UserDirectoryService=0
 	 */
 	private void clearUserFromServiceCaches(String userId) {
-		((DbUserService)userDirectoryService).getCache().removeAll();
+		((DbUserService)userDirectoryService).getIdEidCache().removeAll();
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);
 	}

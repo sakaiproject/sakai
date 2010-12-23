@@ -23,6 +23,7 @@ package org.sakaiproject.memory.impl;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
@@ -86,6 +87,12 @@ public class MemoryServiceTest extends BasicMemoryService
 	}
 
 	public MultiRefCache newMultiRefCache(String cacheName) {
+		return null;
+	}
+	
+	@Override
+	protected ServerConfigurationService serverConfigurationService() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

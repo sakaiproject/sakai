@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
@@ -49,6 +50,7 @@ public class MemoryServiceTest extends TestCase
 	private AuthzGroupService authzGroupService;
 	private BasicMemoryService basicMemoryService;
 	private CacheManager cacheManager;
+	private ServerConfigurationService serverConfigurationService;
 
 	/**
 	 * @param name
@@ -67,9 +69,10 @@ public class MemoryServiceTest extends TestCase
 		
 		eventTrackingService = new MockEventTrackingService();
 		securityService = new MockSecurityService();
+		serverConfigurationService = new MockServerConfigurationService();
 		usageSessionService = new MockUsageSessionService();
 		authzGroupService = new MockAuthzGroupService();
-		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, usageSessionService, authzGroupService );
+		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, usageSessionService, authzGroupService, serverConfigurationService );
 		cacheManager = new CacheManager(this.getClass().getResourceAsStream("ehcache.xml"));
 		basicMemoryService.setCacheManager(cacheManager);
 	}
