@@ -13,8 +13,8 @@
 	<sakai:view_content>
 		<h:form>
 		  <sakai:tool_bar>
-		  <%-- (gsilver) cannot pass a needed title atribute to these next items --%>
-			  <sakai:tool_bar_item
+		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
+			<sakai:tool_bar_item
 			    action="#{SyllabusTool.processListNew}"
 					value="#{msgs.bar_new}" 
 			    rendered="#{SyllabusTool.editAble == 'true'}" />
@@ -26,10 +26,11 @@
 					action="#{SyllabusTool.processStudentView}"
 					value="#{msgs.bar_student_view}" 
 		   			rendered="#{SyllabusTool.editAble == 'true'}" />
-   	  </sakai:tool_bar>
-			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
-		  	<sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
-				<syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines">
+   	      </sakai:tool_bar>
+   	      <h:messages globalOnly="true" styleClass="alertMessage"/>
+	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
+		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
+		     <syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines">
 <%--						<h:column rendered="#{!empty SyllabusTool.entries}">--%>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
@@ -71,20 +72,20 @@
 							</f:facet>
 							<h:selectBooleanCheckbox value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
 						</h:column>
-					</syllabus:syllabus_table>
-					<f:verbatim><p class="act"></f:verbatim>	
-						<h:commandButton 
-							  value="#{msgs.update}" 
-							  action="#{SyllabusTool.processListDelete}"
-							  title="#{msgs.update}"
-							  rendered="#{! SyllabusTool.displayNoEntryMsg}"
-							  accesskey="s" 	/>
-					<f:verbatim></p></f:verbatim>		  
-			</syllabus:syllabus_if>
-			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-				<sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
-				<syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500" />
-			</syllabus:syllabus_ifnot>
+			 </syllabus:syllabus_table>
+			 <f:verbatim><p class="act"></f:verbatim>	
+				<h:commandButton 
+				     value="#{msgs.update}" 
+					 action="#{SyllabusTool.processListDelete}"
+					 title="#{msgs.update}"
+				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
+					 accesskey="s" 	/>
+			<f:verbatim></p></f:verbatim>		  
+		  </syllabus:syllabus_if>
+	      <syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+		    <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
+		    <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500" />
+		  </syllabus:syllabus_ifnot>
 		</h:form>
 	</sakai:view_content>
 	</sakai:view_container>

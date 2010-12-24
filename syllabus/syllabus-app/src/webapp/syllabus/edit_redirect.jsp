@@ -9,15 +9,16 @@
 
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
-			<h:form>
+			<h:form id="redirectForm">
 				<h3>
 					<h:outputText value="#{msgs.redirect_sylla}" />
 				</h3>
+				<h:messages styleClass="alertMessage" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1" summary="layout">
 					<h:panelGroup styleClass="shorttext required">
 						<h:outputText value="*" styleClass="reqStar"/>
 						<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
-						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65" />
+						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65"/>
 					</h:panelGroup>
 				</h:panelGrid>
 				<sakai:button_bar>

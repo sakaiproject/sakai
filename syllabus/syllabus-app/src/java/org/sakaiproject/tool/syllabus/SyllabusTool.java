@@ -20,14 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.tool.syllabus;
 
-import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -35,6 +36,8 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -48,6 +51,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
@@ -56,15 +61,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.util.ResourceLoader;
 
 import com.sun.faces.util.MessageFactory;
-
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.event.api.Event;
-
-import org.sakaiproject.util.ResourceLoader;
 
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 
@@ -75,6 +74,9 @@ import org.sakaiproject.util.ResourceLoader;
 //sakai2 - doesn't implement ToolBean as sakai does.
 public class SyllabusTool
 {
+  private static final int MAX_REDIRECT_LENGTH = 512; // according to HBM file
+  private static final int MAX_TITLE_LENGTH = 256;    // according to HBM file
+  
   public class DecoratedSyllabusEntry
   {
     protected SyllabusData in_entry = null;
@@ -310,7 +312,7 @@ public class SyllabusTool
         FacesContext.getCurrentInstance().addMessage(
             null,
             MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-                "error_permission", (new Object[] { e.toString() })));
+                "error_general", (new Object[] { e.toString() })));
       }
     }
     else
@@ -369,7 +371,7 @@ public class SyllabusTool
         FacesContext.getCurrentInstance().addMessage(
             null,
             MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-                "error_permission", (new Object[] { e.toString() })));
+                "error_general", (new Object[] { e.toString() })));
       }
     }
     if (entries == null || entries.isEmpty())
@@ -624,7 +626,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     entries.clear();
@@ -733,7 +735,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     return null;
@@ -811,7 +813,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     return null;
@@ -848,7 +850,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     return null;
@@ -886,7 +888,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
 
       return null;
     }
@@ -994,7 +996,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     return null;
@@ -1071,7 +1073,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     return null;
@@ -1256,7 +1258,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
     return null;
   }
@@ -1283,15 +1285,36 @@ public class SyllabusTool
       }
       else
       {
+    	// can currentRedirectURL ever be null?
       	currentRediredUrl = currentRediredUrl.replaceAll("\"", ""); 
-    	  syllabusItem.setRedirectURL(currentRediredUrl);
-        syllabusManager.saveSyllabusItem(syllabusItem);
-
-        entries.clear();
-        entry = null;
+      	FacesMessage errorMsg = null;
+      	if (currentRediredUrl.length() > MAX_REDIRECT_LENGTH) {
+          errorMsg = MessageFactory.getMessage(FacesContext.getCurrentInstance(), 
+   			     "error_redirect_too_long");
+      	} else {
+      		try {
+      			// an empty redirect URL will effectively remove the redirect
+      			if (currentRediredUrl.trim().length() > 0) {
+      				// validate the input string to be a valid URL.
+      				URL ignore = new URL(currentRediredUrl);
+      			}
+    	    	syllabusItem.setRedirectURL(currentRediredUrl);
+    	        syllabusManager.saveSyllabusItem(syllabusItem);
+    	
+    	        entries.clear();
+    	        entry = null;
+      		} catch (MalformedURLException ex) {
+      			errorMsg = MessageFactory.getMessage(FacesContext.getCurrentInstance(), 
+  			     "error_redirect_ivalid", new Object[] {ex.getMessage()});
+      		}
+      	}
+      	if (errorMsg != null) {
+      	   FacesContext.getCurrentInstance().addMessage("redirectForm:urlValue", errorMsg);
+      	   return "edit_redirect";
+      	}
       }
 
-      return "main_edit";
+     return "main_edit";
     }
     catch (Exception e)
     {
@@ -1299,7 +1322,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
 
     return null;
@@ -1333,7 +1356,7 @@ public class SyllabusTool
       FacesContext.getCurrentInstance().addMessage(
           null,
           MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+              "error_general", (new Object[] { e.toString() })));
     }
     return null;
   }
