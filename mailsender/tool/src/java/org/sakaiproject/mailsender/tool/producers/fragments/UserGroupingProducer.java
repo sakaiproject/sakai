@@ -130,6 +130,7 @@ public class UserGroupingProducer implements ViewComponentProducer, ViewParamsRe
 			else
 			{
 				int totalEntriesShown = 0;
+				ConfigEntry config = configLogic.getConfig();
 
 				for (int i = 0; i < emailRoles.size(); i++)
 				{
@@ -154,7 +155,6 @@ public class UserGroupingProducer implements ViewComponentProducer, ViewParamsRe
 					// get the data
 					String[] rolePlural = new String[] { role.getRolePlural() };
 
-					ConfigEntry config = configLogic.getConfig();
 					if (numEntriesInRole > 0 || config.isDisplayEmptyGroups())
 					{
 						// create a branch for looping
@@ -185,7 +185,7 @@ public class UserGroupingProducer implements ViewComponentProducer, ViewParamsRe
 					}
 				}
 
-				if (totalEntriesShown <= 0)
+				if (!config.isDisplayEmptyGroups() && totalEntriesShown <= 0)
 				{
 					messages.addMessage(new TargettedMessage("no." + ugParams.type + ".found",
 							null, TargettedMessage.SEVERITY_INFO));
