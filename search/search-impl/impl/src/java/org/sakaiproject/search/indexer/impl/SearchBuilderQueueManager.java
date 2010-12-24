@@ -901,7 +901,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 					catch (Exception ex)
 					{
 						log.warn("Failed to index site " + siteContext
-								+ " site has not been indexed");
+								+ " site has not been indexed", ex);
 					}
 				}
 			}
