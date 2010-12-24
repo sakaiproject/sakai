@@ -31,6 +31,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -107,7 +108,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					    UIOutput.make(row, "text-snippet", text);
 					}
 				} else {
-					showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false);
+				    showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false, Status.NOT_REQUIRED);
 				}
 			}
 

@@ -12,9 +12,9 @@
 <title rsf:id="msg=simplepage.forum.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
-	<div class="portletBody">
+	<div class="portletBody" role="application">
 		
-		<div id="error" rsf:id="error" class="error"></div>
+		<div id="error" rsf:id="error" class="error" role="alert"></div>
 
 		<div class="navIntraTool" rsf:id="return-div" role="navigation">
                 <a href="#" rsf:id="return"></a> 
@@ -26,14 +26,11 @@
 		
 		<form action="#" rsf:id="page-picker">
 		<span rsf:id="page-span"/>
-		<table id="list" border="0" role="main">
-			<tr style="position:absolute; top:-9999px">
-				<th rsf:id="msg=simplepage.chooser.name"></th>
-			</tr>
-			<tr rsf:id="page:">
-				<td><h2 rsf:id="heading"></h2><input type="radio" rsf:id="select"/><img class="status-image" rsf:id="status-image" height="18" width="18" style="margin-right:3px;vertical-align:-6px" /> <a href="#" rsf:id="link"></a></td>
-			</tr>
-		</table>
+		<ul id="list" border="0" role="main">
+			<li rsf:id="page:" style="list-style-type:none">
+				<h2 rsf:id="heading"></h2><input type="radio" rsf:id="select" /><img class="status-image" alt="" rsf:id="status-image" height="18" width="18" style="margin-right:3px;vertical-align:-6px" /> <a href="#" rsf:id="link"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text"></span></a> 
+			</li>
+		</ul>
 		
 		<input type="hidden" rsf:id="item-id" id="item-id" />
 

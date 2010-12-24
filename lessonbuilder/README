@@ -191,6 +191,9 @@ browser-specific hacks, so authoring should work on any browser that
 supports jQuery. The student side uses very straightforward HTML, with
 no jQuery, so it should work pretty much anywhere.
 
+I have also tested with Voiceover (the Macintosh screen reader), and
+slightly with JAWS 12.
+
 While Firefox 2 seems to function, I've faked the buttons. jQuery's
 buttons don't work with Firefox 2, and won't be fixed, because FF 2
 is too old. See http://dev.jqueryui.com/ticket/5589. My current

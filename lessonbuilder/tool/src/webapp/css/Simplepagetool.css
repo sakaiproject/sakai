@@ -148,3 +148,19 @@ a.edit-movie:link,a.edit-movie:visited{
 .buttonItem {
     padding-left: 20px;
 }
+.offscreen { /* from drupal */
+    position: absolute !important;
+    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px);
+}
+}
+.fl-reorderer-movable-hover, .fl-reorderer-movable-selected{
+    background-color: #ccc;
+}
+
+.fl-reorderer-movable-dragging {
+    background-color: #faa;
+}
+.afterheader {
+   margin-top:1em;
+}

@@ -98,7 +98,7 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 
     	public static UIInternalLink make(UIContainer container, String ID, String name, String URL, long itemId, boolean notDone) {
 		TrackerViewParameters params = new TrackerViewParameters(URL, itemId, notDone);
-		return UIInternalLink.make(container, ID, name, params);
+		return UIInternalLink.make(container, ID, params);
 	}
 
 	public ViewParameters getViewParameters() {

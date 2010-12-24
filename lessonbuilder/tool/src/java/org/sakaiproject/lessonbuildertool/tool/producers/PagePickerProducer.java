@@ -282,27 +282,38 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			if (level > 5)
 			    level = 5;
 			String imagePath = "/sakai-lessonbuildertool-tool/images/";
-			String imageAlt = "";
 			SimplePageItem item = simplePageBean.findItem(entry.itemId);
 			SimplePageLogEntry logEntry = simplePageBean.getLogEntry(entry.itemId);
+			String note = null;
 			if (logEntry != null && logEntry.isComplete()) {
 			    imagePath += "checkmark.png";
-			    imageAlt = messageLocator.getMessage("simplepage.status.completed").replace("{}", entry.title);
+			    note = messageLocator.getMessage("simplepage.status.completed");
 			} else if (logEntry != null && !logEntry.getDummy()) {
 			    imagePath += "hourglass.png";
-			    imageAlt = messageLocator.getMessage("simplepage.status.inprogress").replace("{}", entry.title);
+			    note = messageLocator.getMessage("simplepage.status.inprogress");
 			} else {
 			    imagePath += "not-required.png";
-			    imageAlt = messageLocator.getMessage("simplepage.status.notrequired").replace("{}", entry.title);
 			}
-			UIOutput.make(row, "status-image").decorate(new UIFreeAttributeDecorator("src", imagePath)).decorate(new UIFreeAttributeDecorator("alt", imageAlt)).decorate(new UITooltipDecorator(imageAlt));
+			UIOutput.make(row, "status-image").decorate(new UIFreeAttributeDecorator("src", imagePath));
 			GeneralViewParameters p = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 			p.setSendingPage(entry.pageId);
 			p.setItemId(entry.itemId);
 			// reset the path to the saved one
 			p.setPath("log");
-			UIInternalLink.make(row, "link", entry.title, p).
+			UIInternalLink.make(row, "link", p).
 			    decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (2*level) + "em"));
+			String levelstr = null;
+			if (level > 0)
+			    levelstr = messageLocator.getMessage("simplepage.status.level").replace("{}", Integer.toString(level));
+			if (levelstr != null) {
+			    if (note != null)
+				note = levelstr + " " + note;
+			    else
+				note = levelstr;
+			}
+			if (note != null)
+			    UIOutput.make(row, "link-note", note + " ");
+			UIOutput.make(row, "link-text", entry.title);
 
 	  	// for pagepicker or summary if canEdit and page doesn't have an item
 		    } else {
@@ -317,9 +328,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			params.viewID = PreviewProducer.VIEW_ID;
 			params.setSendingPage(entry.pageId);
 
-			UIInternalLink.make(row, "link", entry.title, params).
+			UIInternalLink.make(row, "link", params).
 			    decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (2*level) + "em")).
 			    decorate(new UIFreeAttributeDecorator("target", "_blank"));
+			String levelstr = messageLocator.getMessage("simplepage.status.level").replace("{}", Integer.toString(level)) + " ";
+			if (level > 0)
+			    UIOutput.make(row, "link-note", levelstr);
+			UIOutput.make(row, "link-text", entry.title);
 
 			index++;
 		    }

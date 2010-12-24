@@ -475,8 +475,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				boolean navButton = "button".equals(i.getFormat()) && !i.isRequired();
 				boolean notDone = false;
+				Status status = Status.NOT_REQUIRED;
 				if (!navButton) {
-				    notDone = handleStatusImage(tableRow, i);
+				    status = handleStatusImage(tableRow, i);
+				    if (status == Status.REQUIRED)
+					notDone = true;
 				}
 
 				UIOutput linktd = UIOutput.make(tableRow, "item-td");
@@ -486,7 +489,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				// refresh isn't actually used anymore. We've changed the way things are
 				// done so the user never has to request a refresh.
-				showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone) || showRefresh;
+				showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
 
 				// dummy is used when an assignment, quiz, or forum item is copied
 				// from another site. The way the copy code works, our import code 
@@ -874,8 +877,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		this.simplePageBean = simplePageBean;
 	}
 
-    	private boolean makeLink(UIContainer container, String ID, SimplePageItem i, boolean canEditPage, SimplePage currentPage, boolean notDone) {
-	    return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone);
+	private boolean makeLink(UIContainer container, String ID, SimplePageItem i, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
+	    return makeLink(container, ID, i, simplePageBean, simplePageToolDao, messageLocator, canEditPage, currentPage, notDone, status);
 	}
 
 	/**
@@ -887,7 +890,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @param simplePageToolDao
 	 * @return Whether or not this item is available.
 	 */
-    	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator, boolean canEditPage, SimplePage currentPage, boolean notDone) {
+	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
 
@@ -926,7 +929,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			UILink link;
 			if (available) {
-				link = UIInternalLink.make(container, ID, i.getName(), eParams);
+				link = UIInternalLink.make(container, ID, eParams);
 				if (i.isPrerequisite()) {
 				    simplePageBean.checkItemPermissions(i, true);
 				}
@@ -938,16 +941,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// but we make it look like it's disabled so they can see what
 			// students see
 			} else if (canEditPage) {
-				link = UIInternalLink.make(container, ID, i.getName(), eParams);
+				link = UIInternalLink.make(container, ID, eParams);
 				fakeDisableLink(link, messageLocator);				
 			} else {
-				link = UILink.make(container, ID, i.getName(), "");
+			        link = UILink.make(container, ID);
 				disableLink(link, messageLocator);
 			}
-			// not sure what screen readers will do with this bizarre HTML/CSS, so 
-			// give it a label to be safe
-			if (isbutton)
-			    link.decorate(new UIFreeAttributeDecorator("title", i.getName()));
 
 		} else if (i.getType() == SimplePageItem.ASSIGNMENT) {
 			if (available) {
@@ -959,13 +958,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				params.setSendingPage(currentPage.getPageId());
 				params.setSource("/direct/assignment/" + i.getSakaiId());
 				params.setItemId(i.getId());
-				UIInternalLink.make(container, "link", i.getName(), params);
+				UIInternalLink.make(container, "link", params);
 
 			} else {
 				if (i.isPrerequisite()) {
 				    simplePageBean.checkItemPermissions(i, false);
 				}
-				UILink link = UILink.make(container, ID, i.getName(), "");
+				UILink link = UILink.make(container, ID);
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
@@ -982,12 +981,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
 				view.setSource("/samigo-app/servlet/Login?id=" + simplePageBean.getAssessmentAlias(i.getSakaiId()));
 				view.setItemId(i.getId());
-				UIInternalLink.make(container, "link", i.getName(), view);
+				UIInternalLink.make(container, "link", view);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
 				}
-				UILink link = UILink.make(container, ID, i.getName(), "");
+				UILink link = UILink.make(container, ID, "");
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.FORUM) {
@@ -1001,17 +1000,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
 				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
-				UIInternalLink.make(container, "link", i.getName(), view);
+				UIInternalLink.make(container, "link", view);
 
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
 				}
-				UILink link = UILink.make(container, ID, i.getName(), "");
+				UILink link = UILink.make(container, ID);
 				disableLink(link, messageLocator);
 			}
 		}
 
+		String note = null;
+		if (status == Status.COMPLETED)
+		    note = messageLocator.getMessage("simplepage.status.completed");
+		if (status == Status.REQUIRED)
+		    note = messageLocator.getMessage("simplepage.status.required");
+
+		UIOutput.make(container, ID + "-text", i.getName());
+		if (note != null)
+		    UIOutput.make(container, ID + "-note", note + " ");
 
 		return available;
 	}
@@ -1066,21 +1074,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 
-		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder.tooltip");
-		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
+		// decided not to use long tooltips. with screen reader they're too verbose. We now have good help
+		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder");
+		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text").setItemId(null);
 
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, currentPage, "simplepage.resource.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, currentPage, "simplepage.resource");
 
 		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "");
-		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage.tooltip")));
+		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
 		subpagelink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.subpage"));
 
-		createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment.tooltip");
-		createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz.tooltip");
-		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum.tooltip");
+		createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
+		createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
+		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia.tooltip");
-		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia");
+		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions");
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), messageLocator.getMessage("simplepage.general-instructions"));
 
 	}
@@ -1327,20 +1336,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
        after the user views the item
     */
 
-	private boolean handleStatusImage(UIContainer container, SimplePageItem i) {
+	private Status handleStatusImage(UIContainer container, SimplePageItem i) {
 		if (i.getType() != SimplePageItem.TEXT && i.getType() != SimplePageItem.MULTIMEDIA) {
 			if (!i.isRequired()) {
 				addStatusImage(Status.NOT_REQUIRED, container, "status", i.getName());
-				return false;
+				return Status.NOT_REQUIRED;
 			} else if (simplePageBean.isItemComplete(i)) {
 				addStatusImage(Status.COMPLETED, container, "status", i.getName());
-				return false;
+				return Status.COMPLETED;
 			} else {
 				addStatusImage(Status.REQUIRED, container, "status", i.getName());
-				return true;
+				return Status.REQUIRED;
 			}
 		}
-		return false;
+		return Status.NOT_REQUIRED;
 	}
 
     // add the checkmark or asterisk. This code supports a couple of other statuses that we
@@ -1349,20 +1358,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String imagePath = "/sakai-lessonbuildertool-tool/images/";
 		String imageAlt = "";
 
-		// include names because a screen reader going down the column won't see what they are
-		// associated with
+		// better not to include alt or title. Bundle them with the link. Avoids complexity for screen reader
+
 		if (status == Status.COMPLETED) {
 			imagePath += "checkmark.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.completed");
+			imageAlt = ""; // messageLocator.getMessage("simplepage.status.completed") + " " + name;
 		} else if (status == Status.DISABLED) {
 			imagePath += "unavailable.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.notavailable");
+			imageAlt = ""; //  messageLocator.getMessage("simplepage.status.disabled") + " " + name;
 		} else if (status == Status.FAILED) {
 			imagePath += "failed.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.failed");
+			imageAlt = ""; //messageLocator.getMessage("simplepage.status.failed") + " " + name;
 		} else if (status == Status.REQUIRED) {
 			imagePath += "available.png";
-			imageAlt = messageLocator.getMessage("simplepage.status.required");
+			imageAlt = ""; //messageLocator.getMessage("simplepage.status.required") + " " + name;
 		} else if (status == Status.NOT_REQUIRED) {
 			imagePath += "not-required.png";
 			// it's a blank image, no need for screen readers to say anything
