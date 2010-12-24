@@ -241,6 +241,20 @@
             <timezone>-5</timezone>
             <properties />
         </developer>
+        <developer>
+            <id>aaronz@vt.edu</id>
+            <name>Aaron Zeckoski</name>
+            <email>azeckoski@unicon.net</email>
+	    <url>http://tinyurl.com/azprofile</url>
+            <organization>Unicon</organization>
+            <organizationUrl>http://www.unicon.net</organizationUrl>
+            <roles>
+                <role>engineer</role>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties />
+        </developer>
     </developers>
     <contributors>
         <contributor>
