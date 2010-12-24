@@ -288,10 +288,10 @@ public class ComposeLogicImpl implements ComposeLogic
 	{
 		Site currentSite = currentSite();
 		Set<String> userIds = currentSite.getUsersHasRole(role);
-		User curUser = externalLogic.getCurrentUser();
+		String curUser = externalLogic.getCurrentUserId();
 		// don't include the current user. this logic is used in other places so it is combined here
 		// to save repeating the logic in the presentation layer.
-		userIds.remove(curUser.getId());
+		userIds.remove(curUser);
 		return userIds;
 	}
 
@@ -306,8 +306,7 @@ public class ComposeLogicImpl implements ComposeLogic
 		int count = 0;
 		try
 		{
-			Site currentSite = currentSite();
-			Set<String> userIds = currentSite.getUsersHasRole(role);
+			Set<String> userIds = getUserIdsByRole(role);
 			count = userIds.size();
 		}
 		catch (IdUnusedException e)
@@ -336,10 +335,10 @@ public class ComposeLogicImpl implements ComposeLogic
 		Site currentSite = currentSite();
 		Group group = currentSite.getGroup(groupId);
 		Set<String> userIds = group.getUsers();
-		User curUser = externalLogic.getCurrentUser();
+		String curUser = externalLogic.getCurrentUserId();
 		// don't include the current user. this logic is used in other places so it is combined here
 		// to save repeating the logic in the presentation layer.
-		userIds.remove(curUser.getId());
+		userIds.remove(curUser);
 		return userIds;
 	}
 

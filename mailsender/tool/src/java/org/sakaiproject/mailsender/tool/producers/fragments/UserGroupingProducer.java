@@ -121,7 +121,6 @@ public class UserGroupingProducer implements ViewComponentProducer, ViewParamsRe
 				return;
 			}
 
-			String emailBean = "emailBean.newEmail.";
 			if (emailRoles.size() == 0)
 			{
 				messages.addMessage(new TargettedMessage("no." + ugParams.type + ".found", null,
@@ -163,8 +162,8 @@ public class UserGroupingProducer implements ViewComponentProducer, ViewParamsRe
 
 						// build the EL binding
 						UIBoundBoolean input = UIBoundBoolean.make(roleBranch,
-								"mailsender-usersGroup", emailBean + ugParams.type + "Ids."
-										+ role.getRoleId());
+								"mailsender-usersGroup",
+								"emailBean.newEmail." + ugParams.type + "Ids." + role.getRoleId());
 						input.decorate(new UIIDStrategyDecorator(input.getFullID() + "-"
 								+ ugParams.type));
 
