@@ -247,6 +247,10 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 				{
 					batchSize = 10000;
 				}
+				else if (totalDocs > 10000)
+				{
+					batchSize = 1000;
+				}
 				else if (totalDocs > 1000)
 				{
 					batchSize = 500;
