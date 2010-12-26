@@ -272,7 +272,7 @@
 												|
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim() <span class="skip">$validator.escapeHtml($item.name)</span></a>
+											<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
 										#end
 									#end
 								#end
@@ -443,7 +443,7 @@
 														|
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
+													<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy")</a>
 												#end
 											#end
 										#end
