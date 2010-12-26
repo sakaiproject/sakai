@@ -184,7 +184,7 @@ $(function() {
 		var row = $(this).parent().parent().parent();
 		var itemid = row.find(".current-item-id2").text();
 
-		$("#name").val(row.find(".itemlink").text());
+		$("#name").val(row.find(".link-text").text());
 		$("#description").val(row.find(".rowdescription").text());
 				      
 		var prereq = row.find(".prerequisite-info").text();
