@@ -416,16 +416,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// swfObject is not currently used
 		boolean shownSwfObject = false;
 
-		// produce the main table
-		UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
-
-		boolean showRefresh = false;
-		int textboxcount = 1;
-
 		// items to show
 		List<SimplePageItem> itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
 
-		UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
+		// produce the main table
+		if (itemList.size() > 0) {
+		    UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
+
+		    boolean showRefresh = false;
+		    int textboxcount = 1;
+
+
+
+		    UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
 
 		// formatting: two columns:
 		// 1: edit buttons, omitted for student
@@ -795,7 +798,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 
 		}
-
+	     }
 		boolean showBreak = false;
 
 		// I believe refresh is now done automatically in all cases
@@ -839,23 +842,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// more warnings: if no item on the page, give faculty instructions, students an error
 		if (itemList.size() == 0) {
 			if (canEditPage) {
-				Resource resource = simplePageToolService.getResource(messageLocator.getMessage("simplepage.startup_help"));
-				StringBuffer instructions = new StringBuffer();
-				try {
-				    InputStream is = resource.getInputStream();
-				    BufferedReader br = new BufferedReader(new InputStreamReader(is));
- 
-				    String line;
-				    while ((line = br.readLine()) != null) {
-					instructions.append(line);
-					instructions.append("\n");
-				    } 
-				    br.close();
-				} catch (Exception e) {
-				    log.error("Can't read startup help " + e);
-				}
-			    
-				UIVerbatim.make(tofill, "startupHelp", instructions.toString());
+			    UIOutput.make(tofill, "startupHelp").
+				decorate(new UIFreeAttributeDecorator("src", "/sakai-lessonbuildertool-tool/" + messageLocator.getMessage("simplepage.startup_help"))).
+				decorate(new UIFreeAttributeDecorator("id","iframe"));
+			    UIOutput.make(tofill, "iframeJavascript");
+
 			} else {
 				UIOutput.make(tofill, "error-div");
 				UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.noitems_error_user"));

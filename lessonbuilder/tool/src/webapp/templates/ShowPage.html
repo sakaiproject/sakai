@@ -177,7 +177,19 @@ setMainFrameHeight(window.name);
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
 		
-		<div rsf:id="startupHelp" role="document"></div>
+		<iframe rsf:id="startupHelp" role="document"
+		   name="SimplePageIFrame"
+		   class="portletMainIframe multimedia"
+		   frameborder="0"
+		   onload="resizeiframe('iframe')"
+		   marginwidth="0"
+		   width="100%"
+		   height="500"
+		   marginheight="0"
+		   scrolling="auto"
+		   id="iframe"
+		   ></iframe>
+
 
 		<div rsf:id="dialogDiv">
 		        <div id="messages">
