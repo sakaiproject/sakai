@@ -613,6 +613,16 @@
     ]]>    
   </query>
   
+    <query name="findDiscussionForumMessagesInSite">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+                 join message.topic as topic
+             join topic.openForum as forum
+             join forum.area as area
+             where area.contextId = :contextId and
+             message.deleted = false]]>
+  </query>
+  
+  
 </hibernate-mapping>
 
 
