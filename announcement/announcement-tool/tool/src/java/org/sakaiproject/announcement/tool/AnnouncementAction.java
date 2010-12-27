@@ -4314,15 +4314,26 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		String channelRefStr = stateObj.getChannelId();
 		Reference channelRef = EntityManager.newReference(channelRefStr);
-		String siteRef = SiteService.siteReference(channelRef.getContext());
-
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
+		
+		/* 
+		   SAK-19526
+		   Setting the site reference for the permission target ref only makes sense for a site
+		   not for a channel reference like '/announcement/channel/!site/motd' 
+		*/
+		if (SiteService.siteExists(channelRef.getContext())) {
+			String siteRef = SiteService.siteReference(channelRef.getContext());
+	
+			// setup for editing the permissions of the site for this tool, using the roles of this site, too
+			state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
+			// ... with this description
+			state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
 				+ SiteService.getSiteDisplay(channelRef.getContext()));
-
+		} else {
+			// setup for editing the permissions of the site for this tool, using the roles of this site, too
+			state.setAttribute(PermissionsHelper.TARGET_REF, channelRefStr);
+			// ... with this description
+			state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set") + channelRefStr);
+		}
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsHelper.PREFIX, "annc.");
 
