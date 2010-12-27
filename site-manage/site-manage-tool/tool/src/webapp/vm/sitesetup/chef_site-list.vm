@@ -276,7 +276,7 @@
 			#if ($!searchString && !$searchString.equals(""))
 				$tlang.getString("list.thatmatch") $validator.escapeHtml($!searchString)
 			#end
-			$tlang.getString("list.inthe") "$!viewSelected".
+			$tlang.getString("list.inthe") $validator.escapeHtml($!viewSelected).
 		</div>	
 	#end
 	</form>
