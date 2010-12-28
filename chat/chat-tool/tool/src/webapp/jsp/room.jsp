@@ -95,7 +95,7 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
             <div id="errorSubmit" class="alertMessage" style="display:none">
                 <h:outputText value="#{msgs['therewaspro']}" />
             </div>
-			<h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="60" />
+			<h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="125" />
 			<p class="act">
 	          <h:commandButton type="button" id="submit"
 	              value="#{msgs['control.post']}"
