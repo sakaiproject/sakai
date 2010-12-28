@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.net.URLEncoder;
 import java.io.File;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -158,7 +159,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	private static final String FORM_TOOL_TITLE = "title-of-tool";
 
-	
+	private static final int MAX_TITLE_LENGTH = 99;
 
 	/**
 	 * Expand macros to insert session information into the URL?
@@ -1067,9 +1068,15 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// title
 		String title = data.getParameters().getString(TITLE);
-		if (StringUtil.trimToNull(title) == null)
+		if (StringUtils.isBlank(title))
 		{
-			addAlert(state, rb.getString("gen.tootit"));
+			addAlert(state, rb.getString("gen.tootit.empty"));
+			return;			
+		// SAK-19515 check for LENGTH of tool title
+		} 
+		else if (title.length() > MAX_TITLE_LENGTH)
+		{
+			addAlert(state, rb.getString("gen.tootit.toolong"));
 			return;			
 		}
 		placement.setTitle(title);
@@ -1088,16 +1095,18 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				{
 					String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
 					
-					if (StringUtil.trimToNull(newPageTitle) == null)
+					if (StringUtils.isBlank(newPageTitle))
 					{
-						addAlert(state, rb.getString("gen.pagtit"));
+						addAlert(state, rb.getString("gen.pagtit.empty"));
 						return;		
 					}
-					else 
+					else if (newPageTitle.length() > MAX_TITLE_LENGTH)
 					{
-						page.setTitle(newPageTitle);
-						state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
+						addAlert(state, rb.getString("gen.pagtit.toolong"));
+						return;			
 					}
+					page.setTitle(newPageTitle);
+					state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
 					
 					// popup
 					boolean popup = data.getParameters().getBoolean("popup");
