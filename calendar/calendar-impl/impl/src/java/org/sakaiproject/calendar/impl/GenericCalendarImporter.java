@@ -62,10 +62,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class provides common importing functionality after a lower-level reader
- * has taken care of the peculiarities of a given import format.
+ * This class provides common importing functionality after a lower-level reader has taken care of the peculiarities of a given import format.
  */
-public class GenericCalendarImporter implements CalendarImporterService {
+public class GenericCalendarImporter implements CalendarImporterService
+{
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(GenericCalendarImporter.class);
 
@@ -124,29 +124,33 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	// Map of readers for various formats. Keyed by import type.
 	private final Map readerMap = new HashMap();
 
-	private DateFormat timeFormatter() {
+	private DateFormat timeFormatter()
+	{
 		DateFormat rv = new SimpleDateFormat("hh:mm a");
 		rv.setLenient(false);
 		return rv;
 	}
 
-	private DateFormat timeFormatterWithSeconds() {
+	private DateFormat timeFormatterWithSeconds()
+	{
 		return new SimpleDateFormat("hh:mm:ss a");
 	}
 
-	private DateFormat time24HourFormatter() {
+	private DateFormat time24HourFormatter()
+	{
 		DateFormat rv = new SimpleDateFormat("HH:mm");
 		rv.setLenient(false);
 		return rv;
 	}
 
-	private DateFormat time24HourFormatterWithSeconds() {
+	private DateFormat time24HourFormatterWithSeconds()
+	{
 		DateFormat rv = new SimpleDateFormat("HH:mm:ss");
 		rv.setLenient(false);
 		return rv;
 	}
 
-	private ResourceLoader rb = new ResourceLoader("calendar");
+   private ResourceLoader rb = new ResourceLoader("calendar");
 
 	// These are injected at runtime by Spring.
 	private CalendarService calendarService = null;
@@ -154,13 +158,12 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	private TimeService timeService = null;
 
 	/*
-	 * This class is used as a "prototype" event that may be added to a real
-	 * calendar. We emulate enough of a calendar event to hold all the
-	 * information necessary to create a real event.
+	 * This class is used as a "prototype" event that may be added to a real calendar. We emulate enough of a calendar event to hold all the information necessary to create a real event.
 	 */
-	public class PrototypeEvent implements CalendarEventEdit {
+	public class PrototypeEvent implements CalendarEventEdit
+	{
 		private RecurrenceRule recurrenceRule;
-
+		
 		private RecurrenceRule exclusionRule;
 
 		private Map fields;
@@ -180,7 +183,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/**
 		 * Default constructor
 		 */
-		public PrototypeEvent() {
+		public PrototypeEvent()
+		{
 			fields = new HashMap();
 		}
 
@@ -189,7 +193,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getRange()
 		 */
-		public TimeRange getRange() {
+		public TimeRange getRange()
+		{
 			return this.timeRange;
 		}
 
@@ -198,7 +203,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getDisplayName()
 		 */
-		public String getDisplayName() {
+		public String getDisplayName()
+		{
 			return this.displayName;
 		}
 
@@ -207,7 +213,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getDescription()
 		 */
-		public String getDescription() {
+		public String getDescription()
+		{
 			return FormattedText.convertFormattedTextToPlaintext(description);
 		}
 
@@ -216,7 +223,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getType()
 		 */
-		public String getType() {
+		public String getType()
+		{
 			return this.type;
 		}
 
@@ -225,28 +233,28 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getLocation()
 		 */
-		public String getLocation() {
+		public String getLocation()
+		{
 			return this.location;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEvent#getField(java.lang.String
-		 * )
+		 * @see org.sakaiproject.calendar.api.CalendarEvent#getField(java.lang.String)
 		 */
-		public String getField(String fieldName) {
+		public String getField(String fieldName)
+		{
 			return (String) this.fields.get(fieldName);
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEvent#getCalendarReference()
+		 * @see org.sakaiproject.calendar.api.CalendarEvent#getCalendarReference()
 		 */
-		public String getCalendarReference() {
+		public String getCalendarReference()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -256,17 +264,19 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getRecurrenceRule()
 		 */
-		public RecurrenceRule getRecurrenceRule() {
+		public RecurrenceRule getRecurrenceRule()
+		{
 			// Stub routine only
 			return this.recurrenceRule;
 		}
-
+		
 		/*
 		 * (non-Javadoc)
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getExclusionRule()
 		 */
-		public RecurrenceRule getExclusionRule() {
+		public RecurrenceRule getExclusionRule()
+		{
 			// Stub routine only
 			return this.exclusionRule;
 		}
@@ -276,7 +286,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.service.legacy.entity.Resource#getUrl()
 		 */
-		public String getUrl() {
+		public String getUrl()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -286,7 +297,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.service.legacy.entity.Resource#getReference()
 		 */
-		public String getReference() {
+		public String getReference()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -294,14 +306,16 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/**
 		 * @inheritDoc
 		 */
-		public String getReference(String rootProperty) {
+		public String getReference(String rootProperty)
+		{
 			return getReference();
 		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public String getUrl(String rootProperty) {
+		public String getUrl(String rootProperty)
+		{
 			return getUrl();
 		}
 
@@ -310,7 +324,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.service.legacy.entity.Resource#getId()
 		 */
-		public String getId() {
+		public String getId()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -320,7 +335,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.service.legacy.entity.Resource#getProperties()
 		 */
-		public ResourceProperties getProperties() {
+		public ResourceProperties getProperties()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -328,19 +344,19 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/**
 		 * @inheritDoc
 		 */
-		public String getSiteName() {
+		public String getSiteName()
+		{
 			// Stub routine only
 			return null;
 		}
-
+		
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.service.legacy.entity.Resource#toXml(org.w3c.dom
-		 * .Document, java.util.Stack)
+		 * @see org.sakaiproject.service.legacy.entity.Resource#toXml(org.w3c.dom.Document, java.util.Stack)
 		 */
-		public Element toXml(Document arg0, Stack arg1) {
+		public Element toXml(Document arg0, Stack arg1)
+		{
 			// Stub routine only
 			return null;
 		}
@@ -350,7 +366,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
-		public int compareTo(Object o) {
+		public int compareTo(Object o)
+		{
 			// Stub routine only
 			return 0;
 		}
@@ -358,11 +375,10 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.service.legacy.entity.AttachmentContainer#getAttachments
-		 * ()
+		 * @see org.sakaiproject.service.legacy.entity.AttachmentContainer#getAttachments()
 		 */
-		public List getAttachments() {
+		public List getAttachments()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -370,105 +386,100 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setRange(org.sakaiproject
-		 * .service.legacy.time.TimeRange)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setRange(org.sakaiproject.service.legacy.time.TimeRange)
 		 */
-		public void setRange(TimeRange timeRange) {
+		public void setRange(TimeRange timeRange)
+		{
 			this.timeRange = timeRange;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setDisplayName(java
-		 * .lang.String)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setDisplayName(java.lang.String)
 		 */
-		public void setDisplayName(String displayName) {
+		public void setDisplayName(String displayName)
+		{
 			this.displayName = displayName;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setDescription(java
-		 * .lang.String)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setDescription(java.lang.String)
 		 */
-		public void setDescription(String description) {
-			this.description = FormattedText
-					.convertPlaintextToFormattedText(description);
+		public void setDescription(String description)
+		{
+			this.description = FormattedText.convertPlaintextToFormattedText(description);
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setType(java.lang
-		 * .String)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setType(java.lang.String)
 		 */
-		public void setType(String type) {
+		public void setType(String type)
+		{
 			this.type = type;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setLocation(java.
-		 * lang.String)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setLocation(java.lang.String)
 		 */
-		public void setLocation(String location) {
+		public void setLocation(String location)
+		{
 			this.location = location;
 		}
 
 		/**
-		 * Returns true if current user is thhe event's owner/creator
-		 * 
-		 * @return boolean true or false
-		 */
-		public boolean isUserOwner() {
+		* Returns true if current user is thhe event's owner/creator
+		* @return boolean true or false
+		*/
+		public boolean isUserOwner()
+      {
 			// Stub routine only
 			return true;
 
-		}
+      }
 
 		/**
-		 * Gets the event creator (userid), if any (cover for PROP_CREATOR).
-		 * 
-		 * @return The event's creator property.
-		 */
-		public String getCreator() {
+		* Gets the event creator (userid), if any (cover for PROP_CREATOR).
+		* @return The event's creator property.
+		*/
+		public String getCreator()
+		{
 			// Stub routine only
 			return null;
 
 		} // getCreator
 
 		/**
-		 * Set the event creator (cover for PROP_CREATOR) to current user
-		 */
-		public void setCreator() {
+		* Set the event creator (cover for PROP_CREATOR) to current user
+		*/
+		public void setCreator()
+		{
 			// Stub routine only
 
 		} // setCreator
 
 		/**
-		 * Gets the event modifier (userid), if any (cover for
-		 * PROP_MODIFIED_BY).
-		 * 
-		 * @return The event's modified-by property.
-		 */
-		public String getModifiedBy() {
+		* Gets the event modifier (userid), if any (cover for PROP_MODIFIED_BY).
+		* @return The event's modified-by property.
+		*/
+		public String getModifiedBy()
+		{
 			// Stub routine only
 			return null;
 
 		} // getModifiedBy
 
 		/**
-		 * Set the event modifier (cover for PROP_MODIFIED_BY) to current user
-		 */
-		public void setModifiedBy() {
+		* Set the event modifier (cover for PROP_MODIFIED_BY) to current user
+		*/
+		public void setModifiedBy()
+		{
 			// Stub routine only
 
 		} // setModifiedBy
@@ -476,33 +487,30 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setField(java.lang
-		 * .String, java.lang.String)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setField(java.lang.String, java.lang.String)
 		 */
-		public void setField(String key, String value) {
+		public void setField(String key, String value)
+		{
 			this.fields.put(key, value);
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setRecurrenceRule
-		 * (org.sakaiproject.calendar.api.RecurrenceRule)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setRecurrenceRule(org.sakaiproject.calendar.api.RecurrenceRule)
 		 */
-		public void setRecurrenceRule(RecurrenceRule recurrenceRule) {
+		public void setRecurrenceRule(RecurrenceRule recurrenceRule)
+		{
 			this.recurrenceRule = recurrenceRule;
 		}
-
+		
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see
-		 * org.sakaiproject.calendar.api.CalendarEventEdit#setExclusionRule(
-		 * org.sakaiproject.calendar.api.ExclusionRule)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setExclusionRule(org.sakaiproject.calendar.api.ExclusionRule)
 		 */
-		public void setExclusionRule(RecurrenceRule exclusionRule) {
+		public void setExclusionRule(RecurrenceRule exclusionRule)
+		{
 			this.exclusionRule = exclusionRule;
 		}
 
@@ -511,7 +519,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.service.legacy.entity.Edit#isActiveEdit()
 		 */
-		public boolean isActiveEdit() {
+		public boolean isActiveEdit()
+		{
 			// Stub routine only
 			return false;
 		}
@@ -521,7 +530,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.service.legacy.entity.Edit#getPropertiesEdit()
 		 */
-		public ResourcePropertiesEdit getPropertiesEdit() {
+		public ResourcePropertiesEdit getPropertiesEdit()
+		{
 			// Stub routine only
 			return null;
 		}
@@ -529,69 +539,68 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @seeorg.sakaiproject.service.legacy.entity.AttachmentContainerEdit#
-		 * addAttachment(org.sakaiproject.service.legacy.entity.Reference)
+		 * @see org.sakaiproject.service.legacy.entity.AttachmentContainerEdit#addAttachment(org.sakaiproject.service.legacy.entity.Reference)
 		 */
-		public void addAttachment(Reference arg0) {
+		public void addAttachment(Reference arg0)
+		{
 			// Stub routine only
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @seeorg.sakaiproject.service.legacy.entity.AttachmentContainerEdit#
-		 * removeAttachment(org.sakaiproject.service.legacy.entity.Reference)
+		 * @see org.sakaiproject.service.legacy.entity.AttachmentContainerEdit#removeAttachment(org.sakaiproject.service.legacy.entity.Reference)
 		 */
-		public void removeAttachment(Reference arg0) {
+		public void removeAttachment(Reference arg0)
+		{
 			// Stub routine only
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @seeorg.sakaiproject.service.legacy.entity.AttachmentContainerEdit#
-		 * replaceAttachments
-		 * (org.sakaiproject.service.legacy.entity.ReferenceVector)
+		 * @see org.sakaiproject.service.legacy.entity.AttachmentContainerEdit#replaceAttachments(org.sakaiproject.service.legacy.entity.ReferenceVector)
 		 */
-		public void replaceAttachments(List arg0) {
+		public void replaceAttachments(List arg0)
+		{
 			// Stub routine only
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @seeorg.sakaiproject.service.legacy.entity.AttachmentContainerEdit#
-		 * clearAttachments()
+		 * @see org.sakaiproject.service.legacy.entity.AttachmentContainerEdit#clearAttachments()
 		 */
-		public void clearAttachments() {
+		public void clearAttachments()
+		{
 			// Stub routine only
 		}
 
 		/**
 		 * Get the start date formatted for display.
 		 */
-		public String getDisplayStartDate() {
+		public String getDisplayStartDate()
+		{
 			return this.timeRange.firstTime().toStringLocalDate();
 		}
 
 		/**
 		 * Get the start time formatted for display.
 		 */
-		public String getDisplayStartTime() {
+		public String getDisplayStartTime()
+		{
 			return this.timeRange.firstTime().toStringLocalTime();
 		}
 
 		/**
-		 * Get the end time of the event formatted for display. This handles the
-		 * fact that events that end at a given time actually end about a minute
-		 * earlier.
+		 * Get the end time of the event formatted for display. This handles the fact that events that end at a given time actually end about a minute earlier.
 		 */
-		public String getDisplayEndTime() {
+		public String getDisplayEndTime()
+		{
 			// We store event time ranges as slightly less than the end time.
 			// Make a new time range that is inclusive, just to show the users.
 
-			Time endTime = getTimeService().newTime(
-					this.getRange().lastTime().getTime() + (60 * 1000));
+			Time endTime = getTimeService().newTime(this.getRange().lastTime().getTime() + (60 * 1000));
 
 			return endTime.toStringLocalTime();
 		}
@@ -599,7 +608,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		/**
 		 * Get the line number on which this event occurs.
 		 */
-		public int getLineNumber() {
+		public int getLineNumber()
+		{
 			return lineNumber;
 		}
 
@@ -608,21 +618,24 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @param i
 		 */
-		public void setLineNumber(int i) {
+		public void setLineNumber(int i)
+		{
 			lineNumber = i;
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
-		public void setDescriptionFormatted(String description) {
+		public void setDescriptionFormatted(String description)
+		{
 			this.description = description;
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
-		public String getDescriptionFormatted() {
+		public String getDescriptionFormatted()
+		{
 			return description;
 		}
 
@@ -631,12 +644,14 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getGroups()
 		 */
-		public Collection getGroups() {
+		public Collection getGroups()
+		{
 			// TODO Auto-generated method stub
 			return new Vector();
 		}
 
-		public Collection getGroupObjects() {
+		public Collection getGroupObjects()
+		{
 			return new Vector();
 		}
 
@@ -645,19 +660,22 @@ public class GenericCalendarImporter implements CalendarImporterService {
 		 * 
 		 * @see org.sakaiproject.calendar.api.CalendarEvent#getAccess()
 		 */
-		public EventAccess getAccess() {
+		public EventAccess getAccess()
+		{
 			return CalendarEvent.EventAccess.SITE;
 		}
 
-		public String getGroupRangeForDisplay(Calendar calendar) {
+		public String getGroupRangeForDisplay(Calendar calendar)
+		{
 			return null;
 		}
 
-		public void clearGroupAccess() throws PermissionException {
+		public void clearGroupAccess() throws PermissionException
+		{
 		}
 
-		public void setGroupAccess(Collection groups, boolean own)
-				throws PermissionException {
+		public void setGroupAccess(Collection groups, boolean own) throws PermissionException
+		{
 		}
 
 	}
@@ -665,220 +683,271 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	/**
 	 * Constructor to set up a few of the formatters.
 	 */
-	public GenericCalendarImporter() {
+	public GenericCalendarImporter()
+	{
 		super();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.sakaiproject.service.legacy.calendar#doImport(java.lang.String,
-	 * java.io.InputStream, java.util.Map, java.lang.String[])
+	 * @see org.sakaiproject.service.legacy.calendar#doImport(java.lang.String, java.io.InputStream, java.util.Map, java.lang.String[])
 	 */
-	public List doImport(String importType, InputStream importStream,
-			Map columnMapping, String[] customFieldPropertyNames)
-			throws ImportException {
+	public List doImport(String importType, InputStream importStream, Map columnMapping, String[] customFieldPropertyNames)
+			throws ImportException
+	{
 		final List rowList = new ArrayList();
 		final Reader scheduleImport;
 
-		try {
-			scheduleImport = (Reader) ((Class) readerMap.get(importType))
-					.newInstance();
+		try
+		{
+			scheduleImport = (Reader) ((Class) readerMap.get(importType)).newInstance();
 
 			// Set the timeservice in the reader.
 			scheduleImport.setTimeService(getTimeService());
 		}
 
-		catch (InstantiationException e1) {
-			String msg = (String) rb.getFormattedMessage("err_import",
-					new Object[] { importType });
-			throw new ImportException(msg);
-		} catch (IllegalAccessException e1) {
-			String msg = (String) rb.getFormattedMessage("err_import",
-					new Object[] { importType });
-			throw new ImportException(msg);
+		catch (InstantiationException e1)
+		{
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
+		}
+		catch (IllegalAccessException e1)
+		{
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
 		}
 
-		if (scheduleImport == null) {
+		if (scheduleImport == null)
+		{
 			throw new ImportException(rb.getString("err_import_unknown"));
 		}
 
 		// If no column mapping has been specified, use the default.
-		if (columnMapping != null) {
+		if (columnMapping != null)
+		{
 			scheduleImport.setColumnHeaderToAtributeMapping(columnMapping);
 		}
 
 		// Read in the file.
-		scheduleImport.importStreamFromDelimitedFile(importStream,
-				new Reader.ReaderImportRowHandler() {
-					// This is the callback that is called for each row.
-					public void handleRow(Iterator columnIterator)
-							throws ImportException {
-						final Map eventProperties = new HashMap();
+		scheduleImport.importStreamFromDelimitedFile(importStream, new Reader.ReaderImportRowHandler()
+		{
+			// This is the callback that is called for each row.
+			public void handleRow(Iterator columnIterator) throws ImportException
+			{
+				final Map eventProperties = new HashMap();
 
-						// Add all the properties to the map
-						while (columnIterator.hasNext()) {
-							Reader.ReaderImportCell column = (Reader.ReaderImportCell) columnIterator
-									.next();
+				// Add all the properties to the map
+				while (columnIterator.hasNext())
+				{
+					Reader.ReaderImportCell column = (Reader.ReaderImportCell) columnIterator.next();
 
-							String value = column.getCellValue().trim();
-							Object mapCellValue = null;
+					String value = column.getCellValue().trim();
+					Object mapCellValue = null;
 
-							// First handle any empy columns.
-							if (value.length() == 0) {
-								mapCellValue = null;
-							} else {
-								if (FREQUENCY_PROPERTY_NAME.equals(column.getPropertyName())) {
-									mapCellValue = column.getCellValue();
-								} else if (END_TIME_PROPERTY_NAME.equals(column.getPropertyName())
-										|| START_TIME_PROPERTY_NAME.equals(column.getPropertyName())) {
-									boolean success = false;
+					// First handle any empy columns.
+					if (value.length() == 0)
+					{
+						mapCellValue = null;
+					}
+					else
+					{
+						if (FREQUENCY_PROPERTY_NAME.equals(column.getPropertyName()))
+						{
+							mapCellValue = column.getCellValue();
+						}
+						else if (END_TIME_PROPERTY_NAME.equals(column.getPropertyName())
+								|| START_TIME_PROPERTY_NAME.equals(column.getPropertyName()))
+						{
+							boolean success = false;
 
-									try {
-										mapCellValue = timeFormatter().parse(value);
-										success = true;
-									}
+							try
+							{
+								mapCellValue = timeFormatter().parse(value);
+								success = true;
+							}
 
-									catch (ParseException e) {
-										// Try another format
-									}
+							catch (ParseException e)
+							{
+								// Try another format
+							}
 
-									if (!success) {
-										try {
-											mapCellValue = timeFormatterWithSeconds().parse(value);
-											success = true;
-										}
+							if (!success)
+							{
+								try
+								{
+									mapCellValue = timeFormatterWithSeconds().parse(value);
+									success = true;
+								}
 
-										catch (ParseException e) {
-											// Try another format
-										}
-									}
-
-									if (!success) {
-										try {
-											mapCellValue = time24HourFormatter().parse(value);
-											success = true;
-										}
-
-										catch (ParseException e) {
-											// Try another format
-										}
-									}
-
-									if (!success) {
-										try {
-											mapCellValue = time24HourFormatterWithSeconds().parse(value);
-											success = true;
-										}
-
-										catch (ParseException e) {
-											// Give up, we've run out of
-											// possible formats.
-											String msg = rb.getFormattedMessage("err_time",
-																		new Object[] {Integer.valueOf(column.getLineNumber()),column.getColumnHeader()});
-											throw new ImportException(msg);
-										}
-									}
-								} else if (DURATION_PROPERTY_NAME.equals(column.getPropertyName())) {
-									String timeFormatErrorString = rb.getFormattedMessage("err_time",
-																		new Object[] {Integer.valueOf(column.getLineNumber()),column.getColumnHeader()});
-									String parts[] = value.split(":");
-
-									if (parts.length == 1) {
-										// Convert to minutes to get into one
-										// property field.
-										try {
-											mapCellValue = Integer.valueOf(Integer.parseInt(parts[0]));
-										} catch (NumberFormatException ex) {
-											throw new ImportException(timeFormatErrorString);
-										}
-									} else if (parts.length == 2) {
-										// Convert to hours:minutes to get into
-										// one property field.
-										try {
-											mapCellValue = Integer.valueOf(Integer.parseInt(parts[0])* 60 + Integer.parseInt(parts[1]));
-										} catch (NumberFormatException ex) {
-											throw new ImportException(timeFormatErrorString);
-										}
-									} else {
-										// Not a legal format of mm or hh:mm
-										throw new ImportException(timeFormatErrorString);
-									}
-								} else if (DATE_PROPERTY_NAME.equals(column.getPropertyName()) || ENDS_PROPERTY_NAME.equals(column.getPropertyName())) {
-									DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale());
-									df.setLenient(false);
-									try {
-										mapCellValue = df.parse(value);
-									} catch (ParseException e) {
-										String msg = rb.getFormattedMessage("err_date",
-														new Object[] {Integer.valueOf(column.getLineNumber()),column.getColumnHeader() });
-										throw new ImportException(msg);
-									}
-								} else if (INTERVAL_PROPERTY_NAME.equals(column.getPropertyName()) || REPEAT_PROPERTY_NAME.equals(column.getPropertyName())) {
-									try {
-										mapCellValue = Integer.valueOf(column.getCellValue());
-									} catch (NumberFormatException ex) {
-										String msg = rb.getFormattedMessage("err_interval",
-															new Object[] {Integer.valueOf(column.getLineNumber()),column.getColumnHeader() });
-										throw new ImportException(msg);
-									}
-								} else if (ITEM_TYPE_PROPERTY_NAME.equals(column.getPropertyName())){
-									String cellValue = column.getCellValue();
-									if (cellValue!=null){
-										if (cellValue.equals("event.activity"))
-											mapCellValue = "Activity";
-										else if (cellValue.equals("event.exam"))
-											mapCellValue="Exam";
-										else if (cellValue.equals("event.meeting"))
-											mapCellValue="Meeting"; 
-										else if (cellValue.equals("event.academic.calendar"))
-											mapCellValue="Academic Calendar"; 
-										else if (cellValue.equals("event.cancellation"))
-											mapCellValue="Cancellation"; 
-										else if (cellValue.equals("event.discussion"))
-											mapCellValue="Class section - Discussion"; 
-										else if (cellValue.equals("event.lab"))
-											mapCellValue="Class section - Lab"; 
-										else if (cellValue.equals("event.lecture"))
-											mapCellValue="Class section - Lecture"; 
-										else if (cellValue.equals("event.smallgroup"))
-											mapCellValue="Class section - Small Group"; 
-										else if (cellValue.equals("event.class"))
-											mapCellValue="Class session"; 
-										else if (cellValue.equals("event.computer"))
-											mapCellValue="Computer Session"; 
-										else if (cellValue.equals("event.deadline"))
-											mapCellValue="Deadline"; 
-										else if (cellValue.equals("event.conference"))
-											mapCellValue="Multidisciplinary Conference"; 
-										else if (cellValue.equals("event.quiz"))
-											mapCellValue="Quiz"; 
-										else if (cellValue.equals("event.special"))
-											mapCellValue="Special event"; 
-										else if (cellValue.equals("event.assignment"))
-											mapCellValue="Web Assignment"; 
-										else 
-											mapCellValue = cellValue; 
-									}
-									
-								}else {
-									// Just a string...
-									mapCellValue = column.getCellValue();
+								catch (ParseException e)
+								{
+									// Try another format
 								}
 							}
 
-							// Store in the map for later reference.
-							eventProperties.put(column.getPropertyName(),mapCellValue);
+							if (!success)
+							{
+								try
+								{
+									mapCellValue = time24HourFormatter().parse(value);
+									success = true;
+								}
+
+								catch (ParseException e)
+								{
+									// Try another format
+								}
+							}
+
+							if (!success)
+							{
+								try
+								{
+									mapCellValue = time24HourFormatterWithSeconds().parse(value);
+									success = true;
+								}
+
+								catch (ParseException e)
+								{
+									// Give up, we've run out of possible formats.
+                           String msg = (String)rb.getFormattedMessage(
+                                                   "err_time", 
+                                                   new Object[]{Integer.valueOf(column.getLineNumber()),
+                                                                column.getColumnHeader()});
+                           throw new ImportException( msg );
+								}
+							}
 						}
+						else if (DURATION_PROPERTY_NAME.equals(column.getPropertyName()))
+						{
+                     String timeFormatErrorString = (String)rb.getFormattedMessage(
+                                                   "err_time", 
+                                                   new Object[]{Integer.valueOf(column.getLineNumber()),
+                                                                column.getColumnHeader()});
 
-						// Add the map of properties for this row to the list of
-						// rows.
-						rowList.add(eventProperties);
+							String parts[] = value.split(":");
+
+							if (parts.length == 1)
+							{
+								// Convert to minutes to get into one property field.
+								try
+								{
+									mapCellValue = Integer.valueOf(Integer.parseInt(parts[0]));
+								}
+								catch (NumberFormatException ex)
+								{
+									throw new ImportException(timeFormatErrorString);
+								}
+							}
+							else if (parts.length == 2)
+							{
+								// Convert to hours:minutes to get into one property field.
+								try
+								{
+									mapCellValue = Integer.valueOf(Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]));
+								}
+								catch (NumberFormatException ex)
+								{
+									throw new ImportException(timeFormatErrorString);
+								}
+							}
+							else
+							{
+								// Not a legal format of mm or hh:mm
+								throw new ImportException(timeFormatErrorString);
+							}
+						}
+						else if (DATE_PROPERTY_NAME.equals(column.getPropertyName())
+								|| ENDS_PROPERTY_NAME.equals(column.getPropertyName()))
+						{
+                     DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, rb.getLocale() );
+                     df.setLenient(false);
+							try
+							{
+								mapCellValue = df.parse(value);
+							}
+							catch (ParseException e)
+							{
+                        String msg = (String)rb.getFormattedMessage("err_date", 
+                                                                    new Object[]{Integer.valueOf(column.getLineNumber()),
+                                                                                 column.getColumnHeader()});
+                        throw new ImportException( msg );
+							}
+						}
+						else if (INTERVAL_PROPERTY_NAME.equals(column.getPropertyName())
+								|| REPEAT_PROPERTY_NAME.equals(column.getPropertyName()))
+						{
+							try
+							{
+								mapCellValue = Integer.valueOf(column.getCellValue());
+							}
+							catch (NumberFormatException ex)
+							{
+                        String msg = (String)rb.getFormattedMessage("err_interval", 
+                                                                    new Object[]{Integer.valueOf(column.getLineNumber()),
+                                                                                 column.getColumnHeader()});
+                        throw new ImportException( msg );
+							}
+						}
+						else if (ITEM_TYPE_PROPERTY_NAME.equals(column.getPropertyName())){
+							String cellValue = column.getCellValue();
+							if (cellValue!=null){
+								if (cellValue.equals("event.activity"))
+									mapCellValue = "Activity";
+								else if (cellValue.equals("event.exam"))
+									mapCellValue="Exam";
+								else if (cellValue.equals("event.meeting"))
+									mapCellValue="Meeting"; 
+								else if (cellValue.equals("event.academic.calendar"))
+									mapCellValue="Academic Calendar"; 
+								else if (cellValue.equals("event.cancellation"))
+									mapCellValue="Cancellation"; 
+								else if (cellValue.equals("event.discussion"))
+									mapCellValue="Class section - Discussion"; 
+								else if (cellValue.equals("event.lab"))
+									mapCellValue="Class section - Lab"; 
+								else if (cellValue.equals("event.lecture"))
+									mapCellValue="Class section - Lecture"; 
+								else if (cellValue.equals("event.smallgroup"))
+									mapCellValue="Class section - Small Group"; 
+								else if (cellValue.equals("event.class"))
+									mapCellValue="Class session"; 
+								else if (cellValue.equals("event.computer"))
+									mapCellValue="Computer Session"; 
+								else if (cellValue.equals("event.deadline"))
+									mapCellValue="Deadline"; 
+								else if (cellValue.equals("event.conference"))
+									mapCellValue="Multidisciplinary Conference"; 
+								else if (cellValue.equals("event.quiz"))
+									mapCellValue="Quiz"; 
+								else if (cellValue.equals("event.special"))
+									mapCellValue="Special event"; 
+								else if (cellValue.equals("event.assignment"))
+									mapCellValue="Web Assignment"; 
+								else 
+									mapCellValue = cellValue; 
+							}
+						}
+						else
+						{
+							// Just a string...
+							mapCellValue = column.getCellValue();
+						}
 					}
-				});
 
-		return getPrototypeEvents(scheduleImport.filterEvents(rowList,
-				customFieldPropertyNames), customFieldPropertyNames);
+					// Store in the map for later reference.
+					eventProperties.put(column.getPropertyName(), mapCellValue);
+				}
+
+				// Add the map of properties for this row to the list of rows.
+				rowList.add(eventProperties);
+			}
+		});
+
+		return getPrototypeEvents(scheduleImport.filterEvents(rowList, customFieldPropertyNames), customFieldPropertyNames);
 	}
 
 	/**
@@ -886,97 +955,94 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	 * 
 	 * @param map
 	 */
-	protected List getPrototypeEvents(List rowList,
-			String[] customFieldPropertyNames) throws ImportException {
+	protected List getPrototypeEvents(List rowList, String[] customFieldPropertyNames) throws ImportException
+	{
 		Iterator it = rowList.iterator();
 		List eventList = new ArrayList();
 		int lineNumber = 1;
 
-		while (it.hasNext()) {
+		while (it.hasNext())
+		{
 			Map eventProperties = (Map) it.next();
 			RecurrenceRule recurrenceRule = null;
 			PrototypeEvent prototypeEvent = new PrototypeEvent();
 
-			prototypeEvent.setDescription((String) eventProperties
-					.get(GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME));
-			prototypeEvent.setDisplayName((String) eventProperties
-					.get(GenericCalendarImporter.TITLE_PROPERTY_NAME));
-			prototypeEvent.setLocation((String) eventProperties
-					.get(GenericCalendarImporter.LOCATION_PROPERTY_NAME));
-			prototypeEvent.setType((String) eventProperties
-					.get(GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME));
+			prototypeEvent.setDescription((String) eventProperties.get(GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME));
+			prototypeEvent.setDisplayName((String) eventProperties.get(GenericCalendarImporter.TITLE_PROPERTY_NAME));
+			prototypeEvent.setLocation((String) eventProperties.get(GenericCalendarImporter.LOCATION_PROPERTY_NAME));
+			prototypeEvent.setType((String) eventProperties.get(GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME));
 
-			if (prototypeEvent.getType() == null
-					|| prototypeEvent.getType().length() == 0) {
+			if (prototypeEvent.getType() == null || prototypeEvent.getType().length() == 0)
+			{
 				prototypeEvent.setType("Activity");
 			}
 
 			// The time range has been calculated in the reader, based on
-			// whatever time fields are available in the particular import
-			// format.
+			// whatever time fields are available in the particular import format.
 			// This range has been placed in the ACTUAL_TIMERANGE property.
 
-			TimeRange timeRange = (TimeRange) eventProperties
-					.get(GenericCalendarImporter.ACTUAL_TIMERANGE);
+			TimeRange timeRange = (TimeRange) eventProperties.get(GenericCalendarImporter.ACTUAL_TIMERANGE);
 
-			if (timeRange == null) {
-				String msg = (String) rb.getFormattedMessage("err_notime",
-						new Object[] { Integer.valueOf(lineNumber) });
-				throw new ImportException(msg);
+			if (timeRange == null)
+			{
+            String msg = (String)rb.getFormattedMessage("err_notime", 
+                                                        new Object[]{Integer.valueOf(lineNumber)});
+            throw new ImportException( msg );
 			}
 
 			// The start/end times were calculated during the import process.
 			prototypeEvent.setRange(timeRange);
 
 			// Do custom fields, if any.
-			if (customFieldPropertyNames != null) {
-				for (int i = 0; i < customFieldPropertyNames.length; i++) {
-					prototypeEvent.setField(customFieldPropertyNames[i],
-							(String) eventProperties
-									.get(customFieldPropertyNames[i]));
+			if (customFieldPropertyNames != null)
+			{
+				for (int i = 0; i < customFieldPropertyNames.length; i++)
+				{
+					prototypeEvent.setField(customFieldPropertyNames[i], (String) eventProperties.get(customFieldPropertyNames[i]));
 				}
 			}
 
 			// See if this is a recurring event
-			String frequencyString = (String) eventProperties
-					.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME);
+			String frequencyString = (String) eventProperties.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME);
 
-			if (frequencyString != null) {
-				Integer interval = (Integer) eventProperties
-						.get(GenericCalendarImporter.INTERVAL_PROPERTY_NAME);
-				Integer count = (Integer) eventProperties
-						.get(GenericCalendarImporter.REPEAT_PROPERTY_NAME);
-				Date until = (Date) eventProperties
-						.get(GenericCalendarImporter.ENDS_PROPERTY_NAME);
+			if (frequencyString != null)
+			{
+				Integer interval = (Integer) eventProperties.get(GenericCalendarImporter.INTERVAL_PROPERTY_NAME);
+				Integer count = (Integer) eventProperties.get(GenericCalendarImporter.REPEAT_PROPERTY_NAME);
+				Date until = (Date) eventProperties.get(GenericCalendarImporter.ENDS_PROPERTY_NAME);
 
-				if (count != null && until != null) {
-					String msg = (String) rb.getFormattedMessage("err_datebad",
-							new Object[] { Integer.valueOf(lineNumber) });
-					throw new ImportException(msg);
+				if (count != null && until != null)
+				{
+               String msg = (String)rb.getFormattedMessage("err_datebad", 
+                                                           new Object[]{Integer.valueOf(lineNumber)});
+               throw new ImportException( msg );
 				}
 
-				if (interval == null && count == null && until == null) {
-					recurrenceRule = getCalendarService().newRecurrence(
-							frequencyString);
-				} else if (until == null && interval != null && count != null) {
-					recurrenceRule = getCalendarService().newRecurrence(
-							frequencyString, interval.intValue(),
-							count.intValue());
-				} else if (until == null && interval != null && count == null) {
-					recurrenceRule = getCalendarService().newRecurrence(
-							frequencyString, interval.intValue());
-				} else if (until != null && interval != null && count == null) {
+				if (interval == null && count == null && until == null)
+				{
+					recurrenceRule = getCalendarService().newRecurrence(frequencyString);
+				}
+				else if (until == null && interval != null && count != null)
+				{
+					recurrenceRule = getCalendarService().newRecurrence(frequencyString, interval.intValue(), count.intValue());
+				}
+				else if (until == null && interval != null && count == null)
+				{
+					recurrenceRule = getCalendarService().newRecurrence(frequencyString, interval.intValue());
+				}
+				else if (until != null && interval != null && count == null)
+				{
 					Time untilTime = getTimeService().newTime(until.getTime());
 
-					recurrenceRule = getCalendarService().newRecurrence(
-							frequencyString, interval.intValue(), untilTime);
+					recurrenceRule = getCalendarService().newRecurrence(frequencyString, interval.intValue(), untilTime);
 				}
 
 				// See if we were able to successfully create a recurrence rule.
-				if (recurrenceRule == null) {
-					String msg = (String) rb.getFormattedMessage("err_freqbad",
-							new Object[] { Integer.valueOf(lineNumber) });
-					throw new ImportException(msg);
+				if (recurrenceRule == null)
+				{
+               String msg = (String)rb.getFormattedMessage("err_freqbad", 
+                                                           new Object[]{Integer.valueOf(lineNumber)});
+               throw new ImportException( msg );
 				}
 
 				prototypeEvent.setRecurrenceRule(recurrenceRule);
@@ -992,27 +1058,31 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.sakaiproject.tool.calendar.schedimport.importers.Importer#
-	 * getDefaultColumnMap(java.lang.String)
+	 * @see org.sakaiproject.tool.calendar.schedimport.importers.Importer#getDefaultColumnMap(java.lang.String)
 	 */
-	public Map getDefaultColumnMap(String importType) throws ImportException {
-		try {
-			Reader scheduleImport = (Reader) ((Class) readerMap.get(importType))
-					.newInstance();
+	public Map getDefaultColumnMap(String importType) throws ImportException
+	{
+		try
+		{
+			Reader scheduleImport = (Reader) ((Class) readerMap.get(importType)).newInstance();
 
-			if (scheduleImport != null) {
+			if (scheduleImport != null)
+			{
 				return scheduleImport.getDefaultColumnMap();
 			}
 		}
 
-		catch (InstantiationException e1) {
-			String msg = (String) rb.getFormattedMessage("err_import",
-					new Object[] { importType });
-			throw new ImportException(msg);
-		} catch (IllegalAccessException e1) {
-			String msg = (String) rb.getFormattedMessage("err_import",
-					new Object[] { importType });
-			throw new ImportException(msg);
+		catch (InstantiationException e1)
+		{
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
+		}
+		catch (IllegalAccessException e1)
+		{
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
 		}
 
 		// No map exists if we get here.
@@ -1022,14 +1092,16 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	/**
 	 * Getter for injected service
 	 */
-	public CalendarService getCalendarService() {
+	public CalendarService getCalendarService()
+	{
 		return calendarService;
 	}
 
 	/**
 	 * Getter for injected service
 	 */
-	public TimeService getTimeService() {
+	public TimeService getTimeService()
+	{
 		return timeService;
 	}
 
@@ -1038,7 +1110,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	 * 
 	 * @param service
 	 */
-	public void setCalendarService(CalendarService service) {
+	public void setCalendarService(CalendarService service)
+	{
 		calendarService = service;
 	}
 
@@ -1047,7 +1120,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	 * 
 	 * @param service
 	 */
-	public void setTimeService(TimeService service) {
+	public void setTimeService(TimeService service)
+	{
 		timeService = service;
 	}
 
@@ -1058,15 +1132,19 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
-	public void init() {
-		try {
+	public void init()
+	{
+		try
+		{
 			// Add our readers. This might be done from a
 			// config file in future versions.
 			readerMap.put(OUTLOOK_IMPORT, OutlookReader.class);
 			readerMap.put(MEETINGMAKER_IMPORT, MeetingMakerReader.class);
 			readerMap.put(CSV_IMPORT, CSVReader.class);
 			readerMap.put(ICALENDAR_IMPORT, IcalendarReader.class);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			M_log.warn("init(): ", t);
 		}
 	}
@@ -1074,7 +1152,8 @@ public class GenericCalendarImporter implements CalendarImporterService {
 	/**
 	 * Returns to uninitialized state.
 	 */
-	public void destroy() {
+	public void destroy()
+	{
 		M_log.info("destroy()");
 	}
 }
