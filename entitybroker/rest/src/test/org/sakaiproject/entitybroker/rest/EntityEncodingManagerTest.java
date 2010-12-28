@@ -140,6 +140,29 @@ public class EntityEncodingManagerTest extends TestCase {
     }
 
     /**
+     * Testing for http://jira.sakaiproject.org/browse/SAK-19197 (xml encoding)
+     * Items with spaces will not encode correctly and will cause an exception, they 
+     * have to be fixed at the provider level
+     */
+    public void testSpaceEncoding() {
+        EntityData ed = null;
+
+        // test encoding weird stuff
+        Map<String, Object> map = new ArrayOrderedMap<String, Object>();
+        map.put("A1", "aaron one");
+        map.put("C&3", "minerva three");
+        map.put("B 2", "becky two");
+        ed = new EntityData(map);
+        try {
+            entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+            fail("Could not encode spaces");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }
+
+    }
+
+    /**
      * Test method for {@link EntityHandlerImpl#internalOutputFormatter(EntityView, javax.servlet.http.HttpServletRequest, HttpServletResponse)}
      **/
     public void testInternalOutputFormatter() {

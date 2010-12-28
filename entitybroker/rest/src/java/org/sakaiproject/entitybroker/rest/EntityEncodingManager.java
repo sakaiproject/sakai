@@ -542,37 +542,41 @@ public class EntityEncodingManager {
             // special handling for HTML
             StringBuilder sb = new StringBuilder(200);
             sb.append("  <div style='padding-left:1em;'>\n");
-            sb.append("    <div style='font-weight:bold;'>"+StringEscapeUtils.escapeHtml(entityData.getDisplayTitle())+"</div>\n");
-            sb.append("    <table border='1'>\n");
-            sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
-            if (! entityData.isDataOnly()) {
-                sb.append("      <tr><td>entityReference</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityReference())+"</td></tr>\n");
-                sb.append("      <tr><td>entityURL</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityURL())+"</td></tr>\n");
-                if (entityData.getEntityRef() != null) {
-                    sb.append("      <tr><td>entityPrefix</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityRef().getPrefix())+"</td></tr>\n");
-                    if (entityData.getEntityRef().getId() != null) {
-                        sb.append("      <tr><td>entityID</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityRef().getId())+"</td></tr>\n");
+            if (entityData == null) {
+                sb.append("NO DATA to encode");
+            } else {
+                sb.append("    <div style='font-weight:bold;'>"+StringEscapeUtils.escapeHtml(entityData.getDisplayTitle())+"</div>\n");
+                sb.append("    <table border='1'>\n");
+                sb.append("      <caption style='font-weight:bold;'>Entity Data</caption>\n");
+                if (! entityData.isDataOnly()) {
+                    sb.append("      <tr><td>entityReference</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityReference())+"</td></tr>\n");
+                    sb.append("      <tr><td>entityURL</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityURL())+"</td></tr>\n");
+                    if (entityData.getEntityRef() != null) {
+                        sb.append("      <tr><td>entityPrefix</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityRef().getPrefix())+"</td></tr>\n");
+                        if (entityData.getEntityRef().getId() != null) {
+                            sb.append("      <tr><td>entityID</td><td>"+StringEscapeUtils.escapeHtml(entityData.getEntityRef().getId())+"</td></tr>\n");
+                        }
                     }
                 }
-            }
-            if (entityData.getData() != null) {
-                sb.append("      <tr><td>entity-type</td><td>"+entityData.getData().getClass().getName()+"</td></tr>\n");
-                // dump entity data
-                sb.append("      <tr><td colspan='2'>Data:<br/>\n");
-                sb.append( encodeData(entityData.getData(), Formats.HTML, null, null) );
-                sb.append("      </td></tr>\n");
-            } else {
-                sb.append("      <tr><td>entity-object</td><td><i>null</i></td></tr>\n");
-            }
-            sb.append("    </table>\n");
-            Map<String, Object> props = entityData.getEntityProperties();
-            if (!props.isEmpty()) {
-                sb.append("    <table border='1'>\n");
-                sb.append("      <caption style='font-weight:bold;'>Properties</caption>\n");
-                for (Entry<String, Object> entry : props.entrySet()) {
-                    sb.append("      <tr><td>"+StringEscapeUtils.escapeHtml(entry.getKey())+"</td><td>"+StringEscapeUtils.escapeHtml(entry.getValue().toString())+"</td></tr>\n");
+                if (entityData.getData() != null) {
+                    sb.append("      <tr><td>entity-type</td><td>"+entityData.getData().getClass().getName()+"</td></tr>\n");
+                    // dump entity data
+                    sb.append("      <tr><td colspan='2'>Data:<br/>\n");
+                    sb.append( encodeData(entityData.getData(), Formats.HTML, null, null) );
+                    sb.append("      </td></tr>\n");
+                } else {
+                    sb.append("      <tr><td>entity-object</td><td><i>null</i></td></tr>\n");
                 }
                 sb.append("    </table>\n");
+                Map<String, Object> props = entityData.getEntityProperties();
+                if (!props.isEmpty()) {
+                    sb.append("    <table border='1'>\n");
+                    sb.append("      <caption style='font-weight:bold;'>Properties</caption>\n");
+                    for (Entry<String, Object> entry : props.entrySet()) {
+                        sb.append("      <tr><td>"+StringEscapeUtils.escapeHtml(entry.getKey())+"</td><td>"+StringEscapeUtils.escapeHtml(entry.getValue().toString())+"</td></tr>\n");
+                    }
+                    sb.append("    </table>\n");
+                }
             }
             sb.append("  </div>\n");
             encoded = sb.toString();
@@ -734,7 +738,7 @@ public class EntityEncodingManager {
             // encode the entity itself
             Object toEncode = entityData; // default to encoding the entity data object
             Map<String, Object> entityProps = new ArrayOrderedMap<String, Object>();
-            if (entityData.getData() != null) {
+            if (entityData != null && entityData.getData() != null) {
                 if (entityData.isDataOnly()) {
                     toEncode = entityData.getData();
                     // no meta data except properties if there are any
