@@ -27,9 +27,21 @@ Start: This is the start time of the event in the form hh:mm AM/PM.  For example
 Duration: This is the duration of the event in hours and minutes.  This is in the form
 hh:mm or just mm for events lasting less than an hour.  This field is required.
 
-Type: This is the type of event.  Values for this field should be taken from the
-list that you see in the "Activity Type" list when you would manually create a
-new event.  Current valid choices are "Activity", "Exam", or "Meeting"
+Type: This is the type of event.  Values for this field are the following:
+event.activity = "Activity"
+event.exam ="Exam"
+event.meeting ="Meeting"
+event.academic.calendar="Academic Calendar"
+event.cancellation="Cancellation"
+event.discussion="Class section - Discussion"
+event.lecture="Class section - Lecture"
+event.class="Class session"
+event.computer="Computer Session"
+event.deadline="Deadline"
+event.conference="Multidisciplinary Conference"
+event.quiz="Quiz"
+event.special="Special event"
+event.assignment="Web Assignment"
 
 Location: This can be anything that you like.  You could put building/room numbers,
 city, state, or anything that you wish to show up as the location of the event.  If
