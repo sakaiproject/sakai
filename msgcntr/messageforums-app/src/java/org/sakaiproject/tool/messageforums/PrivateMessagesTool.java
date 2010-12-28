@@ -20,10 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +47,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -60,6 +63,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
@@ -98,6 +102,7 @@ public class PrivateMessagesTool
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+  private static final String PERMISSIONS_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.permissions";
  
   private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
   
@@ -313,6 +318,10 @@ public class PrivateMessagesTool
   private String sortType = SORT_DATE_DESC;
   
   private int setDetailMsgCount = 0;
+  
+  private static final String PERMISSIONS_PREFIX = "msg.";
+  
+  private boolean instructor = false;
   
   public PrivateMessagesTool()
   {    
@@ -4693,6 +4702,45 @@ private   int   getNum(char letter,   String   a)
 	    {
 	    	fromMainOrHp = fromPage;
 	    }
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String processActionPermissions()
+	{
+		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		try {
+			String url = "../sakai.permissions.helper.helper/tool?" +
+			"session." + PermissionsHelper.DESCRIPTION + "=" +
+			org.sakaiproject.util.Web.escapeUrl(getResourceBundleString("pvt_properties_desc")) +
+			"&session." + PermissionsHelper.TARGET_REF + "=" +
+			SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getReference() +
+			"&session." + PermissionsHelper.PREFIX + "=" +
+			DefaultPermissionsManager.MESSAGE_FUNCTION_PREFIX + DefaultPermissionsManager.MESSAGE_FUNCITON_PREFIX_PERMISSIONS;
+
+			// Set permission descriptions
+			if (toolSession != null) {
+				ResourceLoader pRb = new ResourceLoader(PERMISSIONS_BUNDLE);
+				HashMap<String, String> pRbValues = new HashMap<String, String>();
+				for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+				{
+					String key = (String) iKeys.next();
+					pRbValues.put(key, (String) pRb.get(key));
+				}
+
+				toolSession.setAttribute("permissionDescriptions", pRbValues); 
+			}
+
+			// Invoke Permissions helper
+			context.redirect(url);
+		}
+		catch (IOException e) {
+			throw new RuntimeException("Failed to redirect to helper", e);
+		}catch (IdUnusedException e){
+			throw new RuntimeException("Failed to redirect to helper", e);
+		}
+		return null;
 	}
 
 	/**

@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
+import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -62,6 +63,7 @@ public class MembershipManagerImpl implements MembershipManager{
   private ToolManager toolManager;
   private SecurityService securityService;
   private PrivacyManager privacyManager;
+  private PrivateMessageManager prtMsgManager;
   
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
   private ResourceLoader rl = new ResourceLoader(MESSAGECENTER_BUNDLE);
@@ -138,12 +140,14 @@ public class MembershipManagerImpl implements MembershipManager{
     
     Set membershipRoleSet = new HashSet();    
     
-    /** generate set of roles which has members */
-    for (Iterator i = allCourseUsers.iterator(); i.hasNext();){
-      MembershipItem item = (MembershipItem) i.next();
-      if (item.getRole() != null){
-        membershipRoleSet.add(item.getRole());
-      }
+    if(getPrtMsgManager().isAllowToFieldRoles()){
+    	/** generate set of roles which has members */
+    	for (Iterator i = allCourseUsers.iterator(); i.hasNext();){
+    		MembershipItem item = (MembershipItem) i.next();
+    		if (item.getRole() != null){
+    			membershipRoleSet.add(item.getRole());
+    		}
+    	}
     }
     
     /** filter member map */
@@ -187,14 +191,16 @@ public class MembershipManagerImpl implements MembershipManager{
     String realmId = getContextSiteId();
     Site currentSite = null;
         
-    /** add all participants */
-    if (includeAllParticipantsMember){
-      MembershipItem memberAll = MembershipItem.getInstance();
-      memberAll.setType(MembershipItem.TYPE_ALL_PARTICIPANTS);
-      //memberAll.setName(MembershipItem.ALL_PARTICIPANTS_DESC);
-      memberAll.setName(rl.getString("all_participants_desc"));
+    if(getPrtMsgManager().isAllowToFieldAllParticipants()){
+    	/** add all participants */
+    	if (includeAllParticipantsMember){
+    		MembershipItem memberAll = MembershipItem.getInstance();
+    		memberAll.setType(MembershipItem.TYPE_ALL_PARTICIPANTS);
+    		//memberAll.setName(MembershipItem.ALL_PARTICIPANTS_DESC);
+    		memberAll.setName(rl.getString("all_participants_desc"));
 
-      returnMap.put(memberAll.getId(), memberAll);
+    		returnMap.put(memberAll.getId(), memberAll);
+    	}
     }
  
     AuthzGroup realm = null;
@@ -213,36 +219,39 @@ public class MembershipManagerImpl implements MembershipManager{
     	LOG.error(e.getMessage(), e);
 	}
         
-    /** handle groups */
-    if (currentSite == null)
-			throw new IllegalStateException("Site currentSite == null!");
-    Collection groups = currentSite.getGroups();    
-    for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();){
-      Group currentGroup = (Group) groupIterator.next();      
-      MembershipItem member = MembershipItem.getInstance();
-      member.setType(MembershipItem.TYPE_GROUP);
-      //member.setName(currentGroup.getTitle() + " Group");
-      member.setName(currentGroup.getTitle() + " " + rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
-      member.setGroup(currentGroup);
-      returnMap.put(member.getId(), member);
+    if(getPrtMsgManager().isAllowToFieldGroups()){
+    	/** handle groups */
+    	if (currentSite == null)
+    		throw new IllegalStateException("Site currentSite == null!");
+    	Collection groups = currentSite.getGroups();    
+    	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();){
+    		Group currentGroup = (Group) groupIterator.next();      
+    		MembershipItem member = MembershipItem.getInstance();
+    		member.setType(MembershipItem.TYPE_GROUP);
+    		//member.setName(currentGroup.getTitle() + " Group");
+    		member.setName(currentGroup.getTitle() + " " + rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
+    		member.setGroup(currentGroup);
+    		returnMap.put(member.getId(), member);
+    	}
     }
-    
-    /** handle roles */
-    if (includeRoles && realm != null){
-      Set roles = realm.getRoles();
-      for (Iterator roleIterator = roles.iterator(); roleIterator.hasNext();){
-        Role role = (Role) roleIterator.next();
-        MembershipItem member = MembershipItem.getInstance();
-        member.setType(MembershipItem.TYPE_ROLE);
-        String roleId = role.getId();
-        if (roleId != null && roleId.length() > 0){
-          roleId = roleId.substring(0,1).toUpperCase() + roleId.substring(1); 
-        }
-//        member.setName(roleId + " Role");
-        member.setName(roleId + " " + rl.getFormattedMessage("participants_role_desc",new Object[]{roleId}));        
-        member.setRole(role);
-        returnMap.put(member.getId(), member);
-      }
+    if(getPrtMsgManager().isAllowToFieldRoles()){
+    	/** handle roles */
+    	if (includeRoles && realm != null){
+    		Set roles = realm.getRoles();
+    		for (Iterator roleIterator = roles.iterator(); roleIterator.hasNext();){
+    			Role role = (Role) roleIterator.next();
+    			MembershipItem member = MembershipItem.getInstance();
+    			member.setType(MembershipItem.TYPE_ROLE);
+    			String roleId = role.getId();
+    			if (roleId != null && roleId.length() > 0){
+    				roleId = roleId.substring(0,1).toUpperCase() + roleId.substring(1); 
+    			}
+    			//        member.setName(roleId + " Role");
+    			member.setName(roleId + " " + rl.getFormattedMessage("participants_role_desc",new Object[]{roleId}));        
+    			member.setRole(role);
+    			returnMap.put(member.getId(), member);
+    		}
+    	}
     }
     
     /** handle users */
@@ -436,5 +445,13 @@ public class MembershipManagerImpl implements MembershipManager{
   {
     this.securityService = securityService;
   }
+
+public PrivateMessageManager getPrtMsgManager() {
+	return prtMsgManager;
+}
+
+public void setPrtMsgManager(PrivateMessageManager prtMsgManager) {
+	this.prtMsgManager = prtMsgManager;
+}
 
 }

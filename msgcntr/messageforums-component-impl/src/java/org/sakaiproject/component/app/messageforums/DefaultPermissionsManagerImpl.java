@@ -54,6 +54,15 @@ public class DefaultPermissionsManagerImpl
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_EMAIL)) {
          functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_EMAIL);
      }
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS);
+     }
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS);
+     }
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES);
+     }
 
      
      

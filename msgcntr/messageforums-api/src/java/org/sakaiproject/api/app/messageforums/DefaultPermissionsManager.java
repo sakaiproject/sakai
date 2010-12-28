@@ -42,6 +42,13 @@ public interface DefaultPermissionsManager
   
   public static final String MESSAGE_FUNCTION_PREFIX="msg.";
   public static final String MESSAGE_FUNCTION_EMAIL= MESSAGE_FUNCTION_PREFIX +"emailout";
+  //unfortunately, emailout was implemented illogically with how realms is supposed to work,
+  //so by adding a "permssions extension to the prefix, we can expose the realm permissions w/o exposing
+  //emailout
+  public static final String MESSAGE_FUNCITON_PREFIX_PERMISSIONS = "permissions.";
+  public static final String MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS = MESSAGE_FUNCTION_PREFIX + MESSAGE_FUNCITON_PREFIX_PERMISSIONS + "allowToField.groups";
+  public static final String MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS = MESSAGE_FUNCTION_PREFIX + MESSAGE_FUNCITON_PREFIX_PERMISSIONS + "allowToField.allParticipants";
+  public static final String MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES = MESSAGE_FUNCTION_PREFIX + MESSAGE_FUNCITON_PREFIX_PERMISSIONS + "allowToField.roles";
   
   
   // control permissions

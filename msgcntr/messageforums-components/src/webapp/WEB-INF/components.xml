@@ -428,6 +428,9 @@
 		 	    <property name="privacyManager">
 					<ref bean="org.sakaiproject.api.privacy.PrivacyManager" />
 		        </property>
+		        <property name="prtMsgManager">
+		        	<ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager" />
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">

@@ -189,6 +189,10 @@ public interface PrivateMessageManager {
     
     public boolean isEmailPermit();
     
+    public boolean isAllowToFieldGroups();
+    public boolean isAllowToFieldAllParticipants();
+    public boolean isAllowToFieldRoles();
+    
     public PrivateMessage getNextMessage(PrivateMessage message);
     public PrivateMessage getPreviousMessage(PrivateMessage message);
     public boolean hasPreviousMessage(PrivateMessage message);

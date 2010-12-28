@@ -43,6 +43,7 @@ import org.hibernate.Session;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -1630,6 +1631,58 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     }
     if (user != null)
       return SecurityService.unlock(user, "msg.emailout", getContextSiteId());
+    else
+      return false;
+  }
+  
+  
+  public boolean isAllowToFieldGroups() {
+	  LOG.debug("isAllowToFieldGroups()");
+	  return isAllowToFieldGroups(UserDirectoryService.getCurrentUser());
+  }
+  
+  private boolean isAllowToFieldGroups(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToFieldGroups(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS, getContextSiteId());
+    else
+      return false;
+  }
+  
+  public boolean isAllowToFieldAllParticipants() {
+	  LOG.debug("isAllowToFieldAllParticipants()");
+	  return isAllowToFieldAllParticipants(UserDirectoryService.getCurrentUser());
+  }
+  
+  private boolean isAllowToFieldAllParticipants(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToFieldAllParticipants(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ALL_PARTICIPANTS, getContextSiteId());
+    else
+      return false;
+  }
+  
+  public boolean isAllowToFieldRoles() {
+	  LOG.debug("isAllowToFieldRoles()");
+	  return isAllowToFieldRoles(UserDirectoryService.getCurrentUser());
+  }
+  
+  private boolean isAllowToFieldRoles(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToFieldRoles(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES, getContextSiteId());
     else
       return false;
   }
