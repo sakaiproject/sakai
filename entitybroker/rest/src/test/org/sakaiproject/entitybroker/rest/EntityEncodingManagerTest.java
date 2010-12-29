@@ -153,13 +153,18 @@ public class EntityEncodingManagerTest extends TestCase {
         map.put("C&3", "minerva three");
         map.put("B 2", "becky two");
         ed = new EntityData(map);
+        /* fixed in 0.9.15 reflectutils
         try {
             entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
             fail("Could not encode spaces");
         } catch (UnsupportedOperationException e) {
             assertNotNull(e.getMessage());
-        }
-
+        }*/
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains("aaron one"));
+        assertTrue(encoded.contains("becky two"));
+        assertTrue(encoded.contains("minerva three"));
     }
 
     /**
