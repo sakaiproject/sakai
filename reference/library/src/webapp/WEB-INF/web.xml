@@ -20,4 +20,40 @@
 			org.sakaiproject.util.ContextLoaderListener</listener-class>
 	</listener>
 
+    <!--  Definition of Request header filter that will add cache information to the responses -->
+	<filter>
+		<description>Response Header Filter to enable caching</description>
+		<display-name>Cache Filter For One Week</display-name>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<filter-class>org.sakaiproject.util.ResponseHeaderFilter</filter-class>
+		<init-param>
+			<param-name>Cache-Control</param-name>
+			<param-value>max-age=2678400, public</param-value>
+		</init-param>
+	</filter>
+	
+	<!--  cache everything in the library web applications -->
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>	
+	<!-- 
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/skin/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/image/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/js/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/editor/*</url-pattern>
+	</filter-mapping>	
+	 -->
+	 
 </web-app>
