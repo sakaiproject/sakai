@@ -348,7 +348,8 @@ public class FormattedText
 			// opportunity to work around the issue, rather than causing a tool stack trace
 			
 			M_log.warn("Unexpected error processing text", e);
-			errorMessages.append("Unknown error processing text markup\n");
+			ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+			errorMessages.append(rl.getString("unknown_error_markup"));
 			return null;
 		}
 
@@ -814,9 +815,8 @@ public class FormattedText
 			Matcher fullTag = M_patternTagPieces.matcher(realTag);
 			if (fullTag.matches() && fullTag.groupCount() > 2)
 			{
-				errorMessages.append("The HTML tag '" + fullTag.group(1)
-						+ fullTag.group(fullTag.groupCount())
-						+ "' is not allowed in formatted text.\n");
+				ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+				errorMessages.append(rl.getFormattedMessage("", new Object[]{fullTag.group(1) + fullTag.group(fullTag.groupCount())}));
 			}
 		}
 
@@ -884,7 +884,8 @@ public class FormattedText
 
 		if (leftOvers != null && leftOvers.trim().length() > 1)
 		{
-			errorMessages.append("The HTML attribute pattern '" + leftOvers + "' is not allowed\n");
+			ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+			errorMessages.append(rl.getFormattedMessage("html_attribute_pattern_not_allowed", new Object[]{leftOvers}));
 		}
 
 		buf.append(close);
@@ -931,7 +932,8 @@ public class FormattedText
 	                        }
 	                        if (foundEvil) {
                                 //System.err.println("AZ: tag="+tag+",content="+content);
-                                errorMessages.append("This embed tag src attribute value contains dangerous content ("+content+"), src attribute will be removed\n");
+	                        	ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+	                        	errorMessages.append(rl.getFormattedMessage("embed_tag_contains_dangerous_content", new Object[]{content}));
                                 pass = false;
 	                        }
 	                    }
