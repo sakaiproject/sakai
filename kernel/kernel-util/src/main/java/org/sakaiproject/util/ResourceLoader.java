@@ -372,38 +372,50 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	/**
 	 * Return string value for specified property in current locale specific ResourceBundle
 	 * 
-	 * @param key
-	 *        property key to look up in current ResourceBundle * *
+	 * @param key property key to look up in current ResourceBundle
 	 * @return String value for specified property key
-	 *
-	 * @author Sugiura, Tatsuki (University of Nagoya)
-	 * @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
-	 *
 	 */
 	public String getString(String key)
 	{
-		if ( getLocale().toString().equals(DEBUG_LOCALE) )
-			return formatDebugPropertiesString( key );
-			
-		try
-		{
-			String value = getBundle().getString(key);
-			if (M_log.isDebugEnabled()) {
-				M_log.debug("getString(key) bundle name=" + this.baseName +
-					", locale=" + getLocale().toString() + ", key=" +
-					key + ", value=" + value);
-			}
-			return value;
+	    if ( getLocale().toString().equals(DEBUG_LOCALE) ) {
+	        return formatDebugPropertiesString( key );
+	    }
 
-		}
-		catch (MissingResourceException e)
-		{
-			if (M_log.isWarnEnabled()) {
-				M_log.warn("bundle \'"+baseName +"\'  missing key: \'" + key 
-						+ "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
-			}
-			return "[missing key: " + baseName + " " + key + "]";
-		}
+	    try
+	    {
+	        String value = getBundle().getString(key);
+	        if (M_log.isDebugEnabled()) {
+	            M_log.debug("getString(key) bundle name=" + this.baseName +
+	                    ", locale=" + getLocale().toString() + ", key=" +
+	                    key + ", value=" + value);
+	        }
+	        return value;
+
+	    }
+	    catch (MissingResourceException e)
+	    {
+	        if (M_log.isWarnEnabled()) {
+	            M_log.warn("bundle \'"+baseName +"\'  missing key: \'" + key 
+	                    + "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
+	        }
+	        return "[missing key (mre): " + baseName + " " + key + "]";
+	    }
+	    catch (NullPointerException e)
+	    {
+	        if (M_log.isWarnEnabled()) {
+	            M_log.warn("bundle \'"+baseName +"\'  null pointer exception: \'" + key 
+	                    + "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
+	        }
+	        return "[missing key (npe): " + baseName + " " + key + "]";			
+	    }
+	    catch (ClassCastException e)
+	    {
+	        if (M_log.isWarnEnabled()) {
+	            M_log.warn("bundle \'"+baseName +"\'  class cast exception: \'" + key 
+	                    + "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
+	        }
+	        return "[missing key (clc): " + baseName + " " + key + "]";						
+	    }
 	}
 
 	/**
@@ -417,17 +429,25 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	public String getString(String key, String dflt)
 	{
-		if ( getLocale().toString().equals(DEBUG_LOCALE) )
-			return formatDebugPropertiesString( key );
-			
-		try
-		{
-			return getBundle().getString(key);
-		}
-		catch (MissingResourceException e)
-		{
-			return dflt;
-		}
+	    if ( getLocale().toString().equals(DEBUG_LOCALE) )
+	        return formatDebugPropertiesString( key );
+
+	    try
+	    {
+	        return getBundle().getString(key);
+	    }
+	    catch (MissingResourceException e)
+	    {
+	        return dflt;
+	    }
+	    catch (NullPointerException e)
+	    {
+	        return dflt;
+	    }
+	    catch(ClassCastException e)
+	    {
+	        return dflt;
+	    }
 	}
 
 	/**
