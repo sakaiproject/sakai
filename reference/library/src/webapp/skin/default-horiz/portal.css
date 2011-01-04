@@ -379,7 +379,6 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	filter:alpha(opacity=70);
 	color:#000;
 	opacity: 0.70;
-	-moz-opacity: 0.70;
 	text-decoration:none
 }
 

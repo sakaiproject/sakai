@@ -377,7 +377,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	filter:alpha(opacity=70);
 	color:#000;
 	opacity: 0.70;
-	-moz-opacity: 0.70;
 	text-decoration:none
 }
 /*span shim for fine grained manipulation of link display (decorative)

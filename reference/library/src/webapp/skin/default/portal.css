@@ -531,7 +531,6 @@ html>body .dhtml_more_tabs {
 	left:0;
 	filter:alpha(opacity=50);
 	opacity: 0.50;
-	-moz-opacity: 0.50;
 }
 
 /*block in case need to display any decorative element above or below the .tabHolder block*/
@@ -579,7 +578,6 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	filter:alpha(opacity=70);
 	color:#000;
 	opacity: 0.70;
-	-moz-opacity: 0.70;
 	text-decoration:none
 }
 
@@ -607,14 +605,14 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 }
 
 #toolMenu li a.selected,
-#subSites li a:selected{
+#subSites li a.selected{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
 }
 
 #toolMenu li a.selected:hover,
-#subSites li a:selected:hover{
+#subSites li a.selected:hover{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
@@ -1257,7 +1255,6 @@ div#privacy_overlay {
 	height: 100%;
 	background-color: #000;
 	filter:alpha(opacity=70);
-	-moz-opacity: 0.7;
 	opacity: 0.7;
    z-index: 0;
 }
