@@ -49,7 +49,7 @@
 	      </tr>
 		  <tr>  <!-- ****** Date ****** -->
       		<td class="reqStarInline">*</td>
-	      	<td><h:outputText value="#{msgs.date_prompt}" />&nbsp;&nbsp;&nbsp;</td>
+	      	<td><label for="podAdd:addDate"><h:outputText value="#{msgs.date_prompt}" /></label>&nbsp;&nbsp;&nbsp;</td>
 			<td>
 	      		<podcasts:datePicker value="#{podHomeBean.date}" id="addDate" size="28" />
 	  			<h:outputText value="#{msgs.date_picker_format_string}" />
@@ -63,17 +63,17 @@
  	  	  </tr>
 		  <tr>  <!-- ****** Title ****** -->
 		    <td class="reqStarInline">*</td>
-		    <td><h:outputText value="#{msgs.title_prompt}" /></td>
+		    <td><label for="podAdd:podtitle"><h:outputText value="#{msgs.title_prompt}" /></label></td>
 	 	  	<td><h:inputText id="podtitle" value="#{podHomeBean.title}" size="35" maxlength="255" /></td>
 	 	  </tr>
 	 	  <tr>
 			<td colspan="3"><h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" /></td>
 	      </tr>
           <tr> <!-- ****** Description ****** -->
-      		<td colspan="2"><h:outputText value="#{msgs.description_prompt}" /></td>
+      		<td colspan="2"><label for="podAdd:poddescription"><h:outputText value="#{msgs.description_prompt}" /></label></td>
       	  </tr>
       	  <tr>
-	        <td colspan="3"><h:inputTextarea value="#{podHomeBean.description}" rows="6" cols="80" /></td>
+	        <td colspan="3"><h:inputTextarea id="poddescription" value="#{podHomeBean.description}" rows="6" cols="80" /></td>
     	  </tr>
 		</table>
 
