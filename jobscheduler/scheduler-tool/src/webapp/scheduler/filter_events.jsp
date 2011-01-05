@@ -3,7 +3,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
-<f:loadBundle basename="org.sakaiproject.tool.scheduler.bundle.Messages" var="msgs"/>
 
 
 <f:view>
@@ -16,7 +15,7 @@
 	  <h:form id="filterForm">
           <script type="text/javascript" src="calendar/popcalendar.js"></script>
           <link href="calendar/theme.css" rel="stylesheet" type="text/css" />
-  	    <h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>
+  	    <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
 
         <sakai:panel_titled>
             <h1><h:outputText value="#{msgs.filter_title}"/></h1>

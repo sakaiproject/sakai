@@ -3,7 +3,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
-<f:loadBundle basename="org.sakaiproject.tool.scheduler.bundle.Messages" var="msgs"/>
 
 <f:view>
 	<sakai:view_container title="#{msgs.title_job}">

@@ -51,6 +51,7 @@ import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.events.TriggerEventManager;
 import org.sakaiproject.component.app.scheduler.JobDetailWrapperImpl;
 import org.sakaiproject.component.app.scheduler.TriggerWrapperImpl;
+import org.sakaiproject.util.ResourceLoader;
 
 public class SchedulerTool
 {
@@ -79,7 +80,7 @@ public class SchedulerTool
   private Map<String, String> configurableJobResources;
   private List<ConfigurablePropertyWrapper> configurableJobProperties;
   private JobDetail jobDetail;
-  private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.scheduler.bundle.Messages");
+  private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.scheduler.bundle.Messages");
   private TriggerWrapper triggerWrapper = null;
 
   private TriggerEventManager
@@ -1119,8 +1120,8 @@ public class SchedulerTool
                   final List<ConfigurablePropertyWrapper>
                       properties = getConfigurableProperties();
 
-                  final ResourceBundle
-                      jobRb = ResourceBundle.getBundle(configurableJob.getResourceBundleBase());
+                  final ResourceLoader
+                      jobRb = new ResourceLoader(configurableJob.getResourceBundleBase());
 
                   final ConfigurableJobPropertyValidator
                       validator = configurableJob.getConfigurableJobPropertyValidator();

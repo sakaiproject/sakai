@@ -3,12 +3,11 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ include file="security_static_include.jsp"%>
 
-<f:loadBundle basename="org.sakaiproject.tool.scheduler.bundle.Messages" var="msgs"/>
 
 <f:view>
 	<sakai:view_container title="#{msgs.title_job}">		
 	  <h:form>
-  	  <h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>      
+  	  <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by}" Quartz/>      
    	  <sakai:view_content>
     	  <h:outputText value="#{msgs.select_triggers_first}" styleClass="alertMessage" rendered="#{empty schedulerTool.filteredTriggersWrapperList}"/>    	        
   	    <h:dataTable rendered="#{!empty schedulerTool.filteredTriggersWrapperList}" value="#{schedulerTool.filteredTriggersWrapperList}" var="triggers" styleClass="chefFlatListViewTable" >

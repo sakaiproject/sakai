@@ -3,7 +3,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ page isErrorPage="true" %>
 
-<f:loadBundle basename="org.sakaiproject.tool.scheduler.bundle.Messages" var="msgs"/>
 
 <f:view>
 	<sakai:view_container>		

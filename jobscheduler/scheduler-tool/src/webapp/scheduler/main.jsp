@@ -4,12 +4,11 @@
 <%@ include file="security_static_include.jsp"%>
                                                                                                       
                  
-<f:loadBundle basename="org.sakaiproject.tool.scheduler.bundle.Messages" var="msgs"/>
 
 <f:view>
 	<sakai:view_container title="#{msgs.title_job}">		
 	  <sakai:view_content>
-    	<h:graphicImage value="/images/quartz.jpg" alt="Powered By Quartz"/>
+    	<h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
 	    <h:form>  	  
   	    <sakai:tool_bar>
  			    <sakai:tool_bar_item
