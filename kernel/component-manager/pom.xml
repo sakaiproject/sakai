@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/component-manager</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/component-manager</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635/component-manager</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/component-manager</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/component-manager</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/component-manager</url>
   </scm>
 
   <packaging>jar</packaging>

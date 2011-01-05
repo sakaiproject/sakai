@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2008</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/deploy/assembly</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/deploy/assembly</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635/deploy/assembly</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/assembly</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/assembly</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/assembly</url>
   </scm>
   <packaging>pom</packaging>
   <dependencies>

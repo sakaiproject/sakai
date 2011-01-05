@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/kernel-private</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/kernel-private</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635/kernel-private</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-private</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-private</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-private</url>
   </scm>
 
   <packaging>jar</packaging>

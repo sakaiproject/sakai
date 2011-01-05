@@ -12,9 +12,9 @@
   <artifactId>loader</artifactId>
   <version>1.3.0-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/loader</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/loader</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635/loader</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/loader</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/loader</url>
   </scm>
 
   <packaging>war</packaging>
