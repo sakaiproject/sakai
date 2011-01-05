@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-common</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/kernel-common</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/kernel-common</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635/kernel-common</url>
   </scm>
 
   <packaging>jar</packaging>

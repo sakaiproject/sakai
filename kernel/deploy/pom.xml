@@ -12,9 +12,9 @@
   <artifactId>deploy</artifactId>
   <version>1.3.0-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/deploy</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635/deploy</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635/deploy</url>
   </scm>
 
   <packaging>pom</packaging>

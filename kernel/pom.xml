@@ -366,12 +366,12 @@
     </contributors>
     <scm>
         <connection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635
 		</connection>
         <developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/branches/KNL-635
 		</developerConnection>
-        <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+        <url>https://source.sakaiproject.org/svn/kernel/branches/KNL-635</url>
     </scm>
     <distributionManagement>
         <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
