@@ -120,12 +120,12 @@ site types are a local setting - adjust */
 }
 #footerLinks li{
 	margin:0;
-	border-right:1px solid #ccc;
+	border-left:1px solid #ccc;
 	display: inline;
 	list-style-type: none;
 	padding:0;
 }
-#footerLinks li:last-child{
+#footerLinks li:first-child{
 	border:none;
 }
 
@@ -605,14 +605,14 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 }
 
 #toolMenu li a.selected,
-#subSites li a:selected{
+#subSites li a.selected{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
 }
 
 #toolMenu li a.selected:hover,
-#subSites li a:selected:hover{
+#subSites li a.selected:hover{
 	text-decoration: none;
 	color: #000;
 	cursor: text;

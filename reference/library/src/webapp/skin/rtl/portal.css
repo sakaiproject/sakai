@@ -111,12 +111,12 @@ site types are a local setting - adjust */
 }
 #footerLinks li{
 	margin:0;
-	border-right:1px solid #ccc;
+	border-left:1px solid #ccc;
 	display: inline;
 	list-style-type: none;
 	padding:0;
 }
-#footerLinks li:last-child{
+#footerLinks li:first-child{
 	border:none;
 }
 

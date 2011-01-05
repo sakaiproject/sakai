@@ -381,7 +381,7 @@ html {
     border-width: 6px;
 	text-decoration: none;
 }
-.logoutLink:active, .loginLink:active, .switch-link:active,.logoutLink:focus, .loginLink:focus, .switch-link:focus,{
+.logoutLink:active, .loginLink:active, .switch-link:active,.logoutLink:focus, .loginLink:focus, .switch-link:focus{
     	text-decoration: none !important;
     }
 #pda-portlet-site-menu li, #pda-portlet-page-menu li{
