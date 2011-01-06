@@ -772,6 +772,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String STATE_SEARCH = "state_search";
 	private static final String FORM_SEARCH = "form_search";
 	
+	private static final String STATE_DOWNLOAD_URL = "state_download_url";
+	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
@@ -2776,6 +2778,14 @@ public class AssignmentAction extends PagedResourceActionII
 			// other types of submissions
 			context.put("form_action", "eventSubmit_doSet_defaultNoSubmissionScore");
 			context.put("form_label", rb.getFormattedMessage("non.submission.grade", new Object[]{state.getAttribute(STATE_NUM_MESSAGES)}));
+		}
+		
+		// show the reminder for download all url
+		String downloadUrl = (String) state.getAttribute(STATE_DOWNLOAD_URL);
+		if (downloadUrl != null)
+		{
+			context.put("download_url_reminder", rb.getFormattedMessage("download_url_reminder", new Object[]{downloadUrl}));
+			state.removeAttribute(STATE_DOWNLOAD_URL);
 		}
 		
 		String template = (String) getContext(data).get("template");
@@ -11780,6 +11790,9 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		ParameterParser params = data.getParameters();
+		String downloadUrl = params.getString("downloadUrl");
+		state.setAttribute(STATE_DOWNLOAD_URL, downloadUrl);
 		cleanUploadAllContext(state);
 	}
 	
