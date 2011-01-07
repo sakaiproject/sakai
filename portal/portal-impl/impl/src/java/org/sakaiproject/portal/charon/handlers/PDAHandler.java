@@ -229,6 +229,12 @@ public class PDAHandler extends PageHandler
 				bufferContent(req, res, session, parts, toolId, rcontext);
 
 				portal.sendResponse(rcontext, res, "pda", null);
+				
+				try{
+					boolean presenceEvents = ServerConfigurationService.getBoolean("presence.events.log", true);
+					if (presenceEvents)
+						org.sakaiproject.presence.cover.PresenceService.setPresence(siteId + "-presence");
+				}catch(Exception e){}
 				return END;
 			}
 			catch (Exception ex)
