@@ -39,6 +39,7 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -76,6 +77,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	protected ProfileWallLogic wallLogic;
 	
 	Link<Void> myPicturesLink;
 	Link<Void> myProfileLink;

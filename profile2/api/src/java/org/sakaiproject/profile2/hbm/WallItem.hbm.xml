@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="WallItem" table="PROFILE_WALL_ITEMS_T">
+
+	    <id name="id" >
+	      <column name="WALL_ITEM_ID" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">WALL_ITEMS_S</param>
+			</generator>
+	    </id>
+	   	
+		<property name="creatorUuid" column="CREATOR_UUID" length="99" not-null="true" />
+		<property name="type" column="TYPE" not-null="true" />
+		<property name="text" column="TEXT" type="string" length="4000" not-null="true" />
+		<property name="date" column="DATE" not-null="true" />
+	
+  	</class>
+  		
+</hibernate-mapping>

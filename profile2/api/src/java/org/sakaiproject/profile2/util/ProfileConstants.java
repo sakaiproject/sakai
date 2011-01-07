@@ -66,7 +66,6 @@ public class ProfileConstants {
 	//gallery-related constants
 	public static final String GALLERY_IMAGE_MAIN = "images";
 	public static final String GALLERY_IMAGE_THUMBNAILS = "thumbnails";
-	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "gallery.image.upload";
 	public static final String GALLERY_IMAGE_DEFAULT_DESCRIPTION = "Gallery image";
 	public static final int MAX_GALLERY_IMAGE_XY = 575;
 	public static final int MAX_GALLERY_THUMBNAIL_IMAGE_XY = 125;
@@ -267,11 +266,18 @@ public class ProfileConstants {
 	//email constants
 	public static final String EMAIL_NEWLINE = "<br />\n";
 	
-	//tabs
+	/*
+	 * TABS
+	 */
 	public static final String TAB_COOKIE = "profile2-tab";
 	public static final int TAB_INDEX_PROFILE = 0;
 	public static final int TAB_INDEX_WALL = 1;
 	
+	/*
+	 * WALL 
+	 */
+	public static final int WALL_ITEM_TYPE_EVENT = 0;
+	public static final int WALL_ITEM_TYPE_STATUS = 1;
 	
 	/*
 	 * EVENTS
@@ -314,6 +320,8 @@ public class ProfileConstants {
 	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
 
 	public static final String EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE = "profile.socialnetworking.update";
+	
+	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "profile.gallery.image.upload";
 	
 	
 	/*

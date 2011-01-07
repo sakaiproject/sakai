@@ -21,6 +21,7 @@
 	       	<mapping resource="org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml" />
 			<mapping resource="org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml" />
 			<mapping resource="org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml" />
-			
+			<mapping resource="org/sakaiproject/profile2/hbm/Wall.hbm.xml" />
+			<mapping resource="org/sakaiproject/profile2/hbm/WallItem.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

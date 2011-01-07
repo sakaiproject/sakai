@@ -59,6 +59,8 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * Main gallery component for viewing the current user's picture gallery.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public class MyPictures extends BasePage {
 
@@ -355,6 +357,11 @@ public class MyPictures extends BasePage {
 						ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD,
 						"/profile/" + sakaiProxy.getCurrentUserId(), true);
 
+				// post to walls if wall enabled
+				if (true == sakaiProxy.isWallEnabledGlobally()) {
+					wallLogic.addEventToWalls(ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD, sakaiProxy.getCurrentUserId());
+				}
+				
 				setResponsePage(new MyPictures(gridView.getPageCount()));
 
 			}

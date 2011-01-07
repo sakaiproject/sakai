@@ -147,11 +147,12 @@
     <bean id="org.sakaiproject.profile2.logic.ProfileWallLogic"
     	class="org.sakaiproject.profile2.logic.ProfileWallLogicImpl">
     		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
     		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
         	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
     </bean>
-    	
+	
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
     	class="org.sakaiproject.profile2.cache.CacheManagerImpl">
@@ -180,6 +181,8 @@
 	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/Wall.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/WallItem.hbm.xml</value>
 	      </list>
 	    </property>
 

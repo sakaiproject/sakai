@@ -19,6 +19,8 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.model.Wall;
+import org.sakaiproject.profile2.model.WallItem;
 
 /**
  * Internal DAO Interface for Profile2.
@@ -496,6 +498,39 @@ public interface ProfileDao {
 	 */
 	public boolean updateExternalIntegrationInfo(ExternalIntegrationInfo info);
 	
+	/**
+	 * Adds a wall item for the specified user.
+	 * 
+	 * @param userUuid the user ID.
+	 * @param item the wall item to add.
+	 * @return <code>true</code> on success, <code>false</code> on failure.
+	 */
+	public boolean addNewWallItemForUser(final String userUuid, final WallItem item);
+	
+	/**
+	 * Retrieves the wall for the specified user.
+	 * 
+	 * @param userUuid the user ID.
+	 * @return the wall for the specified user.
+	 */
+	public Wall getWallItemsForUser(final String userUuid);
+	
+	/**
+	 * Returns the number of available wall items for the specified user.
+	 *  
+	 * @param userUuid the user ID.
+	 * @return the number of available wall items for the specified user.
+	 */
+	public int getWallItemsCount(final String userUuid);
+	
+	/**
+	 * Saves a wall.
+	 * 
+	 * @param wall the wall to save.
+	 * @return <code>true</code> if the save is successful, <code>false</code>
+	 *         if the save is unsuccessful.
+	 */
+	public boolean saveWallForUser(Wall wall);
 	
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
@@ -558,6 +593,10 @@ public interface ProfileDao {
 	//from ExternalIntegrationInfo.hbm.xml
 	final String QUERY_GET_EXTERNAL_INTEGRATION_INFO="getExternalIntegrationInfo";
 	
+	//from
+	final String QUERY_GET_WALL = "getWall";
+	final String QUERY_GET_WALL_ITEMS = "getWallItems";
+	final String QUERY_GET_WALL_ITEMS_COUNT = "getWallItemsCount";
 	
 	// Hibernate object fields
 	final String USER_UUID = "userUuid";

@@ -21,22 +21,19 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 
 /**
  * Container for viewing the wall of someone else.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public class ViewWallPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
-	protected ProfilePrivacyLogic privacyLogic;
-	
+		
 	public ViewWallPanel(String panelId, String userUuid,
 			String currentUserUuid, ProfilePrivacy privacy, boolean friend) {
 

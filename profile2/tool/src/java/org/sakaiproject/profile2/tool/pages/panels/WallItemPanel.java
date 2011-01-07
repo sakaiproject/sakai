@@ -19,25 +19,35 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * Wall item container.
+ * 
+ * TODO may make different WallItemPanel types for different wall item types.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public class WallItemPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
+	
 	public WallItemPanel(String id, WallItem wallItem) {
 		super(id);
 
 		// image wrapper, links to profile
-		Link<String> wallItemPhoto = new Link<String>(
-				"wallItemPhotoWrap", new Model<String>(wallItem
-						.getCreatorUuid())) {
+		Link<String> wallItemPhoto = new Link<String>("wallItemPhotoWrap",
+				new Model<String>(wallItem.getCreatorUuid())) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -47,8 +57,8 @@ public class WallItemPanel extends Panel {
 		};
 
 		// image
-		wallItemPhoto.add(new ProfileImageRenderer("wallItemPhoto",
-				wallItem.getCreatorUuid()));
+		wallItemPhoto.add(new ProfileImageRenderer("wallItemPhoto", wallItem
+				.getCreatorUuid()));
 		add(wallItemPhoto);
 
 		// name and link to profile
@@ -63,14 +73,19 @@ public class WallItemPanel extends Panel {
 			}
 
 		};
-		wallItemProfileLink.add(new Label("wallItemName", wallItem
-				.getCreatorName()));
+		wallItemProfileLink.add(new Label("wallItemName", sakaiProxy
+				.getUserDisplayName(wallItem.getCreatorUuid())));
 		add(wallItemProfileLink);
 
-		add(new Label("wallItemText", wallItem.getText()));
-		add(new Label("wallItemDate", ProfileUtils
-				.convertDateToString(wallItem.getDate(),
-						"dd MMMMM, kk:mm")));
+		if (ProfileConstants.WALL_ITEM_TYPE_EVENT == wallItem.getType()) {
+			add(new Label("wallItemText", new ResourceModel(wallItem.getText())));
+		} else {
+			add(new Label("wallItemText", wallItem.getText()));
+		}
+		
+		// TODO date has scope for internationalization?
+		add(new Label("wallItemDate", ProfileUtils.convertDateToString(wallItem
+				.getDate(), "dd MMMMM, kk:mm")));
 	}
 
 }

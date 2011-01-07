@@ -27,10 +27,14 @@ public class WallItem implements Serializable, Comparable<WallItem> {
 
 	private static final long serialVersionUID = 1L;
 
+	private long id;
+	
+	// the id of the user who created this wall item
 	private String creatorUuid;
-	private String creatorName;
+	//private String creatorName;
 	private String text;
 	private Date date;
+	private int type;
 	
 	@Override
 	public int compareTo(WallItem wallItem) {

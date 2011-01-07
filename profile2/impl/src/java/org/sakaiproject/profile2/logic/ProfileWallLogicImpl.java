@@ -17,21 +17,66 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
+/**
+ * Implementation of ProfileWallLogic API for Profile2 wall.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
+ */
 public class ProfileWallLogicImpl implements ProfileWallLogic {
-
+	
+	@SuppressWarnings("unused")
+	private static final Logger log = Logger.getLogger(ProfileWallLogic.class);
+		
+	/**
+	 * Creates a new instance of <code>ProfileWallLogicImpl</code>.
+	 */
+	public ProfileWallLogicImpl() {
+		
+	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<WallItem> getWallItems(String userUuid, ProfilePrivacy privacy) {
+	public void addEventToWalls(String event, String userUuid) {
+
+		// get the connections of the creator of this content
+		List<Person> connections = null;
+		connections = connectionsLogic.getConnectionsForUser(userUuid);
+
+		if (null == connections || 0 == connections.size()) {
+			// there are therefore no walls to post event to
+			return;
+		}
+
+		WallItem item = new WallItem();
+
+		item.setCreatorUuid(userUuid);
+		item.setType(ProfileConstants.WALL_ITEM_TYPE_EVENT);
+		item.setDate(new Date());
+		// this string is mapped to a localized resource string in GUI
+		item.setText(event);
+		
+		for (Person connection : connections) {
+			dao.addNewWallItemForUser(connection.getUuid(), item);
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<WallItem> getWallItemsForUser(String userUuid, ProfilePrivacy privacy) {
 
 		if (null == userUuid) {
 			throw new IllegalArgumentException("must provide user id");
@@ -43,24 +88,21 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 					"You must be logged in to make a request for a user's wall items.");
 		}
 
-		List<WallItem> wallItems = new ArrayList<WallItem>();
-
 		if (null == privacy) {
-			return wallItems;
+			return new ArrayList<WallItem>();
 		}
 
 		if (false == StringUtils.equals(userUuid, currentUserUuid)) {
-
 			if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid,
 					privacy, currentUserUuid, connectionsLogic
 							.isUserXFriendOfUserY(userUuid, currentUserUuid))) {
-				return wallItems;
+				return new ArrayList<WallItem>();
 			}
 		}
 
-		// TODO at the moment we only return profile statuses of connections,
-		// but it's planned to add more things to the wall in the future.
-
+		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid).getWallItems();
+		
+		// add in any connection statuses
 		List<Person> connections = connectionsLogic
 				.getConnectionsForUser(userUuid);
 
@@ -93,8 +135,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			if (true == allowedStatus) {
 				
 				WallItem wallItem = new WallItem();
+				wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_STATUS);
 				wallItem.setCreatorUuid(connection.getUuid());
-				wallItem.setCreatorName(connection.getDisplayName());
 				wallItem.setDate(connectionStatus.getDateAdded());
 				wallItem.setText(connectionStatus.getMessage());
 
@@ -110,8 +152,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<WallItem> getWallItems(String userUuid) {
-		return getWallItems(userUuid, privacyLogic
+	public List<WallItem> getWallItemsForUser(String userUuid) {
+		return getWallItemsForUser(userUuid, privacyLogic
 				.getPrivacyRecordForUser(userUuid));
 	}
 	
@@ -146,16 +188,18 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				return 0;
 			}
 		}
-
+				
+		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid).getWallItems();
+		
+		int count = wallItems.size();
+		
 		// connection statuses
 		List<Person> connections = connectionsLogic
 				.getConnectionsForUser(userUuid);
 		
 		if (null == connections || 0 == connections.size()) {
-			return 0;
+			return count;
 		}
-
-		int count = 0;
 		
 		for (Person connection : connections) {
 			
@@ -175,6 +219,12 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 
 		return count;
+	}
+		
+	// internal components
+	private ProfileDao dao;
+	public void setDao(ProfileDao dao) {
+		this.dao = dao;
 	}
 	
 	private ProfilePrivacyLogic privacyLogic;
@@ -197,4 +247,5 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
+		
 }

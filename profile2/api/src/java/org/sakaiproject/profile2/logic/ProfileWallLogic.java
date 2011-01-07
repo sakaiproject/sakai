@@ -22,27 +22,40 @@ import org.sakaiproject.profile2.model.WallItem;
 
 /**
  * Logic interface for the Profile2 wall.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public interface ProfileWallLogic {
 	
 	/**
-	 * Returns the wall items for the specified user. The privacy record will
+	 * Adds the specified event to the walls of the users connected to the
+	 * specified user ID.
+	 * 
+	 * @param event the event to add.
+	 * @param userUuid the ID of the user that created the event.
+	 */
+	public void addEventToWalls(String event, String userUuid);
+	
+	/**
+	 * Returns the wall for the specified user. The privacy record will
 	 * be looked up.
 	 * 
 	 * @param userUuid the user to query by.
-	 * @return the wall items for the specified user.
+	 * @return the wall for the specified user.
 	 */
-	public List<WallItem> getWallItems(String userUuid);
+	public List<WallItem> getWallItemsForUser(String userUuid);
+	//public Wall getWallForUser(String userUuid);
 	
 	/**
-	 * Returns the wall items for the specified user. Privacy settings are used
-	 * to determine if the user is allowed to access the requested wall items.
+	 * Returns the wall for the specified user. Privacy settings are used
+	 * to determine if the user is allowed to access the requested wall.
 	 * 
 	 * @param userUuid the user to query by.
 	 * @param privacy the privacy record for the user.
-	 * @return the wall items for the specified user.
+	 * @return the wall for the specified user.
 	 */
-	public List<WallItem> getWallItems(String userUuid, ProfilePrivacy privacy);
+	public List<WallItem> getWallItemsForUser(String userUuid, ProfilePrivacy privacy);
+	//public Wall getWallForUser(String userUuid, ProfilePrivacy privacy);
 	
 	/**
 	 * Returns the number of available wall items for the specified user. The

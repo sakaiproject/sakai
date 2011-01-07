@@ -28,6 +28,8 @@ import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 
 /**
  * Container for viewing user's own wall.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
  */
 public class MyWallPanel extends Panel {
 

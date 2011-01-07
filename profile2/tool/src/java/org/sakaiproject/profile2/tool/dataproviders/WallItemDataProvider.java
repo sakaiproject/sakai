@@ -25,6 +25,11 @@ import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.models.DetachableWallItemModel;
 
+/**
+ * Data provider for wall items.
+ *
+ * @author d.b.robinson@lancaster.ac.uk
+ */
 public class WallItemDataProvider implements IDataProvider<WallItem> {
 
 	private static final long serialVersionUID = 1L;
@@ -45,8 +50,8 @@ public class WallItemDataProvider implements IDataProvider<WallItem> {
 	@Override
 	public Iterator<? extends WallItem> iterator(int first, int count) {
 
-		return wallLogic.getWallItems(userUuid).subList(first, first + count)
-				.iterator();
+		return wallLogic.getWallItemsForUser(userUuid).subList(first,
+				first + count).iterator();
 	}
 
 	@Override
