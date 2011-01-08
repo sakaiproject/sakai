@@ -422,7 +422,8 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	public GregorianCalendar getCal()
 	{
-		return m_cal;
+		//KNL-637 Calendar is not thread safe so we can't use the shared object
+		return (GregorianCalendar)m_cal.clone();
 	}
 
 	/**
