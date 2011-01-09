@@ -7317,6 +7317,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				// expand folder
 				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				//SAK-19789 its possible for this to be null - DH
+				if (expandedCollections == null)
+				{
+					expandedCollections = new TreeSet<String>();
+					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+				}
 				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
