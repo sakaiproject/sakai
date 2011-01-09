@@ -686,6 +686,12 @@ public class Web
 	 **/
 	public static String cleanHtml( String htmlStr )
 	{
+		//KNL-610 if a null String is passed return to avoid NPE -DH
+		if (htmlStr == null)
+		{
+			return null;
+		}
+		
 		// handle embedded images			
 		htmlStr = htmlStr.replaceAll("<img ", "<img alt='' ");
 			
