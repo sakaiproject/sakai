@@ -66,6 +66,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
@@ -561,7 +562,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
                       if ( assn.equals(assignment) ) found = true;
                 }
                 if ( ! found ) {
-			setErrorMessage(request, rb.getString("error.gradable.badassign") + assignment );
+			setErrorMessage(request, rb.getString("error.gradable.badassign") + 
+				" " + Validator.escapeHtml(assignment));
 			return;
 		}
 	}
