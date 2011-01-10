@@ -9518,13 +9518,14 @@ public class SiteAction extends PagedResourceActionII {
 				if (contactEmail != null) {
 					siteInfo.site_contact_email = contactEmail;
 				}
+				
+				state.setAttribute(FORM_SITEINFO_ALIASES, getSiteReferenceAliasIds(site));
 			}
 			
 			siteInfo.additional = "";
 			state.setAttribute(STATE_SITE_TYPE, siteInfo.site_type);
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 			
-			state.setAttribute(FORM_SITEINFO_ALIASES, getSiteReferenceAliasIds(site));
 			state.setAttribute(FORM_SITEINFO_URL_BASE, getSiteBaseUrl());
 			
 		} catch (Exception e) {
