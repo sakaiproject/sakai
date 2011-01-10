@@ -146,7 +146,14 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 
 		// wall items are comparable and need to be in order
 		Collections.sort(wallItems);
-		return wallItems;
+		
+		// dao limits wall items but we also need to ensure any connection
+		// status updates don't push the number of wall items over limit
+		if (wallItems.size() > ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES) {			
+			return wallItems.subList(0, ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES);
+		} else {
+			return wallItems;
+		}
 	}
 	
 	/**
@@ -217,8 +224,12 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				}
 			}
 		}
-
-		return count;
+				
+		if (count > ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES) {
+			return ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES;
+		} else {
+			return count;
+		}
 	}
 		
 	// internal components

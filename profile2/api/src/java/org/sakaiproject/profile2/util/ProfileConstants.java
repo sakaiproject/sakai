@@ -278,6 +278,9 @@ public class ProfileConstants {
 	 */
 	public static final int WALL_ITEM_TYPE_EVENT = 0;
 	public static final int WALL_ITEM_TYPE_STATUS = 1;
+	// TODO possible candidates for sakai.properties
+	public static final int MAX_WALL_ITEMS_SAVED_PER_USER = 20;
+	public static final int MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES = MAX_WALL_ITEMS_SAVED_PER_USER + 10;
 	
 	/*
 	 * EVENTS

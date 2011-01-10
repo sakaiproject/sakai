@@ -32,6 +32,7 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.Wall;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -1153,12 +1154,16 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 								wall = new Wall();
 								wall.setUserUuid(userUuid);
 							}
+							
+							// limit number of possible wall items
+							if (ProfileConstants.MAX_WALL_ITEMS_SAVED_PER_USER == wall.getWallItems().size()) {
+								wall.getWallItems().remove(0);
+							}
 
 							wall.getWallItems().add(item);
 
 							getHibernateTemplate().save(wall);
 
-							log.info("wall saved for user: " + userUuid);
 							return true;
 						} catch (Exception e) {
 							log.error("failed to save wall for user id "
