@@ -297,6 +297,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					agr.setPointsEarned(newPointsEarned);
 					session.update(agr);
 					changedStudents.add(studentUid);
+					postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
 				}
 			}
 			for (Iterator iter = previouslyUnscoredStudents.iterator(); iter.hasNext(); ) {
@@ -310,6 +311,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					agr.setGraderId(graderId);
 					session.save(agr);
 					changedStudents.add(studentUid);
+					postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
 				}
 			}
 
@@ -374,6 +376,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 							agr.setPointsEarned(null);
 						session.update(agr);
 						changedStudents.add(studentUid);
+                		postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, newPointsEarned);
 					}
 				}
 				for (Iterator iter = previouslyUnscoredStudents.iterator(); iter.hasNext(); ) {
@@ -387,6 +390,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 						agr.setGraderId(graderId);
 						session.save(agr);
 						changedStudents.add(studentUid);
+						postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, Double.valueOf(newPointsEarned));
 					}
 				}
 
@@ -603,18 +607,22 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					// Sync database.
 					session.flush();
 					session.clear();
+            		postUpdateGradeEvent(gradebookUid, asn.getName(), studentUid, newPointsEarned);
 				} else {
 					if(log.isDebugEnabled()) log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
 				}
 				return null;
 			}
 		};
-		if (eventTrackingService != null) {
-			eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+studentUid+"/"+points+"/student");
-		}
 		getHibernateTemplate().execute(hc);
 		if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
+	}
+	
+	private void postUpdateGradeEvent(String gradebookUid, String assignmentName, String studentUid, Double pointsEarned) {
+	    if (eventTrackingService != null) {
+            eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+assignmentName+"/"+studentUid+"/"+pointsEarned+"/student");
+        }
 	}
 
 }

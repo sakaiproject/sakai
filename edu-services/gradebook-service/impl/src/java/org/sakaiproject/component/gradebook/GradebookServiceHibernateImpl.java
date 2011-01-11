@@ -73,6 +73,8 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
+import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
+
 /**
  * A Hibernate implementation of GradebookService.
  */
@@ -83,6 +85,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private GradebookExternalAssessmentService externalAssessmentService;
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
+    
+    private EventTrackingService eventTrackingService;
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
+    }
     
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
@@ -2525,6 +2532,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// Sync database.
 				session.flush();
 				session.clear();
+				
+				postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, Double.valueOf(score));
 				return null;
 			}
 		});
@@ -2612,6 +2621,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    }
 
 	    return categoryDef;
+	}
+	
+	private void postUpdateGradeEvent(String gradebookUid, String assignmentName, String studentUid, Double pointsEarned) {
+	    if (eventTrackingService != null) {
+            eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+assignmentName+"/"+studentUid+"/"+pointsEarned+"/student");
+        }
 	}
 
 	public boolean checkStuendsNotSubmitted(String gradebookUid) {
