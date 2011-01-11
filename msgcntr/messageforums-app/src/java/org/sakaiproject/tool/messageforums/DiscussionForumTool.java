@@ -3405,7 +3405,7 @@ public class DiscussionForumTool
     if(!canUserPostMessage("processDfMsgPost")){
   		//this checks if the conditions are correct for the user to post for the current topic and forum
   		//i.e. currentTopic != null, currentForum isn't locked, ect
-  		gotoMain();
+    	return gotoMain();
     }
     try{
     	forumManager.saveMessage(dMsg);
@@ -3566,7 +3566,7 @@ public class DiscussionForumTool
     if(!canUserPostMessage("processDfMsgSaveDraft")){
   		//this checks if the conditions are correct for the user to post for the current topic and forum
   		//i.e. currentTopic != null, currentForum isn't locked, ect
-  		gotoMain();
+    	return gotoMain();
     }
     try{
     	forumManager.saveMessage(dMsg);
@@ -4147,7 +4147,7 @@ public class DiscussionForumTool
 	  {
 		  LOG.debug("selectedTopic is null in " + methodCalled);
 		  allowedToPost = false;
-	  }else if(!selectedTopic.getIsNewResponse()){
+	  }else if(!selectedTopic.getIsNewResponse() && !selectedTopic.getIsNewResponseToResponse()){
 		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO_POST_THREAD, new Object[]{selectedTopic.getTopic().getTitle()}));
 		  LOG.debug(methodCalled + ": Insufficient privileages for user to post to topic: " + selectedTopic.getTopic().getTitle());
 		  allowedToPost = false;
@@ -4175,7 +4175,7 @@ public class DiscussionForumTool
   	if(!canUserPostMessage("processDfReplyMsgPost")){
   		//this checks if the conditions are correct for the user to post for the current topic and forum
   		//i.e. currentTopic != null, currentForum isn't locked, ect
-  		gotoMain();
+  		return gotoMain();
   	}
   	try{
   		DiscussionTopic topicWithMsgs = (DiscussionTopic) forumManager.getTopicByIdWithMessages(selectedTopic.getTopic().getId());
@@ -4262,7 +4262,7 @@ public class DiscussionForumTool
 	  if(!canUserPostMessage("processDfReplyMsgSaveDraft")){
 		  //this checks if the conditions are correct for the user to post for the current topic and forum
 		  //i.e. currentTopic != null, currentForum isn't locked, ect
-		  gotoMain();
+		  return gotoMain();
 	  }
 	  try{
 
@@ -4385,7 +4385,7 @@ public class DiscussionForumTool
 	if(!canUserPostMessage("processDfMsgRevisedPost")){
 		//this checks if the conditions are correct for the user to post for the current topic and forum
 		//i.e. currentTopic != null, currentForum isn't locked, ect
-		gotoMain();
+		return gotoMain();
 	}
 	try{
 		DiscussionTopic dfTopic = selectedTopic.getTopic();
@@ -4530,7 +4530,7 @@ public class DiscussionForumTool
 	  if(!canUserPostMessage("processDfMsgSaveRevisedDraft")){
 		  //this checks if the conditions are correct for the user to post for the current topic and forum
 		  //i.e. currentTopic != null, currentForum isn't locked, ect
-		  gotoMain();
+		  return gotoMain();
 	  }
 	  try{
 
@@ -4682,7 +4682,7 @@ public class DiscussionForumTool
 	  if(!canUserPostMessage("processDfReplyTopicPost")){
 		  //this checks if the conditions are correct for the user to post for the current topic and forum
 		  //i.e. currentTopic != null, currentForum isn't locked, ect
-		  gotoMain();
+		  return gotoMain();
 	  }
 	  try{
 		  Message dMsg = constructMessage();
@@ -4721,7 +4721,7 @@ public class DiscussionForumTool
 	  if(!canUserPostMessage("processDfReplyTopicSaveDraft'")){
 		  //this checks if the conditions are correct for the user to post for the current topic and forum
 		  //i.e. currentTopic != null, currentForum isn't locked, ect
-		  gotoMain();
+		  return gotoMain();
 	  }
 	  try{
 
