@@ -36,7 +36,7 @@
     });
 </script>
 <span id="toggler" style="display: none">
-<a id="toggleToolMenu" href="#" title="${rloader.sit_toggle_nav}"><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
+<a id="toggleToolMenu" onmouseup="blur()" href="#" title="${rloader.sit_toggle_nav}"><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
 	"${rloader.sit_toggle_nav}"#if (${sakai_nav_minimized}) style="display:none"#end/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_nav}"#if (! ${sakai_nav_minimized}) style="display:none"#end/></a>
 </span>
 #end
