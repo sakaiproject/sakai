@@ -2,21 +2,38 @@
 <emailTemplates>
 	<emailTemplate>
 		<subject>${localSakaiName} Site Notification</subject>
-		<message>Dear ${userName},
+		<message>
+			Dear ${userName},
 
-&lt;#if newNonOfficialAccount == "true" &gt;
-You have been added to the system as a guest user. Your username is ${username}. You will receive your password in a separate email.
-&lt;/#if&gt;
-	
-To access the new site:
+				You have been added to the following ${localSakaiName} site: 
+					${siteName}
+				by ${currentUserName}.
+			
+			&lt;#if newNonOfficialAccount == "true" &gt;
+			&lt;#if hasNonOfficialAccountUrl == "true" &gt;	
+				To get a guest account, open the following site:
+					${nonOfficialAccountUrl}
+				and follow the steps listed.
+			
+			&lt;/#if&gt;
+				Once you have your guest account, you can log in to ${localSakaiName}:
+				
+					1. Open ${localSakaiName}: ${localSakaiURL}
+					2. Click the Login button.
+					3. Type your guest account login and password, and click Login.
+					4. Go to the site, click on the site tab. (You will see two or more tabs in a row across the upper part of the screen.)
+			
+			&lt;#else&gt;		
+				To log in:
 
-1. Open ${localSakaiName}: ${localSakaiURL}
-2. Enter your username and password, and click Login.
-3. Navigate to the site via the course tab or via the "My Active Sites" tab.
-
-</message>
- <locale></locale>
-</emailTemplate>
+					1. Open ${localSakaiName}: ${localSakaiURL}
+					2. Click the Login button.
+					3. Enter your username and password, and click Login.
+					4. Go to the site, click on the site tab. (You will see two or more tabs in a row across the upper part of the screen.)
+			&lt;/#if&gt;
+		</message>
+ 		<locale></locale>
+	</emailTemplate>
 	
 	<emailTemplate>
 		<subject>${localSakaiName} Notificació de lloc

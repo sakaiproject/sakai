@@ -128,6 +128,9 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	    				"ui.service", ""));
 	            replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
 	            replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
+	            String nonOfficialAccountUrl = serverConfigurationService.getString("nonOfficialAccount.url", null);
+	            replacementValues.put("hasNonOfficialAccountUrl", nonOfficialAccountUrl!=null?Boolean.TRUE.toString().toLowerCase():Boolean.FALSE.toString().toLowerCase());
+	            replacementValues.put("nonOfficialAccountUrl",nonOfficialAccountUrl);
 	            replacementValues.put("siteName", siteTitle);
 	            replacementValues.put("productionSiteName", productionSiteName);
 	            replacementValues.put("newNonOfficialAccount", Boolean.valueOf(newNonOfficialAccount).toString().toLowerCase());
