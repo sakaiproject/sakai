@@ -711,7 +711,7 @@ textarea:focus{
 /*inline blob used to indicate progress (see: upload a resource say)
 visibility gets toggled*/
 #submitnotif{
-	background: #fff url(../images/warn-a.gif) .3em .3em no-repeat;
+	background: #fff url(images/warn-a.gif) .3em .3em no-repeat;
 	border: 1px solid #b11;
 	font-family: Verdana,Arial,Helvetica,sans-serif;
 	clear: none;
