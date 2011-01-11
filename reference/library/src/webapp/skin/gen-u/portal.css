@@ -545,7 +545,7 @@ page estate
 
 /*wrapper for all elements of presence display */
 #presenceWrapper{
-	width: 9.65em;
+	width: 100%;
 	margin-top: .5em;
 }
 
@@ -560,7 +560,8 @@ page estate
 #presenceIframe{
 	height: 100px;
 	margin: .3em;
-	width: 8.8em;
+	width: 100%;
+	overflow:auto
 }
 
 /*PART 7 - PORTLETS - children of #content*/
