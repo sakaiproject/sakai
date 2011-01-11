@@ -134,6 +134,16 @@ public class SuTool
 				return "error";
 			}
 		}
+		
+		// don't try to become yourself
+		if (sakaiSession.getUserEid().equals(validatedUserEid)) {
+			confirm = false;
+			message = msgs.getFormattedMessage("already_that_user", new Object[] {username});
+			fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_ERROR, message, message));
+			M_log.warn("[SuTool] Exception: " + message);
+			confirm = false;
+			return "error";
+		}
 
 		if (!confirm)
 		{
