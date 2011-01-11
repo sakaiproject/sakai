@@ -35,28 +35,10 @@
         </init-param>
     </filter>
 
-  <filter-mapping>
-    <filter-name>RemoteHostFilter</filter-name>
-    <servlet-name>SimpleOutcomesServlet</servlet-name>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
-
-  <servlet>
-    <servlet-name>SimpleOutcomesServlet</servlet-name>
-    <servlet-class>org.sakaiproject.blti.SimpleOutcomesServlet</servlet-class>
-  </servlet>
-
   <servlet>
     <servlet-name>ServiceServlet</servlet-name>
     <servlet-class>org.sakaiproject.blti.ServiceServlet</servlet-class>
   </servlet>
-
-  <servlet-mapping>
-    <servlet-name>SimpleOutcomesServlet</servlet-name>
-    <url-pattern>/outcomes/*</url-pattern>
-  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>ServiceServlet</servlet-name>

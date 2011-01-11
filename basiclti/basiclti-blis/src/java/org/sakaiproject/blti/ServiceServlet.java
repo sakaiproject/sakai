@@ -111,7 +111,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 public class ServiceServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(SimpleOutcomesServlet.class);
+	private static Log M_log = LogFactory.getLog(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
 	/**

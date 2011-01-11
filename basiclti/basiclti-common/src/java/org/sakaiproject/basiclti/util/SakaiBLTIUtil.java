@@ -208,13 +208,8 @@ public class SakaiBLTIUtil {
                 	if ( "true".equals(allowOutcomes) && assignment != null ) {
 				setProperty(props,"lis_result_sourcedid", result_sourcedid);  
 	
-				// TODO: Remove this after the switch to Basic Outcomes
-				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_simple_outcome_url",null);
-        			if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/outcomes/";  
-				setProperty(props,"ext_ims_lis_simple_outcome_url", outcome_url);  
-
 				// New Basic Outcomes URL
-				outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
+				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
         			if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
 				setProperty(props,"ext_ims_lis_basic_outcome_url", outcome_url);  
 	
