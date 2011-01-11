@@ -2734,7 +2734,7 @@ public class DiscussionForumTool
 		  if (topic == null)
 				continue;
 //		  TODO: put this logic in database layer
-		  if (topic != null && topic.getDraft().equals(Boolean.FALSE)
+		  if (topic != null && (topic.getDraft().equals(Boolean.FALSE) && topic.getAvailability())
 				  ||isInstructor()
 				  ||SecurityService.isSuperUser()
 				  ||forumManager.isTopicOwner(topic))
