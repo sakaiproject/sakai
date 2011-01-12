@@ -25,9 +25,11 @@
 <body>
 
 <wicket:panel>
-	<a wicket:id="wallItemPhotoWrap">
-		<img class="wall-item-img" wicket:id="wallItemPhoto" />
-	</a>
+	<div wicket:id="wallItemPhotoWrap">
+		<div>
+			<a><img wicket:id="wallItemPhoto" class="wall-item-img" /></a>
+		</div>
+	</div>
 	
 	<div class="wall-item-text-wrap">
    		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		

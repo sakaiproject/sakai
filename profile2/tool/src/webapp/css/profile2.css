@@ -1330,41 +1330,30 @@ main-profile-tabpanel .tab-row a:visited.active,
 
 /* wall-related */
 .wall-wrap {
-	margin-bottom: 12px;
 	width: 500px;
 }
 
 .wall-item {
-	display:block;
-	position: relative;
-	left: 0;
-	top: 0;
-	border-bottom: 1px solid #d0d0df;
-	border-collapse: collapse;
-	height: 110px;
-	padding-top: 5px;
-	/*padding-left: 5px;*/
-	padding-right: 5px;
-	padding-bottom: 5px;
+	clear:left;
+	border-top: 1px solid #d0d0df;
+	padding: 5px;
 	overflow: hidden; /* to crop bigger pictures that might overhang */
 }
 
 .wall-item-img {
-	max-width: 55px;
-	width: 55px;
-   	margin:auto;
+	float: left;
+	max-width: 35px;
+	width: 35px;
    	cursor: pointer;
 }
 
 .wall-item-text-wrap {
-	position: absolute;
-	top: 5px;
-	left: 60px;
+	width: 435px;
+	margin-left: 50px;
 }
 
 .wall-item-date {
-	margin-top: 10px;
-	color: #AAADBA;	
+	color: #AAADBA;
 }
 
 /* close button */
