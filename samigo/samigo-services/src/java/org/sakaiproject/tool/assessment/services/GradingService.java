@@ -1420,7 +1420,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         }catch(NumberFormatException ex){
         	answer1Num =  Float.NaN;
         }
-        log.info("answer1Num= " + answer1Num);
+        log.debug("answer1Num= " + answer1Num);
         if (answer2 != null){
             answer2= answer2.trim().replace(',','.');  // in Spain, comma is used as a decimal point
            }        
@@ -1431,7 +1431,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         	answer2Num =  Float.NaN;
         }
         
-        log.info("answer2Num= " + answer2Num);      
+        log.debug("answer2Num= " + answer2Num);      
         // Can accept increasing and decreasing ranges
         if (answer1Num > answer2Num) {
           float swap = answer1Num;
@@ -1447,7 +1447,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
             	studentAnswerNum =  Float.NaN;
             	//Temporal. Directamente contar\? como mala.
             }
-            log.info("studentAnswerNum= " + studentAnswerNum);  	   
+            log.debug("studentAnswerNum= " + studentAnswerNum);  	   
             if (!(Float.isNaN(studentAnswerNum) || Float.isNaN(answer1Num) || Float.isNaN(answer2Num))){ 	   
             matchresult=((answer1Num <= studentAnswerNum) && (answer2Num >= studentAnswerNum)) ;
           	}
@@ -1465,7 +1465,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       	answerNum =  Float.NaN;
 //      	should not go here
       }
-      log.info("answerNum= " +  answerNum);
+      log.debug("answerNum= " +  answerNum);
       
       
         if (data.getAnswerText() != null){
@@ -1475,7 +1475,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           }catch(NumberFormatException ex){
           	studentAnswerNum =  Float.NaN;
           }
-          log.info("studentAnswerNum= " + studentAnswerNum);  	   
+          log.debug("studentAnswerNum= " + studentAnswerNum);  	   
           if (!(Float.isNaN(studentAnswerNum) || Float.isNaN(answerNum))){ 	   
           matchresult=(answerNum == studentAnswerNum) ;
           }
