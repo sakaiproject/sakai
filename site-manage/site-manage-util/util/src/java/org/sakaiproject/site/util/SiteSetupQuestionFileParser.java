@@ -172,37 +172,35 @@ public class SiteSetupQuestionFileParser
 	   */
 	  protected static  boolean exists(String resourceName)
 	  {
-	    try
-	    {
-	    	String configFolderRef  = getConfigFolderReference();
+	    String configFolderRef  = getConfigFolderReference();
 
 
-	     	if (StringUtil.trimToNull(configFolderRef) != null && StringUtil.trimToNull(resourceName)!=null)
-	    	{
-	     		String referenceName = configFolderRef + resourceName;
+     	if (StringUtil.trimToNull(configFolderRef) != null && StringUtil.trimToNull(resourceName)!=null)
+    	{
+     		String referenceName = configFolderRef + resourceName;
 
-	     		Reference reference = EntityManager.newReference(referenceName);
-	    		if (reference == null) return false;
+     		Reference reference = EntityManager.newReference(referenceName);
+    		if (reference == null) return false;
 
-	    		enableSecurityAdvisor();
-	    		ContentResource resource= null;
-	    		try
-	    		{
-	    			resource = contentHostingService.getResource(reference.getId());
-	    		}
-	    		catch (Exception ee)
-	    		{
-	    			m_log.info("exists(): cannot find resource " + reference.getId() + ee.toString());
-	    		}
-	    		popSecurityAdvisor();
+    		enableSecurityAdvisor();
+    		ContentResource resource= null;
+    		try
+    		{
+    			resource = contentHostingService.getResource(reference.getId());
+    			// as a remind for newly added configuration file
+    			m_log.info("exists(): find new resource " + reference.getId());
+    		}
+    		catch (Exception ee)
+    		{
+    			// the configuration xml file are added, and get read immediately and moved to the config backup folder afterwards. Its contents are stored into database
+    			// so it is normal to find the the configuration xml missing from the original config folder
+    			// this exception is as expected, don't put it into log file
+    		}
+    		popSecurityAdvisor();
 
-	        return (resource != null);
-	    	}
-	    }
-	    catch (Exception exception)
-	    {
-	      m_log.warn("exists() failed find resource: " + exception);
-	    }
+        return (resource != null);
+    	}
+     	
 	    return false;
 	  }
 	  
