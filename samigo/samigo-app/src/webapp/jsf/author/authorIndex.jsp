@@ -122,6 +122,18 @@ $(document).ready(function() {
 		}
 	);
 	
+	$("#authorIndexForm\\:coreAssessments").tablesorter( {
+		sortList: [[1,0]],
+		headers: { 
+            0: { 
+                sorter: false 
+            }, 
+            2: { 
+                sorter: false 
+            }        
+		}
+	});
+	
 	$("#authorIndexForm\\:published-assessments").tablesorter( {
 		sortList: [[2,0], [1,0]],
 		headers: { 
@@ -229,7 +241,7 @@ $(document).ready(function() {
 	</ul>
  <!-- CORE ASSESSMENTS-->
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div id=\"tabs-1\">"/>
-  <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
+  <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="tablesorter" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
     <t:column headerstyleClass="selectAction" styleClass="selectAction">
       <f:facet name="header" >
 	   <h:outputText value="#{authorFrontDoorMessages.select_action}"/>
@@ -258,32 +270,12 @@ $(document).ready(function() {
 
     <t:column headerstyleClass="titlePending" styleClass="titlePending">
       <f:facet name="header">
-  	  <h:panelGroup>
-        <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" id="sortCoreByTitleAction" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy!='title'}">
-  <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort"/>
-          <f:param name="coreSortType" value="title"/>
-          <f:param name="coreAscending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
-        </h:commandLink>
-
-         <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='title' && author.coreAscending }">
-          <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort"/>
-          
-           <f:param name="coreAscending" value="false" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
-             <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortTitleDescending}" rendered="#{author.coreAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{authorFrontDoorMessages.t_sortTitle}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='title'&& !author.coreAscending }">
-  <h:outputText  value="#{authorFrontDoorMessages.assessment_title} " styleClass="currentSort"/>
-           <f:param name="coreAscending" value="true" />
-           <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
-           <h:graphicImage alt="#{authorFrontDoorMessages.alt_sortTitleAscending}" rendered="#{!author.coreAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-         </h:panelGroup>
+  	  	<h:outputText value="#{authorFrontDoorMessages.assessment_title} " />
       </f:facet>
 
       <h:outputText id="assessmentTitle2" value="#{coreAssessment.title}" />
     </t:column>
+    
     <t:column headerstyleClass="lastModified" styleClass="lastModified">
       <f:facet name="header">
         <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
