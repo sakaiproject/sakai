@@ -6401,7 +6401,7 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				String[] joinerRoles = ServerConfigurationService.getStrings("siteinfo.default_joiner_role");
 				Set<Role> roles = site.getRoles();
-				if (roles != null && joinerRoles.length > 0)
+				if (roles != null && joinerRole != null && joinerRoles.length > 0)
 				{
 					// find the role match
 					for (Role r : roles)
@@ -6425,7 +6425,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		catch (Exception e)
 		{
-			M_log.warn(this + " doMenu_edit_site_access problem of getting site");
+			M_log.warn(this + " doMenu_edit_site_access problem of getting site" + e.getMessage());
 		}
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "18");
