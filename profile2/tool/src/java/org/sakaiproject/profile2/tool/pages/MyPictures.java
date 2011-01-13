@@ -356,15 +356,14 @@ public class MyPictures extends BasePage {
 				sakaiProxy.postEvent(
 						ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD,
 						"/profile/" + sakaiProxy.getCurrentUserId(), true);
-
-				// post to walls if wall enabled
-				if (true == sakaiProxy.isWallEnabledGlobally()) {
-					wallLogic.addEventToWalls(ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD, sakaiProxy.getCurrentUserId());
-				}
-				
-				setResponsePage(new MyPictures(gridView.getPageCount()));
-
 			}
+			
+			// post to walls if wall enabled
+			if (true == sakaiProxy.isWallEnabledGlobally()) {
+				wallLogic.addEventToWalls(ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD, sakaiProxy.getCurrentUserId());
+			}
+			
+			setResponsePage(new MyPictures(gridView.getPageCount()));
 		}
 		
 		private void setFeedbackMessage(String feedback, String attributeModifier) {
