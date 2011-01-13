@@ -70,7 +70,7 @@
 							<f:facet name="header">
   							<h:outputText value="#{msgs.mainEditHeaderRemove}"/>
 							</f:facet>
-							<h:selectBooleanCheckbox value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
+							<h:selectBooleanCheckbox value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}: (#{eachEntry.entry.title})"/>
 						</h:column>
 			 </syllabus:syllabus_table>
 			 <f:verbatim><p class="act"></f:verbatim>	
