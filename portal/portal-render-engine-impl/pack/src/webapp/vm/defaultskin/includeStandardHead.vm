@@ -6,6 +6,7 @@
 <!-- START from includeStandardHead.vm -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="Content-Style-Type" content="text/css" />
+
 <script type="text/javascript" language="JavaScript">
 	## SAK-16484 Allow Javascript to easily get at user details.
         ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
@@ -28,6 +29,14 @@
 		}
 	};
 </script>
+
+<!-- this causes problems for layout needs investigating -->
+    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
+<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+
 
 #if (! $currentPlacement && $isPDA )
     <meta name="viewport" content="width=320, user-scalable=no" />
@@ -62,13 +71,6 @@ ${sakai_html_head_css}
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
 #end
-
-<!-- this caises problems for layout nneds investihating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
-<!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
-<![endif]><![endif]-->
-<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
 
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 #if ( ${styleable} )
