@@ -297,8 +297,10 @@ public class ProfileConstants {
 	public static final String EVENT_PROFILE_INFO_UPDATE = "profile.info.update";
 	public static final String EVENT_PROFILE_CONTACT_UPDATE = "profile.contact.update";
 	public static final String EVENT_PROFILE_INTERESTS_UPDATE = "profile.interests.update";
-	public static final String EVENT_PROFILE_BUSINESS_UPDATE = "profile.business.update";
+	public static final String EVENT_PROFILE_STAFF_UPDATE = "profile.staff.update";
 	public static final String EVENT_PROFILE_STUDENT_UPDATE = "profile.student.update";
+	public static final String EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE = "profile.socialnetworking.update";
+	public static final String EVENT_PROFILE_BUSINESS_UPDATE = "profile.business.update";
 	
 	public static final String EVENT_FRIEND_REQUEST = "profile.friend.request";
 	public static final String EVENT_FRIEND_CONFIRM = "profile.friend.confirm";
@@ -321,8 +323,6 @@ public class ProfileConstants {
 	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
 	
 	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
-
-	public static final String EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE = "profile.socialnetworking.update";
 	
 	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "profile.gallery.image.upload";
 	

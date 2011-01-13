@@ -31,10 +31,9 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -52,6 +51,9 @@ public class MySocialNetworkingEdit extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	private ProfileWallLogic wallLogic;
 	
 	public MySocialNetworkingEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -124,6 +126,11 @@ public class MySocialNetworkingEdit extends Panel {
 					// post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE,"/profile/" + userProfile.getUserUuid(), true);
 
+					//post to wall if enabled
+					if (true == sakaiProxy.isWallEnabledGlobally()) {
+						wallLogic.addEventToWalls(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE, sakaiProxy.getCurrentUserId());
+					}
+					
 					// repaint panel
 					Component newPanel = new MySocialNetworkingDisplay(id, userProfile);
 					newPanel.setOutputMarkupId(true);
