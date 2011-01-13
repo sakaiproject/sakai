@@ -29,6 +29,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
@@ -58,6 +59,9 @@ public class GalleryImageEdit extends Panel {
 
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
 	private ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	private ProfileWallLogic wallLogic;
 	
 	public GalleryImageEdit(String id,
 			final String userId, final GalleryImage image,
@@ -287,6 +291,13 @@ public class GalleryImageEdit extends Panel {
 							ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD,
 							"/profile/" + userId, true);
 
+					if (true == sakaiProxy.isWallEnabledGlobally()) {
+						wallLogic
+								.addEventToWalls(
+										ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD,
+										sakaiProxy.getCurrentUserId());
+					}
+					
 					if (sakaiProxy.isSuperUserAndProxiedToUser(
 							userId)) {
 						setResponsePage(new MyProfile(userId));

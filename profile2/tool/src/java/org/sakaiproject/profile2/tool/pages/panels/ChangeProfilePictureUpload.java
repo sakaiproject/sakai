@@ -29,6 +29,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -45,7 +46,10 @@ public class ChangeProfilePictureUpload extends Panel{
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
 	private ProfileImageLogic imageLogic;
-
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	private ProfileWallLogic wallLogic;
+	
     private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
     
     private Label formFeedback;
@@ -127,6 +131,10 @@ public class ChangeProfilePictureUpload extends Panel{
 						
 						//post update event
 						sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userUuid, true);
+						
+						if (true == sakaiProxy.isWallEnabledGlobally()) {
+							wallLogic.addEventToWalls(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, sakaiProxy.getCurrentUserId());
+						}
 						
 						//refresh image data
 						if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
