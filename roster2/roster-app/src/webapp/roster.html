@@ -36,7 +36,6 @@
 <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
 <script type="text/javascript" src="js/roster_permissions.js"></script>
 <link rel="stylesheet" type="text/css" href="/library/skin/tool_base.css" />
-<link rel="stylesheet" type="text/css" href="/library/skin/default/tool.css" />
 <link rel="stylesheet" type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" />
 <link href="/profile2-tool/css/profile2-profile-entity.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" type="text/css" href="css/roster.css" />
@@ -44,14 +43,20 @@
 <!-- translations -->
 <script type="text/javascript">
 var arg = SakaiUtils.getParameters();
-if(arg['language'])
-{
+if(arg['language']) {
 	$.localise('roster-translations',{language:arg['language'],loadBase: true});
-}
-else
-{
+} else {
 	$.localise('roster-translations');
 }
+
+$.ajax({
+    url: '/library/skin/' + arg['skin'] + '/tool.css',
+    success: function(data, textStatus) {
+        $('head').append('<style type="text/css" rel="stylesheet">' + data + '</style>');
+    },
+    async: false,
+    dataType: 'text/css'
+});
 </script>
 
 </head>
@@ -70,7 +75,7 @@ else
 
 <div id="roster_navbar_template" style="display:none"><!--
 <div class="navIntraTool rosterNavBar">
-	<div id="roster_navbar_items">
+	<span id="page-links">
 		<a id="navbar_overview_link" title="${navbar_overview_tooltip}"
 			href="javascript:;">${navbar_overview}</a>
 		<a id="navbar_pics_link" title="${navbar_pics_tooltip}"
@@ -79,7 +84,7 @@ else
 			href="javascript:;">${navbar_group_membership}</a>
 		<a id="navbar_enrollment_status_link" title="${navbar_status_tooltip}"
 			href="javascript:;">${navbar_status}</a>
-	</div>
+	</span>
 </div>
 -->
 </div>

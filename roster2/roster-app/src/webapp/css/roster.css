@@ -40,6 +40,10 @@ table.rosterPageHeader {
 	overflow: hidden;
 }
 
+#page-links a:link,
+#page-links a:visited {
+}
+
 .instruction.rosterTitleMessage {
 	display: block;
 }

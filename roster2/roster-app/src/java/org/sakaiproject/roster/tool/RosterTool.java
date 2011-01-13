@@ -78,14 +78,13 @@ public class RosterTool extends HttpServlet {
 		
 		// pass siteId, language code and sakai.properties to the JQuery code
 		response.sendRedirect("/sakai-roster-tool/roster.html?state=" + defaultState
-				+ "&siteId=" + sakaiProxy.getCurrentSiteId() + "&language="
-				+ (new ResourceLoader(userId)).getLocale().getLanguage()
+				+ "&siteId=" + sakaiProxy.getCurrentSiteId() 
+				+ "&skin=" + sakaiProxy.getSakaiSkin()
+				+ "&language="+ (new ResourceLoader(userId)).getLocale().getLanguage()
 				+ "&defaultSortColumn=" + sakaiProxy.getDefaultSortColumn()
-				+ "&firstNameLastName="
-				+ sakaiProxy.getFirstNameLastName()
-				+ "&hideSingleGroupFilter="
-				+ sakaiProxy.getHideSingleGroupFilter() + "&viewUserDisplayId="
-				+ sakaiProxy.getViewUserDisplayId() + "&viewEmail="
-				+ sakaiProxy.getViewEmail());
+				+ "&firstNameLastName=" + sakaiProxy.getFirstNameLastName()
+				+ "&hideSingleGroupFilter=" + sakaiProxy.getHideSingleGroupFilter()
+				+ "&viewUserDisplayId="	+ sakaiProxy.getViewUserDisplayId()
+				+ "&viewEmail="	+ sakaiProxy.getViewEmail());
 	}
 }

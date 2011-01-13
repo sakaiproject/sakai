@@ -150,4 +150,11 @@ public interface SakaiProxy {
 	 */
 	public Boolean hasUserGroupPermission(String userId, String permission,
 			String siteId, String groupId);
+	
+	/**
+	 * Returns the name of the skin of the current site.
+	 * 
+	 * @return the name of the skin of the current site.
+	 */
+	public String getSakaiSkin();
 }
