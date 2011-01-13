@@ -21,6 +21,7 @@
 
 		<configuration name="functions.require" value="annc.read" /> 
 
+		<configuration name="groupAware" value="true" />
 	</tool>
 
 </registration>
