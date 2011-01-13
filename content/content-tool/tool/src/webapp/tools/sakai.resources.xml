@@ -20,6 +20,8 @@
 		<category name="myworkspace" />
 
 		<configuration name="functions.require" value="content.read" /> 
+		
+		<configuration name="groupAware" value="true" />
 
 	</tool>
 

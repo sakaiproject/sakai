@@ -6672,6 +6672,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		state.setAttribute("permissionDescriptions",  pRbValues);
 		
+		String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
+		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
+
 		// get into helper mode with this helper tool
 		startHelper(data.getRequest(), "sakai.permissions.helper");
 
