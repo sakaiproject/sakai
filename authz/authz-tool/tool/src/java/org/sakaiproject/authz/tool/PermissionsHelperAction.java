@@ -118,6 +118,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 	/** vm files for each mode. TODO: path too hard coded */
 	private static final String TEMPLATE_MAIN = "helper/chef_permissions";
+	
+	private static final String STATE_GROUP_AWARE = "state_group_aware";
 
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 			throws ToolException
@@ -216,6 +218,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		
 		// start the helper
 		state.setAttribute(STATE_MODE, MODE_MAIN);
+		
+		state.setAttribute(STATE_GROUP_AWARE, toolSession.getAttribute("groupAware"));
 	}
 	
 	/**
@@ -288,29 +292,34 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		{
 			String siteId = realmId.replaceAll(SiteService.REFERENCE_ROOT + "/", "");
 			context.put("siteRef", realmId);
-			try
+			
+			if (state.getAttribute(STATE_GROUP_AWARE) != null && ((Boolean) state.getAttribute(STATE_GROUP_AWARE)).booleanValue())
 			{
-				Site site = SiteService.getSite(siteId);
-				Collection groups = site.getGroups();
-				if (groups != null && !groups.isEmpty())
+				// only show groups for group-aware tools
+				try
 				{
-					Iterator iGroups = groups.iterator();
-					for(; iGroups.hasNext();)
+					Site site = SiteService.getSite(siteId);
+					Collection groups = site.getGroups();
+					if (groups != null && !groups.isEmpty())
 					{
-						Group group = (Group) iGroups.next();
-						// need to either have realm update permission on the group level or better at the site level
-						if (!AuthzGroupService.allowUpdate(group.getReference()))
+						Iterator iGroups = groups.iterator();
+						for(; iGroups.hasNext();)
 						{
-							iGroups.remove();
+							Group group = (Group) iGroups.next();
+							// need to either have realm update permission on the group level or better at the site level
+							if (!AuthzGroupService.allowUpdate(group.getReference()))
+							{
+								iGroups.remove();
+							}
 						}
+						context.put("groups", groups);
 					}
-					context.put("groups", groups);
+						
 				}
-					
-			}
-			catch (Exception siteException)
-			{
-				M_log.warn("PermissionsAction.buildHelperContext: getsite of realm id =  " + realmId + siteException);
+				catch (Exception siteException)
+				{
+					M_log.warn("PermissionsAction.buildHelperContext: getsite of realm id =  " + realmId + siteException);
+				}
 			}
 			
 			// get the realm locked for editing
@@ -475,6 +484,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_PERMISSION_DESCRIPTIONS);
 		state.removeAttribute(STATE_MODE);
 		state.removeAttribute(VelocityPortletPaneledAction.STATE_HELPER);
+		state.removeAttribute(STATE_GROUP_AWARE);
 
 		// re-enable observers
 		VelocityPortletPaneledAction.enableObservers(state);
