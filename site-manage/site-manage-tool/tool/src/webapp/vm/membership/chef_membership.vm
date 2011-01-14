@@ -136,21 +136,16 @@
 					#set ($rowCount =$rowCount + 1)
 						<tr>
 							<td headers="checkbox" class="screenOnly attach">
+								#set($siteType=$site.Type)
 								## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
-								#if($disableUnjoinSelection || ($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)))
-									<input title="$tlang.getString('mb.unjoin')" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" disabled="disabled" />
-									<label for ="check-$rowCount" class="skip">$tlang.getString('mb.unjoin')</label>
-								#else	
-									#if ($SiteService.allowUnjoinSite($site.Id))
+								#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
 									<input title="$tlang.getString('mb.unjointitle')" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable"/>
 									<label for ="check-$rowCount" class="skip">$tlang.getString('mb.unjoin')</label>
-									#end
 								#end						
 							</td>	
 	
 							<td headers="worksite" style="white-space:nowrap" class="attach">
 								<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
-								#set($siteType=$site.Type)
 							</td>
 							<td headers="description" class="specialLink">
 								#if ($validator.escapeHtml($site.Description) != '')
