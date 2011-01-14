@@ -759,8 +759,8 @@ public class RealmsAction extends PagedResourceActionII
 			{
 				// no Exception is defined to be thrown from GroupProvider's getuserRolesForGroup(String) call
 				// we will check for the null or empty returned value as an indicator for invalid provider id.
-				Map<String, String> userRoles = groupProvider.getUserRolesForGroup(providers[i]);
-				if (userRoles == null || userRoles.isEmpty())
+				//Map<String, String> userRoles = groupProvider.getUserRolesForGroup(providers[i]);
+			    if (!groupProvider.groupExists(providers[i]))
 				{
 					// if provider id isn't found or is null then an empty collection should be returned.
 					// is it proper to issue the following alert?
