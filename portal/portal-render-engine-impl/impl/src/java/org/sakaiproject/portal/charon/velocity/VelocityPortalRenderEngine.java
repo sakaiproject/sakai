@@ -89,7 +89,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
 			styleAbleContentSummary = serverConfigurationService.getBoolean(
 					"portal.styleable.contentSummary", false);
-			defaultSkin = serverConfigurationService.getString("portal.templates", "defaultskin");
+			defaultSkin = serverConfigurationService.getString("portal.templates", "neoskin");
 		}
 		catch (Exception ex)
 		{

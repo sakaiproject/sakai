@@ -1,0 +1,19 @@
+<div>
+<p>
+Please select a portlet to activate in this location
+</p>
+Available Portal Applications 
+<ul>
+    #foreach ( $portletapp in $portletapplications ) 
+	<li>${portletapp.name} 
+	    <ul>
+    		#foreach ( $portlet in $portletapp.portlets )
+    			<li><a href="${portlet.url}">Activate ${portlet.name}</a></li>
+    		#end 
+	    </ul>
+	</li>
+	#end
+</ul>
+
+
+</div>

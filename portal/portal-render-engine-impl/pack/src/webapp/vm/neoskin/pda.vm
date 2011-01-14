@@ -1,0 +1,275 @@
+##
+##        rcontext.put("loggedIn",Boolean.value(session.getUserId() != null));
+##
+##                    m.put("isPage",Boolean.valueOf(true));
+##                    m.put("current", Boolean.valueOf(current));
+##                    m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+##                    m.put("pagePopupUrl", pagePopupUrl);
+##                    m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+##                    m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+##                    m.put("pageId", Web.escapeUrl(p.getId()));
+##                    m.put("jsPageId", Web.escapeJavascript(p.getId()));
+##                    m.put("pagerefUrl", pagerefUrl);
+##
+##                    m.put("isPage",Boolean.valueOf(false));
+##                    m.put("toolId", Web.escapeUrl(placement.getId()));
+##                    m.put("jsToolId", Web.escapeJavascript(placement.getId()));
+##                    m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
+##                    m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
+##                    m.put("toolrefUrl", toolrefUrl);
+##
+#set ( $isPDA = 1 ) 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	 <link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" /> 
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="viewport" content="width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=1.0"/>
+  	<link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png"/>      
+	<meta name="apple-mobile-web-app-capable" content="yes" /> 
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+#if ( ${bufferedResponse} && ${responseHead} ) 
+<!-- Head material from Tool (will include title and headscripts) -->
+${responseHead}
+<!-- End of Head material from Tool -->
+#else 
+    <title>${pageTitle}</title>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+#end
+## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
+## It depends on jquery - so we either have to include both jquery and portalscripts or neither
+## and since we don't use any of this in pda.vm - we don't include either one
+   <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-latest.min.js"></script>
+## <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+## These may someday be needed for styleable - if so - move them into styleable below
+
+#if ( ${styleable} )
+<script type="text/javascript" 
+    	language="JavaScript" 
+    	src="/sakai-preferable-tool/js/styleable.js" >
+    </script>
+    
+    <script type="text/javascript" 
+            language="JavaScript">
+    window.onload = insertStyleAbleStyles;
+    </script>
+    #if ( ${styleableStyleSheet} )
+	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+    #end
+    #if ( ${styleableJS} )
+	<script type="text/javascript" language="JavaScript">
+	${styleableJS} 
+	</script>
+    #end
+#end
+</head>
+<body class="portalBodyPDA">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+
+<!-- pda.vm -->
+#if ( ${wurflSmallDisplay} ) 
+<!-- Mobile Device ${wurflDevice} -->
+#end
+## Always assume small display
+#set ( $wurflSmallDisplay = 1 )
+<div class="portletpda">
+	<!-- include site html if exist-->
+	#if ($sitePdaHtmlInclude)
+		<div id="sitePdaHtmlInclude">
+			$sitePdaHtmlInclude
+		</div>
+	#end
+  <ul id="pda-portlet-menu">
+	## renders an image (can be the inst logo small) set in the css as a background and a link back to the site list
+	<li class="instanceNote"><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")"><span class="skip">$rloader.getString("pda_sites")</span></a></li>
+  	<li class="sitesLink"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li>
+ #set ($currentSiteChildren=0) 			 
+#if ($currentSite)
+  #if ( $currentSite.isChild )
+  	## would be better to examine for each site if it has children, then reflect this in a nested list structure.
+    #foreach ( $site in $currentSite.pwd )
+		#set ($currentSiteChildren=$currentSiteChildren + 1)
+ 		<li class="#if ($currentSiteChildren==1) currentSiteParentLink #else currentSiteChildLink #end"><span><a href="${site.siteUrl}" title="${site.siteTitle}">${site.siteTitle}</a></span></li>		
+    #end
+  #else
+    <li class="currentSiteLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">${currentSite.siteTitle}</a></span></li>
+  #end
+#end
+#if ($currentPlacement)
+  #if ( ${bufferedResponse} && ${responseBody} ) 
+    <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
+	#if ($showResetButton)
+    	<li class="resetToolLink">
+			<span>
+    			<a href="$resetActionUrl" title="$rloader.getString('sit_reset')" class="toolReset">
+	    			<img src="${pageSkinRepo}/${pageSkin}/images/pda-tool-reload.png" alt="$rloader.getString('sit_reset')" />
+	    		</a>
+    		</span>
+		</li>
+	#end
+  #end
+#end
+#if (${currentPlacement.toolShowHelpButton})
+  #if (${currentPlacement.toolJSR168Help} )
+		## need to get string from bundle
+    <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a></span></li>		
+  #else
+		## need to get string from bundle
+    <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a></span></li>
+  #end
+#end
+#if (${currentPlacement.toolJSR168Edit} )
+	<li class="jsreditLink"><span><a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}"><img src="${pageSkinRepo}/${pageSkin}/images/pda-edit-sett.png" alt="${rloader.sit_edit}" /></a></span></li>
+#end
+#if ( ${wurflSmallDisplay} ) 
+  <!-- WURFL Small Display -->
+  #if ( $loggedIn ) 
+    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
+  #else
+    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
+  #end
+  <!-- End WURFL Small Display -->
+#else
+
+	  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
+	    #if ($currentSite)
+	      #if ( ! $currentSite.isMyWorkspace )
+	          <li class="usersPresentLink"><span><a id="usersPresentLink" href="#">$rloader.getString("pda_present")</a></span></li>		  
+	      #end
+	    #end
+	  #end
+
+	  #if ( $loggedIn ) 
+			## need to get string from bundle
+	    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
+	  #else
+			## need to get string from bundle
+	    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">$rloader.getString("pda_login")</a></span></li>
+	  #end
+  </li>
+#end
+</ul> <!--end of menu bar -->
+#if ($currentPlacement)
+  #if ( ${bufferedResponse} && ${responseBody} ) 
+<!-- Buffered Body Tool Content -->
+${responseBody}
+<!-- End Buffered Body Tool Content -->
+  #else
+    <!-- start include Tool Body -->
+	#if (${currentPlacement.hasRenderResult})
+		<div class="portletMainWrap">
+		    ${currentPlacement.toolRenderResult.getContent()}
+		</div>
+	#else
+		<div class="portletMainWrap">
+			<iframe	name="${currentPlacement.toolPlacementIDJS}" id="${currentPlacement.toolPlacementIDJS}" title="${currentPlacement.toolTitle}" 
+				class ="portletMainIframe"
+				height="50"
+				width="100%"
+				frameborder="0"
+				marginwidth="0"
+				marginheight="0"
+				scrolling="auto"	
+				src="${currentPlacement.toolUrl}?panel=Main">
+			</iframe>
+		</div>
+	#end
+    <!-- end include Tool Body -->
+  #end
+#else
+  #if ($currentSite)
+    <ul id="pda-portlet-page-menu"> 
+    #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
+      #if ($page.isPage)
+        ## This must be a popup - so we treat it as a popup
+        <li>
+        	<span>
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+    	        	${page.pageTitle}
+        		</a>
+        	</span>
+        </li>
+      #else
+        <li>
+          <span><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a></span>
+        </li>
+      #end
+    #end
+    #if ( $subSites )
+    	<li class="subSites">
+	    	<ul> 
+		    	#foreach ( $site in $subSites ) 
+		          <li class="subSiteItem">
+					<span>
+		             <a href="${site.siteUrl}" title="${site.siteTitle}">
+		             	$rloader.getString("pda_subsite_lead")  ${site.siteTitle} <em class="textPanelFooter">$rloader.getString("pda_subsite")</em>
+		             </a>
+					<span> 
+		         </li>
+		       #end
+	       </ul>
+       </li>
+    #end
+    </ul>
+  #else
+    <ul id="pda-portlet-site-menu">
+	    #foreach ( $site in $allSites ) 
+	      <li>
+					## rather than checking to see if this is a child, better to check to see if it has children
+					## then you can do interesting things with the markup (nested lists, for exmaple) as well as with
+					## behaviours (toggle hierarchies for a tree navigation, for example).
+		      #if ( $site.isChild ) 
+		            #if ( $site.depth > 0 ) 
+						#foreach ($i in [1..$site.depth] )
+				        	 &nbsp;
+						#end
+		            #end
+		      #end
+	        <span> 
+		        <a href="${site.siteUrl}" title="${site.siteTitle}">
+		          ${site.siteTitle}
+		        </a>
+	        </span>
+	      </li>
+	    #end 
+    </ul>
+
+  #end
+#end
+#if ($currentSite )
+#if ( ! ${wurflSmallDisplay} ) 
+    #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
+	<script type="text/javascript" language="JavaScript">
+		$(document).ready(function(){
+			$('#usersPresentLink').click(function(e){
+				e.preventDefault();
+					$('#presdiv').toggle();
+			});
+		});
+
+	</script>
+	<div class="portletpresence" id="presdiv" style="display:none">
+		<iframe name="presenceIframe" id="presenceIframePDA" 
+			frameborder="1" marginwidth="0" marginheight="0" scrolling="auto" 
+			src="${currentSite.sitePages.pageNavPresenceUrl}" >
+		</iframe>
+	</div>
+    #end
+#end
+#end
+
+<div id="pda-footer">
+<a class="switch-link" href="${portalTopUrl}?force.classic=yes">$rloader.getString("pda_switch")</a>
+</div>
+
+</div>
+<!-- end pda.vm -->
+	</body>
+</html>

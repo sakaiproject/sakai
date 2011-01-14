@@ -1,0 +1,21 @@
+##
+## the Page part of the standard view, with page navigation
+##
+##
+<!-- START from includePageWithNav.vm -->
+#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
+        <div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
+#else
+	<div id="container" $pageSiteType >
+#end
+	#if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
+
+#parse("/vm/neoskin/includePageNav.vm")
+
+	#else 
+		<!-- no page nav requested -->
+	#end
+
+#parse("/vm/neoskin/includePageBody.vm")
+	</div>
+<!-- END from includePageWithNav.vm -->

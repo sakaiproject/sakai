@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+<!-- this caises problems for layout nneds investihating -->
+    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
+
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+#if (! $currentPlacement && $isPDA )
+    <meta name="viewport" content="width=320, user-scalable=no" />
+#end
+#if ( ${bufferedResponse} && ${responseHead} ) 
+<!-- Head material from Tool (will include title and headscripts) -->
+${responseHead}
+<!-- End of Head material from Tool -->
+	#if (  $pageColumn0Tools )
+		#foreach ( $tool in $pageColumn0Tools ) 
+			#if ( $tool ) 
+				#if ( $tool.toolRenderResult ) 
+${tool.toolRenderResult.getTitle()}
+				#end
+			#end
+		#end
+	#end
+	#if ($pageTwoColumn)
+		#if (  $pageColumn1Tools )
+			#foreach ( $tool in $pageColumn1Tools ) 
+				#if ( $tool ) 
+					#if ( $tool.toolRenderResult ) 
+${tool.toolRenderResult.getTitle()}
+					#end
+				#end
+			#end
+		#end
+	#end
+#else 
+    <title>${pageTitle}</title>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+#end
+<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+
+#if ( ${styleable} )
+<script type="text/javascript" 
+    	language="JavaScript" 
+    	src="/sakai-preferable-tool/js/styleable.js" >
+    </script>
+    
+    <script type="text/javascript" 
+            language="JavaScript">
+    window.onload = insertStyleAbleStyles;
+    </script>
+    #if ( ${styleableStyleSheet} )
+	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+    #end
+    #if ( ${styleableJS} )
+	<script type="text/javascript" language="JavaScript">
+	${styleableJS} 
+	</script>
+    #end
+#end
+</head>
+<body class="portalBody">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+<h2>Session</h2>
+#if ($s)
+session:  ${s.getId()} user id: ${s.getUserId()} enterprise id: ${s.getUserEid()} started: ${s.getCreationTime()} accessed: ${s.getLastAccessedTime()} inactive after: ${s.getMaxInactiveInterval()}
+<br />
+#else
+no session established
+<br />
+#end
+#if ($ts)
+tool session: ${ts.getId()} started: ${ts.getCreationTime()} accessed: ${ts.getLastAccessedTime()}
+<br />
+#else
+no tool session established
+<br />
+#end
+<h2>Unknown Request</h2>
+<h1>Snoop for request</h1>
+${req.toString()}
+#if (${config})
+<h1>Init Parameters</h1>
+<pre>&nbsp;
+	#foreach( $param in $params ) 
+	${param.name} : ${param.value}
+	#end
+</pre>
+<h1>Request information:</h1>
+<pre>
+Request method ${req.getMethod()}
+Request URI requestUri
+requestUriChars
+Request protocol ${req.getProtocol()}
+Servlet path servletPath
+servletPathChars
+Context path contextPath
+contextPathChars
+Path info pathInfo
+pathInfoChars
+Path translated ${req.getPathTranslated()}
+Query string ${req.getQueryString()}
+Content length ${req.getContentLength()}
+Content type ${req.getContentType()}
+Server name ${req.getServerName()}
+Server port ${req.getServerPort()}
+Remote user ${req.getRemoteUser()}
+Remote address ${req.getRemoteAddr()}
+Authorization scheme ${req.getAuthType()}
+</pre>
+#end
+<h1>Request headers</h1>
+<pre>&nbsp;
+#foreach( $header in $headers )
+	${header.name} : ${header.value}
+#end
+</pre>
+<h1>Servlet parameters (Single Value style):</h1>
+<pre>&nbsp;
+#foreach( $prameter in $parameters )
+	${parameter.name} = ${parameter.name}
+#end
+</pre>
+<h1>Servlet parameters (Multiple Value style):</h1>
+<pre>&nbsp;
+#foreach( $parameter in $parameters ) 
+	${parameter.name} = ${parameter.name}
+#end
+</pre>
+<h1>Request Attributes:</h1>
+<pre>&nbsp;
+#foreach( $attribute in $attributes ) 
+	${attribute.name} = ${attribute.value}
+#end
+</pre>
+	</body>
+</html>

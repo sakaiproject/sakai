@@ -1,0 +1,66 @@
+##
+## Site tabs included into the top frame of the frameset
+##
+<!-- START includeTabsSiteFrame -->
+			<!-- start includeTabs -->
+			<div class="${tabsCssClass}">
+				<div id="siteNav">
+					<div id="linkNav">
+						<a id="sitetabs" class="skip" name="sitetabs"></a>
+							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+							<ul id="siteLinkList">
+						#set ( $resetText = ${sakaiFrameTitle})
+						#foreach ( $site in $tabsSites.tabsSites ) 
+							#if (${site.isCurrentSite} || ${site.isMyWorkspace})
+								#if (${site.isMyWorkspace})
+							<li><a href="${site.siteUrl}?sakai.frame.suppress=true" title="${rloader.sit_mywor}" target="_top"><span>${rloader.sit_mywor}</span></a></li>
+								#else
+									#if ( ${sakaiSinglePage} )
+										#set ( $resetText = ${site.siteTitle})
+									#else
+									  <li>
+								  	  <a href="${site.siteUrl}?sakai.frame.suppress=true" title="${site.siteTitle}" target="_top"><span>${site.siteTitle}</span></a></li>
+									#end
+								#end
+							#end
+						#end
+						## Put out reset - this may be the tool title or the site if there is only onr page
+						## in the site
+						## For JSR-168 portlets target must be top - for Sakai tools target must be the content frame
+                                                <li class="selectedTab">
+                                                #if ( ${sakaiFrameReset} )
+        						#if ( $sakaiFramePortlet )
+                                                	<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="_top"><span>${resetText}</span></a></li>
+							#else
+                                                    	<a href="${sakaiFrameReset}" title="${rloader.sit_reset}" target="sakai-content"><span>${resetText}</span></a></li>
+							#end
+						#else
+                                                   	<a href="#"><span>${resetText}</span></a></li>
+						#end
+						</ul>
+					</div> <!-- /linkNav -->
+					## JSR-168 Edit Button 
+        				#if ( $sakaiFrameEdit )
+					    <span class="portletTitle"><span class="action">
+                                                 <a accesskey="e" id="jsr-edit" href="${sakaiFrameEdit}" target="_top"
+                                                      title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+                                                      alt="${rloader.sit_edit}" border="0"></a>
+					    </span></span>
+					#end
+					#if ($tabsAddLogout)
+					<div class="galleryLogin">
+						<a href="$tabsLogoutUrl" target="_top">${rloader.sit_log}</a>
+					</div>
+				</div> <!-- /siteNav -->
+					#else
+				</div>
+				<div class="divColor" id="tabBottom">
+				</div>
+					#end	
+
+
+			</div> <!-- /tabsCssClass -->
+                <!-- end includeTabs -->
+		
+<!-- END includeTabsSiteFrame -->
+		

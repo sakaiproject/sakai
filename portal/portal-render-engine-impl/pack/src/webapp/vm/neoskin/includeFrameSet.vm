@@ -1,0 +1,26 @@
+##
+## the Frameset View - Shared between the normal
+## and Gallery view
+##
+##
+<!-- START from includerameSet.vm -->
+  #set ( $frameEditParam = "")
+  #set ( $frameIsPortlet = "")
+  #set ( $frameResetParam = "")
+  #set($frameTitle = ${singleToolMap.toolTitleEncode})
+  #if ( ! ${frameMaximizedUrl} )
+    #set($frameMaximizedUrl = "${singleToolMap.toolUrl}?panel=Main" )
+  #end 
+  #if ( ${singleToolMap.isPortletPlacement} )
+    #set($frameIsPortlet = "&sakai.frame.portlet=true" )
+  #end
+  #if( ${singleToolMap.toolShowResetButton} )
+    #set($frameResetParam = "&sakai.frame.reset=${singleToolMap.toolResetActionUrlEncode}" )
+  #end
+  #if (${singleToolMap.toolJSR168Edit} )
+    #set($frameEditParam = "&sakai.frame.edit=${singleToolMap.toolJSR168Edit}" )
+  #end
+    <frame src="${currentUrlPath}?sakai.frame.top=true&sakai.frame.title=${frameTitle}${frameIsPortlet}${frameResetParam}${frameEditParam}"
+             frameborder="0" scrolling="no" noresize >
+    <frame src="${frameMaximizedUrl}" frameborder="0" name="sakai-content" >
+<!-- END from includerameSet.vm -->
