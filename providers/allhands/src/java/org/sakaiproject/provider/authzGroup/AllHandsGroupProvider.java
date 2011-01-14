@@ -98,9 +98,9 @@ public class AllHandsGroupProvider implements GroupProvider
 	 * This is not necessary - because the user has already been added because they are
 	 * enrolled in the allhand.s
 	 */
-	public Map getUserRolesForGroup(String id)
+	public Map<String, String> getUserRolesForGroup(String id)
 	{
-		Map rv = new HashMap();
+		Map<String, String> rv = new HashMap<String, String>();
 
 		return rv;
 	}
@@ -134,11 +134,11 @@ public class AllHandsGroupProvider implements GroupProvider
 	 * in this routine).
 	 */
 
-	public Map getGroupRolesForUser(String userId)
+	public Map<String, String> getGroupRolesForUser(String userId)
 	{
 		System.out.println("getGroupRolesForUser() user="+userId);
 
-		Map rv = new HashMap();
+		Map<String, String> rv = new HashMap<String, String>();
 
 		rv.put("sakai.allhands","access");
 
@@ -206,5 +206,9 @@ public class AllHandsGroupProvider implements GroupProvider
 		
 		// something we don't know, so we just return the latest role found
 		return one;
+	}
+
+	public boolean groupExists(String arg0) {
+		return true;
 	}
 }

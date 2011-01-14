@@ -238,7 +238,7 @@ public class SampleGroupProvider implements GroupProvider
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getUserRolesForGroup(String id)
+	public Map<String, String> getUserRolesForGroup(String id)
 	{
 		update();
 
@@ -456,5 +456,9 @@ public class SampleGroupProvider implements GroupProvider
 				}
 			}
 		}
+	}
+
+	public boolean groupExists(String arg0) {
+		return true;
 	}
 }

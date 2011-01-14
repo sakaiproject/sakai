@@ -256,4 +256,13 @@ public class CourseManagementGroupProvider implements GroupProvider {
 	public void setConfiguration(Map<String, Object> configuration) {
 		this.configuration = configuration;
 	}
+
+	public boolean groupExists(String groupId) {
+		
+		if (cmService.isSectionDefined(groupId)) 
+			return true;
+		
+				
+		return false;
+	}
 }
