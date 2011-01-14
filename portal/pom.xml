@@ -7,7 +7,7 @@
     <version>2.9-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai</name>
+  <name>Sakai neo portal</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>portal-base</artifactId>
   <packaging>pom</packaging>
