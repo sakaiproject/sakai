@@ -68,6 +68,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private ServletContext context;
 
+	private String defaultSkin = "defaultskin";
+
 	private boolean styleAble = false;
 
 	private boolean styleAbleContentSummary = false;
@@ -87,6 +89,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
 			styleAbleContentSummary = serverConfigurationService.getBoolean(
 					"portal.styleable.contentSummary", false);
+			defaultSkin = serverConfigurationService.getString("portal.templates", "defaultskin");
 		}
 		catch (Exception ex)
 		{
@@ -117,14 +120,14 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		vengine.init(p);
 		availablePortalSkins = new ArrayList<Map<String, String>>();
 		Map<String, String> m = new HashMap<String, String>();
-		m.put("name", "defaultskin");
+		m.put("name", defaultSkin);
 		m.put("display", "Default");
 		availablePortalSkins.add(m);
 		/*
 		 * m = new HashMap(); m.put("name", "skintwo"); m.put("display", "Skin
 		 * Two"); availablePortalSkins.add(m);
 		 */
-		vengine.getTemplate("/vm/defaultskin/macros.vm");
+		vengine.getTemplate("/vm/"+defaultSkin+"/macros.vm");
 		}
 		catch (IOException e) {
 			throw new RuntimeException("Exception encounterd:  " + e, e);
@@ -153,7 +156,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		rc.put("styleableStyleSheet", generateStyleAbleStyleSheet());
 		rc.put("styleableJS", generateStyleAbleJavaScript());
 		rc.put("styleable", styleAble);
-		String portalSkin = "defaultskin";
+		String portalSkin = defaultSkin;
 
 		if (request != null)
 		{
@@ -171,7 +174,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			{
 				if (portalSkin == null || portalSkin.length() == 0)
 				{
-					portalSkin = "defaultskin";
+					portalSkin = defaultSkin;
 					session.setAttribute("portalskin", portalSkin);
 
 				}
@@ -182,7 +185,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		else
 		{
 			log.debug("No Request Object Skin is default");
-			rc.put("pageCurrentSkin", "defaultskin");
+			rc.put("pageCurrentSkin", defaultSkin);
 		}
 
 		InputStream stream = null;
@@ -219,9 +222,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		String skin = (String) vc.get("pageCurrentSkin");
 		if (skin == null || skin.length() == 0)
 		{
-			skin = "defaultskin";
+			skin = defaultSkin;
 		}
-		if (!"defaultskin".equals(skin))
+		if (!defaultSkin.equals(skin))
 		{
 			vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		}

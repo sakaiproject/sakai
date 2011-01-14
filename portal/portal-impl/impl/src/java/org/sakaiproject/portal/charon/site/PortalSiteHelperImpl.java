@@ -336,6 +336,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						.equals(myWorkspaceSiteId))));
  		int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
 		String titleStr = s.getTitle();
+		String fullTitle = titleStr;
 		if ( titleStr != null )
 		{
 			titleStr = titleStr.trim();
@@ -350,6 +351,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			titleStr = titleStr.trim();
 		}
 		m.put("siteTitle", Web.escapeHtml(titleStr));
+		m.put("fullTitle", Web.escapeHtml(fullTitle));
 		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
 		String siteUrl = Web.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
