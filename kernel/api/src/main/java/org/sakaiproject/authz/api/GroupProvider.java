@@ -90,4 +90,13 @@ public interface GroupProvider
 	 * @return The better role.
 	 */
 	String preferredRole(String one, String other);
+	
+	
+	/**
+	 * Does the provider know of the existence of the linked group? 
+	 * This method should return true for groups that have no members but are valid
+	 * @param id
+	 * @return true if the group exists, false if it doesn't 
+	 */
+	boolean groupExists(String id);
 }
