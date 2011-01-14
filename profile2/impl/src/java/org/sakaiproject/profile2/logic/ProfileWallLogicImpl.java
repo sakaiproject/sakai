@@ -102,12 +102,25 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 
 		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid).getWallItems();
 		
+		// filter wall items
+		List<WallItem> filteredWallItems = new ArrayList<WallItem>();
+		for (WallItem wallItem : wallItems) {
+			// current user is always allowed to see their wall items
+			if (true == StringUtils.equals(userUuid, currentUserUuid)) {
+				filteredWallItems.add(wallItem);
+			// don't allow friend-of-a-friend if not connected
+			} else if (privacyLogic.isUserXWallVisibleByUserY(wallItem.getCreatorUuid(), currentUserUuid,
+					connectionsLogic.isUserXFriendOfUserY(wallItem.getCreatorUuid(), currentUserUuid))) {
+				filteredWallItems.add(wallItem);
+			}
+		}
+		
 		// add in any connection statuses
 		List<Person> connections = connectionsLogic
 				.getConnectionsForUser(userUuid);
 
 		if (null == connections || 0 == connections.size()) {
-			return wallItems;
+			return filteredWallItems;
 		}
 
 		for (Person connection : connections) {
@@ -126,10 +139,10 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				allowedStatus = true;
 			// don't allow friend-of-a-friend	
 			} else {
-				allowedStatus = privacyLogic.isUserXStatusVisibleByUserY(
-						userUuid, privacy, connection.getUuid(),
-						connectionsLogic.isUserXFriendOfUserY(userUuid,
-								connection.getUuid()));
+				allowedStatus =	 privacyLogic.isUserXStatusVisibleByUserY(
+						connection.getUuid(), currentUserUuid,
+						connectionsLogic.isUserXFriendOfUserY(connection.getUuid(),
+								currentUserUuid));
 			}
 
 			if (true == allowedStatus) {
@@ -140,19 +153,19 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				wallItem.setDate(connectionStatus.getDateAdded());
 				wallItem.setText(connectionStatus.getMessage());
 
-				wallItems.add(wallItem);
+				filteredWallItems.add(wallItem);
 			}
 		}
 
 		// wall items are comparable and need to be in order
-		Collections.sort(wallItems);
+		Collections.sort(filteredWallItems);
 		
 		// dao limits wall items but we also need to ensure any connection
 		// status updates don't push the number of wall items over limit
-		if (wallItems.size() > ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES) {			
-			return wallItems.subList(0, ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES);
+		if (filteredWallItems.size() > ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES) {			
+			return filteredWallItems.subList(0, ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES);
 		} else {
-			return wallItems;
+			return filteredWallItems;
 		}
 	}
 	
@@ -198,7 +211,20 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				
 		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid).getWallItems();
 		
-		int count = wallItems.size();
+		// filter wall items
+		List<WallItem> filteredWallItems = new ArrayList<WallItem>();
+		for (WallItem wallItem : wallItems) {
+			// current user is always allowed to see their wall items
+			if (true == StringUtils.equals(userUuid, currentUserUuid)) {
+				filteredWallItems.add(wallItem);
+			// don't allow friend-of-a-friend if not connected
+			} else if (privacyLogic.isUserXWallVisibleByUserY(wallItem.getCreatorUuid(), currentUserUuid,
+					connectionsLogic.isUserXFriendOfUserY(wallItem.getCreatorUuid(), currentUserUuid))) {
+				filteredWallItems.add(wallItem);
+			}
+		}
+		
+		int count = filteredWallItems.size();
 		
 		// connection statuses
 		List<Person> connections = connectionsLogic
@@ -215,11 +241,11 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				// current user is always allowed to see status of connections
 				if (true == StringUtils.equals(userUuid, currentUserUuid)) {
 					count++;
-				// don't allow friend-of-a-friend
+				// don't allow friend-of-a-friend if not connected
 				} else if (true == privacyLogic.isUserXStatusVisibleByUserY(
-						userUuid, privacy, connection.getUuid(),
-						connectionsLogic.isUserXFriendOfUserY(userUuid,
-								connection.getUuid()))) {
+						connection.getUuid(), currentUserUuid,
+						connectionsLogic.isUserXFriendOfUserY(connection.getUuid(),
+								currentUserUuid))) {
 					count++;
 				}
 			}
