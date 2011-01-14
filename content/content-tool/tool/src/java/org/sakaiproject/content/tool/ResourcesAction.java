@@ -4377,11 +4377,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
 				}
 
-				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
-
 				// find the position of the message that is the top first on the page
 				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
 				{
+					context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
 					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
 					context.put("topMsgPos", Integer.toString(topMsgPos));
 					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
