@@ -895,40 +895,41 @@ public class GenericCalendarImporter implements CalendarImporterService
 						else if (ITEM_TYPE_PROPERTY_NAME.equals(column.getPropertyName())){
 							String cellValue = column.getCellValue();
 							if (cellValue!=null){
-								if (cellValue.equals("event.activity"))
+								if (cellValue.equals("event.activity")){
 									mapCellValue = "Activity";
-								else if (cellValue.equals("event.exam"))
+								}else if (cellValue.equals("event.exam")){
 									mapCellValue="Exam";
-								else if (cellValue.equals("event.meeting"))
+								}else if (cellValue.equals("event.meeting")){
 									mapCellValue="Meeting"; 
-								else if (cellValue.equals("event.academic.calendar"))
+								}else if (cellValue.equals("event.academic.calendar")){
 									mapCellValue="Academic Calendar"; 
-								else if (cellValue.equals("event.cancellation"))
+								}else if (cellValue.equals("event.cancellation")){
 									mapCellValue="Cancellation"; 
-								else if (cellValue.equals("event.discussion"))
+								}else if (cellValue.equals("event.discussion")){
 									mapCellValue="Class section - Discussion"; 
-								else if (cellValue.equals("event.lab"))
+								}else if (cellValue.equals("event.lab")){
 									mapCellValue="Class section - Lab"; 
-								else if (cellValue.equals("event.lecture"))
+								}else if (cellValue.equals("event.lecture")){
 									mapCellValue="Class section - Lecture"; 
-								else if (cellValue.equals("event.smallgroup"))
+								}else if (cellValue.equals("event.smallgroup")){
 									mapCellValue="Class section - Small Group"; 
-								else if (cellValue.equals("event.class"))
+								}else if (cellValue.equals("event.class")){
 									mapCellValue="Class session"; 
-								else if (cellValue.equals("event.computer"))
+								}else if (cellValue.equals("event.computer")){
 									mapCellValue="Computer Session"; 
-								else if (cellValue.equals("event.deadline"))
+								}else if (cellValue.equals("event.deadline")){
 									mapCellValue="Deadline"; 
-								else if (cellValue.equals("event.conference"))
+								}else if (cellValue.equals("event.conference")){
 									mapCellValue="Multidisciplinary Conference"; 
-								else if (cellValue.equals("event.quiz"))
+								}else if (cellValue.equals("event.quiz")){
 									mapCellValue="Quiz"; 
-								else if (cellValue.equals("event.special"))
+								}else if (cellValue.equals("event.special")){
 									mapCellValue="Special event"; 
-								else if (cellValue.equals("event.assignment"))
+								}else if (cellValue.equals("event.assignment")){
 									mapCellValue="Web Assignment"; 
-								else 
+								}else{ 
 									mapCellValue = cellValue; 
+								}
 							}
 						}
 						else
