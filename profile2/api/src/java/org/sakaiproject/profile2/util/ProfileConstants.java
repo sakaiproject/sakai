@@ -143,6 +143,8 @@ public class ProfileConstants {
 	public static final int EMAIL_NOTIFICATION_CONFIRM = 2;
 	public static final int EMAIL_NOTIFICATION_MESSAGE_NEW = 3;
 	public static final int EMAIL_NOTIFICATION_MESSAGE_REPLY = 4;
+	public static final int EMAIL_NOTIFICATION_WALL_EVENT_NEW = 5;
+	public static final int EMAIL_NOTIFICATION_WALL_POST_NEW = 6;
 	
 	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_EMAIL_REQUEST_SETTING = true;
@@ -355,7 +357,8 @@ public class ProfileConstants {
 	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_REPLY = "profile2.messageReply";
 	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST = "profile2.connectionRequest";
 	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM = "profile2.connectionConfirm";
-
+	public static final String EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW = "profile2.wallEventNew";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_NEW = "profile2.wallPostNew";
 	
 	/*
 	 * DIRECT LINKS

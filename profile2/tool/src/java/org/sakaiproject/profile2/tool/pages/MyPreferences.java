@@ -166,6 +166,21 @@ public class MyPreferences extends BasePage{
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+		
+		// new wall item notification emails
+		final RadioGroup<Boolean> wallItemNewMessage = new RadioGroup<Boolean>("wallItemNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "wallItemNewEmailEnabled"));
+		wallItemNewMessage.add(new Radio<Boolean>("wallItemNewOn", new Model<Boolean>(Boolean.valueOf(true))));
+		wallItemNewMessage.add(new Radio<Boolean>("wallItemNewOff", new Model<Boolean>(Boolean.valueOf(false))));
+		wallItemNewMessage.add(new Label("wallItemNewLabel", new ResourceModel("preferences.email.wall.new")));
+		form.add(wallItemNewMessage);
+		
+		//updater
+		wallItemNewMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
         
 		
 		// TWITTER SECTION

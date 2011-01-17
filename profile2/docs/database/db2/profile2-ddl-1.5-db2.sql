@@ -93,6 +93,7 @@
         SHOW_KUDOS smallint not null,
         SHOW_GALLERY_FEED smallint not null,
         USE_GRAVATAR smallint not null,
+        EMAIL_WALL_ITEM_NEW smallint not null,
         primary key (USER_UUID)
     );
 

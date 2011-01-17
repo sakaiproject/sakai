@@ -18,7 +18,9 @@ package org.sakaiproject.profile2.logic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -47,8 +49,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	}
 	
 	/**
- 	 * {@inheritDoc}
- 	 */
+	 * {@inheritDoc}
+	 */
 	public void addEventToWalls(String event, String userUuid) {
 
 		// get the connections of the creator of this content
@@ -67,9 +69,12 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		item.setDate(new Date());
 		// this string is mapped to a localized resource string in GUI
 		item.setText(event);
-		
+
 		for (Person connection : connections) {
 			dao.addNewWallItemForUser(connection.getUuid(), item);
+
+			sendWallNotificationEmail(connection.getUuid(), userUuid,
+					ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW);
 		}
 	}
 	
@@ -257,6 +262,32 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return count;
 		}
 	}
+	
+	private void sendWallNotificationEmail(String toUuid,
+			final String fromUuid, final int messageType) {
+		
+		// check if email preference enabled
+		if(!preferencesLogic.isEmailEnabledForThisMessageType(toUuid, messageType)) {
+			return;
+		}
+
+		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW == messageType) {
+			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;
+			
+			// create the map of replacement values for this email template
+			Map<String,String> replacementValues = new HashMap<String,String>();
+			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
+			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+	
+			sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
+			return;
+		}
+		
+		// TODO wall posts
+	}
 		
 	// internal components
 	private ProfileDao dao;
@@ -273,6 +304,16 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	public void setConnectionsLogic(
 			ProfileConnectionsLogic connectionsLogic) {
 		this.connectionsLogic = connectionsLogic;
+	}
+	
+	private ProfileLinkLogic linkLogic;
+	public void setLinkLogic(ProfileLinkLogic linkLogic) {
+		this.linkLogic = linkLogic;
+	}
+	
+	private ProfilePreferencesLogic preferencesLogic;
+	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
+		this.preferencesLogic = preferencesLogic;
 	}
 	
 	private ProfileStatusLogic statusLogic;

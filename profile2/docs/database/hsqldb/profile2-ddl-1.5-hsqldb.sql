@@ -93,6 +93,7 @@
         SHOW_KUDOS bit not null,
         SHOW_GALLERY_FEED bit not null,
         USE_GRAVATAR bit not null,
+        EMAIL_WALL_ITEM_NEW bit not null,
         primary key (USER_UUID)
     );
 

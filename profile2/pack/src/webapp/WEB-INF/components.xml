@@ -151,6 +151,8 @@
     		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
     		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
         	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+        	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+        	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
     </bean>
 	
     <!-- CacheManager -->
@@ -211,6 +213,7 @@
         		<value>org/sakaiproject/profile2/emailtemplates/template-messageReply.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallEventNew.xml</value>
       		</list>      
     	</constructor-arg>
   	</bean>
