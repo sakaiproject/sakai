@@ -188,8 +188,7 @@ public class ViewProfile extends BasePage {
 				public Panel getPanel(String panelId) {
 
 					setTabCookie(ProfileConstants.TAB_INDEX_WALL);
-					return new ViewWallPanel(panelId, userUuid, currentUserId,
-							privacy, friend);
+					return new ViewWallPanel(panelId, userUuid);
 				}
 			});
 			

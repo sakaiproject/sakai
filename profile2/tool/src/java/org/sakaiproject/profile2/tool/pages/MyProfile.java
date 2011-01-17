@@ -60,6 +60,7 @@ import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyProfilePanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
 import org.sakaiproject.profile2.tool.pages.panels.MyWallPanel;
+import org.sakaiproject.profile2.tool.pages.panels.ViewWallPanel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -493,7 +494,11 @@ public class MyProfile extends BasePage {
 				public Panel getPanel(String panelId) {
 
 					setTabCookie(ProfileConstants.TAB_INDEX_WALL);
-					return new MyWallPanel(panelId);
+					if (true == sakaiProxy.isSuperUser()) {
+						return new MyWallPanel(panelId, userUuid);
+					} else {
+						return new MyWallPanel(panelId);
+					}
 				}
 			});
 			

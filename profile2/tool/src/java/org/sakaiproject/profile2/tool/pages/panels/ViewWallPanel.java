@@ -34,8 +34,7 @@ public class ViewWallPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 		
-	public ViewWallPanel(String panelId, String userUuid,
-			String currentUserUuid, ProfilePrivacy privacy, boolean friend) {
+	public ViewWallPanel(String panelId, String userUuid) {
 
 		super(panelId);
 

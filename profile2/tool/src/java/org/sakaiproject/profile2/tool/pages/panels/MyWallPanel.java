@@ -15,16 +15,20 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.log4j.Logger;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
+import org.sakaiproject.profile2.tool.pages.MyProfile;
 
 /**
  * Container for viewing user's own wall.
@@ -35,8 +39,26 @@ public class MyWallPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Logger log = Logger.getLogger(MyWallPanel.class);
+	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
+	
+	public MyWallPanel(String panelId, String userUuid) {
+
+		super(panelId);
+		
+		// double check for super user
+		if (false == sakaiProxy.isSuperUser()) {
+			log.error("MyWallPanel: user " + sakaiProxy.getCurrentUserId()
+					+ " attempted to access MyWallPanel for " + userUuid
+					+ ". Redirecting...");
+
+			throw new RestartResponseException(new MyProfile());
+		}
+		
+		renderWallPanel(userUuid);
+	}
 	
 	/**
 	 * Creates a new instance of <code>MyWallPanel</code>.
@@ -44,17 +66,20 @@ public class MyWallPanel extends Panel {
 	public MyWallPanel(String panelId) {
 
 		super(panelId);
+		
+		renderWallPanel(sakaiProxy.getCurrentUserId());
+	}
 
+	private void renderWallPanel(String userUuid) {
 		// container which wraps list
 		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
 				"wallItemsContainer");
 
 		wallItemsContainer.setOutputMarkupId(true);
 		add(wallItemsContainer);
-		
-		WallItemDataProvider provider = new WallItemDataProvider(sakaiProxy
-				.getCurrentUserId());
-		
+
+		WallItemDataProvider provider = new WallItemDataProvider(userUuid);
+
 		// if no wall items, display a message
 		if (0 == provider.size()) {
 			wallItemsContainer.add(new Label("wallInformationMessage",
@@ -85,5 +110,4 @@ public class MyWallPanel extends Panel {
 
 		wallItemsContainer.add(wallItemsDataView);
 	}
-
 }
