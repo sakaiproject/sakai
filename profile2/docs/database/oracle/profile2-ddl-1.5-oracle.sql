@@ -93,6 +93,7 @@
         SHOW_KUDOS number(1,0) not null,
         SHOW_GALLERY_FEED number(1,0) not null,
         USE_GRAVATAR number(1,0) not null,
+        EMAIL_WALL_ITEM_NEW number(1,0) not null,
         primary key (USER_UUID)
     );
 
