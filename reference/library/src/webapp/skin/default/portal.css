@@ -1218,18 +1218,27 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-subsite { 
 	background-image: url(../../image/silk/chart_organisation.png); 
 }
-
 .icon-sakai-iframe-service {
 	background-image: url(../../image/silk/house.png);
 }
 .icon-sakai-iframe-myworkspace {
 	background-image: url(../../image/silk/house.png);
 }
-
 .icon-sakai-basiclti { 
 	background-image: url(../../image/silk/application_go.png); 
 }
-
+.icon-sakai-mneme { 
+	background-image: url(../../image/sakai/tool-icons/sakai.mneme.png); 
+} 
+.icon-sakai-mneme-admin { 
+	background-image: url(../../image/sakai/tool-icons/sakai.mneme.admin.png); 
+} 
+.icon-sakai-jforum-tool { 
+    background-image: url(../../image/sakai/sakai.jforum.tool.png); 
+} 
+.icon-sakai-melete { 
+    background-image: url(../../image/sakai/sakai.melete.png); 
+} 
 
 /** Privacy Popup Styles **/
 div#privacy_tool_popup {
