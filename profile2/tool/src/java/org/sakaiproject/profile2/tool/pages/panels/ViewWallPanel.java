@@ -15,14 +15,35 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import java.util.Date;
+
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
+import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
+
+import wicket.contrib.tinymce.TinyMceBehavior;
+import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
+import wicket.contrib.tinymce.settings.TinyMCESettings;
 
 /**
  * Container for viewing the wall of someone else.
@@ -32,8 +53,14 @@ import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 public class ViewWallPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-		
-	public ViewWallPanel(String panelId, String userUuid) {
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	private ProfileWallLogic wallLogic;
+	
+	public ViewWallPanel(String panelId, final String userUuid) {
 
 		super(panelId);
 
@@ -44,16 +71,64 @@ public class ViewWallPanel extends Panel {
 		wallItemsContainer.setOutputMarkupId(true);
 		add(wallItemsContainer);
 		
+		WallItem wallItem = new WallItem();
+		// always post to my wall as current user, to ensure super users cannot
+		// make posts as other users
+		wallItem.setCreatorUuid(sakaiProxy.getCurrentUserId());
+		wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_POST);
+		
+		// form for posting to my wall
+		Form<WallItem> form = new Form<WallItem>("viewWallPostForm", new Model<WallItem>(wallItem));
+		form.setOutputMarkupId(true);
+		add(form);
+		
+		// form submit feedback
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		form.add(formFeedback);
+		
+        final FeedbackPanel feedback = new FeedbackPanel("feedback");
+        feedback.setOutputMarkupId(true);
+        form.add(feedback);
+        
+        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
+        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
+		
+		// container for posting to my wall
+		WebMarkupContainer viewWallPostContainer = new WebMarkupContainer("viewWallPostContainer");
+		TextArea<String> myWallPost = new TextArea<String>("viewWallPost", new PropertyModel(wallItem, "text"));
+		myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(TinyMCESettings.Align.left)));
+		
+		viewWallPostContainer.add(myWallPost);
+		
+		form.add(viewWallPostContainer);
+		
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("viewWallPostSubmit", form) {
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+				
+				/*if (save(form)) {
+					
+				}*/
+				
+				save(form, userUuid);
+				
+				setResponsePage(new ViewProfile(userUuid));
+			}
+		};
+		submitButton.setModel(new ResourceModel("button.wall.post"));
+		submitButton.add(new TinyMceAjaxSubmitModifier());
+		viewWallPostContainer.add(submitButton);
+		
 		// note: privacy check is handled by the logic component
 		WallItemDataProvider provider = new WallItemDataProvider(userUuid);
 
 		// if no wall items, display a message
 		if (0 == provider.size()) {
-				wallItemsContainer.add(new Label("wallInformationMessage",
-						new ResourceModel("text.view.wall.nothing")));
+			add(new Label("wallInformationMessage",
+				new ResourceModel("text.view.wall.nothing")));
 		} else {
 			// blank label when there are items to display
-			wallItemsContainer.add(new Label("wallInformationMessage"));
+			add(new Label("wallInformationMessage"));
 		}
 
 		// TODO haven't decided whether to add a navigator yet
@@ -75,5 +150,15 @@ public class ViewWallPanel extends Panel {
 		// wallItemsDataView.setItemsPerPage(10);
 
 		wallItemsContainer.add(wallItemsDataView);
+	}
+	
+	private /*boolean*/ void save(Form form, String userUuid) {
+		// TODO test if wall post fails
+		
+		WallItem wallItem = (WallItem) form.getModelObject();
+		wallItem.setDate(new Date());
+		
+		wallLogic.postWallItemToWall(userUuid, wallItem);
+		
 	}
 }
