@@ -38,7 +38,6 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  */
 public class ProfileWallLogicImpl implements ProfileWallLogic {
 	
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(ProfileWallLogic.class);
 		
 	/**
@@ -62,20 +61,52 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return;
 		}
 
-		WallItem item = new WallItem();
+		WallItem wallItem = new WallItem();
 
-		item.setCreatorUuid(userUuid);
-		item.setType(ProfileConstants.WALL_ITEM_TYPE_EVENT);
-		item.setDate(new Date());
+		wallItem.setCreatorUuid(userUuid);
+		wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_EVENT);
+		wallItem.setDate(new Date());
 		// this string is mapped to a localized resource string in GUI
-		item.setText(event);
+		wallItem.setText(event);
 
 		for (Person connection : connections) {
-			dao.addNewWallItemForUser(connection.getUuid(), item);
+			dao.addNewWallItemForUser(connection.getUuid(), wallItem);
 
 			sendWallNotificationEmail(connection.getUuid(), userUuid,
 					ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW);
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void postWallItemToWall(String userUuid, WallItem wallItem) {
+		// post to wall
+		dao.addNewWallItemForUser(userUuid, wallItem);
+		// don't email user if they've posted on their own wall
+		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
+			sendWallNotificationEmail(userUuid, wallItem.getCreatorUuid(),
+					ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW);
+		}
+		// and if they have posted on their own wall, let connections know
+		else {
+			// get the connections of the user associated with the wall
+			List<Person> connections = null;
+			connections = connectionsLogic.getConnectionsForUser(userUuid);
+
+			if (null == connections || 0 == connections.size()) {
+				// there are therefore no walls to post event to
+				return;
+			}
+
+			for (Person connection : connections) {
+				dao.addNewWallItemForUser(connection.getUuid(), wallItem);
+
+					sendWallNotificationEmail(connection.getUuid(),userUuid,
+							ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW);
+			}			
+		}
+
 	}
 	
 	/**
@@ -265,28 +296,41 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	
 	private void sendWallNotificationEmail(String toUuid,
 			final String fromUuid, final int messageType) {
-		
+
 		// check if email preference enabled
-		if(!preferencesLogic.isEmailEnabledForThisMessageType(toUuid, messageType)) {
+		if (!preferencesLogic.isEmailEnabledForThisMessageType(toUuid,
+				messageType)) {
 			return;
 		}
 
+		// create the map of replacement values for this email template
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+		replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+		
+		String emailTemplateKey = null;
+		
 		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW == messageType) {
-			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;
+			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;			
+		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
+			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
-			// create the map of replacement values for this email template
-			Map<String,String> replacementValues = new HashMap<String,String>();
-			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
-			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
-			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
-			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
-	
-			sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
-			return;
+			
+		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW == messageType) {
+			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW;
+			
+			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(fromUuid));
 		}
 		
-		// TODO wall posts
+		if (null != emailTemplateKey) {
+			sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
+		} else {
+			log.warn("not sending email, unknown message type: " + messageType);
+		}
+
 	}
 		
 	// internal components

@@ -31,10 +31,22 @@ public interface ProfileWallLogic {
 	 * Adds the specified event to the walls of the users connected to the
 	 * specified user ID.
 	 * 
+	 * Note: the wall logic is currently responsible for timestamping the event,
+	 * but we might want to pass the date in this API call instead.
+	 * 
 	 * @param event the event to add.
 	 * @param userUuid the ID of the user that created the event.
 	 */
 	public void addEventToWalls(String event, String userUuid);
+	
+	/**
+	 * Posts the specified wall item to the specified user's wall and the
+	 * walls of their connections.
+	 * 
+	 * @param userUuid the id of the user whose wall we're posting to.
+	 * @param wallItem the wall item to post.
+	 */
+	public void postWallItemToWall(String userUuid, WallItem wallItem);
 	
 	/**
 	 * Returns the wall for the specified user. The privacy record will

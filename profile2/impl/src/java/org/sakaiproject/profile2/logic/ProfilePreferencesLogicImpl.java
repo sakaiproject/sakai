@@ -121,7 +121,11 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
     		return true;
     	}
     	
-    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW && profilePreferences.isWallItemNewEmailEnabled()) {
+    	// may split these later, but for now single preference controls wall emails
+    	if((messageType == ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW || 
+    			messageType == ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW ||
+    			messageType == ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW)
+    			&& profilePreferences.isWallItemNewEmailEnabled()) {
     		return true;
     	}
     	

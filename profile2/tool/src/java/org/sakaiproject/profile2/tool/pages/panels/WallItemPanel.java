@@ -79,6 +79,8 @@ public class WallItemPanel extends Panel {
 
 		if (ProfileConstants.WALL_ITEM_TYPE_EVENT == wallItem.getType()) {
 			add(new Label("wallItemText", new ResourceModel(wallItem.getText())));
+		} else if (ProfileConstants.WALL_ITEM_TYPE_POST == wallItem.getType()) {
+			add(new Label("wallItemText", ProfileUtils.processHtml(wallItem.getText())).setEscapeModelStrings(false));
 		} else {
 			add(new Label("wallItemText", wallItem.getText()));
 		}

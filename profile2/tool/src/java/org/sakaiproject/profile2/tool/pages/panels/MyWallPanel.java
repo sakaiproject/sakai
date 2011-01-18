@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -29,14 +31,17 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 import wicket.contrib.tinymce.TinyMceBehavior;
 import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
@@ -56,6 +61,15 @@ public class MyWallPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	private ProfileWallLogic wallLogic;
+	
+	/**
+	 * Creates a new instance of <code>MyWallPanel</code>.
+	 * 
+	 * This method is used when a super user is viewing the profile of another
+	 * user.
+	 */
 	public MyWallPanel(String panelId, String userUuid) {
 
 		super(panelId);
@@ -82,7 +96,7 @@ public class MyWallPanel extends Panel {
 		renderWallPanel(sakaiProxy.getCurrentUserId());
 	}
 
-	private void renderWallPanel(String userUuid) {
+	private void renderWallPanel(final String userUuid) {
 		// container which wraps list
 		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
 				"wallItemsContainer");
@@ -90,8 +104,14 @@ public class MyWallPanel extends Panel {
 		wallItemsContainer.setOutputMarkupId(true);
 		add(wallItemsContainer);
 		
+		WallItem wallItem = new WallItem();
+		// always post to my wall as current user, to ensure super users cannot
+		// make posts as other users
+		wallItem.setCreatorUuid(sakaiProxy.getCurrentUserId());
+		wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_POST);
+		
 		// form for posting to my wall
-		Form<String> form = new Form<String>("myWallPostForm", new Model<String>(new String()));
+		Form<WallItem> form = new Form<WallItem>("myWallPostForm", new Model<WallItem>(wallItem));
 		form.setOutputMarkupId(true);
 		add(form);
 		
@@ -109,7 +129,7 @@ public class MyWallPanel extends Panel {
 		
 		// container for posting to my wall
 		WebMarkupContainer myWallPostContainer = new WebMarkupContainer("myWallPostContainer");
-		TextArea<String> myWallPost = new TextArea<String>("myWallPost");
+		TextArea<String> myWallPost = new TextArea<String>("myWallPost", new PropertyModel(wallItem, "text"));
 		myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(TinyMCESettings.Align.left)));
 		
 		myWallPostContainer.add(myWallPost);
@@ -119,6 +139,13 @@ public class MyWallPanel extends Panel {
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("myWallPostSubmit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
+				/*if (save(form)) {
+					
+				}*/
+				
+				save(form, userUuid);
+				
+				setResponsePage(new MyProfile(userUuid));
 			}
 		};
 		submitButton.setModel(new ResourceModel("button.wall.post"));
@@ -156,5 +183,15 @@ public class MyWallPanel extends Panel {
 		// wallItemsDataView.setItemsPerPage(10);
 
 		wallItemsContainer.add(wallItemsDataView);
+	}
+	
+	private /*boolean*/ void save(Form form, String userUuid) {
+		// TODO test if wall post fails
+		
+		WallItem wallItem = (WallItem) form.getModelObject();
+		wallItem.setDate(new Date());
+		
+		wallLogic.postWallItemToWall(userUuid, wallItem);
+		
 	}
 }

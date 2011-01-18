@@ -144,7 +144,8 @@ public class ProfileConstants {
 	public static final int EMAIL_NOTIFICATION_MESSAGE_NEW = 3;
 	public static final int EMAIL_NOTIFICATION_MESSAGE_REPLY = 4;
 	public static final int EMAIL_NOTIFICATION_WALL_EVENT_NEW = 5;
-	public static final int EMAIL_NOTIFICATION_WALL_POST_NEW = 6;
+	public static final int EMAIL_NOTIFICATION_WALL_POST_MY_NEW = 6;
+	public static final int EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW = 7;
 	
 	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_EMAIL_REQUEST_SETTING = true;
@@ -280,6 +281,8 @@ public class ProfileConstants {
 	 */
 	public static final int WALL_ITEM_TYPE_EVENT = 0;
 	public static final int WALL_ITEM_TYPE_STATUS = 1;
+	public static final int WALL_ITEM_TYPE_POST = 2;
+	
 	// TODO possible candidates for sakai.properties
 	public static final int MAX_WALL_ITEMS_SAVED_PER_USER = 20;
 	public static final int MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES = MAX_WALL_ITEMS_SAVED_PER_USER + 10;
@@ -358,7 +361,8 @@ public class ProfileConstants {
 	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST = "profile2.connectionRequest";
 	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM = "profile2.connectionConfirm";
 	public static final String EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW = "profile2.wallEventNew";
-	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_NEW = "profile2.wallPostNew";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW = "profile2.wallPostMyWallNew";
+	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW = "profile2.wallPostConnectionWallNew";
 	
 	/*
 	 * DIRECT LINKS
