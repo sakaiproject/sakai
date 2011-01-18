@@ -160,6 +160,8 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	private static final String FORM_TOOL_TITLE = "title-of-tool";
 
 	private static final int MAX_TITLE_LENGTH = 99;
+	
+	private static final int MAX_SITE_INFO_URL_LENGTH = 255;
 
 	/**
 	 * Expand macros to insert session information into the URL?
@@ -1081,6 +1083,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 		placement.setTitle(title);
 		
+		// site info url 
+		String infoUrl = StringUtil.trimToNull(data.getParameters().getString("infourl"));
+		if (infoUrl != null && infoUrl.length() > MAX_SITE_INFO_URL_LENGTH)
+		{
+			addAlert(state, rb.getString("gen.info.url.toolong"));
+			return;
+		}
+		
 		try
 		{
 			Site site = SiteService.getSite(toolConfig.getSiteId());
@@ -1136,7 +1146,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		else if (SPECIAL_WORKSITE.equals(state.getAttribute(SPECIAL)))
 		{
-			String infoUrl = StringUtil.trimToNull(data.getParameters().getString("infourl"));
 			if ((infoUrl != null) && (infoUrl.length() > 0) && (!infoUrl.startsWith("/")) && (infoUrl.indexOf("://") == -1))
 			{
 				infoUrl = "http://" + infoUrl;
