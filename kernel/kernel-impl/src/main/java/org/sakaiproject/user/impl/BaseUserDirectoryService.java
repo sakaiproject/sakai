@@ -2119,8 +2119,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			user.setAttribute("email", getEmail());
 			user.setAttribute("created-id", m_createdUserId);
 			user.setAttribute("modified-id", m_lastModifiedUserId);
-			user.setAttribute("created-time", m_createdTime.toString());
-			user.setAttribute("modified-time", m_lastModifiedTime.toString());
+			
+			if (m_createdTime != null)
+			{
+				user.setAttribute("created-time", m_createdTime.toString());
+			}
+
+			if (m_lastModifiedTime != null)
+			{
+				user.setAttribute("modified-time", m_lastModifiedTime.toString());
+			}
 
 			// properties
 			getProperties().toXml(doc, stack);
