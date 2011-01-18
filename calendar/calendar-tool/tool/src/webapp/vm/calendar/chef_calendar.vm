@@ -75,7 +75,7 @@ calendar Portlet
 #elseif ($eventType =="Multidisciplinary Conference")
 <img src = "#imageLink("$config.getProperty('legend.icon13')")" alt="$tlang.getString('legend.key13')" border="0">
 #elseif ($eventType =="Quiz")
-<img src = "#imageLink("$config.getProperty('legend.icon14')")" alt="$tlang.getString('legend.key13')" border="0">
+<img src = "#imageLink("$config.getProperty('legend.icon14')")" alt="$tlang.getString('legend.key14')" border="0">
 #elseif ($eventType =="Special event")
 <img src = "#imageLink("$config.getProperty('legend.icon15')")" alt="$tlang.getString('legend.key15')" border="0">
 #elseif ($eventType =="Web Assignment")
