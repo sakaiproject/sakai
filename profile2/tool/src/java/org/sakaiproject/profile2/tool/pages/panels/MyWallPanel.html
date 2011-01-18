@@ -29,11 +29,24 @@
 	<!-- wall items -->
 	<!-- <span wicket:id="navigator">[dataview navigator]</span> -->
 	
-	<div class="profileContent">
-	<div class="wall-wrap" wicket:id="wallItemsContainer">
-		
+	<div class="wall-wrap">
 		<span wicket:id="wallInformationMessage">[wallInformationMessage]</span>
 		
+		<form wicket:id="myWallPostForm" class="wall-post-form">
+				
+				<div wicket:id="formFeedback">[formFeedback]</div>
+				
+				<div wicket:id="feedback"></div>
+				
+				<div wicket:id="myWallPostContainer" class="wall-post-container">
+						<textarea wicket:id="myWallPost" class="wall-post-input-area" rows="4" cols="40">[myWallPost]</textarea>
+						<input type="submit" wicket:id="myWallPostSubmit" class="wall-post-button" value="Post to your wall" />
+				</div>
+				
+		</form>
+		
+	<div wicket:id="wallItemsContainer">
+				
 		<div class="wall-item" wicket:id="wallItems">
 			<div wicket:id="wallItemPanel"></div>	    	
 		</div>

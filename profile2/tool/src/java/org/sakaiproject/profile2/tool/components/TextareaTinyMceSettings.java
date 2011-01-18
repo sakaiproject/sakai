@@ -30,7 +30,7 @@ public class TextareaTinyMceSettings extends TinyMCESettings {
 
 	private static final long serialVersionUID = 1L;
 	
-	public TextareaTinyMceSettings () {
+	public TextareaTinyMceSettings(TinyMCESettings.Align toolbarAlign) {
 		super(TinyMCESettings.Theme.advanced);
 		
 		/*
@@ -85,15 +85,18 @@ public class TextareaTinyMceSettings extends TinyMCESettings {
 		setToolbarButtons(TinyMCESettings.Toolbar.third, new ArrayList<Button>());
 		setToolbarButtons(TinyMCESettings.Toolbar.fourth, new ArrayList<Button>());
 
-		setToolbarAlign(TinyMCESettings.Align.center);
+		setToolbarAlign(toolbarAlign);
 		setToolbarLocation(TinyMCESettings.Location.top);
 		setStatusbarLocation(null);
 		setResizing(true);
 		setHorizontalResizing(true);
 		
 		//remove leading and trailing p tags, PRFL-387
-		addCustomSetting("forced_root_block : false");
-
+		addCustomSetting("forced_root_block : false");		
+	}
+	
+	public TextareaTinyMceSettings () {
+		this(TinyMCESettings.Align.center);
 	}
 	
 }

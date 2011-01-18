@@ -1331,6 +1331,7 @@ main-profile-tabpanel .tab-row a:visited.active,
 /* wall-related */
 .wall-wrap {
 	width: 500px;
+	font-size: 90%;
 }
 
 .wall-item {
@@ -1354,6 +1355,24 @@ main-profile-tabpanel .tab-row a:visited.active,
 
 .wall-item-date {
 	color: #AAADBA;
+}
+
+.wall-post-form {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.wall-post-container {
+	height: 150px;
+	padding-bottom: 5px;
+}
+
+.wall-post-input-area {
+	width: 492px; /* TinyMCE control adds 8px */
+}
+
+.wall-post-button {
+	margin-top: 5px;
 }
 
 /* close button */
