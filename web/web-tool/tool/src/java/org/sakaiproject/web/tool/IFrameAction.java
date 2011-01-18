@@ -1006,6 +1006,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			}
 		}
 		
+		// output the max limit 
+		context.put("max_length_title", MAX_TITLE_LENGTH);
+		context.put("max_length_info_url", MAX_SITE_INFO_URL_LENGTH);
+		
 		return template;
 	}
 

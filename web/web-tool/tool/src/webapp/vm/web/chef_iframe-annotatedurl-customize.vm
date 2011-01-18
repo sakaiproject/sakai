@@ -15,7 +15,7 @@
 		<p class="shorttext indnt1">
 			<span class="reqStar">*</span>
 			<label for="title"> $tlang.getString("gen.title")</label>
-			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" /><br />
+			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" maxlength="$max_length_title" /><br />
 	
 	
 		<p class="shorttext indnt1">
