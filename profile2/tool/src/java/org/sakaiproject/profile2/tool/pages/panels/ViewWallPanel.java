@@ -32,6 +32,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
@@ -60,6 +62,12 @@ public class ViewWallPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	private ProfileConnectionsLogic connectionsLogic;
+	
 	public ViewWallPanel(String panelId, final String userUuid) {
 
 		super(panelId);
@@ -81,6 +89,12 @@ public class ViewWallPanel extends Panel {
 		Form<WallItem> form = new Form<WallItem>("viewWallPostForm", new Model<WallItem>(wallItem));
 		form.setOutputMarkupId(true);
 		add(form);
+		
+		if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid, sakaiProxy.getCurrentUserId(),
+				connectionsLogic.isUserXFriendOfUserY(userUuid, sakaiProxy.getCurrentUserId()))) {
+			form.setEnabled(false);
+			form.setVisible(false);
+		}
 		
 		// form submit feedback
 		final Label formFeedback = new Label("formFeedback");
