@@ -1179,6 +1179,46 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	public boolean removeWallItemFromWall(final String userUuid,
+			final WallItem item) {
+		Boolean success = (Boolean) getHibernateTemplate().execute(
+				new HibernateCallback() {
+					public Object doInHibernate(Session session) {
+
+						try {
+
+							Query q = session.getNamedQuery(QUERY_GET_WALL);
+							q.setParameter(USER_UUID, userUuid,
+									Hibernate.STRING);
+
+							Wall wall = (Wall) q.uniqueResult();
+
+							if (null == wall) {
+								log.warn("tried to remove wall item from wall that doesn't exist");
+								return false;
+							}
+
+							wall.getWallItems().remove(item);
+
+							getHibernateTemplate().save(wall);
+
+							return true;
+						} catch (Exception e) {
+							log.error("failed to save wall for user id "
+									+ userUuid + e.getClass() + ": "
+									+ e.getMessage());
+
+							return false;
+						}
+					}
+				});
+
+		return success.booleanValue();
+	}
+	
+	/**
  	 * {@inheritDoc}
  	 */
 	public Wall getWallItemsForUser(final String userUuid) {

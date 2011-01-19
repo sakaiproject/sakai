@@ -175,7 +175,7 @@ public class MyWallPanel extends Panel {
 
 				WallItem wallItem = (WallItem) item.getDefaultModelObject();
 
-				item.add(new WallItemPanel("wallItemPanel", wallItem));
+				item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
 			}
 		};
 

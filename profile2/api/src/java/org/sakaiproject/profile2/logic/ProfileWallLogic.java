@@ -49,6 +49,14 @@ public interface ProfileWallLogic {
 	public void postWallItemToWall(String userUuid, WallItem wallItem);
 	
 	/**
+	 * Removes the specified wall item from the specified user's wall.
+	 * 
+	 * @param userUuid the id of the user whose wall we're removing from.
+	 * @param wallItem the wall item to remove.
+	 */
+	public boolean removeWallItemFromWall(String userUuid, WallItem wallItem);
+	
+	/**
 	 * Returns the wall for the specified user. The privacy record will
 	 * be looked up.
 	 * 
@@ -56,7 +64,6 @@ public interface ProfileWallLogic {
 	 * @return the wall for the specified user.
 	 */
 	public List<WallItem> getWallItemsForUser(String userUuid);
-	//public Wall getWallForUser(String userUuid);
 	
 	/**
 	 * Returns the wall for the specified user. Privacy settings are used
@@ -67,7 +74,6 @@ public interface ProfileWallLogic {
 	 * @return the wall for the specified user.
 	 */
 	public List<WallItem> getWallItemsForUser(String userUuid, ProfilePrivacy privacy);
-	//public Wall getWallForUser(String userUuid, ProfilePrivacy privacy);
 	
 	/**
 	 * Returns the number of available wall items for the specified user. The

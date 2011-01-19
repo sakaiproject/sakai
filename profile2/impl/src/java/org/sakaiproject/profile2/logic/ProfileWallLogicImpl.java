@@ -108,6 +108,13 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean removeWallItemFromWall(String userUuid, WallItem wallItem) {
+		return dao.removeWallItemFromWall(userUuid, wallItem);
+	}
 	
 	/**
  	 * {@inheritDoc}

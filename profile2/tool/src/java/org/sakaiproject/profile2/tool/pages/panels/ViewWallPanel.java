@@ -156,7 +156,7 @@ public class ViewWallPanel extends Panel {
 			protected void populateItem(Item<WallItem> item) {
 
 				WallItem wallItem = (WallItem) item.getDefaultModelObject();
-				item.add(new WallItemPanel("wallItemPanel", wallItem));
+				item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
 			}
 		};
 

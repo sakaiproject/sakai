@@ -1354,8 +1354,21 @@ main-profile-tabpanel .tab-row a:visited.active,
 	overflow: hidden;
 }
 
+.wall-item-details {
+
+}
+
 .wall-item-date {
 	color: #AAADBA;
+}
+
+.wall-item-actions-wrap {
+	float: right;
+}
+
+.wall-item-action-icon {
+	float:right;
+	margin-left: 2px;
 }
 
 .wall-post-form {

@@ -508,6 +508,15 @@ public interface ProfileDao {
 	public boolean addNewWallItemForUser(final String userUuid, final WallItem item);
 	
 	/**
+	 * Removes a wall item for the specified user.
+	 * 
+	 * @param userUuid the user ID.
+	 * @param item the wall item to remove.
+	 * @return <code>true</code> on success, <code>false</code> on failure.
+	 */
+	public boolean removeWallItemFromWall(final String userUuid, final WallItem item);
+	
+	/**
 	 * Retrieves the wall for the specified user.
 	 * 
 	 * @param userUuid the user ID.

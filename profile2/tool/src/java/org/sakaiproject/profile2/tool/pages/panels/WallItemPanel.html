@@ -34,7 +34,12 @@
 	<div class="wall-item-text-wrap">
    		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		
    		<div wicket:id="wallItemText">[wall item text]</div>
-   		<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
+   		<div class="wall-item-details">
+   			<div class="wall-item-actions-wrap">
+				<a wicket:id="removeWallItemLink"><span wicket:id="removeWallItemLabel"></span></a>
+	    	</div>
+   			<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
+   		</div>
    	</div>
 </wicket:panel>
 
