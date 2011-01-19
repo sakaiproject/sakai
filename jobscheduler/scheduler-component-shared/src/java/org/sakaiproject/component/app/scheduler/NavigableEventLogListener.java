@@ -159,6 +159,9 @@ public class NavigableEventLogListener implements TriggerListener, JobListener
                 break;
             }
         }
-        LOG.info(sb.toString());
+        if (LOG.isDebugEnabled())
+        {
+        	LOG.debug(sb.toString());
+        }
     }
 }
