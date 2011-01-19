@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
@@ -129,7 +130,7 @@ public class MyWallPanel extends Panel {
 		
 		// container for posting to my wall
 		WebMarkupContainer myWallPostContainer = new WebMarkupContainer("myWallPostContainer");
-		TextArea<String> myWallPost = new TextArea<String>("myWallPost", new PropertyModel(wallItem, "text"));
+		TextArea<String> myWallPost = new TextArea<String>("myWallPost", new PropertyModel<String>(wallItem, "text"));
 		myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(TinyMCESettings.Align.left)));
 		
 		myWallPostContainer.add(myWallPost);
@@ -137,15 +138,18 @@ public class MyWallPanel extends Panel {
 		form.add(myWallPostContainer);
 		
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("myWallPostSubmit", form) {
+			private static final long serialVersionUID = 1L;
+
+			@SuppressWarnings("unchecked")
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-				/*if (save(form)) {
-					
-				}*/
-				
-				save(form, userUuid);
-				
-				setResponsePage(new MyProfile(userUuid));
+				if (false == save(form, userUuid)) {
+					formFeedback.setDefaultModel(new ResourceModel("error.wall.post.failed"));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
+				} else {
+					setResponsePage(new MyProfile(userUuid));
+				}
 			}
 		};
 		submitButton.setModel(new ResourceModel("button.wall.post"));
@@ -185,13 +189,13 @@ public class MyWallPanel extends Panel {
 		wallItemsContainer.add(wallItemsDataView);
 	}
 	
-	private /*boolean*/ void save(Form form, String userUuid) {
-		// TODO test if wall post fails
+	// called when form is saved
+	@SuppressWarnings("unchecked")
+	private boolean save(Form form, String userUuid) {
 		
 		WallItem wallItem = (WallItem) form.getModelObject();
 		wallItem.setDate(new Date());
 		
-		wallLogic.postWallItemToWall(userUuid, wallItem);
-		
+		return wallLogic.postWallItemToWall(userUuid, wallItem);
 	}
 }
