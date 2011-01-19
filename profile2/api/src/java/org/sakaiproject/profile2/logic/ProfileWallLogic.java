@@ -46,7 +46,7 @@ public interface ProfileWallLogic {
 	 * @param userUuid the id of the user whose wall we're posting to.
 	 * @param wallItem the wall item to post.
 	 */
-	public void postWallItemToWall(String userUuid, WallItem wallItem);
+	public boolean postWallItemToWall(String userUuid, WallItem wallItem);
 	
 	/**
 	 * Removes the specified wall item from the specified user's wall.

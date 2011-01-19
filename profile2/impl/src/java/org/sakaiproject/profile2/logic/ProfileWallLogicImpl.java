@@ -70,19 +70,27 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		wallItem.setText(event);
 
 		for (Person connection : connections) {
-			dao.addNewWallItemForUser(connection.getUuid(), wallItem);
 
-			sendWallNotificationEmail(connection.getUuid(), userUuid,
-					ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW);
+			// only send email if successful
+			if (dao.addNewWallItemForUser(connection.getUuid(), wallItem)) {
+
+				sendWallNotificationEmail(connection.getUuid(), userUuid,
+						ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW);
+			} else {
+				log.warn("addNewWallItemForUser failed for user: " + connection.getUuid());
+			}
 		}
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void postWallItemToWall(String userUuid, WallItem wallItem) {
+	public boolean postWallItemToWall(String userUuid, WallItem wallItem) {
 		// post to wall
-		dao.addNewWallItemForUser(userUuid, wallItem);
+		if (false == dao.addNewWallItemForUser(userUuid, wallItem)) {
+			return false;
+		}
+
 		// don't email user if they've posted on their own wall
 		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
 			sendWallNotificationEmail(userUuid, wallItem.getCreatorUuid(),
@@ -94,19 +102,24 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			List<Person> connections = null;
 			connections = connectionsLogic.getConnectionsForUser(userUuid);
 
-			if (null == connections || 0 == connections.size()) {
-				// there are therefore no walls to post event to
-				return;
+			if (null != connections) {
+
+				for (Person connection : connections) {
+
+					// only send email if successful
+					if (dao.addNewWallItemForUser(connection.getUuid(),
+							wallItem)) {
+
+						sendWallNotificationEmail(connection.getUuid(),	userUuid,
+								ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW);
+					} else {
+						log.warn("addNewWallItemForUser failed for user: " + connection.getUuid());
+					}
+				}
 			}
-
-			for (Person connection : connections) {
-				dao.addNewWallItemForUser(connection.getUuid(), wallItem);
-
-					sendWallNotificationEmail(connection.getUuid(),userUuid,
-							ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW);
-			}			
 		}
 
+		return true;
 	}
 
 	/**
@@ -320,7 +333,10 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		String emailTemplateKey = null;
 		
 		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW == messageType) {
-			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;			
+			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;
+			
+			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
+			
 		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
