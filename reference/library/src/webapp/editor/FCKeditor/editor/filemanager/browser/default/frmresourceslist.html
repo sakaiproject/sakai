@@ -102,7 +102,7 @@ function OpenFile( fileUrl )
 {
     funcNum = GetUrlParam('CKEditorFuncNum') ;
     if (funcNum != '') {
-        window.top.opener.CKEDITOR.tools.callFunction( funcNum, encodeURI( fileUrl ).replace( '#', '%23' ));
+        window.top.opener.CKEDITOR.tools.callFunction( funcNum, fileUrl.replace( '#', '%23' ));
     }
     else {
         window.top.opener.SetUrl( fileUrl ) ;
