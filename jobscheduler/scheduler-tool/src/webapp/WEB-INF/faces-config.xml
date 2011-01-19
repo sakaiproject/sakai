@@ -23,7 +23,7 @@
          Dynamic Resource Bundle Loader
       </description>
       <managed-bean-name>msgs</managed-bean-name>
-      <managed-bean-class>org.sakaiproject.util.java.ResourceLoader</managed-bean-class>
+      <managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
       <managed-bean-scope>session</managed-bean-scope>
       <managed-property>
          <description>Bundle baseName</description>
