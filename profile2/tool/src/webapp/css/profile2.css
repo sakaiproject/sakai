@@ -1351,6 +1351,7 @@ main-profile-tabpanel .tab-row a:visited.active,
 .wall-item-text-wrap {
 	width: 435px;
 	margin-left: 50px;
+	overflow: hidden;
 }
 
 .wall-item-date {
