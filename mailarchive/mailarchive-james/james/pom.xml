@@ -47,6 +47,10 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mailarchive-api</artifactId>
       <version>${project.version}</version>

@@ -43,6 +43,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mailet.GenericMailet;
@@ -69,7 +70,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -165,14 +165,14 @@ public class SakaiMailet extends GenericMailet
 				fromAddr = mail.getSender().toInternetAddress().getAddress();
 			}
 
-			Collection to = mail.getRecipients();
+			Collection<MailAddress> to = mail.getRecipients();
 
 			Date sent = msg.getSentDate();
 
-			String subject = StringUtil.trimToNull(msg.getSubject());
+			String subject = StringUtils.trimToNull(msg.getSubject());
 
-			Enumeration headers = msg.getAllHeaderLines();
-			List mailHeaders = new Vector();
+			Enumeration<String> headers = msg.getAllHeaderLines();
+			List<String> mailHeaders = new Vector<String>();
 			while (headers.hasMoreElements())
 			{
 				String line = (String) headers.nextElement();
@@ -198,7 +198,7 @@ public class SakaiMailet extends GenericMailet
 					+ subject);
 
 			// process for each recipient
-			Iterator it = to.iterator();
+			Iterator<MailAddress> it = to.iterator();
 			while (it.hasNext())
 			{
 				String mailId = null;
@@ -274,7 +274,7 @@ public class SakaiMailet extends GenericMailet
 						else
 						{
 							String errMsg = rb.getString("err_email_off") + "\n\n";
-							String mailSupport = StringUtil.trimToNull( ServerConfigurationService.getString("mail.support") );
+							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
 							if ( mailSupport != null )
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 
@@ -295,7 +295,7 @@ public class SakaiMailet extends GenericMailet
 							M_log.info(id + " : mail rejected: from: " + fromAddr + " not authorized for site: " + mailId);
 
 							String errMsg = rb.getString("err_not_member") + "\n\n";
-							String mailSupport = StringUtil.trimToNull( ServerConfigurationService.getString("mail.support") );
+							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
 							if ( mailSupport != null )
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 							mail.setErrorMessage(errMsg);
@@ -343,7 +343,7 @@ public class SakaiMailet extends GenericMailet
 					
 					if (channel.getReplyToList())
 					{
-						List modifiedHeaders = new Vector();
+						List<String> modifiedHeaders = new Vector<String>();
 						for (String header: (List<String>)mailHeaders) 
 						{
 							if (header != null && !header.startsWith("Reply-To:"))
@@ -393,7 +393,7 @@ public class SakaiMailet extends GenericMailet
 
 					M_log.info(id + " : mail rejected: " + goOn.toString());
 					String errMsg = rb.getString("err_addr_unknown") + "\n\n";
-					String mailSupport = StringUtil.trimToNull( ServerConfigurationService.getString("mail.support") );
+					String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
 					if ( mailSupport != null )
 						errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 					mail.setErrorMessage(errMsg);
@@ -429,13 +429,13 @@ public class SakaiMailet extends GenericMailet
 		if ((fromAddr == null) || (fromAddr.length() == 0)) return false;
 
 		// find the users with this email address
-		Collection users = UserDirectoryService.findUsersByEmail(fromAddr);
+		Collection<User> users = UserDirectoryService.findUsersByEmail(fromAddr);
 
 		// if none found
 		if ((users == null) || (users.isEmpty())) return false;
 
 		// see if any of them are allowed to add
-		for (Iterator i = users.iterator(); i.hasNext();)
+		for (Iterator<User> i = users.iterator(); i.hasNext();)
 		{
 			User u = (User) i.next();
 			if (channel.allowAddMessage(u)) return true;
