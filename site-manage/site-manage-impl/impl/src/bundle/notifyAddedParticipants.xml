@@ -21,7 +21,7 @@
 					1. Open ${localSakaiName}: ${localSakaiURL}
 					2. Click the Login button.
 					3. Type your guest account login and password, and click Login.
-					4. Go to the site, click on the site tab. (You will see two or more tabs in a row across the upper part of the screen.)
+					4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
 			
 			&lt;#else&gt;		
 				To log in:
@@ -29,7 +29,7 @@
 					1. Open ${localSakaiName}: ${localSakaiURL}
 					2. Click the Login button.
 					3. Enter your username and password, and click Login.
-					4. Go to the site, click on the site tab. (You will see two or more tabs in a row across the upper part of the screen.)
+					4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
 			&lt;/#if&gt;
 		</message>
  		<locale></locale>
