@@ -18,7 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Date;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -117,7 +117,7 @@ public class ViewWallPanel extends Panel {
 		
 		form.add(viewWallPostContainer);
 		
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("viewWallPostSubmit", form) {
+		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("viewWallPostSubmit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				/*if (save(form)) {
