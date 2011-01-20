@@ -33,10 +33,15 @@
 			</h:panelGrid>
 
 			<p class="longtext">
-				<label for=""> <%-- outputLabel needed here instead but there is no target to id --%>
+				<label for="" style="float:none;display:block"> <%-- outputLabel needed here instead but there is no target to id --%>
 					<h:outputText value="#{msgs.syllabus_content}"/>
-				</label>		
-				<sakai:rich_text_area value="#{SyllabusTool.syllabusDataAsset}"   rows="17" columns="70"/>
+				</label>
+				<h:panelGrid columns="1" styleClass="jsfFormTable" summary="textarea" rendered="#{! SyllabusTool.wirelessDevice}">
+ 					<h:panelGroup styleClass="textarea required">	
+ 						<sakai:rich_text_area  value="#{SyllabusTool.syllabusDataAsset}" rows="17" columns="70"/>
+ 					</h:panelGroup>
+ 				</h:panelGrid>	
+ 				<h:inputTextarea rendered="#{SyllabusTool.wirelessDevice}" value="#{SyllabusTool.syllabusDataAsset}" rows="17" cols="70"/>
 			</p>	
 			<div class="checkbox">
 				<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}"  layout="pageDirection" title="#{msgs.publicPrivate}">
