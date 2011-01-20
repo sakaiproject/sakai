@@ -110,7 +110,7 @@ public class MyPictures extends BasePage {
 		addPictureUploadFolder.mkdirs();
 		
 		//file feedback will be redirected here
-        Label fileFeedback = new Label("fileFeedback");
+        final Label fileFeedback = new Label("fileFeedback");
         fileFeedback.setOutputMarkupPlaceholderTag(true);
         add(fileFeedback);
         
@@ -135,7 +135,13 @@ public class MyPictures extends BasePage {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				target.addComponent(fileFeedback);
 			}
+			
+        	protected void onError(AjaxRequestTarget target, Form form) { 
+        		log.debug("MyPictures.onSubmit validation failed.");
+        	    target.addComponent(fileFeedback); 
+        	} 
 
 		};
 		addPictureContainer.add(submitButton);
