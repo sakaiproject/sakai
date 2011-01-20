@@ -18,11 +18,13 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -52,7 +54,7 @@ public class ChangeProfilePictureUpload extends Panel{
 	
     private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
     
-    private Label formFeedback;
+    private FeedbackPanel feedback;
 
     /**
 	 * Default constructor if modifying own
@@ -103,17 +105,17 @@ public class ChangeProfilePictureUpload extends Panel{
 				if (upload == null) {
 					log.error("Profile.ChangeProfilePicture.onSubmit: upload was null.");
 					//error(new StringResourceModel("error.no.file.uploaded", this, null).getString());
-					formFeedback.setDefaultModel(new ResourceModel("error.no.file.uploaded"));
+					feedback.setDefaultModel(new ResourceModel("error.no.file.uploaded"));
 				    return;
 				} else if (upload.getSize() == 0) {
 				    log.error("Profile.ChangeProfilePicture.onSubmit: upload was empty.");
 					//error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
-					formFeedback.setDefaultModel(new ResourceModel("error.empty.file.uploaded"));
+					feedback.setDefaultModel(new ResourceModel("error.empty.file.uploaded"));
 					return;
 				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload.getContentType())) {
 					log.error("Profile.ChangeProfilePicture.onSubmit: invalid file type uploaded for profile picture");
 					//error(new StringResourceModel("error.invalid.image.type", this, null).getString());
-					formFeedback.setDefaultModel(new ResourceModel("error.invalid.image.type"));
+					feedback.setDefaultModel(new ResourceModel("error.invalid.image.type"));
 				    return;
 				} else {
 					
@@ -144,7 +146,7 @@ public class ChangeProfilePictureUpload extends Panel{
 						}
 					} else {
 						//error(new StringResourceModel("error.file.save.failed", this, null).getString());
-						formFeedback.setDefaultModel(new ResourceModel("error.file.save.failed"));
+						feedback.setDefaultModel(new ResourceModel("error.file.save.failed"));
 						return;
 					}
 										
@@ -188,13 +190,28 @@ public class ChangeProfilePictureUpload extends Panel{
 		form.add(uploadField);
 		
         //feedback for form submit action
-		formFeedback = new Label("formFeedback");
-		formFeedback.setOutputMarkupId(true);
-		form.add(formFeedback);
+		feedback = new FeedbackPanel("feedback");
+		feedback.setOutputMarkupId(true);
+		form.add(feedback);
 		
 		//submit button
-		//TODO form indicator on this button, but requires an AJAX button which can't handle file uploads.
-		Button submitButton = new Button("submit", new ResourceModel("button.upload"));
+		IndicatingAjaxButton submitButton = new IndicatingAjaxButton(
+				"submit", new ResourceModel("button.upload")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				target.addComponent(feedback);
+			}
+			
+        	// update feedback panel if validation failed
+        	protected void onError(AjaxRequestTarget target, Form form) { 
+        		log.debug("ChangeProfilePictureUpload.onSubmit validation failed.");
+        	    target.addComponent(feedback); 
+        	} 
+
+		};
 		
 		form.add(submitButton);
 		
