@@ -57,6 +57,12 @@ import org.sakaiproject.util.StringUtil;
 public class AliasesAction extends PagedResourceActionII
 {
 	/**
+	 * maximum chars allowed for alias setup 
+	 */
+	private static final int MAX_ALIAS_ID_LENGTH = 99;
+	private static final int MAX_ALIAS_TARGET_LENGTH = 255;
+	
+	/**
 	 * Populate the state object, if needed.
 	 */
 	/** Resource bundle using current language locale */
@@ -100,6 +106,10 @@ public class AliasesAction extends PagedResourceActionII
 
 		// put $action into context for menus, forms and links
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
+		
+		context.put("max_alias_id_length", MAX_ALIAS_ID_LENGTH);
+		
+		context.put("max_alias_target_length", MAX_ALIAS_TARGET_LENGTH);
 
 		// check mode and dispatch
 		String mode = (String) state.getAttribute("mode");
