@@ -3312,7 +3312,7 @@ public class AssignmentAction extends PagedResourceActionII
 							if (aSubmission != null)
 							{
 								User[] submitters = aSubmission.getSubmitters();
-								String gradeString = displayGrade(state, StringUtils.trimToNull(aSubmission.getGrade(false)));
+								String gradeString = StringUtils.trimToNull(displayGrade(state, aSubmission.getGrade(false)));
 								if (submitters != null && submitters.length > 0)
 								{
 									if (associateGradebookAssignment != null)
@@ -3321,19 +3321,19 @@ public class AssignmentAction extends PagedResourceActionII
 										{
 											// the associated assignment is externally maintained
 											gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
-													(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : "");
+													(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : null);
 										}
 										else if (g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
 										{
 											// the associated assignment is internal one, update records
 											g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
-													(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : "", "");
+													gradeString != null ? gradeString : "0", "");
 										}
 									}
 									else
 									{
 										gExternal.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(),
-												(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : "");
+												(gradeString != null && aSubmission.getGradeReleased()) ? gradeString : null);
 									}
 								}
 							}
@@ -3361,7 +3361,7 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									else if (isAssignmentDefined)
 									{
-										g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null, assignmentToolTitle);
+										g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(), "0", assignmentToolTitle);
 									}
 								}
 							}
@@ -3375,7 +3375,16 @@ public class AssignmentAction extends PagedResourceActionII
 								User[] submitters = aSubmission.getSubmitters();
 								if (submitters != null && submitters.length > 0)
 								{
-									gExternal.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), null);
+									if (isExternalAssociateAssignmentDefined)
+									{
+										// external assignment
+										gExternal.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), null);
+									}
+									else if (isAssignmentDefined)
+									{
+										// gb assignment
+										g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(), "0", "");
+									}
 								}
 							}
 						}
@@ -3965,7 +3974,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String aReference = a.getReference();
 			String associateGradebookAssignment = StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 
-			if ("release".equals(gradeOption) || "return".equals(gradeOption))
+			if (!"remove".equals(gradeOption))
 			{
 				// update grade in gradebook
 				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1);
@@ -7895,17 +7904,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (withGrade)
 				{
 					// any change in grade. Do not check for ungraded assignment type
-					if (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE)
-					{
-						if (typeOfGrade == Assignment.SCORE_GRADE_TYPE)
-						{
-							hasChange = valueDiffFromStateAttribute(state, scalePointGrade(state, g), submission.getGrade());
-						}
-						else 
-						{
-							hasChange = valueDiffFromStateAttribute(state, g, submission.getGrade());
-						}
-					}
+					hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), scalePointGrade(state, submission.getGrade())):valueDiffFromStateAttribute(state, g, submission.getGrade())):hasChange;
 					if (g != null)
 					{
 						state.setAttribute(GRADE_SUBMISSION_GRADE, g);
