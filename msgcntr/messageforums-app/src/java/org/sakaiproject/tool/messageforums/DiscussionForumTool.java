@@ -34,6 +34,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.DecimalFormatSymbols;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
@@ -4023,10 +4027,11 @@ public class DiscussionForumTool
 		  selGBItemRestricted = false;
 	  }
 
+	  NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
 	  if (!selGBItemRestricted) {
 		  Assignment assign = gradebookService.getAssignment(gradebookUid, selAssignmentName);
 		  if (assign != null) {
-			  gbItemPointsPossible = assign.getPoints().toString();
+			  gbItemPointsPossible = ((DecimalFormat) numberFormat).format(assign.getPoints());
 		  }
 
 		  Double assignScore = gradebookService.getAssignmentScore(gradebookUid,  
@@ -4034,7 +4039,7 @@ public class DiscussionForumTool
 		  CommentDefinition assgnComment = gradebookService.getAssignmentScoreComment(gradebookUid, selAssignmentName, studentId);
 
 		  if (assignScore != null) {
-			  gbItemScore = assignScore.toString();
+			  gbItemScore = ((DecimalFormat) numberFormat).format(assignScore);
 			  setSelectedAssignForMessage(selAssignmentName);
 		  }
 		  if (assgnComment != null) {
@@ -5819,32 +5824,34 @@ public class DiscussionForumTool
 	  } 
   } 
  
-   public boolean isNumber(String validateString) 
-   {
-     try  
-     {
-       double d = Double.valueOf(validateString).doubleValue();
-       if(d >= 0)
-         return true;
-       else
-         return false;
-     }
-     catch (NumberFormatException e) 
-     {
-       //e.printStackTrace();
-       return false;
-     }
-   }
-   
+  public boolean isNumber(String validateString) 
+  {
+      NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
+
+      try  
+      {
+          double d = numberFormat.parse(validateString).doubleValue();
+          if(d >= 0)
+              return true;
+          else
+              return false;
+      }
+      catch (ParseException e) 
+      {
+          return false;
+      }
+  }   
+  
    public boolean isFewerDigit(String validateString)
    {
-     String stringValue = Double.valueOf(validateString).toString();
-     if(stringValue.lastIndexOf(".") >= 0)
-     {
-       String subString = stringValue.substring(stringValue.lastIndexOf("."));
-       if(subString != null && subString.length() > 3)
-         return false;
-     }
+	   	   NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
+	   	   DecimalFormatSymbols dfs = ((DecimalFormat)numberFormat).getDecimalFormatSymbols();
+	   	   if(validateString.lastIndexOf(dfs.getDecimalSeparator()) >= 0)
+	   	   {
+	   		   String subString = validateString.substring(validateString.lastIndexOf(dfs.getDecimalSeparator()));
+	   		   if(subString != null && subString.length() > 3)
+	   			   return false;
+	   	   }
      
      return true;
    }
@@ -5910,21 +5917,32 @@ public class DiscussionForumTool
 	      return null; 
 	 } 
 	  
+	  if(!validateGradeInput())
+	      return null;
+	  
+	  NumberFormat nf = DecimalFormat.getInstance(new ResourceLoader().getLocale());
+	  Double gradeAsDouble = null;
 	  try {
-		  if(Double.parseDouble(gradePoint) > Double.parseDouble(gbItemPointsPossible) && !grade_too_large_make_sure) {
-			  setErrorMessage(getResourceBundleString(TOO_LARGE_GRADE));
-			  grade_too_large_make_sure = true;
-			  return null;
-		  } else {
-			  LOG.info("the user confirms he wants to give student higher grade");
-		  }		  
-	  } catch(NumberFormatException e) {
-		  LOG.info("number format problem.");
-	  }	  
+	      gradeAsDouble = new Double (nf.parse(gradePoint).doubleValue());
+	  } catch(ParseException pe) {
+	      // we shouldn't get here if the validation above is working properly
+	      LOG.warn("Error converting grade " + gradePoint + " to Double");
+	      return null;
+	  }
 
-    
-    if(!validateGradeInput())
-      return null;
+      try {
+          double pointsPossibleAsDouble = nf.parse(gbItemPointsPossible).doubleValue();
+          if((gradeAsDouble.doubleValue() > pointsPossibleAsDouble) && !grade_too_large_make_sure) {
+              setErrorMessage(getResourceBundleString(TOO_LARGE_GRADE));
+              grade_too_large_make_sure = true;
+              return null;
+          } else {
+              LOG.info("the user confirms he wants to give student higher grade");
+          }	  
+      } catch(ParseException e) {
+          LOG.warn("Unable to parse points possible " + gbItemPointsPossible + 
+                  " to determine if entered grade is greater than points possible");
+      }	  
     
     try 
     {   
@@ -5933,7 +5951,7 @@ public class DiscussionForumTool
         String studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
 
         gradebookService.setAssignmentScore(gradebookUuid,  
-        		  selectedAssignName, studentUid, Double.valueOf(gradePoint), "");
+        		  selectedAssignName, studentUid, gradeAsDouble, "");
         if (gradeComment != null && gradeComment.trim().length() > 0)
         {
         	gradebookService.setAssignmentScoreComment(gradebookUuid,  
