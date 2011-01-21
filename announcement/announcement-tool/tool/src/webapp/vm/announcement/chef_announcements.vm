@@ -263,15 +263,15 @@
 ##									#end
 								</h4>	
 							</td>
+							<td headers="author">
+##								$validator.escapeHtml($ann_item.Header.From.DisplayName)
+								$validator.escapeHtml($ann_item.AuthorDisplayName)
+							</td>
 							#if ($toolId.equals("sakai.announcements"))
 								<td headers="date">
 									$ann_item.Header.Date.toStringLocalFull()
 								</td>
 							#end
-							<td headers="author">
-##								$validator.escapeHtml($ann_item.Header.From.DisplayName)
-								$validator.escapeHtml($ann_item.AuthorDisplayName)
-							</td>
 							#if ($SiteColumnFlag > 0)
 								<td headers="channel">
 									$validator.escapeHtml($ann_item.channelDisplayName)
