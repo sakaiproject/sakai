@@ -7472,17 +7472,20 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.quota"));
+			addAlert(trb.getString("alert.quota"));
 			logger.warn("OverQuotaException " + e);
 		}
 		catch (ServerOverloadException e)
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.unable"));
+			addAlert(trb.getString("alert.unable"));
 			logger.warn("ServerOverloadException ", e);
 		}
 		catch (VirusFoundException e) {
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getFormattedMessage("alert.virusfound", new String[]{e.getMessage()}));
+			addAlert(trb.getFormattedMessage("alert.virusfound", new String[]{e.getMessage()}));
 		}
 	}
 
