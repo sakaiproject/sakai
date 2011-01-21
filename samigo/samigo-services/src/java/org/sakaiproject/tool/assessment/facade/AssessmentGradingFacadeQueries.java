@@ -2916,9 +2916,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		Long publishedAssessmentId = null;
 		GradingService gradingService = new GradingService();
 		GradebookService g = null;
-		boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-		if (integrated) {
-			g = (GradebookService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookService");
+		if (IntegrationContextFactory.getInstance() != null) {
+			boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+			if (integrated) {
+				g = (GradebookService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookService");
+			}
 		}
 		GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
