@@ -6363,7 +6363,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					}
 	
 					// An invalid URI format will get caught by the outermost catch block 
-					URI uri = new URI(new String(content, "UTF-8"));				
+					URI uri = new URI(new String(content, "UTF-8"));
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, resource.getReference(null), false));
 					res.sendRedirect(uri.toASCIIString());
 					
 				} else {
