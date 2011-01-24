@@ -7794,6 +7794,10 @@ public class DiscussionForumTool
 	    		return 1;
 	    	}
 	    	
+	    	if (dmb1 == null || dmb1.getMessage() == null || dmb1.getMessage().getDateThreadlastUpdated() == null) {
+	    		return -1;
+	    	}
+	    	
 	        return dmb2.getMessage().getDateThreadlastUpdated().compareTo(dmb1.getMessage().getDateThreadlastUpdated());
 	    }
 	}
