@@ -143,10 +143,10 @@
 								#end						
 							</td>	
 	
-							<td headers="worksite" style="white-space:nowrap" class="attach">
+							<td headers="worksite" style="white-space:nowrap" class="attach" id="mcstR-$rowCount">
 								<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
 							</td>
-							<td headers="description" class="specialLink">
+							<td headers="description mcstR-$rowCount" class="specialLink">
 								#if ($validator.escapeHtml($site.Description) != '')
 									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
 									<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
