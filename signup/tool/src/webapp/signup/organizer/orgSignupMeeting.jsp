@@ -188,7 +188,7 @@
 					</h:panelGroup>
 					
 					<%-- control email and the expand-collapse --%>			
-					<h:panelGrid  columns="3" rendered="#{!OrganizerSignupMBean.announcementType}" columnClasses="titleColumn,valueColumn,alignRightColumn" styleClass="emailTable">										
+					<h:panelGrid  id="orgMeeting_191" columns="3" rendered="#{!OrganizerSignupMBean.announcementType}" columnClasses="titleColumn,valueColumn,alignRightColumn" styleClass="emailTable">										
 						<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
 						<h:panelGroup styleClass="longtext" rendered="#{OrganizerSignupMBean.publishedSite}">
 							<h:selectBooleanCheckbox value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;"/>

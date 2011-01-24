@@ -104,8 +104,8 @@
 								</h:outputText>	
 							</h:panelGroup>	
 		
-							<h:outputText value="#{msgs.event_signup_start}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
-							<h:panelGroup rendered="#{!AttendeeSignupMBean.announcementType}">
+							<h:outputText id="noAnnouncement107" value="#{msgs.event_signup_start}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
+							<h:panelGroup id="noAnnouncemnt108" rendered="#{!AttendeeSignupMBean.announcementType}">
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
 									<f:convertDateTime pattern="EEEEEEEE, " />
 								</h:outputText>
@@ -117,8 +117,8 @@
 								</h:outputText>
 							</h:panelGroup>
 		
-							<h:outputText value="#{msgs.event_signup_deadline}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
-							<h:panelGroup rendered="#{!AttendeeSignupMBean.announcementType}">
+							<h:outputText id="noAnnouncement120" value="#{msgs.event_signup_deadline}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
+							<h:panelGroup id="noAnnouncement121" rendered="#{!AttendeeSignupMBean.announcementType}">
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
 									<f:convertDateTime pattern="EEEEEEEE, " />
 								</h:outputText>
@@ -194,7 +194,7 @@
 				</h:panelGroup>
 				
 				<%-- control expand-collapse --%>
-				<h:panelGrid  columns="1" rendered="#{!AttendeeSignupMBean.announcementType}" columnClasses="alignRightColumn" styleClass="emailTable">																		
+				<h:panelGrid id="noAnnouncement197" columns="1" rendered="#{!AttendeeSignupMBean.announcementType}" columnClasses="alignRightColumn" styleClass="emailTable">																		
 						<h:panelGroup>	
 		   	    				<h:outputLabel  id="imageOpen_meetingInfoDetail"  styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(true);">
 			   	    				<h:graphicImage value="/images/openTop.gif"  alt="open" title="#{msgs.event_tool_tips_hide_details}" style="border:none; vertical-align: bottom;" styleClass="openCloseImageIcon" />
