@@ -926,7 +926,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			{
 				Log.warn("chef", "SitesAction.doEdit: site not found: " + id);
 
-				addAlert(state, rb.getString("siteact.site") + " " + id + " " + rb.getString("siteact.notfou"));
+				addAlert(state, rb.getFormattedMessage("siteact.site", new Object[]{id}));
 				state.removeAttribute("mode");
 
 				// make sure auto-updates are enabled
@@ -936,7 +936,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		else
 		{
-			addAlert(state, rb.getString("youdonot1") + " " + id);
+			addAlert(state, rb.getFormattedMessage("youdonot1", new Object[]{id}));
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
@@ -1061,17 +1061,17 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		catch (IdUsedException e)
 		{
-			addAlert(state, rb.getString("sitact.thesitid"));
+			addAlert(state, rb.getFormattedMessage("sitact.thesitid", new Object[]{id}));
 			return;
 		}
 		catch (IdInvalidException e)
 		{
-			addAlert(state, rb.getString("sitact.thesitid2"));
+			addAlert(state, rb.getFormattedMessage("sitact.thesitid2", new Object[]{id}));
 			return;
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("sitact.youdonot2"));
+			addAlert(state, rb.getFormattedMessage("sitact.youdonot2", new Object[]{id}));
 			return;
 		}
 
@@ -1128,7 +1128,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				}
 				catch (PermissionException e)
 				{
-					addAlert(state, rb.getString("sitact.youdonot3") + " " + site.getId());
+					addAlert(state, rb.getFormattedMessage("sitact.youdonot3", new Object[]{site.getId()}));
 				}
 			}
 		}
@@ -1180,7 +1180,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("sitact.youdonot3") + " " + site.getId());
+			addAlert(state, rb.getFormattedMessage("sitact.youdonot3", new Object[]{site.getId()}));
 		}
 
 		// cleanup
@@ -1246,17 +1246,17 @@ public class AdminSitesAction extends PagedResourceActionII
 			}
 			catch (IdUsedException e)
 			{
-				addAlert(state, rb.getString("sitact.thesitid"));
+				addAlert(state, rb.getFormattedMessage("sitact.thesitid", new Object[]{id}));
 				return false;
 			}
 			catch (IdInvalidException e)
 			{
-				addAlert(state, rb.getString("sitact.thesitid2"));
+				addAlert(state, rb.getFormattedMessage("sitact.thesitid2", new Object[]{id}));
 				return false;
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, rb.getString("sitact.youdonot2"));
+				addAlert(state, rb.getFormattedMessage("sitact.youdonot2", new Object[]{id}));
 				return false;
 			}
 		}
@@ -2279,8 +2279,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		boolean isSimpleResourceName = alias.equals(Validator.escapeResourceName(alias));
 		boolean isSimpleUrl = alias.equals(Validator.escapeUrl(alias));
 		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
-			addAlert(state, rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));
-			M_log.warn(this + ".updateSiteInfo: " + rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));
+			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
+			M_log.warn(this + ".updateSiteInfo: " + rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 		} 
 		else if (StringUtil.trimToNull(alias) != null && StringUtil.trimToNull(siteReference) != null) 
 		{
@@ -2291,14 +2291,14 @@ public class AdminSitesAction extends PagedResourceActionII
 				try {
 					AliasService.setAlias(alias, siteReference);
 				} catch (IdUsedException ee) {
-					addAlert(state, rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.exists"));
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.exists"));
+					addAlert(state, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
+					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
 				} catch (IdInvalidException ee) {
-					addAlert(state, rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));
-					M_log.warn(this + ".setSiteAlias: " + rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));	
+					addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
+					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 				} catch (PermissionException ee) {
-					addAlert(state, SessionManager.getCurrentSessionUserId() + rb.getString("sitedipag.alias.nopermission"));
-					M_log.warn(this + ".setSiteAlias: " + SessionManager.getCurrentSessionUserId() + rb.getString("sitedipag.alias.nopermission"));
+					addAlert(state, rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
+					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.nopermission", new Object[]{SessionManager.getCurrentSessionUserId()}));
 				}
 			}
 		}
