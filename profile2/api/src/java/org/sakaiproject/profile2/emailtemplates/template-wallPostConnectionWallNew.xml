@@ -3,7 +3,7 @@
 	<subject>${senderDisplayName} has just posted to their profile wall on ${localSakaiName}</subject>
 	<message>${senderDisplayName} has just posted to their profile wall on ${localSakaiName}
 
-To view their profile, follow the url below:
+To view ${senderDisplayName}'s profile, follow the url below:
 ${profileLink}
 
 ---
@@ -12,7 +12,7 @@ Control what email notifications you receive from connections at My Workspace > 
 	</message>
 	<htmlMessage>${senderDisplayName} has just posted to their profile wall on ${localSakaiName}
 &lt;p&gt;
-To view their profile, follow the url below:
+To view ${senderDisplayName}'s profile, follow the url below:
 &lt;br /&gt;${profileLink}
 &lt;/p&gt;
 &lt;p&gt;
