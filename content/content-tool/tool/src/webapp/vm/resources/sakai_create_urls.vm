@@ -10,6 +10,11 @@
 	<p class="instruction">
 		$tlang.getString("instr.urls")
 	</p>
+	#if($ezproxyPrefix) 
+	  <p class="instruction">
+	    $tlang.getString("instr.ezproxy")
+	  </p>
+	#end
 	<div class="breadCrumb">
 		<h4>
 		$tlang.getString("gen.location")
@@ -39,6 +44,9 @@
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						## TODO add onchange event handler to seed file-name into displayName field
 						<input type="text" name="content${DOT}$i" id="content${DOT}$i" size="60" maxlength="512"/>
+						#if($ezproxyPrefix)
+						  <a class="indnt2" href="#" id="ezproxyTrigger${DOT}$i" title="$tlang.getString("label.ezproxy")">$tlang.getString("label.ezproxy")</a>
+						#end
 					</p>
 					<p class="shorttext" style="border:none"> 
 						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label> 

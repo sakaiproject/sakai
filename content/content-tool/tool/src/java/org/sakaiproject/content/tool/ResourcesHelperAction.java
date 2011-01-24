@@ -220,6 +220,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
 		context.put("DOT", ListItem.DOT);
 		context.put("calendarMap", new HashMap());
+
+                String ezproxy = ServerConfigurationService.getString("content.ezproxy.prefix", "");
+
+                if (ezproxy != null && ezproxy != "") {
+                    context.put("ezproxyPrefix", ezproxy);
+                } else {
+                    context.put("ezproxyPrefix", false);
+                }
 		
 		context.put("dateFormat", getDateFormatString());
 		
@@ -380,6 +388,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			String dropboxNotificationsProperty = getDropboxNotificationsProperty();
 			context.put("dropboxNotificationAllowed", Boolean.valueOf(ResourcesAction.DROPBOX_NOTIFICATIONS_ALLOW.equals(dropboxNotificationsProperty)));
 		}
+
+                String ezproxy = ServerConfigurationService.getString("content.ezproxy.prefix", "");
+                
+                if (ezproxy != null && ezproxy != "") {
+                    context.put("ezproxyPrefix", ezproxy);
+                } else {
+                    context.put("ezproxyPrefix", false);
+                }
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);

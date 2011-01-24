@@ -68,6 +68,10 @@
 				{
 					link.onclick = handleRemoveFileItem;
 				}
+				else if(link.id.match(/^ezproxyTrigger${DOT}\d+$/))
+				{
+				  link.onclick = handleAddEZProxyPrefix;
+				}
 				else if(link.id.match(/^showMetadata_[\S]+${DOT}\d+$/))
 				{
 					link.onclick = handleShowMetadata;
@@ -319,6 +323,25 @@
 			}
 		}
 		return false;
+	}
+	function handleAddEZProxyPrefix(evt)
+	{
+	  var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+	  if(element)
+	   {
+	     element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
+	     
+	     var dot = element.id.lastIndexOf("$DOT");
+	     if(dot >= 0)
+	     {
+	       var index = element.id.substr(dot + 1);
+	       var content_field = document.getElementById('content_'+index);
+	       if (content_field.value.indexOf('$ezproxyPrefix') == -1) {
+	         content_field.value = '$ezproxyPrefix'+content_field.value;
+	       }
+	     }
+	   }
+	   //document.getElementById("fileCount");
 	}
 	function togglePropertiesDiv(evt)
 	{
