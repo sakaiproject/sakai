@@ -3955,14 +3955,17 @@ public class SiteAction extends PagedResourceActionII {
 		List selectedTools = (List) state
 				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST); // String
 		// toolId's
-		for (int i = 0; i < selectedTools.size(); i++) {
-			// any tools chosen from import sites?
-			String toolId = (String) selectedTools.get(i);
-			if (params.getStrings(toolId) != null) {
-				importTools.put(toolId, new ArrayList(Arrays.asList(params
-						.getStrings(toolId))));
-				if (!anyToolSelected) {
-					anyToolSelected = true;
+		if (selectedTools != null)
+		{
+			for (int i = 0; i < selectedTools.size(); i++) {
+				// any tools chosen from import sites?
+				String toolId = (String) selectedTools.get(i);
+				if (params.getStrings(toolId) != null) {
+					importTools.put(toolId, new ArrayList(Arrays.asList(params
+							.getStrings(toolId))));
+					if (!anyToolSelected) {
+						anyToolSelected = true;
+					}
 				}
 			}
 		}
