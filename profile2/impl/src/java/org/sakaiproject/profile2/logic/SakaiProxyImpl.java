@@ -626,8 +626,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public void sendEmail(final String userId, final String subject, String message) {
 		
-		class EmailSender implements Runnable{
-			private Thread runner;
+		class EmailSender {
 			private String userId;
 			private String subject;
 			private String message;
@@ -644,12 +643,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				this.userId = userId;
 				this.subject = subject;
 				this.message = message;
-				runner = new Thread(this,"Profile2 EmailSender thread");
-				runner.start();
 			}
 
 			//do it!
-			public synchronized void run() {
+			public void send() {
 				try {
 
 					//get User to send to
@@ -735,36 +732,44 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		
 		//instantiate class to format, then send the mail
-		new EmailSender(userId, subject, message);
+		new EmailSender(userId, subject, message).send();
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
-	public void sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues) {
+	public void sendEmail(List<String> userIds, final String emailTemplateKey, final Map<String,String> replacementValues) {
 		
 		//get list of Users
-		List<User> users = new ArrayList<User>(getUsers(userIds));
-		RenderedTemplate template = null;
+		final List<User> users = new ArrayList<User>(getUsers(userIds));
 		
-		//get the rendered template for each user
-		for(User user : users) {
-			log.error("SakaiProxy.sendEmail() attempting to send email to: " + user.getId());
-			try { 
-				template = emailTemplateService.getRenderedTemplateForUser(emailTemplateKey, user.getReference(), replacementValues); 
-				if (template == null) {
-					log.error("SakaiProxy.sendEmail() no template with key: " + emailTemplateKey);
-					return;	//no template
+		//only ever use one thread whether sending to one user or many users
+		Thread sendMailThread = new Thread() {
+			
+			public void run() {
+				//get the rendered template for each user
+				RenderedTemplate template = null;
+				
+				for(User user : users) {
+					log.info("SakaiProxy.sendEmail() attempting to send email to: " + user.getId());
+					try { 
+						template = emailTemplateService.getRenderedTemplateForUser(emailTemplateKey, user.getReference(), replacementValues); 
+						if (template == null) {
+							log.error("SakaiProxy.sendEmail() no template with key: " + emailTemplateKey);
+							return;	//no template
+						}
+					}
+					catch (Exception e) {
+						log.error("SakaiProxy.sendEmail() error retrieving template for user: " + user.getId() + " with key: " + emailTemplateKey + " : " + e.getClass() + " : " + e.getMessage());
+						continue; //try next user
+					}
+					
+					//send
+					sendEmail(user.getId(), template.getRenderedSubject(), template.getRenderedHtmlMessage());
 				}
 			}
-			catch (Exception e) {
-				log.error("SakaiProxy.sendEmail() error retrieving template for user: " + user.getId() + " with key: " + emailTemplateKey + " : " + e.getClass() + " : " + e.getMessage());
-				continue; //try next user
-			}
-			
-			//send
-			sendEmail(user.getId(), template.getRenderedSubject(), template.getRenderedHtmlMessage());
-		}
+		};
+		sendMailThread.start();
 	}
 	
 	/**
