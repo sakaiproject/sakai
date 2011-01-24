@@ -172,7 +172,7 @@ public interface DeveloperHelperService {
      * <br/>
      * recommend you use {@link #getCurrentUserReference()} instead
      * 
-     * @return the user id OR null if there is no current user
+     * @return the user id OR null if there is no current user (or the user is anonymous)
      */
     public String getCurrentUserId();
 
