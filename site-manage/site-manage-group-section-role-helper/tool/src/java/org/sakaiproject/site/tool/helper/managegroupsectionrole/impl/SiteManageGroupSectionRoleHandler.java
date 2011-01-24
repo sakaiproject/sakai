@@ -510,13 +510,6 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-	* Returns to uninitialized state.
-	*/
-	public void destroy()
-	{
-	}
-    
-    /**
      * Adds a new group to the current site
      * @param toolId
      * @param title

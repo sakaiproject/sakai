@@ -272,13 +272,6 @@ public class SiteAddParticipantHandler {
     }
     
     /**
-	* Returns to uninitialized state.
-	*/
-	public void destroy()
-	{
-	}
-    
-    /**
      * get the site title
      * @return
      */

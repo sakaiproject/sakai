@@ -71,7 +71,7 @@
     <servlet-class>
       uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
     </servlet-class>
-    <load-on-startup>1</load-on-startup>
+    <!--<load-on-startup>1</load-on-startup>-->
   </servlet>
   <!-- This is the mapping we would LIKE to apply, if it were supported by Sakai.
     Instead it is mocked up by SakaiRequestParser -->
