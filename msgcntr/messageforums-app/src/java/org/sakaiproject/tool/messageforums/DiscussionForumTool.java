@@ -7789,6 +7789,11 @@ public class DiscussionForumTool
 	private class ThreadUpdateSorter implements Comparator<DiscussionMessageBean>{
 
 	    public int compare(DiscussionMessageBean dmb1, DiscussionMessageBean dmb2) {
+	    	//MSGCNTR-446 if one dmb2 is null or 
+	    	if (dmb2 == null || dmb2.getMessage() == null || dmb2.getMessage().getDateThreadlastUpdated() == null) {
+	    		return 1;
+	    	}
+	    	
 	        return dmb2.getMessage().getDateThreadlastUpdated().compareTo(dmb1.getMessage().getDateThreadlastUpdated());
 	    }
 	}
