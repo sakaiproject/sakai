@@ -245,7 +245,19 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         			}
         			
         			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-        				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+					//SAK-19896, eduservice's can't share the same "Category" class, so just pass the ID's
+        				List<Long> catIds = new ArrayList<Long>();
+        				for (Category category : (List<Category>) categoryList) {
+        					catIds.add(category.getId());
+        				}
+        				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+        				List<Category> tmpCatList = new ArrayList<Category>();
+        				for (Category category : (List<Category>) categoryList) {
+        					if(viewableCats.contains(category.getId())){
+        						tmpCatList.add(category);
+        					}
+        				}
+        				categoryList = tmpCatList;
         			}
                 	
         			if (categoryList != null) {

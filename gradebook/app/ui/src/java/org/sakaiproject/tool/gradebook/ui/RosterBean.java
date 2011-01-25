@@ -229,7 +229,19 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		
 		if (getCategoriesEnabled()) {
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
+				//SAK-19896, eduservice's can't share the same "Category" class, so just pass the ID's
+				List<Long> catIds = new ArrayList<Long>();
+				for (Category category : categories) {
+					catIds.add(category.getId());
+				}
+				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+				List<Category> tmpCatList = new ArrayList<Category>();
+				for (Category category : categories) {
+					if(viewableCats.contains(category.getId())){
+						tmpCatList.add(category);
+					}
+				}
+				categories = tmpCatList;
 			}
 
 			int categoryCount = categories.size();
@@ -874,7 +886,19 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 			// then, we need to check for special grader permissions that may limit which categories may be viewed
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoriesFilter, getGradebook().getCategory_type());
+				//SAK-19896, eduservice's can't share the same "Category" class, so just pass the ID's
+				List<Long> catIds = new ArrayList<Long>();
+				for (Category category : (List<Category>) categoriesFilter) {
+					catIds.add(category.getId());
+				}
+				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+				List<Category> tmpCatList = new ArrayList<Category>();
+				for (Category category : (List<Category>) categoriesFilter) {
+					if(viewableCats.contains(category.getId())){
+						tmpCatList.add(category);
+					}
+				}
+				categoryList = tmpCatList;
 			}
 
 			if (categoryList != null && !categoryList.isEmpty()) {

@@ -562,7 +562,19 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			}
     			
     			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-    				categoryList = getGradebookPermissionService().getCategoriesForUserForStudentView(getGradebookId(), getUserUid(), studentUid, categoryList, getGradebook().getCategory_type(), getViewableSectionIds());
+				//SAK-19896, eduservice's can't share the same "Category" class, so just pass the ID's
+    				List<Long> catIds = new ArrayList<Long>();
+    				for (Category category : (List<Category>) categoryList) {
+    					catIds.add(category.getId());
+    				}
+    				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUserForStudentView(getGradebookId(), getUserUid(), studentUid, catIds, getGradebook().getCategory_type(), getViewableSectionIds());
+    				List<Category> tmpCatList = new ArrayList<Category>();
+    				for (Category category : (List<Category>) categoryList) {
+    					if(viewableCats.contains(category.getId())){
+    						tmpCatList.add(category);
+    					}
+    				}
+    				categoryList = tmpCatList;
     			}
     			
     			// first, we deal with the categories and their associated assignments

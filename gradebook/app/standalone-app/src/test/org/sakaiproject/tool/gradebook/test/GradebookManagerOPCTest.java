@@ -2840,8 +2840,13 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
 		Long permId4 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,"another section");
 		Long permId5 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, null,"another section");
-		
-		List cateList = gradebookPermissionService.getCategoriesForUser(persistentGradebook.getId(), "grader1", gradebookManager.getCategories(persistentGradebook.getId()), GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+
+		List cateList = gradebookManager.getCategories(persistentGradebook.getId());
+		List<Long> catIds = new ArrayList<Long>();
+		for (Category cat : (List<Category>) cateList) {
+			catIds.add(cat.getId());
+		}
+		List viewableCatIds = gradebookPermissionService.getCategoriesForUser(persistentGradebook.getId(), "grader1", catIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		
 //		for(int i=0; i<cateList.size(); i++)
 //		{

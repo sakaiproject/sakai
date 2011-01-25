@@ -429,8 +429,11 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		
 		// ta 
 		setAuthnId(TA_UID);
+		log.info("1-----------");
 		viewableAssignments = gradebookService.getViewableAssignmentsForCurrentUser(GRADEBOOK_UID_NO_CAT);
+		log.info("2----------: " + viewableAssignments.size());
 		Assert.assertTrue(viewableAssignments.size() == 2);
+
 		
 		// student
 		setAuthnId(STUDENT_IN_SECTION_UID1);

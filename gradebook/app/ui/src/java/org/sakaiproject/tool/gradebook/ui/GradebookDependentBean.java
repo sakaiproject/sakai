@@ -262,7 +262,18 @@ public abstract class GradebookDependentBean extends InitializableBean {
 				viewableCategories = categoryList;
 			} else {
 				if (getGradebookBean().getAuthzService().isUserHasGraderPermissions(getGradebookId(), getUserUid())) {
-					viewableCategories = getGradebookBean().getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+					//SAK-19896, eduservice's can't share the same "Category" class, so just pass the ID's
+    					List<Long> catIds = new ArrayList<Long>();
+    					for (Category category : (List<Category>) categoryList) {
+    						catIds.add(category.getId());
+    					}
+    					List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+    					List<Category> viewableCategories = new ArrayList<Category>();
+    					for (Category category : (List<Category>) categoryList) {
+    						if(viewableCats.contains(category.getId())){
+    							viewableCategories.add(category);
+    						}
+    					}
 				} else {
 					viewableCategories = categoryList;
 				}
