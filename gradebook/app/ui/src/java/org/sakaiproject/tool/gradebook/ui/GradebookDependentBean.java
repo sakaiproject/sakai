@@ -52,6 +52,8 @@ import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 
 public abstract class GradebookDependentBean extends InitializableBean {
 	private String pageName;
@@ -469,7 +471,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 */
     public String getDownloadFileName(String prefix) {
 		Date now = new Date();
-		DateFormat df = new SimpleDateFormat(getLocalizedString("export_filename_date_format"));
+		DateFormat df = new SimpleDateFormat(ServerConfigurationService.getString("gradebook.export_filename_date_format","yyyy-MM-dd"));
 		StringBuilder fileName = new StringBuilder(prefix);
         String gbName = getGradebook().getName();
         if(StringUtils.trimToNull(gbName) != null) {

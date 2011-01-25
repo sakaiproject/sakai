@@ -107,6 +107,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private UIComponent uploadButton;
     private String csvDelimiter;
     private NumberFormat numberFormat;
+    private String date_entry_format_description;
 
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -168,6 +169,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
 			}
 		}
+		
+		date_entry_format_description = ServerConfigurationService.getString("gradebook.date_entry_format_description","(mm/dd/yy)");
 
     }
 
@@ -2420,6 +2423,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	    return numberFormat;
 	}
 
+	public String getDateEntryFormatDescription(){
+		return this.date_entry_format_description;
+	}
 
 }
 
