@@ -1378,8 +1378,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  // categories are enabled, so we need to check the category restrictions
 				  List allCategories = getCategoriesWithAssignments(gradebook.getId());
 				  if (allCategories != null && !allCategories.isEmpty()) {
-					  List<Category> viewableCategories = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, allCategories, gradebook.getCategory_type());
-
+					  List<Long> catIds = new ArrayList<Long>();
+					  for (Category category : (List<Category>) allCategories) {
+						  catIds.add(category.getId());
+					  }
+					  List<Long> viewableCategorieIds = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, catIds, gradebook.getCategory_type());
+					  List<Category> viewableCategories = new ArrayList<Category>();
+					  for (Category category : (List<Category>) allCategories) {
+						  if(viewableCategorieIds.contains(category.getId())){
+							  viewableCategories.add(category);
+						  }
+					  }
+					  
 					  for (Iterator catIter = viewableCategories.iterator(); catIter.hasNext();) {
 						  Category cat = (Category) catIter.next();
 						  if (cat != null) {

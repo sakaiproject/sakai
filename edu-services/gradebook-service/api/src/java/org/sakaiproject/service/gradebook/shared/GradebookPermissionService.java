@@ -17,10 +17,10 @@ public interface GradebookPermissionService
    * @throws IllegalArgumentException
    * @return List of categories
    */
-	public List getCategoriesForUser(Long gradebookId, String userId, List categoryList, int cateType) throws IllegalArgumentException;
+	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList, int cateType) throws IllegalArgumentException;
 	
 	/**
-	 * Returns viewable categories for a user for a specific student
+	 * Returns viewable categorie id's for a user for a specific student
 	 * @param gradebookId
 	 * @param userId
 	 * @param studentId
@@ -30,7 +30,7 @@ public interface GradebookPermissionService
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public List getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List categories, int cateType, List sectionIds) throws IllegalArgumentException;
+	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categories, int cateType, List sectionIds) throws IllegalArgumentException;
 	
   /**
    * Get true/false value for current user which indicats if he has permission for all
