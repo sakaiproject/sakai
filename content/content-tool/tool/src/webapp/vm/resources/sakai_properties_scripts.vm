@@ -184,11 +184,11 @@
 	}
 	function handleEnterKey(evt) 
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var keyCode = event.keyCode ? evt.keyCode : evt.which ? evt.which : evt.charCode;
+			var keyCode = typeof evt.keyCode !== undefined ? evt.keyCode : typeof evt.which !== undefined ? evt.which : evt.charCode;
 			if (keyCode == 13) 
 			{
 				return false;
@@ -201,11 +201,11 @@
 	}      
 	function handleReleaseDatePopupRequest(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
@@ -225,11 +225,11 @@
 	}
 	function handleRetractDatePopupRequest(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
@@ -249,11 +249,11 @@
 	}
 	function handleCopyrightChange(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
@@ -271,11 +271,11 @@
 	}
 	function handleMimeCategoryChange(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
@@ -291,11 +291,11 @@
 	}
 	function handleMimetypeChange(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
@@ -311,11 +311,11 @@
 	}
 	function handleRemoveFileItem(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
@@ -326,7 +326,7 @@
 	}
 	function handleAddEZProxyPrefix(evt)
 	{
-	  var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+	  var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 	  if(element)
 	   {
 	     element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
@@ -345,11 +345,11 @@
 	}
 	function togglePropertiesDiv(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
@@ -361,11 +361,11 @@
 	}
 	function seedDisplayNameValue(evt)
 	{
-		evt = (evt) ? evt : ((event) ? event : null);
+		evt = (typeof evt !== undefined) ? evt : ((typeof event !== undefined) ? event : null);
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			var element = (typeof evt.target !== undefined) ? evt.target : ((typeof evt.srcElement !== undefined) ? evt.srcElement : null);
 			if(element)
 			{
 				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
