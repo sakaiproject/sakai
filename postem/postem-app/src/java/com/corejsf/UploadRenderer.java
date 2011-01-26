@@ -39,9 +39,23 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
 import javax.faces.application.FacesMessage;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.postem.PostemTool;
 
 public class UploadRenderer extends Renderer {
+    
+    /**
+     * Property set via sakai.properties to limit the file size allowed for
+     * uploads. This property is in MB and defaults to {@value #FILE_SIZE_MAX_DEFAULT}.
+     */
+    public static final String PROPERTY_FILE_SIZE_MAX = "postem.upload.max";
+
+    /**
+     * The default max file size, in MB, for an upload.
+     */
+    public static final int FILE_SIZE_MAX_DEFAULT = 1;
+    
 	public void encodeBegin(FacesContext context, UIComponent component)
 			throws IOException {
 		if (!component.isRendered())
@@ -62,6 +76,14 @@ public class UploadRenderer extends Renderer {
 		HttpServletRequest request = (HttpServletRequest) external.getRequest();
 		String clientId = component.getClientId(context);
 		FileItem item = (FileItem) request.getAttribute(clientId);
+		
+		int maxFileSizeInMB;
+        try {
+            maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_MAX_DEFAULT);
+        } catch (NumberFormatException nfe) {
+           maxFileSizeInMB = FILE_SIZE_MAX_DEFAULT;
+        }
+        long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
 
 		Object newValue;
 		ValueBinding binding = component.getValueBinding("value");
@@ -72,6 +94,11 @@ public class UploadRenderer extends Renderer {
 				PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 						"missing_csv", new Object[] {});
 				newValue = "";
+			}
+			else if (item != null && item.getSize() > maxFileSizeInBytes) {
+			    PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+                        "upload_file_size_error", new Object[] {maxFileSizeInMB});
+                newValue = "";
 			}
 			else if (item != null && item.getName().endsWith(".csv")){
 				if (binding.getType(context) == byte[].class) {
