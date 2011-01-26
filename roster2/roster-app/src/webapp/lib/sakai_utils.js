@@ -105,8 +105,15 @@ var SakaiUtils;
 
 	SakaiUtils.getCurrentUserPermissions = function(siteId,scope) {
 		var permissions = null;
+		var permissionsUrl;
+		if (undefined === scope) {
+			permissionsUrl = "/direct/site/" + siteId + "/userPerms.json";
+		} else {
+			permissionsUrl = "/direct/site/" + siteId + "/userPerms/" + scope + ".json";
+		}
+		
 		jQuery.ajax( {
-	 		url : "/direct/site/" + siteId + "/userPerms/" + scope + ".json",
+	 		url : permissionsUrl,
 	   		dataType : "json",
 	   		async : false,
 	   		cache : false,
@@ -171,7 +178,7 @@ var SakaiUtils;
                 callback();
             },
             error : function(xmlHttpRequest,status,error) {
-                alert("Failed to create meeting. Status: " + status + '. Error: ' + error);
+                alert("Failed to save permissions. Status: " + status + '. Error: ' + error);
             }
         });
 
@@ -220,5 +227,5 @@ var SakaiUtils;
 		oFCKeditor.Config['CustomConfigurationsPath'] = "/library/editor/FCKeditor/config.js";
 		oFCKeditor.ReplaceTextarea();
 	}
-
+	
 }) ();

@@ -21,12 +21,16 @@ navbar_pics_tooltip="View site members with pictures";
 navbar_group_membership="Group Membership";
 navbar_group_membership_tooltip="View site members organized by group";
 navbar_status="Enrollment Status";
-navbar_status_tooltip="View site members organized by enrollment status"
+navbar_status_tooltip="View site members organized by enrollment status";
+navbar_permissions="Permissions";
+navbar_permissions_tooltip="View and edit user permissions for this site";
 // Page titles
 title_overview="Overview";
 title_pictures="Pictures";
 title_group_membership="Group Membership";
 title_status="Enrollment Status";
+title_permissions="Role Permissions";
+
 // Search
 roster_search_text="Name or ID";
 roster_search_button="Find";
@@ -79,8 +83,13 @@ facet_groups="Groups";
 // Page title messages
 title_msg="To add or remove participants from the site, visit the Site Info tool.";
 title_msg_groups="To add or remove participants from groups, visit the Site Info tool.";
+title_msg_permissions="Define permissions for the roles in the current site."
 no_participants="No results found";
 // TODO this is currently unused but could display the search term entered
 no_participants_msg="No results found for \"{0}\"";
 // TODO this is currently unused, but could be used to display a message
 no_permission_msg="You do not have permission to view the Roster.";
+// Permissions
+roster_permissions_role="Role"
+roster_save_button="Save"
+roster_cancel_button="Cancel"

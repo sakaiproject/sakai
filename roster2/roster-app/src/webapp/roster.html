@@ -84,6 +84,8 @@ $.ajax({
 			href="javascript:;">${navbar_group_membership}</a>
 		<a id="navbar_enrollment_status_link" title="${navbar_status_tooltip}"
 			href="javascript:;">${navbar_status}</a>
+		<a id="navbar_permissions_link" title="${navbar_permissions_tooltip}"
+			href="javascript:;">${navbar_permissions}</a>
 	</span>
 </div>
 -->
@@ -154,6 +156,22 @@ $.ajax({
 			</td>
 			<td class="rosterPageHeaderRight">
 				<input id="export_button" type="button" value="${export_roster}"/>
+				<input type="button" value="${print_roster}" onclick="window.print()" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+-->
+</div>
+
+<div id="roster_permissions_header_template" style="display:none"><!--
+<table class="rosterPageHeader">
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				<h3>${title_permissions}: ${siteTitle}</h3>
+			</td>
+			<td class="rosterPageHeaderRight">
 				<input type="button" value="${print_roster}" onclick="window.print()" />
 			</td>
 		</tr>
@@ -807,6 +825,43 @@ $.ajax({
 	</tbody>
 </table>
 
+-->
+</div>
+
+<div id="roster_permissions_template" style="display:none"><!--
+<p class="instruction">${title_msg_permissions}</p>
+<table id="roster_permissions_table" class="listHier lines tableList">
+    <thead>
+        <tr class="listHier">
+            <th align="left">${roster_permissions_role}</th>
+            <th style="text-align:center;">roster.viewallmembers</th>
+            <th style="text-align:center;">roster.viewhidden</th>
+            <th style="text-align:center;">roster.viewgroup</th>
+            <th style="text-align:center;">roster.viewenrollmentstatus</th>
+            <th style="text-align:center;">roster.viewprofile</th>
+            <th style="text-align:center;">roster.viewofficialphoto</th>
+            <th style="text-align:center;">roster.export</th>
+        </tr>
+    </thead>
+<tbody>
+{for p in permissions}
+<tr>
+    <td align="left">${p.role}</td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_viewallmembers}checked="checked"{/if}" id="${p.role}:roster.viewallmembers"/></td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_viewhidden}checked="checked"{/if}" id="${p.role}:roster.viewhidden"/></td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_viewgroup}checked="checked"{/if}" id="${p.role}:roster.viewgroup"/></td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_viewenrollmentstatus}checked="checked"{/if}" id="${p.role}:roster.viewenrollmentstatus"/></td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_viewprofile}checked="checked"{/if}" id="${p.role}:roster.viewprofile"/></td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_viewofficialphoto}checked="checked"{/if}" id="${p.role}:roster.viewofficialphoto"/></td>
+    <td align="center"><input type="checkbox" class="roster_permission_checkbox" {if p.roster_export}checked="checked"{/if}" id="${p.role}:roster.export"/></td>
+</tr>
+{/for}
+</tbody>
+</table>
+<div class="act">
+    <input id="roster_permissions_save_button" type="button" class="active" value="${roster_save_button}"/>
+    <input id="roster_cancel_button" type="button" value="${roster_cancel_button}"/>
+</div>
 -->
 </div>
 

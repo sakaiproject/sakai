@@ -29,6 +29,7 @@ var STATE_PICTURES = 'pics';
 var STATE_GROUP_MEMBERSHIP = 'group_membership';
 var STATE_ENROLLMENT_STATUS = 'status'
 var STATE_VIEW_PROFILE = 'profile';
+var STATE_PERMISSIONS = 'permissions';
 
 var SORT_NAME = 'sortName';
 var SORT_DISPLAY_ID = 'displayId';
@@ -43,10 +44,12 @@ var columnSortFields = [];
 var language = null;
 var rosterSiteId = null;
 var rosterCurrentUserPermissions = null;
-var rosterCurrentState = null;
 var rosterCurrentUser = null;
 
 var rosterProfileUrl = null;
+
+// so we can return to the previous state after viewing permissions
+var rosterLastStateNotPermissions = null;
 
 // These are default behaviours, and are global so the tool remembers
 // the user's choices.
@@ -86,7 +89,7 @@ $.tablesorter.addParser({
 
 /* New Roster2 functions */
 (function() {
-	    
+		
 	// We need the toolbar in a template so we can swap in the translations
 	SakaiUtils.renderTrimpathTemplate('roster_navbar_template', {},
 			'roster_navbar');
@@ -106,9 +109,13 @@ $.tablesorter.addParser({
 	$('#navbar_enrollment_status_link').bind('click', function(e) {
 		return switchState(STATE_ENROLLMENT_STATUS);
 	});
-		
+	
+    $('#navbar_permissions_link').bind('click', function(e) {
+        return switchState(STATE_PERMISSIONS);
+    });
+        
 	var arg = SakaiUtils.getParameters();
-
+	
 	if (!arg || !arg.siteId) {
 		alert('The site id  MUST be supplied as a page parameter');
 		return;
@@ -200,7 +207,12 @@ $.tablesorter.addParser({
 })();
 
 function switchState(state, arg, searchQuery) {
-		
+	
+	// so we can return to the previous state after viewing permissions
+	if (state != STATE_PERMISSIONS) {
+		rosterLastStateNotPermissions = state;
+	}
+	
 	// for export to Excel
 	setColumnSortFields(state);
 	
@@ -208,6 +220,14 @@ function switchState(state, arg, searchQuery) {
 		
 	var site = getRosterSite();
 
+	// permissions
+    if (rosterCurrentUserPermissions.siteUpdate) {
+        $('#navbar_permissions_link').show();
+    } else {
+        $('#navbar_permissions_link').hide();
+    }
+    
+    // enrollment
 	if (!rosterCurrentUserPermissions.viewEnrollmentStatus ||
 			site.siteEnrollmentSets.length === 0) {
 		
@@ -418,6 +438,27 @@ function switchState(state, arg, searchQuery) {
 				currentSortDirection = this.config.sortList[0][1];
 		    });
 		});
+	} else if (STATE_PERMISSIONS === state) {
+		
+		SakaiUtils.renderTrimpathTemplate('roster_permissions_header_template',
+				{'siteTitle':site.title}, 'roster_header');
+		
+		SakaiUtils.renderTrimpathTemplate('empty_template', {}, 'roster_section_filter');
+		SakaiUtils.renderTrimpathTemplate('empty_template', {}, 'roster_search');
+		
+		SakaiUtils.renderTrimpathTemplate('roster_permissions_template',
+				{'permissions': SakaiUtils.getSitePermissionMatrix(rosterSiteId, 'roster')},
+				'roster_content');
+		
+        $(document).ready(function() {
+            $('#roster_permissions_save_button').bind('click', function() {
+               SakaiUtils.savePermissions(rosterSiteId, 'roster_permission_checkbox',
+            		   function() { switchState(rosterLastStateNotPermissions) } );
+            });
+            
+            $('#roster_cancel_button').bind('click',
+            		function() { switchState(rosterLastStateNotPermissions) } );
+        });
 	}
 }
 
@@ -898,13 +939,14 @@ function getRosterCurrentUserPermissions() {
 				'roster.viewenrollmentstatus',
 				'roster.viewgroup',
 				'roster.viewhidden',
-				'roster.viewprofile'];
+				'roster.viewprofile',
+				'site.upd'];
 
 		rosterCurrentUserPermissions = new RosterPermissions(data);
 		
 	} else {
 		rosterCurrentUserPermissions = new RosterPermissions(
-			SakaiUtils.getCurrentUserPermissions(rosterSiteId, 'roster'));		
+			SakaiUtils.getCurrentUserPermissions(rosterSiteId));		
 	}
 	
 }

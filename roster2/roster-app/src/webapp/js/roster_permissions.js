@@ -23,7 +23,7 @@
 function RosterPermissions(data) {
 	
 	for(var i = 0, j = data.length; i < j; i++) {
-	
+		// roster permissions
 		if ('roster.export' === data[i]) {
 			this.rosterExport = true;
 		} else if ('roster.viewallmembers' === data[i]) {
@@ -36,7 +36,10 @@ function RosterPermissions(data) {
 			this.viewHidden = true;
 		} else if ('roster.viewprofile' === data[i]) {
 			this.viewProfile = true;
+		} 
+		// sakai permissions
+		else if ('site.upd' === data[i]) {
+			this.siteUpdate = true;
 		}
-	}
-		
+	}	
 }
