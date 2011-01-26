@@ -41,7 +41,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				<h:outputText value="&nbsp;" escape="false"/>
 				<h:panelGroup>
 					<f:verbatim><b></f:verbatim>
-					<h:outputText value="#{authorMessages.multiple_choice_sin}" escape="false"/>
+					<h:outputText value="#{commonMessages.multiple_choice_sin}" escape="false"/>
 					<f:verbatim></b></f:verbatim>
 				</h:panelGroup>
 
@@ -84,7 +84,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				</h:panelGroup>
 				<h:panelGroup>
 				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{authorMessages.multiple_correct_ss}" escape="false"/>
+				<h:outputText value="#{commonMessages.multipl_mc_ss}" escape="false"/>
 				<f:verbatim></b></f:verbatim>
 				</h:panelGroup>
 				<h:outputText value="#{authorMessages.mcss_whats_this_text}" escape="false"/>
@@ -93,7 +93,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 
 				<h:panelGroup>
 				<f:verbatim><b></f:verbatim>
-				<h:outputText value="#{authorMessages.multiple_correct_ms}" escape="false"/>
+				<h:outputText value="#{commonMessages.multipl_mc_ms}" escape="false"/>
 				<f:verbatim></b></f:verbatim>	
 				</h:panelGroup>
 				<h:outputText value="#{authorMessages.mcms_whats_this_text}" escape="false"/>
