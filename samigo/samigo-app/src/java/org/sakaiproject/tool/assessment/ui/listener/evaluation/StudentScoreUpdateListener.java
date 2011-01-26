@@ -40,14 +40,9 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
@@ -144,17 +139,6 @@ public class StudentScoreUpdateListener
 
           log.debug("****3a Gradingarray length2 = " + gradingarray.size());
           log.debug("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
-          Iterator gradingIter = gradingarray.iterator();
-          ArrayList correctArray = new ArrayList();
-          ItemDataIfc itemData = question.getItemData();
-          if (TypeIfc.FILL_IN_BLANK.equals(itemData.getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(itemData.getTypeId())) {
-        	  while (gradingIter.hasNext()) {
-            	  ItemGradingData itemGradingData = (ItemGradingData) gradingIter.next();
-            	  if (itemGradingData.getAutoScore() != null && itemGradingData.getAutoScore() != 0) {
-            		  correctArray.add(itemGradingData.getItemGradingId());
-            	  }
-              }
-          }
           Iterator iter3 = gradingarray.iterator();
           while (iter3.hasNext())
           {
@@ -167,19 +151,7 @@ public class StudentScoreUpdateListener
               data.setSubmittedDate(null);
               data.setAgentId(bean.getStudentId());
             }
-            
-            float newAutoScore = 0;
-            if (TypeIfc.FILL_IN_BLANK.equals(itemData.getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(itemData.getTypeId())) {
-            	if (correctArray.size() == 0) {
-            		newAutoScore = 0;
-            	}
-            	else {
-            		newAutoScore = (question.getExactPoints() / (float) correctArray.size());
-            	}
-            }
-            else {
-            	newAutoScore = (question.getExactPoints() / (float) gradingarray.size());
-            }
+            float newAutoScore = (question.getExactPoints() / (float) gradingarray.size());
             float oldAutoScore = 0;
             if (data.getAutoScore() !=null) {
               oldAutoScore=data.getAutoScore().floatValue();
@@ -207,14 +179,7 @@ public class StudentScoreUpdateListener
             logString.append(data.getItemGradingId());
             
             if (updateScore) {
-              if (TypeIfc.FILL_IN_BLANK.equals(itemData.getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(itemData.getTypeId())) {
-            	if (correctArray.contains(data.getItemGradingId())) {
-            	  data.setAutoScore(Float.valueOf(newAutoScore));
-            	}
-              }
-              else {
-            	data.setAutoScore(Float.valueOf(newAutoScore));
-              }
+              data.setAutoScore(Float.valueOf(newAutoScore));
               logString.append(", newAutoScore=");
               logString.append(newAutoScore);
               logString.append(", oldAutoScore=");
