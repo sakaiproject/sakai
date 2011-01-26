@@ -58,7 +58,7 @@ public class MultiSingleStorageSqlOracle extends MultiSingleStorageSqlDefault
 	{
 		// consider using RANK() as in getXmlSql(String field, String table, int first, int last) above
 		// if this has performance issues
-		return "select * from ( select yrqr.*, rownum rnum from ( select " + storageFields + " from " + tableName 
+		return "select /*+ RULE */ * from ( select yrqr.*, rownum rnum from ( select " + storageFields + " from " + tableName 
 			+ " where ( " + selectBy + " = ? ) order by " + orderBy + " asc) yrqr where rownum <= " 
 			+ (first + maxCount) + ") where rnum > " + first;
 	}
