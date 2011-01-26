@@ -326,6 +326,9 @@
 	}
 	function handleAddEZProxyPrefix(evt)
 	{
+	evt = (typeof(evt)!= 'undefined') ? evt : ((typeof(event) != 'undefined') ? event : null);
+        if(evt)
+        {
 	  var element = (typeof(evt.target) != 'undefined') ? evt.target : ((typeof(evt.srcElement) != 'undefined') ? evt.srcElement : null);
 	  if(element)
 	   {
@@ -341,7 +344,8 @@
 	       }
 	     }
 	   }
-	   //document.getElementById("fileCount");
+        }
+	return false;
 	}
 	function togglePropertiesDiv(evt)
 	{
