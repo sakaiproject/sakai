@@ -103,6 +103,14 @@ public interface AreaManager
 	 * @return
 	 */
 	public Area getDiscussionArea(final String contextId);
+	
+	/**
+	 * Get the discussion are for the given context
+	 * @param contextId
+	 * @param createDefaultForum
+	 * @return
+	 */
+	public Area getDiscussionArea(final String contextId, boolean createDefaultForum);
 
 	/**
 	 * @param key

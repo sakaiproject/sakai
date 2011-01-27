@@ -488,8 +488,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							}
 						}
 
-						// save the forum
-						Area area = areaManager.getDiscussionArea(toContext);
+						// save the forum, since this is copying over a forum, send "false" for parameter otherwise
+						//it will create a default forum as well
+						Area area = areaManager.getDiscussionArea(toContext, false);
 						newForum.setArea(area);
 
 						if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
