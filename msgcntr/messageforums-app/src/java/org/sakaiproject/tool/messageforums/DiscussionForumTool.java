@@ -3446,11 +3446,16 @@ public class DiscussionForumTool
   }
   
   private void updateThreadLastUpdatedValue(Message message, int numOfAttempts) throws Exception{
-  	try{
-  		message.setDateThreadlastUpdated(new Date());
-  		if (message.getInReplyTo() != null) {
-  			message.setThreadId(message.getInReplyTo().getThreadId());
-  		}
+	  try{
+		  message.setDateThreadlastUpdated(new Date());
+		  if (message.getInReplyTo() != null) {
+			  //only top level child messages have thread ids
+			  if (message.getInReplyTo().getThreadId() != null) {
+				  message.setThreadId(message.getInReplyTo().getThreadId());
+			  } else {
+				  message.setThreadId(message.getInReplyTo().getId());
+			  }
+		  }
   		if (message.getInReplyTo() != null) {
   			Message m = null;
   			if (message.getThreadId() != null)

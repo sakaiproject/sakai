@@ -1101,6 +1101,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         if (message.getNumReaders() == null)
         	message.setNumReaders(0);
         
+        //MSGCNTR-448 if this is a top new top level message make sure the thread date is set
+        if (logEvent) {
+        	if (isNew && message.getDateThreadlastUpdated() == null) { 	                 
+        		//we don't need to do this on non log events
+        		message.setDateThreadlastUpdated(new Date()); 	                 
+        		if (message.getInReplyTo() != null) {
+        			if (message.getInReplyTo().getThreadId() != null) {
+        				message.setThreadId(message.getInReplyTo().getThreadId());
+        			} else {
+        				message.setThreadId(message.getInReplyTo().getId());
+        			}
+        		}
+        	}
+        }
+
 
         getHibernateTemplate().saveOrUpdate(message);
 
