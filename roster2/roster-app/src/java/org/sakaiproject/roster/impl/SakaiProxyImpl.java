@@ -128,27 +128,27 @@ public class SakaiProxyImpl implements SakaiProxy {
 		List<String> registered = functionManager.getRegisteredFunctions();
 		
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_EXPORT)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_EXPORT);
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_EXPORT, true);
         }
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWALL)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWALL);
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWALL, true);
         }
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN);
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, true);
         }
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWGROUP)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWGROUP);
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, true);
         }
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS);
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS, true);
         }
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE)) {
-            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE);
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE, true);
         }
         
 	}
