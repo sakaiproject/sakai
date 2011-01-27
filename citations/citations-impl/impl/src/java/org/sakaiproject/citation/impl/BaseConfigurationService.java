@@ -1457,9 +1457,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
         return (resource != null);
     	}
     }
+    catch (IdUnusedException exception)
+    {
+      m_log.debug("exists() failed find resource: " + exception);
+    }
     catch (Exception exception)
     {
-      m_log.warn("exists() failed find resource: " + exception);
+      m_log.warn("exists() failed find resource: ", exception);
     }
    	return false;
   }
