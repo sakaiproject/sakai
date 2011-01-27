@@ -38,3 +38,21 @@ thead tr .headerSortDown a {
 background:transparent url(/library/image/silk/add.png) no-repeat scroll left center;
 padding-left:2em;
 }
+
+
+/* chart styles */
+#chart-selector {
+	margin-top: 20px;
+	margin-bottom: 10px;
+	display:block;
+}
+
+.icon {
+	background-position: center left;
+    background-repeat: no-repeat;
+    padding-left: 18px;
+}
+
+.refresh {
+	background-image: url(/library/image/silk/arrow_refresh.png);
+ }

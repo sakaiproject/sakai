@@ -8,6 +8,8 @@
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <script language="javascript" type="text/javascript" src="../js/jquery-1.2.6.js"></script>
 <script language="javascript" type="text/javascript" src="../js/jquery.tablesorter.min.js"></script>
+<script language="javascript" type="text/javascript" src="/library/js/jquery/cookie/jquery.cookie.js"></script>
+
 <script type="text/javascript">
 $(document).ready(function() { 
 	$("#sortableTable").tablesorter({ 
@@ -24,6 +26,34 @@ $(document).ready(function() {
        // return false to stop default link action 
         return false; 
     }); 
+
+    //check cookie to see if user has a preference and show that chart 
+    //also set the select list to match
+    //otherwise show bar chart by default, hide others
+    var preferredChartType = $.cookie("polls-chart-type");
+    if(preferredChartType) {
+    	hideAllCharts();
+		$('select#chart-type-selection').val(preferredChartType);
+   	 	$('#poll-chart-' + preferredChartType).show();
+    } else {
+        $('#poll-chart-pie').hide();
+		$('#poll-chart-bar').show();
+    }
+
+    //when option changes, hide all and show the one they chose.
+    //then set pref in the cookie	
+    $('select#chart-type-selection').change(function(event){
+        var type=$(this).val();
+        hideAllCharts();
+        $('#poll-chart-' + type).show();
+        $.cookie("polls-chart-type", type);
+	});
+
+	function hideAllCharts() {
+		$('#poll-chart-bar').hide();
+        $('#poll-chart-pie').hide();
+	}
+
 });
 </script>
 </head>
@@ -65,6 +95,18 @@ $(document).ready(function() {
   </tfoot>
 </tbody>
 </table>
+
+<div id="chart-selector">
+	<label for="chart-type" rsf:id="chart-type-label">Chart type: </label>
+	<select id="chart-type-selection" rsf:id="chart-type">
+		<option value="bar">Bar</option>
+		<option value="pie">Pie</option>
+	</select>
+	<a rsf:id="results-refresh" class="icon refresh">Refresh</a>
+</div>
+<img id="poll-chart-bar" rsf:id="poll-chart-bar" alt="Bar Chart" />
+<img id="poll-chart-pie" rsf:id="poll-chart-pie" alt="Pie Chart" />
+
 <form rsf:id="actform">
 <p class="act">
   <input type="submit" name="cancel" id="reset" value="Cancel"  accesskey="x" rsf:id="cancel" class="active"/>

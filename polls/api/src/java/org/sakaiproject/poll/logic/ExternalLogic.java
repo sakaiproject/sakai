@@ -195,4 +195,11 @@ public interface ExternalLogic {
 	 */
 	public ToolSession getCurrentToolSession();
 	
+	/**
+	 * Are charts enabled on the results page?
+	 * poll.results.chart.enabled=true|false, default false
+	 * @return
+	 */
+	public boolean isResultsChartEnabled();
+	
 }

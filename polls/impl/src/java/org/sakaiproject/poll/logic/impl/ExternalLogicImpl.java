@@ -630,4 +630,8 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public ToolSession getCurrentToolSession() {
 		return sessionManager.getCurrentToolSession();
 	}
+	
+	public boolean isResultsChartEnabled() {
+		return serverConfigurationService.getBoolean("poll.results.chart.enabled", false);
+	}
 }

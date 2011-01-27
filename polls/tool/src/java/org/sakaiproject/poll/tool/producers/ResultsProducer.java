@@ -23,8 +23,11 @@ package org.sakaiproject.poll.tool.producers;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.poll.logic.ExternalLogic;
@@ -43,8 +46,11 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -187,6 +193,9 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		
 		
 		//output the votes
+		Map<Long,String> chartTextData = new LinkedHashMap<Long,String>();
+		Map<Long,String> chartValueData = new LinkedHashMap<Long,String>();
+		NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
 		for (int i=0; i <collation.size(); i++ ) {
 			CollatedVote cv = (CollatedVote)collation.get(i);
 			UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
@@ -199,6 +208,8 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIVerbatim.make(resultRow,"answer-option",optionText);
 			UIOutput.make(resultRow,"answer-count", Integer.valueOf(i+1).toString());
 			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
+			
+			
 			LOG.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			double percent = (double)0;
 			if (totalVotes>0  && poll.getMaxOptions() == 1)
@@ -207,16 +218,62 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 				percent = ((double)cv.getVotes()/(double)voters); //*(double)100;
 			else
 				percent = (double) 0;
-
+			
+			//setup chartdata, use percentages for the values
+			//also, remove the &nbsp; from the beginning of the label, POLL-139
+			//we use the same number formatter which adds a % to the end of the data, remove that as well.
+			chartTextData.put(cv.getoptionId(), StringUtils.removeStart(optionText, "&nbsp;"));
+			chartValueData.put(cv.getoptionId(), StringUtils.removeEnd(nf.format(percent), "%"));
 
 			LOG.debug("result is "+ percent);
-			NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
 			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 
 		}
 		UIOutput.make(tofill,"votes-total",Integer.valueOf(totalVotes).toString());
 		if (totalVotes > 0 && poll.getMaxOptions() == 1)
 			UIOutput.make(tofill,"total-percent","100%");
+		
+		/** CHART **/
+		if(externalLogic.isResultsChartEnabled() && totalVotes > 0) {
+			
+			//chart selector label
+			UIOutput.make(tofill,"chart-type-label",messageLocator.getMessage("results_chart_type"));
+
+			//chart selector - no binding, JQuery handles it.
+			String[] chartTypes = new String[]{"bar","pie"};
+			UISelect min = UISelect.make(tofill,"chart-type",chartTypes,"null","bar");
+			
+			//setup bar chart
+			//data separator is |
+			StringBuilder sbBar = new StringBuilder();
+			sbBar.append("https://chart.googleapis.com/chart?");
+			sbBar.append("cht=bvg&");
+			sbBar.append("chxt=y&");
+			sbBar.append("chs=500x400&");
+			sbBar.append("chd=t:" + StringUtils.join(chartValueData.values(),'|') + "&");
+			sbBar.append("chdl=" + StringUtils.join(chartTextData.values(),'|') + "&");
+			sbBar.append("chco=FF0000,00FF00,0000FF,FFFF00,00FFFF,FF00FF,C0C0C0,800080,000080,808000,800000,FF00FF,008080,800000,008000");
+			
+			UILink barChart = UILink.make(tofill,"poll-chart-bar",sbBar.toString());
+			LOG.debug("bar chart URL:" + sbBar.toString());
+		
+			//setup pie chart
+			//data separator is ,
+			StringBuilder sbPie = new StringBuilder();
+			sbPie.append("https://chart.googleapis.com/chart?");
+			sbPie.append("cht=p&");
+			sbPie.append("chs=500x400&");
+			sbPie.append("chd=t:" + StringUtils.join(chartValueData.values(),',') + "&");
+			sbPie.append("chl=" + StringUtils.join(chartTextData.values(),'|') + "&");
+			sbPie.append("chco=FF0000,00FF00,0000FF,FFFF00,00FFFF,FF00FF,C0C0C0,800080,000080,808000,800000,FF00FF,008080,800000,008000");
+			
+			UILink pieChart = UILink.make(tofill,"poll-chart-pie",sbPie.toString());
+			LOG.debug("pie chart URL:" + sbPie.toString());
+			
+			//refresh link
+			UIInternalLink resultsLink =  UIInternalLink.make(tofill, "results-refresh", messageLocator.getMessage("action_refresh_results"), new PollViewParameters(ResultsProducer.VIEW_ID, poll.getPollId().toString()));
+			resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_refresh_results")+ ":" + poll.getText()));
+		}
 
 		//the cancel button
 		UIForm form = UIForm.make(tofill,"actform");
