@@ -56,3 +56,7 @@ CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID(36), TYPE_UUID
 --MSGCNTR-429
 --Hibernate could have missed this index, if this fails, then the index may already be in the table
 CREATE INDEX MFR_UNREAD_STATUS_I2 ON MFR_UNREAD_STATUS_T (MESSAGE_C, USER_C, READ_C);
+
+--MSGCNTR-449
+--Restores correct thread sorting
+update MFR_MESSAGE_T set LASTTHREADATE = CREATED where THREADID is null and LASTTHREADATE is null;
