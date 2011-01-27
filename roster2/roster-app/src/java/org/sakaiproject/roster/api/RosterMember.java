@@ -19,6 +19,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 /**
  * <code>RosterMember</code> wraps together fields from <code>User</code>,
  * <code>Member</code>, and <code>CourseManagementService</code> for each
@@ -26,29 +30,31 @@ import java.util.Map;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@RequiredArgsConstructor
 public class RosterMember {
 	
-	private String eId;
+	@Getter
 	private final String userId;
+	@Setter
+	private String eid;
+	@Getter @Setter
 	private String displayId;
+	@Getter @Setter
 	private String displayName;
+	@Getter @Setter
 	private String sortName;
+	@Getter @Setter
 	private String email;
+	@Getter @Setter
 	private String role;
+	@Getter @Setter
 	private String status;
+	@Getter @Setter
 	private String credits;
 	
+	@Getter
 	private Map<String, String> groups = new HashMap<String, String>();
-	
-	public RosterMember(String userId) {
 		
-		if (null == userId) {
-			throw new IllegalArgumentException("must supply userId");
-		}
-		
-		this.userId = userId;
-	}
-	
 	public void addGroup(String groupId, String groupTitle) {
 		
 		if (null == groupId) {
@@ -57,11 +63,7 @@ public class RosterMember {
 
 		groups.put(groupId, groupTitle);
 	}
-	
-	public Map<String, String> getGroups() {
-		return groups;
-	}
-	
+		
 	public String getGroupsToString() {
 		
 		StringBuilder groupsString = new StringBuilder();
@@ -78,75 +80,11 @@ public class RosterMember {
 	}
 
 	public String getEid() {
-		if (null == eId) {
+		if (null == eid) {
 			return userId;
 		}
 		
-		return eId;
-	}
-	
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setEid(String eId) {
-		this.eId = eId;
-	}
-
-	public String getDisplayId() {
-		return displayId;
-	}
-
-	public void setDisplayId(String displayId) {
-		this.displayId = displayId;
-	}
-
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
-
-	public String getSortName() {
-		return sortName;
-	}
-
-	public void setSortName(String sortName) {
-		this.sortName = sortName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-	
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getCredits() {
-		return credits;
-	}
-
-	public void setCredits(String credits) {
-		this.credits = credits;
+		return eid;
 	}
 	
 }

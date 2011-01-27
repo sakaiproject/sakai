@@ -17,6 +17,8 @@ package org.sakaiproject.roster.api;
 
 import java.util.Comparator;
 
+import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@RequiredArgsConstructor
 public class RosterMemberComparator implements Comparator<RosterMember> {
 
 	private static final Log log = LogFactory.getLog(RosterMemberComparator.class);
@@ -39,20 +42,17 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
 	// sort directions
 	public final static int SORT_ASCENDING		= 0;
 	public final static int SORT_DESCENDING		= 1;
-	
-	private String sortField;
-	private int sortDirection;
-	private boolean firstNameLastName;
-	
-	public RosterMemberComparator(String sortField, int sortDirection,
-			boolean firstNameLastName) {
-		
-		this.sortField = sortField;
-		this.sortDirection = sortDirection;
 
-		this.firstNameLastName = firstNameLastName;
-	}
+	private final String sortField;
+	private final int sortDirection;
+	private final boolean firstNameLastName;
 	
+	/**
+	 * Compares two <code>RosterMember</code> objects according to the sorting
+	 * order configured in this instance of <code>RosterMemberComparator</code>.
+	 * 
+	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	 */
 	public int compare(RosterMember a, RosterMember b) {
 
 		RosterMember member1;

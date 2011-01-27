@@ -28,6 +28,7 @@
 
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/roster2/${project.version}</url.localsite>
+        <lombok.version>0.9.3</lombok.version>
         <yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
     </properties>
 

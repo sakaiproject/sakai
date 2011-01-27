@@ -541,9 +541,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 
-		RosterSite rosterSite = new RosterSite();
+		RosterSite rosterSite = new RosterSite(site.getId());
 
-		rosterSite.setId(site.getId());
 		rosterSite.setTitle(site.getTitle());
 
 		List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId,
@@ -612,8 +611,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 					|| isAllowed(currentUserId,
 							RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group)) {
 
-				RosterGroup rosterGroup = new RosterGroup();
-				rosterGroup.setId(group.getId());
+				RosterGroup rosterGroup = new RosterGroup(group.getId());
 				rosterGroup.setTitle(group.getTitle());
 
 				List<String> userIds = new ArrayList<String>();
@@ -656,8 +654,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				continue;
 			}
 
-			RosterEnrollment rosterEnrollmentSet = new RosterEnrollment();
-			rosterEnrollmentSet.setId(enrollmentSet.getEid());
+			RosterEnrollment rosterEnrollmentSet = new RosterEnrollment(enrollmentSet.getEid());
 			rosterEnrollmentSet.setTitle(enrollmentSet.getTitle());
 			siteEnrollmentSets.add(rosterEnrollmentSet);
 
