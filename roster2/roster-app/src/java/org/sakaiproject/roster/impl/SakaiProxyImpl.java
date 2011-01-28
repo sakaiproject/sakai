@@ -65,14 +65,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private static final Log log = LogFactory.getLog(SakaiProxyImpl.class);
-	
-	public final static String DEFAULT_SORT_COLUMN = "sortName";
-	public final static Boolean DEFAULT_FIRST_NAME_LAST_NAME = false;
-	public final static Boolean DEFAULT_HIDE_SINGLE_GROUP_FILTER = false;
-	public final static Boolean DEFAULT_VIEW_EMAIL = true;
-	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
-	public final static Boolean DEFAULT_USE_PICTURES_AS_DEFAULT_VIEW = false;
-	
+		
 	private CourseManagementService courseManagementService;
 	private FunctionManager functionManager = null;
 	private PrivacyManager privacyManager = null;
@@ -184,6 +177,29 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
+	public Integer getDefaultRosterState() {
+
+		return serverConfigurationService.getInt("roster.default.state",
+				DEFAULT_ROSTER_STATE);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getDefaultRosterStateString() {
+		
+		Integer defaultRosterState = getDefaultRosterState();
+		
+		if (defaultRosterState > -1 && defaultRosterState < ROSTER_STATES.length - 1) {
+			return ROSTER_STATES[defaultRosterState];
+		} else {
+			return ROSTER_STATES[DEFAULT_ROSTER_STATE];
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getDefaultSortColumn() {
 		
 		return serverConfigurationService
@@ -229,10 +245,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Boolean getUsePicturesAsDefaultView() {
-		return serverConfigurationService.getBoolean(
-				"roster.usePicturesAsDefaultView", DEFAULT_USE_PICTURES_AS_DEFAULT_VIEW);
-	}
+//	public Boolean getUsePicturesAsDefaultView() {
+//		return serverConfigurationService.getBoolean(
+//				"roster.usePicturesAsDefaultView", DEFAULT_USE_PICTURES_AS_DEFAULT_VIEW);
+//	}
 	
 	/**
 	 * {@inheritDoc}

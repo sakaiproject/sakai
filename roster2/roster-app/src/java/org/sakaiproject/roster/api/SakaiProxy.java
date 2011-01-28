@@ -24,8 +24,15 @@ import java.util.List;
  */
 public interface SakaiProxy {
 
-	public final static String OVERVIEW_STATE = "overview";
-	public final static String PICTURES_STATE = "pics";
+	public final static String[] ROSTER_STATES = new String[] { "overview",
+			"pics", "group_membership", "status" };
+
+	public final static String DEFAULT_SORT_COLUMN = "sortName";
+	public final static Boolean DEFAULT_FIRST_NAME_LAST_NAME = false;
+	public final static Boolean DEFAULT_HIDE_SINGLE_GROUP_FILTER = false;
+	public final static Boolean DEFAULT_VIEW_EMAIL = true;
+	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
+	public final static Integer DEFAULT_ROSTER_STATE = 0;
 	
 	/**
 	 * Returns the ID of the current user.
@@ -40,6 +47,24 @@ public interface SakaiProxy {
 	 * @return the ID of the current site.
 	 */
 	public String getCurrentSiteId();
+	
+	/**
+	 * Returns the value of the <code>roster.default.state</code> Sakai
+	 * property.
+	 * 
+	 * @return the value of the <code>roster.default.state</code> Sakai
+	 *         property.
+	 */
+	public Integer getDefaultRosterState();
+	
+	/**
+	 * Returns the value of the <code>roster.default.state</code> Sakai property
+	 * mapped to the corresponding state string.
+	 * 
+	 * @return the value of the <code>roster.default.state</code> Sakai property
+	 *         mapped to the corresponding state string.
+	 */
+	public String getDefaultRosterStateString();
 	
 	/**
 	 * Returns the value of the <code>roster.defaultSortColumn</code> Sakai
@@ -81,13 +106,6 @@ public interface SakaiProxy {
 	 * @return the value of the <code>roster.display.userDisplayId</code> Sakai property.
 	 */
 	public Boolean getViewUserDisplayId();
-	
-	/**
-	 * Returns the value of the <code>roster.usePicturesAsDefaultView</code> Sakai property.
-	 * 
-	 * @return the value of the <code>roster.usePicturesAsDefaultView</code> Sakai property.
-	 */
-	public Boolean getUsePicturesAsDefaultView();
 		
 	/**
 	 * Returns the list of viewable members from the specified site.

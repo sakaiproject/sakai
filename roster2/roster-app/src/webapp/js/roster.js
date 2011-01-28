@@ -20,16 +20,17 @@
  */
 var ADMIN = 'admin';
 
-var DEFAULT_GROUP_ID = 'all';
-var DEFAULT_ENROLLMENT_STATUS = 'All';
-var DEFAULT_SORT_LIST = [[0,0]];
-
 var STATE_OVERVIEW = 'overview';
 var STATE_PICTURES = 'pics';
 var STATE_GROUP_MEMBERSHIP = 'group_membership';
 var STATE_ENROLLMENT_STATUS = 'status'
 var STATE_VIEW_PROFILE = 'profile';
 var STATE_PERMISSIONS = 'permissions';
+
+var DEFAULT_GROUP_ID = 'all';
+var DEFAULT_ENROLLMENT_STATUS = 'All';
+var DEFAULT_SORT_LIST = [[0,0]];
+var DEFAULT_STATE = STATE_OVERVIEW;
 
 var SORT_NAME = 'sortName';
 var SORT_DISPLAY_ID = 'displayId';
@@ -232,11 +233,21 @@ function switchState(state, arg, searchQuery) {
 			site.siteEnrollmentSets.length === 0) {
 		
 		$('#navbar_enrollment_status_link').hide();
+		
+		// this can happen if roster.default.state=3
+		if (STATE_ENROLLMENT_STATUS === state) {
+			state = DEFAULT_STATE;
+		}
 	}
 	
 	// hide group membership link if there are no groups
 	if (site.siteGroups.length === 0) {
 		$('#navbar_group_membership_link').hide();
+		
+		// this can happen if roster.default.state=2
+		if (STATE_GROUP_MEMBERSHIP === state) {
+			state = DEFAULT_STATE;
+		}
 	}
 		
 	if (STATE_OVERVIEW === state) {
