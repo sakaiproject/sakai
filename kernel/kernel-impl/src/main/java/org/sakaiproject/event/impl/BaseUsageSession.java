@@ -93,8 +93,12 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 		m_ip = result.getString(4);
 		m_hostname = result.getString(5);
 		m_userAgent = result.getString(6);
-		m_start = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(7, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
-		m_end = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(8, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
+		if(result.getString(7) != null && this.usageSessionServiceAdaptor != null && this.usageSessionServiceAdaptor.timeService() != null && this.usageSessionServiceAdaptor.sqlService() != null){
+			m_start = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(7, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
+		}
+		if(result.getString(8) != null && this.usageSessionServiceAdaptor != null && this.usageSessionServiceAdaptor.timeService() != null && this.usageSessionServiceAdaptor.sqlService() != null){
+			m_end = this.usageSessionServiceAdaptor.timeService().newTime(result.getTimestamp(8, this.usageSessionServiceAdaptor.sqlService().getCal()).getTime());
+		}
 		Boolean isActive = result.getBoolean(9);
 		m_active = ((isActive != null) && isActive.booleanValue());
 		setBrowserId(m_userAgent);
