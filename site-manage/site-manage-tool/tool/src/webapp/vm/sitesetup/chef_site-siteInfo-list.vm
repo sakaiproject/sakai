@@ -536,7 +536,7 @@ function printPreview(target){
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
 			<dl>
 				#foreach ($role in $roles)
-					#set ($description = false)
+					##		#set ($description = false)
 					<dt>
 						$role.Id
 					</dt>
@@ -544,6 +544,13 @@ function printPreview(target){
 							#set($description = "")
 							#if ($role.Description)
 								#set($description = $role.Description)
+							#else
+								## search for internationalized description in bundle
+                                #set($propertiesKey = "sitegen.roledescription.")
+                                #set($RoleId = $role.Id)
+								#set($RoleId = $RoleId.replaceAll(" ",""))
+								#set($roleDesc="${propertiesKey}${RoleId}")
+                                #set($description = $tlang.getString($roleDesc,""))
 							#end
 							$validator.escapeHtml($!description)
 
