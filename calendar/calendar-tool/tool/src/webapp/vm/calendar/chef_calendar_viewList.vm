@@ -341,7 +341,6 @@
 	#end
 <p class="act">
 <input type="submit" class="active"  name="eventSubmit_doUpdateGroupView" value="$tlang.getString('viewl.update')" />
-<input type="submit" name="eventSubmit_doCancelGroupView" value="$tlang.getString('gen.cancel')" />
 </p>
 #end
 
