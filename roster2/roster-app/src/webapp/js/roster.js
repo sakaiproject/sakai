@@ -299,6 +299,10 @@ function switchState(state, arg, searchQuery) {
 				currentSortColumn = this.config.sortList[0][0];
 				currentSortDirection = this.config.sortList[0][1];
 		    });
+			
+			if(window.frameElement) {
+				setMainFrameHeight(window.frameElement.id);
+			}
 		});
 		
 	} else if (STATE_PICTURES === state) {
@@ -343,6 +347,10 @@ function switchState(state, arg, searchQuery) {
 			
 			readyHideNamesButton(state, searchQuery);
 			readyViewSingleColumnButton(state, searchQuery);
+			
+			if(window.frameElement) {
+				setMainFrameHeight(window.frameElement.id);
+			}
 		});
 		
 	} else if (STATE_GROUP_MEMBERSHIP === state) {
@@ -397,6 +405,10 @@ function switchState(state, arg, searchQuery) {
 			});
 			
 			$('table').tablesorter(groupSortParams);
+			
+			if(window.frameElement) {
+				setMainFrameHeight(window.frameElement.id);
+			}
 		});
 		
 	} else if (STATE_VIEW_PROFILE === state) {
@@ -448,6 +460,10 @@ function switchState(state, arg, searchQuery) {
 				currentSortColumn = this.config.sortList[0][0];
 				currentSortDirection = this.config.sortList[0][1];
 		    });
+			
+			if(window.frameElement) {
+				setMainFrameHeight(window.frameElement.id);
+			}
 		});
 	} else if (STATE_PERMISSIONS === state) {
 		
