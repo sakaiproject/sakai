@@ -1028,7 +1028,10 @@ public class AnnouncementAction extends PagedResourceActionII
 				catch (PermissionException err)
 				{
 				}
-				menu_new = channel.allowAddMessage();
+				
+				if (channel!=null){
+					menu_new = channel.allowAddMessage();
+				}
 				menu_revise = false;
 				menu_delete = false;
 			}
@@ -1065,7 +1068,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 				
 		//Check for MOTD, if yes then is not ok to show permissions button
-		if("MOTD".equals(placement.getTitle()) && (placement != null && placement.getId().contains("admin"))) {
+		if(placement!= null && ("MOTD".equals(placement.getTitle()) && placement.getId().contains("admin"))) {
 			buildMenu(portlet, context, rundata, state, menu_new, menu_delete, menu_revise, this.isOkToShowMergeButton(statusName),
 					false, this.isOkToShowOptionsButton(statusName), displayOptions);
 		}
@@ -2599,7 +2602,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// addAlert(sstate, "You need to fill in the subject!");
 				addAlert(sstate, rb.getString("java.alert.youneed"));
 			}
-			else if (body.replaceAll("<br>", "").replaceAll("<br/>","").replaceAll("&nbsp;", "").replaceAll("&lt;br type=&quot;_moz&quot; /&gt;", "").trim().equals("")  || body.length() == 0 || body == null || 
+			else if (body == null ||body.replaceAll("<br>", "").replaceAll("<br/>","").replaceAll("&nbsp;", "").replaceAll("&lt;br type=&quot;_moz&quot; /&gt;", "").trim().equals("")  || body.length() == 0 ||  
 					FormattedText.escapeHtml(body,false).equals("&lt;br type=&quot;_moz&quot; /&gt;"))
 			{
 				body="";
@@ -4340,10 +4343,12 @@ public class AnnouncementAction extends PagedResourceActionII
 		// load the permissions.properties file
 		ResourceLoader pRb = new ResourceLoader("permissions");
 		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+		for (Iterator iterator = pRb.entrySet().iterator(); iterator.hasNext();)
 		{
-		String key = (String) iKeys.next();
-		pRbValues.put(key, (String) pRb.get(key));
+			Map.Entry<String, String> entry= (Map.Entry<String, String>)iterator.next();
+			pRbValues.put(entry.getKey(), entry.getValue());
+		//String key = (String) iKeys.next();
+		//pRbValues.put(key, (String) pRb.get(key));
 
 		}
 		state.setAttribute("permissionDescriptions", pRbValues);
