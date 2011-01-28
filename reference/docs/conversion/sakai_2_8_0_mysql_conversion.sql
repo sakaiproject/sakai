@@ -1,68 +1,66 @@
 -- SAK-16835 columns for new quartz version
-alter table QRTZ_TRIGGERS add column PRIORITY int;
-alter table QRTZ_FIRED_TRIGGERS add column PRIORITY int;
+-- alter table QRTZ_TRIGGERS add column PRIORITY int;
+-- alter table QRTZ_FIRED_TRIGGERS add column PRIORITY int;
 
 -- SAK-17821 Add additional fields to SakaiPerson
-alter table SAKAI_PERSON_T add STAFF_PROFILE text;
-alter table SAKAI_PERSON_T add UNIVERSITY_PROFILE_URL text;
-alter table SAKAI_PERSON_T add ACADEMIC_PROFILE_URL text;
-alter table SAKAI_PERSON_T add PUBLICATIONS text;
-alter table SAKAI_PERSON_T add BUSINESS_BIOGRAPHY text;
+alter table SAKAI_PERSON_T add column STAFF_PROFILE text;
+alter table SAKAI_PERSON_T add column UNIVERSITY_PROFILE_URL text;
+alter table SAKAI_PERSON_T add column ACADEMIC_PROFILE_URL text;
+alter table SAKAI_PERSON_T add column PUBLICATIONS text;
+alter table SAKAI_PERSON_T add column BUSINESS_BIOGRAPHY text;
 
 -- Samigo
 -- SAM-666
-alter table SAM_ASSESSFEEDBACK_T add FEEDBACKCOMPONENTOPTION int(11) default null;
+alter table SAM_ASSESSFEEDBACK_T add column FEEDBACKCOMPONENTOPTION int(11) default null;
 update SAM_ASSESSFEEDBACK_T set FEEDBACKCOMPONENTOPTION = 2;
-alter table SAM_PUBLISHEDFEEDBACK_T add FEEDBACKCOMPONENTOPTION int(11) default null;
+alter table SAM_PUBLISHEDFEEDBACK_T add column FEEDBACKCOMPONENTOPTION int(11) default null;
 update SAM_PUBLISHEDFEEDBACK_T set FEEDBACKCOMPONENTOPTION = 2; 
 
 -- SAM-971
-alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDPART integer default null;
-alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDQUESTION integer default null;
+alter table SAM_ASSESSMENTGRADING_T add column LASTVISITEDPART integer default null;
+alter table SAM_ASSESSMENTGRADING_T add column LASTVISITEDQUESTION integer default null;
 
 -- Gradebook2 support
 -- SAK-19080 / GRBK-736
-alter table GB_GRADE_RECORD_T add USER_ENTERED_GRADE varchar(127);
+alter table GB_GRADE_RECORD_T add column USER_ENTERED_GRADE varchar(127);
 
 -- MSGCNTR-309
---Start and End dates on Forums and Topics
-
-alter table MFR_AREA_T add (AVAILABILITY_RESTRICTED bit);
+-- Start and End dates on Forums and Topics
+alter table MFR_AREA_T add column AVAILABILITY_RESTRICTED bit;
 update MFR_AREA_T set AVAILABILITY_RESTRICTED=0 where AVAILABILITY_RESTRICTED is NULL;
-alter table MFR_AREA_T modify (AVAILABILITY_RESTRICTED bit NOT NULL DEFAULT '');
+alter table MFR_AREA_T modify column AVAILABILITY_RESTRICTED bit NOT NULL DEFAULT '';
 
-alter table MFR_AREA_T add (AVAILABILITY bit);
+alter table MFR_AREA_T add column AVAILABILITY bit;
 update MFR_AREA_T set AVAILABILITY=0 where AVAILABILITY is NULL;
-alter table MFR_AREA_T modify (AVAILABILITY NUMBER(1,0) bit NOT NULL DEFAULT ''));
+alter table MFR_AREA_T modify column AVAILABILITY bit NOT NULL DEFAULT '';
 
-alter table MFR_AREA_T add (OPEN_DATE datetime);
+alter table MFR_AREA_T add column OPEN_DATE datetime;
 
-alter table MFR_AREA_T add (CLOSE_DATE datetime);
+alter table MFR_AREA_T add column CLOSE_DATE datetime;
 
-
-alter table MFR_OPEN_FORUM_T add (AVAILABILITY_RESTRICTED bit);
+alter table MFR_OPEN_FORUM_T add column AVAILABILITY_RESTRICTED bit;
 update MFR_OPEN_FORUM_T set AVAILABILITY_RESTRICTED=0 where AVAILABILITY_RESTRICTED is NULL;
-alter table MFR_OPEN_FORUM_T modify (AVAILABILITY_RESTRICTED bit NOT NULL DEFAULT ''));
+alter table MFR_OPEN_FORUM_T modify column AVAILABILITY_RESTRICTED bit NOT NULL DEFAULT '';
 
-alter table MFR_OPEN_FORUM_T add (AVAILABILITY bit);
+alter table MFR_OPEN_FORUM_T add column AVAILABILITY bit;
 update MFR_OPEN_FORUM_T set AVAILABILITY=0 where AVAILABILITY is NULL;
-alter table MFR_OPEN_FORUM_T modify (AVAILABILITY bit NOT NULL DEFAULT ''));
+alter table MFR_OPEN_FORUM_T modify column AVAILABILITY bit NOT NULL DEFAULT '';
 
-alter table MFR_OPEN_FORUM_T add (OPEN_DATE datetime);
+alter table MFR_OPEN_FORUM_T add column OPEN_DATE datetime;
 
-alter table MFR_OPEN_FORUM_T add (CLOSE_DATE datetime);
+alter table MFR_OPEN_FORUM_T add column CLOSE_DATE datetime;
 
-alter table MFR_TOPIC_T add (AVAILABILITY_RESTRICTED bit);
+alter table MFR_TOPIC_T add column AVAILABILITY_RESTRICTED bit;
 update MFR_TOPIC_T set AVAILABILITY_RESTRICTED=0 where AVAILABILITY_RESTRICTED is NULL;
-alter table MFR_TOPIC_T modify (AVAILABILITY_RESTRICTED bit NOT NULL DEFAULT ''));
+alter table MFR_TOPIC_T modify column AVAILABILITY_RESTRICTED bit NOT NULL DEFAULT '';
 
-alter table MFR_TOPIC_T add (AVAILABILITY bit);
+alter table MFR_TOPIC_T add column AVAILABILITY bit;
 update MFR_TOPIC_T set AVAILABILITY=0 where AVAILABILITY is NULL;
-alter table MFR_TOPIC_T modify (AVAILABILITY bit NOT NULL DEFAULT ''));
+alter table MFR_TOPIC_T modify column AVAILABILITY bit NOT NULL DEFAULT '';
 
-alter table MFR_TOPIC_T add (OPEN_DATE datetime null);
+alter table MFR_TOPIC_T add column OPEN_DATE datetime null;
 
-alter table MFR_TOPIC_T add (CLOSE_DATE datetime null);
+alter table MFR_TOPIC_T add column CLOSE_DATE datetime null;
 
 
 -- MSGCNTR-355
