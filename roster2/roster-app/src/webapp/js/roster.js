@@ -417,6 +417,10 @@ function switchState(state, arg, searchQuery) {
 				
 		$('#roster_content').html(profileMarkup);
 		
+		if(window.frameElement) {
+			setMainFrameHeight(window.frameElement.id);
+		}
+		
 	} else if (STATE_ENROLLMENT_STATUS === state) {
 				
 		configureEnrollmentStatusTableSort();
