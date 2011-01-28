@@ -179,7 +179,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public Integer getDefaultRosterState() {
 
-		return serverConfigurationService.getInt("roster.default.state",
+		return serverConfigurationService.getInt("roster.defaultState",
 				DEFAULT_ROSTER_STATE);
 	}
 	
