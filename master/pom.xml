@@ -514,6 +514,13 @@
                 <version>${sakai.entitybroker.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-fck-connector</artifactId>
+                <version>${sakai.version}</version>
+                <type>war</type>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.sakaiproject.edu-services.gradebook</groupId>
                 <artifactId>gradebook-service-api</artifactId>
                 <version>${sakai.edu-services.version}</version>
