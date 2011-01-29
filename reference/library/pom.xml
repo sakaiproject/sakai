@@ -35,6 +35,11 @@
           <groupId>org.sakaiproject.kernel</groupId>
           <artifactId>sakai-component-manager</artifactId>
         </dependency>
+        <dependency>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-fck-connector</artifactId>
+          <type>war</type>
+        </dependency>
 <!--
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->

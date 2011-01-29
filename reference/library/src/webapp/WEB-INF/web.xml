@@ -31,6 +31,15 @@
 			<param-value>max-age=2678400, public</param-value>
 		</init-param>
 	</filter>
+
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+		<init-param>
+			<param-name>upload.enabled</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</filter>
 	
 	<!--  cache everything in the library web applications -->
 	<filter-mapping>
@@ -56,4 +65,23 @@
 	</filter-mapping>	
 	 -->
 	 
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>Connector</servlet-name>
+		<servlet-class>org.sakaiproject.connector.fck.FCKConnectorServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Connector</servlet-name>
+		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
+	</servlet-mapping>
+
 </web-app>
