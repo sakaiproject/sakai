@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#hbm/target/sakai-lessonbuildertool-hbm-1.0.jar tomcat/shared/lib/sakai-lessonbuildertool-hbm-1.0.jar
+#tool/target/sakai-lessonbuildertool-tool-1.0.war to tomcat/webapps/sakai-lessonbuildertool-tool.war
+#components/target/sakai-lessonbuildertool-components-1.0.war into tomcat/components/sakai-lessonbuildertool-components
+
+tar cf dist.tar -C hbm/target sakai-lessonbuildertool-hbm-1.0.jar -C ../../tool/target sakai-lessonbuildertool-tool-1.0.war -C ../../components/target sakai-lessonbuildertool-components-1.0.war
+

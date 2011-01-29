@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<title rsf:id="msg=simplepage.showitem"></title>
+
+<style type="text/css">
+	#outer{
+		min-height:325px;
+	}
+	html>body #outer{height:auto}
+</style>
+<script type="text/javascript">
+function resizeiframe() {
+
+var iframe = document.getElementById('iframe1');
+// workarounds for differing implemtations in several browsers
+var doc = (iframe.contentWindow || iframe.contentDocument);
+if (doc.document) doc = doc.document;
+var newsize = doc.body.offsetHeight;
+
+if (newsize > 32760) newsize = 32760;
+
+iframe.style.height = (newsize + 40) + 'px';
+setMainFrameHeight(window.name);
+
+}
+</script>
+
+</head>
+
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody" id="outer">
+		
+		<div class="fullwidth"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span> <span class="rightJustify"><form rsf:id="next-form" action="#"><input type="submit" rsf:id="next" /></form></span></div>
+		
+		<div rsf:id="hiddenAlert" class="ui-widget">
+			<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
+				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<div rsf:id="hidden-text" ></div>
+			</div>
+		</div>
+		
+		<div rsf:id="refreshAlert" class="ui-widget">
+			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state."> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span rsf:id="msg=simplepage.refresh_prompt"></span> <strong><a href="#" rsf:id="refreshLink"><span rsf:id="msg=simplepage.refresh"></span></a></strong> <span rsf:id="msg=simplepage.update_icons"></span></p>
+			</div>
+		</div>
+		
+		<br rsf:id="breakAfterWarnings" />
+
+		<div class="navIntraTool" role="navigation">
+                <a href="#" rsf:id="return"></a> <span rsf:id="msg=simplepage.return.warning"></span>
+		</div>
+
+		<iframe rsf:id="iframe1" role="main"
+			name="iframe1"
+                        id="iframe1"
+			height="350"
+                        onload="resizeiframe()"
+			width="100%"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto">
+		</iframe>
+	</div>	
+	<script type="text/javascript" language="JavaScript">
+		spiffyUp();	
+	</script>
+</body>
+</html>

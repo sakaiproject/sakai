@@ -1,0 +1,68 @@
+JforumEntity implements LessonEntity
+
+in service
+   registerJforum(JforumEntity)
+   service.getJforum().getentity...
+      user can check whether getJforum returns null
+
+call sequences:
+   ForumEntity.getEntity()
+   
+   init {
+     JforumEntity jforumEntity = service.getJforum();
+   }
+   if (jforumEntity != null)
+     jforumEntity.getEntity()
+   
+
+class LessonEntity
+   Object actual
+   int type; actual underlying Sakai type
+   String reference
+   static boolean addEntityControl(String ref, String siteId, String groupId) throws IOException {
+   static boolean removeEntityControl(String ref, String siteId, String groupId) throws IOException {
+   static LessonEntity getEntity(ref)
+   String getTitle
+   String getUrl
+   Date getDueDate
+   static LessonSubmission getSubmission(ref, user);
+   static List<LessonEntity> getEntitiesInSite(siteid);
+
+class LessonSubmission
+   Object actual
+   int type; actual underlying Sakai type
+   boolean isAvailable; i.e. was it fully submitted
+   boolean isComplete(item); meets requirements
+
+
+
+
+GroupPermissionsService.java  
+
+private static boolean addAssignmentControl(String ref, String siteId, String groupId) throws IOException {
+private static boolean removeAssignmentControl(String ref, String siteId, String groupId) throws IOException {
+wire into
+  addControl, removeControl
+
+LessonBuilderEntityProducer
+
+given ref, look up item and find title
+
+SimplePageBean.java 
+
+        public int getAssignmentTypeOfGrade(String ref) {
+	given ref, lookup item and find title and due date
+	given ref, lookup submission for user
+	   submission exists, grade available, grade sufficient; 
+   	      simplest ui would to pass the ref and user and ask if assignment is complete
+
+picker
+    get all items in site
+    get title
+    get URL so they can preview it
+
+ShowPageProducer.java
+        given ref, find type of grade
+	given ref, find URL to take
+
+

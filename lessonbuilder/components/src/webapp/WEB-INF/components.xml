@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
+        we are adding our HBM files to the Sakai session factory instead of creating
+        our own copy of it -->
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.simplepage"
+        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+    <property name="mappingResources">
+      <list>
+        <value>org/sakaiproject/lessonbuildertool/simplepageitem.hbm.xml</value>
+	<value>org/sakaiproject/lessonbuildertool/simplepage.hbm.xml</value>
+	<value>org/sakaiproject/lessonbuildertool/simplepagelogentry.hbm.xml</value>
+	<value>org/sakaiproject/lessonbuildertool/simplepagegroup.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget"
+        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl"
+        singleton="true">
+    <property name="sessionFactory">
+      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </property>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+  </bean>
+
+<!-- here's the version our code will access -->
+
+  <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+        singleton="true">
+    <property name="transactionManager">
+      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+    </property>
+    <property name="target">
+      <ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget" />
+    </property>
+    <property name="proxyInterfaces">
+      <list>
+        <value>org.sakaiproject.lessonbuildertool.model.SimplePageToolDao</value>
+      </list>
+    </property>        
+    <property name="transactionAttributes">
+      <props>
+        <prop key="*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+ </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.SimplePageToolService" 
+        class="org.sakaiproject.lessonbuildertool.service.SimplePageToolService" init-method="init" lazy-init="false">
+  </bean>
+
+</beans>

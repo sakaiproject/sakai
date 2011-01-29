@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-lessonbuildertool-tool-base</artifactId>
+	<relativePath>../pom.xml</relativePath>
+	<version>1.0RC2</version>
+  </parent>
+  
+  <name>sakai-lessonbuildertool-tool-components</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-lessonbuildertool-components</artifactId>
+  <version>1.0RC2</version>
+  
+  <packaging>sakai-component</packaging>
+  
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+
+  <dependencies>
+	<dependency>
+	  <groupId>org.sakaiproject</groupId>
+	  <artifactId>sakai-lessonbuildertool-api</artifactId>
+	  <version>1.0</version>
+	  <scope>provided</scope>
+	</dependency>
+
+	<dependency>
+	  <groupId>org.sakaiproject</groupId>
+	  <artifactId>sakai-lessonbuildertool-hbm</artifactId>
+	  <version>1.0</version>
+	  <scope>provided</scope>
+	</dependency>
+
+      <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+      </dependency>
+
+
+      <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+        </dependency>
+
+        <!-- Required for hibernate 3 HQL queries -->
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6</version>
+        </dependency>
+	<dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-api</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-util</artifactId>
+	</dependency>
+	<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+
+  </dependencies>
+
+  <build>
+	<resources>
+		<resource>
+			<directory>${basedir}/src/ddl</directory>
+			<includes>
+				<include>**/*.sql</include>
+			</includes>
+		</resource>
+	</resources>
+  </build>
+
+</project>
+

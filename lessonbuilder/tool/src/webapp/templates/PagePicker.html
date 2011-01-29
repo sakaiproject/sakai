@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title rsf:id="msg=simplepage.forum.chooser"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody" role="application">
+		
+		<div id="error" rsf:id="error" class="error" role="alert"></div>
+
+		<div class="navIntraTool" rsf:id="return-div" role="navigation">
+                <a href="#" rsf:id="return"></a> 
+		</div>
+
+		<h2 rsf:id="title"></h2>
+
+		<div rsf:id="description"></div>
+		
+		<form action="#" rsf:id="page-picker">
+		<span rsf:id="page-span"/>
+		<ul id="list" border="0" role="main">
+			<li rsf:id="page:" style="list-style-type:none">
+				<h2 rsf:id="heading"></h2><input type="radio" rsf:id="select" /><img class="status-image" alt="" rsf:id="status-image" height="18" width="18" style="margin-right:3px;vertical-align:-6px" /> <a href="#" rsf:id="link"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text"></span></a> 
+			</li>
+		</ul>
+		
+		<input type="hidden" rsf:id="item-id" id="item-id" />
+
+		<hr rsf:id="hr" />
+		<p rsf:id="options">
+		<input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
+		<label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
+		<input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
+		<label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
+		</p>
+		<p>
+		<input type="submit" class="bold" rsf:id="submit" />
+		<input type="submit" rsf:id="cancel" />
+		</p>
+		</form>
+	</div>
+	<script type="text/javascript" language="JavaScript">
+		spiffyUp();
+	</script>
+</body>
+</html>
