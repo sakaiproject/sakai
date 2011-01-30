@@ -89,7 +89,7 @@
 				#if ($sites.size() > 0)
 					<div class ="viewNav">
 						#if (($!searchString) && (!$searchString.equals("")))
-						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") "Validator.escapeHtml($!searchString)" $tlang.getString("list.inthe") "$!viewSelected".</span>
+						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") $validator.escapeHtml($!searchString) $tlang.getString("list.inthe") "$!viewSelected".</span>
 						#end
 
 						<br /><span class="instruction">$tlang.getString("list.check")</span>
