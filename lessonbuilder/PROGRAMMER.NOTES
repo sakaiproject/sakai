@@ -1,6 +1,58 @@
 These notes describe cases where there have been changes in
 representation. The results might otherwise be confusing.
 
+BASIC STRUCTURE
+
+Lesson BUilder has quite simple structures. 
+
+* SimplePage - this is a page, as shown in the UI. It has items on it.
+   the key field for a page is its ID number.
+* SimplePageItem - this represents one thing on a page, e.g. a resource,
+   test, assignment, etc. The key fields for an item are the id number
+   and the thing it points to. There's a type code, e.g. RESOURCE or 
+   ASSIGNMENT, and a SakaiID, which is normally a reference, e.g.
+   /assignment/23. The type code is the same for all tools of the
+   type. I.e. ASSESSMENT is used for both Samigo and Mneme. The
+   reference has the actual tool name.
+* SimplePageLogEntry - we keep an entry for each user and each page.
+   While we currently only create log entrie for pages, the record
+   has an item number. Note that in some cases you can get a page 
+   in omore than one way, beacause several pages can point to the
+   same page. It turns out that we need to do bookkeeping separately
+   for each. The log entry shows the first and last times they went 
+   to the page, Complete indicating whether they've completed all required
+   items on the page. Then there are couple of weird fields: path is 
+   used so that when we log off and log on, we can get back to the state
+   we were in. We need to know not just what page the user was on before,
+   but the way they got to it, so we can put back the right breadcrumbs.
+   So every time the user accesses a page, we not only update the last
+   access time, but the path (i.e. breadcrumbs). Dummy is used for
+   a page that the user hasn't accessed but is authorized to because
+   he's completed all the prerequisites. Normally there wouldn't be
+   a log entry for something the user hasn't visited, but to avoid
+   lots of recomputation, when we know a user can access the page
+   but hasn't done so yet, we make a dummy log entry.
+* SimplePageGroup is used to keep track of the Sakai groups we create
+   to control access to tests and assignments. Because thse tools are
+   group-aware, when access is restricted to a test, we create a group
+    for the test, and set the test to only be available to members of
+   that group. As people meet the prerequeists for the test, we add them
+   to the group. We can only do this for some tools, currently Samigo,
+   Assignment, and I believe jForum.
+   
+The main classes are
+ ShowPageProducer - displays the main user page. Mostly UI code
+ SimplePageBean - has most of the "business logic" for ShowPageProducer,
+    although other UI code can and does use it as well. There's
+    a detailed description of what it does in comments at the beginning
+ SimplePageToolDao/Impl - all access to the database goes through here
+    please don't access it except through this class
+
+Before you do any significant work, please read the comments at the
+beginning of these three classes, and probaby also look at the data
+structures listed above. It's particularly important to understand
+the security model, so you don't create holes
+
 CHANGE IN FUNCTION OF PARENT and TOP FIELDS IN SIMPLEPAGE
 
 In the pages (SimplePage), there are two fields that are no longer
