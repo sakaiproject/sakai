@@ -31,7 +31,12 @@ Lesson BUilder has quite simple structures.
    he's completed all the prerequisites. Normally there wouldn't be
    a log entry for something the user hasn't visited, but to avoid
    lots of recomputation, when we know a user can access the page
-   but hasn't done so yet, we make a dummy log entry.
+   but hasn't done so yet, we make a dummy log entry. (Implicit in
+   this is that if a user has accessed a page before, he's allowed to
+   access the page. Hence if there's a log entry for a page, we don't
+   have to check whether the user has met the prrequesites. Since pages
+   can chain off each other, checking the whole chain of prerequistes
+   each time would be impractical.)
 * SimplePageGroup is used to keep track of the Sakai groups we create
    to control access to tests and assignments. Because thse tools are
    group-aware, when access is restricted to a test, we create a group
@@ -97,33 +102,36 @@ Sakai is organized into tools and pages. A page is something in
 the left margin. Each page can have more than one tool on it.
 For Lesson Builder that would be unusual. Page in this context
 is a Sakai page. It has nothing to do with Lesson Builder pages.
-I refer to it as "site page" in the few pages in the code where it
+I refer to it as "site page" in the few places in the code where it
 appears.
 
-To find the top level page for a tool, we look for a page that has the
-right toolID and a parent page ID that is null. As noted above, at
-this point all the parent page ID is used for is identifying top level
-pages by the fact that their parent is null. toolid's used to be used
-for all pages, but since pages can now move around, only the top-level
-page is currently associated with a tool. Thus the toolId field in
-SimplePage is really only useful for parent==null.
+To find the top level Lesson Builder page for a tool, we look for a
+page that has the right toolID and a parent page ID that is null
+(meaning it's a top level page.) As noted above, at this point all the
+parent page ID is used for is identifying top level pages by the fact
+that their parent is null. toolid's used to be used for all pages, but
+since pages can now move around, only the top-level page is currently
+associated with a tool. Thus the toolId field in SimplePage is really
+only useful for parent==null.
 
-Note that when you create a new instance of Lesson Builder, it makes a
-site page and tool, but doesn't create any Lesson Builder entities at
-all. The first time the tool is invoked, ShowPageProducer is called.
-Normally ShowPageProducer is passed an argument of SendingPage to tell
-it what page to go to. But when Sakai calls SHowPageProducer,
-obviously there's no such argument, since Sakai knows nothing about
-Lesson Builder's structures. So when ShowPageProducer isn't passed a
-sendingpage, SimplePageBean.getCurrentPageId will note this fact, and
-ask the Sakai session manager to find the current Sakai tool. It will
-then locate the top level page for that tool by looking for a page
-with nulll parent and the right tool ID.
+Note that when you create a new instance of Lesson Builder, Sakai
+makes a site page and tool, but doesn't create any Lesson Builder
+entities at all. The first time the tool is invoked, ShowPageProducer
+is called (because RSF is told that it's the default view for Lesson
+Builder). Normally ShowPageProducer is passed a parameter of
+SendingPage to tell it what page to go to. But when Sakai calls
+ShowPageProducer, obviously there's no such argument, since Sakai
+knows nothing about Lesson Builder's structures. So when
+ShowPageProducer isn't passed a sendingpage,
+SimplePageBean.getCurrentPageId will note this fact, and ask the Sakai
+session manager to find the current Sakai tool. It will then locate
+the top level page for that tool by looking for a page with nulll
+parent and the right tool ID.
 
 If this is the first time ShowPageProducer has been called for this
 tool, SimplePageBean will create the top-level page, and also the
 top-level item pointing to it from the notional (but non-existent)
-root page.
+site-wide page.
 
 CHANGE IN FORMAT OF SAKAIID in ITEMS
 
