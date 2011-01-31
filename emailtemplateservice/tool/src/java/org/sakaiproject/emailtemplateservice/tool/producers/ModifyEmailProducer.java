@@ -148,8 +148,12 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 		if (template.getLocale() != null && !template.getLocale().trim().equals("")) 
 			headerName = headerName + " (" + template.getLocale() + ")";
 
-		UIMessage.make(tofill, "modify-template-header", "modifyemail.modify.template.header", 
-				new Object[] {headerName});
+		if (!newEmailTemplate) {
+			UIMessage.make(tofill, "modify-template-header", "modifyemail.modify.template.header", 
+					new Object[] {headerName});
+		} else {
+			UIMessage.make(tofill, "modify-template-header", "modifyemail.new.template.header");
+		}
 
 		UIVerbatim.make(tofill, "email_templates_fieldhints", UIMessage.make("email.templates.field.names"));
 
