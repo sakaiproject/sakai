@@ -67,6 +67,7 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
@@ -608,22 +609,26 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			{
 				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
-				String toolrefUrl = toolUrl + Web.escapeUrl(placement.getId());
-
-				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("isPage", Boolean.valueOf(false));
-				m.put("toolId", Web.escapeUrl(placement.getId()));
-				m.put("jsToolId", Web.escapeJavascript(placement.getId()));
-				m.put("toolRegistryId", placement.getToolId());
-				m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
-				m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
-				m.put("toolrefUrl", toolrefUrl);
-				String menuClass = placement.getToolId();
-				menuClass = "icon-" + menuClass.replace('.', '-');
-				m.put("menuClass", menuClass);
-				// this is here to allow the tool reorder to work if requried.
-				m.put("_placement", placement);
-				l.add(m);
+				Tool tool = placement.getTool();
+				if (tool != null)
+				{
+					String toolrefUrl = toolUrl + Web.escapeUrl(placement.getId());
+					
+					Map<String, Object> m = new HashMap<String, Object>();
+					m.put("isPage", Boolean.valueOf(false));
+					m.put("toolId", Web.escapeUrl(placement.getId()));
+					m.put("jsToolId", Web.escapeJavascript(placement.getId()));
+					m.put("toolRegistryId", placement.getToolId());
+					m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
+					m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
+					m.put("toolrefUrl", toolrefUrl);
+					String menuClass = placement.getToolId();
+					menuClass = "icon-" + menuClass.replace('.', '-');
+					m.put("menuClass", menuClass);
+					// this is here to allow the tool reorder to work if requried.
+					m.put("_placement", placement);
+					l.add(m);
+				}
 			}
 
 		}
