@@ -194,7 +194,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+		//MSGCNTR-453
+    	forum.setCreatedBy("admin");
     	forum.setTitle(getResourceBundleString("default_forum", new Object[]{(Object)siteTitle}));
     	forum.setDraft(false);
     	forum.setModerated(area.getModerated());
@@ -202,6 +203,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         forumManager.saveDiscussionForum(forum);
     	DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
     	topic.setTitle(getResourceBundleString("default_topic"));
+    	//MSGCNTR-453
+    	topic.setCreatedBy("admin");
     	forumManager.saveDiscussionForumTopic(topic, false);
     	
     }
