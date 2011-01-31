@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -169,8 +171,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
 			}
 		}
-		
-		date_entry_format_description = ServerConfigurationService.getString("gradebook.date_entry_format_description","(mm/dd/yy)");
+
+		DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, (new ResourceLoader()).getLocale() ); 
+		date_entry_format_description = ((SimpleDateFormat)df).toPattern();
 
     }
 
