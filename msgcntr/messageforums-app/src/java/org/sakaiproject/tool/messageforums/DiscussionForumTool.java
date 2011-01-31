@@ -1400,13 +1400,16 @@ public class DiscussionForumTool
     }
     
     boolean isNew = forum.getId() == null;
-    boolean availabilityChanged = false;
+    boolean updateCounts = false;
     if(!isNew){
-    	availabilityChanged = availabilityChanged(forum, forumManager.getForumById(forum.getId())); 
+    	DiscussionForum oldForum = forumManager.getForumById(forum.getId());
+    	boolean availabilityChanged = availabilityChanged(forum, oldForum);
+    	boolean draftChanged = oldForum.getDraft() != draft;
+    	updateCounts = availabilityChanged || draftChanged;
     }   
     //refresh synoptic counts if availability has changed:
     HashMap<String, Integer> beforeChangeHM = null;
-    if(availabilityChanged){
+    if(updateCounts){
     	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
     }
     
