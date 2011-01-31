@@ -306,7 +306,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
     }
 
     public void export(ActionEvent event){
-    	log.info("export(");
+    	log.debug("export(");
         List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
         // Get the section enrollments
         Set<String> studentUids = new HashSet<String>();
