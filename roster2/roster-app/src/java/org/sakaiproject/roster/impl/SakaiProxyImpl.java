@@ -40,6 +40,7 @@ import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterGroup;
@@ -69,6 +70,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private CourseManagementService courseManagementService;
 	private FunctionManager functionManager = null;
 	private PrivacyManager privacyManager = null;
+	private ProfileConnectionsLogic connectionsLogic;
 	private SecurityService securityService = null;
 	private ServerConfigurationService serverConfigurationService = null;
 	private SessionManager sessionManager = null;
@@ -99,6 +101,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		org.sakaiproject.component.api.ComponentManager componentManager = 
 			org.sakaiproject.component.cover.ComponentManager.getInstance();
 
+		connectionsLogic = (ProfileConnectionsLogic) componentManager.get(ProfileConnectionsLogic.class);
 		courseManagementService = (CourseManagementService) componentManager.get(CourseManagementService.class);
 		functionManager = (FunctionManager) componentManager.get(FunctionManager.class);
 		privacyManager = (PrivacyManager) componentManager.get(PrivacyManager.class);
@@ -253,43 +256,46 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<RosterMember> getSiteMembership(String siteId) {
-		return getMembership(siteId, null);
+	public List<RosterMember> getSiteMembership(String siteId, boolean includeConnectionStatus) {
+		return getMembership(siteId, null, includeConnectionStatus);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<RosterMember> getGroupMembership(String siteId, String groupId) {
-		return getMembership(siteId, groupId);
+		return getMembership(siteId, groupId, false);
 	}
 	
-	private List<RosterMember> getMembership(String siteId, String groupId) {
-		
+	private List<RosterMember> getMembership(String siteId, String groupId,
+			boolean includeConnectionStatus) {
+
 		List<RosterMember> rosterMembers = new ArrayList<RosterMember>();
-		
+
 		Site site = null;
 		try {
 			site = siteService.getSite(siteId);
 		} catch (IdUnusedException e) {
 			log.warn("site not found: " + e.getId());
 		}
-		
+
 		if (null == site) {
 			return null;
 		}
-		
+
 		// permissions are handled inside this method call
-		Set<Member> membership = getFilteredMembers(groupId, getCurrentUserId(), site);
+		Set<Member> membership = getFilteredMembers(groupId,
+				getCurrentUserId(), site);
 		if (null == membership) {
 			return null;
 		}
-		
+
 		for (Member member : membership) {
 
 			try {
 
-				RosterMember rosterMember = getRosterMember(member, site);
+				RosterMember rosterMember = 
+					getRosterMember(member, site, includeConnectionStatus);
 
 				rosterMembers.add(rosterMember);
 
@@ -297,13 +303,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.warn("user not found: " + e.getId());
 			}
 		}
-		
+
 		if (rosterMembers.size() == 0) {
 			return null;
 		}
-		
+
 		return rosterMembers;
-		
+
 	}
 		
 	private Map<String, RosterMember> getMembershipMapped(String siteId,
@@ -338,7 +344,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 			try {
 
-				RosterMember rosterMember = getRosterMember(member, site);
+				RosterMember rosterMember = getRosterMember(member, site, false);
 
 				rosterMembers.put(rosterMember.getEid(), rosterMember);
 
@@ -453,9 +459,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return membership;
 	}
 	
-	private RosterMember getRosterMember(Member member, Site site)
-			throws UserNotDefinedException {
-		
+	private RosterMember getRosterMember(Member member, Site site,
+			boolean includeConnectionStatus) throws UserNotDefinedException {
+
 		String userId = member.getUserId();
 
 		User user = userDirectoryService.getUser(userId);
@@ -476,6 +482,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 			Group group = groupIterator.next();
 
 			rosterMember.addGroup(group.getId(), group.getTitle());
+		}
+
+		if (true == includeConnectionStatus) {
+			rosterMember.setConnectionStatus(connectionsLogic
+					.getConnectionStatus(getCurrentUserId(), userId));
 		}
 
 		return rosterMember;
@@ -525,7 +536,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 			RosterMember member = membership.get(enrollment.getUserId());
 			member.setCredits(enrollment.getCredits());
-			member.setStatus(statusCodes.get(enrollment.getEnrollmentStatus()));
+			member.setEnrollmentStatus(statusCodes.get(enrollment.getEnrollmentStatus()));
 
 			enrolledMembers.add(member);
 		}

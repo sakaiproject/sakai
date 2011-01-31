@@ -336,7 +336,7 @@ function switchState(state, arg, searchQuery) {
 				'hideNames':hideNames,
 				'viewUserDisplayId':viewUserDisplayId,
 				'viewProfile':rosterCurrentUserPermissions.viewProfile,
-				'viewConnections':(undefined != window.friendStatus)},
+				'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
 				'roster_content');
 		
 		$(document).ready(function() {
@@ -527,6 +527,14 @@ function getRosterMembership(groupId, sorted, sortField, sortDirection, state) {
 	var membership;
 	
 	var url = "/direct/roster-membership/" + rosterSiteId + "/get-membership.json?sorted=" + sorted;
+	
+	// if pictures AND we have Profile2 1.4 (for adding, removing etc. connections)
+	if (STATE_PICTURES === state && undefined != window.friendStatus) {
+		url += "&includeConnectionStatus=true";
+	} else {
+		url += "&includeConnectionStatus=false";
+	}
+	
 	if (groupId) {
 		url += "&groupId=" + groupId;
 	}
@@ -552,11 +560,6 @@ function getRosterMembership(groupId, sorted, sortField, sortDirection, state) {
 	if (STATE_PICTURES === state) {
 		for (var i = 0, j = membership.length; i < j; i++) {
 			membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
-			
-			// do we have Profile2 1.4?
-			if (undefined != window.friendStatus) {
-				membership[i].friendStatus = friendStatus(rosterCurrentUser.id, membership[i].userId);
-			}
 		}
 	}
 		

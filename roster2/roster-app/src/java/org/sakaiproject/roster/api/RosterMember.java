@@ -48,13 +48,14 @@ public class RosterMember {
 	@Getter @Setter
 	private String role;
 	@Getter @Setter
-	private String status;
+	private String enrollmentStatus;
 	@Getter @Setter
-	private String credits;
-	
+	private String credits;	
 	@Getter
 	private Map<String, String> groups = new HashMap<String, String>();
-		
+	@Getter @Setter
+	private int connectionStatus; // connection status to the current user
+	
 	public void addGroup(String groupId, String groupTitle) {
 		
 		if (null == groupId) {

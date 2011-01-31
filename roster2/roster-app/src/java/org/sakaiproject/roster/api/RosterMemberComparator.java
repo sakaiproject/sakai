@@ -85,8 +85,8 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
 		} else if (SORT_ROLE.equals(sortField)) {
 			return member1.getRole().compareToIgnoreCase(member2.getRole());
 		} else if (SORT_STATUS.equals(sortField)) {
-			return member1.getStatus().compareToIgnoreCase(
-					member2.getStatus());
+			return member1.getEnrollmentStatus().compareToIgnoreCase(
+					member2.getEnrollmentStatus());
 		} else if (SORT_CREDITS.equals(sortField)) {
 			return member1.getCredits().compareToIgnoreCase(
 					member2.getCredits());

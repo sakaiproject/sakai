@@ -325,7 +325,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		List<RosterMember> rosterMembers;
 		
 		if (DEFAULT_GROUP_ID.equals(groupId)) {
-			rosterMembers = sakaiProxy.getSiteMembership(siteId);
+			rosterMembers = sakaiProxy.getSiteMembership(siteId, false);
 		} else {
 			rosterMembers = sakaiProxy.getGroupMembership(siteId, groupId);
 		}
@@ -354,7 +354,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			membersByStatus = new ArrayList<RosterMember>();
 			
 			for (RosterMember rosterMember : rosterMembers) {
-				if (enrollmentStatus.equals(rosterMember.getStatus())) {
+				if (enrollmentStatus.equals(rosterMember.getEnrollmentStatus())) {
 					membersByStatus.add(rosterMember);
 				}
 			}
@@ -503,7 +503,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getEmail());
 			}
 			
-			row.add(member.getStatus());
+			row.add(member.getEnrollmentStatus());
 			row.add(member.getCredits());
 			
 			dataInRows.add(row);

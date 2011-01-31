@@ -55,11 +55,12 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	public final static String ERROR_INVALID_SITE	= "Invalid site ID";
 	
 	// key passed as parameters
-	public final static String KEY_SORTED				= "sorted";
-	public final static String KEY_SORT_FIELD			= "sortField";
-	public final static String KEY_SORT_DIRECTION		= "sortDirection";
-	public final static String KEY_GROUP_ID				= "groupId";
-	public final static String KEY_ENROLLMENT_SET_ID	= "enrollmentSetId";
+	public final static String KEY_SORTED						= "sorted";
+	public final static String KEY_SORT_FIELD					= "sortField";
+	public final static String KEY_SORT_DIRECTION				= "sortDirection";
+	public final static String KEY_GROUP_ID						= "groupId";
+	public final static String KEY_ENROLLMENT_SET_ID			= "enrollmentSetId";
+	public final static String KEY_INCLUDE_CONNECTION_STATUS	= "includeConnectionStatus";
 	
 	// defaults
 	public final static boolean DEFAULT_SORTED			= false;
@@ -91,11 +92,17 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		if (parameters.containsKey(KEY_GROUP_ID)) {
 			groupId = parameters.get(KEY_GROUP_ID).toString();
 		}
+		
+		Boolean includeConnectionStatus = false;
+		if (parameters.containsKey(KEY_INCLUDE_CONNECTION_STATUS)) {
+			includeConnectionStatus = Boolean.valueOf(parameters.get(
+					KEY_INCLUDE_CONNECTION_STATUS).toString());
+		}
 
 		List<RosterMember> membership = null;
 		// if no group ID specified, retrieve site membership, else retrieve group
 		if (null == groupId) {
-			membership = sakaiProxy.getSiteMembership(reference.getId());
+			membership = sakaiProxy.getSiteMembership(reference.getId(), includeConnectionStatus);
 		} else {
 			membership = sakaiProxy.getGroupMembership(reference.getId(), groupId);
 		}

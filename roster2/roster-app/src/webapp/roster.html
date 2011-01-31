@@ -501,17 +501,17 @@ $.ajax({
 							<span class="icon connection-self">${profile_connection_self}</span>
 						{else}
 							{var divId = 'profile_friend_' + member.userId}
-							{if member.friendStatus == CONNECTION_NONE}
+							{if member.connectionStatus == CONNECTION_NONE}
 								<span id=${divId} class="icon connection-add">
 									<a href="javascript:;" onclick="return requestFriend('${currentUserId}','${member.userId}')">${profile_connection_add}</a>
 								</span>
-							{elseif member.friendStatus == CONNECTION_CONFIRMED}
+							{elseif member.connectionStatus == CONNECTION_CONFIRMED}
 								<span id=${divId} class="icon connection-confirmed">
 									<a href="javascript:;" onclick="return removeFriend('${currentUserId}','${member.userId}')">${profile_connection_remove}</a>
 								</span>
-							{elseif member.friendStatus == CONNECTION_REQUESTED}
+							{elseif member.connectionStatus == CONNECTION_REQUESTED}
 								<span class="icon connection-request">${profile_connection_requested}</span>
-							{elseif member.friendStatus == CONNECTION_INCOMING}
+							{elseif member.connectionStatus == CONNECTION_INCOMING}
 								<span id=${divId}>
 									<a href="javascript:;" onclick="return confirmFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/accept.png"></a>
 									<a href="javascript:;" onclick="return ignoreFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/cancel.png"></a>
@@ -573,17 +573,17 @@ $.ajax({
 							<span class="icon connection-self">${profile_connection_self}</span>
 						{else}
 							{var divId = 'profile_friend_' + member.userId}
-							{if member.friendStatus == CONNECTION_NONE}
+							{if member.connectionStatus == CONNECTION_NONE}
 								<span id=${divId} class="icon connection-add">
 									<a href="javascript:;" onclick="return requestFriend('${currentUserId}','${member.userId}')">${profile_connection_add}</a>
 								</span>
-							{elseif member.friendStatus == CONNECTION_CONFIRMED}
+							{elseif member.connectionStatus == CONNECTION_CONFIRMED}
 								<span id=${divId} class="icon connection-confirmed">
 									<a href="javascript:;" onclick="return removeFriend('${currentUserId}','${member.userId}')">${profile_connection_remove}</a>
 								</span>
-							{elseif member.friendStatus == CONNECTION_REQUESTED}
+							{elseif member.connectionStatus == CONNECTION_REQUESTED}
 								<span class="icon connection-request">${profile_connection_requested}</span>
-							{elseif member.friendStatus == CONNECTION_INCOMING}
+							{elseif member.connectionStatus == CONNECTION_INCOMING}
 								<span id=${divId}>
 									<a href="javascript:;" onclick="return confirmFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/accept.png"></a>
 									<a href="javascript:;" onclick="return ignoreFriendRequest('${currentUserId}','${member.userId}')"><img src="/library/image/silk/cancel.png"></a>

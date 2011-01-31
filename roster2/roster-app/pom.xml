@@ -58,6 +58,12 @@
 			<!-- <version>[1.5.0, 1.6.0)</version> -->
 		</dependency>
 		<dependency>
+	   		<groupId>org.sakaiproject.profile2</groupId>
+      		<artifactId>profile2-api</artifactId>
+      		<version>${profile2.api.version}</version>
+      		<scope>provided</scope>
+    	</dependency>
+		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<scope>provided</scope>

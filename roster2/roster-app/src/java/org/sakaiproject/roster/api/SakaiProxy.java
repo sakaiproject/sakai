@@ -111,9 +111,13 @@ public interface SakaiProxy {
 	 * Returns the list of viewable members from the specified site.
 	 * 
 	 * @param siteId the ID of the site.
+	 * @param includeConnectionStatus specify <code>true</code> if
+	 *            <code>RosterMember</code> objects should be populated with the
+	 *            Profile2 connection statuses to the current user, else specify
+	 *            <code>false</code>.
 	 * @return the list of viewable members from the specified site.
 	 */
-	public List<RosterMember> getSiteMembership(String siteId);
+	public List<RosterMember> getSiteMembership(String siteId, boolean includeConnectionStatus);
 	
 	/**
 	 * Returns the list of viewable members from the specified group.
