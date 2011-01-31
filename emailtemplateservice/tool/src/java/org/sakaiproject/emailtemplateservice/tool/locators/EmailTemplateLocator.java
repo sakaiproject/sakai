@@ -58,11 +58,14 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
    }
 
 
-   public void saveAll() {
+   public String saveAll() {
 	   log.debug("Saving all!");
 	   for (Iterator<String> it = delivered.keySet().iterator(); it.hasNext();) {
          String key = it.next();
          log.debug("got key: " + key);
+         
+         
+         
          EmailTemplate emailTemplate = (EmailTemplate) delivered.get(key);
          if (key.startsWith(NEW_PREFIX)) {
             // add in extra logic needed for new items here
@@ -70,11 +73,33 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
         		 emailTemplate.setLocale("");
          }
 
+       //key can't be null
+         if (emailTemplate.getKey() == null) {
+        	 messages.addMessage(new TargettedMessage("error.nokey", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+        	 
+         }
+         
+         if (emailTemplate.getSubject() == null) {
+        	 messages.addMessage(new TargettedMessage("error.nosubject", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+        	 
+         }
+         
+         if (emailTemplate.getMessage() == null) {
+        	 messages.addMessage(new TargettedMessage("error.nomessage", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+        	 
+         }
+         
+         
+         if (messages.isError()) {
+        	 return "failure";
+         }
+         
          emailTemplateService.saveTemplate(emailTemplate);
          messages.addMessage( new TargettedMessage("template.saved.message",
                new Object[] { emailTemplate.getSubject(), emailTemplate.getLocale() }, 
                TargettedMessage.SEVERITY_INFO));
       }
+	   return "success";
    }
 
 }
