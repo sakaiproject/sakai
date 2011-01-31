@@ -29,8 +29,12 @@
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/roster2/${project.version}</url.localsite>
         <lombok.version>0.9.3</lombok.version>
+        <poi.version>3.6</poi.version>
         <yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
+        <coursemanagement.version>1.2-SNAPSHOT</coursemanagement.version>
+        <entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
         <profile2.api.version>1.4-SNAPSHOT</profile2.api.version>
+        <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
     </properties>
 
     <developers>
