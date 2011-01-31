@@ -80,4 +80,4 @@ CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID(36), TYPE_UUID
 alter table EMAIL_TEMPLATE_ITEM add column EMAILFROM text;
 
 -- SAK-18855
-alter table POLL_POLL add column POLL_IS_PUBLIC bit(1) NOT NULL;
+alter table POLL_POLL add column POLL_IS_PUBLIC bit not null default false;
