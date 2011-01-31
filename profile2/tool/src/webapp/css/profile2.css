@@ -328,18 +328,19 @@ h2 {
 .side-widget-item-count, .side-widget-more-link  {
 	font-size: 70%;
 	position: absolute;
-	width: 50%;
 }
 
 .side-widget-item-count {
    	left: 0;
    	padding-left: 2px;
+   	width: 40%;
 }
 
 .side-widget-more-link {
    right: 0;
    text-align: right; /* depends on element width */
    padding-right: 2px;
+   width: 60%;
 }
 
 
