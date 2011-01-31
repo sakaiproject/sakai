@@ -1,7 +1,7 @@
 /* add the gravatar column, default to 0, (PRFL-498) */
 alter table PROFILE_PREFERENCES_T add USE_GRAVATAR number(1,0) default 0;
 
-/* add the wall email notification column, default to 0, (PRFL-528) */
+/* add the wall email notification column, default to 1, (PRFL-528) */
 alter table PROFILE_PREFERENCES_T add EMAIL_WALL_ITEM_NEW number(1,0) default 1;
 
 /* add the wall privacy setting, default to 0 (PRFL-513) */
