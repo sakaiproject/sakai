@@ -137,6 +137,7 @@ public class XMLImportBean implements Serializable
   {
 	String filename = uploadFile;
 	String unzipLocation = null;
+	boolean fileNotFound = false;
 	if (isCP) {
 		ImportService importService = new ImportService();
 		unzipLocation = importService.unzipImportFile(uploadFile);
@@ -148,6 +149,7 @@ public class XMLImportBean implements Serializable
     }
     catch (FileNotFoundException fnfex)
     {
+      fileNotFound = true;
       ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_qti_not_found") );
       FacesContext.getCurrentInstance().addMessage(null, message);
@@ -159,12 +161,15 @@ public class XMLImportBean implements Serializable
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     finally {
+      boolean success = false;    	
       // remove unsuccessful file
-      log.debug("****Clean up file: "+filename);
-      File f1 = new File(filename);
-      boolean success = f1.delete();
-      if (!success) {
+      if (!fileNotFound) {
+        log.debug("****Clean up file: "+filename);
+        File f1 = new File(filename);
+        success = f1.delete();
+        if (!success) {
     	  log.error ("Failed to delete file " + filename);
+        }
       }
       if (isCP) {
     	  File f2 = new File(uploadFile);
