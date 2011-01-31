@@ -16,7 +16,7 @@
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
-    <inceptionYear>2004</inceptionYear>
+    <inceptionYear>2010</inceptionYear>
     <packaging>jar</packaging>
 
     <properties>

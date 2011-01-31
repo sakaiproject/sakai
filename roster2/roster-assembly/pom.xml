@@ -15,7 +15,7 @@
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
-    <inceptionYear>2009</inceptionYear>
+    <inceptionYear>2010</inceptionYear>
     <packaging>pom</packaging>
 
     <dependencies>
