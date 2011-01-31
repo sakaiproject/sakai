@@ -51,7 +51,7 @@
 </h:dataTable>
 
      <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.remove}"
+  <h:commandButton type="submit" immediate="true" id="Submit" value="#{commonMessages.remove_action}"
     action="#{questionpool.removeQuestionsFromPool}" >
   </h:commandButton>
 
