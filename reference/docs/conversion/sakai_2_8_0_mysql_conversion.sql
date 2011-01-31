@@ -62,7 +62,6 @@ alter table MFR_TOPIC_T add column OPEN_DATE datetime null;
 
 alter table MFR_TOPIC_T add column CLOSE_DATE datetime null;
 
-
 -- MSGCNTR-355
 insert into MFR_TOPIC_T (UUID, MODERATED, AUTO_MARK_THREADS_READ, SORT_INDEX, MUTABLE, TOPIC_DTYPE, VERSION, CREATED, CREATED_BY, MODIFIED, MODIFIED_BY, TITLE, SHORT_DESCRIPTION, EXTENDED_DESCRIPTION, TYPE_UUID, pf_surrogateKey, USER_ID)
 
@@ -77,7 +76,8 @@ insert into MFR_TOPIC_T (UUID, MODERATED, AUTO_MARK_THREADS_READ, SORT_INDEX, MU
 -- Hibernate could have missed this index, if this fails, then the index may already be in the table
 CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID(36), TYPE_UUID(36), CONTEXT_ID(36), READ_STATUS);
 
-
--- New column for Email Template service
--- SAK-18532/SAK-19522
+-- SAK-18532/SAK-19522 new column for Email Template service
 alter table EMAIL_TEMPLATE_ITEM add column EMAILFROM text;
+
+-- SAK-18855
+alter table POLL_POLL add column POLL_IS_PUBLIC bit(1) NOT NULL;
