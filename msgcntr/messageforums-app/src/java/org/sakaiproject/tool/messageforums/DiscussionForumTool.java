@@ -1402,10 +1402,7 @@ public class DiscussionForumTool
     boolean isNew = forum.getId() == null;
     boolean updateCounts = false;
     if(!isNew){
-    	DiscussionForum oldForum = forumManager.getForumById(forum.getId());
-    	boolean availabilityChanged = availabilityChanged(forum, oldForum);
-    	boolean draftChanged = oldForum.getDraft() != draft;
-    	updateCounts = availabilityChanged || draftChanged;
+    	updateCounts = needToUpdateSynopticOnForumSave(forum, draft);    	
     }   
     //refresh synoptic counts if availability has changed:
     HashMap<String, Integer> beforeChangeHM = null;
@@ -1479,10 +1476,8 @@ public class DiscussionForumTool
 	  
 	  if (target instanceof DiscussionForum){
 		  DiscussionForum forum = ((DiscussionForum) target);
-		  isModerated = forum.getModerated();		  
 		  
 		  DiscussionForum oldForum = forumManager.getForumById(forum.getId());
-		  isModeratedOld = oldForum.getModerated();
 		  isDraftOld = oldForum.getDraft();		  
 
 		  availabilityChanged = availabilityChanged(forum, oldForum);
@@ -1504,7 +1499,7 @@ public class DiscussionForumTool
 		  update = true;
 	  }
 	  
-	  if(!update && isModerated && permissions != null){
+	  if(!update && isModerated && permissions != null && target instanceof Topic){
 		  //only need to look up permission changes for moderate postings if it is moderated
 
 		  if (target instanceof DiscussionForum){
