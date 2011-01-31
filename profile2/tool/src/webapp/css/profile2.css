@@ -1338,13 +1338,13 @@ main-profile-tabpanel .tab-row a:visited.active,
 	clear:left;
 	border-top: 1px solid #d0d0df;
 	padding: 5px;
-	overflow: hidden; /* to crop bigger pictures that might overhang */
 }
 
 .wall-item-img {
 	float: left;
 	max-width: 35px;
 	width: 35px;
+	margin-bottom: 5px;
    	cursor: pointer;
 }
 
