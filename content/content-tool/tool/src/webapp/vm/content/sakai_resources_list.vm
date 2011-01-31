@@ -535,7 +535,7 @@ $(document).ready(function() {
 									<input type="checkbox" name="selectedMembers" id="list$num" 
 											#if($selectedItems.contains("$item.id"))checked="checked"#end
 											onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end"
- 											value="$item.id" /><label for="list$num" class="skip">$tlang.getString("att.select")</label>
+ 											value="$item.id" /><label for="list$num" class="skip">$clang.getString("att.select")</label>
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
