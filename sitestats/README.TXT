@@ -85,6 +85,6 @@ For up-to-date information, please see http://bugs.sakaiproject.org/confluence/d
 
 7. Contact
 ============================================
-SiteStats is written by Nuno Fernandes at Universidade Fernando Pessoa.
+SiteStats was origionaly written by Nuno Fernandes at Universidade Fernando Pessoa.
 If you wish, feel free to submit patches or any other contributions.
-You may contact us at ufpuv-suporte@ufp.pt and nuno@ufp.pt.
+To learn more about how to contribute to Sakai please see: http://sakaiproject.org/technical-contributors
