@@ -19,15 +19,19 @@ import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageG
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
 import org.sakaiproject.site.util.SiteConstants;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import uk.ac.cam.caret.sakai.rsf.copies.Web;
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBound;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
+import uk.org.ponder.rsf.components.UIBoundString;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInput;
@@ -35,8 +39,11 @@ import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UISelectLabel;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -135,8 +142,8 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 			 UIMessage.make(arg0, "instruction-roster", "instruction.roster");
 			 for (String roster: siteRosters) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
-				 UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster + "}");
-				 UIOutput.make(tablerow, "roster-title", roster);
+				 UIBoundBoolean checkbox = UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster + "}");
+				 UILabelTargetDecorator.targetLabel(UIOutput.make(tablerow, "roster-title", roster), checkbox);
 				 
 				 // check whether there is already a group with this roster
 				 if (handler.existRosterGroup(roster))
@@ -156,14 +163,69 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 			 UIMessage.make(arg0, "instruction-role", "instruction.role");
 			 for (Role role: siteRoles) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(roleOptions, "role-row:");
-				 UIBoundBoolean.make(tablerow, "role-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRoles." + role.getId() + "}");
-				 UIOutput.make(tablerow, "role-title", role.getId());
+				 UIBoundBoolean checkbox = UIBoundBoolean.make(tablerow, "role-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRoles." + role.getId() + "}");
+				 UILabelTargetDecorator.targetLabel(UIOutput.make(tablerow, "role-title", role.getId()), checkbox);
 				// check whether there is already a group with this role
 				 if (handler.existRoleGroup(role.getId()))
 				 {
 					 UIMessage.make(tablerow, "exist-group-role", "exist.group.role");
 				 }
 			 }
+		 
+			 //random or by roles options:
+			 
+			//Radio Buttons for assigning options
+	         String [] optionValues = new String[] {
+	                 Integer.toString(1), Integer.toString(2)
+	         };
+	         String [] optionLabels = new String[] {
+	        		 messageLocator.getMessage("roleOptionLabel"),
+	        		 messageLocator.getMessage("randomOptionLabel")
+	         };
+	         UISelect option_select = UISelect.make(groupForm, "option-radios", 
+	        		 optionValues, optionLabels, "SiteManageGroupSectionRoleHandler.optionAssign");
+	         option_select.optionnames = UIOutputMany.make(optionLabels);
+	         String option_select_id = option_select.getFullID();
+	         
+	         UISelectLabel lb = UISelectLabel.make(arg0, "roleOptionLabel", option_select_id, 0);
+	         UISelectChoice choice =UISelectChoice.make(arg0, "roleOption", option_select_id, 0);
+	         UILabelTargetDecorator.targetLabel(lb, choice);
+	         
+	         UISelectLabel lb2 = UISelectLabel.make(arg0, "randomOptionLabel", option_select_id, 1);
+	         UISelectChoice choice2 =UISelectChoice.make(arg0, "randomOption", option_select_id, 1);
+	         UILabelTargetDecorator.targetLabel(lb2, choice2);
+			 
+			 UIMessage.make(arg0, "randomGroupsLegend", "randomGroupsLegend");
+			 UIMessage.make(groupForm, "group-title-group", "group.title");
+			 UIMessage.make(arg0, "group-title-user", "group.title");
+			 UIMessage.make(arg0, "group-unit", "group.unit");
+			 UIMessage.make(arg0, "user-unit", "user.unit");
+			 UIInput.make(groupForm, "groupTitle-group", "SiteManageGroupSectionRoleHandler.groupTitleGroup");
+			 UIInput.make(groupForm, "groupTitle-user", "SiteManageGroupSectionRoleHandler.groupTitleUser");
+			//Radio Buttons for Grading
+	         String [] grading_values = new String[] {
+	                 Boolean.TRUE.toString(), Boolean.FALSE.toString()
+	         };
+	         String [] grading_labels = new String[] {
+	        		 messageLocator.getMessage("splitByGroupsLabel"),
+	        		 messageLocator.getMessage("splitByUsersLabel")	        		 
+	         };
+	         UISelect grading_select = UISelect.make(groupForm, "graded-radios", 
+	                 grading_values, grading_labels, "SiteManageGroupSectionRoleHandler.groupSplit");
+	         String grading_select_id = grading_select.getFullID();
+	         
+	         UISelectLabel split_lb = UISelectLabel.make(arg0, "splitByGroupsLabel", grading_select_id, 0);
+	         UISelectChoice split_choice =UISelectChoice.make(arg0, "groupSplit", grading_select_id, 0);
+	         UILabelTargetDecorator.targetLabel(split_lb, split_choice);
+	         
+	         UISelectLabel split_lb2 = UISelectLabel.make(arg0, "splitByUsersLabel", grading_select_id, 1);
+	         UISelectChoice split_choice2 =UISelectChoice.make(arg0, "userSplit", grading_select_id, 1);
+	         UILabelTargetDecorator.targetLabel(split_lb2, split_choice2);
+			 
+			 UIInput.make(groupForm, "numToSplit-group", "SiteManageGroupSectionRoleHandler.numToSplitGroup");
+			 UIInput.make(groupForm, "numToSplit-user", "SiteManageGroupSectionRoleHandler.numToSplitUser");
+		 
+		 
 		 }
 		 
     	 UICommand.make(groupForm, "save", messageLocator.getMessage("update"), "#{SiteManageGroupSectionRoleHandler.processAutoCreateGroup}");
@@ -185,7 +247,15 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
  			}
          }
          
-         frameAdjustingProducer.fillComponents(arg0, "resize", "resetFrame");
+         //frameAdjustingProducer.fillComponents(arg0, "resize", "resetFrame");
+         UIVerbatim.make(arg0, "resize", "\n<!-- \n\tfunction " + "resetFrame" + "()"
+        	        + " {\n\t\tsetMainFrameHeight('"
+        	        + deriveFrameTitle(ToolManager.getCurrentPlacement().getId())
+        	        + "');\n\t\t}\n//-->\n");
+    }
+    
+    public static final String deriveFrameTitle(String placementID) {
+    	return Web.escapeJavascript("Main" + placementID);
     }
     
     public ViewParameters getViewParameters() {

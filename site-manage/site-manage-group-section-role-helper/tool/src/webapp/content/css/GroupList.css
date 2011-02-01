@@ -107,3 +107,40 @@ a.item_control, a.tool_add_url
 	vertical-align: top;	
 }
 .actionButtonBar{ margin: .5em 0; padding: 0}
+
+.fieldsetVis{
+	border:1px solid #ccc;
+	padding:1em;
+    width:70%;
+}
+.fieldsetVis legend{
+	border:1px solid #ccc;
+	color:gray;
+	padding:.3em	
+}
+
+.optGroupSelect{
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 #EEEEEE;
+    padding: 0.5em;
+    width: 35em;
+}
+
+.optGroupSelectSelected{
+     background: none repeat scroll 0 0 #ccc;
+}
+span.validFMess{
+    display:none
+}
+.validationFail label{
+    color:red;
+}
+.validationFail input{
+    border:1px solid red;
+}
+.validationFail span.validFMess{
+    display:inline;
+    color:red
+}

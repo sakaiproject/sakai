@@ -82,6 +82,17 @@ public class SiteManageGroupSectionRoleHandler {
     
     // selected roles for autocreate groups
     public Map<String, Boolean> selectedRoles = new HashMap<String, Boolean>();
+       
+    private static final int OPTION_ASSIGN_BY_ROLES = 1;
+    private static final int OPTION_ASSIGN_RANDOM = 2;
+    public int optionAssign = OPTION_ASSIGN_BY_ROLES;
+    
+    public boolean groupSplit = true;
+    public String numToSplitGroup = "";
+    public String numToSplitUser = "";
+    
+    public String groupTitleGroup = "";
+    public String groupTitleUser = "";
     
     private String NULL_STRING = "";
     
@@ -163,6 +174,14 @@ public class SiteManageGroupSectionRoleHandler {
 	    selectedSiteMembers = new String[]{};
 	    selectedRosters = new HashMap<String, Boolean>();
 	    selectedRoles = new HashMap<String, Boolean>();
+	    
+	    optionAssign=OPTION_ASSIGN_BY_ROLES;
+	    groupSplit = true;
+	    numToSplitUser = "";
+	    numToSplitGroup = "";
+	    groupTitleUser = "";
+	    groupTitleGroup = "";
+	    
 	}
 	 
     /**
@@ -753,7 +772,47 @@ public class SiteManageGroupSectionRoleHandler {
     public String processAutoCreateGroup() {
     	// reset the warning messages
     	resetTargettedMessageList();
+    			
+    	//check if fields are correct:
+    	int intToSplit=-1;
     	
+    	if(OPTION_ASSIGN_RANDOM == optionAssign){
+    		String numToSplit = groupSplit ? numToSplitGroup : numToSplitUser;
+        	String groupTitle = groupSplit ? groupTitleGroup : groupTitleUser;
+    		if(numToSplit == null){
+    			if(groupSplit){
+    				messages.addMessage(new TargettedMessage("numToSplit.group.empty.alert","numToSplit"));	
+    			}else{
+    				messages.addMessage(new TargettedMessage("numToSplit.user.empty.alert","numToSplit"));
+    			}    			
+    			return null;
+    		}else{
+    			try {
+    				intToSplit = Integer.parseInt(numToSplit);
+    				if(intToSplit < 0){
+    					if(groupSplit){
+    	    				messages.addMessage(new TargettedMessage("numToSplit.group.notanumber.alert","numToSplit"));	
+    	    			}else{
+    	    				messages.addMessage(new TargettedMessage("numToSplit.user.notanumber.alert","numToSplit"));
+    	    			}
+    					return null;
+    				}
+				} catch (Exception e) {
+					if(groupSplit){
+	    				messages.addMessage(new TargettedMessage("numToSplit.group.notanumber.alert","numToSplit"));	
+	    			}else{
+	    				messages.addMessage(new TargettedMessage("numToSplit.user.notanumber.alert","numToSplit"));
+	    			}
+					return null;
+				}
+    		}
+    		
+    		if(groupTitle == null || "".equals(groupTitle)){
+    			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle"));
+    			return null;
+    		}
+    	}
+    	    	    	
     	List<String> rosterList = new Vector<String>();
     	if (!selectedRosters.isEmpty())
     	{
@@ -806,37 +865,41 @@ public class SiteManageGroupSectionRoleHandler {
         	// role based
         	if (!roleList.isEmpty())
         	{
-        		for(String role:roleList)
-        		{
-        			Group group = site.addGroup();
-        			// make the provider id as of SITEID_ROLEID
-        			//group.setProviderGroupId(site.getId() + "_" + role);
-        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
-        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
-
-		        	String title = truncateGroupTitle(role);
-		        	group.setTitle(title);
-        			
-        			// get the authz group
-                	String siteReference = siteService.siteReference(site.getId());
-                	try
-                	{
-                		AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
-                		Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
-                		if (usersHasRole != null)
-                		{
-                			for (Iterator<String> uIterator = usersHasRole.iterator(); uIterator.hasNext();)
-                			{
-                				String userId = uIterator.next();
-                				Member member = site.getMember(userId);
-            					group.addMember(userId, role, member.isActive(), false);
-                			}
-                		}
-                	}
-                	catch (GroupNotDefinedException e)
-                	{
-                		M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
-                	}
+        		if(OPTION_ASSIGN_BY_ROLES == optionAssign){
+	        		for(String role:roleList)
+	        		{
+	        			Group group = site.addGroup();
+	        			// make the provider id as of SITEID_ROLEID
+	        			//group.setProviderGroupId(site.getId() + "_" + role);
+	        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+	        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
+	
+			        	String title = truncateGroupTitle(role);
+			        	group.setTitle(title);
+	        			
+	        			// get the authz group
+	                	String siteReference = siteService.siteReference(site.getId());
+	                	try
+	                	{
+	                		AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
+	                		Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
+	                		if (usersHasRole != null)
+	                		{
+	                			for (Iterator<String> uIterator = usersHasRole.iterator(); uIterator.hasNext();)
+	                			{
+	                				String userId = uIterator.next();
+	                				Member member = site.getMember(userId);
+	            					group.addMember(userId, role, member.isActive(), false);
+	                			}
+	                		}
+	                	}
+	                	catch (GroupNotDefinedException e)
+	                	{
+	                		M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
+	                	}
+	        		}
+        		}else{
+        			createRandomGroups(roleList, intToSplit);
         		}
         	}
         		
@@ -859,6 +922,86 @@ public class SiteManageGroupSectionRoleHandler {
     	}
 
         return "done";
+    }
+    
+    private void createRandomGroups(List<String> roleList, int unit){
+    	String groupTitle = groupSplit ? groupTitleGroup : groupTitleUser;
+    	
+    	if(groupTitle != null && !"".equals(groupTitle)){
+    		//get list of all users:
+
+    		List<String> usersList = new ArrayList<String>();
+
+    		for(String role:roleList)
+    		{
+    			// get the authz group
+    			String siteReference = siteService.siteReference(site.getId());
+
+    			try
+    			{
+    				AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
+    				Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
+    				if (usersHasRole != null)
+    				{
+    					for (Iterator<String> uIterator = usersHasRole.iterator(); uIterator.hasNext();)
+    					{
+    						String userId = uIterator.next();
+    						if(!usersList.contains(userId)){
+    							usersList.add(userId);
+    						}
+    					}
+    				}
+    			}
+    			catch (GroupNotDefinedException e)
+    			{
+    				M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
+    			}
+    		}
+
+    		//split users into random groups:
+
+    		int numOfGroups=-1;
+    		int numOfUsersPerGroup=-1;
+    		if(groupSplit){
+    			numOfGroups = (unit > usersList.size()) ? usersList.size() : unit;
+    			numOfUsersPerGroup = usersList.size()/numOfGroups;
+    		}else{
+    			numOfUsersPerGroup = (unit > usersList.size()) ? usersList.size() : unit;
+    			numOfGroups = usersList.size()/numOfUsersPerGroup;
+    		}
+
+    		int groupCount = 0;
+    		while(usersList.size() > 0){
+    			Group group = site.addGroup();
+    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+
+    			//Title
+    			StringBuffer title = new StringBuffer();
+
+    			title.append(groupTitle);
+
+    			title.append("-");
+    			title.append(groupCount+1);
+    			group.setTitle(title.toString());
+
+    			int userCount = 0;
+
+    			while(userCount < numOfUsersPerGroup && usersList.size() > 0){
+    				int index = (int)(Math.random() * (usersList.size() - 1));
+    				String userId = usersList.get(index);
+    				Member member = site.getMember(userId);
+    				group.addMember(userId, member.getRole().getId(), member.isActive(), false);
+
+    				//remove this user now:
+    				usersList.remove(index);
+
+    				userCount++;
+    			}       		
+
+    			groupCount++;
+    		}
+    	}
+
     }
 
     /**
