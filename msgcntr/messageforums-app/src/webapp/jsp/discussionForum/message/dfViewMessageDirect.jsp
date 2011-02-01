@@ -47,6 +47,7 @@
 			+ request.getParameter("forumId");
 
 	forumTool.processActionDisplayThread();
+	forumTool.processActionDisplayMessage();
 
 	// dispatch to the target
 	RequestDispatcher dispatcher = getServletContext()
