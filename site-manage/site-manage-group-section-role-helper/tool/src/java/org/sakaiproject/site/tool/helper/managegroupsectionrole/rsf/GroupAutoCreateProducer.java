@@ -196,13 +196,14 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 	         UILabelTargetDecorator.targetLabel(lb2, choice2);
 			 
 			 UIMessage.make(arg0, "randomGroupsLegend", "randomGroupsLegend");
-			 UIMessage.make(groupForm, "group-title-group", "group.title");
-			 UIMessage.make(arg0, "group-title-user", "group.title");
-			 UIMessage.make(arg0, "group-unit", "group.unit");
-			 UIMessage.make(arg0, "user-unit", "user.unit");
-			 UIInput.make(groupForm, "groupTitle-group", "SiteManageGroupSectionRoleHandler.groupTitleGroup");
-			 UIInput.make(groupForm, "groupTitle-user", "SiteManageGroupSectionRoleHandler.groupTitleUser");
-			//Radio Buttons for Grading
+			 
+			 // group inputs
+			 UILabelTargetDecorator.targetLabel(UIMessage.make(groupForm, "group-title-group", "group.title"), UIInput.make(groupForm, "groupTitle-group", "SiteManageGroupSectionRoleHandler.groupTitleGroup"));
+			 UILabelTargetDecorator.targetLabel(UIMessage.make(groupForm, "group-unit", "group.unit"), UIInput.make(groupForm, "numToSplit-group", "SiteManageGroupSectionRoleHandler.numToSplitGroup"));
+			 UILabelTargetDecorator.targetLabel(UIMessage.make(groupForm, "group-title-user", "group.title"), UIInput.make(groupForm, "groupTitle-user", "SiteManageGroupSectionRoleHandler.groupTitleUser"));
+			 UILabelTargetDecorator.targetLabel(UIMessage.make(groupForm, "user-unit", "user.unit"), UIInput.make(groupForm, "numToSplit-user", "SiteManageGroupSectionRoleHandler.numToSplitUser"));
+		 
+			 //Radio Buttons
 	         String [] grading_values = new String[] {
 	                 Boolean.TRUE.toString(), Boolean.FALSE.toString()
 	         };
@@ -221,10 +222,6 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 	         UISelectLabel split_lb2 = UISelectLabel.make(arg0, "splitByUsersLabel", grading_select_id, 1);
 	         UISelectChoice split_choice2 =UISelectChoice.make(arg0, "userSplit", grading_select_id, 1);
 	         UILabelTargetDecorator.targetLabel(split_lb2, split_choice2);
-			 
-			 UIInput.make(groupForm, "numToSplit-group", "SiteManageGroupSectionRoleHandler.numToSplitGroup");
-			 UIInput.make(groupForm, "numToSplit-user", "SiteManageGroupSectionRoleHandler.numToSplitUser");
-		 
 		 
 		 }
 		 
