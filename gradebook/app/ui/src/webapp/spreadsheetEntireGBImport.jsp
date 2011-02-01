@@ -30,7 +30,7 @@
 		</h:form>            
 
             <%-- Step 1: Download template --%>
- 	            <h4><h:outputText value="#{msgs.import_entire_template_prefix} #{msgs.import_entire_template}"/></h4>
+ 	            <h4><h:outputText value="#{msgs.import_entire_template}"/></h4>
  	            <br />
 		        <h:form id="gbExportForm">
               <h:graphicImage value="/../../library/image/sakai/excel.gif" />
@@ -48,14 +48,14 @@
 			
 			<%-- Step 2: Edit Spreadsheet --%>
 			<br />
-			<h4><h:outputText value="#{msgs.import_entire_edit_prefix} #{msgs.import_entire_edit}" /></h4>
+			<h4><h:outputText value="#{msgs.import_entire_edit}" /></h4>
 			<br />
 			<h:outputText value="#{msgs.import_entire_edit_inst}" />
 			
 			<%-- Step 3: Import Spreadsheet --%>
 			<br /><br />
        		<h:form id="gbForm" enctype="multipart/form-data">
- 				<h4><h:outputText value="#{msgs.import_entire_import_prefix} #{msgs.import_entire_import}" /></h4>
+ 				<h4><h:outputText value="#{msgs.import_entire_import}" /></h4>
 				<br />
 				<h:outputText value="#{msgs.import_entire_import_inst}" />
 				<f:verbatim>
