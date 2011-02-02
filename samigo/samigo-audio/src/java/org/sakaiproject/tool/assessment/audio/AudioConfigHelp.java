@@ -132,7 +132,7 @@ static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
         msg += "            " +
           res.getString("permission_java_util");
       }
-      if (!!configFileWrite)
+      if (!configFileWrite)
       {
         msg += "            " +
           res.getString("permission_java_io");
