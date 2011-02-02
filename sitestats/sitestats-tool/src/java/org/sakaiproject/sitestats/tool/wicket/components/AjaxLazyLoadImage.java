@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -100,7 +100,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		add(chartRenderAjaxBehavior);
 		
 		// fields for maximized chart size
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 		form = new Form("chartForm");
 		form.add(new HiddenField("maxWidth"));
 		form.add(new HiddenField("maxHeight"));

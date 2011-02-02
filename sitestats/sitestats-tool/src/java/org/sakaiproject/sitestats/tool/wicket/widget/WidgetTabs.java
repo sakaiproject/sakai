@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -103,7 +103,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		if(selectedTab < 0 || selectedTab >= tabs.size()){
 			throw new IndexOutOfBoundsException();
 		}
-		setModelObject(Integer.valueOf(selectedTab));
+		setDefaultModelObject(Integer.valueOf(selectedTab));
 		AbstractTab tab = getTabs().get(selectedTab);
 		WebMarkupContainer tabContents = null;
 		if(showTabContents) {
@@ -118,7 +118,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		}
 	}
 	public int getSelectedTab() {
-		return ((Integer) getModelObject()).intValue();
+		return ((Integer) getDefaultModelObject()).intValue();
 	}
 	
 	public String getLoadSelectedTabScript() {

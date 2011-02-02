@@ -87,7 +87,7 @@ public class ServerWidePage extends BasePage {
 		
 		// model
 		report = new ServerWideModel();
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 		
 		Form form = new Form("serverWideReportForm");
 		add(form);

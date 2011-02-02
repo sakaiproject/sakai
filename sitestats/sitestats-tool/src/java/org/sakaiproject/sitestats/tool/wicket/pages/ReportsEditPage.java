@@ -227,7 +227,7 @@ public class ReportsEditPage extends BasePage {
 		if(!visitsEnabled) {
 			getReportParams().setWhat(ReportManager.WHAT_EVENTS_BYTOOL);
 		}
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 		
 		// last job run
 		add(new LastJobRun("lastJobRun", siteId));
@@ -923,15 +923,15 @@ public class ReportsEditPage extends BasePage {
 		IStylableOptionRenderer optionRenderer = new IStylableOptionRenderer() {
 			public String getDisplayValue(Object object) {
 				SelectOption opt = (SelectOption) object;
-				return ((ToolModel) opt.getModel()).getToolName();				
+				return ((ToolModel) opt.getDefaultModel()).getToolName();				
 			}
 			public IModel getModel(Object value) {
 				SelectOption opt = (SelectOption) value;
-				return new Model(((ToolModel) opt.getModel()).getToolId());
+				return new Model(((ToolModel) opt.getDefaultModel()).getToolId());
 			}
 			public String getStyle(Object object) {
 				SelectOption opt = (SelectOption) object;
-				ToolModel toolModel = (ToolModel) opt.getModel();
+				ToolModel toolModel = (ToolModel) opt.getDefaultModel();
 				String toolId = toolModel.getToolId();
 				if(!ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
 					String toolIconPath = "background-image: url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolId) + ");";
@@ -977,11 +977,11 @@ public class ReportsEditPage extends BasePage {
 				SelectOptions selectOptions = new SelectOptions("selectOptions", events, new IOptionRenderer() {
 					public String getDisplayValue(Object object) {
 						SelectOption opt = (SelectOption) object;
-						return ((EventModel) opt.getModel()).getEventName();
+						return ((EventModel) opt.getDefaultModel()).getEventName();
 					}
 					public IModel getModel(Object value) {
 						SelectOption opt = (SelectOption) value;
-						return new Model(((EventModel) opt.getModel()).getEventId());
+						return new Model(((EventModel) opt.getDefaultModel()).getEventId());
 					}			
 				});
 				selectOptions.setRenderBodyOnly(true);				
@@ -1026,7 +1026,7 @@ public class ReportsEditPage extends BasePage {
 			IOptionRenderer optionRenderer = new IOptionRenderer() {
 				public String getDisplayValue(Object object) {
 					SelectOption opt = (SelectOption) object;
-					String userId = (String) opt.getModel().getObject();
+					String userId = (String) opt.getDefaultModel().getObject();
 					if(("?").equals(userId)) {
 						return Web.escapeHtml( (String) new ResourceModel("user_anonymous_access").getObject() );
 					}else{
@@ -1046,7 +1046,7 @@ public class ReportsEditPage extends BasePage {
 				}
 				public IModel getModel(Object value) {
 					SelectOption opt = (SelectOption) value;
-					return new Model( (String) opt.getModel().getObject() );
+					return new Model( (String) opt.getDefaultModel().getObject() );
 				}			
 			};
 			Collections.sort(users, getOptionRendererComparator(collator, optionRenderer));
@@ -1091,7 +1091,7 @@ public class ReportsEditPage extends BasePage {
 		final IOptionRenderer optionRenderer = new IOptionRenderer() {
 			public String getDisplayValue(Object o) {
 				SelectOption opt = (SelectOption) o;
-				Object object = opt.getModel().getObject();
+				Object object = opt.getDefaultModel().getObject();
 				if(StatsManager.T_USER.equals(object)) {
 					return (String) new ResourceModel("report_option_user").getObject();					
 				}
@@ -1121,7 +1121,7 @@ public class ReportsEditPage extends BasePage {
 			
 			public IModel getModel(Object value) {
 				SelectOption opt = (SelectOption) value;
-				return opt.getModel();
+				return opt.getDefaultModel();
 			}
 		};
 		SelectOptions selectOptions = new SelectOptions("selectOptions", selectOptionList, optionRenderer);
@@ -1389,7 +1389,7 @@ public class ReportsEditPage extends BasePage {
 										+ path
 										+ "] which does not point to an SelectOption component. Due to this the Select component cannot resolve the selected SelectOption component pointed to by the illegal value. A possible reason is that component hierarchy changed between rendering and form submission.");
 					}
-					converted.add(option.getModelObject());
+					converted.add(option.getDefaultModelObject());
 				}
 			}
 			if(converted.isEmpty()){

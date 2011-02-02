@@ -77,7 +77,7 @@ public class PreferencesPage extends BasePage {
 		}
 		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
-			setModel(new CompoundPropertyModel(this));
+			setDefaultModel(new CompoundPropertyModel(this));
 			renderBody();
 		}else{
 			setResponsePage(NotAuthorizedPage.class);

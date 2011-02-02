@@ -107,7 +107,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	@Override
 	protected void onBeforeRender() {
 		// update data
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 			
 		removeAll();
 			

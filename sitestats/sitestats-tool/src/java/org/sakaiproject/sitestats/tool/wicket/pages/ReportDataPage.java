@@ -152,7 +152,7 @@ public class ReportDataPage extends BasePage {
 		}
 		
 		// model
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 		
 		// form
 		Form form = new Form("form");

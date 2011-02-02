@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -66,7 +66,7 @@ public class StylableSelectOptions extends RepeatingView {
 			// populate this repeating view with SelectOption components
 			removeAll();
 
-			Object modelObject = getModelObject();
+			Object modelObject = getDefaultModelObject();
 
 			if(modelObject != null){
 				if(!(modelObject instanceof Collection)){

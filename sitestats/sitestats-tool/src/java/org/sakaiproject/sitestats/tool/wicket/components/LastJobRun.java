@@ -73,11 +73,11 @@ public class LastJobRun extends Panel {
 			try{
 				Date d = statsUpdateManager.getEventDateFromLatestJobRun();
 				String dStr = Locator.getFacade().getTimeService().newTime(d.getTime()).toStringLocalFull();
-				lastJobRunDate.setModel(new Model(dStr));
+				lastJobRunDate.setDefaultModel(new Model(dStr));
 			}catch(RuntimeException e) {
-				lastJobRunDate.setModel(new Model());
+				lastJobRunDate.setDefaultModel(new Model());
 			}catch(Exception e){
-				lastJobRunDate.setModel(new Model());
+				lastJobRunDate.setDefaultModel(new Model());
 			}
 		}
 		lastJobRun.add(lastJobRunDate);

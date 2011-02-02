@@ -97,7 +97,7 @@ public class FileSelectorPanel extends Panel {
 	}
 	
 	public List<String> getSelectedFilesId() {
-		List<String> files = (List<String>) getModelObject();
+		List<String> files = (List<String>) getDefaultModelObject();
 		if(!showDefaultBaseFoldersOnly) {
 			List<String> files2 = new ArrayList<String>();
 			for(String f : files) {
@@ -113,11 +113,11 @@ public class FileSelectorPanel extends Panel {
 	}
 	
 	public void setSelectedFilesId(List<String> files) {
-		setModelObject(files);
+		setDefaultModelObject(files);
 	}
 	
 	public String getSelectedFiles() {
-		List<String> files = (List<String>) getModelObject();
+		List<String> files = (List<String>) getDefaultModelObject();
 		StringBuilder filesEncoded = new StringBuilder();
 		for(String s : files) {
 			if(filesEncoded.length() != 0) {
@@ -140,7 +140,7 @@ public class FileSelectorPanel extends Panel {
 				files.add(t[i]);
 			}
 		}
-		setModelObject(files);
+		setDefaultModelObject(files);
 	}
 	
 	private boolean isSelected(String resourceId) {

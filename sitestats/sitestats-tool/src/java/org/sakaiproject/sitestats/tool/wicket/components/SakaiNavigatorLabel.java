@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -109,7 +109,7 @@ public class SakaiNavigatorLabel extends Label {
 	private SakaiNavigatorLabel(final String id, final PageableComponent table) {
 		super(id);
 		Model model = new Model(new LabelModelObject(table)); 
-		setModel(
+		setDefaultModel(
 				new StringResourceModel(
 						"pager_textStatus", 
 						this, 

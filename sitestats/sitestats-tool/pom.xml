@@ -69,10 +69,10 @@
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-spring</artifactId>
     </dependency>
-    <dependency>
+  <!--  <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-spring-annot</artifactId>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-datetime</artifactId>

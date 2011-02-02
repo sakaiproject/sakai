@@ -41,7 +41,7 @@ public class SakaiNavigatorSearch extends Panel {
 		super(id);
 		this.dataProvider = dataProvider;
 
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 
 		Form form = new Form("searchForm");
 		add(form);

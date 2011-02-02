@@ -90,7 +90,7 @@ public class ReportsPage extends BasePage {
 		add(new Menus("menu", siteId));
 
 		// model
-		setModel(new CompoundPropertyModel(this));
+		setDefaultModel(new CompoundPropertyModel(this));
 		
 		add(new Label("pageTitle"));
 		
@@ -262,9 +262,9 @@ public class ReportsPage extends BasePage {
 			hideContainer.add(hide);
 			Label hideLabel = new Label("hideLabel");
 			if(reportDef.isHidden()) {
-				hideLabel.setModel(new ResourceModel("report_unhide"));
+				hideLabel.setDefaultModel(new ResourceModel("report_unhide"));
 			}else{
-				hideLabel.setModel(new ResourceModel("report_hide"));
+				hideLabel.setDefaultModel(new ResourceModel("report_hide"));
 			}
 			hide.add(hideLabel);
 			

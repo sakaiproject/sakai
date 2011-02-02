@@ -153,7 +153,7 @@ public class Widget extends Panel {
 				}
 				if(ms.isWiderText()) {
 					if(ms.getValue().length() > MAX_TEXT_LENGTH) {
-						valueLabel.setModelObject(ms.getValue().substring(0, MAX_TEXT_LENGTH) + "...");
+						valueLabel.setDefaultModelObject(ms.getValue().substring(0, MAX_TEXT_LENGTH) + "...");
 					}
 					item.add(new AttributeModifier("class", true, new Model("ministat wider")));
 				}

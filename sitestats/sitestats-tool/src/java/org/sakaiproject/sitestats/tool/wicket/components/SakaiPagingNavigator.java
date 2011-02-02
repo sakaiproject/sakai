@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -79,7 +79,7 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	{
 		if (get("first") == null)
 		{
-			setModel(new CompoundPropertyModel(this));
+			setDefaultModel(new CompoundPropertyModel(this));
 			
 			// Get the row number selector
 			add(newRowNumberSelector(getPageable()));
