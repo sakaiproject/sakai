@@ -1,3 +1,15 @@
+-- This is the MYSQL Sakai 2.7.1 -> 2.8.0 conversion script
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- 
+-- use this to convert a Sakai database from 2.7.1 to 2.8.0.  Run this before you run your first app server.
+-- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
+--
+-- Script insertion format
+-- -- [TICKET] [short comment]
+-- -- [comment continued] (repeat as necessary)
+-- SQL statement
+-- --------------------------------------------------------------------------------------------------------------------------------------
+
 -- SAK-18864, SAK-19951 adds missing scheduler_trigger_events table for new persistent jobscheduler event feature
 create table scheduler_trigger_events (uuid varchar(36) PRIMARY KEY NOT NULL, type varchar(255) NOT NULL, jobName varchar(255) NOT NULL, triggerName varchar(255) DEFAULT NULL, time datetime NOT NULL, message text);
 

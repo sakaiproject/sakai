@@ -1,3 +1,15 @@
+-- This is the Oracle Sakai 2.7.1 -> 2.8.0 conversion script
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- 
+-- use this to convert a Sakai database from 2.7.1 to 2.8.0.  Run this before you run your first app server.
+-- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
+--
+-- Script insertion format
+-- -- [TICKET] [short comment]
+-- -- [comment continued] (repeat as necessary)
+-- SQL statement
+-- --------------------------------------------------------------------------------------------------------------------------------------
+
 -- SAK-17821 Add additional fields to SakaiPerson
 alter table SAKAI_PERSON_T add STAFF_PROFILE varchar2(4000);
 alter table SAKAI_PERSON_T add UNIVERSITY_PROFILE_URL varchar2(4000);
