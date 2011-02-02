@@ -39,7 +39,7 @@ function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_
 	// get rid of this hard-coded dependency, where calendar_id _must_
 	// be constructed like this due to dependencies in the content tool
 	if (calendar_id == undefined) {
-		calendar_id = yearselect_id.replace('year','calendar');
+        calendar_id = yearselect_id.toLowerCase().replace('year','calendar'); //SAK-19250
 	}
 
 	//Check to see if the this calendar id already exists and reinsert it (currently an issue with webkit)
