@@ -229,18 +229,6 @@ alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) default 0;
 -- add gallery feed preference (PRFL-382)
 alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) default 1;
 
--- remove twitter from preferences (PRFL-94) 
-alter table PROFILE_PREFERENCES_T drop column TWITTER_ENABLED;
-alter table PROFILE_PREFERENCES_T drop column TWITTER_USERNAME;
-alter table PROFILE_PREFERENCES_T drop column TWITTER_PASSWORD;
-
-create table PROFILE_EXTERNAL_INTEGRATION_T (
-	USER_UUID varchar2(99) not null,
-	TWITTER_TOKEN varchar2(255),
-	TWITTER_SECRET varchar2(255),
-	primary key (USER_UUID)
-);
-
 -- Profile2 1.3-1.4 upgrade end
 
 -- ShortenedUrlService 1.0.0 db creation start
