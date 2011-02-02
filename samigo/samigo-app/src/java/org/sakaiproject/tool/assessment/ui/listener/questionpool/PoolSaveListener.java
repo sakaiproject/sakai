@@ -67,13 +67,22 @@ public class PoolSaveListener implements ActionListener
   {
     //log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
+    FacesContext context = FacesContext.getCurrentInstance();
+    
+    String displayName = qpoolbean.getCurrentPool().getDisplayName();
+    if (displayName.length() > 255) {
+    	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","poolName_long");
+    	context.addMessage(null,new FacesMessage(err));
+            qpoolbean.setOutcomeEdit("editPool");
+    	qpoolbean.setOutcome("addPool");
+    	return;
+    }
     String currentName= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpoolbean.getCurrentPool().getDisplayName());
    
     boolean isUnique=true;
     QuestionPoolService service = new QuestionPoolService();
     QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
     Long currentId = new Long ("0");
-    FacesContext context = FacesContext.getCurrentInstance();
       if(bean.getId() != null)
       {
 	  currentId = bean.getId();
