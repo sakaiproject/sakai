@@ -24,6 +24,7 @@ package org.sakaiproject.site.impl;
 import java.util.Date;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +36,7 @@ import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -361,6 +363,35 @@ public class BaseGroup implements Group, Identifiable
 
 					m_azg = AuthzGroupService.newAuthzGroup(getReference(), template, null);
 					m_azgChanged = true;
+					
+					if (m_site != null)
+					{
+						try
+						{
+							AuthzGroup siteTemplate = AuthzGroupService.getAuthzGroup(m_site.getReference());
+							// remove all roles first from the new group realm
+							m_azg.removeRoles();
+							// make a deep copy of the roles as new Role objects
+							for (Iterator<Role> it = siteTemplate.getRoles().iterator(); it.hasNext();)
+							{
+								Role role = (Role) it.next();
+								String roleId = role.getId();
+								try
+								{
+									m_azg.addRole(roleId, role);
+								}
+								catch (RoleAlreadyDefinedException rException)
+								{
+									M_log.warn("getAzg: role id " + roleId + " already used in group " + m_azg.getReference() + rException.getMessage());
+								}
+							}
+						}
+						catch (Exception e1)
+						{
+							M_log.warn("getAzg: cannot access realm of " + m_site.getReference() + e1.getMessage());
+							
+						}
+					}
 				}
 				catch (Exception t)
 				{
