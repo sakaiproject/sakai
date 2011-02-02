@@ -9,17 +9,15 @@
     
     <packaging>pom</packaging>
 
-	<!--  
 	<parent>
 		<groupId>org.sakaiproject.shortenedurl</groupId>
 		<artifactId>shortenedurl</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
-	-->
 
     <properties>
         <!-- change this to reflect the name to use for the ddl files -->
-        <project.ddl.name>tinyurl-ddl</project.ddl.name>
+        <project.ddl.name>shortenedurl-ddl</project.ddl.name>
     </properties>
 
     <dependencies>
@@ -117,6 +115,7 @@
                             </componentProperties>
                         </configuration>
                     </execution>
+                    <!--  
                     <execution>
                         <id>export-mssql</id>
                         <phase>process-classes</phase>
@@ -156,6 +155,7 @@
                             </componentProperties>
                         </configuration>
                     </execution>
+                    -->
                 </executions>
             </plugin>
         </plugins>

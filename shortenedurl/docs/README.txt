@@ -31,8 +31,8 @@ This is a known issue. For upgrades, the upgrade script will add the indexes for
 
 ERRORS/OMISSIONS:
 -----------------
-For any errors or omissions, please open a Jira ticket at http://jira.sakaiproject.org/jira/browse/TINYURL
+For any errors or omissions, please open a Jira ticket at http://jira.sakaiproject.org/jira/browse/SHORTURL
 
 ---
 Steve Swinsburg
-August 2010
+February 2011
