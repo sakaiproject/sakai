@@ -6,7 +6,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
-	<sakai:stylesheet path="/css/prefs.css"/>
 	<sakai:view_content>
 		<h:form id="prefs_form">
 		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>			
@@ -19,6 +18,7 @@
 		</script>
 
 				
+				<sakai:stylesheet path="/css/prefs.css"/>
 				<sakai:tool_bar>
 			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmEdit}" value="Refresh" /--%>
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 1}"/>
@@ -75,12 +75,12 @@
 				 	
 				 	<td style="text-align: center;">
 						<div style="margin-bottom:1.5em">
-						  <h:commandLink id="remove" action="#{UserPrefsTool.processActionRemove}" title="#{msgs.tab_move_inst_re}" styleClass="blockable bl"><h:graphicImage value="prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /></h:commandLink>
-						  <h:commandLink id="add" action="#{UserPrefsTool.processActionAdd}" title="#{msgs.tab_move_inst}" styleClass="blockable br"><h:graphicImage value="prefs/to-right.png" alt="#{msgs.tab_move_inst}" /></h:commandLink>
+						  <h:commandLink id="remove" action="#{UserPrefsTool.processActionRemove}" title="#{msgs.tab_move_inst_re}" styleClass="blockable bl"><h:graphicImage value="/prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /></h:commandLink>
+						  <h:commandLink id="add" action="#{UserPrefsTool.processActionAdd}" title="#{msgs.tab_move_inst}" styleClass="blockable br"><h:graphicImage value="/prefs/to-right.png" alt="#{msgs.tab_move_inst}" /></h:commandLink>
 						</div>
 						<div>
-							<h:commandLink id="removeAll" action="#{UserPrefsTool.processActionRemoveAll}" title="#{msgs.tab_move_all_inst_re}" styleClass="blockable bl"><h:graphicImage value="prefs/all-to-left.png" alt="#{msgs.tab_move_all_inst_re}" /></h:commandLink>
-							<h:commandLink id="addAll" action="#{UserPrefsTool.processActionAddAll}" title="#{msgs.tab_move_all_inst}" styleClass="blockable br"><h:graphicImage value="prefs/all-to-right.png" alt="#{msgs.tab_move_all_inst}" /></h:commandLink>
+							<h:commandLink id="removeAll" action="#{UserPrefsTool.processActionRemoveAll}" title="#{msgs.tab_move_all_inst_re}" styleClass="blockable bl"><h:graphicImage value="/prefs/all-to-left.png" alt="#{msgs.tab_move_all_inst_re}" /></h:commandLink>
+							<h:commandLink id="addAll" action="#{UserPrefsTool.processActionAddAll}" title="#{msgs.tab_move_all_inst}" styleClass="blockable br"><h:graphicImage value="/prefs/all-to-right.png" alt="#{msgs.tab_move_all_inst}" /></h:commandLink>
 						</div>	
 				 	</td>
 				 	
@@ -92,11 +92,11 @@
 				      </h:selectManyListbox>
 				 	</td>
 				 	<td style="width:27px;">
-				 	  <p style="margin:0"><h:commandLink id="moveTop" action="#{UserPrefsTool.processActionMoveTop}" title="#{msgs.tab_move_top}" styleClass="blockable ud"> <h:graphicImage value="prefs/to-top.png" alt="#{msgs.tab_move_top}" /> </h:commandLink></p>
-				 	  <p style="margin:5px 0 0  0;"><h:commandLink id="moveUp" action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}" styleClass="blockable ud"> <h:graphicImage value="prefs/up.png" alt="#{msgs.tab_move_up}" /> </h:commandLink></p>
+				 	  <p style="margin:0"><h:commandLink id="moveTop" action="#{UserPrefsTool.processActionMoveTop}" title="#{msgs.tab_move_top}" styleClass="blockable ud"> <h:graphicImage value="/prefs/to-top.png" alt="#{msgs.tab_move_top}" /> </h:commandLink></p>
+				 	  <p style="margin:5px 0 0  0;"><h:commandLink id="moveUp" action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}" styleClass="blockable ud"> <h:graphicImage value="/prefs/up.png" alt="#{msgs.tab_move_up}" /> </h:commandLink></p>
 					  <div style="margin-top:15px">
-				 	  	<p style="margin:0 0 5px 0;"><h:commandLink id="moveDown" action="#{UserPrefsTool.processActionMoveDown}" title="#{msgs.tab_move_down}" styleClass="blockable ud"> <h:graphicImage value="prefs/down.png" alt="#{msgs.tab_move_down}" /> </h:commandLink></p>
-						<p style="margin:0;"><h:commandLink id="moveBottom" action="#{UserPrefsTool.processActionMoveBottom}" title="#{msgs.tab_move_bottom}" styleClass="blockable ud"> <h:graphicImage value="prefs/to-bottom.png" alt="#{msgs.tab_move_bottom}" /> </h:commandLink></p>
+				 	  	<p style="margin:0 0 5px 0;"><h:commandLink id="moveDown" action="#{UserPrefsTool.processActionMoveDown}" title="#{msgs.tab_move_down}" styleClass="blockable ud"> <h:graphicImage value="/prefs/down.png" alt="#{msgs.tab_move_down}" /> </h:commandLink></p>
+						<p style="margin:0;"><h:commandLink id="moveBottom" action="#{UserPrefsTool.processActionMoveBottom}" title="#{msgs.tab_move_bottom}" styleClass="blockable ud"> <h:graphicImage value="/prefs/to-bottom.png" alt="#{msgs.tab_move_bottom}" /> </h:commandLink></p>
 						</div>	
 				 	</td>    			  
     			  </tr>
