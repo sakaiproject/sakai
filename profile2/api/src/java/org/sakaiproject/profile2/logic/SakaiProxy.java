@@ -16,7 +16,6 @@
 
 package org.sakaiproject.profile2.logic;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
