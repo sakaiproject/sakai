@@ -31,9 +31,9 @@
   <repositories>
         <repository>
           <id>oirt-new-maven</id>
-          <name>Rulink Maven Repository</name>
+          <name>local Maven Repository</name>
           <layout>default</layout>
-          <url>http://rulink.rutgers.edu/maven2/</url>
+          <url>file:${basedir}/maven2/</url>
           <snapshots>
             <enabled>false</enabled>
           </snapshots>
