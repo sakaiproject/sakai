@@ -32,6 +32,8 @@ var DEFAULT_ENROLLMENT_STATUS = 'All';
 var DEFAULT_SORT_LIST = [[0,0]];
 var DEFAULT_STATE = STATE_OVERVIEW;
 
+var DEFAULT_SKIN = 'default';
+
 var SORT_NAME = 'sortName';
 var SORT_DISPLAY_ID = 'displayId';
 var SORT_EMAIL = 'email';
@@ -43,6 +45,7 @@ var columnSortFields = [];
 
 /* Stuff that we always expect to be setup */
 var language = null;
+var skin = DEFAULT_SKIN;
 var rosterSiteId = null;
 var rosterCurrentUserPermissions = null;
 var rosterCurrentUser = null;
@@ -131,6 +134,10 @@ $.tablesorter.addParser({
 	}
 	
 	setLanguage(arg.language);
+
+	if (arg.skin) {
+		skin = arg.skin;
+	}
 	
 	getRosterCurrentUserPermissions();
 	
@@ -192,6 +199,7 @@ $.tablesorter.addParser({
 	// build root profile URL (the user ID is appended later for each user)
 	rosterProfileUrl = "/sakai-roster-tool/roster.html?state=profile&siteId=" +
 		rosterSiteId + "&language="  + language +
+		"&skin=" + skin +
 		"&defaultSortColumn=" + defaultSortColumn +
 		"&firstNameLastName=" + firstNameLastName +
 		"&hideSingleGroupFilter=" + hideSingleGroupFilter +
@@ -414,7 +422,9 @@ function switchState(state, arg, searchQuery) {
 	} else if (STATE_VIEW_PROFILE === state) {
 		
 		var profileMarkup = SakaiUtils.getProfileMarkup(arg.userId);
-				
+		
+		$('head').append('<style type="text/css" rel="stylesheet">' + '/library/skin/' + skin + '/tool.css' + '</style>');
+		
 		$('#roster_content').html(profileMarkup);
 		
 		if(window.frameElement) {
