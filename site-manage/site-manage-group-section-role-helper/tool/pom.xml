@@ -73,15 +73,5 @@
   <build>
     <resources/>
   </build>
-    <repositories>
-        <repository>
-            <id>caret-maven2-dev</id>
-            <name>Caret Maven 2 Dev Repo</name>
-            <layout>default</layout>
-            <url>https://www2.caret.cam.ac.uk/maven2dev</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+
 </project>
