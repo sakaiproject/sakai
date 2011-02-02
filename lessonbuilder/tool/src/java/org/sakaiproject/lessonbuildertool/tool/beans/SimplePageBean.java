@@ -1743,7 +1743,7 @@ public class SimplePageBean {
 				    completeCache.put(itemId, false);
 				    return false;
 				}
-				LessonSubmission submission = assignmentEntity.getSubmission(getCurrentUserId());
+				LessonSubmission submission = assignment.getSubmission(getCurrentUserId());
 
 				if (submission == null) {
 				    completeCache.put(itemId, false);
