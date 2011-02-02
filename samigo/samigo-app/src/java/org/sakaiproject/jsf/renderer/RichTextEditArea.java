@@ -446,22 +446,29 @@ public class RichTextEditArea extends Renderer
     writer.write("\nfunction show_hide_editor(client_id){");
     writer.write("\n\tvar status =  document.getElementById(client_id + '_textinput_current_status');");
     writer.write("\n\tif (status.value == \"firsttime\") {");
+    if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() != null) {
+    	writer.write("\n\t\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
+    } else {
+         writer.write("\n\t\tsetMainFrameHeight('Main" + "');");
+    }
     writer.write("\n\t\tstatus.value = \"expaneded\";");
     writer.write("\n\t\tchef_setupformattedtextarea(client_id, true);");
     writer.write("\n\t\tsetBlockDivs();");
     writer.write("\n\t\tretainHideUnhideStatus('none');\n\t}");
-    writer.write("\n\telse if (status.value == \"collapsed\") {");
-    writer.write("\n\t\tstatus.value = \"expaneded\";");
-    writer.write("\n\t\texpandMenu(client_id);\n\t}");
-    writer.write("\n\telse if (status.value == \"expaneded\") {");
-    writer.write("\n\t\tstatus.value = \"collapsed\";");
-    writer.write("\n\t\tcollapseMenu(client_id);\n\t}");    
+    writer.write("\n\telse {");
+    writer.write("\n\t\tif (status.value == \"collapsed\") {");
+    writer.write("\n\t\t\tstatus.value = \"expaneded\";");
+    writer.write("\n\t\t\texpandMenu(client_id);\n\t\t}");
+    writer.write("\n\t\telse if (status.value == \"expaneded\") {");
+    writer.write("\n\t\t\tstatus.value = \"collapsed\";");
+    writer.write("\n\t\t\tcollapseMenu(client_id);\n\t\t}");    
     writer.write("\n");
     if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() != null) {
-    	writer.write("\n\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
+    	writer.write("\n\t\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
     } else {
-         writer.write("\n\tsetMainFrameHeight('Main" + "');");
+         writer.write("\n\t\tsetMainFrameHeight('Main" + "');");
     }
+    writer.write("\n\t}");
 
     writer.write("\n}\n");
     
