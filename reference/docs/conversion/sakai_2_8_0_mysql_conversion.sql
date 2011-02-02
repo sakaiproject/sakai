@@ -221,3 +221,19 @@ create table PROFILE_EXTERNAL_INTEGRATION_T (
 	primary key (USER_UUID)
 );
 -- Profile2 1.3-1.4 upgrade end
+
+
+-- ShortenedUrlService 1.0.0 db creation start
+
+create table URL_RANDOMISED_MAPPINGS_T (
+	ID bigint not null auto_increment,
+	TINY varchar(255) not null,
+	URL text not null,
+	primary key (ID)
+);
+
+create index URL_INDEX on URL_RANDOMISED_MAPPINGS_T (URL);
+create index KEY_INDEX on URL_RANDOMISED_MAPPINGS_T (TINY);
+
+-- ShortenedUrlService 1.0.0 db creation end
+
