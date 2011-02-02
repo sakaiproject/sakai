@@ -94,7 +94,7 @@ public class WallItemPanel extends Panel {
 
 		// TODO date has scope for internationalization?
 		add(new Label("wallItemDate", ProfileUtils.convertDateToString(wallItem
-				.getDate(), "dd MMMMM, kk:mm")));
+				.getDate(), "dd MMMMM, HH:mm")));
 
 		// wall item actions (TODO container?)
 		
