@@ -75,7 +75,7 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 				locale = "";
 			UIOutput.make(row, "template-locale", locale);
 			UIInternalLink.make(row,"template-edit" , UIMessage.make("mainview.edit"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
-			UIInternalLink.make(row,"template-delete" , UIMessage.make("mainview.delete"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
+			//UIInternalLink.make(row,"template-delete" , UIMessage.make("mainview.delete"), new EmailTemplateViewParams(ModifyEmailProducer.VIEW_ID, template.getId().toString()));
 		}
 	}
 
