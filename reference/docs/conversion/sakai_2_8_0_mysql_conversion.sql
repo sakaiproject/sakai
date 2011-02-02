@@ -1,7 +1,3 @@
--- SAK-16835 columns for new quartz version
--- alter table QRTZ_TRIGGERS add column PRIORITY int;
--- alter table QRTZ_FIRED_TRIGGERS add column PRIORITY int;
-
 -- SAK-18864, SAK-19951 adds missing scheduler_trigger_events table for new persistent jobscheduler event feature
 create table scheduler_trigger_events (uuid varchar(36) PRIMARY KEY NOT NULL, type varchar(255) NOT NULL, jobName varchar(255) NOT NULL, triggerName varchar(255) DEFAULT NULL, time datetime NOT NULL, message text);
 
