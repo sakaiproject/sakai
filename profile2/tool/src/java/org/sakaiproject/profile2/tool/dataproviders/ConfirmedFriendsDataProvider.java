@@ -74,7 +74,9 @@ public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Seri
 
 	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<Person> slice = connectionsLogic.getConnectionsForUser(userUuid).subList(first, first + count);
+			List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid);
+			Collections.sort(connections);
+			List<Person> slice = connections.subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {

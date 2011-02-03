@@ -66,7 +66,9 @@ public class RequestedFriendsDataProvider implements IDataProvider<Person>, Seri
 
 	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<Person> slice = connectionsLogic.getConnectionRequestsForUser(userUuid).subList(first, first + count);
+			List<Person> connectionRequests = connectionsLogic.getConnectionRequestsForUser(userUuid);
+			Collections.sort(connectionRequests);
+			List<Person> slice = connectionRequests.subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
