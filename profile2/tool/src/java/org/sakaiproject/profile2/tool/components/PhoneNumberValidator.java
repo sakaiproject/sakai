@@ -18,6 +18,19 @@ import org.apache.wicket.validation.validator.AbstractValidator;
  *	5. 1234 5678 (if calling in 02 areacode) <br /><br />
  *  
  *  plus all of the above without spaces.</p>
+ *  
+ *  <p>Also added the following style numbers:<br />
+ *  6. 111-222-3333 <br />
+ *  7. 111.222.3333 <br />
+ *  8. (111) 222-3333-444 <br />
+ *  9. (111) 222.3333.444 <br /><br />
+ *  
+ *  plus combinations of . and - in the same numbers above</p>
+ *  
+ *  <p>Now for numbers with extensions:
+ *  
+ *  </p>
+ *  
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -35,7 +48,9 @@ public class PhoneNumberValidator extends AbstractValidator {
 		List<String> regexs = new ArrayList<String>();
 		regexs.add("\\+?([0-9]+|\\s+)+"); //matches 1,2,3,5
 		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+)+"); //matches 4
-
+		regexs.add("([0-9]+(\\-|\\.)?)+"); //matches 6, 7
+		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+|\\-?|\\.?)+"); //matches 8,9
+		
 		//check each, if none, error
 		for(String r: regexs) {
 			Pattern p = Pattern.compile(r);
