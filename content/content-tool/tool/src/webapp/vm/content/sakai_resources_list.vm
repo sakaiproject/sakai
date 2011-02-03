@@ -96,6 +96,7 @@ $(document).ready(function() {
 				$tlang.getString("gen.location")
 				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
 				#foreach ($item in $collectionPath)
+					#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 					#if($item.isLast())
 						$validator.escapeHtml("$item.name")
 						#if($upOneLevel)
@@ -108,7 +109,7 @@ $(document).ready(function() {
 						#end
 					#elseif($item.canRead())
 						<a href="#" 
-							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
+							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
 							$validator.escapeHtml("$item.name")
 						</a> /
@@ -246,6 +247,8 @@ $(document).ready(function() {
 			#set($itemcount = 0)
 			#set ($unit ="em")
 			#foreach($item in $site)
+				#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
+				#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 				#set($itemcount = $itemcount + 1)
 					#set ($addCount=($addCount - 1))
 					#set ($actionCount=($actionCount - 1))
@@ -275,9 +278,9 @@ $(document).ready(function() {
 					<td headers="checkboxes">
 						#if($item.depth > 0 && $item.hasMultipleItemActions())
 							<input type="checkbox" name="selectedMembers" id="list$num" 
-									#if($selectedItems.contains("$item.id"))checked="checked"#end
+									#if($selectedItems.contains($item.id))checked="checked"#end
 									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end"
- 									value="$item.id" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
+ 									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 						#end
 					</td>
@@ -292,9 +295,9 @@ $(document).ready(function() {
 									#else
 										<a href="#"
 											#if($item.isExpanded())
-												onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
+												onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#else
-												onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
+												onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#end
 											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel"  /></a></span>
 									#end
@@ -325,7 +328,7 @@ $(document).ready(function() {
 									&#169;
 								#elseif($item.isCollection())
 									<a href="#"
-										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+										onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
 										title= "$item.hoverText">
 										$validator.escapeHtml(${item.name})
 									</a>
@@ -351,7 +354,7 @@ $(document).ready(function() {
 							#set ($itemsOnLine = 0)
 							#foreach($action in $item.pasteActions)
 								#if($itemsOnLine > 0)|#end
-								<a class=" highlightlink" title="$labeler.getLabel($action) here" href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+								<a class=" highlightlink" title="$labeler.getLabel($action) here" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
 								#set ($itemsOnLine = $itemsOnLine + 1)
 							#end
 						#end
@@ -372,7 +375,7 @@ $(document).ready(function() {
 								<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")"  class="dropdn"/> 
 									<ul  id="menu-$addCount" class="makeMenuChild">
 										#foreach($action in $item.addActions)
-											<li><a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+											<li><a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
 										#end
 										<li style="height:1px;width:1px;display:inline;">
 											<a href="#"  class="skip" onfocus="document.getElementById('menu-$addCount').style.display='none';document.getElementById('last-$addCount').focus()" >$tlang.getString("button.endadd")</a>
@@ -400,7 +403,7 @@ $(document).ready(function() {
 									<ul  id="menu-$actionCount"  class="makeMenuChild">
 										#foreach($action in $item.otherActions)
 											<li>
-												<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+												<a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 													$labeler.getLabel($action)
 												</a>
 											</li>
@@ -505,6 +508,7 @@ $(document).ready(function() {
 					#end
 					################################################################ Eng Paging widgets
 					#foreach($item in $other_sites)
+						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 						############################### Show top level folder #################
 					#set ($addCount=($addCount - 1))
 					#set ($actionCount=($actionCount - 1))
@@ -533,9 +537,9 @@ $(document).ready(function() {
 							<td headers="checkboxes">
 								#if($item.depth > 0 && $item.hasMultipleItemActions())
 									<input type="checkbox" name="selectedMembers" id="list$num" 
-											#if($selectedItems.contains("$item.id"))checked="checked"#end
+											#if($selectedItems.contains($item.id))checked="checked"#end
 											onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end"
- 											value="$item.id" /><label for="list$num" class="skip">$clang.getString("att.select")</label>
+ 											value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select")</label>
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
@@ -550,9 +554,9 @@ $(document).ready(function() {
 											#else
 												<a href="#"
 													#if($item.isExpanded())
-														onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
+														onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 													#else
-														onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
+														onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 													#end
 													title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" /></a></span>
 											#end
@@ -583,7 +587,7 @@ $(document).ready(function() {
 											&#169;
 										#elseif($item.isCollection())
 											<a href="#"
-												onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+												onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
 												title= "$item.hoverText">
 												$validator.escapeHtml(${item.name})
 											</a>
@@ -609,7 +613,7 @@ $(document).ready(function() {
 									#set ($itemsOnLine = 0)
 									#foreach($action in $item.pasteActions)
 										#if($itemsOnLine > 0)|#end
-										<a class=" highlightlink" title="$labeler.getLabel($action) here" href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+										<a class=" highlightlink" title="$labeler.getLabel($action) here" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
 										#set ($itemsOnLine = $itemsOnLine + 1)
 									#end
 								#end
@@ -625,7 +629,7 @@ $(document).ready(function() {
 											<ul  id="menu-$addCount" class="makeMenuChild">
 							    #foreach($action in $item.addActions)
 												<li>
-													<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
+													<a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
 												</li>
 							    #end
 										<li style="height:1px;width:1px;display:inline;">
@@ -649,7 +653,7 @@ $(document).ready(function() {
 											<ul  id="menu-$actionCount" class="makeMenuChild">
 												#foreach($action in $item.otherActions)
 													<li>
-														<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+														<a  href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 															$labeler.getLabel($action)
 														</a>
 													</li>
