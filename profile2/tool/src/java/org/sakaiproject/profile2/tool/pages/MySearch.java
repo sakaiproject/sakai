@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -490,7 +491,8 @@ public class MySearch extends BasePage {
 		
 		//search both UDP and SakaiPerson for matches.
 		results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
-
+		Collections.sort(results);
+		
 		int numResults = results.size();
 		int maxResults = sakaiProxy.getMaxSearchResults();
 		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
@@ -556,7 +558,8 @@ public class MySearch extends BasePage {
 		
 		//search SakaiPerson for matches
 		results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
-							
+		Collections.sort(results);
+		
 		int numResults = results.size();
 		int maxResults = sakaiProxy.getMaxSearchResults();
 		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
