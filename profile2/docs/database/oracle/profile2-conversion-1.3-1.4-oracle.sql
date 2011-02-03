@@ -11,7 +11,38 @@ create sequence COMPANY_PROFILES_S;
 create index PROFILE_COMPANY_PROFILES_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID);
  
 /* add message tables and indexes */
-/* TODO */
+create table PROFILE_MESSAGES_T (
+	ID varchar2(36) not null,
+	FROM_UUID varchar2(99) not null,
+	MESSAGE_BODY varchar2(4000) not null,
+	MESSAGE_THREAD varchar2(36) not null,
+	DATE_POSTED date not null,
+	primary key (ID)
+);
+
+create table PROFILE_MESSAGE_PARTICIPANTS_T (
+	ID number(19,0) not null,
+	MESSAGE_ID varchar2(36) not null,
+	PARTICIPANT_UUID varchar2(99) not null,
+	MESSAGE_READ number(1,0) not null,
+	MESSAGE_DELETED number(1,0) not null,
+	primary key (ID)
+);
+
+create table PROFILE_MESSAGE_THREADS_T (
+	ID varchar2(36) not null,
+	SUBJECT varchar2(255) not null,
+	primary key (ID)
+);
+
+create sequence PROFILE_MESSAGE_PARTICIPANTS_S;
+create index PROFILE_MESSAGES_THREAD_I on PROFILE_MESSAGES_T (MESSAGE_THREAD);
+create index PROFILE_MESSAGES_DATE_POSTED_I on PROFILE_MESSAGES_T (DATE_POSTED);
+create index PROFILE_MESSAGES_FROM_UUID_I on PROFILE_MESSAGES_T (FROM_UUID);
+create index PROFILE_MESSAGE_PARTICIPANT_UUID_I on PROFILE_MESSAGE_PARTICIPANTS_T (PARTICIPANT_UUID);
+create index PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_ID);
+create index PROFILE_MESSAGE_PARTICIPANT_DELETED_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_DELETED);
+create index PROFILE_MESSAGE_PARTICIPANT_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ);
 
 /* add gallery table and indexes (PRFL-134, PRFL-171) */
 create table PROFILE_GALLERY_IMAGES_T (
@@ -36,11 +67,21 @@ create table PROFILE_SOCIAL_INFO_T (
 	primary key (USER_UUID)
 );
 
-/* add official image table and indexes */
-/* TODO */
+/* add official image table */
+create table PROFILE_IMAGES_OFFICIAL_T (
+	USER_UUID varchar2(99) not null,
+	URL varchar2(4000) not null,
+	primary key (USER_UUID)
+);
 
 /* add kudos table */
-/* TODO */
+create table PROFILE_KUDOS_T (
+	USER_UUID varchar2(99) not null,
+	SCORE number(10,0) not null,
+	PERCENTAGE number(19,2) not null,
+	DATE_ADDED date not null,
+	primary key (USER_UUID)
+);
 
 /* add the new email message preference columns, default to 0, (PRFL-152, PRFL-186) */
 alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW number(1,0) default 0;
@@ -79,16 +120,3 @@ alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) default 0;
 
 /* add gallery feed preference (PRFL-382) */
 alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) default 1;
-
-/* remove twitter from preferences (PRFL-94) */
-alter table PROFILE_PREFERENCES_T drop column TWITTER_ENABLED;
-alter table PROFILE_PREFERENCES_T drop column TWITTER_USERNAME;
-alter table PROFILE_PREFERENCES_T drop column TWITTER_PASSWORD;
-
-/* add external integration table (PRFL-94) */
-create table PROFILE_EXTERNAL_INTEGRATION_T (
-	USER_UUID varchar2(99) not null,
-	TWITTER_TOKEN varchar2(255),
-	TWITTER_SECRET varchar2(255),
-	primary key (USER_UUID)
-);
