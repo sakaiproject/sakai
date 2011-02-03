@@ -2292,7 +2292,7 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 
 		//get the authzgroup role(s)
 		String[] authzgrouprolesArr = StringUtils.split(authzgrouproles, ',');
-		List<String> authzgrouprolesList = Arrays.asList(authzgrouprolesArr)
+		List<String> authzgrouprolesList = Arrays.asList(authzgrouprolesArr);
 
 		//iterate over each role in the list...
 		for (Iterator j = authzgrouprolesList.iterator(); j.hasNext(); ) {
