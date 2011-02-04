@@ -72,7 +72,8 @@ where s1.c1 = 3;
 create index user_type_context_idx on MFR_PVT_MSG_USR_T (USER_ID(36), TYPE_UUID(36), CONTEXT_ID(36), READ_STATUS);
 
 -- SAK-18855
-alter table POLL_POLL add column POLL_IS_PUBLIC bit not null default false;
+alter table POLL_POLL add column POLL_IS_PUBLIC bit(1) not null default 0;
+-- alter table POLL_POLL add column POLL_IS_PUBLIC bit not null default false;
 
 -- Profile2 1.3-1.4 upgrade start
 
