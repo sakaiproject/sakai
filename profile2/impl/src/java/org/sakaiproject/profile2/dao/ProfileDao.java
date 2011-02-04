@@ -60,9 +60,10 @@ public interface ProfileDao {
 	 * Get a list of all userIds that match the search criteria in the interest fields.
 	 * 
 	 * @param search	string to search on
+	 * @param includeBusinessBio <code>true</code> if the business biography should also be searched.
 	 * @return
 	 */
-	public List<String> findSakaiPersonsByInterest(final String search);
+	public List<String> findSakaiPersonsByInterest(final String search, boolean includeBusinessBio);
 	
 	/**
 	 * Get the current ProfileImage records from the database.
@@ -568,7 +569,8 @@ public interface ProfileDao {
 
 	//SakaiPersonMeta
 	final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
-	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
+	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
+	final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST_AND_BUSINESS_BIO = "findSakaiPersonsByInterestAndBusinessBio";
 	final String QUERY_GET_SAKAI_PERSON = "getSakaiPerson";
 	final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
 	final String QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT = "getAllSakaiPersonIdsCount";

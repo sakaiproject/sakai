@@ -112,13 +112,18 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<String> findSakaiPersonsByInterest(final String search) {
+	public List<String> findSakaiPersonsByInterest(final String search, final boolean includeBusinessBio) {
 		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
+	  	
+	  			Query q;
+	  			if (false == includeBusinessBio) {
+	  				q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
+	  			} else {
+	  				q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST_AND_BUSINESS_BIO);
+	  			}
 	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
 	  			return q.list();
 	  		}

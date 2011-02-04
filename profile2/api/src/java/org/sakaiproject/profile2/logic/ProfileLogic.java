@@ -130,7 +130,7 @@ public interface ProfileLogic {
 	 * @param search 	string to search for
 	 * @return List 	Persons
 	 */
-	public List<Person> findUsersByInterest(String search);
+	public List<Person> findUsersByInterest(String search, boolean includeBusinessBio);
 	
 	/**
 	 * Get a BasicPerson

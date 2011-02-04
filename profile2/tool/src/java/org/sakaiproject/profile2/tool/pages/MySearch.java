@@ -557,7 +557,7 @@ public class MySearch extends BasePage {
 		sbnNameField.updateModel();
 		
 		//search SakaiPerson for matches
-		results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText));
+		results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText, sakaiProxy.isBusinessProfileEnabled()));
 		Collections.sort(results);
 		
 		int numResults = results.size();

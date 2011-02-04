@@ -34,6 +34,10 @@
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like :search or sp.favouriteTvShows like :search or sp.favouriteMovies like :search or sp.favouriteQuotes like :search or sp.notes like :search]]>
   	</query>
   	
+  	<query name="findSakaiPersonsByInterestAndBusinessBio">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like :search or sp.favouriteTvShows like :search or sp.favouriteMovies like :search or sp.favouriteQuotes like :search or sp.notes like :search or sp.businessBiography like :search]]>
+  	</query>
+  	
   	<query name="getAllSakaiPersonIds">
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
   	</query>
