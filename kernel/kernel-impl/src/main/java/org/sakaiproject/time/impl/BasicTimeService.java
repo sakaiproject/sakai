@@ -32,6 +32,8 @@ import java.util.TimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
@@ -77,8 +79,8 @@ public class BasicTimeService implements TimeService
 	// Map of Timezone/Locales to LocalTzFormat objects
 	private Hashtable M_localeTzMap = new Hashtable();
 
-	// Map of userIds to Timezone/Locales
-	private Hashtable M_userTzMap = new Hashtable();
+	// Cache of userIds to Timezone/Locales
+	private Cache M_userTzCache;
 
 	// Default Timezone/Locale
 	protected String[] M_tz_locale_default = new String[] { TimeZone.getDefault().getID(), Locale.getDefault().toString() };
@@ -100,10 +102,19 @@ public class BasicTimeService implements TimeService
 	public void setPreferencesService(PreferencesService preferencesService) {
 		this.preferencesService = preferencesService;
 	}
+	
+	
+	private MemoryService memoryService;
+
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
+	}
+	
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
 
 
 	/**
@@ -135,6 +146,10 @@ public class BasicTimeService implements TimeService
 		M_fmtD.setTimeZone(M_tz);
 		M_fmtE.setTimeZone(M_tz);
 		M_fmtG.setTimeZone(M_tz);
+		
+		
+		//register the Cache
+		M_userTzCache = memoryService.newCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
 	}
 
 	/**
@@ -145,7 +160,7 @@ public class BasicTimeService implements TimeService
 		M_log.info("destroy()");
 	}
 
-	/** Return string with user's prefered timezone _and_ prefered locale
+	/** Return string with user's prefered timezone _and_ preferred locale
 	 ** (dates are formatted according to the locale)
 	 **/
 	protected String[] getUserTimezoneLocale()
@@ -154,7 +169,7 @@ public class BasicTimeService implements TimeService
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (userId == null) return M_tz_locale_default;
 
-		String[] timeZoneLocale = (String[]) M_userTzMap.get(userId);
+		String[] timeZoneLocale = (String[]) M_userTzCache.get(userId);
 		if (timeZoneLocale != null) return timeZoneLocale;
 
 		// Otherwise, get the user's preferred time zone
@@ -170,7 +185,7 @@ public class BasicTimeService implements TimeService
 
 		timeZoneLocale = new String[] {timeZone, localeId};
 
-		M_userTzMap.put(userId, timeZoneLocale);
+		M_userTzCache.put(userId, timeZoneLocale);
 
 		return timeZoneLocale;
 	}
@@ -326,7 +341,7 @@ public class BasicTimeService implements TimeService
 	 */
 	public boolean clearLocalTimeZone(String userId)
 	{
-		M_userTzMap.remove(userId);
+		M_userTzCache.remove(userId);
 		return true;
 	}
 
