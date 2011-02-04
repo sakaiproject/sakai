@@ -205,6 +205,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				.getConnectionsForUser(userUuid);
 
 		if (null == connections || 0 == connections.size()) {
+			Collections.sort(filteredWallItems);
 			return filteredWallItems;
 		}
 
