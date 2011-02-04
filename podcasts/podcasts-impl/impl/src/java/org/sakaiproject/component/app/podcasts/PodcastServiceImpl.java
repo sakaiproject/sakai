@@ -1331,9 +1331,25 @@ public class PodcastServiceImpl implements PodcastService {
 
 		try {
 			podcastsCollection = retrievePodcastFolderId(getSiteId());
-
-			contentHostingService.setPubView(podcastsCollection, option);
-
+			ContentCollectionEdit collection = null;
+			try {
+				collection = contentHostingService.editCollection(podcastsCollection);
+				// We don't use setPubView as it doesn't clear any existing 
+				// groups on the collection.
+				if (option) {
+					collection.setPublicAccess();
+				} else {
+					collection.clearPublicAccess();
+				}
+				contentHostingService.commitCollection(collection);
+			} catch (Exception e) {
+				LOG.warn("Failed to update access for collection: "+ podcastsCollection);
+				throw new Error(e);
+			} finally {
+				if (collection != null && collection.isActiveEdit()) {
+					contentHostingService.cancelCollection(collection);
+				}
+			}
 		} 
 		catch (PermissionException e) {
 			LOG.warn("PermissionException attempting to retrieve podcast folder id "
