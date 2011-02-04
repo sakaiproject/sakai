@@ -371,6 +371,31 @@ public class ProfileUtils {
 	}
 	
 	/**
+	 * Trims HTML to the given maximum number of displayed characters
+	 * (less 3 characters, in case "..." must be appended), preserving formatting.
+	 * 
+	 * @param s
+	 * @param maxNumOfChars
+	 * @return
+	 */
+	public static String trimHtml(String s, int maxNumOfChars) {
+		
+		if (null == s) {
+			return "";
+		}
+		
+		StringBuilder trimmedHtml = new StringBuilder();
+		
+		boolean trimmed = FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
+		
+		if (trimmed) {
+			trimmedHtml.append("...");
+		}
+		
+		return trimmedHtml.toString();
+	}
+	
+	/**
 	 * Generate a UUID
 	 * @return
 	 */
