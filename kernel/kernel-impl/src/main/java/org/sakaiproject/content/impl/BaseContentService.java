@@ -5642,7 +5642,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
 				rpe.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 				rpe.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
-				commitResource(edit);
+				//KNL-653 This update should never send a notification
+				commitResource(edit, NotificationService.NOTI_NONE);
 			} 
 			
 		} catch (PermissionException e) {
