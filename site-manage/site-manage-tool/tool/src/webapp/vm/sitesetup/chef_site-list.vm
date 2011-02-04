@@ -8,7 +8,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
-		sakai.setupSelectList('siteList','selunselallid','selectedSelected');
+		sakai.setupSelectList('siteList','toggleAllSelected','selectedSelected');
 		$('.siteSelectCheckbox').click(function(){
 			if($('.siteSelectCheckbox:checked').length >= 1){
 				$('#actionToolBar .realToolBarLink').show();
@@ -134,7 +134,7 @@
 			<table class ="listHier lines nolines" summary ="$tlang.getString('list.summary')" border ="0" id ="siteList" cellpadding="0" cellspacing="0">
 				<tr>
 					<th id="checkbox" class="screenOnly attach">
-						<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedMembers')"  title="$tlang.getString('check.all')" />
+						<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected"  title="$tlang.getString('check.all')" />
 					</th>
 					<th id="title">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_title)")" title ="$tlang.getString('list.sortbytitle')"> 
