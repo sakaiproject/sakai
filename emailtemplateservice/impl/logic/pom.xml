@@ -84,10 +84,10 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>easymock</groupId>
             <artifactId>easymock</artifactId>

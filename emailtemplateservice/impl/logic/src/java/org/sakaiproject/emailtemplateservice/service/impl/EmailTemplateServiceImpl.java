@@ -197,33 +197,36 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	}
 
    protected Locale getUserLocale(String userId) {
-      Locale loc = null;
-      Preferences prefs = preferencesService.getPreferences(userId);
-      ResourceProperties locProps = prefs.getProperties(InternationalizedMessages.APPLICATION_ID);
-      String localeString = locProps.getProperty(InternationalizedMessages.LOCALE_KEY);
+	   Locale loc = null;
+	   Preferences prefs = preferencesService.getPreferences(userId);
+	   ResourceProperties locProps = prefs.getProperties(InternationalizedMessages.APPLICATION_ID);
+	   String localeString = locProps.getProperty(InternationalizedMessages.LOCALE_KEY);
 
-      if (localeString != null)
-      {			String[] locValues = localeString.split("_");
-      if (locValues.length > 1)
-         loc = new Locale(locValues[0], locValues[1]); // language, country
-      else if (locValues.length == 1) 
-         loc = new Locale(locValues[0]); // just language
-      }
-      //the user has no preference set - get the system default
-      if (loc == null ) {
-         String lang = System.getProperty("user.language");
-         String region = System.getProperty("user.region");
+	   if (localeString != null) {
+		   String[] locValues = localeString.split("_");
+		   if (locValues.length > 2) {
+			   loc = new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		   } else if (locValues.length > 1) {
+			   loc = new Locale(locValues[0], locValues[1]); // language, country
+		   } else if (locValues.length == 1) { 
+			   loc = new Locale(locValues[0]); // just language
+		   }
+	   }
+	   //the user has no preference set - get the system default
+	   if (loc == null ) {
+		   String lang = System.getProperty("user.language");
+		   String region = System.getProperty("user.region");
 
-         if (region != null) {
-            log.debug("getting system locale for: " + lang + "_" + region);
-            loc = new Locale(lang,region);
-         } else { 
-            log.debug("getting system locale for: " + lang );
-            loc = new Locale(lang);
-         }
-      }
+		   if (region != null) {
+			   log.debug("getting system locale for: " + lang + "_" + region);
+			   loc = new Locale(lang,region);
+		   } else { 
+			   log.debug("getting system locale for: " + lang );
+			   loc = new Locale(lang);
+		   }
+	   }
 
-      return loc;
+	   return loc;
    }
 
 
