@@ -130,12 +130,11 @@
 			<artifactId>commons-collections</artifactId>
 			<version>3.2</version>
 		</dependency>
-		<dependency>
+<!--		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-         <!-- <version>${sakai.ehcache.version}</version> -->
-			<scope>provided</scope>
-		</dependency>
+   			<scope>provided</scope>
+		</dependency>-->
 		<dependency>
 			<groupId>easymock</groupId>
 			<artifactId>easymock</artifactId>
