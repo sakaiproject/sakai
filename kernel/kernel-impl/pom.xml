@@ -99,10 +99,18 @@
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
     </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
+	<dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-log4j12</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+	</dependency>
 
 	<!--
 		this should not be here as it means the kernel requires scheduler to
@@ -162,7 +170,7 @@
     </dependency>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <artifactId>ehcache-core</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.mail</groupId>

@@ -24,6 +24,7 @@
         <include>log4j:log4j</include>
         <include>commons-logging:commons-logging</include>
         <include>org.sakaiproject.kernel:sakai-kernel-common</include>
+        <include>org.slf4j:slf4j-*</include>
       </includes>
       <unpack>false</unpack>
     </dependencySet>
