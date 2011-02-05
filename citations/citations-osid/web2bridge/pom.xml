@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <artifactId>ehcache-core</artifactId>
     </dependency>
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
