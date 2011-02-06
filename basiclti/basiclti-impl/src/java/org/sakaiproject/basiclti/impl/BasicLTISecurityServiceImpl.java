@@ -214,12 +214,20 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				try
 				{
 					res.setContentType("text/html; charset=UTF-8");
+					res.setCharacterEncoding("utf-8");
 					res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
 					res.addDateHeader("Last-Modified", System.currentTimeMillis());
 					res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 					res.addHeader("Pragma", "no-cache");
 					ServletOutputStream out = res.getOutputStream();
+
+					out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+					out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+					out.println("<html>\n<head>");
+					out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+					out.println("</head>\n<body>");
 					out.println(retval[0]);
+					out.println("</body>\n</html>");
 					String refstring = ref.getReference();
 					if ( retval.length > 1 ) refstring = retval[1];
 					// Cool 2.6 Event call

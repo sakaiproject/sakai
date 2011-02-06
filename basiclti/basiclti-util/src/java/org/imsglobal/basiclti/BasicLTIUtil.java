@@ -424,8 +424,8 @@ public class BasicLTIUtil {
     text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");
     text.append("<form action=\"");
     text.append(endpoint);
-    text
-        .append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n");
+    text.append("\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" ");
+    text.append(" encType=\"application/x-www-form-urlencoded\" accept-charset=\"utf-8\">\n");
     for (Entry<String, String> entry : newMap.entrySet()) {
       String key = entry.getKey();
       String value = entry.getValue();
