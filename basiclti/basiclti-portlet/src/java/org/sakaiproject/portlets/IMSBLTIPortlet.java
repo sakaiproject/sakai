@@ -26,6 +26,7 @@ import java.lang.Integer;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URI;
 import java.util.UUID;
 import java.util.Properties;
 import java.util.List;
@@ -519,6 +520,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         } else {
                 try {
 			URL testUrl = new URL(imsTIUrl);
+			URI testUri = new URI(imsTIUrl);
                 } 
 		catch(Exception e) {
 			setErrorMessage(request, rb.getString("error.bad.url") );
