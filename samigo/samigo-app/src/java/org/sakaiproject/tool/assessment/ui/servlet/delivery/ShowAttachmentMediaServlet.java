@@ -99,18 +99,20 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     // ** note that res.setContentType() must be called before
 	// res.getOutputStream(). see javadoc on this
     res.setContentType(mimeType);
-    ServletOutputStream outputStream = res.getOutputStream();
-    BufferedOutputStream buf_outputStream = null;
- 
+    
 	ContentResource cr = null;
 	byte[] media = null;
 	try {
 		// create a copy of the resource
 		cr = AssessmentService.getContentHostingService().getResource(resourceId);
+		if (cr == null) {
+			return;
+		}
 		media = cr.getContent();
 		if (media == null) {
 			return;
 		}
+		res.setContentLength((int) cr.getContentLength());
 	    log.debug("**** media.length = " + media.length);
 		
 	} catch (PermissionException e) {
@@ -131,6 +133,8 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 
 	ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(media);
 	BufferedInputStream buf_inputStream = new BufferedInputStream(byteArrayInputStream);
+	ServletOutputStream outputStream = res.getOutputStream();
+    BufferedOutputStream buf_outputStream = null;
     int count=0;
     try{
     	
@@ -143,7 +147,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
     		count++;
     	}
 
-    	res.setContentLength(count);
+    	//res.setContentLength(count);
     	res.flushBuffer();
     }
     catch(Exception e){

@@ -137,6 +137,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
       log.debug("****"+displayType+";filename=\""+mediaData.getFilename()+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
 
+      res.setContentLength(fileSize);
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
       FileInputStream inputStream = null;
       BufferedInputStream buf_inputStream = null;
@@ -165,7 +166,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
 
       }
 
-      int count=0;
+      //int count=0;
       try{
     	  
     	  buf_outputStream = new BufferedOutputStream(outputStream);
@@ -174,11 +175,12 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
         while ( (i=buf_inputStream.read()) != -1){
             //System.out.print(i);
             buf_outputStream.write(i);
-            count++;
+            //count++;
           }
         }
         log.debug("**** mediaLocation="+mediaLocation);
-        res.setContentLength(count);
+        //res.setContentLength(count);
+        
         res.flushBuffer();
       }
       catch(Exception e){
