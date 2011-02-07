@@ -34,6 +34,33 @@ The rest of this document talks about other things you might
 want to know about. However you can try out Lesson Builder
 without doing anything beyond this point.
 
+MNEME AND JFORUM DEPENDENCIES
+
+If you have trouble buiding because of the support for Mneme and
+JForum, you can remove them as follows:
+
+in tool/pom.xml remove the Mneme dependency. (There is no JForum dependency.)
+
+	<dependency>
+		<groupId>org.etudes.mneme</groupId>
+		<artifactId>etudes-mneme-api</artifactId>
+		<version>1.2</version>
+	        <scope>provided</scope>
+	</dependency>
+
+remove the files
+
+    tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
+    tool/src/java/org/sakaiproject/lessonbuildertool/service/JForumEntity.java
+
+in tool/src/webapp/WEB-INF/applicationContext.xml,
+remove the two lines with nextEntity in them, i.e.
+
+    <property name = "nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
+...
+    <property name="nextEntity"><ref bean="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/></property>
+
+
 SAKAI VERSIONS
 
 This code has been used at Rutgers in 2.7.0 and 2.7.1. It should
