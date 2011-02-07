@@ -1072,18 +1072,21 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		if(grp == null) {
 			if(log.isDebugEnabled()) log.debug("Looking up group " + learningContextUuid + " from the site service");
 			grp = siteService().findGroup(learningContextUuid);
-			Site site = grp.getContainingSite();
-			
-			// Make sure there aren't multiple copies of the same sites and groups in the
-			// cache.
-			String siteId = site.getId();
-			Site cachedSite = getSiteInCache(siteId);
-			if (cachedSite != null) {
-				grp = cachedSite.getGroup(learningContextUuid);
-			} else {
-				setSiteInCache(siteId, site);
+			//SAK-19996 there are conditions under which this could be null -DH
+			if (grp != null) {
+				Site site = grp.getContainingSite();
+
+				// Make sure there aren't multiple copies of the same sites and groups in the
+				// cache.
+				String siteId = site.getId();
+				Site cachedSite = getSiteInCache(siteId);
+				if (cachedSite != null) {
+					grp = cachedSite.getGroup(learningContextUuid);
+				} else {
+					setSiteInCache(siteId, site);
+				}
+				setGroupInCache(learningContextUuid, grp);
 			}
-			setGroupInCache(learningContextUuid, grp);
 		}
 		return grp;
 	}
