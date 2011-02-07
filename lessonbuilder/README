@@ -53,6 +53,10 @@ This is, in
 use 2.7.0 or 2.7.1, to match your version of Sakai. For earlier versions
 more changes are likely to be needed.
 
+If you are using Mneme, check the version number for org.etudes.mneme
+in tool/pom.xml. Make sure the version number matches the version of
+Mneme that you are using.
+
 SAMIGO FIX
 
 You can skip this section when you're first trying out Lesson Builder.
