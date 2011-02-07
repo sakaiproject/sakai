@@ -240,6 +240,7 @@ alter table SAM_ASSESSMENTGRADING_T add column LASTVISITEDPART integer default n
 alter table SAM_ASSESSMENTGRADING_T add column LASTVISITEDQUESTION integer default null;
 
 -- SAM-775
+-- If you get an error when running this script, you will need to clean the duplicates first. Please refer to SAM-775.
 create unique index ASSESSMENTGRADINGID on SAM_ITEMGRADING_T (ASSESSMENTGRADINGID, PUBLISHEDITEMID, PUBLISHEDITEMTEXTID, AGENTID, PUBLISHEDANSWERID);
 
 -- ShortenedUrlService 1.0.0 db creation start
