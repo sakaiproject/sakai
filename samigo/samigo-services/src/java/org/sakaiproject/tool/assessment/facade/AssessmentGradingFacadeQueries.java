@@ -2921,34 +2921,34 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			if (integrated) {
 				g = (GradebookService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookService");
 			}
-		}
-		GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		HashMap toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
-		while (it.hasNext()) {
-			entry = (Entry) it.next();
-			publishedAssessmentId = (Long) entry.getKey();
-			if (!toGradebookPublishedAssessmentSiteIdMap.containsKey(publishedAssessmentId)) {
-				continue;
-			}
-			String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(publishedAssessmentId);
-			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
-				int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-				while (retryCount > 0){
-					try {
-						gbsHelper.updateExternalAssessmentScores(publishedAssessmentId, (HashMap) entry.getValue(), g);
-						retryCount = 0;
-					}
-					catch (Exception e) {
-						log.warn("problem delete assessmentAttachment: " + e.getMessage());
-						retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-					}
-				}
-			} else {
-				if(log.isDebugEnabled()) log.debug("Not updating the gradebook.");
-			}
-		}
 
+			GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+			HashMap toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
+			while (it.hasNext()) {
+				entry = (Entry) it.next();
+				publishedAssessmentId = (Long) entry.getKey();
+				if (!toGradebookPublishedAssessmentSiteIdMap.containsKey(publishedAssessmentId)) {
+					continue;
+				}
+				String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(publishedAssessmentId);
+				if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
+					int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+					while (retryCount > 0){
+						try {
+							gbsHelper.updateExternalAssessmentScores(publishedAssessmentId, (HashMap) entry.getValue(), g);
+							retryCount = 0;
+						}
+						catch (Exception e) {
+							log.warn("problem delete assessmentAttachment: " + e.getMessage());
+							retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+						}
+					}
+				} else {
+					if(log.isDebugEnabled()) log.debug("Not updating the gradebook.");
+				}
+			}
+		}
 	}
 	
 	public ItemGradingAttachmentIfc createItemGradingtAttachment(ItemGradingIfc itemGrading, String resourceId, String filename, String protocol) {
