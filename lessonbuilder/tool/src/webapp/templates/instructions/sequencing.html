@@ -6,6 +6,15 @@
 <link rel="stylesheet" type="text/css" media="all" href="/library/skin/default/tool.css"/>
 <style type="text/css">
  hr {border:none; border-top: dotted black 2px; margin-left:1em; margin-right: 1em}
+.textblock {
+-moz-border-radius: 1em;
+-webkit-border-radius: 1em;
+border-radius: 1em;
+padding:0em 1em 1em 1em;
+border: solid black 1px;
+background-color: #ffffdd;
+}
+
 </style>
 
 <body  onload="setMainFrameHeight('Main3d9c20bexcbc5x45c7x85a4xdf613b41b603')">
@@ -20,7 +29,7 @@
 <tr>
 
 <td valign="top" width="75%" style="padding-right: 15px">
-
+<div class="textblock">
 <p> Some of our users need to be able to control the order in which 
 students can do items. In some cases these requirements are mandated
 by external groups, particularly for material used in certification.
@@ -40,7 +49,7 @@ alternatives, so that you can specify that either of two or more
 alternatives will satisfy the requirement.]
 
 <p> For an example, see the screen shot in the right margin.
-
+</div>
 </td>
 
 <td valign="top" width="25%">
@@ -53,7 +62,7 @@ test is grayed out until both required items are done.
 </table>
 
 <h2> An Example </h2>
-
+<div class="textblock">
 <p> A typical scenario would be:
 <ul>
 <li> Each unit has some reading material and a quiz.
@@ -78,9 +87,10 @@ all units would be set to "Requited."
 There would be a
 final unit that contains only the final certification
 test. It would be set "Don't Release Item Until All Prerequisites are Completed".
-
+</div>
 <h2> Forcing a specific order </h2>
 
+<div class="textblock">
 <p> We recommend not specifying more requirements than
 are needed. By making all items required and restricting
 access to them, it would be possible to force students
@@ -94,10 +104,10 @@ and then set every one except the first as
 Because "don't release" releases an item when all
 items above it have been finished, this would 
 force them to be done in sequence.
-
+</div>
 
 <h2> Details </h2>
-
+<div class="textblock">
 <p> Required tests and assignments are a bit
 more complex than readings. You can simply
 require that the student do them. But you
@@ -125,7 +135,7 @@ in order by making them all required, and setting all but the first as
 "Don't Release ...". However Lesson Builder was not designed with this
 approach in mind, and may not be the best tool for a strict linear
 sequence.
-
+</div>
 </blockquote>
 </body>
 </html>
