@@ -22,7 +22,7 @@ create index ANNOUNCEMENT_MESSAGE_CDD on ANNOUNCEMENT_MESSAGE (CHANNEL_ID, MESSA
 -- SAK-18532/SAK-19522 new column for Email Template service
 alter table EMAIL_TEMPLATE_ITEM add column EMAILFROM text;
 
--- SAK-XXXXX
+-- SAK-19448
 alter table EMAIL_TEMPLATE_ITEM modify HTMLMESSAGE LONGTEXT;
 
 -- SAK-19080 / GRBK-736 Gradebook2 support
