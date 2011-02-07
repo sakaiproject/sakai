@@ -23,3 +23,7 @@ alter table SAM_ITEMGRADING_T rename column TEMP_CLOB_TEXT to ANSWERTEXT;
 alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDPART number(10,0) default null;
 alter table SAM_ASSESSMENTGRADING_T add LASTVISITEDQUESTION number(10,0) default null;
 
+-- SAM-775
+-- If you get an error when running this script, you will need to clean the duplicates first. Please refer to SAM-775.
+create UNIQUE INDEX ASSESSMENTGRADINGID ON SAM_ITEMGRADING_T (ASSESSMENTGRADINGID,PUBLISHEDITEMID,PUBLISHEDITEMTEXTID,AGENTID,PUBLISHEDANSWERID);
+
