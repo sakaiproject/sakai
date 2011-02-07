@@ -60,6 +60,7 @@ public interface LessonEntity {
     public final static int TYPE_ASSIGNMENT=1;
     // 1x is test type tools
     public final static int TYPE_SAMIGO=11;
+    public final static int TYPE_MNEME=12;
     // 2x is forum type tools
     public final static int TYPE_FORUM_FORUM=21;   // msg center forum. shouldn't be in database
     public final static int TYPE_FORUM_TOPIC=22;   // only topic should be in database as items
@@ -70,6 +71,7 @@ public interface LessonEntity {
     // prefixes. Use the /direct prefixes where  possible
     public final static String ASSIGNMENT = "assignment";
     public final static String SAM_PUB="sam_pub";
+    public final static String MNEME="mneme";
     // only topic should be in the database. We need forum objects
     // because the chooser is a hiearchical and lists forums. Hopefully forums
     // will only occur in the chooser.

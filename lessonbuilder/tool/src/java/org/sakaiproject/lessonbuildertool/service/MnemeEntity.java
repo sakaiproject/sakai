@@ -1,0 +1,301 @@
+/**********************************************************************************
+ * $URL: $
+ * $Id: $
+ ***********************************************************************************
+AssessmentService
+Assessment
+AssessmentDates
+ *
+ * Author: Charles Hedrick, hedrick@rutgers.edu
+ *
+ * Copyright (c) 2010 Rutgers, the State University of New Jersey
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");                                                                
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.lessonbuildertool.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.Assessment;
+import org.etudes.mneme.api.AssessmentDates;
+import org.etudes.mneme.api.SubmissionService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.site.api.ToolConfiguration;
+
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MemoryService;
+
+
+/**
+ * Interface to Mneme
+ *
+ * @author Charles Hedrick <hedrick@rutgers.edu>
+ * 
+ */
+
+public class MnemeEntity implements LessonEntity {
+
+    private static Log log = LogFactory.getLog(MnemeEntity.class);
+
+    private static Cache assessmentCache = null;
+    protected static final int DEFAULT_EXPIRATION = 10 * 60;
+
+    static AssessmentService assessmentService = null;
+
+    public void setAssessmentService(AssessmentService service)
+    {
+	this.assessmentService = service;
+    }
+
+    static SubmissionService submissionService = null;
+
+    public void setSubmissionService(SubmissionService service)
+    {
+	this.submissionService = service;
+    }
+
+    private SimplePageBean simplePageBean;
+
+    public void setSimplePageBean(SimplePageBean simplePageBean) {
+	this.simplePageBean = simplePageBean;
+    }
+
+    private LessonEntity nextEntity = null;
+    public void setNextEntity(LessonEntity e) {
+	nextEntity = e;
+    }
+    
+    static MemoryService memoryService = null;
+    public void setMemoryService(MemoryService m) {
+	memoryService = m;
+    }
+
+    public void init () {
+	assessmentCache = memoryService
+	    .newCache("org.sakaiproject.lessonbuildertool.service.MnemeEntity.cache");
+
+	log.info("init()");
+
+    }
+
+    public void destroy()
+    {
+	assessmentCache.destroy();
+	assessmentCache = null;
+
+	log.info("destroy()");
+    }
+
+
+    // to create bean. the bean is used only to call the pseudo-static
+    // methods such as getEntitiesInSite. So type, id, etc are left uninitialized
+
+    protected MnemeEntity() {
+    }
+
+    protected MnemeEntity(int type, String id, int level) {
+	this.type = type;
+	this.id = id;
+	this.level = level;
+    }
+
+    // the underlying object, something Sakaiish
+    protected String id;
+    protected int type;
+    protected int level;
+    // not required fields. If we need to look up
+    // the actual objects, lets us cache them
+    protected Assessment assessment;
+
+    public Assessment getAssessment(String id) {
+	
+	Assessment ret = (Assessment)assessmentCache.get(id);
+
+	if (ret != null) {
+	    return ret;
+	}
+
+	ret = assessmentService.getAssessment(id);
+
+	if (ret != null) 
+	    assessmentCache.put(id, ret, DEFAULT_EXPIRATION);
+
+	return ret;
+    }
+
+    // type of the underlying object
+    public int getType() {
+	return type;
+    }
+
+    public int getTypeOfGrade() {
+	return 1;
+    }
+
+    public int getLevel() {
+	return level;
+    }
+
+  // hack for forums. not used for assessments, so always ok
+    public boolean isUsable() {
+	return true;
+    }
+
+    public String getReference() {
+	return "/" + MNEME + "/" + id;
+    }
+
+    // find topics in site, but organized by forum
+    public List<LessonEntity> getEntitiesInSite() {
+
+	Session ses = SessionManager.getCurrentSession();
+
+	List<Assessment> plist = assessmentService.getContextAssessments(ToolManager.getCurrentPlacement().getContext(), AssessmentService.AssessmentsSort.title_a, true);
+
+	List<LessonEntity> ret = new ArrayList<LessonEntity>();
+	// security. assume this is only used in places where it's OK, so skip security checks
+	for (Assessment assessment: plist) {
+	    MnemeEntity entity = new MnemeEntity(TYPE_MNEME, assessment.getId(), 1);
+	    entity.assessment = assessment;
+	    ret.add(entity);
+	}
+
+	if (nextEntity != null) 
+	    ret.addAll(nextEntity.getEntitiesInSite());
+
+	return ret;
+    }
+
+    public LessonEntity getEntity(String ref) {
+	int i = ref.indexOf("/",1);
+	String typeString = ref.substring(1, i);
+	String id = ref.substring(i+1);
+
+	if (typeString.equals(MNEME)) {
+	    return new MnemeEntity(TYPE_MNEME, id, 1);
+	} else if (nextEntity != null) {
+	    return nextEntity.getEntity(ref);
+	} else
+	    return null;
+    }
+	
+    // properties of entities
+    public String getTitle() {
+	if (assessment == null)
+	    assessment = getAssessment(id);
+	if (assessment == null)
+	    return null;
+	return assessment.getTitle();
+    }
+
+    public String getUrl() {
+	Site site = null;
+	ToolConfiguration siteTool = null;
+	
+	try {
+	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	    siteTool = site.getToolForCommonId("sakai.mneme");
+	} catch (Exception e) {
+	    return null;
+	}
+
+	if (siteTool == null)
+	    return null;
+	
+	return "/portal/tool/" + siteTool.getId() + "/enter/" + id;
+
+    }
+
+
+    // I don't think they have this
+    public Date getDueDate() {
+	if (assessment == null)
+	    assessment = getAssessment(id);
+	if (assessment == null)
+	    return null;
+	return assessment.getDates().getDueDate();
+    }
+
+    // the following methods all take references. So they're in effect static.
+    // They ignore the entity from which they're called.
+    // The reason for not making them a normal method is that many of the
+    // implementations seem to let you set access control and find submissions
+    // from a reference, without needing the actual object. So doing it this
+    // way could save some database activity
+
+    // access control
+    public boolean addEntityControl(String siteId, String groupId) throws IOException {
+	return true;
+    }
+
+    public boolean removeEntityControl(String siteId, String groupId) throws IOException {
+	return true;
+    }
+
+    // submission
+    // do we need the data from submission?
+    public boolean needSubmission(){
+	return true;
+    }
+
+    public LessonSubmission getSubmission(String user) {
+	if (assessment == null)
+	    assessment = getAssessment(id);
+	if (assessment == null) {
+	    log.warn("can't find published " + id);
+	    return null;
+	}
+
+	Session ses = SessionManager.getCurrentSession();
+
+	Float score = submissionService.getSubmissionOfficialScore(assessment, ses.getUserId());
+
+	if (score == null)
+	    return null;
+
+	return new LessonSubmission(score);
+    }
+
+// we can do this for real, but the API will cause us to get all the submissions in full, not just a count.
+// I think it's cheaper to get the best assessment, since we don't actually care whether it's 1 or >= 1.
+    public int getSubmissionCount(String user) {
+	if (getSubmission(user) == null)
+	    return 0;
+	else
+	    return 1;
+    }
+
+}
