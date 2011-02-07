@@ -371,8 +371,8 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Trims HTML to the given maximum number of displayed characters
-	 * (less 3 characters, in case "..." must be appended), preserving formatting.
+	 * Trims HTML to the given maximum number of displayed characters and
+	 * preserves formatting.
 	 * 
 	 * @param s
 	 * @param maxNumOfChars
@@ -386,10 +386,38 @@ public class ProfileUtils {
 		
 		StringBuilder trimmedHtml = new StringBuilder();
 		
-		boolean trimmed = FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
+		FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
+				
+		return trimmedHtml.toString();
+	}
+	
+	/**
+	 * Trims and abbreviates HTML to the given maximum number of displayed
+	 * characters (less 3 characters, in case "..." must be appended) and
+	 * preserves formatting.
+	 * 
+	 * @param s
+	 * @param maxNumOfChars
+	 * @return
+	 */
+	public static String trimAndAbbreviateHtml(String s, int maxNumOfChars) {
+		
+		if (null == s) {
+			return "";
+		}
+		
+		StringBuilder trimmedHtml = new StringBuilder();
+		
+		boolean trimmed = 
+			FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
 		
 		if (trimmed) {
-			trimmedHtml.append("...");
+			int index = trimmedHtml.lastIndexOf("</");
+			if (-1 != index) {
+				trimmedHtml.insert(index, "...");
+			} else {
+				trimmedHtml.append("...");
+			}
 		}
 		
 		return trimmedHtml.toString();

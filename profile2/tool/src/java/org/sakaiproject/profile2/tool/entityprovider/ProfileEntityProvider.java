@@ -423,7 +423,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			
 			//PRFL-389 abbreviate long personal summary
 			int maxLength = Integer.parseInt(sakaiProxy.getServerConfigurationParameter("profile2.formatted.profile.summary.max", ProfileConstants.FORMATTED_PROFILE_SUMMARY_MAX_LENGTH));
-			sb.append(ProfileUtils.trimHtml(ProfileUtils.processHtml(userProfile.getPersonalSummary()), maxLength));
+			sb.append(ProfileUtils.trimAndAbbreviateHtml(ProfileUtils.processHtml(userProfile.getPersonalSummary()), maxLength));
 			
 			sb.append("</div>");
 		}
