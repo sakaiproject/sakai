@@ -316,6 +316,16 @@ public class BasicLTIConstants {
   public static final String USER_ID = "user_id";
 
   /**
+   * ext_sakai_provider_eid=jsmith26
+   * <p>
+   * If set, this will signal that the external application has provided an eid which
+   * should be used preferentially. Many external applications will not have access to a user's uuid
+   * in Sakai, so this allows integrations with those systems.
+   * This parameter is optional and is unique to the Sakai Basic LTI provider.
+   */
+  public static final String EXT_SAKAI_PROVIDER_EID = "ext_sakai_provider_eid";
+  
+  /**
    * Utility array useful for validating property names when building launch
    * data.
    */

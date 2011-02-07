@@ -176,7 +176,7 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		final String oauth_consumer_key = request.getParameter("oauth_consumer_key");
-		final String user_id = request.getParameter(BasicLTIConstants.USER_ID);
+		String user_id = request.getParameter(BasicLTIConstants.USER_ID);
 		String context_id = request.getParameter(BasicLTIConstants.CONTEXT_ID);
 		String fname = request.getParameter(BasicLTIConstants.LIS_PERSON_NAME_GIVEN);
 		String lname = request.getParameter(BasicLTIConstants.LIS_PERSON_NAME_FAMILY);
@@ -260,11 +260,33 @@ public class ProviderServlet extends HttpServlet {
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("Consumer=" + oauth_consumer_key);
 			M_log.debug("Trusted=" + isTrustedConsumer);
-		}		
+		}	
 		
+		
+		// Check for the ext_sakai_provider_eid param. If set, this will contain the eid that we are to use
+		// in place of using the user_id parameter
+		// WE still need that parameter though, so translate it from the given eid.
+		boolean useProvidedEid = false;
+		String ext_sakai_provider_eid = request.getParameter(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID);
+		if(BasicLTIUtil.isNotBlank(ext_sakai_provider_eid)){
+			useProvidedEid = true;
+			try {
+				user_id = UserDirectoryService.getUserId(ext_sakai_provider_eid);
+			} catch (Exception e) {
+				M_log.error(e.getLocalizedMessage(), e);
+				doError(request, response, "launch.provided.eid.invalid", "ext_sakai_provider_eid="+ext_sakai_provider_eid, null);
+				return;
+			}
+		}
+		
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ext_sakai_provider_eid=" + ext_sakai_provider_eid);
+		}
+
+				
 		// Contextualize the context_id with the OAuth consumer key
 		// Also use the resource_link_id for the context_id if we did not get a context_id
-		// BLTI-31: if trusted, content_id is required and use the param without modification
+		// BLTI-31: if trusted, context_id is required and use the param without modification
 		if(BasicLTIUtil.isBlank(context_id)) {
 			if(isTrustedConsumer) {
 				doError(request, response, "launch.missing",context_id, null);
@@ -272,6 +294,27 @@ public class ProviderServlet extends HttpServlet {
 			} else {
 				context_id = "res:" + resource_link_id;
 			}
+		}
+		
+		// Check if context_id is simply a ~. If so, get the id of that user's My Workspace site
+		// and use that to construct the full context_id
+		if(BasicLTIUtil.equals(context_id, "~")){
+			if(useProvidedEid) {
+				String userSiteId = null;
+				try {
+					userSiteId = SiteService.getUserSiteId(user_id);
+				} catch (Exception e) {
+					M_log.warn("Failed to get My Workspace site for user_id:" + user_id);
+					M_log.error(e.getLocalizedMessage(), e);
+					doError(request, response, "launch.user.site.unknown", "user_id="+user_id, null);
+					return;
+				}
+				context_id = userSiteId;
+			}
+		}
+		
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("context_id=" + context_id);
 		}
 		
 		String siteId = null;
@@ -346,24 +389,31 @@ public class ProviderServlet extends HttpServlet {
 			}
 		}
 
-		// Get the eid, if trusted get it from the user_id, otherwise construct it.
+		// Get the eid, either from the value provided or if trusted get it from the user_id,otherwise construct it.
 		String eid = null;
-		if(isTrustedConsumer) {
-			try {
-				eid = UserDirectoryService.getUserEid(user_id);
-			} catch (Exception e) {
-				M_log.error(e.getLocalizedMessage(), e);
-				doError(request, response, "launch.user.invalid", "user_id="+user_id, null);
-				return;
-			}
+		if(useProvidedEid) {
+			eid = ext_sakai_provider_eid;
 		} else {
-			eid = oauth_consumer_key + ":" + user_id;
-		}
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("eid=" + eid);
+		
+			if(isTrustedConsumer) {
+				try {
+					eid = UserDirectoryService.getUserEid(user_id);
+				} catch (Exception e) {
+					M_log.error(e.getLocalizedMessage(), e);
+					doError(request, response, "launch.user.invalid", "user_id="+user_id, null);
+					return;
+				}
+			} else {
+				eid = oauth_consumer_key + ":" + user_id;
+			}
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("eid=" + eid);
+			}
 		}
 
 		// If trusted consumer, login, otherwise check for existing user and create one if required
+		// Note that if trusted, then the user must have already logged into Sakai in order to have an account stub created for them
+		// otherwise this will fail since they don't exist. Perhaps this should be addressed?
 		if(isTrustedConsumer) {
 			UsageSessionService.login(user_id, eid, ipAddress, null,UsageSessionService.EVENT_LOGIN_WS);
 			sess.setUserId(user_id);
