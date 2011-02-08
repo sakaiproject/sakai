@@ -677,6 +677,7 @@ h2 {
 	position: relative;
 	left: 0;
 	top: 0;
+	height: 160px;
 	border-left: 1px solid #d0d0df;
 	border-right: 1px solid #d0d0df;
 	border-top: 1px solid #d0d0df;
@@ -686,15 +687,6 @@ h2 {
 	padding-right: 5px;
 	padding-bottom: 5px;
 	overflow: hidden; /* to crop bigger pictures that might overhang */
-}
-
-/* TODO reunite these two heights when connection results updated (PRFL-298) */
-.connection {
-	height: 120px;
-}
-
-.search-result {
-	height: 160px;
 }
 
 .connection:hover, .search-result:hover {
@@ -809,7 +801,7 @@ h2 {
 	background-color: #D1ECF6;
 }
 
-.search-result-summary-wrap {
+.connection-summary-wrap, .search-result-summary-wrap {
 	position: absolute;
 	top: 115px;
 	left: auto;
@@ -827,15 +819,6 @@ h2 {
 	float:right;
 	margin-left: 2px;
 }
-
-
-
-
-
-
-
-
-
 
 .iconAdd, .iconRemove {
 	width:18px;

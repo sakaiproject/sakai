@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -35,6 +36,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -47,6 +49,7 @@ import org.sakaiproject.profile2.tool.pages.MySearch;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
 
 public class ConfirmedFriends extends Panel {
@@ -60,6 +63,9 @@ public class ConfirmedFriends extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
 	protected ProfileConnectionsLogic connectionsLogic;
     
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
+	
 	private Integer numConfirmedFriends = 0;
 	private boolean ownList = false;
 	
@@ -237,6 +243,17 @@ public class ConfirmedFriends extends Panel {
 					removeConnectionLink.setVisible(false);
 				}
 				
+				// basic info can be set to 'only me' so still need to check
+				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
+						person.getUuid(), currentUserUuid, friend)) {
+					
+					item.add(new Label("connectionSummary",
+							StringUtils.abbreviate(ProfileUtils.stripHtml(
+									person.getProfile().getPersonalSummary()), 200)));
+				} else {
+					item.add(new Label("connectionSummary", ""));
+				}
+								
 				item.setOutputMarkupId(true);
 		    }
 			
