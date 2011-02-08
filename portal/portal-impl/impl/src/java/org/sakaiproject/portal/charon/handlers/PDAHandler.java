@@ -213,7 +213,7 @@ public class PDAHandler extends PageHandler
 				PortalRenderContext rcontext = portal.includePortal(req, res, session,
 						siteId, toolId, req.getContextPath() + req.getServletPath(),
 						"pda",
-						/* doPages */true, /* resetTools */true,
+						/* doPages */false, /* resetTools */true,
 						/* includeSummary */false, /* expandSite */false);
 
 				//  TODO: Should this be a property?  Probably because it does cause an 
