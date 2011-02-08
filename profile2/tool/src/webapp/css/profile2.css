@@ -245,6 +245,12 @@ h2 {
 .twitter {
 	background-image: url(../images/twitter.png);
 }
+.email-link {
+	background-image: url(/library/image/silk/email_link.png);
+}
+.website-link {
+	background-image: url(/library/image/silk/world_link.png);
+}
 
 /* sideLink styles */
 #sideLink ul {
@@ -675,7 +681,6 @@ h2 {
 	border-right: 1px solid #d0d0df;
 	border-top: 1px solid #d0d0df;
 	border-collapse: collapse;
-	height: 120px;
 	padding-top: 5px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -683,6 +688,14 @@ h2 {
 	overflow: hidden; /* to crop bigger pictures that might overhang */
 }
 
+/* TODO reunite these two heights when connection results updated (PRFL-298) */
+.connection {
+	height: 120px;
+}
+
+.search-result {
+	height: 160px;
+}
 
 .connection:hover, .search-result:hover {
 	/*background-color: #ffc;*/
@@ -731,7 +744,6 @@ h2 {
 .search-connections {
 	margin-bottom: 10px;
 }
-
 
 /* action styles */
 .connection-actions-wrap {
@@ -797,6 +809,19 @@ h2 {
 	background-color: #D1ECF6;
 }
 
+.search-result-summary-wrap {
+	position: absolute;
+	top: 115px;
+	left: auto;
+	width: 510px;
+	height: 50px;
+	font-size: 90%;
+	padding: 0;
+}
+
+.search-result-summary {
+	word-wrap:break-word;
+}
 
 .connection-action-icon {
 	float:right;

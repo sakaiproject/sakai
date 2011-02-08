@@ -37,7 +37,9 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -54,6 +56,7 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.util.FormattedText;
 
 
@@ -379,6 +382,52 @@ public class MySearch extends BasePage {
 				c2.add(viewFriendsLink);
 				item.add(c2);
 				
+				WebMarkupContainer c3 = new WebMarkupContainer("emailContainer");
+		    	c3.setOutputMarkupId(true);
+		    	
+		    	ExternalLink emailLink = new ExternalLink("emailLink",
+						"mailto:" + person.getProfile().getEmail(),
+						new ResourceModel("profile.email").getObject());
+		    	
+				c3.add(emailLink);
+				
+				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, friend)) {
+					
+					c3.setVisible(false);
+				}
+				item.add(c3);
+				
+				WebMarkupContainer c4 = new WebMarkupContainer("websiteContainer");
+		    	c4.setOutputMarkupId(true);
+		    	
+		    	// TODO home page, university profile URL or academic/research URL (see PRFL-35)
+		    	ExternalLink websiteLink = new ExternalLink("websiteLink", person.getProfile()
+						.getHomepage(), new ResourceModel(
+						"profile.homepage").getObject()).setPopupSettings(new PopupSettings());
+		    	
+		    	c4.add(websiteLink);
+		    	
+				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, friend)) {
+					
+					c4.setVisible(false);
+				}
+				item.add(c4);
+				
+				// TODO personal, academic or business (see PRFL-35)
+				
+				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
+						person.getUuid(), currentUserUuid, friend)) {
+					
+					item.add(new Label("searchResultSummary",
+							ProfileUtils.trimAndAbbreviateHtml(ProfileUtils.processHtml(
+									person.getProfile().getPersonalSummary()), 200)).setEscapeModelStrings(false));
+				} else {
+					item.add(new Label("searchResultSummary", ""));
+				}
 		    }
 		};
 				
