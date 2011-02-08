@@ -644,6 +644,9 @@ public class SiteAction extends PagedResourceActionII {
 	/** the course set definition from CourseManagementService **/
 	private final static String STATE_COURSE_SET = "state_course_set";
 	
+	// the maximum tool title length enforced in UI
+	private final static int MAX_TOOL_TITLE_LENGTH = 20;
+	
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -2378,6 +2381,8 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 
 			context.put("homeToolId", TOOL_ID_HOME);
+			
+			context.put("maxToolTitleLength", MAX_TOOL_TITLE_LENGTH);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[26];
 		case 27:
@@ -10126,6 +10131,12 @@ public class SiteAction extends PagedResourceActionII {
 				String title = StringUtils.trimToNull(params.getString("title_" + id));
 				if (title != null) 
 				{
+					// truncate the title to maxlength as defined
+					if (title.length() > MAX_TOOL_TITLE_LENGTH)
+					{
+						title = title.substring(0, MAX_TOOL_TITLE_LENGTH);
+					}
+					
 					// save the titles entered
 					multipleToolIdTitleMap.put(id, title);
 				}
