@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -34,6 +35,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -46,6 +49,7 @@ import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.ConfirmFriend;
 import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class RequestedFriends extends Panel {
 	
@@ -53,9 +57,14 @@ public class RequestedFriends extends Panel {
 	private static final Logger log = Logger.getLogger(RequestedFriends.class);
 	private Integer numRequestedFriends = 0;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	private ProfileLogic profileLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	protected ProfilePrivacyLogic privacyLogic;
 	
 	public RequestedFriends(final String id, final String userUuid) {
 		super(id);
@@ -226,6 +235,17 @@ public class RequestedFriends extends Panel {
 				confirmConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
 				item.add(confirmConnectionLink);
 
+				// not a friend yet, so friend=false
+				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
+						person.getUuid(), sakaiProxy.getCurrentUserId(), false)) {
+					
+					item.add(new Label("connectionSummary",
+							StringUtils.abbreviate(ProfileUtils.stripHtml(
+									person.getProfile().getPersonalSummary()), 200)));
+				} else {
+					item.add(new Label("connectionSummary", ""));
+				}
+				
 				item.setOutputMarkupId(true);
 		    }
 			
