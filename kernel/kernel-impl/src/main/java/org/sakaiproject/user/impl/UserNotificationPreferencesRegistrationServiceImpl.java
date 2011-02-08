@@ -27,29 +27,51 @@ import java.util.List;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 
+/**
+ * Service implementation to register email notification preferences
+ * @author chrismaurer
+ *
+ */
 public class UserNotificationPreferencesRegistrationServiceImpl implements
 		UserNotificationPreferencesRegistrationService {
 
 	private List<UserNotificationPreferencesRegistration> registeredItems = new ArrayList<UserNotificationPreferencesRegistration>();
 	private List<String> keys = new ArrayList<String>();
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void register(UserNotificationPreferencesRegistration reg) {
 		getRegisteredItems().add(reg);
 		getKeys().add(reg.getType());
 	}
 
+	/**
+	 * Setter
+	 * @param registeredItems
+	 */
 	public void setRegisteredItems(List<UserNotificationPreferencesRegistration> registeredItems) {
 		this.registeredItems = registeredItems;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<UserNotificationPreferencesRegistration> getRegisteredItems() {
 		return registeredItems;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<String> getKeys() {
 		return keys;
 	}
 	
+	/**
+	 * Setter
+	 * @param keys
+	 */
 	public void setKeys(List<String> keys) {
 		this.keys = keys;
 	}

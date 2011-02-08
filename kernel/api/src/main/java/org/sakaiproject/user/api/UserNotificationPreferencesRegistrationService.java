@@ -23,11 +23,29 @@ package org.sakaiproject.user.api;
 
 import java.util.List;
 
+/**
+ * Service interface that allows tools to register themselves as having email notification preferences.
+ * This keeps tool specific code out of the Preferences tool.
+ * @author chrismaurer
+ *
+ */
 public interface UserNotificationPreferencesRegistrationService {
 
+	/**
+	 * Method to register a UserNotificationPreferencesRegistration object
+	 * @param reg
+	 */
 	public void register(UserNotificationPreferencesRegistration reg);
 	
+	/**
+	 * Gets all UserNotificationPreferencesRegistration objects that have been registered
+	 * @return
+	 */
 	public List<UserNotificationPreferencesRegistration> getRegisteredItems();
 	
+	/**
+	 * Get the keys for all UserNotificationPreferencesRegistration objects that have been registered
+	 * @return
+	 */
 	public List<String> getKeys();
 }

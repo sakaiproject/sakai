@@ -26,7 +26,11 @@ import org.sakaiproject.util.UserNotificationPreferencesRegistrationImpl;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Resource;
 
-
+/**
+ * This class registers email notification preferences for the Resources Tool
+ * @author chrismaurer
+ *
+ */
 public class ContentUserNotificationPreferencesRegistrationImpl extends UserNotificationPreferencesRegistrationImpl {
 
 	private ServerConfigurationService serverConfigurationService = null;
@@ -36,7 +40,11 @@ public class ContentUserNotificationPreferencesRegistrationImpl extends UserNoti
 	private static final String RESOURCECLASS = "resource.class.content";
 	protected static final String RESOURCEBUNDLE = "resource.bundle.content";
 
-	
+	/**
+	 * {@inheritDoc}
+	 * This particular implementation ignores the location parameter and just goes off of 
+	 * configured defaults or overriding properties (found in sakai.properties)
+	 */
 	public ResourceLoader getResourceLoader(String location) {
 		//return new ResourceLoader(location);
 		
@@ -46,10 +54,18 @@ public class ContentUserNotificationPreferencesRegistrationImpl extends UserNoti
 		return loader;
 	}
 
+	/**
+	 * Local getter for the ServerConfigurationService
+	 * @return ServerConfigurationService
+	 */
 	public ServerConfigurationService getServerConfigurationService() {
 		return serverConfigurationService;
 	}
 
+	/**
+	 * Local setter
+	 * @param serverConfigurationService
+	 */
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
