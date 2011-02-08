@@ -371,6 +371,16 @@ public class ProfileUtils {
 	}
 	
 	/**
+	 * Strips string of HTML and returns plain text.
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String stripHtml(String s) {
+		return FormattedText.convertFormattedTextToPlaintext(s);
+	}
+	
+	/**
 	 * Trims HTML to the given maximum number of displayed characters and
 	 * preserves formatting.
 	 * 

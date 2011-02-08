@@ -423,8 +423,8 @@ public class MySearch extends BasePage {
 						person.getUuid(), currentUserUuid, friend)) {
 					
 					item.add(new Label("searchResultSummary",
-							ProfileUtils.trimAndAbbreviateHtml(ProfileUtils.processHtml(
-									person.getProfile().getPersonalSummary()), 200)).setEscapeModelStrings(false));
+							StringUtils.abbreviate(ProfileUtils.stripHtml(
+									person.getProfile().getPersonalSummary()), 200)));
 				} else {
 					item.add(new Label("searchResultSummary", ""));
 				}
