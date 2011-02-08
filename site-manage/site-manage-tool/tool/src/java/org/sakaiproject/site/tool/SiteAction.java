@@ -7020,7 +7020,17 @@ public class SiteAction extends PagedResourceActionII {
 			sEdit.setPublished(publishUnpublish);
 
 			// site public choice
-			sEdit.setPubView(include);
+			List publicChangeableSiteTypes = (List) state.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES);
+			if (publicChangeableSiteTypes != null && sEdit.getType() != null && !publicChangeableSiteTypes.contains(sEdit.getType()))
+			{
+				// set pubview to true for those site types which pubview change is not allowed
+				sEdit.setPubView(true);
+			}
+			else
+			{
+				// set pubview according to UI selection
+				sEdit.setPubView(include);
+			}
 
 			doUpdate_site_access_joinable(data, state, params, sEdit);
 
