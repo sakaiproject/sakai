@@ -122,6 +122,28 @@
 				$validator.escapeHtml($user.Id)
 			</p>
 #end
+#set ($paramNames = $user.Properties.PropertyNames)
+#if($!superUser && $user)
+<p class="shorttext"></p>
+<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+				##avoid val error on empty table
+				<tr><th>$tlang.getString("useProperties")</th><td></td></tr>
+				#foreach ($paramName in $paramNames)
+					#set ($paramValue = $user.Properties.getPropertyFormatted($paramName))
+					<tr>
+						<th>
+							<label for="param_$paramName">
+								$paramName:
+							</label>
+						</th>
+						<td>
+							$validator.escapeHtml($paramValue)
+						</td>
+					</tr>
+				#end
+			</table>
+#end
+
 			<div class="act">
 				#if($user)
 					<input type="submit" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" />
