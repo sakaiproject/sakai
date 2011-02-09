@@ -221,6 +221,9 @@ h2 {
 .connection-add {
 	background-image: url(/library/image/silk/user_add.png);
 }
+.connection-delete {
+	background-image: url(/library/image/silk/user_delete.png);
+}
 .connection-request {
 	background-image: url(/library/image/silk/group_gear.png);
 }
@@ -738,16 +741,8 @@ h2 {
 }
 
 /* action styles */
-.connection-actions-wrap {
-	position: absolute;
-	top: 5px;
-	left: 245px;
-	width: 250px;
-	font-size: 90%;
-	padding: 0;
-}
 
-.search-result-actions-wrap {
+.connection-actions-wrap, .search-result-actions-wrap {
 	position: absolute;
 	top: 5px;
 	left: 320px;
@@ -756,7 +751,7 @@ h2 {
 	padding: 0;
 }
 
-.search-result-actions {
+.connection-actions, .search-result-actions {
 	margin-bottom: 0;
 	margin-top: 0;
 	margin-left: 0;
@@ -764,7 +759,7 @@ h2 {
 	list-style-type:none !important;
 }
 
-.search-result-actions li {
+.connection-actions li, .search-result-actions li {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
@@ -773,14 +768,14 @@ h2 {
 	vertical-align: top;
 }
 
-.search-result-actions li a {
+.connection-actions li a, .search-result-actions li a {
 	text-decoration: none !important;
 	display:block; /* makes whole li clickable */
 	padding-top: 2px;
 	padding-bottom: 2px;
 }
 
-.search-result-actions li span {
+.connection-actions li span, .search-result-actions li span {
 	padding-top: 2px;
 	padding-bottom: 2px;
 	display:block;
@@ -788,16 +783,16 @@ h2 {
 }
 
 /** workaround for disabled link and extra markup */
-.search-result-actions li span>span {
+.connection-actions li span>span, .search-result-actions li span>span {
 	margin: 0;
 	padding: 0;
 }
 
-.search-result-actions li:hover {
+.connection-actions li:hover, .search-result-actions li:hover {
 	background-color: #D1ECF6;
 }
 
-.search-result-actions li#selected {
+.connection-actions li#selected, .search-result-actions li#selected {
 	background-color: #D1ECF6;
 }
 

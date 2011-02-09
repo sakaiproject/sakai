@@ -26,7 +26,9 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -195,6 +197,9 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	/* ACTIONS */
 		    	
+				WebMarkupContainer c1 = new WebMarkupContainer("removeConnectionContainer");
+				c1.setOutputMarkupId(true);
+				
 				//REMOVE FRIEND LINK AND WINDOW
 		    	final AjaxLink<String> removeConnectionLink = new AjaxLink<String>("removeConnectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
@@ -231,17 +236,54 @@ public class ConfirmedFriends extends Panel {
 						target.appendJavascript("fixWindowVertical();"); 
 					}
 				};
-				ContextImage removeConnectionIcon = new ContextImage("removeConnectionIcon",new Model<String>(ProfileConstants.DELETE_IMG));
-				removeConnectionIcon.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.remove", null, new Object[]{ displayName } )));
-				removeConnectionLink.add(removeConnectionIcon);
+				//ContextImage removeConnectionIcon = new ContextImage("removeConnectionIcon",new Model<String>(ProfileConstants.DELETE_IMG));
+				removeConnectionLink.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.remove", null, new Object[]{ displayName } )));
+				//removeConnectionLink.add(removeConnectionIcon);
 				removeConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
-				item.add(removeConnectionLink);
+				removeConnectionLink.add(new Label("removeConnectionLabel", new ResourceModel("button.friend.remove")).setOutputMarkupId(true));
+				c1.add(removeConnectionLink);
+				item.add(c1);
 				
 				//can only delete if own connections
 				if(!ownList) {
 					removeConnectionLink.setEnabled(false);
 					removeConnectionLink.setVisible(false);
 				}
+				
+				WebMarkupContainer c2 = new WebMarkupContainer("emailContainer");
+		    	c2.setOutputMarkupId(true);
+		    	
+		    	ExternalLink emailLink = new ExternalLink("emailLink",
+						"mailto:" + person.getProfile().getEmail(),
+						new ResourceModel("profile.email").getObject());
+		    	
+				c2.add(emailLink);
+				
+				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, friend)) {
+					
+					c2.setVisible(false);
+				}
+				item.add(c2);
+				
+				WebMarkupContainer c3 = new WebMarkupContainer("websiteContainer");
+		    	c3.setOutputMarkupId(true);
+		    	
+		    	// TODO home page, university profile URL or academic/research URL (see PRFL-35)
+		    	ExternalLink websiteLink = new ExternalLink("websiteLink", person.getProfile()
+						.getHomepage(), new ResourceModel(
+						"profile.homepage").getObject()).setPopupSettings(new PopupSettings());
+		    	
+		    	c3.add(websiteLink);
+		    	
+				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, friend)) {
+					
+					c3.setVisible(false);
+				}
+				item.add(c3);
 				
 				// basic info can be set to 'only me' so still need to check
 				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(

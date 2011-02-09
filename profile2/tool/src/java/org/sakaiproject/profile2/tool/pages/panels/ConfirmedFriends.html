@@ -51,7 +51,11 @@
 	    		<span wicket:id="connectionStatus" class="status-msg">[status]</span>
 	    	</div>
 	    	<div class="connection-actions-wrap">
-	    		<a wicket:id="removeConnectionLink" class="connection-action-icon"><img wicket:id="removeConnectionIcon" /></a>
+	    		<ul class="connection-actions">
+	    			<li wicket:id="removeConnectionContainer"><span><a wicket:id="removeConnectionLink" class="icon connection-delete"><span wicket:id="removeConnectionLabel">remove friend</span></a></span></li>
+			    	<li wicket:id="emailContainer"><span><a wicket:id="emailLink" class="icon email-link">email</a></span></li>
+			    	<li wicket:id="websiteContainer"><span><a wicket:id="websiteLink" class="icon website-link">website</a></span></li>
+	    		</ul>
 	    	</div>
 	    	<div class="connection-summary-wrap">
 				<div wicket:id="connectionSummary">summary</div>
