@@ -129,6 +129,10 @@
 			<property-name>configured</property-name>
             <value>true</value>
 		</managed-property>
+		<managed-property>
+			<property-name>maxNameLength</property-name>
+            			<value>255</value>
+		</managed-property>		
     </managed-bean>
 
 </faces-config>

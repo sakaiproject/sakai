@@ -15,7 +15,7 @@
 
 					<% // Title %>
 
-					<h:outputLabel for="titleInput" value="#{msgs.section_title} #{confBean.sectionRequired}" styleClass="formLabel"/>
+					<h:outputLabel for="titleInput" value="#{msgs.section_title} *" styleClass="formLabel"/>
 					<h:panelGroup>
 						<h:message for="titleInput" styleClass="validationEmbedded"/>
 						<h:inputText

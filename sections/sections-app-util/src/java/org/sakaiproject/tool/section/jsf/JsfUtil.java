@@ -38,7 +38,6 @@ import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.MessagingBean;
 
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 
 /**
@@ -71,7 +70,7 @@ public class JsfUtil {
 	 * format abberviated times (with only hours and am/pm marker).
 	 */
 	public static final String TIME_PATTERN_SHORT = "h a";
-	
+
 
 	/**
 	 * To cut down on configuration noise, allow access to request-scoped beans from
@@ -195,7 +194,7 @@ public class JsfUtil {
 		}
 
 		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;
-		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern, new ResourceLoader().getLocale());
 		Date date;
 		try {
 			date = sdf.parse(str);
@@ -209,7 +208,7 @@ public class JsfUtil {
 		if(time == null) {
 			return null;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY);
+		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY, new ResourceLoader().getLocale());
 		return sdf.format(time);
 	}
 
@@ -223,12 +222,6 @@ public class JsfUtil {
 			}
 		};
 	}
-	
-	/**
-     * Gets a property from sakai.properties, only in String format
-	 * For integer or other types requires a new method
-     */
-    public static String getConfigurationValue(String key,String defaultValue) {
-		return ServerConfigurationService.getString(key,defaultValue);
-	}
+
+
 }

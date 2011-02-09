@@ -26,12 +26,12 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  * Stores user preferences for table sorting and paging.  These preferences are
  * currently implemented in session-scope, though this could be reimplemented
  * to store preferences across sessions.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
 public class PreferencesBean extends CourseDependentBean {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public PreferencesBean() {
@@ -43,18 +43,13 @@ public class PreferencesBean extends CourseDependentBean {
 		rosterMaxDisplayedRows = 50;
 	}
 
-	public void init() {
-		// Get the max name length for displaying names from the app's properties file.
-		// We can't do this in the constructor, since we need to wait for our dependencies.
-        maxNameLength = Integer.parseInt(JsfUtil.getConfigurationValue("max_name_length","255"));
-	}
-	
+
 	protected int maxNameLength;
 	protected String overviewSortColumn;
 	protected boolean overviewSortAscending;
 	protected String overviewMyFilter;
 	protected String overviewCategoryFilter;
-	
+
 	protected String rosterSortColumn;
 	protected boolean rosterSortAscending;
 	protected int rosterMaxDisplayedRows;
@@ -97,6 +92,9 @@ public class PreferencesBean extends CourseDependentBean {
 	}
 	public int getMaxNameLength() {
 		return maxNameLength;
+	}
+	public void setMaxNameLength(int l) {
+		this.maxNameLength = l;
 	}
 
 	public boolean isEditStudentSectionsSortAscending() {
