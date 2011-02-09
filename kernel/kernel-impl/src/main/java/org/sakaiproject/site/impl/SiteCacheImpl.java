@@ -55,13 +55,13 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	ServerConfigurationService serverConfigurationService = null;
 	
 	/** Map of a tool id to a cached site's tool configuration instance. */
-	protected Map m_tools = new ConcurrentHashMap();
+	protected Map<String, ToolConfiguration> m_tools = new ConcurrentHashMap<String, ToolConfiguration>();
 
 	/** Map of a page id to a cached site's SitePage instance. */
-	protected Map m_pages = new ConcurrentHashMap();
+	protected Map<String, SitePage> m_pages = new ConcurrentHashMap<String, SitePage>();
 
 	/** Map of a group id to a cached site's Group instance. */
-	protected Map m_groups = new ConcurrentHashMap();
+	protected Map<String, Group> m_groups = new ConcurrentHashMap<String, Group>();
 
 	/** The base cache. */
 	protected Cache m_cache = null;
@@ -117,7 +117,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	 */
 	public void put(Object key, Object payload, int duration)
 	{
-		m_cache.put(key, payload, duration);
+		m_cache.put(key, payload);
 	}
 
 	/**
@@ -225,11 +225,11 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 			Site site = (Site) payload;
 
 			// add the pages and tools to the cache
-			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
+			for (Iterator<SitePage> pages = site.getPages().iterator(); pages.hasNext();)
 			{
 				SitePage page = (SitePage) pages.next();
 				m_pages.put(page.getId(), page);
-				for (Iterator tools = page.getTools().iterator(); tools.hasNext();)
+				for (Iterator<ToolConfiguration> tools = page.getTools().iterator(); tools.hasNext();)
 				{
 					ToolConfiguration tool = (ToolConfiguration) tools.next();
 					m_tools.put(tool.getId(), tool);
@@ -237,7 +237,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 			}
 
 			// add the groups to the cache
-			for (Iterator groups = site.getGroups().iterator(); groups.hasNext();)
+			for (Iterator<Group> groups = site.getGroups().iterator(); groups.hasNext();)
 			{
 				Group group = (Group) groups.next();
 				m_groups.put(group.getId(), group);
@@ -254,18 +254,18 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		if ((payload != null) && (payload instanceof Site))
 		{
 			Site site = (Site) payload;
-			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
+			for (Iterator<SitePage> pages = site.getPages().iterator(); pages.hasNext();)
 			{
 				SitePage page = (SitePage) pages.next();
 				m_pages.remove(page.getId());
-				for (Iterator tools = page.getTools().iterator(); tools.hasNext();)
+				for (Iterator<ToolConfiguration> tools = page.getTools().iterator(); tools.hasNext();)
 				{
 					ToolConfiguration tool = (ToolConfiguration) tools.next();
 					m_tools.remove(tool.getId());
 				}
 			}
 
-			for (Iterator groups = site.getGroups().iterator(); groups.hasNext();)
+			for (Iterator<Group> groups = site.getGroups().iterator(); groups.hasNext();)
 			{
 				Group group = (Group) groups.next();
 				m_groups.remove(group.getId());
