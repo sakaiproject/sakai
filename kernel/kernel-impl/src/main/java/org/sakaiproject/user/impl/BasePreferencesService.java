@@ -474,7 +474,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 					{
 						session.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.TRUE);
 						session.removeAttribute(ATTR_PREFERENCE);
-						m_cache.put(id, prefs);
+						m_cache.put(id, null);
 					}
 				}
 			}
