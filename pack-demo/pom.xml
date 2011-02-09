@@ -18,7 +18,7 @@
 	</organization>
 	<properties>
 		<sakai.plugin.version>2.2</sakai.plugin.version>
-		<sakai.tomcat.version>5.5.31</sakai.tomcat.version>
+		<sakai.tomcat.version>5.5.32</sakai.tomcat.version>
 	</properties>
     <profiles>
         <profile>
