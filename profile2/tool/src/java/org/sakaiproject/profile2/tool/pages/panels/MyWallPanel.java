@@ -35,6 +35,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
@@ -64,6 +66,12 @@ public class MyWallPanel extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
+
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
+	private ProfileConnectionsLogic connectionsLogic;
 	
 	/**
 	 * Creates a new instance of <code>MyWallPanel</code>.
@@ -98,6 +106,9 @@ public class MyWallPanel extends Panel {
 	}
 
 	private void renderWallPanel(final String userUuid) {
+		
+		final String currentUserId = sakaiProxy.getCurrentUserId();
+		
 		// container which wraps list
 		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
 				"wallItemsContainer");
@@ -179,7 +190,22 @@ public class MyWallPanel extends Panel {
 
 				WallItem wallItem = (WallItem) item.getDefaultModelObject();
 
-				item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
+				if (ProfileConstants.WALL_ITEM_TYPE_STATUS == wallItem.getType()) {
+					// if viewing own wall, or admin user
+					if (wallItem.getCreatorUuid().equals(userUuid) || sakaiProxy.isSuperUser()) {
+						item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
+					}
+					// else check connection status privacy
+					else if (privacyLogic.isUserXStatusVisibleByUserY(
+							userUuid, currentUserId, connectionsLogic
+									.isUserXFriendOfUserY(userUuid,
+											currentUserId))) {
+						
+						item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
+					}
+				} else {
+					item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
+				}
 			}
 		};
 

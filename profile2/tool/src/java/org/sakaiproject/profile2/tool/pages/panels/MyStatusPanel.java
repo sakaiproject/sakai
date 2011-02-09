@@ -36,6 +36,7 @@ import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
+import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -64,6 +65,9 @@ public class MyStatusPanel extends Panel {
     @SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
     
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
+	protected ProfileWallLogic wallLogic;
+	
     //get default text that fills the textField
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
 
@@ -176,6 +180,11 @@ public class MyStatusPanel extends Panel {
 
 					//update twitter
 					externalIntegrationLogic.sendMessageToTwitter(userId, statusMessage);
+					
+					// post to walls if wall enabled
+					if (true == sakaiProxy.isWallEnabledGlobally()) {
+						wallLogic.addStatusToWalls(statusMessage, sakaiProxy.getCurrentUserId());
+					}
 					
 					//repaint status component
 					ProfileStatusRenderer newStatus = new ProfileStatusRenderer("status", userId, null, "tiny");

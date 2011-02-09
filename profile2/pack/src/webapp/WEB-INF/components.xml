@@ -150,7 +150,6 @@
     		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
     		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-        	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
         	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
         	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
     </bean>
@@ -216,6 +215,7 @@
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallEventNew.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostMyWallNew.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostConnectionWallNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallStatusNew.xml</value>
       		</list>      
     	</constructor-arg>
   	</bean>

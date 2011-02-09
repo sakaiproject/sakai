@@ -40,6 +40,18 @@ public interface ProfileWallLogic {
 	public void addEventToWalls(String event, String userUuid);
 	
 	/**
+	 * Adds the specified status to the walls of the users connected to the
+	 * specified user ID.
+	 * 
+	 * Note: the wall logic is currently responsible for timestamping the status
+	 * update, but we might want to pass the date in this API call instead.
+	 * 
+	 * @param status the status to add.
+	 * @param userUuid the ID of the user whose status we're posting.
+	 */
+	public void addStatusToWalls(String status, String userUuid);
+	
+	/**
 	 * Posts the specified wall item to the specified user's wall and the
 	 * walls of their connections.
 	 * 

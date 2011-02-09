@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -47,11 +46,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void addEventToWalls(String event, final String userUuid) {
-
+	private void addItemToWalls(int itemType, String itemText, final String userUuid) {
+		
 		// get the connections of the creator of this content
 		final List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid);
 
@@ -60,13 +56,27 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return;
 		}
 
+		// set corresponding message type and exit if type unknown
+		final int itemMessageType;
+		switch (itemType) {
+			case ProfileConstants.WALL_ITEM_TYPE_EVENT:
+				itemMessageType = ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW;
+				break;
+			case ProfileConstants.WALL_ITEM_TYPE_STATUS:
+				itemMessageType = ProfileConstants.EMAIL_NOTIFICATION_WALL_STATUS_NEW;
+				break;
+			default:
+				log.warn("not sending email due to unknown wall item type: " + itemType);
+				return;
+		}
+		
 		final WallItem wallItem = new WallItem();
 
 		wallItem.setCreatorUuid(userUuid);
-		wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_EVENT);
+		wallItem.setType(itemType);
 		wallItem.setDate(new Date());
 		// this string is mapped to a localized resource string in GUI
-		wallItem.setText(event);
+		wallItem.setText(itemText);
 
 		Thread thread = new Thread() {
 			public void run() {
@@ -79,8 +89,9 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 					if (dao.addNewWallItemForUser(connection.getUuid(), wallItem)) {
 		
 						// only send email if user has preference set
-						if (true == preferencesLogic.isEmailEnabledForThisMessageType(connection.getUuid(),
-								ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW)) {
+						if (true == preferencesLogic.isEmailEnabledForThisMessageType(
+								connection.getUuid(), itemMessageType)) {
+							
 							uuidsToEmail.add(connection.getUuid());
 						}
 						
@@ -90,11 +101,24 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 					}
 				}
 				
-				sendWallNotificationEmailToConnections(uuidsToEmail, userUuid,
-						ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW);
+				sendWallNotificationEmailToConnections(uuidsToEmail, userUuid, itemMessageType);
 			}
 		};
 		thread.start();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void addEventToWalls(String event, final String userUuid) {
+		addItemToWalls(ProfileConstants.WALL_ITEM_TYPE_EVENT, event, userUuid);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void addStatusToWalls(String status, String userUuid) {
+		addItemToWalls(ProfileConstants.WALL_ITEM_TYPE_STATUS, status, userUuid);
 	}
 	
 	/**
@@ -200,59 +224,10 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			}
 		}
 		
-		// add in any connection statuses
-		List<Person> connections = connectionsLogic
-				.getConnectionsForUser(userUuid);
-
-		if (null == connections || 0 == connections.size()) {
-			Collections.sort(filteredWallItems);
-			return filteredWallItems;
-		}
-
-		for (Person connection : connections) {
-
-			ProfileStatus connectionStatus = statusLogic
-					.getUserStatus(connection.getUuid());
-
-			if (null == connectionStatus) {
-				continue;
-			}
-
-			// status privacy check
-			final boolean allowedStatus;
-			// current user is always allowed to see status of connections
-			if (true == StringUtils.equals(userUuid, currentUserUuid)) {
-				allowedStatus = true;
-			// don't allow friend-of-a-friend	
-			} else {
-				allowedStatus =	 privacyLogic.isUserXStatusVisibleByUserY(
-						connection.getUuid(), currentUserUuid,
-						connectionsLogic.isUserXFriendOfUserY(connection.getUuid(),
-								currentUserUuid));
-			}
-
-			if (true == allowedStatus) {
-				
-				WallItem wallItem = new WallItem();
-				wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_STATUS);
-				wallItem.setCreatorUuid(connection.getUuid());
-				wallItem.setDate(connectionStatus.getDateAdded());
-				wallItem.setText(connectionStatus.getMessage());
-
-				filteredWallItems.add(wallItem);
-			}
-		}
-
 		// wall items are comparable and need to be in order
 		Collections.sort(filteredWallItems);
-		
-		// dao limits wall items but we also need to ensure any connection
-		// status updates don't push the number of wall items over limit
-		if (filteredWallItems.size() > ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES) {			
-			return filteredWallItems.subList(0, ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES);
-		} else {
-			return filteredWallItems;
-		}
+				
+		return filteredWallItems;
 	}
 	
 	/**
@@ -310,38 +285,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			}
 		}
 		
-		int count = filteredWallItems.size();
-		
-		// connection statuses
-		List<Person> connections = connectionsLogic
-				.getConnectionsForUser(userUuid);
-		
-		if (null == connections || 0 == connections.size()) {
-			return count;
-		}
-		
-		for (Person connection : connections) {
-			
-			if (null != statusLogic.getUserStatus(connection.getUuid())) {
-				
-				// current user is always allowed to see status of connections
-				if (true == StringUtils.equals(userUuid, currentUserUuid)) {
-					count++;
-				// don't allow friend-of-a-friend if not connected
-				} else if (true == privacyLogic.isUserXStatusVisibleByUserY(
-						connection.getUuid(), currentUserUuid,
-						connectionsLogic.isUserXFriendOfUserY(connection.getUuid(),
-								currentUserUuid))) {
-					count++;
-				}
-			}
-		}
-				
-		if (count > ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES) {
-			return ProfileConstants.MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES;
-		} else {
-			return count;
-		}
+		return filteredWallItems.size();
 	}
 	
 	private void sendWallNotificationEmailToConnections(List<String> toUuids, final String fromUuid, final int messageType) {
@@ -349,6 +293,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		// create the map of replacement values for this email template
 		Map<String, String> replacementValues = new HashMap<String, String>();
 		replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+		replacementValues.put("senderProfileLink", linkLogic.getEntityLinkToProfileHome(fromUuid));
 		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 		replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
@@ -356,18 +301,21 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		String emailTemplateKey = null;
 		
 		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW == messageType) {
-			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;
-			
-			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(fromUuid));
-			
+			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;			
 		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW;
-			
-			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(fromUuid));
+		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_STATUS_NEW == messageType) {
+			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW;
 		}
 		
 		if (null != emailTemplateKey) {
-			sakaiProxy.sendEmail(toUuids, emailTemplateKey, replacementValues);
+			// send individually to personalize email
+			for (String toUuid : toUuids) {
+				// this just keeps overwriting profileLink with current toUuid
+				replacementValues.put("displayName", sakaiProxy.getUserDisplayName(toUuid));
+				replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
+				sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
+			}
 		} else {
 			log.warn("not sending email, unknown message type for sendWallNotificationEmailToConnections: " + messageType);
 		}
@@ -394,8 +342,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
+			replacementValues.put("displayName", sakaiProxy.getUserDisplayName(toUuid));
 			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
-			
 		}
 		
 		if (null != emailTemplateKey) {
@@ -433,11 +381,6 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		this.preferencesLogic = preferencesLogic;
 	}
 	
-	private ProfileStatusLogic statusLogic;
-	public void setStatusLogic(ProfileStatusLogic statusLogic) {
-		this.statusLogic = statusLogic;
-	}
-
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;

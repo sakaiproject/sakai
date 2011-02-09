@@ -115,14 +115,8 @@ public class WallItemPanel extends Panel {
 			}
 		};
 
-		// special case for statuses which can't be deleted from walls
-		if (ProfileConstants.WALL_ITEM_TYPE_STATUS == wallItem.getType()) {
-			removeItemLink.add(new Label("removeWallItemLabel", new ResourceModel("link.wall.item.status")));			
-			removeItemLink.setEnabled(false);
-		} else {
-			removeItemLink.add(new Label("removeWallItemLabel", new ResourceModel("link.wall.item.remove")));
-			removeItemLink.add(new AttributeModifier("title", true, new ResourceModel("link.title.wall.remove")));
-		}
+		removeItemLink.add(new Label("removeWallItemLabel", new ResourceModel("link.wall.item.remove")));
+		removeItemLink.add(new AttributeModifier("title", true, new ResourceModel("link.title.wall.remove")));
 
 		// not visible when viewing another user's wall
 		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
