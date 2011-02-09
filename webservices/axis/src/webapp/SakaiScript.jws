@@ -2123,7 +2123,10 @@ public String searchForUsers(String sessionid, String criteria, int first, int l
 			return "<exception/>";
 		}
 	
+	
 		List users = userDirectoryService.searchUsers(criteria, first, last);
+		List externalUsers = userDirectoryService.searchExternalUsers(criteria, first, last);
+		users.addAll(externalUsers);
 				
 		Document dom = Xml.createDocument();
 		Node list = dom.createElement("list");
