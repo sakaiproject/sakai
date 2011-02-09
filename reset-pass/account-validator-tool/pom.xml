@@ -99,15 +99,13 @@
       	<groupId>javax.servlet</groupId>
       	<artifactId>servlet-api</artifactId>
       </dependency>
-
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>1.6.2</version>
+		</dependency>
    </dependencies>
-<pluginRepositories>
-      <pluginRepository>
-         <id>CARET-Maven2</id>
-         <name>CARET Maven 2 Repository</name>
-         <url>http://www2.caret.cam.ac.uk/maven2</url>
-      </pluginRepository>
-   </pluginRepositories>
+
    
    <build>
       <!-- unit testing -->

@@ -28,6 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -203,7 +206,9 @@ public class AcountValidationLocator implements BeanLocator  {
 				u.setFirstName(firstName);
 				u.setLastName(surname);
 				ResourcePropertiesEdit rp = u.getPropertiesEdit();
-				rp.addProperty("AccountValidated", Long.valueOf(new Date().getTime()).toString());
+				DateTime dt = new DateTime();
+				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+				rp.addProperty("AccountValidated", fmt.print(dt));
 				
 				
 				//if this is a new account set the password
