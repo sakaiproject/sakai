@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.event.CacheEventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -312,6 +313,16 @@ public class MemCache implements Cache, Observer
 			else
 			{
 				m_derivedCache = cache;
+			}
+			
+			// If has the (ehcache) EventCacheListener marker interface then
+			// also attach the cache as a listener that implements the
+			// ehcache event listener interface.
+			
+			if (cache instanceof CacheEventListener) {
+				// add ehcahe event listener
+				Ehcache ehc = this.cache;
+				ehc.getCacheEventNotificationService().registerListener((CacheEventListener)cache);
 			}
 		}
 	}

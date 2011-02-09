@@ -25,6 +25,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.event.CacheEventListener;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -38,8 +47,13 @@ import org.sakaiproject.site.api.ToolConfiguration;
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
  * </p>
  */
-public class SiteCacheImpl implements DerivedCache
+public class SiteCacheImpl implements DerivedCache, CacheEventListener
 {
+	
+	private static Log M_log = LogFactory.getLog(SiteCacheImpl.class);
+	
+	ServerConfigurationService serverConfigurationService = null;
+	
 	/** Map of a tool id to a cached site's tool configuration instance. */
 	protected Map m_tools = new ConcurrentHashMap();
 
@@ -51,6 +65,14 @@ public class SiteCacheImpl implements DerivedCache
 
 	/** The base cache. */
 	protected Cache m_cache = null;
+	
+	/*** Variables to implement site cache specific metrics. The usual Ehcache metrics are not
+	 * sufficient because we handle the page / tool / group caching outside of Ehcache. 
+	 ***/
+	/* Count number of cache event callbacks to the site cache implementation */
+	private int cacheEventCount = 0;
+	/* Set event interval at which to report the current status of the site cache */
+	private int cacheEventReportInterval = 0;
 
 	/**
 	 * Construct the Cache. No automatic refresh: expire only, from time and events.
@@ -60,15 +82,29 @@ public class SiteCacheImpl implements DerivedCache
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
 	 */
-	public SiteCacheImpl(MemoryService memoryService, long sleep, String pattern)
+
+	// Modify constructor to allow injecting the server configuration service.
+	public SiteCacheImpl(MemoryService memoryService, long sleep, String pattern, ServerConfigurationService serverConfigurationService)
 	{
 		m_cache = memoryService.newCache(
 				"org.sakaiproject.site.impl.SiteCacheImpl.cache", pattern);
 
 		// setup as the derived cache
 		m_cache.attachDerivedCache(this);
+
+		// Provide an instance of the server configuration service.
+		this.serverConfigurationService = serverConfigurationService;
+
+		cacheEventReportInterval = serverConfigurationService.getInt("org.sakaiproject.site.impl.SiteCacheImpl.cache.cacheEventReportInterval",
+				cacheEventReportInterval);
 	}
 
+	// Supply a default server configuration service if it is not supplied.
+	public SiteCacheImpl(MemoryService memoryService, long sleep, String pattern) {
+		this(memoryService,sleep,pattern,
+				(ServerConfigurationService)org.sakaiproject.component.cover.ServerConfigurationService.getInstance());
+	}
+	
 	/**
 	 * Cache an object
 	 * 
@@ -236,4 +272,107 @@ public class SiteCacheImpl implements DerivedCache
 			}
 		}
 	}
+	
+	/***********
+	 * Implement routines for Ehcache event notification.  This is to allow explicitly cleaning the 
+	 * tool, page, group maps.
+	 ***********/
+	
+	public int getCacheEventReportInterval() {
+		return cacheEventReportInterval;
+	}
+
+	public void setCacheEventReportInterval(int cacheEventReportInterval) {
+		this.cacheEventReportInterval = cacheEventReportInterval;
+	}
+
+	/* Note that events happen only when there is a change to the contents of the cache 
+	 * so with an efficient cache configuration the tracking of the events will not be expensive.
+	 * If the cache configuration is not efficient then you want to know about it.  
+	 */
+	protected void updateSiteCacheStatistics() {
+	
+		if (cacheEventReportInterval == 0) {
+			return;
+		}
+		
+		++cacheEventCount;
+		if (cacheEventCount % cacheEventReportInterval != 0) {
+			return;
+		}
+		
+		M_log.info("SiteCache:"
+				+" eventCount: "+cacheEventCount
+				+" sites  "+m_cache.getSize()
+				+" tools: "+m_tools.size()
+				+" pages: "+m_pages.size()
+				+" groups: "+m_groups.size()
+				);
+	}
+	
+	public void dispose() {
+		M_log.debug("ehcache event: dispose");	
+	}
+
+	public void notifyElementEvicted(Ehcache cache, Element element) {
+		
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ehcache event: notifyElementEvicted: "+element.getKey());
+		}
+		
+		notifyCacheRemove(element.getObjectKey(), element.getObjectValue());		
+		updateSiteCacheStatistics();
+	}
+
+	public void notifyElementExpired(Ehcache cache, Element element) {
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ehcache event: notifyElementExpired: "+element.getKey());
+		}
+		
+		notifyCacheRemove(element.getObjectKey(), element.getObjectValue());
+		updateSiteCacheStatistics();
+	}
+
+	public void notifyElementPut(Ehcache cache, Element element)
+			throws CacheException {
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ehcache event: notifyElementPut: "+element.getKey());
+		}
+		updateSiteCacheStatistics();
+	}
+
+	public void notifyElementRemoved(Ehcache cache, Element element)
+			throws CacheException {
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ehcache event: notifyElementRemoved: "+element.getKey());	
+		}
+		updateSiteCacheStatistics();
+	}
+
+	public void notifyElementUpdated(Ehcache cache, Element element)
+			throws CacheException {
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ehcache event: notifyElementUpdated: "+element.getKey());
+		}
+		updateSiteCacheStatistics();
+	}
+
+	public void notifyRemoveAll(Ehcache cache) {
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("ehcache event: notifyRemoveAll");
+		}
+		updateSiteCacheStatistics();
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException 
+	{
+		M_log.debug("ehcache event: clone()");
+		
+		// Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
+		// This may not be possible for listeners after they have been initialized. Implementations should throw CloneNotSupportedException if they do not support clone.
+		throw new CloneNotSupportedException(
+				"CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
+	}
+
 }
