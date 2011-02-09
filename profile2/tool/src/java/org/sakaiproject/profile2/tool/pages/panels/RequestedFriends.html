@@ -43,8 +43,12 @@
 	    		<span wicket:id="connectionStatus" class="status-msg">[status]</span>
 	    	</div>
 	    	<div class="connection-actions-wrap">
-	    		<a wicket:id="confirmConnectionLink" class="connection-action-icon"><img wicket:id="confirmConnectionIcon" /></a>
-	    		<a wicket:id="ignoreConnectionLink" class="connection-action-icon"><img wicket:id="ignoreConnectionIcon" /></a>
+	    		<ul class="connection-actions">
+	    			<li wicket:id="confirmConnectionContainer"><span><a wicket:id="confirmConnectionLink" class="icon connection-confirm"><span wicket:id="confirmConnectionLabel">confirm friend request</span></a></span></li>
+	    			<li wicket:id="ignoreConnectionContainer"><span><a wicket:id="ignoreConnectionLink" class="icon connection-ignore"><span wicket:id="ignoreConnectionLabel">ignore friend request</span></a></span></li>
+	    			<li wicket:id="emailContainer"><span><a wicket:id="emailLink" class="icon email-link">email</a></span></li>
+			    	<li wicket:id="websiteContainer"><span><a wicket:id="websiteLink" class="icon website-link">website</a></span></li>
+	    		</ul>
 	    	</div>
 	    	<div class="connection-summary-wrap">
 				<div wicket:id="connectionSummary">summary</div>

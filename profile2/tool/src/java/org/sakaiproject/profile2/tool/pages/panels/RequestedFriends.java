@@ -25,7 +25,9 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -70,6 +72,8 @@ public class RequestedFriends extends Panel {
 		super(id);
 		
 		log.debug("RequestedFriends()");
+		
+		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -146,50 +150,11 @@ public class RequestedFriends extends Panel {
 				status.setOutputMarkupId(true);
 				item.add(status);
 				
-				//IGNORE FRIEND LINK AND WINDOW
-		    	final AjaxLink<String> ignoreConnectionLink = new AjaxLink<String>("ignoreConnectionLink", new Model<String>(personUuid)) {
-					private static final long serialVersionUID = 1L;
-					public void onClick(AjaxRequestTarget target) {
-						
-						//get this item, and set content for modalwindow
-				    	String personUuid = getModelObject();
-						connectionWindow.setContent(new IgnoreFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, personUuid)); 
-
-						//modalwindow handler 
-						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-							private static final long serialVersionUID = 1L;
-							public void onClose(AjaxRequestTarget target){
-								if(friendActionModel.isIgnored()) { 
-				            		
-				            		//decrement number of requests
-				            		numRequestedFriends--;
-				            		
-				            		//remove friend item from display
-				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
-				            		
-				            		//update label
-				            		target.addComponent(requestedFriendsHeading);
-				            				            		
-				            		//if none left, hide everything
-				            		if(numRequestedFriends==0) {
-				            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
-				            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
-				            		}
-				            	}
-							}
-				        });	
-						
-						connectionWindow.show(target);
-						target.appendJavascript("fixWindowVertical();"); 
-					}
-				};
-				ContextImage ignoreConnectionIcon = new ContextImage("ignoreConnectionIcon",new Model<String>(ProfileConstants.CANCEL_IMG));
-				ignoreConnectionIcon.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ displayName } )));
-				ignoreConnectionLink.add(ignoreConnectionIcon);
-				ignoreConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
-				item.add(ignoreConnectionLink);
-				
 				//CONFIRM FRIEND LINK AND WINDOW
+				
+				WebMarkupContainer c1 = new WebMarkupContainer("confirmConnectionContainer");
+				c1.setOutputMarkupId(true);
+				
 		    	final AjaxLink<String> confirmConnectionLink = new AjaxLink<String>("confirmConnectionLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
@@ -229,12 +194,100 @@ public class RequestedFriends extends Panel {
 						target.appendJavascript("fixWindowVertical();"); 
 					}
 				};
-				ContextImage confirmConnectionIcon = new ContextImage("confirmConnectionIcon",new Model<String>(ProfileConstants.ACCEPT_IMG));
-				confirmConnectionIcon.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ displayName } )));
-				confirmConnectionLink.add(confirmConnectionIcon);
+				//ContextImage confirmConnectionIcon = new ContextImage("confirmConnectionIcon",new Model<String>(ProfileConstants.ACCEPT_IMG));
+				//confirmConnectionLink.add(confirmConnectionIcon);
 				confirmConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
-				item.add(confirmConnectionLink);
+				confirmConnectionLink.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ displayName } )));
+				confirmConnectionLink.add(new Label("confirmConnectionLabel", new ResourceModel("link.friend.confirm")).setOutputMarkupId(true));
+				c1.add(confirmConnectionLink);
+				item.add(c1);
+				
+				//IGNORE FRIEND LINK AND WINDOW
+				
+				WebMarkupContainer c2 = new WebMarkupContainer("ignoreConnectionContainer");
+				c2.setOutputMarkupId(true);
+				
+		    	final AjaxLink<String> ignoreConnectionLink = new AjaxLink<String>("ignoreConnectionLink", new Model<String>(personUuid)) {
+					private static final long serialVersionUID = 1L;
+					public void onClick(AjaxRequestTarget target) {
+						
+						//get this item, and set content for modalwindow
+				    	String personUuid = getModelObject();
+						connectionWindow.setContent(new IgnoreFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, personUuid)); 
 
+						//modalwindow handler 
+						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+							private static final long serialVersionUID = 1L;
+							public void onClose(AjaxRequestTarget target){
+								if(friendActionModel.isIgnored()) { 
+				            		
+				            		//decrement number of requests
+				            		numRequestedFriends--;
+				            		
+				            		//remove friend item from display
+				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+				            		
+				            		//update label
+				            		target.addComponent(requestedFriendsHeading);
+				            				            		
+				            		//if none left, hide everything
+				            		if(numRequestedFriends==0) {
+				            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
+				            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
+				            		}
+				            	}
+							}
+				        });	
+						
+						connectionWindow.show(target);
+						target.appendJavascript("fixWindowVertical();"); 
+					}
+				};
+				//ContextImage ignoreConnectionIcon = new ContextImage("ignoreConnectionIcon",new Model<String>(ProfileConstants.CANCEL_IMG));
+				//ignoreConnectionLink.add(ignoreConnectionIcon);
+				ignoreConnectionLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
+				ignoreConnectionLink.add(new AttributeModifier("alt", true, new StringResourceModel("accessibility.connection.ignore", null, new Object[]{ displayName } )));
+				ignoreConnectionLink.add(new Label("ignoreConnectionLabel", new ResourceModel("link.friend.ignore")).setOutputMarkupId(true));
+				c2.add(ignoreConnectionLink);
+				item.add(c2);
+				
+				WebMarkupContainer c3 = new WebMarkupContainer("emailContainer");
+		    	c3.setOutputMarkupId(true);
+		    	
+		    	ExternalLink emailLink = new ExternalLink("emailLink",
+						"mailto:" + person.getProfile().getEmail(),
+						new ResourceModel("profile.email").getObject());
+		    	
+				c3.add(emailLink);
+				
+				// friend=false
+				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, false)) {
+					
+					c3.setVisible(false);
+				}
+				item.add(c3);
+				
+				WebMarkupContainer c4 = new WebMarkupContainer("websiteContainer");
+		    	c4.setOutputMarkupId(true);
+		    	
+		    	// TODO home page, university profile URL or academic/research URL (see PRFL-35)
+		    	ExternalLink websiteLink = new ExternalLink("websiteLink", person.getProfile()
+						.getHomepage(), new ResourceModel(
+						"profile.homepage").getObject()).setPopupSettings(new PopupSettings());
+		    	
+		    	c4.add(websiteLink);
+
+				// friend=false
+				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, false)) {
+					
+					c4.setVisible(false);
+				}
+				item.add(c4);
+				
 				// not a friend yet, so friend=false
 				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
 						person.getUuid(), sakaiProxy.getCurrentUserId(), false)) {

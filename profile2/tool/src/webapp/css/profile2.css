@@ -224,6 +224,12 @@ h2 {
 .connection-delete {
 	background-image: url(/library/image/silk/user_delete.png);
 }
+.connection-confirm {
+	background-image: url(/library/image/silk/accept.png);
+}
+.connection-ignore {
+	background-image: url(/library/image/silk/delete.png);
+}
 .connection-request {
 	background-image: url(/library/image/silk/group_gear.png);
 }
