@@ -64,10 +64,10 @@ public class SiteAddParticipantHandler {
 	{
 			'2', '3', '4', '5', '6', '7', '8', '9'
 	};
-	char[] SYMBOL_ARRAY = 
+	/*char[] SYMBOL_ARRAY = 
 	{
-			'!','@', '#', '$', '%', '^', '&', '*'
-	};
+			'!','@', '#', '$', '%', '^', '&', '*' 
+	};*/
 	
     /** Our log (commons). */
     private static Log M_log = LogFactory.getLog(SiteAddParticipantHandler.class);
@@ -1200,9 +1200,9 @@ public class SiteAddParticipantHandler {
 		    	case 2:
 		    		rndbuf.append(NUMBER_ARRAY[(int) ( NUMBER_ARRAY.length * Math.random())]);
 		    		break;
-		    	case 3:
+		    	/*case 3:
 		    		rndbuf.append(SYMBOL_ARRAY[(int) ( SYMBOL_ARRAY.length * Math.random())]);
-		    		break;
+		    		break;*/
 		    	default:
 		    		break;
 		    }
