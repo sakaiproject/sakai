@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 #parse("/vm/defaultskin/includeStandardHead.vm")
 <body class="portalBody">
+	#if (${portal_add_mobile_link})<div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>#end
 #if ( $pageTop )
 <script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";

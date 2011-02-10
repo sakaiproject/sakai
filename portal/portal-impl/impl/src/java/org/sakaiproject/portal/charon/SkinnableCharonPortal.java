@@ -1143,6 +1143,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("portal_allow_minimize_navigation",Boolean.valueOf( "true".equals(minStr) ) ) ;
 		minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
 		rcontext.put("portal_allow_auto_minimize",Boolean.valueOf( "true".equals(minStr) ) ) ;
+		// copy the add link to /mobile to the content
+		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
+		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) ) ) ;
 		return rcontext;
 	}
 
