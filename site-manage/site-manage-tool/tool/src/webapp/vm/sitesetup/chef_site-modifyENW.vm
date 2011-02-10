@@ -78,7 +78,6 @@
 							#set($tool=false)
 							#set($tool = $!toolManager.getTool($oldOriginToolId))
 							<div class="labelindnt" style="text-indent:.5em"><label for="num_$oldOriginToolId" class="skip">$tlang.getString("multipleTools.more")</label>
-								<img src="/library/image/silk/add.png" alt="$tlang.getString("multipleTools.more")" style="vertical-align:text-bottom"/>
 									<select name="num_$oldOriginToolId" id="num_$oldOriginToolId" onchange="document.toolForm.option.value='add_$oldOriginToolId';javascript:document.toolForm.submit();">
 										<option value="" selected="selected">$tlang.getString("multipleTools.moreTools.1") $tool.Title $tlang.getString("multipleTools.moreTools.2")</option>
 										#foreach ($j in [1 .. 3])
@@ -132,7 +131,6 @@
 				#set($tool=false)
 				#set($tool = $!toolManager.getTool($oldOriginToolId))
 			 <div class="labelindnt" style="text-indent:.5em"><label for="num_$oldOriginToolId" class="skip">$tlang.getString("multipleTools.more")</label>
-					<img src="/library/image/silk/add.png" alt="$tlang.getString("multipleTools.more")" style="vertical-align:text-bottom"/>
 					<select name="num_$oldOriginToolId" id="num_$oldOriginToolId" onchange="document.toolForm.option.value='add_$oldOriginToolId';javascript:document.toolForm.submit();">
 							<option value="" selected="selected">$tlang.getString("multipleTools.moreTools.1") $tool.Title $tlang.getString("multipleTools.moreTools.2")</option>
 								#foreach ($j in [1 .. 3])
