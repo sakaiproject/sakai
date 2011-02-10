@@ -792,7 +792,7 @@ $.ajax({
 	{else}
 		{for member in enrollment}
 			{if enrollmentStatus == roster_enrollment_status_all ||
-				member.status == enrollmentStatus}
+				member.enrollmentStatus == enrollmentStatus}
 					<tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
 					<td>
 						{if true == firstNameLastName}
@@ -813,7 +813,7 @@ $.ajax({
 					{if true == viewEmail}
 						<td><a href="mailto:${member.email}">${member.email}</a></td>
 					{/if}
-					<td>${member.status}</td>
+					<td>${member.enrollmentStatus}</td>
 					<td>${member.credits}</td>
 				</tr>
 			{/if}
