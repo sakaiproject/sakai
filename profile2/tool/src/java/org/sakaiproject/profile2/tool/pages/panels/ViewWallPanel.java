@@ -73,6 +73,8 @@ public class ViewWallPanel extends Panel {
 
 		super(panelId);
 
+		final String currentUserId = sakaiProxy.getCurrentUserId();
+		
 		// container which wraps list
 		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
 				"wallItemsContainer");
@@ -161,6 +163,17 @@ public class ViewWallPanel extends Panel {
 
 				WallItem wallItem = (WallItem) item.getDefaultModelObject();
 				item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
+				
+				if (ProfileConstants.WALL_ITEM_TYPE_STATUS == wallItem.getType()) {					
+					// only show if a super user or non-super user is permitted
+					if (!sakaiProxy.isSuperUser() && !privacyLogic.isUserXStatusVisibleByUserY(
+							wallItem.getCreatorUuid(), currentUserId, connectionsLogic
+									.isUserXFriendOfUserY(wallItem.getCreatorUuid(),
+											currentUserId))) {
+						
+						item.setVisible(false);
+					}
+				}
 			}
 		};
 

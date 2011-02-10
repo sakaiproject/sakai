@@ -66,12 +66,6 @@ public class MyWallPanel extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
-
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
-	private ProfilePrivacyLogic privacyLogic;
-	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
-	private ProfileConnectionsLogic connectionsLogic;
 	
 	/**
 	 * Creates a new instance of <code>MyWallPanel</code>.
@@ -106,9 +100,7 @@ public class MyWallPanel extends Panel {
 	}
 
 	private void renderWallPanel(final String userUuid) {
-		
-		final String currentUserId = sakaiProxy.getCurrentUserId();
-		
+				
 		// container which wraps list
 		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
 				"wallItemsContainer");
@@ -189,23 +181,8 @@ public class MyWallPanel extends Panel {
 			protected void populateItem(Item<WallItem> item) {
 
 				WallItem wallItem = (WallItem) item.getDefaultModelObject();
-
-				if (ProfileConstants.WALL_ITEM_TYPE_STATUS == wallItem.getType()) {
-					// if viewing own wall, or admin user
-					if (wallItem.getCreatorUuid().equals(userUuid) || sakaiProxy.isSuperUser()) {
-						item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
-					}
-					// else check connection status privacy
-					else if (privacyLogic.isUserXStatusVisibleByUserY(
-							userUuid, currentUserId, connectionsLogic
-									.isUserXFriendOfUserY(userUuid,
-											currentUserId))) {
-						
-						item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
-					}
-				} else {
-					item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
-				}
+			
+				item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
 			}
 		};
 
