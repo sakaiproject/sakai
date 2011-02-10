@@ -983,3 +983,25 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-basiclti { 
 	background-image: url(../../image/silk/application_go.png); 
 }
+
+/*back to mobile link - displays only to iOS webkit*/
+#mobile-portal-link{
+	display:none;
+}
+@media screen and (max-device-width: 480px){
+  #mobile-portal-link{
+    display:block;
+    position:absolute;
+    top:0px;
+    left:30%;
+    background: #004D73;
+    padding:1px 9px 4px 9px;
+    -webkit-border-radius:0 0 10px 10px;
+  }
+  #mobile-portal-link a,#mobile-portal-link a:visited{
+      color:#fff;
+      font: normal 120% Verdana, Geneva, Arial, Helvetica, sans-serif;
+      text-decoration:none;
+  }
+
+}
