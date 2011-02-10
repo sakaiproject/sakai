@@ -485,6 +485,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		// blank line
 		dataInRows.add(new ArrayList<String>());
 
+		dataInRows.add(header);
+		
+		// blank line
+		dataInRows.add(new ArrayList<String>());
+		
 		for (RosterMember member : enrollmentSet) {
 
 			List<String> row = new ArrayList<String>();
