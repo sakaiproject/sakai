@@ -26,6 +26,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.memory.impl.BasicMemoryService;
 
 /**
@@ -91,4 +92,6 @@ public class MockBasicMemoryService extends BasicMemoryService
 		return serverConfigurationService;
 	}
 
-}
+
+
+	}

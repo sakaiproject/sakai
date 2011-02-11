@@ -47,6 +47,15 @@ public interface MemoryService
 	void resetCachers() throws MemoryPermissionException;
 
 	/**
+	 * Evict all expired objects from the in-memory caches
+	 * 
+	 * @throws MemoryPermissionException
+	 * 		if the current user does not have permission to do this.
+	 */
+	void evictExpiredMembers() throws MemoryPermissionException;
+	
+	
+	/**
 	 * Register as a cache user
 	 * @deprecated Since Sakai 2.5.0
 	 */

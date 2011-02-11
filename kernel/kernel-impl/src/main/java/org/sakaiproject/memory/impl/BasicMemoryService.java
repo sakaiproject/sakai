@@ -64,6 +64,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 	/** Event for the memory reset. */
 	protected static final String EVENT_RESET = "memory.reset";
+	
+	/** 
+	 * Event to expire members
+	 */
+	protected static final String EVENT_EXPIRE = "memory.expire";
 
 	/** The underlying cache manager; injected */
 	protected CacheManager cacheManager;
@@ -225,6 +230,21 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 	} // resetMemory
 
+	public void evictExpiredMembers() throws MemoryPermissionException {
+		// check that this is a "super" user with the security service
+		if (!securityService().isSuperUser())
+		{
+			// TODO: session id or session user id?
+			throw new MemoryPermissionException(usageSessionService().getSessionId(), EVENT_EXPIRE, "");
+		}
+
+		// post the event so this and any other app servers in the cluster will reset
+		eventTrackingService().post(eventTrackingService().newEvent(EVENT_EXPIRE, "", true));
+
+		
+	}
+	
+	
 	/**
 	 * Compute a status report on all memory users
 	 */
@@ -308,6 +328,21 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 	} // doReset
 
+	
+	private void doExpire() {
+		
+		M_log.info("doExpire():  About to evict expired elements free memory: " + Runtime.getRuntime().freeMemory());
+
+		final List<Ehcache> allCaches = getAllCaches(false);
+		for (Ehcache ehcache : allCaches) {
+			ehcache.evictExpiredElements();
+			
+		}
+
+		M_log.info("doExpire(): free memory now " + Runtime.getRuntime().freeMemory());
+
+		
+	}
 	/**
 	 * Register as a cache user
 	 * @deprecated
@@ -432,12 +467,19 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 		// look for the memory reset event
 		String function = event.getEvent();
-		if (!function.equals(EVENT_RESET)) return;
-
-		// do the reset here, too!
-		doReset();
+		if (EVENT_RESET.equals(function))
+		{	
+			// do the reset
+			doReset();
+		}
+		else if (EVENT_EXPIRE.equals(function))
+		{
+			doExpire();
+		}
 	}
 	
+	
+
 	/**
 	 * 
 	 * @param cacheName
