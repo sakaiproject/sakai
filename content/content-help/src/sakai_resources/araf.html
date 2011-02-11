@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<title>Uploading files to Resources or Drop Box using WebDAV with Windows XP or Vista</title>
+<title>Uploading files to Resources or Drop Box using WebDAV with Windows</title>
 <style type="text/css">
 		/* Style for specific inline images */
 		
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="helpBody">
-<h2>Uploading files to Resources or Drop Box using WebDAV with Windows XP or Vista</h2>
+<h2>Uploading files to Resources or Drop Box using WebDAV with Windows</h2>
  
 <a name="top"> </a>
 
@@ -23,9 +23,15 @@
 
 
 
-<ul><li><a href="#intro">Introduction</a></li><li><a href="#vista">Using Windows Vista</a></li><li><a href="#xp">Using Windows XP</a></li></ul>
+<ul><li><a href="#intro">Introduction</a></li><li><a href="#7">Windows 7</a></li><li><a href="#vista">Windows Vista</a></li><li><a href="#xp">Windows XP</a></li></ul>
 
 
+
+<p><strong>Note:</strong> You can follow the instructions below to set up
+WebDAV from within your operating system, or you can use a third-party
+client such as Cyberduck or AnyClient.  For the latter, see <a href="content.hlp?docId=azda">Uploading files to Resources or Drop Box using WebDAV with AnyClient</a>.  Some users have reported better
+performance with one method than with another; if you have difficulties,
+try a different client.</p>
 
 <hr />
 
@@ -49,9 +55,9 @@ help, see <a href="content.hlp?docId=arfs">Resources</a> or <a href="content.hlp
 
 
 <p>Saving files directly to WebDAV (i.e., from within an application,
-such as Word, Excel, or Internet Explorer) does not work reliably. For
-best results, save the file to your computer first, and then upload it
-to your site.</p>
+such as Word, Excel, or Internet Explorer) does not work
+reliably. For best results, save the file to your computer first, and
+then upload it to your site.</p>
 
 
 <p><strong>Note:</strong> Filenames that include certain characters
@@ -66,17 +72,73 @@ cannot be accepted. For a list of unsupported characters, see <a href="content.h
 
 <p><a href="#top">Back to top</a></p>
 
+<a name="7"> </a>
+
+<h3>Windows 7</h3>
+
+
+<p>To connect to WebDAV in Windows 7, first turn on the WebClient
+service, and then create the WebDAV connection.</p>
+
+<h4>Enabling the WebClient service</h4>
+
+<ol><li>From the <strong><code>Start</code></strong> menu, choose <strong><code>Control Panel</code></strong>, then 
+<strong><code>System and Security</code></strong>, then <strong><code>Administrative Tools</code></strong>, and 
+then <strong><code>Services</code></strong>.
+
+<br /><br />
+</li><li>Scroll down to <strong><code>WebClient</code></strong>, set the service to <strong><code>Automatic</code></strong>,
+and then click <strong><code>Apply</code></strong>.
+
+<br /><br />
+</li><li>If the service is not already running, click <strong><code>Start</code></strong>.
+
+<br /><br />
+</li><li>Click <strong><code>OK</code></strong> to close the Control Panel.
+</li></ol>
+
+<h4>Creating a WebDAV connection</h4>
+
+<ol><li>From the <strong><code>Start</code></strong> menu, right-click <strong><code>Computer</code></strong>, and select
+<strong><code>Map network drive... </code></strong>.
+
+<br /><br />
+</li><li>Enter a URL that points to the destination Resources or Drop Box tool.
+
+<p>Contact your site administrator for the URL's format.  It will likely include
+the siteID for your site.</p>
+
+<p><strong>Note:</strong> For instructions on finding your siteID, see <a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
+</li><li>A new network location will appear.  Double-click the item to open it.
+
+<br /><br />
+</li><li>When prompted, enter your usual login credentials.
+</li></ol>
+
+<p>You should now be able to drag and drop files and folders between your 
+computer and the site to which you just connected.  To delete an item, 
+right-click it and select <strong><code>Delete</code></strong>.</p>
+
+<p>If you have difficulty dragging and dropping, right-click the file or
+folder you want to copy, and choose <strong><code>Copy</code></strong>.  Then right-click
+the directory you want to put it in, and choose <strong><code>Paste</code></strong>.</p>
+
+<p>You may need to refresh your browser for the file to appear
+in your directory in Resources or Drop Box.  </p>
+
+<p><a href="#top">Back to top</a></p>
+
+
 <a name="vista"> </a>
 
-<h3>Using Windows Vista</h3>
+<h3>Windows Vista</h3>
 
 <p><strong>Note:</strong> Connecting to your site using WebDAV on a
-computer running Windows Vista does not work
-reliably. Developers are currently investigating this issue. However,
-Microsoft has a software update available that may help correct
-connection problems for some users. For information about the update
-and how to download it, see article 907306 at the Microsoft Help and
-Support web site.</p>
+computer running Windows Vista does not work reliably.
+However, Microsoft has a software update available that may help
+correct connection problems for some users. For information about the
+update and how to download it, see article 907306 at the Microsoft
+Help and Support web site.</p>
 
 <p> <a href="http://support.microsoft.com/default.aspx" target="new">Search
 Microsoft Help and Support</a>.</p>
@@ -111,7 +173,12 @@ the URL's format. It will likely include the siteID for your site.</p>
 
 <p><strong>Note:</strong> For instructions on finding your siteID, see
 <a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
-</li></ol>
+</li><li>When prompted, enter your usual login
+credentials.
+
+<br /><br />
+</li><li>Give the folder a name that you will remember later, such as the name
+of the associated site.</li></ol>
 
 <p>You should now be able to drag and drop files and folders between your
 computer and the sites to which you just connected.  To open a folder,
@@ -122,14 +189,14 @@ delete an item, right-click it and select <strong><code>Delete</code></strong>.<
 folder you want to copy, and choose <strong><code>Copy</code></strong>.  Then right-click
 the directory you want to put it in, and choose <strong><code>Paste</code></strong>.</p>
 
-<p>You may need to refresh your browser for the file to appear in your directory
-in Resources or Drop Box.</p>  
+<p>You may need to refresh your browser for the file to appear
+in your directory in Resources or Drop Box.  </p>
 
 <p><a href="#top">Back to top</a></p>
 
 <a name="xp"> </a>
 
-<h3>Using Windows XP</h3>
+<h3>Windows XP</h3>
 
 
 <p>To use the Add Network Place Wizard to add a shortcut to your computer
@@ -160,6 +227,16 @@ the URL's format. It will likely include the siteID for your site.</p>
 
 <p><strong>Note:</strong> For instructions on finding your siteID, see
 <a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
+</li><li>When prompted, enter your usual login
+credentials.
+
+<br /><br />
+
+</li><li>Give the folder a name you will
+remember, such as the name of the associated site.
+
+<br /><br />
+</li><li>Click <strong><code>Finish</code></strong>.
 </li></ol>
 
 <p>You may now drag and drop files and folders between your computer and the
