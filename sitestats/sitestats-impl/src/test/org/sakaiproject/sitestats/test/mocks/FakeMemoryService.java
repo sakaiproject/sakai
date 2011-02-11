@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -114,6 +114,11 @@ public class FakeMemoryService implements MemoryService {
 	public void unregisterCacher(Cacher arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void evictExpiredMembers() throws MemoryPermissionException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
