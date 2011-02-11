@@ -135,7 +135,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 		// Parse the meetings for this group. Use a field that can't be null, such as "monday" (which must be T/F)
 		long numMeetings = 0;
 		String mondays = props.getProperty(CourseSectionImpl.MONDAY);
-		if(mondays != null) {
+		if(mondays != null && !"".equals(mondays.trim())) {
 			try {
 				numMeetings = mondays.split(CourseSectionImpl.SEP_CHARACTER).length;
 				if(log.isDebugEnabled()) log.debug("Found " + numMeetings + " meetings in group " + group);
@@ -221,7 +221,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 	}
 
 	private String getIndexedStringProperty(int index, String complexString) {
-		if(complexString == null) {
+		if(complexString == null || "".equals(complexString.trim())) {
 			return null;
 		}
 		String[] sa = StringUtils.splitPreserveAllTokens(complexString, CourseSectionImpl.SEP_CHARACTER);
