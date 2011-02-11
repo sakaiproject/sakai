@@ -17,10 +17,6 @@
       <artifactId>servlet-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
     </dependency>
@@ -89,11 +85,6 @@
 			integration support JAR.
 		-->
 <!-- Uuid generator -->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}provided-->
-<!--
-      sakai-util-impl is a part of the kernel implementation, p:dependency removed
-      org.sakaiprojectsakai-util-impl${sakai.version}-->
 <!-- This should be part of the test framework -->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -166,7 +157,6 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -186,7 +176,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -201,7 +190,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -228,7 +216,6 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
