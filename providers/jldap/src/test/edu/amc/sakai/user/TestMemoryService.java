@@ -88,4 +88,9 @@ public class TestMemoryService implements MemoryService {
 		
 	}
 
+	public void evictExpiredMembers() throws MemoryPermissionException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
