@@ -1,9 +1,15 @@
-These notes describe cases where there have been changes in
-representation. The results might otherwise be confusing.
+NAMES INVOLVING SIMPLEPAGE
+
+You'll see some class names starting with SimplePage. Lesson Builder
+started out as a copy of the SimplePage tool. All the database tables
+and everything else external were updated, but we didn't have time to
+go back and fix up all the code. Because the class names are all in
+Lesson Builder packages, there should be no conflict with the original
+Simple Page tool, should you use both.
 
 BASIC STRUCTURE
 
-Lesson BUilder has quite simple structures. 
+Lesson Builder has quite simple data structures. 
 
 * SimplePage - this is a page, as shown in the UI. It has items on it.
    the key field for a page is its ID number.
@@ -16,12 +22,14 @@ Lesson BUilder has quite simple structures.
    reference has the actual tool name.
 * SimplePageLogEntry - we keep an entry for each user and each page.
    While we currently only create log entrie for pages, the record
-   has an item number. Note that in some cases you can get a page 
-   in omore than one way, beacause several pages can point to the
+   has an item number. Note that in some cases you can get to a page 
+   in more than one way, because several pages can point to the
    same page. It turns out that we need to do bookkeeping separately
-   for each. The log entry shows the first and last times they went 
-   to the page, Complete indicating whether they've completed all required
-   items on the page. Then there are couple of weird fields: path is 
+   for each. By using the item number, the log entry is specific to the
+   way we got to the page.
+      The log entry shows the first and last times they went 
+   to the page. Complete indicates whether they've completed all required
+   items on the page. Then there are a couple of weird fields: path is 
    used so that when we log off and log on, we can get back to the state
    we were in. We need to know not just what page the user was on before,
    but the way they got to it, so we can put back the right breadcrumbs.
@@ -36,11 +44,11 @@ Lesson BUilder has quite simple structures.
    access the page. Hence if there's a log entry for a page, we don't
    have to check whether the user has met the prrequesites. Since pages
    can chain off each other, checking the whole chain of prerequistes
-   each time would be impractical.)
+   each time would be impractical, and maybe even impossible.)
 * SimplePageGroup is used to keep track of the Sakai groups we create
-   to control access to tests and assignments. Because thse tools are
+   to control access to tests and assignments. Because these tools are
    group-aware, when access is restricted to a test, we create a group
-    for the test, and set the test to only be available to members of
+   for the test, and set the test to only be available to members of
    that group. As people meet the prerequeists for the test, we add them
    to the group. We can only do this for some tools, currently Samigo,
    Assignment, and I believe jForum.
@@ -56,7 +64,8 @@ The main classes are
 Before you do any significant work, please read the comments at the
 beginning of these three classes, and probaby also look at the data
 structures listed above. It's particularly important to understand
-the security model, so you don't create holes
+the security model, so you don't create holes. That is documented in
+the comments at the beginning of these three classes.
 
 CHANGE IN FUNCTION OF PARENT and TOP FIELDS IN SIMPLEPAGE
 
@@ -67,20 +76,22 @@ their parent and the top level page for their tool.
 
 However I've moved to a general mesh of pages. So those fields no
 longer mean much. They are only actually used to tell which pages are
-top-level, in the sense of being the top page for their tool (where a
-tool is something in the left margin). Pages that are top level has 
-a null parent. At this point I'm using an ID number of 0 for the parent
-of everything else.
+top-level, i.e. they show in the left margin. Pages that are top level
+have a null parent. At this point I'm using an ID number of 0 for the
+parent of everything else.
 
 The way pages now work is that each is pretty much independent. What
-differentiates a subpage is its main page has an item of type PAGE
+differentiates a subpage is that another page has an item of type PAGE
 that points to it. The same page can actually be pointed to from
-several different places.
+several different places. A page can even be both a top-level page
+and a subpage. I.e. it can appear in the left margin and other pages
+can also point to it. In that case it has a null parent to show that
+it's a top-level page. 
 
 There's a notional site-wide page which is the parent of all the
-top-level pages. So each top-level page has an item that points to it.
-These are the items that would appear in the site-wide page if it
-existed.
+top-level pages. By that I mean that there's an item entry pointing to
+each top-level page. These are the items that would appear in the
+site-wide page if it existed.
 
 I actually had a sort of embarrassing bug. Since the code for copying
 pages assumed a hierarchy, it just did a recursive descent. The first
@@ -90,20 +101,19 @@ hierarchy in them. They start with a list of pages, and then for each
 page the items in it. When something is a subpage that fact shows
 because there's an item in another page pointing to it. This
 generality means that I have to generate all the pages in the new
-site, making on a hash table from old ID number to new ID number. Then
-I go back and fill in the items. When one of the items is another
-page, I use the hash table to find the ID number in the new site. I
-can still read old export files, but I ignore the hierarchical
-structure in them.
+site, making up a hash table from ID number in old site to ID number
+in new site. Then I go back and fill in the items. When one of the
+items is another page, I use the hash table to find the ID number in
+the new site. I can still read old export files, but I ignore the
+hierarchical structure in them.
 
 HOW LESSON BUILDER PAGES CONNECT TO THE REST OF SAKAI
 
-Sakai is organized into tools and pages. A page is something in
-the left margin. Each page can have more than one tool on it.
-For Lesson Builder that would be unusual. Page in this context
-is a Sakai page. It has nothing to do with Lesson Builder pages.
-I refer to it as "site page" in the few places in the code where it
-appears.
+Sakai is organized into tools and pages. A page is something in the
+left margin. Each page can have more than one tool on it. For Lesson
+Builder that would be unusual. Page in this context is a Sakai page.
+It has nothing to do with Lesson Builder pages. I refer to it as "site
+page" in the few places in the code where it appears.
 
 To find the top level Lesson Builder page for a tool, we look for a
 page that has the right toolID and a parent page ID that is null
@@ -112,16 +122,18 @@ parent page ID is used for is identifying top level pages by the fact
 that their parent is null. toolid's used to be used for all pages, but
 since pages can now move around, only the top-level page is currently
 associated with a tool. Thus the toolId field in SimplePage is really
-only useful for parent==null.
+only useful for parent==null. (This means that a given Lesson Builder
+page can only appear once in the left margin. I don't think that's a
+serious restriction.)
 
-Note that when you create a new instance of Lesson Builder, Sakai
-makes a site page and tool, but doesn't create any Lesson Builder
-entities at all. The first time the tool is invoked, ShowPageProducer
-is called (because RSF is told that it's the default view for Lesson
-Builder). Normally ShowPageProducer is passed a parameter of
-SendingPage to tell it what page to go to. But when Sakai calls
-ShowPageProducer, obviously there's no such argument, since Sakai
-knows nothing about Lesson Builder's structures. So when
+Note that when you create a new instance of Lesson Builder in the Site
+Info tools dialog, Sakai makes a site page and tool, but doesn't
+create any Lesson Builder entities at all. The first time the tool is
+invoked, ShowPageProducer is called (because RSF is told that it's the
+default view for Lesson Builder). Normally ShowPageProducer is passed
+a parameter of SendingPage to tell it what page to go to. But when
+Sakai calls ShowPageProducer, obviously there's no such argument,
+since Sakai knows nothing about Lesson Builder's structures. So when
 ShowPageProducer isn't passed a sendingpage,
 SimplePageBean.getCurrentPageId will note this fact, and ask the Sakai
 session manager to find the current Sakai tool. It will then locate
@@ -141,12 +153,16 @@ number. However the moment we got to more than one assignment tool,
 this wasn't the right approach. SakaiId needs to be a reference, e.g.
 "/assignment/ID" or "/assignment2/ID". So the item type is the generic
 type e.g. assignment, but actual implementation type (assignment of
-assignment 2) is in the reference. 
+assignment 2) is in the reference. By separating things in this way we
+could in principle deal with a tool (e.g. Mneme) that can handle both
+assignments and quizes. The SakaiID would use the tool name, while the
+item type field would indicate whether Lesson Builder thinks it's an
+assignment or a quiz.
 
-Newly created items will all use the reference format. However old
-database entries may not. So if we find a SakaiID that is a simple
-number, we assume it's a reference to the primary tool of that type
-(i.e. Assignment, Samigo, or jForum).
+Newly created items will all use the reference format for the SakaiID.
+However old database entries may not. So if we find a SakaiID that is
+a simple number, we assume it's a reference to the original tool used
+for that type (i.e. Assignment, Samigo, or jForum).
 
 Note that there's another special SakaiID, SimplePageItem.DUMMY. This
 is used for dummy references. When you copy a site, we can't copy the
@@ -165,10 +181,4 @@ causes all access to go through Resources, so Event log entries are
 made, and I have the potential for doing access control in resources
 if I ever want to.
 
-NAMES INVOLVING SIMPLEPAGE
-
-You'll see some class names starting with SimplePage. This started out
-as a copy of the SimplePage tool. All the database tables and
-everything else external were updated, but we didn't have time to go
-back and fix up all the code.
 
