@@ -93,6 +93,25 @@ public class MemoryAction extends VelocityPortletPaneledAction
 		}
 
 	} // doReset
+	
+	
+	/**
+	 * doNew called when "eventSubmit_doReset" is in the request parameters to reset memory useage (caches)
+	 */
+	public void doEvict(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		try
+		{
+			MemoryServiceLocator.getInstance().evictExpiredMembers();
+		}
+		catch (MemoryPermissionException e)
+		{
+			state.setAttribute("message", rb.getString("memory.notpermis"));
+		}
+
+	} // doReset
 
 	/**
 	 * doNew called when "eventSubmit_doStatus" is in the request parameters to reset memory useage (caches)
