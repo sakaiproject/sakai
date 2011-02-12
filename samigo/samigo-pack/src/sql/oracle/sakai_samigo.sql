@@ -202,14 +202,14 @@ INSERT INTO SAM_ASSESSEVALUATION_T ("ASSESSMENTID" ,
     "EVALUATIONCOMPONENTS" ,"SCORINGTYPE" ,"NUMERICMODELID" ,
     "FIXEDTOTALSCORE" ,"GRADEAVAILABLE" ,"ISSTUDENTIDPUBLIC" ,
     "ANONYMOUSGRADING" ,"AUTOSCORING" ,"TOGRADEBOOK" )
-    VALUES (1 ,'' ,1 ,'' , NULL , NULL , NULL ,1 , NULL ,2  );
+    VALUES ((SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1) ,'' ,1 ,'' , NULL , NULL , NULL ,1 , NULL ,2  );
 
 INSERT INTO SAM_ASSESSFEEDBACK_T ("ASSESSMENTID" ,
     "FEEDBACKDELIVERY" ,"FEEDBACKAUTHORING" ,"SHOWQUESTIONTEXT" ,"SHOWSTUDENTRESPONSE"
     ,"SHOWCORRECTRESPONSE" ,"SHOWSTUDENTSCORE" ,"SHOWSTUDENTQUESTIONSCORE",
     "SHOWQUESTIONLEVELFEEDBACK" ,"SHOWSELECTIONLEVELFEEDBACK" ,
     "SHOWGRADERCOMMENTS" ,"SHOWSTATISTICS" ,"EDITCOMPONENTS" ,"FEEDBACKCOMPONENTOPTION")
-    VALUES (1 ,3 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,2 );
+    VALUES ((SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1) ,3 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,2 );
 
 INSERT INTO SAM_ASSESSACCESSCONTROL_T ("ASSESSMENTID" ,
     "SUBMISSIONSALLOWED" ,"SUBMISSIONSSAVED" ,"ASSESSMENTFORMAT" ,
@@ -219,7 +219,7 @@ INSERT INTO SAM_ASSESSACCESSCONTROL_T ("ASSESSMENTID" ,
     "ITEMNAVIGATION" ,"ITEMNUMBERING" ,"SUBMISSIONMESSAGE" ,
     "RELEASETO" ,"USERNAME" ,"PASSWORD" ,"FINALPAGEURL" ,
     "UNLIMITEDSUBMISSIONS" )
-    VALUES (1 ,NULL,1 ,1 , NULL , NULL , NULL , NULL ,1 ,
+    VALUES ((SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1) ,NULL,1 ,1 , NULL , NULL , NULL , NULL ,1 ,
     TO_DATE('', 'dd-Mon-yyyy HH:MI:SS AM') ,TO_DATE('',
     'dd-Mon-yyyy HH:MI:SS AM') ,TO_DATE('', 'dd-Mon-yyyy HH:MI:SS
     AM') ,TO_DATE('', 'dd-Mon-yyyy HH:MI:SS AM') ,TO_DATE('',
@@ -228,126 +228,126 @@ INSERT INTO SAM_ASSESSACCESSCONTROL_T ("ASSESSMENTID" ,
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'finalPageURL_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'finalPageURL_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'anonymousRelease_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'anonymousRelease_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'dueDate_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'dueDate_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'description_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'description_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'metadataQuestions_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'metadataQuestions_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'bgImage_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'bgImage_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'feedbackComponents_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'feedbackComponents_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'retractDate_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'retractDate_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'feedbackType_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'feedbackType_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'timedAssessmentAutoSubmit_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'timedAssessmentAutoSubmit_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'toGradebook_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'toGradebook_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'displayChunking_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'displayChunking_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'recordedScore_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'recordedScore_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'authenticatedRelease_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'authenticatedRelease_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'displayNumbering_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'displayNumbering_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'submissionMessage_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'submissionMessage_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'releaseDate_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'releaseDate_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'assessmentAuthor_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'assessmentAuthor_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'passwordRequired_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'passwordRequired_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'author', '');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'author', '');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'submissionModel_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'submissionModel_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'ipAccessType_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'ipAccessType_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'timedAssessment_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'timedAssessment_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'metadataAssess_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'metadataAssess_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'bgColor_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'bgColor_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'testeeIdentity_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'testeeIdentity_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'templateInfo_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'templateInfo_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'itemAccessType_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'itemAccessType_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'lateHandling_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'lateHandling_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'feedbackAuthoring_isInstructorEditable', 'true');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'feedbackAuthoring_isInstructorEditable', 'true');
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
     "ENTRY")
-    VALUES(sam_assessMetaData_id_s.nextVal, 1, 'releaseTo', 'SITE_MEMBERS');
+    VALUES(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'releaseTo', 'SITE_MEMBERS');
 
 
 -- 3. populate sam_functionData_t
@@ -1749,7 +1749,7 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY", "DOMAIN", "KEYWORD", "DESCRIPTION
     VALUES (12 , 'stanford.edu', 'assessment.item', 'Multiple Correct Single Selection', NULL, 1, 1, SYSDATE, 1, SYSDATE);
 
 INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES
-(sam_assessMetaData_id_s.nextVal, 1, 'markForReview_isInstructorEditable', 'true');
+(sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1), 'markForReview_isInstructorEditable', 'true');
 
 INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY) VALUES
 (sam_assessMetaData_id_s.nextVal, (SELECT ID FROM SAM_ASSESSMENTBASE_T WHERE TITLE='Formative Assessment' AND TYPEID='142' AND ISTEMPLATE=1), 'markForReview_isInstructorEditable', 'true');
