@@ -73,12 +73,29 @@ $(function() {
 		var position =  $(this).position();
 		$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
+		if ($("#page-points").val() == '') {
+		    $("#page-gradebook").attr("checked", false);
+		    $("#page-points").attr("disabled", true);
+		} else { 
+		    $("#page-gradebook").attr("checked", true);
+		}
 		$('#edit-title-dialog').dialog('open');
 		return false;
 	});
 
 	$('#releaseDiv').click(function(){
 		$('#edit-title-dialog').height(550);
+	    });
+
+	$("#page-gradebook").click(function(){
+		if ($("#page-gradebook").attr("checked")) {
+		    if ($("#page-points").val() == '')
+			$("#page-points").val('1');
+		    $("#page-points").attr("disabled", false);
+		} else {
+		    $("#page-points").val('');
+		    $("#page-points").attr("disabled", true);
+		}
 	    });
 
 	var outerWidth = $('#outer').width();

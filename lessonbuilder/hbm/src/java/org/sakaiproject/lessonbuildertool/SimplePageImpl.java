@@ -38,6 +38,7 @@ public class SimplePageImpl implements SimplePage {
 	private Long topParent;
 	private boolean hidden;
 	private Date releaseDate;
+	private Double gradebookPoints;
 
 	public SimplePageImpl() {}
 
@@ -113,6 +114,14 @@ public class SimplePageImpl implements SimplePage {
 
 	public void setReleaseDate(Date releaseDate) {
 		this.releaseDate = releaseDate;
+	}
+
+        public Double getGradebookPoints() {
+		return gradebookPoints;
+	}
+
+        public void setGradebookPoints(Double points) {
+		this.gradebookPoints = points;
 	}
 
 }

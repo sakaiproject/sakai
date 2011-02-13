@@ -1366,6 +1366,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBoundBoolean.make(form, "page-prerequisites", "#{simplePageBean.prerequisite}", (pageItem.isPrerequisite()));
 		}
 
+		UIOutput.make(form, "page-gradebook");
+		Double points = page.getGradebookPoints();
+		String pointString = "";
+		if (points != null)
+		    pointString = points.toString();
+		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
+
 		UICommand.make(form, "create-title", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.editTitle}");
 		UICommand.make(form, "cancel-title", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}

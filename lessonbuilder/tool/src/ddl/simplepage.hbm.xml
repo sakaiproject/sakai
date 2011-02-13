@@ -24,6 +24,7 @@
 	<property name="topParent" type="long" />
 	<property name="hidden" type="boolean" />
 	<property name="releaseDate" type="timestamp" />
+	<property name="gradebookPoints" type="double" />
 
    </class>
 </hibernate-mapping>

@@ -48,6 +48,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -252,6 +253,12 @@ public class SimplePageBean {
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+
+        private GradebookIfc gradebookIfc = null;
+
+        public void setGradebookIfc(GradebookIfc g) {
+	    gradebookIfc = g;
 	}
 
         LessonEntity forumEntity = null;
@@ -1463,6 +1470,37 @@ public class SimplePageBean {
 		SimplePage page = getCurrentPage();
 		SimplePageItem pageItem = getCurrentPageItem(null);
 
+		// update gradebook link if necessary
+		Double currentPoints = page.getGradebookPoints();
+		Double newPoints = null;
+		boolean needRecompute = false;
+		Site site = getCurrentSite();
+
+		if (points != null) {
+		    try {
+			newPoints = Double.parseDouble(points);
+			if (newPoints == 0.0)
+			    newPoints = null;
+		    } catch (Exception ignore) {
+			newPoints = null;
+		    }
+		}
+		// adjust gradebook entry
+		if (newPoints == null && currentPoints != null) {
+		    gradebookIfc.removeExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId());
+		} else if (newPoints != null && currentPoints == null) {
+		    gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+						       pageTitle, newPoints, null, "Lesson Builder");
+		    needRecompute = true;
+		} else if (currentPoints != null && 
+			   (!currentPoints.equals(newPoints) || !pageTitle.equals(page.getTitle()))) {
+		    gradebookIfc.updateExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+							  pageTitle, newPoints, null);
+		    if (currentPoints != newPoints)
+			needRecompute = true;
+		}
+		page.setGradebookPoints(newPoints);
+
 		if (pageTitle != null && pageItem.getPageId() == 0) {
 			try {
 				// we need a security advisor because we're allowing users to edit the page if they
@@ -1479,7 +1517,6 @@ public class SimplePageBean {
 				});
 
 				if (true) {
-					Site site = getCurrentSite();
 					SitePage sitePage = site.getPage(page.getToolId());
 					sitePage.setTitle(pageTitle);
 					siteService.save(site);
@@ -1504,18 +1541,38 @@ public class SimplePageBean {
 			} finally {
 				securityService.popAdvisor();
 			}
-		}
-
-		if (pageTitle != null) {
+		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			simplePageToolDao.update(page);
 		}
+
+		// have to do this after the page itself is updated
+		if (needRecompute)
+		    recomputeGradebookEntries(page.getPageId(), points);
+		// points, not newPoints because API wants a string
 
 		if (pageItem.getPageId() == 0) {
 			return "reload";
 		} else {
 			return "success";
 		}
+	}
+
+    // when a gradebook entry is added or point value for page changed, need to
+    // add or update all student entries for the page
+    // this only updates grades for users that are complete. Others should have 0 score, which won't change
+	public void recomputeGradebookEntries(Long pageId, String newPoints) {
+	    Map<String, String> userMap = new HashMap<String,String>();
+	    List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(pageId));
+	    if (items == null)
+		return;
+	    for (SimplePageItem item : items) {
+		List<String> users = simplePageToolDao.findUserWithCompletePages(item.getId());
+		for (String user: users)
+		    userMap.put(user, newPoints);
+	    }
+
+	    gradebookIfc.updateExternalAssessmentScores(getCurrentSiteId(), "lesson-builder:" + pageId, userMap);
 	}
 
 	public boolean isImageType(SimplePageItem item) {
@@ -1620,7 +1677,17 @@ public class SimplePageBean {
 	    return currentUserId;
 	}
 	    
-
+    // page is complete, update gradebook entry if any
+    // note that if the user has never gone to a page, the gradebook item will be missing.
+    // if they gone to it but it's not complete, it will be 0. We can't explicitly set
+    // a missing value, and this is the only way things will work if someone completes a page
+    // and something changes so it is no longer complete. 
+       public void trackComplete(SimplePageItem item, boolean complete ) {
+	    SimplePage page = getCurrentPage();
+	    if (page.getGradebookPoints() != null)
+		gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), "lesson-builder:" + page.getPageId(), getCurrentUserId(), 
+							   complete ? Double.toString(page.getGradebookPoints()) : "0.0");
+	}
     
 	/**
 	 * 
@@ -1649,12 +1716,14 @@ public class SimplePageBean {
 				entry.setToolId(toolId);
 				SimplePageItem i = findItem(itemId);
 				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
+				trackComplete(i, complete);
 			}
 
 			simplePageToolDao.saveItem(entry);
 			logCache.put((Long)itemId, entry);
 		} else {
 			if (path != null) {
+			        boolean wasComplete = entry.isComplete();
 				boolean complete = isPageComplete(itemId);
 				entry.setComplete(complete);
 				entry.setPath(path);
@@ -1663,12 +1732,14 @@ public class SimplePageBean {
 				entry.setDummy(false);
 				SimplePageItem i = findItem(itemId);
 				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
+				if (complete != wasComplete)
+				    trackComplete(i, complete);
 			}
 
 			simplePageToolDao.update(entry);
 		}
 
-		SimplePageItem i = findItem(itemId);
+		//SimplePageItem i = findItem(itemId);
 		// todo
 		// code can't work anymore. I'm not sure whether it's needed.
 		// we don't update a page as complete if the user finishes a test, etc, until he

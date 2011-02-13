@@ -63,4 +63,7 @@ public interface SimplePage {
 
     public void setReleaseDate(Date releaseDate);
 
+    public Double getGradebookPoints();
+
+    public void setGradebookPoints(Double points);
 }

@@ -82,6 +82,11 @@
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"
+	class="org.sakaiproject.lessonbuildertool.service.GradebookIfc">
+    <property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
+  </bean>
+
   <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
         class="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
         init-method="init"

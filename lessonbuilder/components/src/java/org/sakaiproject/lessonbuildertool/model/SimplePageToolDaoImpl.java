@@ -173,6 +173,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list.get(0);
 	}
 
+	public List<SimplePageItem> findPageItemsBySakaiId(String id) {
+	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("sakaiId", id)).
+		    add(Restrictions.eq("type",SimplePageItem.PAGE));
+
+		List<SimplePageItem> list = getHibernateTemplate().findByCriteria(d);
+
+		return list;
+	}
+
+
 	public SimplePageItem findNextPageItemOnPage(long pageId, int sequence) {
 	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId)).
 		    add(Restrictions.eq("sequence", sequence+1)).
@@ -305,6 +315,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			return null;
 		}
 	}
+
+        public List<String> findUserWithCompletePages(Long itemId){
+	    Object [] fields = new Object[1];
+            fields[0] = itemId;
+
+            List<String> users = SqlService.dbRead("select a.userId from lesson_builder_log a where a.itemId = ? and a.complete = true", fields, null);
+
+	    return users;
+        }
 
 	public SimplePageGroup findGroup(String itemId) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageGroup.class).add(Restrictions.eq("itemId", itemId));
