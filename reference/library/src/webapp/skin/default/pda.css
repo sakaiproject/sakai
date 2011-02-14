@@ -171,13 +171,15 @@ margin below on the toolbar if there is one to make it flush horiz.
 	font-style:normal;
 	color:#aaa;
 }
-#pda-portlet-page-menu li:hover, #pda-portlet-site-menu li:hover{
+#pda-portlet-page-menu li:hover{
 	background:#eee url(images/pda-list-arrow.png) center right no-repeat;
 	}
-#pda-portlet-site-menu li, #pda-portlet-page-menu li{
+#pda-portlet-page-menu li{
    background:url(images/pda-list-arrow.png) center right no-repeat;
    }     
-	
+#pda-portlet-site-menu li{
+    background:url(images/pda-site-item.png) center right no-repeat;
+}	
 
 #pda-portlet-site-menu a, #pda-portlet-page-menu a{
 	color:#333;
