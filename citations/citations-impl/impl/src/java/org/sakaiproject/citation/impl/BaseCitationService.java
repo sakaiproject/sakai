@@ -454,14 +454,9 @@ public abstract class BaseCitationService implements CitationService
 	        }
 
 	        // elminate schema that lose data
-	        Iterator consIt = cons.keySet().iterator();
-	        while(consIt.hasNext())
-	        {
-	        	String schemaId = (String) consIt.next();
-	        	boolean blocked = ((Counter) cons.get(schemaId)).intValue() > 0;
-	        	if(blocked)
-	        	{
-	        		pros.remove(schemaId);
+	        for(Map.Entry<String, Counter> entry : ((Map<String, Counter>) cons).entrySet()) {
+	        	if(entry.getValue().intValue() > 0) {
+	        		pros.remove(entry.getKey());
 	        	}
 	        }
 	        Iterator prosIt = pros.keySet().iterator();
@@ -975,32 +970,31 @@ public abstract class BaseCitationService implements CitationService
 				return creators;
 			}
 
+			StringBuilder buf = new StringBuilder();
 			Iterator it = creatorList.iterator();
 			while (it.hasNext())
 			{
 				String creator = (String) it.next();
 				if (it.hasNext() && count > 0)
 				{
-					creators += "; " + creator;
+					buf.append(";");
 				}
 				else if (it.hasNext())
 				{
-					creators += creator;
+					// do nothing
 				}
 				else if (count > 1)
 				{
-					creators += "; and " + creator;
+					buf.append("; and ");
 				}
 				else if (count > 0)
 				{
-					creators += " and " + creator;
+					buf.append(" and ");
 				}
-				else
-				{
-					creators += creator;
-				}
+				buf.append(creator);
 				count++;
 			}
+			creators = buf.toString();
 			if (!creators.trim().equals("") && !creators.trim().endsWith("."))
 			{
 				creators = creators.trim() + ". ";
@@ -1119,7 +1113,7 @@ public abstract class BaseCitationService implements CitationService
 		public String getDisplayName()
 		{
 			String displayName = (String) getCitationProperty(Schema.TITLE);
-			if (displayName == null || displayName.trim() == "")
+			if (displayName == null || displayName.trim().equals(""))
 			{
 				displayName = "untitled";
 				setCitationProperty(Schema.TITLE, "untitled");

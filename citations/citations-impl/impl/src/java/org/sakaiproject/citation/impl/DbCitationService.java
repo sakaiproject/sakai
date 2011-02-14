@@ -299,18 +299,15 @@ public class DbCitationService extends BaseCitationService
 			}
 
 			int urlCount = 0;
-			Map urls = ((BasicCitation) citation).m_urls;
-			if(urls != null)
+			Map<String,UrlWrapper> urls = ((BasicCitation) citation).m_urls;
+			if(((BasicCitation) citation).m_urls != null)
 			{
-				Iterator urlIt = urls.keySet().iterator();
-				while(urlIt.hasNext())
-				{
-					String id = (String) urlIt.next();
-					UrlWrapper wrapper = (UrlWrapper) urls.get(id);
+				for(Map.Entry<String, UrlWrapper> entry : ((Map<String,UrlWrapper>) ((BasicCitation) citation).m_urls).entrySet()) {
+					UrlWrapper wrapper = (UrlWrapper) entry.getValue();
 					fields[1] = PROP_HAS_URL + PROPERTY_NAME_DELIMITOR + urlCount;
-					fields[2] = id;
+					fields[2] = entry.getKey();
 					ok = m_sqlService.dbWrite(statement, fields);
-					commitUrl(id, wrapper.getLabel(), wrapper.getUrl(), wrapper.addPrefix());
+					commitUrl(entry.getKey(), wrapper.getLabel(), wrapper.getUrl(), wrapper.addPrefix());
 					urlCount++;
 				}
 			}

@@ -1975,7 +1975,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// The below code is a major work in progress.
 		// This code is for demonstration purposes only. No gambling or production use!
 
-		String fileString = new String();
+		StringBuilder fileString = new StringBuilder();
 		String importLine = null;
 		java.util.List importList = new java.util.ArrayList();
 
@@ -1990,7 +1990,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				if (importLine != null && importLine.length() > 2)
 				{
 				  importList.add(importLine);
-				  fileString = fileString + "\n" + importLine;
+				  if(logger.isDebugEnabled()) {
+					  fileString.append("\n");
+					  fileString.append(importLine);
+				  }
 				}
 
 			} // end while
@@ -2009,7 +2012,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		    }
 		}
 
-		logger.debug("fileString = \n" + fileString);
+		if(logger.isDebugEnabled()) {
+			logger.debug("fileString = \n" + fileString.toString());
+		}
 
 
 		// tempList holds the entries read in to make a citation up to and
@@ -3829,7 +3834,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	// temporary -- replace with a value in content-util or content-api
 	public static void restoreRequestState(SessionState state, String[] prefixes, int requestStateId)
 	{
-		Map requestState = (Map) state.removeAttribute(CitationHelper.RESOURCES_SYS_PREFIX + requestStateId);
+		Map<String, String> requestState = (Map<String, String>) state.removeAttribute(CitationHelper.RESOURCES_SYS_PREFIX + requestStateId);
 		logger.debug("restoreRequestState() requestStateId == " + requestStateId + "\n" + requestState);
 		if(requestState != null)
 		{
@@ -3846,9 +3851,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 			}
 
-			for(String attrName : (Set<String>) requestState.keySet())
+			for(Map.Entry<String, String> entry : requestState.entrySet())
 			{
-				state.setAttribute(attrName, requestState.get(attrName));
+				state.setAttribute(entry.getKey(), entry.getValue());
 			}
 		}
 

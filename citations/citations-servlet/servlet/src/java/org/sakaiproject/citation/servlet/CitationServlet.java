@@ -24,6 +24,7 @@ package org.sakaiproject.citation.servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -306,7 +307,11 @@ public class CitationServlet extends VmServlet
 			
 			citation = citationService.addCitation(genre);
 
-			String info = "New citation from Google Scholar:\n\t genre:\t\t" + genre;
+			StringBuilder info = new StringBuilder();
+			if(M_log.isDebugEnabled()) {
+				info.append("New citation from Google Scholar:\n\t genre:\t\t");
+				info.append(genre);
+			}
 			
 			// Generally, only books have a title that's the actual title of the piece.
 			// We'll check to see if there's an atitle; if not, use the title as the 
@@ -316,18 +321,28 @@ public class CitationServlet extends VmServlet
 			{
 				if (atitle != null) 
 				{
-					info += "\n\t source title:\t\t" + title;
+					if(M_log.isDebugEnabled()) {
+						info.append("\n\t source title:\t\t");
+					}
 					citation.addPropertyValue(Schema.SOURCE_TITLE, title);
 				} else 
 				{
-					info += "\n\t title:\t\t" + title;
+					if(M_log.isDebugEnabled()) {
+						info.append("\n\t title:\t\t");
+					}
 					citation.addPropertyValue(Schema.TITLE, title);
+				}
+				if(M_log.isDebugEnabled()) {
+					info.append( title );
 				}
 			}
 			
 			if(atitle != null)
 			{
-				info += "\n\t title:\t\t" + atitle;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t title:\t\t");
+					info.append( atitle );
+				}
 				citation.addPropertyValue(Schema.TITLE, atitle);
 			}			
 			
@@ -335,47 +350,72 @@ public class CitationServlet extends VmServlet
 			{
 				for(int i = 0; i < authors.length; i++)
 				{
-					info += "\n\t au:\t\t" + authors[i];
+					if(M_log.isDebugEnabled()) {
+						info.append("\n\t au:\t\t");
+						info.append(authors[i]);
+					}
 					citation.addPropertyValue(Schema.CREATOR, authors[i]);
 				}
 			}
 
 			if(volume != null)
 			{
-				info += "\n\t volume:\t\t" + volume;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t volume:\t\t");
+					info.append(volume);
+				}
 				citation.addPropertyValue(Schema.VOLUME, volume);
 			}
 			if(issue != null)
 			{
-				info += "\n\t issue:\t\t" + issue;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t issue:\t\t");
+					info.append(issue);
+				}
 				citation.addPropertyValue(Schema.ISSUE, issue);
 			}
 			if(pages != null)
 			{
-				info += "\n\t pages:\t\t" + pages;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t pages:\t\t");
+					info.append(pages);
+				}
 				citation.addPropertyValue(Schema.PAGES, pages);
 			}
 			if(publisher != null)
 			{
-				info += "\n\t publisher:\t\t" + publisher;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t publisher:\t\t");
+					info.append(publisher);
+				}
 				citation.addPropertyValue(Schema.PUBLISHER, publisher);
 			}
 			if(date != null)
 			{
-				info += "\n\t date:\t\t" + date;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t date:\t\t");
+					info.append(date);
+				}
 				citation.addPropertyValue(Schema.YEAR, date);
 			}
 			if(id != null)
 			{
-				info += "\n\t id:\t\t" + id;
+				if(M_log.isDebugEnabled()) {
+					info.append("\n\t id:\t\t");
+					info.append(id);
+				}
 				citation.addPropertyValue(Schema.ISN, id);
 			}
-			info += "\n";
+			if(M_log.isDebugEnabled()) {
+				info.append("\n");
+			}
 			
 			collection.add(citation);
 			citationService.save(collection);
 			
-			//M_log.info(info);
+			if(M_log.isDebugEnabled()) {
+				M_log.debug(info.toString());
+			}
 			
 			// get the citation list title
 			String refStr = contentService.getReference(resourceId);
