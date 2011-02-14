@@ -34,9 +34,29 @@
     </organization>
     <profiles>
         <profile>
+            <id>pack</id>
+            <modules>
+                <module>pack/pack-src</module>
+                <module>pack/pack-bin</module>
+                <module>pack/pack-demo</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>pack-bin</id>
+            <modules>
+                <module>pack/pack-bin</module>
+            </modules>
+        </profile>
+        <profile>
             <id>pack-demo</id>
             <modules>
-                <module>pack-demo</module>
+                <module>pack/pack-demo</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>pack-src</id>
+            <modules>
+                <module>pack/pack-src</module>
             </modules>
         </profile>
         <profile>
