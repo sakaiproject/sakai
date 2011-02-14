@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.pack</groupId>
+        <artifactId>pack</artifactId>
+        <version>2.9-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Pack Demo</name>
+    <groupId>org.sakaiproject.pack</groupId>
+    <artifactId>pack-demo</artifactId>
+    <version>2.9-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>http://jira.sakaiproject.org/browse/SAK</url>
+    </issueManagement>
+
+    <prerequisites>
+        <maven>${maven.prereq.version}</maven>
+    </prerequisites>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/pack/trunk/pack-demo/</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pack/trunk/pack-demo/</developerConnection>
+        <url>https://source.sakaiproject.org/svn/pack/trunk/pack-demo/</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>tomcat.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>${sakai.tomcat.version}</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pack-demo-build</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                                <property name="basedir" value="${project.basedir}" />
+                                <property name="localRepo" value="${settings.localRepository}" />
+                                <property name="sakai.skip.tests" value="${sakai.skip.tests}" />
+                                <property name="sakai.tomcat.version" value="${sakai.tomcat.version}" />
+                                <property name="sakai.version" value="${sakai.version}" />
+                                
+                                <ant antfile="${basedir}/build.xml">
+                                    <target name="pack.demo" />
+                                </ant>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

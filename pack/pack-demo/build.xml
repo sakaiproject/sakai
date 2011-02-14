@@ -1,0 +1,238 @@
+<?xml version="1.0"?>
+<project name="package.demo">
+	
+	<!-- Main target -->
+	<target name="pack.demo" depends="prep,unzip,secure,move,build,delete,add,tar,zip,cleanup" />
+	
+	<target name="prep" description="Delete target directories.">
+		<echo message="[INFO] prep for sakai-demo-${sakai.version} archive creation." />
+		<!-- Property check -->
+		<echo message="basedir=${basedir}" />
+		<echo message="localRepo=${localRepo}" />
+		<echo message="sakai.skip.tests=${sakai.skip.tests}" />
+		<echo message="sakai.tomcat.version=${sakai.tomcat.version}" />
+		<echo message="sakai.version=${sakai.version}" />
+		
+	    <echo message="[INFO] Clear the deploy area." />
+	    <delete dir="${basedir}/target/unpack" />
+	    <delete dir="${basedir}/target/pack" />
+	    <delete dir="${basedir}/target/pack-stage/" />
+		
+		<echo message="[INFO] Clear out old artifacts." />
+		<delete file="${basedir}/sakai-demo-${sakai.version}.tar.gz" />
+		<delete file="${basedir}/sakai-demo-${sakai.version}.zip" />
+		<delete file="${basedir}/sakai-demo-${sakai.version}.tar.gz.MD5" />
+		<delete file="${basedir}/sakai-demo-${sakai.version}.tar.gz.SHA1" />
+		<delete file="${basedir}/sakai-demo-${sakai.version}.zip.MD5" />
+		<delete file="${basedir}/sakai-demo-${sakai.version}.zip.SHA1" />
+	</target>
+	
+	<target name="unzip" depends="prep" description="Expand Tomcat zip and perform cleanup.">
+	    <echo message="[INFO] Expand the Tomcat zip from the repo into the target." />
+	    <unzip
+	        src="${localRepo}/tomcat/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip"
+	        dest="${basedir}/target/unpack"
+	        overwrite="true" />
+	</target>
+	   
+	<!-- OWASP recommendations.  See http://www.owasp.org/index.php/Securing_tomcat -->
+   	<target name="secure" depends="unzip" description="Delete insecure webapps.">
+		<echo message="[INFO] SAK-17844 delete sample webapps." />
+		<delete dir="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/webapps" />
+		<mkdir dir="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/webapps/ROOT" />
+   		
+   		<echo message="[INFO] SAK-18891 delete manager webapps and config files." />
+   		<delete dir="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/server/webapps/host-manager" />
+   		<delete dir="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/server/webapps/manager" />
+   		<delete file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/conf/Catalina/localhost/host-manager.xml" />
+   		<delete file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/conf/Catalina/localhost/manager.xml" />
+   	</target>
+	   
+	<target name="move" depends="secure" description="Move Tomcat to /pack.">
+	    <echo message="Move Tomcat to /pack." />
+	    <move file="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}"
+	        tofile="${basedir}/target/pack"
+	        overwrite="true" />
+	</target>
+	
+	<target name="build" depends="move" description="Build and deploy Sakai to Tomcat.">
+	    <echo message="[INFO] Build and deploy Sakai to Tomcat." />
+	    <exec dir="../../" executable="mvn" failonerror="true">
+	        <!-- <arg value="-B" /> -->
+	    	<arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
+	        <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
+	
+	        <!-- 
+	        	<arg value="-Dkeystore=${keystore}" /> 
+	            <arg value="-Dalias=${alias}" />
+	            <arg value="-Dstorepass=${storepass}" /> 
+            -->
+	        <arg value="clean" />
+	        <arg value="install" />
+	        <arg value="sakai:deploy" />
+	    </exec>
+	</target>
+	
+	<target name="delete" depends="build" description="Delete extraneous directories.">
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/bin" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/target" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/m2-target" />
+		</delete>
+		
+		<!-- .svn is included in Ant's defaultexcludes so use the defaultexcludes flag. -->
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="**/.svn" defaultexcludes="false"/>
+		</delete>
+		
+		<!-- Other /pack-* artifacts -->
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.tar.gz" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.zip" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.MD5" />
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/target/pack/" includes="pack*/*.SHA1" />
+		</delete>
+	</target>
+	
+	<target name="add" depends="delete" description="Add licenses, *.properties, readmes, etc.)">
+	    <echo message="[INFO] Add third-party licenses." />
+	    <copy todir="${basedir}/target/pack/licenses/">
+	        <fileset dir="${basedir}/../../reference/licenses">
+	            <exclude name=".svn/**" />
+	            <exclude name="CVS/**" />
+	        </fileset>
+	    </copy>
+	
+	    <echo message="[INFO] Add ECL license." />
+	    <copy file="${basedir}/../../ECLv2.txt" tofile="${basedir}/target/pack/ECLv2.txt" overwrite="true" />
+	
+	    <!-- ? -->
+	    <!-- <copy todir="${basedir}/target/pack"> 
+	        <fileset dir="${basedir}/target/pack-stage"> <include name="**/*" /> </fileset> 
+	        </copy> -->
+	
+	    <echo message="[INFO] Add demo.sakai.properties" />
+	    <copy file="${basedir}/../../config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/demo.sakai.properties"
+	        tofile="${basedir}/target/pack/sakai/sakai.properties" />
+	
+	    <echo message="[INFO] Add sakai.db.properties and script. " />
+	    <copy todir="${basedir}/target/pack/sakai/db">
+	        <fileset dir="${basedir}/../../reference/demo/db">
+	            <include name="**/sakai.db.*" />
+	        </fileset>
+	    </copy>
+	
+	    <echo message="[INFO] Add Readme docs." />
+	    <copy file="${basedir}/../../reference/demo/readme.txt"
+	        tofile="${basedir}/target/pack/demo_readme.txt" />	
+	    <copy file="${basedir}/../../reference/docs/readme.txt"
+	        tofile="${basedir}/target/pack/sakai_readme.txt" />
+	
+	    <echo message="[INFO] Add start-sakai.sh/.bat and stop-sakai.sh/.bat." />
+	    <copy file="${basedir}/../../reference/demo/start-sakai.bat"
+	        tofile="${basedir}/target/pack/start-sakai.bat" />
+	    <copy file="${basedir}/../../reference/demo/start-sakai.sh"
+	        tofile="${basedir}/target/pack/start-sakai.sh" />
+	    <copy file="${basedir}/../../reference/demo/stop-sakai.bat"
+	        tofile="${basedir}/target/pack/stop-sakai.bat" />
+	    <copy file="${basedir}/../../reference/demo/stop-sakai.sh"
+	        tofile="${basedir}/target/pack/stop-sakai.sh" />
+	
+	    <echo message="[INFO] Change Unix permissions start-/stop-*.sh files." />
+	    <chmod dir="${basedir}/target/pack/" perm="ugo+rx" includes="**/*.sh" />
+	
+	    <echo message="[INFO] Replace the Tomcat favicon." />
+	    <copy file="${basedir}/../../reference/library/src/webapp/icon/favicon.ico"
+	        tofile="${basedir}/target/pack/webapps/ROOT/favicon.ico" overwrite="true" />
+		
+	    <echo message="[INFO] Add Apple touch icon." />
+	    <copy file="${basedir}/../../reference/library/src/webapp/icon/apple-touch-icon.png"
+	        tofile="${basedir}/target/pack/webapps/ROOT/apple-touch-icon.png"
+	        overwrite="true" />
+	
+	    <echo message="[INFO] Add ROOT/index.html" />
+	    <copy file="${basedir}/../../reference/demo/index.html"
+	        tofile="${basedir}/target/pack/webapps/ROOT/index.html" />
+	
+	    <echo message="[INFO] Modify Tomcat server.xml." />
+	    <copy file="${basedir}/target/pack/conf/server.xml"
+	        tofile="${basedir}/target/pack/conf/server-orig.xml"
+	        overwrite="true" />
+		<copy file="${basedir}/target/pack/conf/server.xml"
+			        tofile="${basedir}/target/pack/conf/server-temp.xml"
+			        overwrite="true" />
+	    <copy file="${basedir}/target/pack/conf/server-temp.xml"
+	        tofile="${basedir}/target/pack/conf/server.xml"
+	        overwrite="true">
+	        <filterset begintoken="maxHttpHeaderSize"
+	            endtoken="&quot;8192&quot;"
+	            recurse="false">
+	            <filter token="="
+	                value="maxHttpHeaderSize=&quot;8192&quot; URIEncoding=&quot;UTF-8&quot;" />
+	        </filterset>
+	    </copy>
+		<delete file="${basedir}/target/pack/conf/server-temp.xml" />
+	</target>
+	
+	<target name="tar" depends="add" description="Tar sakai-demo-${sakai.version}.tar.gz.">
+	    <echo message="[INFO] Tar sakai-demo-${sakai.version}.tar.gz." />
+	    <delete file="sakai-demo-${sakai.version}.tar.gz" />
+		<delete file="sakai-demo-${sakai.version}.tar.gz.MD5" />
+		<delete file="sakai-demo-${sakai.version}.tar.gz.SHA1" />
+		
+	    <tar destfile="sakai-demo-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
+	        <tarfileset
+	            dir="${basedir}/target/pack/"
+	            mode="755"
+	            prefix="sakai-demo-${sakai.version}">
+	            <include name="**/*.sh" />
+	        </tarfileset>
+	        <tarfileset
+	            dir="${basedir}/target/pack/"
+	            prefix="sakai-demo-${sakai.version}">
+	            <exclude name="**/*.sh" />
+	        </tarfileset>
+	    </tar>
+	    
+	    <echo message="[INFO] create sakai-demo-${sakai.version}.tar.gz md5 and SHA1 checksums." />
+	    <checksum file="sakai-demo-${sakai.version}.tar.gz" forceOverwrite="true" />
+	    <checksum file="sakai-demo-${sakai.version}.tar.gz" forceOverwrite="true" algorithm="SHA1" />
+	</target>
+	
+	<target name="zip" depends="tar" description="Zip sakai-demo-${sakai.version}.zip.">
+	    <echo message="[INFO] Zip sakai-demo-${sakai.version}.zip." />
+	    <delete file="sakai-demo-${sakai.version}.zip" />
+		<delete file="sakai-demo-${sakai.version}.zip.MD5" />
+		<delete file="sakai-demo-${sakai.version}.zip.SHA1" />
+		
+	    <zip destfile="sakai-demo-${sakai.version}.zip" compress="yes">
+	        <zipfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}" />
+	    </zip>
+		
+	    <echo message="[INFO] create sakai-demo-${sakai.version}.zip md5 and SHA1 checksums." />
+	    <checksum file="sakai-demo-${sakai.version}.zip" forceOverwrite="true" />
+	    <checksum file="sakai-demo-${sakai.version}.zip" forceOverwrite="true" algorithm="SHA1" />
+	</target>
+	
+	<target name="cleanup" depends="tar,zip" description="Delete target directories.">
+		<echo message="[INFO] moving DEMO artifacts to /pack-stage." />
+		<move file="${basedir}/target/pack" tofile="${basedir}/target/pack-stage" overwrite="true" />
+		
+	    <echo message="[INFO] Delete target directories." />
+		<delete dir="${basedir}/target/unpack" />
+	    <delete dir="${basedir}/target/pack/" />
+	    <delete dir="${basedir}/target/pack-stage/" />
+	    
+		<echo message="[INFO] sakai-demo-${sakai.version} archives created." />
+	</target>
+</project>
