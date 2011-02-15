@@ -439,7 +439,7 @@ table.tablesorter .header {
 	background-image: url(images/bg.gif);
 	background-repeat: no-repeat;
 	background-position:right center;
-	padding-left: 0px;
+	padding-left: 0.3em;
 	padding-top: 4px;
 	height: auto;
 }

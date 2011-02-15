@@ -298,7 +298,7 @@ $(document).ready(function() {
     <span id="assessment-status-active">
       <a id="assessment-link-status-active"><h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" /></a>:
     </span>
-    <span>(<h:outputText value="#{authorFrontDoorMessages.assessment_status_active_sub}" />)</span>
+    <span><h:outputText value="#{authorFrontDoorMessages.assessment_status_active_sub}" /></span>
     <span class="separator">|</span>
     <span id="assessment-status-inactive">
       <a id="assessment-link-status-inactive"><h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" /></a>:
