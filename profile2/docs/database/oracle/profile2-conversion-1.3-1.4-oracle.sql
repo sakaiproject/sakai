@@ -104,13 +104,13 @@ alter table PROFILE_PRIVACY_T add STAFF_INFO number(1,0) default 0;
 alter table PROFILE_PRIVACY_T add STUDENT_INFO number(1,0) default 0;
 update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
 update PROFILE_PRIVACY_T set STUDENT_INFO = ACADEMIC_INFO;
-alter table PROFILE_PRIVACY_T drop ACADEMIC_INFO;
+alter table PROFILE_PRIVACY_T drop column ACADEMIC_INFO;
 
 /* add the new useOfficialImage column (PRFL-90) */
 alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE number(1,0) default 0;
 
 /* remove search privacy setting (PRFL-293) */
-alter table PROFILE_PRIVACY_T drop SEARCH;
+alter table PROFILE_PRIVACY_T drop column SEARCH;
 
 /* add kudos preference (PRFL-336) */
 alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) default 1;
