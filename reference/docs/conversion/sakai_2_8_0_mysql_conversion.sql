@@ -214,10 +214,10 @@ alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null default tru
 -- SAK-18864, SAK-19951 adds missing scheduler_trigger_events table for new persistent jobscheduler event feature
 create table scheduler_trigger_events (
     uuid varchar(36) not null, 
-    type varchar(255) not null, 
+    eventType varchar(255) not null, 
     jobName varchar(255) not null, 
     triggerName varchar(255) default null, 
-    time datetime not null, 
+    eventTime datetime not null, 
     message text,
     primary key (uuid)
 );
