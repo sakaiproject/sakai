@@ -14,10 +14,10 @@
 	      </generator>
 	    </id>
 	    
-	   	<property name="messageId" column="MESSAGE_ID" length="36" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I" />
-		<property name="uuid" column="PARTICIPANT_UUID" length="99" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_UUID_I" />
-	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_READ_I" />
-		<property name="deleted" column="MESSAGE_DELETED" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_DELETED_I" />
+	   	<property name="messageId" column="MESSAGE_ID" length="36" not-null="true" index="PROFILE_M_P_MESSAGE_ID_I" />
+		<property name="uuid" column="PARTICIPANT_UUID" length="99" not-null="true" index="PROFILE_M_P_UUID_I" />
+	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_M_P_READ_I" />
+		<property name="deleted" column="MESSAGE_DELETED" not-null="true" index="PROFILE_M_P_DELETED_I" />
 		
   	</class>
   	
@@ -36,19 +36,19 @@
 	</sql-query>
 
 	<database-object> 
-		<create>create index PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_ID)</create> 
+		<create>create index PROFILE_M_P_MESSAGE_ID_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_ID)</create> 
 		<drop></drop>
 	</database-object>	
 	<database-object> 
-		<create>create index PROFILE_MESSAGE_PARTICIPANT_UUID_I on PROFILE_MESSAGE_PARTICIPANTS_T (PARTICIPANT_UUID)</create> 
+		<create>create index PROFILE_M_P_UUID_I on PROFILE_MESSAGE_PARTICIPANTS_T (PARTICIPANT_UUID)</create> 
 		<drop></drop>
 	</database-object>
 	<database-object> 
-		<create>create index PROFILE_MESSAGE_PARTICIPANT_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ)</create> 
+		<create>create index PROFILE_M_P_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ)</create> 
 		<drop></drop>
 	</database-object>
 	<database-object> 
-		<create>create index PROFILE_MESSAGE_PARTICIPANT_DELETED_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_DELETED)</create> 
+		<create>create index PROFILE_M_P_DELETED_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_DELETED)</create> 
 		<drop></drop>
 	</database-object>
 	

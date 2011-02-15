@@ -14,7 +14,7 @@
 			</generator>
 	    </id>
 	    
-		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_COMPANY_PROFILES_USER_UUID_I" />
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_CP_USER_UUID_I" />
 		<property name="companyName" column="COMPANY_NAME" not-null="false" />
 		<property name="companyDescription" column="COMPANY_DESCRIPTION" not-null="false" type="string" length="4000" />
 		<property name="companyWebAddress" column="COMPANY_WEB_ADDRESS" not-null="false" />
@@ -29,7 +29,7 @@
 	</query>
 
   	<database-object> 
-		<create>create index PROFILE_COMPANY_PROFILES_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID)</create> 
+		<create>create index PROFILE_CP_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID)</create> 
 		<drop></drop> 
 	</database-object>
 	

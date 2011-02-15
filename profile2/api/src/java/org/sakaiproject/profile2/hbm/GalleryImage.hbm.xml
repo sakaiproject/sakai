@@ -14,7 +14,7 @@
 			</generator>
 	    </id>
 	    
-		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_GALLERY_IMAGES_USER_UUID_I" />
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_GI_USER_UUID_I" />
 		<property name="mainResource" column="RESOURCE_MAIN" type="string" length="4000" not-null="true" />
 		<property name="thumbnailResource" column="RESOURCE_THUMB" type="string" length="4000" not-null="true" />
 		<property name="displayName" column="DISPLAY_NAME" not-null="true" />
@@ -37,7 +37,7 @@
 	</query>
 	
   	<database-object> 
-		<create>create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID)</create> 
+		<create>create index PROFILE_GI_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID)</create> 
 		<drop></drop> 
 	</database-object>
 	

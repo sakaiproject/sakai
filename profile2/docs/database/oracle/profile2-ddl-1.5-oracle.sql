@@ -1,3 +1,6 @@
+/**
+ * Note, this will be out of date and possibly broken until the 1.5 release nears completion
+ */
 
     create table PROFILE_COMPANY_PROFILES_T (
         ID number(19,0) not null,
