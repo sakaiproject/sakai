@@ -96,20 +96,20 @@
 						#if ($pagesize != 0)
 							#if ($goFPButton == "true")
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
+									<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
 								</form>
 							#else
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+									<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
 								</form>
 							#end
 							#if ($goPPButton == "true")
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" />
+									<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
 								</form>
 							#else
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+									<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 								</form>
 							#end
 						#end
@@ -128,20 +128,20 @@
 						#if ($pagesize != 0)
 							#if ($goNPButton == "true")
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" />
+									<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
 								</form>
 							#else
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+									<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 								</form>
 							#end
 							#if ($goLPButton == "true")
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
+									<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
 								</form>
 							#else
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+									<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
 								</form>
 							#end
 						#end
@@ -425,20 +425,20 @@
 								#if ($pagesize != 0)
 									#if ($goFPButton == "true")
 										<form name="firstpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
+											<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
 										</form>
 									#else
 										<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+											<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
 										</form>
 									#end
 									#if ($goPPButton == "true")
 										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" />
+											<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
 										</form>
 									#else
 										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+											<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 										</form>
 									#end
 								#end
@@ -458,20 +458,20 @@
 								#if ($pagesize != 0)
 									#if ($goNPButton == "true")
 										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" />
+											<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
 										</form>
 									#else
 										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+											<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 										</form>
 									#end
 									#if ($goLPButton == "true")
 										<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" />
+											<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" /></fieldset>
 										</form>
 									#else
 										<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-											<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+											<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
 										</form>
 									#end
 								#end
@@ -720,25 +720,25 @@
 								<div class="listNav">
 									<div class="instruction">
 										##$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos / $allMsgNumber $tlang.getString("gen.items")
-										  $tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.separator") $allMsgNumber $tlang.getString("gen.items")
+										 $tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.separator") $allMsgNumber $tlang.getString("gen.items")
 									</div>
 									#if ($pagesize != 0)
 										#if ($goFPButton == "true")
 											<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
+												<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
 											</form>
 										#else
 											<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+												<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
 											</form>
 										#end
 										#if ($goPPButton == "true")
 											<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" />
+												<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
 											</form>
 										#else
 											<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+												<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 											</form>									
 										#end
 									#end
@@ -757,20 +757,20 @@
 									#if ($pagesize != 0)
 										#if ($goNPButton == "true")
 											<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" />
+												<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
 											</form>
 										#else
 											<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+												<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 											</form>
 										#end				
 										#if ($goLPButton == "true")
 											<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" />
+												<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" /></fieldset>
 											</form>
 										#else
 											<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-												<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+												<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
 											</form>
 										#end
 									#end
