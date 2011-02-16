@@ -272,6 +272,20 @@ ul.attachList li{
 	text-align: center;
 	font-size: .9em;
 }
+/*listNav inputs have punct. marks as labels, adding a screen reader only fieldset with the real label makes them usable */
+div.listNav fieldset { 
+     display:inline; 
+     margin:0; 
+     padding:0; 
+   } 
+div.listNav legend { 
+     display:inline; 
+     margin:0; 
+     padding:0; 
+     position: absolute !important; 
+     clip: rect(1px 1px 1px 1px); /* IE6, IE7 */ 
+     clip: rect(1px, 1px, 1px, 1px); 
+} 
 
 /*searchNav panel has a special text input*/
 .searchNav input.searchField{
