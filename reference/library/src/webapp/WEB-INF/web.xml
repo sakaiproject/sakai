@@ -65,6 +65,8 @@
 	</filter-mapping>	
 	 -->
 	 
+    <!-- Disabling for now to resolve SAK-20025 -->
+    <!--
 	<filter-mapping>
 		<filter-name>sakai.request</filter-name>
 		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
@@ -83,5 +85,6 @@
 		<servlet-name>Connector</servlet-name>
 		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
 	</servlet-mapping>
+    -->
 
 </web-app>
