@@ -368,13 +368,23 @@ public class BaseGroup implements Group, Identifiable
 					{
 						try
 						{
-							AuthzGroup siteTemplate = AuthzGroupService.getAuthzGroup(m_site.getReference());
-							// remove all roles first from the new group realm
-							m_azg.removeRoles();
-							// make a deep copy of the roles as new Role objects
-							for (Iterator<Role> it = siteTemplate.getRoles().iterator(); it.hasNext();)
+							// remove all roles that is not in parent site realm
+							Set<Role> parentSiteRoles = m_site.getRoles();
+							for (Iterator<Role> i = m_azg.getRoles().iterator(); i.hasNext();)
 							{
-								Role role = (Role) it.next();
+								Role role = (Role) i.next();
+								if (!parentSiteRoles.contains(role))
+								{
+									m_azg.removeRole(role.getId());
+								}
+							}
+							// add all new roles from parent site realm
+							Set<Role> currentRoles = m_azg.getRoles();
+							for (Iterator<Role> j = parentSiteRoles.iterator(); j.hasNext();)
+							{
+								Role role = (Role) j.next();
+								if (currentRoles == null || !currentRoles.contains(role))
+								{
 								String roleId = role.getId();
 								try
 								{
@@ -385,6 +395,7 @@ public class BaseGroup implements Group, Identifiable
 									M_log.warn("getAzg: role id " + roleId + " already used in group " + m_azg.getReference() + rException.getMessage());
 								}
 							}
+						}
 						}
 						catch (Exception e1)
 						{
