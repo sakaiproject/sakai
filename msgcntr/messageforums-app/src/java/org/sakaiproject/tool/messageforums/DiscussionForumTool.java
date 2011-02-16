@@ -3471,7 +3471,7 @@ public class DiscussionForumTool
 
     	// refresh page with unread status     
     	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
-    	sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager));
+    	sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager), dMsg.getTopic().getModerated());
     }catch(Exception e){
     	LOG.error("DiscussionForumTool: processDfMsgPost", e);
     	setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
@@ -4289,7 +4289,7 @@ public class DiscussionForumTool
   			selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(selectedMessage.getMessage().getId()), messageManager);
   		}
 
-  		sendEmailNotification(dMsg,selectedThreadHead);
+  		sendEmailNotification(dMsg,selectedThreadHead,dMsg.getTopic().getModerated());
   		
   		//now update the parent thread:
     	updateThreadLastUpdatedValue(dMsg, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
@@ -4753,7 +4753,7 @@ public class DiscussionForumTool
 		  selectedTopic.getTopic().addMessage(dMsg);
 
 		  //notify watchers
-		  sendEmailNotification(dMsg,selectedThreadHead);
+		  sendEmailNotification(dMsg,selectedThreadHead, dMsg.getTopic().getModerated());
 		  this.composeBody = null;
 		  this.composeLabel = null;
 		  this.composeTitle = null;
@@ -5101,6 +5101,12 @@ public class DiscussionForumTool
 			  if(beforeChangeHM != null)
 	        		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 
+			  if (approved) {
+                  // send out email notification to the watchers
+                  Message msgWithAttach = messageManager.getMessageByIdWithAttachments(msg.getId());
+                  msgWithAttach.setTopic(msg.getTopic());
+                  sendEmailNotification(msgWithAttach, getThreadHeadForMessage(msgWithAttach), false);
+              }
 		  }
 	  }
 	  
@@ -5217,6 +5223,15 @@ public class DiscussionForumTool
 		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
 		  getThreadFromMessage();
+		  
+          // send out email notifications now that the message is visible
+		  if (selectedTopic != null && selectedForum != null) {
+		      Message msgWithAttach = messageManager.getMessageByIdWithAttachments(msgId);
+		      Topic topic = selectedTopic.getTopic();
+		      topic.setBaseForum(selectedForum.getForum());
+		      msgWithAttach.setTopic(topic);
+		      sendEmailNotification(msgWithAttach, getThreadHeadForMessage(msgWithAttach), false);
+		  }
 		  
 		  if(beforeChangeHM != null)
 	      		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
@@ -7693,8 +7708,13 @@ public class DiscussionForumTool
 		
 	}
 	
-	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread){
-		LOG.debug("ForumTool.sendEmailNotification()");
+	public void sendEmailNotification(Message reply, DiscussionMessageBean currthread){
+		LOG.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean)");
+		sendEmailNotification(reply, currthread, false);
+	}
+	
+	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread, boolean needsModeration){
+		LOG.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean, boolean)");
 		
 		// get all users with notification level = 2
 		List<String> userlist = emailNotificationManager.getUsersToBeNotifiedByLevel( EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
@@ -7724,6 +7744,28 @@ public class DiscussionForumTool
 			}
 			
 		}
+		
+
+		//MSGCNTR-375 if this post needs to be moderated, only send the email notification to those with moderator permission
+		if(needsModeration) {
+			DiscussionTopic topic = (DiscussionTopic)reply.getTopic();
+			DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
+
+			LOG.debug("Filtering userlist to only return moderators. Had: " + userlist.size());
+
+			List<String> nonModerators = new ArrayList<String>();
+			for(String userId: userlist) {
+				if(!uiPermissionsManager.isModeratePostings(topic, forum, userId)) {
+					LOG.debug("userId: " + userId + " is not a moderator");
+					nonModerators.add(userId);
+				}
+			}
+
+			userlist.removeAll(nonModerators);
+			LOG.debug("filtering complete. Now have: " + userlist.size());
+
+		}
+		
 		// now printing out all users = # of messages in the thread - level 2 users
 		
 		if (LOG.isDebugEnabled()){
@@ -8228,6 +8270,23 @@ public class DiscussionForumTool
 		}
 		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
 		return selectedForum;
+	}
+	
+	/**
+	 * 
+	 * @param msg
+	 * @return the head of the discussion thread for the given msg
+	 */
+	private DiscussionMessageBean getThreadHeadForMessage(Message msg) {
+	    DiscussionMessageBean threadHead = new DiscussionMessageBean(msg, messageManager);
+        //make sure we have the thread head of depth 0
+        while(threadHead.getMessage().getInReplyTo() != null){
+            threadHead = new DiscussionMessageBean(
+                    messageManager.getMessageByIdWithAttachments(threadHead.getMessage().getInReplyTo().getId()), 
+                    messageManager);
+        }
+        
+        return threadHead;
 	}
 
 }
