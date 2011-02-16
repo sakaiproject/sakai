@@ -272,11 +272,16 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    if (entry.level >= 0)
 			values.add(entry.pageId.toString());
 
-		UISelect select = UISelect.make(form, "page-span", values.toArray(new String[1]), "#{simplePageBean.selectedEntity}", null);
+		String selectedVariable = "#{simplePageBean.selectedEntity}";
+		if (summaryPage)
+		    selectedVariable = "#{simplePageBean.selectedEntities}";
+		UISelect select = UISelect.make(form, "page-span", values.toArray(new String[1]), selectedVariable , null);
 		int index = 0;
+		boolean showDeleteButton = false;
+
 		for (PageEntry entry: entries) {
 		    
-		    UIBranchContainer row = UIBranchContainer.make(form, "page:", Integer.toString(index));
+		    UIBranchContainer row = UIBranchContainer.make(form, "page:");
 		    
 		    if (entry.level < 0)
 			UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
@@ -319,6 +324,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    UIOutput.make(row, "link-note", note + " ");
 			UIOutput.make(row, "link-text", entry.title);
 
+			index++;
+
 	  	// for pagepicker or summary if canEdit and page doesn't have an item
 		    } else {
 			int level = entry.level;
@@ -326,7 +333,12 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    level = 5;
 			if (!summaryPage)  // i.e. pagepicker; for the moment to edit something you need to attach it to something
 			    UISelectChoice.make(row, "select", select.getFullID(), index).
-				decorate(new UIFreeAttributeDecorator("title", entry.title));
+				decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select")));
+			else { // i.e. summary if canEdit and page doesn't have an item
+			    UISelectChoice.make(row, "select-for-deletion", select.getFullID(), index).
+				decorate(new UIFreeAttributeDecorator("title", entry.title + " " + messageLocator.getMessage("simplepage.select-for-deletion")));
+			    showDeleteButton = true; // at least one item to delete
+			}
 
 			GeneralViewParameters params = new GeneralViewParameters();
 			params.viewID = PreviewProducer.VIEW_ID;
@@ -341,6 +353,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			UIOutput.make(row, "link-text", entry.title);
 
 			index++;
+
 		    }
 
 		}
@@ -358,8 +371,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
 		    UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-		}
-		
+		} else if (showDeleteButton) {
+		    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
+		}		
 	}
 
 	public ViewParameters getViewParameters() {

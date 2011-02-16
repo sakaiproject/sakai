@@ -146,6 +146,7 @@ public class SimplePageBean {
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
 	public String selectedEntity = null;
+        public String[] selectedEntities = new String[] {};
 
 	public String selectedQuiz = null;
 
@@ -1068,6 +1069,50 @@ public class SimplePageBean {
 		}
 
 		return "success";
+	}
+
+        public String deletePages() {
+	    if (!canEditPage())
+		return "permission-failed";
+
+	    String siteId = toolManager.getCurrentPlacement().getContext();
+
+	    for (int i = 0; i < selectedEntities.length; i++) {
+		SimplePage target = simplePageToolDao.getPage(Long.valueOf(selectedEntities[i]));
+		if (target != null) {
+		    if (!target.getSiteId().equals(siteId)) {
+			return "permission-failed";
+		    }
+
+		    // delete all the items on the page
+		    List<SimplePageItem> items = getItemsOnPage(target.getPageId());
+		    for (SimplePageItem item: items) {
+			// if access controlled, clear it before deleting item
+			if (item.isPrerequisite()) {
+			    item.setPrerequisite(false);
+			    checkControlGroup(item);
+			}
+			simplePageToolDao.deleteItem(item);
+		    }
+
+		    // remove from gradebook
+		    gradebookIfc.removeExternalAssessment(siteId, "lesson-builder:" + target.getPageId());
+		    
+		    // remove fake item if it's top level. We won't see it if it's still active
+		    // so this means the user has removed it in site info
+		    SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(selectedEntities[i]);
+		    if (item != null)
+			simplePageToolDao.deleteItem(item);			
+
+		    // currently the UI doesn't allow you to kill top level pages until they have been
+		    // removed by site info, so we don't have to hack on the site pages
+
+		    // remove page
+		    simplePageToolDao.deleteItem(target);
+		}
+	    }
+
+	    return "success";
 	}
 
     // called from "save" in main edit item dialog
