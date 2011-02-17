@@ -27,7 +27,9 @@ import org.apache.wicket.validation.validator.AbstractValidator;
  *  
  *  plus combinations of . and - in the same numbers above</p>
  *  
- *  <p>Now for numbers with extensions:
+ *  <p>Now for numbers with extensions, add (\\w+)?+ 
+ *  10. All of the above with any letter/number combo afterwards but it must start with a letter and not contain spaces and only occur once or not at all
+ *   eg (123-456-789 x123, 123 456 789 ext5)
  *  
  *  </p>
  *  
@@ -46,10 +48,10 @@ public class PhoneNumberValidator extends AbstractValidator {
 	{
 		//setup list
 		List<String> regexs = new ArrayList<String>();
-		regexs.add("\\+?([0-9]+|\\s+)+"); //matches 1,2,3,5
-		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+)+"); //matches 4
-		regexs.add("([0-9]+(\\-|\\.)?)+"); //matches 6, 7
-		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+|\\-?|\\.?)+"); //matches 8,9
+		regexs.add("\\+?([0-9]+|\\s+)+(\\w+)?+"); //matches 1,2,3,5 with 10
+		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+)+(\\w+)?+"); //matches 4 with 10
+		regexs.add("([0-9]+(\\-|\\.)?)+(\\w+)?+"); //matches 6, 7
+		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+|\\-?|\\.?)+(\\w+)?+"); //matches 8,9
 		
 		//check each, if none, error
 		for(String r: regexs) {
