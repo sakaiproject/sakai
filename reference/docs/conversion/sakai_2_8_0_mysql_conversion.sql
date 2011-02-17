@@ -257,7 +257,7 @@ create index KEY_INDEX on URL_RANDOMISED_MAPPINGS_T (TINY);
 
 -- ShortenedUrlService 1.0.0 db creation end
 
--- SAK-XXXX table structure for sakai_message_bundle
+-- KNL-563 table structure for sakai_message_bundle
 create table SAKAI_MESSAGE_BUNDLE (
     ID bigint(20) not null auto_increment,
     MODULE_NAME varchar(255) not null,
