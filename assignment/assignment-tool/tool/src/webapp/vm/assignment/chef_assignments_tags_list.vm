@@ -41,20 +41,28 @@ iframeId = '$iframeId';
 					</div>
 					<div class="inlineForm">
 						#if ($pager.canFirst())
-							<input type="submit"
-							       onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-							       name="page" value="|&lt;"
-							       title="$tlang.getString("gen.first")" />
+							<fieldset><legend>$tlang.getString("gen.first")</legend>
+								<input type="submit"
+								       onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
+								       name="page" value="|&lt;"
+								       title="$tlang.getString("gen.first")" />
+							</fieldset>
 						#else
-							<input type="submit" value="|&lt;" disabled="disabled" />
+							<fieldset><legend>$tlang.getString("gen.first")</legend>
+								<input type="submit" value="|&lt;" disabled="disabled" />
+							</fieldset>	
 						#end
 						#if ($pager.canPrevious())
-							<input type="submit"
-							       onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-							       name="page" value="&lt;"
-							       title="$tlang.getString('gen.previous') $pagesize" />
+							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
+								<input type="submit"
+								       onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
+								       name="page" value="&lt;"
+								       title="$tlang.getString('gen.previous') $pagesize" />
+							</fieldset>
 						#else
-							<input type="submit" value="&lt;" disabled="disabled" />
+							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
+								<input type="submit" value="&lt;" disabled="disabled" />
+							</fieldset>	
 						#end
 							<label for="pageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
 							<select name="pageSize" onchange="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id'; form.submit();">
@@ -63,22 +71,28 @@ iframeId = '$iframeId';
 								#end
 							</select>
 						#if ($pager.canNext())
-							<input type="submit"
-	                               onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-	                               name="page"
-							       value="&gt;"
-							       title="$tlang.getString('gen.next') $pagesize" />
+							<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>						
+								<input type="submit"
+		                               onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
+		                               name="page"
+								       value="&gt;"
+								       title="$tlang.getString('gen.next') $pagesize" />
+							</fieldset>	
 						#else
 							<input type="submit" value="&gt;" disabled="disabled" />
 						#end
 						#if ($pager.canLast())
-							<input type="submit"
-	                               onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
-							       name="page"
-							       value="&gt;|"
-							       title="$tlang.getString('gen.last')" />
+							<fieldset><legend>$tlang.getString('gen.last')</legend>						
+								<input type="submit"
+		                               onclick="saveChanges('form', '$name_submission_text'); form.sakai_action.value='doPage_tags'; form.providerId.value='$provider.provider.id';"
+								       name="page"
+								       value="&gt;|"
+								       title="$tlang.getString('gen.last')" />
+							</fieldset>	
 						#else
-							<input type="submit" value="&gt;|" disabled="disabled" />
+							<fieldset><legend>$tlang.getString('gen.last')</legend>						
+								<input type="submit" value="&gt;|" disabled="disabled" />
+							</fieldset>	
 						#end
 					</div>
 				</div>
