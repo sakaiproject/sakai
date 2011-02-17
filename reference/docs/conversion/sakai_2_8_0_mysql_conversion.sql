@@ -211,7 +211,7 @@ alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null default tru
 
 -- Profile2 1.3-1.4 upgrade end
 
--- SAK-18864, SAK-19951 adds missing scheduler_trigger_events table for new persistent jobscheduler event feature
+-- SAK-18864/SAK-19951/SAK-19965 adds missing scheduler_trigger_events table for new persistent jobscheduler event feature
 create table scheduler_trigger_events (
     uuid varchar(36) not null, 
     eventType varchar(255) not null, 
@@ -279,12 +279,14 @@ create table SST_PRESENCES (
     LAST_VISIT_START_TIME datetime default null,
     primary key (ID)
 );
+
+-- SAK-20076: missing Sitestats indexes
 create index SST_PRESENCE_DATE_IX on SST_PRESENCES (P_DATE);
 create index SST_PRESENCE_USER_ID_IX on SST_PRESENCES (USER_ID);
 create index SST_PRESENCE_SITE_ID_IX on SST_PRESENCES (SITE_ID);
 create index SST_PRESENCE_SITEUSERDATE_ID_IX on SST_PRESENCES (SITE_ID, USER_ID, P_DATE);
 
---  Table structure for validationaccount_item
+--  RES-2: table structure for validationaccount_item
 create table VALIDATIONACCOUNT_ITEM (
     id bigint(20) not null auto_increment,
     USER_ID varchar(255) not null,
