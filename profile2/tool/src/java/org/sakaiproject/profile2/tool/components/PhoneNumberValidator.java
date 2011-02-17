@@ -50,8 +50,8 @@ public class PhoneNumberValidator extends AbstractValidator {
 		List<String> regexs = new ArrayList<String>();
 		regexs.add("\\+?([0-9]+|\\s+)+(\\w+)?+"); //matches 1,2,3,5 with 10
 		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+)+(\\w+)?+"); //matches 4 with 10
-		regexs.add("([0-9]+(\\-|\\.)?)+(\\w+)?+"); //matches 6, 7
-		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+|\\-?|\\.?)+(\\w+)?+"); //matches 8,9
+		regexs.add("([0-9]+(\\-|\\.)?)+(\\w+)?+"); //matches 6, 7 with 10
+		regexs.add("\\({1}[0-9]+\\){1}([0-9]+|\\s+|\\-?|\\.?)+(\\w+)?+"); //matches 8,9 with 10
 		
 		//check each, if none, error
 		for(String r: regexs) {
