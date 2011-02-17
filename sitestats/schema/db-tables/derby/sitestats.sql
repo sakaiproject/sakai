@@ -1,7 +1,7 @@
 create table SST_EVENTS (ID bigint not null, USER_ID varchar(99) not null, SITE_ID varchar(99) not null, EVENT_ID varchar(32) not null, EVENT_DATE date not null, EVENT_COUNT bigint not null, primary key (ID));
 create table SST_JOB_RUN (ID bigint not null, JOB_START_DATE timestamp, JOB_END_DATE timestamp, START_EVENT_ID bigint, END_EVENT_ID bigint, LAST_EVENT_DATE timestamp, primary key (ID));
 create table SST_PREFERENCES (ID bigint not null, SITE_ID varchar(99) not null, PREFS clob(255) not null, primary key (ID));
-create table SST_PRESENCES (ID bigint not null, SITE_ID varchar(99) not null, USER_ID varchar(99) not null, DATE date not null, DURATION bigint default 0 not null, LAST_VISIT_START_TIME timestamp default null, primary key (ID));
+create table SST_PRESENCES (ID bigint not null, SITE_ID varchar(99) not null, USER_ID varchar(99) not null, P_DATE date not null, DURATION bigint default 0 not null, LAST_VISIT_START_TIME timestamp default null, primary key (ID));
 create table SST_REPORTS (ID bigint not null, SITE_ID varchar(99), TITLE varchar(255) not null, DESCRIPTION clob(2147483647), HIDDEN smallint, REPORT_DEF clob(255) not null, CREATED_BY varchar(99) not null, CREATED_ON timestamp not null, MODIFIED_BY varchar(99), MODIFIED_ON timestamp, primary key (ID));
 create table SST_RESOURCES (ID bigint not null, USER_ID varchar(99) not null, SITE_ID varchar(99) not null, RESOURCE_REF varchar(255) not null, RESOURCE_ACTION varchar(12) not null, RESOURCE_DATE date not null, RESOURCE_COUNT bigint not null, primary key (ID));
 create table SST_SITEACTIVITY (ID bigint not null, SITE_ID varchar(99) not null, ACTIVITY_DATE date not null, EVENT_ID varchar(32) not null, ACTIVITY_COUNT bigint not null, primary key (ID));
@@ -12,10 +12,10 @@ create index SST_EVENTS_SITEEVENTUSER_ID_IX on SST_EVENTS (USER_ID, SITE_ID, EVE
 create index SST_EVENTS_EVENT_ID_IX on SST_EVENTS (EVENT_ID);
 create index SST_EVENTS_DATE_IX on SST_EVENTS (EVENT_DATE);
 create index SST_PREFERENCES_SITE_ID_IX on SST_PREFERENCES (SITE_ID);
-create index SST_PRESENCE_DATE_IX on SST_PRESENCES (DATE);
+create index SST_PRESENCE_DATE_IX on SST_PRESENCES (P_DATE);
 create index SST_PRESENCE_USER_ID_IX on SST_PRESENCES (USER_ID);
 create index SST_PRESENCE_SITE_ID_IX on SST_PRESENCES (SITE_ID);
-create index SST_PRESENCE_SITEUSERDATE_ID_IX on SST_PRESENCES (SITE_ID, USER_ID, DATE);
+create index SST_PRESENCE_SITEUSERDATE_ID_IX on SST_PRESENCES (SITE_ID, USER_ID, P_DATE);
 create index SST_REPORTS_SITE_ID_IX on SST_REPORTS (SITE_ID);
 create index SST_RESOURCES_USER_ID_IX on SST_RESOURCES (USER_ID);
 create index SST_RESOURCES_SITE_ID_IX on SST_RESOURCES (SITE_ID);
