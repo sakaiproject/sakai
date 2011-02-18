@@ -8355,7 +8355,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO) == null)
 		{
-			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, Integer.valueOf(2012));
+			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, Integer.valueOf(new Integer(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)+5)));
 		}
 	} // initState
 
