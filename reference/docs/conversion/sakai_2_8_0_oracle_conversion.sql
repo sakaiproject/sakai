@@ -10,6 +10,15 @@
 -- SQL statement
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
+-- SAK-8005
+alter table ANNOUNCEMENT_MESSAGE add MESSAGE_ORDER INT;
+
+drop index IE_ANNC_MSG_ATTRIB;
+create index IE_ANNC_MSG_ATTRIB on ANNOUNCEMENT_MESSAGE (DRAFT, PUBVIEW, OWNER, MESSAGE_ORDER);
+
+drop index ANNOUNCEMENT_MESSAGE_CDD;
+create index ANNOUNCEMENT_MESSAGE_CDD on ANNOUNCEMENT_MESSAGE (CHANNEL_ID, MESSAGE_DATE, MESSAGE_ORDER, DRAFT); 
+
 -- SAK-17821 Add additional fields to SakaiPerson
 alter table SAKAI_PERSON_T add STAFF_PROFILE varchar2(4000);
 alter table SAKAI_PERSON_T add UNIVERSITY_PROFILE_URL varchar2(4000);
