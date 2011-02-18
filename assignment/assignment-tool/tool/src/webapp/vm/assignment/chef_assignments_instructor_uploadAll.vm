@@ -1,10 +1,9 @@
 ## showing the page for preparing upload zip file
 <script language="JavaScript" type="text/JavaScript">
 	<!--
-		function submitform(id, downloadUrlValue)
+		function submitform(id)
 		{
 			var theForm = document.getElementById(id);
-			document.getElementById('downloadUrl').value=downloadUrlValue;
 			if(theForm && theForm.onsubmit)
 			{
 				theForm.onsubmit();
@@ -58,8 +57,9 @@
 				// attach the assignment reference
 				accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + param1 + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
    	window.location.href=accessPointUrl;
+   	document.getElementById('downloadUrl').value=accessPointUrl; 
    	document.getElementById('uploadAllForm').action=actionString; 
-   	setTimeout(submitform('uploadAllForm', accessPointUrl), 1500);
+   	setTimeout("submitform('uploadAllForm')", 1500);
    }
 	}
 	//-->
