@@ -53,7 +53,8 @@
         <sakai.servletapi.version>2.4</sakai.servletapi.version>
         <entitybroker.version>1.4.0-a02</entitybroker.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/shortenedurl/${project.version}</url.localsite>
-    </properties>
+   		<encoding>UTF-8</encoding>
+   </properties>
     
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</connection>
