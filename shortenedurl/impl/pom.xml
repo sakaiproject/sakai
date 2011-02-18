@@ -61,6 +61,12 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
+		
+		<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
+		<dependency>
+			<groupId>net.jcip</groupId>
+			<artifactId>jcip-annotations</artifactId>
+		</dependency>
         
 	</dependencies>
    

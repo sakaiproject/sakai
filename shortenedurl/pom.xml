@@ -190,6 +190,14 @@
 				<version>4.0</version>
 				<scope>compile</scope>
 			</dependency>
+			
+			<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
+			<dependency>
+				<groupId>net.jcip</groupId>
+				<artifactId>jcip-annotations</artifactId>
+				<version>1.0</version>
+				<scope>provided</scope>
+			</dependency>
 	
     	</dependencies>
     </dependencyManagement>
