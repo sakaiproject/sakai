@@ -3,6 +3,7 @@
                  org.sakaiproject.api.app.messageforums.*,
                  org.sakaiproject.site.cover.SiteService,
                  org.sakaiproject.tool.cover.ToolManager;"%>
+<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
 <%
 
   FacesContext context = FacesContext.getCurrentInstance();
@@ -14,8 +15,9 @@
 
   if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() == null) {
 
+    String portalPath = ServerConfigurationService.getString("portalPath");
     try {
-      target = "/portal/tool/" + request.getParameter("placementId")
+      target = portalPath + "/tool/" + request.getParameter("placementId")
              + "/discussionForum/message/dfAllMessagesDirect.jsf?topicId="
       	     + request.getParameter("topicId");
       response.sendRedirect(target);

@@ -1,4 +1,5 @@
 <%@ page import="java.util.*,javax.faces.context.*,javax.faces.application.*,javax.faces.el.*,org.sakaiproject.tool.messageforums.*,org.sakaiproject.api.app.messageforums.*,org.sakaiproject.site.cover.SiteService,org.sakaiproject.tool.cover.ToolManager;"%>
+<%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
 <%
 	FacesContext context = FacesContext.getCurrentInstance();
 	Application app = context.getApplication();
@@ -7,11 +8,12 @@
 			.getValue(context);
 
 	String target = "";
+    String portalPath = ServerConfigurationService.getString("portalPath");
 
 	if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() == null) {
 
 		try {
-			target = "/portal/tool/"
+			target = portalPath + "/tool/"
 					+ request.getParameter("placementId")
 					+ "/discussionForum/message/dfViewMessageDirect.jsf?messageId="
 					+ request.getParameter("messageId") + "&topicId="
@@ -30,7 +32,7 @@
 			|| request.getParameter("forumId") == null
 			|| "".equals(request.getParameter("forumId"))) {
 		try {
-			target = "/portal/tool/"
+			target = portalPath + "/tool/"
 					+ org.sakaiproject.tool.cover.ToolManager
 							.getCurrentPlacement().getId()
 					+ "/discussionForum/forumsOnly/dfForums";
