@@ -7836,6 +7836,8 @@ public class SiteAction extends PagedResourceActionII {
 		}
 				
 		List pageList = site.getPages();
+		Set<String> toolsCopied = new HashSet<String>();
+
 		if (!((pageList == null) || (pageList.size() == 0))) {
 			for (ListIterator i = pageList
 					.listIterator(); i.hasNext();) {
@@ -7865,8 +7867,12 @@ public class SiteAction extends PagedResourceActionII {
 					else {
 						// other
 						// tools
-						transferCopyEntities(toolId,
-								oSiteId, nSiteId);
+                        // SAK-19686 - added if statement and toolsCopied.add
+                        if (!toolsCopied.contains(toolId)) {
+                            transferCopyEntities(toolId,
+                                         oSiteId, nSiteId);
+                            toolsCopied.add(toolId);
+                        }
 					}
 				}
 			}
