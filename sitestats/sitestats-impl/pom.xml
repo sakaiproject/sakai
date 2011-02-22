@@ -215,13 +215,11 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <!-- <version>${sakai.servletapi.version}</version> -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.13</version>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
