@@ -178,6 +178,10 @@ public class PrivateMessageDecoratedBean
   public String getRecipientsAsText() {
 	  return msg.getRecipientsAsText();
   }
+  
+  public String getRecipientsAsTextBcc() {
+	  return msg.getRecipientsAsTextBcc();
+  }
 
   public String getAuthor() {
 	  return msg.getAuthor();

@@ -38,6 +38,10 @@ public interface PrivateMessageRecipient
   public Boolean getRead();
 
   public void setRead(Boolean read);
+  
+  public Boolean getBcc();
+  
+  public void setBcc(Boolean bcc);
 
 }
 

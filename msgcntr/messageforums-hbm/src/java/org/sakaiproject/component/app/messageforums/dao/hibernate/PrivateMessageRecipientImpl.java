@@ -29,6 +29,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
   private String typeUuid;
   private String contextId;
   private Boolean read;
+  private Boolean bcc;
   
   /**
    * default constructor
@@ -42,11 +43,12 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
    * @param contextId
    * @param read
    */
-  public PrivateMessageRecipientImpl(String userId, String typeUuid, String contextId, Boolean read){
+  public PrivateMessageRecipientImpl(String userId, String typeUuid, String contextId, Boolean read, Boolean bcc){
     this.userId = userId;
     this.typeUuid = typeUuid;
     this.contextId = contextId;
     this.read = read;
+    this.bcc = bcc;
   }
   
   /**
@@ -137,6 +139,14 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
     result = 41 * result + ((contextId == null) ? 0 : contextId.hashCode());
     result = 41 * result + ((read == null) ? 0 : read.hashCode());
     return result;    
+  }
+
+  public Boolean getBcc() {
+	  return bcc;
+  }
+
+  public void setBcc(Boolean bcc) {
+	  this.bcc = bcc;
   }
 
 }

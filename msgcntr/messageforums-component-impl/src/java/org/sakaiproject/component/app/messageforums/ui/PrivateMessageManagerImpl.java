@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.mail.MessagingException;
@@ -984,10 +985,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
      *  create PrivateMessageRecipient to search
      */
     PrivateMessageRecipient pmrReadSearch = new PrivateMessageRecipientImpl(
-        userId, typeUuid, getContextId(), Boolean.TRUE);
+        userId, typeUuid, getContextId(), Boolean.TRUE, false);
 
     PrivateMessageRecipient pmrNonReadSearch = new PrivateMessageRecipientImpl(
-        userId, typeUuid, getContextId(), Boolean.FALSE);
+        userId, typeUuid, getContextId(), Boolean.FALSE , false);
 
     int indexDelete = -1;
     int indexRead = pvtMessage.getRecipients().indexOf(pmrReadSearch);
@@ -1021,7 +1022,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         /** check for existing deleted message from user */
         PrivateMessageRecipient pmrDeletedSearch = new PrivateMessageRecipientImpl(
             userId, typeManager.getDeletedPrivateMessageType(), getContextId(),
-            Boolean.TRUE);
+            Boolean.TRUE, false);
 
         int indexDeleted = pvtMessage.getRecipients().indexOf(pmrDeletedSearch);
 
@@ -1104,7 +1105,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean)
    */
-  public void sendPrivateMessage(PrivateMessage message, Set recipients, boolean asEmail)
+  public void sendPrivateMessage(PrivateMessage message, Map<User, Boolean> recipients, boolean asEmail)
   {
 
     try 
@@ -1137,7 +1138,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
       		currentUserAsString, typeManager.getDraftPrivateMessageType(),
-          getContextId(), Boolean.TRUE);
+          getContextId(), Boolean.TRUE, false);
 
       recipientList.add(receiver);
       message.setRecipients(recipientList);
@@ -1185,9 +1186,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 		boolean forwardingEnabled = false;
 		List<InternetAddress> fAddresses = new ArrayList<InternetAddress>();
     	//this only needs to be done if the message is not being sent
-    	for (Iterator i = recipients.iterator(); i.hasNext();)
+    	for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();)
     	{
-    		User u = (User) i.next();      
+    		Entry<User, Boolean> entrySet = (Entry<User, Boolean>) i.next();
+    		User u = (User) entrySet.getKey();
+    		Boolean bcc = (Boolean) entrySet.getValue();
     		String userId = u.getId();
 
 
@@ -1222,7 +1225,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     			PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
     					userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-    					isRecipientCurrentUser);
+    					isRecipientCurrentUser, bcc);
     			recipientList.add(receiver);                    
     		}      
 
@@ -1232,7 +1235,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     	//we need to add som headers
     	additionalHeaders.add("From: " + systemEmail);
     	additionalHeaders.add("Subject: " + message.getTitle());
-    	emailService.sendToUsers(recipients, additionalHeaders, bodyString);
+    	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
     	}   	
 
 	if(forwardingEnabled)
@@ -1248,7 +1251,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
     		currentUserAsString, typeManager.getSentPrivateMessageType(),
-        getContextId(), Boolean.TRUE);
+        getContextId(), Boolean.TRUE, false);
 
     recipientList.add(sender);
 
@@ -1368,7 +1371,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     /** create PrivateMessageRecipientImpl to search for recipient to update */
     PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
         userId, typeManager.getReceivedPrivateMessageType(), contextId,
-        Boolean.FALSE);
+        Boolean.FALSE, false);
 
     List recipientList = pvtMessage.getRecipients();
 
@@ -1433,7 +1436,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  /** create PrivateMessageRecipientImpl to search for recipient to update */
 	  PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
 			  userId, typeManager.getReceivedPrivateMessageType(), contextId,
-			  Boolean.TRUE);
+			  Boolean.TRUE, false);
 
 	  List recipientList = pvtMessage.getRecipients();
 

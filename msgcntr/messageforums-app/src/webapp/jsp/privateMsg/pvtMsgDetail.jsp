@@ -115,6 +115,22 @@
             	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsText}" />
             </td>
           </tr>
+          <f:subview id="bccRecipients" rendered="#{PrivateMessagesTool.detailMsg.recipientsAsTextBcc != null && PrivateMessagesTool.detailMsg.recipientsAsTextBcc != ''}">
+	          <f:verbatim>
+	          <tr>
+	            <th>
+	            </f:verbatim>
+	            	 <h:outputText value="#{msgs.pvt_bcc}" />
+	            <f:verbatim>
+	            </th>
+	            <td>        
+	            </f:verbatim>   	
+	            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsTextBcc}" />
+	            <f:verbatim>
+	            </td>
+	          </tr>
+	          </f:verbatim>
+          </f:subview>
           <tr>
             <th>
               <h:outputText value="#{msgs.pvt_subject}"/>

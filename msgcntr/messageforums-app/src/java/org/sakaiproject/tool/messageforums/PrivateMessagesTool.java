@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,8 +131,6 @@ public class PrivateMessagesTool
   private static final String MISSING_SUBJECT_DRAFT = "pvt_missing_subject_draft";
   private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
   private static final String MULTIPLE_WINDOWS = "pvt_multiple_windows";
-  //skai-huxt reply all 
-  private static final String SELECT_MSG_RECIPIENT_replyall = "pvt_select_msg_recipient_replyall";
   
   private static final String CONFIRM_MSG_DELETE = "pvt_confirm_msg_delete";
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
@@ -141,6 +140,8 @@ public class PrivateMessagesTool
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
   private static final String MULTIDELETE_SUCCESS_MSG = "pvt_deleted_success";
   private static final String PERM_DELETE_SUCCESS_MSG = "pvt_perm_deleted_success";
+  
+  public static final String RECIPIENTS_UNDISCLOSED = "pvt_bccUndisclosed";
   
   /** Used to determine if this is combined tool or not */
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
@@ -236,6 +237,7 @@ public class PrivateMessagesTool
   
   //Compose Screen-webpage
   private List selectedComposeToList = new ArrayList();
+  private List selectedComposeBccList = new ArrayList();
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   private boolean booleanEmailOut= Boolean.parseBoolean(ServerConfigurationService.getString("mc.messages.ccEmailDefault", "false"));
   private String composeSubject ;
@@ -846,6 +848,11 @@ public class PrivateMessagesTool
     this.selectedComposeToList = selectedComposeToList;
   }
   
+  public void setSelectedComposeBccList(List selectedComposeBccList)
+  {
+	  this.selectedComposeBccList = selectedComposeBccList;
+  }
+  
   public void setTotalComposeToList(List totalComposeToList)
   {
     this.totalComposeToList = totalComposeToList;
@@ -856,6 +863,11 @@ public class PrivateMessagesTool
     return selectedComposeToList;
   }
   
+  public List getSelectedComposeBccList()
+  {
+	  return selectedComposeBccList;
+  }
+
   private String getSiteTitle(){	  
 	  try {
 		return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
@@ -1408,7 +1420,14 @@ public void processChangeSelectView(ValueChangeEvent eve)
             }
           }
         }
-        //ADD the recipientText here 
+        if(dMsg.getMsg().getCreatedBy().equals(getUserId())){
+        	//need to display all users who received the message if the user create the message
+        	this.getDetailMsg().getMsg().setRecipientsAsTextBcc(dMsg.getMsg().getRecipientsAsTextBcc());        	
+        }else{
+        	//otherwise, hide the BCC information
+        	this.getDetailMsg().getMsg().setRecipientsAsTextBcc("");
+        }
+
         this.getDetailMsg().getMsg().setRecipientsAsText(dMsg.getMsg().getRecipientsAsText());
       }
     }
@@ -1733,6 +1752,21 @@ private   int   getNum(char letter,   String   a)
 	    
 	    }
 	    
+	    //remove the bcc undiclosed place holder:
+	    String ccList = getDetailMsg().getMsg().getRecipientsAsText();
+	    if(ccList.contains(getResourceBundleString(RECIPIENTS_UNDISCLOSED) + "; ")){
+	    	ccList = ccList.replaceAll(getResourceBundleString(RECIPIENTS_UNDISCLOSED) + "; ", "");
+	    }else if(ccList.contains(getResourceBundleString(RECIPIENTS_UNDISCLOSED))){
+	    	ccList = ccList.replaceAll(getResourceBundleString(RECIPIENTS_UNDISCLOSED), "");
+	    }
+	    if(ccList.endsWith(" ")){
+	    	ccList = ccList.substring(0, ccList.length() -1);
+	    }
+	    if(ccList.endsWith(";")){
+	    	ccList = ccList.substring(0, ccList.length() -1);
+	    }
+	    getDetailMsg().getMsg().setRecipientsAsText(ccList);
+	    
 	    this.setDetailMsg(getDetailMsg()) ;
 	    
 	    setDetailMsgCount++;
@@ -1819,6 +1853,7 @@ private   int   getNum(char letter,   String   a)
     this.setComposeSendAsPvtMsg(SET_AS_YES); //set as default
     this.setBooleanEmailOut(Boolean.parseBoolean(ServerConfigurationService.getString("mc.messages.ccEmailDefault", "false"))); //set as default
     this.getSelectedComposeToList().clear();
+    this.getSelectedComposeBccList().clear();
     this.setReplyToSubject("");
     this.setReplyToBody("");
     this.getAttachments().clear();
@@ -1835,7 +1870,7 @@ private   int   getNum(char letter,   String   a)
 		  return null;
 	  }
 
-	  if(getSelectedComposeToList().size()<1)
+	  if(getSelectedComposeToList().size()<1 && getSelectedComposeBccList().size() < 1)
 	  {
 		  setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
 		  return null ;
@@ -1891,7 +1926,7 @@ private   int   getNum(char letter,   String   a)
     	pMsg= constructMessage(true, null) ;
     }
     
-    Set<User> recipients = getRecipients();
+    Map<User, Boolean> recipients = getRecipients();
     
     if(!getBooleanEmailOut())
     {
@@ -1903,7 +1938,7 @@ private   int   getNum(char letter,   String   a)
     
     //update synopticLite tool information:
     
-    incrementSynopticToolInfo(recipients, false);
+    incrementSynopticToolInfo(recipients.keySet(), false);
 
     //reset contents
     resetComposeContents();
@@ -2073,6 +2108,29 @@ private   int   getNum(char letter,   String   a)
     		  }
     	  }
       }
+      
+      //add bcc recipients place holder:
+      if(selectedComposeBccList.size() > 0 && !sendToString.toString().contains(getResourceBundleString(RECIPIENTS_UNDISCLOSED))){
+    	  sendToString.append(getResourceBundleString(RECIPIENTS_UNDISCLOSED)).append("; ");
+      }
+
+
+      //create bcc string to use to display the user's who got BCC'ed
+      StringBuffer sendToBccString = new StringBuffer("");
+      StringBuffer sendToBccHiddenString = new StringBuffer("");      
+      for (int i = 0; i < selectedComposeBccList.size(); i++)
+      {
+    	  MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeBccList.get(i));  
+    	  if(membershipItem != null)
+    	  {
+    		  if (membershipItem.isViewable()) {
+    			  sendToBccString.append(membershipItem.getName()).append("; ");
+    		  }
+    		  else {
+    			  sendToBccHiddenString.append(membershipItem.getName()).append("; ");
+    		  }
+    	  }
+      }
 
       if (! "".equals(sendToString.toString())) {
     	  sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
@@ -2085,7 +2143,19 @@ private   int   getNum(char letter,   String   a)
     	  sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space
     	  aMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
       }
-      
+      //clean up sendToBccString
+      if (! "".equals(sendToBccString.toString())) {
+    	  sendToBccString.delete(sendToBccString.length()-2, sendToBccString.length()); //remove last comma and space
+      }
+
+      if ("".equals(sendToBccHiddenString.toString())) {
+    	  aMsg.setRecipientsAsTextBcc(sendToBccString.toString());
+      }
+      else {
+    	  sendToBccHiddenString.delete(sendToBccHiddenString.length()-2, sendToBccHiddenString.length()); //remove last comma and space
+    	  aMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
+      }
+
     }
     //Add attachments
     for(int i=0; i<attachments.size(); i++)
@@ -2475,7 +2545,7 @@ private   int   getNum(char letter,   String   a)
     	return null;
     }else{
 
-    	Set<User> recipients = getRecipients();
+    	Map<User, Boolean> recipients = getRecipients();
 
     	if(!getBooleanEmailOut())
     	{
@@ -2486,7 +2556,7 @@ private   int   getNum(char letter,   String   a)
     	}
     	
     	if(!rrepMsg.getDraft()){
-    		incrementSynopticToolInfo(recipients, false);
+    		incrementSynopticToolInfo(recipients.keySet(), false);
     		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false));
     	}
     	//reset contents
@@ -2528,7 +2598,7 @@ private   int   getNum(char letter,   String   a)
     		return null ;
     	}
     	if(!isDraft){
-    		if(selectedComposeToList.size()<1)
+    		if(selectedComposeToList.size()<1 && selectedComposeBccList.size() < 1)
     		{
     			setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
     			return null ;
@@ -2580,6 +2650,29 @@ private   int   getNum(char letter,   String   a)
     		}
     	}
 
+    	//add bcc recipients place holder:
+    	if(selectedComposeBccList.size() > 0 && !sendToString.toString().contains(getResourceBundleString(RECIPIENTS_UNDISCLOSED))){
+    		sendToString.append(getResourceBundleString(RECIPIENTS_UNDISCLOSED)).append("; ");
+    	}
+
+    	//create sendToBccString
+    	StringBuffer sendToBccString = new StringBuffer("");
+    	StringBuffer sendToBccHiddenString = new StringBuffer("");
+    	for (int i = 0; i < selectedComposeBccList.size(); i++)
+    	{
+    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeBccList.get(i));
+    		if(membershipItem != null)
+    		{
+    			if (membershipItem.isViewable()) {
+    				sendToBccString.append(membershipItem.getName()).append("; ");
+    			}
+    			else {
+    				sendToBccHiddenString.append(membershipItem.getName()).append("; ");
+    			}
+    		}          
+    	}
+
+    	//clean sendToString
     	if (! "".equals(sendToString.toString())) {
     		sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
     	}
@@ -2592,6 +2685,20 @@ private   int   getNum(char letter,   String   a)
     		rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
     	}    
 
+    	//clean sendToBccString
+    	//clean sendToString
+    	if (! "".equals(sendToBccString.toString())) {
+    		sendToBccString.delete(sendToBccString.length()-2, sendToBccString.length()); //remove last comma and space
+    	}
+
+    	if ("".equals(sendToBccHiddenString.toString())) {
+    		rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString());
+    	}
+    	else {
+    		sendToBccHiddenString.delete(sendToBccHiddenString.length()-2, sendToBccHiddenString.length()); //remove last comma and space    
+    		rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
+    	}  
+    	
     	//Add attachments
     	for(int i=0; i<allAttachments.size(); i++)
     	{
@@ -2672,7 +2779,7 @@ private   int   getNum(char letter,   String   a)
  private PrivateMessage getPvtMsgForward(PrivateMessage currentMessage, boolean isDraft){
 
 	 if(!isDraft){
-		if(getSelectedComposeToList().size()<1)
+		 if(getSelectedComposeToList().size()<1 && getSelectedComposeBccList().size() < 1)
 		 {
 			 setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
 			 return null ;
@@ -2733,6 +2840,28 @@ private   int   getNum(char letter,   String   a)
     		}
     	}
 
+    	//add bcc recipients place holder:
+    	if(selectedComposeBccList.size() > 0 && !sendToString.toString().contains(getResourceBundleString(RECIPIENTS_UNDISCLOSED))){
+    		sendToString.append(getResourceBundleString(RECIPIENTS_UNDISCLOSED)).append("; ");
+    	}
+
+    	StringBuffer sendToBccString = new StringBuffer();
+    	StringBuffer sendToBccHiddenString = new StringBuffer();
+    	for (int i = 0; i < selectedComposeBccList.size(); i++)
+    	{
+    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeBccList.get(i));
+    		if(membershipItem != null)
+    		{
+    			if (membershipItem.isViewable()) {
+    				sendToBccString.append(membershipItem.getName()).append("; ");
+    			}
+    			else {
+    				sendToBccHiddenString.append(membershipItem.getName()).append("; ");
+    			}
+    		}          
+    	}
+
+    	//clean sendToString
     	if (! "".equals(sendToString.toString())) {
     		sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
     	}
@@ -2743,19 +2872,32 @@ private   int   getNum(char letter,   String   a)
     	else {
     		sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space    
     		rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
-    	}    
+    	}       	      
+    	
+    	//clean sendToBccString
+    	if (! "".equals(sendToBccString.toString())) {
+    		sendToBccString.delete(sendToBccString.length()-2, sendToBccString.length()); //remove last comma and space
+    	}
 
+    	if ("".equals(sendToBccHiddenString.toString())) {
+    		rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString());
+    	}
+    	else {
+    		sendToBccHiddenString.delete(sendToBccHiddenString.length()-2, sendToBccHiddenString.length()); //remove last comma and space    
+    		rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
+    	} 
+    	
     	//Add attachments
     	for(int i=0; i<allAttachments.size(); i++)
     	{
     		prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
-    	}        
+    	}  
     	
     	return rrepMsg;
     }
     
     private void processPvtMsgForwardSendHelper(PrivateMessage rrepMsg){
-    	Set<User> recipients = getRecipients();
+    	Map<User, Boolean> recipients = getRecipients();
     	
     	if(!getBooleanEmailOut())
     	{
@@ -2767,7 +2909,7 @@ private   int   getNum(char letter,   String   a)
 
     	if(!rrepMsg.getDraft()){
     		//update Synoptic tool info
-    		incrementSynopticToolInfo(recipients, false);
+    		incrementSynopticToolInfo(recipients.keySet(), false);
     		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
     	}
     	//reset contents
@@ -2879,12 +3021,6 @@ private   int   getNum(char letter,   String   a)
 		  prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
 	  }            
 
-
-	  Set returnSetreplyall = new HashSet();
-
-	  returnSetreplyall=getRecipients();
-	  //  	1
-
 	  User autheruser=null;
 	  try {
 		  autheruser = UserDirectoryService.getUser(currentMessage.getCreatedBy());
@@ -2902,7 +3038,7 @@ private   int   getNum(char letter,   String   a)
 
 	  List tmpRecipList = currentMessage.getRecipients();
 
-	  Set returnSet = new HashSet();
+	  Map<User, Boolean> returnSet = new HashMap<User, Boolean>();
 	  StringBuffer sendToStringreplyall = new StringBuffer();
 
 	  Iterator iter = tmpRecipList.iterator();
@@ -2921,9 +3057,9 @@ private   int   getNum(char letter,   String   a)
 		  if (replyrecipientaddtmp == null)
 			  throw new IllegalStateException(
 					  "User replyrecipientaddtmp == null!");
-		  if((!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) ) )//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
+		  if(!(replyrecipientaddtmp.getDisplayName()).equals(getUserName()) && !tmpPMR.getBcc())//&&(!(replyrecipientaddtmp.getDisplayName()).equals(msgauther)))
 		  {
-			  returnSet.add(replyrecipientaddtmp);
+			  returnSet.put(replyrecipientaddtmp, tmpPMR.getBcc());
 		  }
 
 	  }
@@ -2932,13 +3068,13 @@ private   int   getNum(char letter,   String   a)
 		  sendToStringreplyall.append(currentMessage.getRecipientsAsText()).append("; ");
 	  }
 	  if(returnSet.isEmpty()) {
-		  returnSet.add(autheruser);
+		  returnSet.put(autheruser, false);
 		  if(!sendToStringreplyall.toString().contains(msgauther)){
 			  //only add it to the reply string if it doesn't exist
 			  sendToStringreplyall.append(msgauther).append("; ");
 		  }
 	  }
-	  if(returnSet.contains(autheruser) && !sendToStringreplyall.toString().contains(msgauther)){
+	  if(returnSet.containsKey(autheruser) && !sendToStringreplyall.toString().contains(msgauther)){
 		  sendToStringreplyall.append(msgauther).append("; ");
 	  }
 
@@ -2974,8 +3110,30 @@ private   int   getNum(char letter,   String   a)
 		  }
 	  }
 
+	  //add bcc recipients place holder:
+	  if(selectedComposeBccList.size() > 0 && !sendToString.toString().contains(getResourceBundleString(RECIPIENTS_UNDISCLOSED))){
+		  sendToString.append(getResourceBundleString(RECIPIENTS_UNDISCLOSED)).append("; ");
+	  }
 
-	  if (! "".equals(sendToString)) {
+	  //create sendToBccString
+	  StringBuffer sendToBccString = new StringBuffer();
+	  StringBuffer sendToBccHiddenString = new StringBuffer();
+	  for (int i = 0; i < selectedComposeBccList.size(); i++)
+	  {
+		  MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeBccList.get(i));
+		  if(membershipItem != null)
+		  {
+			  if (membershipItem.isViewable()) {
+				  sendToBccString.append(membershipItem.getName()).append("; ");
+			  }
+			  else {
+				  sendToBccHiddenString.append(membershipItem.getName()).append("; ");
+			  }
+		  }          
+	  }
+
+	  //clean sendToString
+	  if (! "".equals(sendToString.toString()) && sendToString.length() >= 2) {
 		  sendToString.delete(sendToString.length()-2, sendToString.length()); //remove last comma and space
 	  }
 
@@ -2987,13 +3145,26 @@ private   int   getNum(char letter,   String   a)
 		  rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
 	  }
 
+	  //clean sendToBccString
+	  if (! "".equals(sendToBccString.toString()) && sendToBccString.length() >= 2) {
+		  sendToBccString.delete(sendToBccString.length()-2, sendToBccString.length()); //remove last comma and space
+	  }
+
+	  if ("".equals(sendToBccHiddenString.toString())) {
+		  rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString());
+	  }
+	  else {
+		  sendToBccHiddenString.delete(sendToBccHiddenString.length()-2, sendToBccHiddenString.length()); //remove last comma and space    
+		  rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
+	  }
 
 	  //Add selected users to reply all list
 
-	  Set<User> recipients = getRecipients();
-	  for (User user : recipients) {
-		  if(!returnSet.contains(user)){
-			  returnSet.add(user);
+	  Map<User, Boolean> recipients = getRecipients();
+	  for (Iterator<Entry<User, Boolean>> i = recipients.entrySet().iterator(); i.hasNext();){
+		  Entry<User, Boolean> entrySet = (Entry<User, Boolean>) i.next();
+		  if(!returnSet.containsKey(entrySet.getKey())){
+			  returnSet.put(entrySet.getKey(), entrySet.getValue());
 		  }
 	  }
 	  if(!preview){
@@ -3008,7 +3179,7 @@ private   int   getNum(char letter,   String   a)
 
 		  if(!rrepMsg.getDraft()){
 			  //update Synoptic tool info
-			  incrementSynopticToolInfo(returnSet, false);
+			  incrementSynopticToolInfo(returnSet.keySet(), false);
 			  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
 		  }
 		  //reset contents
@@ -4226,119 +4397,85 @@ private   int   getNum(char letter,   String   a)
    * get recipients
    * @return a set of recipients (User objects)
    */
-  private Set getRecipients()
+  private Map<User, Boolean> getRecipients()
   {     
-    List selectedList = getSelectedComposeToList();    
-    Set returnSet = new HashSet();
+	  Map<User, Boolean> returnSet = new HashMap<User, Boolean>();
     
     /** get List of unfiltered course members */
-    List allCourseUsers = membershipManager.getAllCourseUsers();                                       
-                    
-    for (Iterator i = selectedList.iterator(); i.hasNext();){
-      String selectedItem = (String) i.next();
-      
-      /** lookup item in map */
-      MembershipItem item = (MembershipItem) courseMemberMap.get(selectedItem);
-      if (item == null){
-        LOG.warn("getRecipients() could not resolve uuid: " + selectedItem);
-      }
-      else{                              
-        if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
-          for (Iterator a = allCourseUsers.iterator(); a.hasNext();){
-            MembershipItem member = (MembershipItem) a.next();            
-              returnSet.add(member.getUser());
-           }
-          //if all users have been selected we may as well return and ignore any other entries
-          return returnSet;
-        }
-        else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
-          for (Iterator r = allCourseUsers.iterator(); r.hasNext();){
-            MembershipItem member = (MembershipItem) r.next();
-            if (member.getRole().equals(item.getRole())){
-              returnSet.add(member.getUser());
-            }
-          }
-        }
-        else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
-          for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
-            MembershipItem member = (MembershipItem) g.next();            
-            Set groupMemberSet = item.getGroup().getMembers();
-            for (Iterator s = groupMemberSet.iterator(); s.hasNext();){
-              Member m = (Member) s.next();
-              if (m.getUserId() != null && m.getUserId().equals(member.getUser().getId())){
-                returnSet.add(member.getUser());
-              }
-            }            
-          }
-        }
-        else if (MembershipItem.TYPE_USER.equals(item.getType())){
-          returnSet.add(item.getUser());
-        } 
-        else{
-          LOG.warn("getRecipients() could not resolve membership type: " + item.getType());
-        }
-      }             
+    List allCourseUsers = membershipManager.getAllCourseUsers();    
+    
+    Map<User, Boolean> composeToSet = getRecipientsHelper(getSelectedComposeToList(), allCourseUsers, false);
+    Map<User, Boolean> composeBccSet = getRecipientsHelper(getSelectedComposeBccList(), allCourseUsers, true);
+
+    //first add the BCC list, then remove the duplicates, then add the regular To list
+    //Do this to make the regular TO list have precident over the BCC list.  This is done
+    //because of the recipientsAsText list that is created.  When replying, it would cause 
+    //names to show up that are BCC'ed, and who don't actually get replies
+    returnSet.putAll(composeBccSet);
+    //remove all duplicates by doing this first:
+    for (Iterator iterator = composeToSet.keySet().iterator(); iterator.hasNext();) {
+    	User user = (User) iterator.next();
+    	if(returnSet.containsKey(user)){
+    		returnSet.remove(user);
+    	}
     }
+    //now add them all back
+    returnSet.putAll(composeToSet);
+    
     return returnSet;
   }
   //=========HUXT BEGIN
   
-  private Set getRecipientsreplyall()
-  {     
-    List selectedList = getSelectedComposeToList();    
-    Set returnSet = new HashSet();
-    
-    /** get List of unfiltered course members */
-    List allCourseUsers = membershipManager.getAllCourseUsers();                                       
-                    
-    for (Iterator i = selectedList.iterator(); i.hasNext();){
-      String selectedItem = (String) i.next();
-      
-      /** lookup item in map */
-      MembershipItem item = (MembershipItem) courseMemberMap.get(selectedItem);
-      
-      
-      if (item == null){
-        LOG.warn("getRecipients() could not resolve uuid: " + selectedItem);
-      }
-      else{                              
-        if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
-          for (Iterator a = allCourseUsers.iterator(); a.hasNext();){
-            MembershipItem member = (MembershipItem) a.next();            
-            returnSet.add(member.getUser());
-            //if all users have been selected we may as well return and ignore any other entries
-            return returnSet;
-          }
-        }
-        else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
-          for (Iterator r = allCourseUsers.iterator(); r.hasNext();){
-            MembershipItem member = (MembershipItem) r.next();
-            if (member.getRole().equals(item.getRole())){
-              returnSet.add(member.getUser());
-            }
-          }
-        }
-        else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
-          for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
-            MembershipItem member = (MembershipItem) g.next();            
-            Set groupMemberSet = item.getGroup().getMembers();
-            for (Iterator s = groupMemberSet.iterator(); s.hasNext();){
-              Member m = (Member) s.next();
-              if (m.getUserId() != null && m.getUserId().equals(member.getUser().getId())){
-                returnSet.add(member.getUser());
-              }
-            }            
-          }
-        }
-        else if (MembershipItem.TYPE_USER.equals(item.getType())){
-          returnSet.add(item.getUser());
-        } 
-        else{
-          LOG.warn("getRecipients() could not resolve membership type: " + item.getType());
-        }
-      }             
-    }
-    return returnSet;
+  private Map<User, Boolean> getRecipientsHelper(List selectedList, List allCourseUsers, boolean bcc){
+
+	  Map<User, Boolean>  returnSet = new HashMap<User, Boolean>();
+
+	  for (Iterator i = selectedList.iterator(); i.hasNext();){
+		  String selectedItem = (String) i.next();
+
+		  /** lookup item in map */
+		  MembershipItem item = (MembershipItem) courseMemberMap.get(selectedItem);
+		  if (item == null){
+			  LOG.warn("getRecipients() could not resolve uuid: " + selectedItem);
+		  }
+		  else{                              
+			  if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())){
+				  for (Iterator a = allCourseUsers.iterator(); a.hasNext();){
+					  MembershipItem member = (MembershipItem) a.next();            
+					  returnSet.put(member.getUser(), bcc);
+				  }
+				  //if all users have been selected we may as well return and ignore any other entries
+				  return returnSet;
+			  }
+			  else if (MembershipItem.TYPE_ROLE.equals(item.getType())){
+				  for (Iterator r = allCourseUsers.iterator(); r.hasNext();){
+					  MembershipItem member = (MembershipItem) r.next();
+					  if (member.getRole().equals(item.getRole())){
+						  returnSet.put(member.getUser(), bcc);
+					  }
+				  }
+			  }
+			  else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
+				  for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
+					  MembershipItem member = (MembershipItem) g.next();            
+					  Set groupMemberSet = item.getGroup().getMembers();
+					  for (Iterator s = groupMemberSet.iterator(); s.hasNext();){
+						  Member m = (Member) s.next();
+						  if (m.getUserId() != null && m.getUserId().equals(member.getUser().getId())){
+							  returnSet.put(member.getUser(), bcc);
+						  }
+					  }            
+				  }
+			  }
+			  else if (MembershipItem.TYPE_USER.equals(item.getType())){
+				  returnSet.put(item.getUser(), bcc);
+			  } 
+			  else{
+				  LOG.warn("getRecipients() could not resolve membership type: " + item.getType());
+			  }
+		  }             
+	  }
+	  return returnSet;
   }
   
   //=========huxt ENG

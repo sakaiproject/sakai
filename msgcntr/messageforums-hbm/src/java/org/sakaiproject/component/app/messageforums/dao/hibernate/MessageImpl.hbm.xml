@@ -118,6 +118,9 @@
           <property name="read">
             <column name="READ_STATUS" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
           </property>
+          <property name="bcc">
+            <column name="BCC" not-null="true"  default="0"/>
+          </property>
   	    </composite-element>  	      	    
   	  </list>
   	  
@@ -130,6 +133,9 @@
       <property name="recipientsAsText" type="text" not-null="false" >
         <column name="RECIPIENTS_AS_TEXT"/>
       </property>      
+      <property name="recipientsAsTextBcc" type="text" not-null="false" >
+        <column name="RECIPIENTS_AS_TEXT_BCC"/>
+      </property> 
     </subclass>
     
   </class>

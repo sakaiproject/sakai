@@ -35,7 +35,8 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
     private List recipients = null;//new UniqueArrayList();  addRecipient(MessageForumsUser user)
     private Boolean externalEmail;
     private String externalEmailAddress;
-    private String recipientsAsText;//
+    private String recipientsAsText;
+    private String recipientsAsTextBcc;
     
     public static Comparator RECIPIENT_LIST_COMPARATOR_ASC;
     public static Comparator RECIPIENT_LIST_COMPARATOR_DESC;
@@ -74,6 +75,14 @@ public class PrivateMessageImpl extends MessageImpl implements PrivateMessage {
 		public void setRecipientsAsText(String recipientsAsText) {
 			this.recipientsAsText = recipientsAsText;
 		}
+		
+	public String getRecipientsAsTextBcc() {
+		return recipientsAsTextBcc;
+	}
+
+	public void setRecipientsAsTextBcc(String recipientsAsTextBcc) {
+		this.recipientsAsTextBcc = recipientsAsTextBcc;
+	}
         
 //    public int getTindex() {
 //        try {
