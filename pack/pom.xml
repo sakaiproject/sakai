@@ -23,7 +23,7 @@
     <properties>
         <maven.prereq.version>2.0.10</maven.prereq.version>
         <sakai.plugin.version>2.2</sakai.plugin.version>
-        <sakai.tomcat.version>5.5.32</sakai.tomcat.version>
+        <sakai.tomcat.version>5.5.33</sakai.tomcat.version>
     </properties>
     
     <modules>
