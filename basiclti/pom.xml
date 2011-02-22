@@ -210,24 +210,14 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>javax.portlet</groupId>
                 <artifactId>portlet-api</artifactId>
                 <version>1.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-      			<groupId>org.sakaiproject.entitybroker</groupId>
-      			<artifactId>entitybroker-utils</artifactId>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+		<artifactId>entitybroker-utils</artifactId>
             	<version>1.5-SNAPSHOT</version>
             </dependency>
             <dependency>
