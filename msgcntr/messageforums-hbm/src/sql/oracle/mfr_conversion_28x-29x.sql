@@ -135,3 +135,10 @@ alter table MFR_OPEN_FORUM_T modify (POST_FIRST NUMBER(1,0) not null);
 alter table MFR_TOPIC_T add (POST_FIRST NUMBER(1,0));
 update MFR_TOPIC_T set POST_FIRST =0 where POST_FIRST is NULL;
 alter table MFR_TOPIC_T modify (POST_FIRST NUMBER(1,0) not null);
+
+
+-- MSGCNTR-329 - Add BCC option to Messages
+alter table MFR_PVT_MSG_USR_T add (BCC NUMBER(1,0));
+update MFR_PVT_MSG_USR_T set BCC=0 where BCC is NULL;
+alter table MFR_PVT_MSG_USR_T modify (BCC NUMBER(1,0) not null); 
+alter table MFR_MESSAGE_T add column RECIPIENTS_AS_TEXT_BCC VARCHAR2(4000);
