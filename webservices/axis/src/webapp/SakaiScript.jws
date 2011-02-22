@@ -68,6 +68,9 @@ public class SakaiScript {
 private static final Log LOG = LogFactory.getLog(SakaiScript.class);
 
 private static final String ADMIN_SITE_REALM = "/site/!admin";
+private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
+private static final String SESSION_ATTR_VALUE_ORIGIN_WS = "sakai-axis";
+
 
 private AuthzGroupService authzGroupService;
 private CalendarService calendarService;
@@ -1566,8 +1569,8 @@ public String getSitesUserCanAccess(String sessionid) throws AxisFault
 public String getSitesUserCanAccess(String sessionid, String userid) throws AxisFault
 {
 	
-	//get a session for the other user
-	String newsessionid = getSessionForUser(sessionid, userid);
+	//get a session for the other user, reuse if possible
+	String newsessionid = getSessionForUser(sessionid, userid, true);
 	
 	//might be an exception that was returned, so check session is valid.
 	Session session = establishSession(newsessionid);
@@ -1657,8 +1660,8 @@ public String getAllSitesForUser(String sessionid) throws AxisFault
 public String getAllSitesForUser(String sessionid, String userid) throws AxisFault
 {
 	
-	//get a session for the other user
-	String newsessionid = getSessionForUser(sessionid, userid);
+	//get a session for the other user, reuse if possible
+	String newsessionid = getSessionForUser(sessionid, userid, true);
 	
 	//might be an exception that was returned, so check session is valid.
 	Session session = establishSession(newsessionid);
@@ -2831,16 +2834,17 @@ public String getAllUsers(String sessionid) throws AxisFault
  * This new sessionid can then be used with getSitesUserCanAccess() to get the sites for the given user.
  * 
  * @param	sessionid	the sessionid of a valid session for a super user
- * @param	eid		the eid of the user you want to create a session for
+ * @param	eid			the eid of the user you want to create a session for
+ * @param	wsonly		should the session created be ties to the web services only?
+ * 						the initial implementation of this will just set an attribute on the Session that identifies it as originating from the web services.
+ * 						but in essence it will be just like a normal session. However this attribute is used elsewhere for filtering for these web service sessions.
  * @return				the sessionid for the user specified
  * @throws	AxisFault	if any data is missing,
  * 						not super user, 
  * 						or session cannot be established
  */
-
-public String getSessionForUser(String sessionid, String eid) throws AxisFault
-{
-
+public String getSessionForUser(String sessionid, String eid, boolean wsonly) throws AxisFault {
+	
 	Session session = establishSession(sessionid);
 	
 	//check that ONLY super user's are accessing this	
@@ -2857,12 +2861,20 @@ public String getSessionForUser(String sessionid, String eid) throws AxisFault
 			throw new AxisFault("WS failed. Param eid empty.");
 		}
 		
-		//do we already have a session for the given user? If so, reuse it.
-		List<Session> existingSessions = sessionManager.getSessions();
-		for(Session existingSession: existingSessions){
-			if(StringUtils.equals(existingSession.getUserEid(), eid)) {
-				LOG.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
-				return existingSession.getId();
+		//if dealing with web service sessions, re-use is ok
+		if(wsonly) {
+			//do we already have a web service session for the given user? If so, reuse it.
+			List<Session> existingSessions = sessionManager.getSessions();
+			for(Session existingSession: existingSessions){
+				if(StringUtils.equals(existingSession.getUserEid(), eid)) {
+					
+					//check if the origin attribute, if set, is set for web services
+					String origin = (String)existingSession.getAttribute(SESSION_ATTR_NAME_ORIGIN);
+					if(StringUtils.equals(origin, SESSION_ATTR_VALUE_ORIGIN_WS)) {
+						LOG.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
+						return existingSession.getId();
+					}
+				}
 			}
 		}
 		
@@ -2878,6 +2890,12 @@ public String getSessionForUser(String sessionid, String eid) throws AxisFault
 		User user = userDirectoryService.getUserByEid(eid);
 		newsession.setUserEid(eid);
 		newsession.setUserId(user.getId());
+		
+		//if wsonly, inject the origin attribute
+		if(wsonly) {
+			newsession.setAttribute(SESSION_ATTR_NAME_ORIGIN, SESSION_ATTR_VALUE_ORIGIN_WS);
+			LOG.warn("WS getSessionForUser() set origin attribute on session: " + newsession.getId());
+		}
 		
 		//register the session with presence
         UsageSession usagesession = usageSessionService.startSession(user.getId(),ipAddress,"SakaiScript.jws getSessionForUser()");
@@ -2901,6 +2919,21 @@ public String getSessionForUser(String sessionid, String eid) throws AxisFault
 	}
 	
 }
+
+/**
+ * Alternate (original) form of getSessionForUser that creates normal sessions for users.
+ * @param	sessionid	the sessionid of a valid session for a super user
+ * @param	eid		the eid of the user you want to create a session for
+ * @return				the sessionid for the user specified
+ * @throws	AxisFault	if any data is missing,
+ * 						not super user, 
+ * 						or session cannot be established
+ */
+public String getSessionForUser(String sessionid, String eid) throws AxisFault
+{
+	return getSessionForUser(sessionid, eid, false);
+}
+
 
 
 /**
@@ -3161,8 +3194,8 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 public String getPagesAndToolsForSite(String sessionid, String userid, String siteid) throws AxisFault
 {
 	
-	//get a session for the other user
-	String newsessionid = getSessionForUser(sessionid, userid);
+	//get a session for the other user, reuse if possible
+	String newsessionid = getSessionForUser(sessionid, userid, true);
 	
 	//might be an exception that was returned, so check session is valid.
 	Session session = establishSession(newsessionid);
