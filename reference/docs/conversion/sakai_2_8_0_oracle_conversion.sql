@@ -269,10 +269,10 @@ create sequence URL_RANDOMISED_MAPPINGS_S;
 
 -- SAK-18864/SAK-19951/SAK-19965 added create statement for scheduler_trigger_events
 create table SCHEDULER_TRIGGER_EVENTS (
-	UUID varchar2(36) NOT NULL,
-	EVENTTYPE varchar2(255) NOT NULL,
-	JOBNAME varchar2(255) NOT NULL,
-	TRIGGERNAME varchar2(255),
+	UUID varchar2(36 CHAR) NOT NULL,
+	EVENTTYPE varchar2(255 CHAR) NOT NULL,
+	JOBNAME varchar2(255 CHAR) NOT NULL,
+	TRIGGERNAME varchar2(255 CHAR),
 	EVENTTIME timestamp NOT NULL,
 	MESSAGE clob,
 	primary key (UUID)
