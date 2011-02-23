@@ -1,92 +1,75 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>dav-base</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>dav-base</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <version>2.9-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <name>dav</name>
     <groupId>org.sakaiproject</groupId>
-    <version>2.9-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>dav</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>dav</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2002</inceptionYear>
-  <packaging>war</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-user-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-dav-common</artifactId>
-    </dependency>
-<!--org.sakaiprojectsakai-content-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-util${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
-<!-- in tomcat common, so no need to bundle -->
-    <dependency>
-      <groupId>tomcat</groupId>
-      <artifactId>naming-resources</artifactId>
-      <version>${sakai.tomcat.version}</version>
-    </dependency>
-<!-- in tomcat server lib, so we need it here, too -->
-    <dependency>
-      <groupId>tomcat</groupId>
-      <artifactId>catalina</artifactId>
-      <version>${sakai.tomcat.version}</version>
-    </dependency>
-<!-- in tomcat server lib, so we need it here, too -->
-    <dependency>
-      <groupId>tomcat</groupId>
-      <artifactId>catalina-optional</artifactId>
-      <version>${sakai.tomcat.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-<!-- WAS LOGIN -->
-    <dependency>
-      <groupId>org.sakaiproject.was</groupId>
-      <artifactId>was-login-module</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <resources/>
-  </build>
+    <artifactId>dav</artifactId>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2002</inceptionYear>
+    <packaging>war</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-dav-common</artifactId>
+        </dependency>
+        <!-- in tomcat common, so no need to bundle -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>naming-resources</artifactId>
+            <version>tomcat-${sakai.tomcat.version}</version>
+        </dependency>
+        <!-- in tomcat server lib, so we need it here, too -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina</artifactId>
+            <version>tomcat-${sakai.tomcat.version}</version>
+        </dependency>
+        <!-- in tomcat server lib, so we need it here, too -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>catalina-optional</artifactId>
+            <version>tomcat-${sakai.tomcat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+        </dependency>
+        <!-- WAS LOGIN -->
+        <dependency>
+            <groupId>org.sakaiproject.was</groupId>
+            <artifactId>was-login-module</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <resources />
+    </build>
 </project>
