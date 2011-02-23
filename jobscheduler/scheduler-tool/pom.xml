@@ -62,11 +62,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-tool</artifactId>
             <version>${sakai.jsf.version}</version>
