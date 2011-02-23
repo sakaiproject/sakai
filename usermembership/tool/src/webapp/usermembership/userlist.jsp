@@ -162,6 +162,7 @@
 		</p>		
 		<t:div styleClass="act" rendered="#{!UserListBean.emptyUserList && UserListBean.renderTable}">
 			<h:commandButton id="exportCsv" actionListener="#{UserListBean.exportAsCsv}" value="#{msgs.export_csv_button}"/>
+			<h:commandButton id="exportXls" actionListener="#{UserListBean.exportAsXls}" value="#{msgs.export_excel_button}"/>
 		</t:div>
 		</t:div>	
 

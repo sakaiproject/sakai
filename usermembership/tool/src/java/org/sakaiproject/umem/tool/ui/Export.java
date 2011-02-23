@@ -21,54 +21,40 @@
 
 package org.sakaiproject.umem.tool.ui;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
-import javax.faces.application.StateManager;
-import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.util.ResourceLoader;
 
 
 public class Export {
+	
 	/** Our log (commons). */
 	private static Log						LOG		= LogFactory.getLog(SiteListBean.class);
 	/** Resource bundle */
 	private static transient ResourceLoader	msgs	= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 
-	public static void writeAsCsv(String csvString, String prefixFileName) {
-		String fileName = getFileName(prefixFileName);
-		FacesContext faces = FacesContext.getCurrentInstance();
-		HttpServletResponse response = (HttpServletResponse) faces.getExternalContext().getResponse();
-		protectAgainstInstantDeletion(response);
-		response.setContentType("text/comma-separated-values");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
-		response.setContentLength(csvString.length());
-		OutputStream out = null;
-		try{
-			out = response.getOutputStream();
-			out.write(csvString.getBytes());
-			out.flush();
-		}catch(IOException e){
-			LOG.error(e);
-			e.printStackTrace();
-		}finally{
-			try{
-				if(out != null) out.close();
-			}catch(IOException e){
-				LOG.error(e);
-				e.printStackTrace();
-			}
-		}
-		faces.responseComplete();
-		StateManager stateManager = (StateManager) faces.getApplication().getStateManager();
-		stateManager.saveSerializedView(faces);
+    /**
+     * Given tabular data and the file-name, export the data to the response output
+     * stream as an excel workbook.
+     * @param content The tabular data to export
+     * @param prefixFileName A filename prefix. This will be appended with unique data and the proper file extension.
+     */
+    public static void writeAsXls(List<List<Object>> content, String prefixFileName) {
+		SpreadsheetUtil.downloadSpreadsheetData(content, getFileName(prefixFileName), new SpreadsheetDataFileWriterXls());
+    }
+
+	public static void writeAsCsv(List<List<Object>> content, String prefixFileName) {
+		SpreadsheetUtil.downloadSpreadsheetData(content, getFileName(prefixFileName), new SpreadsheetDataFileWriterCsv());
 	}
 
 	public static StringBuilder appendQuoted(StringBuilder sb, String toQuote) {

@@ -59,6 +59,11 @@
       <artifactId>myfaces-widgets-depend</artifactId>
       <type>pom</type>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-spreadsheet</artifactId>
+      <version>${sakai.jsf.version}</version>
+    </dependency>
     <!-- Apache Commons -->
     <dependency>
       <groupId>commons-codec</groupId>

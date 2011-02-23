@@ -101,6 +101,7 @@
 		<t:div styleClass="act" rendered="#{SiteListBean.allowed}">
 			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active"/>
 			<h:commandButton id="exportCsv" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_csv_button}" rendered="#{!SiteListBean.emptySiteList}" />
+			<h:commandButton id="exportXls" actionListener="#{SiteListBean.exportAsXls}" value="#{msgs.export_excel_button}" rendered="#{!SiteListBean.emptySiteList}" />
 		</t:div>
 	  	
 

@@ -30,9 +30,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -791,52 +793,53 @@ public class UserListBean {
 	// CSV export
 	// ######################################################################################
 	public void exportAsCsv(ActionEvent event) {
-		Export.writeAsCsv(getAsCsv(userRows), "UserListing");
+		Export.writeAsCsv(buildDataTable(userRows), "UserListing");
+	}
+	
+    /**
+     * Export the data in this user list to the response stream as an Excel workbook
+     * @param event
+     */
+    public void exportAsXls(ActionEvent event) {
+		Export.writeAsXls(buildDataTable(userRows), "UserListing");
 	}
 
-	private String getAsCsv(List list) {
-		StringBuilder sb = new StringBuilder();
-
-		// Add the headers
-		Export.appendQuoted(sb, msgs.getString("user_id"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("internal_user_id"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("user_name"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("user_email"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("user_type"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("user_authority"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("user_created_on"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("user_modified_on"));
-		sb.append("\n");
-
-		// Add the data
-		Iterator i = list.iterator();
-		while (i.hasNext()){
-			UserRow usr = (UserRow) i.next();
-			// user name
-			Export.appendQuoted(sb, usr.getUserEID());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getUserID());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getUserName());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getUserEmail());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getUserType());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getAuthority());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getCreatedOn());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getModifiedOn());
-			sb.append("\n");
+	/**
+	 * Build a generic tabular representation of the user membership data export.
+	 * 
+	 * @param userRows The content of the table
+	 * @return
+	 * 	A table of data suitable to be exported
+	 */
+	private List<List<Object>> buildDataTable(List<UserRow> userRows) {
+		List<List<Object>> table = new LinkedList<List<Object>>();
+		
+		//add header row
+		List<Object> header = new ArrayList<Object>();
+		header.add(msgs.getString("user_id"));
+		header.add(msgs.getString("internal_user_id"));
+		header.add(msgs.getString("user_name"));
+		header.add(msgs.getString("user_email"));
+		header.add(msgs.getString("user_type"));
+		header.add(msgs.getString("user_authority"));
+		header.add(msgs.getString("user_created_on"));
+		header.add(msgs.getString("user_modified_on"));
+		table.add(header);
+		
+		//add data rows
+		for (UserRow userRow : userRows) {
+			List<Object> currentRow = new ArrayList<Object>();
+			currentRow.add(userRow.getUserEID());
+			currentRow.add(userRow.getUserID());
+			currentRow.add(userRow.getUserName());
+			currentRow.add(userRow.getUserEmail());
+			currentRow.add(userRow.getUserType());
+			currentRow.add(userRow.getAuthority());
+			currentRow.add(userRow.getCreatedOn());
+			currentRow.add(userRow.getModifiedOn());
+			table.add(currentRow);
 		}
-		return sb.toString();
+		
+		return table;
 	}
 }

@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +44,8 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -574,54 +575,51 @@ public class SiteListBean {
 	// CSV export
 	// ######################################################################################
 	public void exportAsCsv(ActionEvent event) {
-		String prefix = "Membership_for_"+getUserDisplayId();
-		Export.writeAsCsv(getAsCsv(userSitesRows), prefix);
+		Export.writeAsCsv(buildDataTable(userSitesRows), getFileNamePrefix());
 	}
 
-	private String getAsCsv(List list) {
-		StringBuilder sb = new StringBuilder();
-
-		// Add the headers
-		Export.appendQuoted(sb, msgs.getString("site_name"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("site_id"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("groups"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("site_type"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("site_term"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("role_name"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("status"));
-		sb.append(",");
-		Export.appendQuoted(sb, msgs.getString("site_user_status"));
-		sb.append("\n");
-
-		// Add the data
-		Iterator i = list.iterator();
-		while (i.hasNext()){
-			UserSitesRow usr = (UserSitesRow) i.next();
-			// user name
-			Export.appendQuoted(sb, usr.getSiteTitle());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getSiteId());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getGroups());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getSiteType());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getSiteTerm());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getRoleName());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getPubView());
-			sb.append(",");
-			Export.appendQuoted(sb, usr.getUserStatus());
-			sb.append("\n");
-		}
-		return sb.toString();
+	public void exportAsXls(ActionEvent event) {
+		Export.writeAsXls(buildDataTable(userSitesRows), getFileNamePrefix());
 	}
 	
+	private String getFileNamePrefix() {
+		return "Membership_for_"+getUserDisplayId();
+	}
+	
+	/**
+	 * Build a generic tabular representation of the user site membership data export.
+	 * 
+	 * @param userSites The content of the table
+	 * @return
+	 * 	A table of data suitable to be exported
+	 */
+	private List<List<Object>> buildDataTable(List<UserSitesRow> userSites) {
+		List<List<Object>> table = new LinkedList<List<Object>>();
+		
+		List<Object> header = new ArrayList<Object>();
+		header.add(msgs.getString("site_name"));
+		header.add(msgs.getString("site_id"));
+		header.add(msgs.getString("groups"));
+		header.add(msgs.getString("site_type"));
+		header.add(msgs.getString("site_term"));
+		header.add(msgs.getString("role_name"));
+		header.add(msgs.getString("status"));
+		header.add(msgs.getString("site_user_status"));
+		table.add(header);
+		
+		for (UserSitesRow userSiteRow : userSites) {
+			List<Object> currentRow = new ArrayList<Object>();
+			currentRow.add(userSiteRow.getSiteTitle());
+			currentRow.add(userSiteRow.getSiteId());
+			currentRow.add(userSiteRow.getGroups());
+			currentRow.add(userSiteRow.getSiteType());
+			currentRow.add(userSiteRow.getSiteTerm());
+			currentRow.add(userSiteRow.getRoleName());
+			currentRow.add(userSiteRow.getPubView());
+			currentRow.add(userSiteRow.getUserStatus());
+			table.add(currentRow);
+		}
+		
+		return table;
+	}	
 }
