@@ -3349,12 +3349,13 @@ public class ListItem
 		}
 		String context = m_reference.getContext();
 		// what happens if context is null??
-		String siteCollection = ContentHostingService.getSiteCollection(context);
-		if(m_reference.getId().equals(siteCollection))
-		{
-			site = true;
+		if (context!=null){
+			String siteCollection = ContentHostingService.getSiteCollection(context);
+			if(m_reference.getId().equals(siteCollection))
+			{
+				site = true;
+			}
 		}
-		
 		return site;
 	}
 
