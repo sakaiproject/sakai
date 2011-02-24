@@ -7567,28 +7567,19 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if ("returngrade".equals(option))
 			{
-				//Added by Branden Visser - Check that the state is consistent
-				if (checkSubmissionStateConsistency(state, actualGradeSubmissionId)) {
 					// return grading
 					doReturn_grade_submission(data);
 				}
-			}
 			else if ("savegrade".equals(option))
 			{
-				//Added by Branden Visser - Check that the state is consistent
-				if (checkSubmissionStateConsistency(state, actualGradeSubmissionId)) {
 					// save grading
 					doSave_grade_submission(data);
 				}
-			}
 			else if ("previewgrade".equals(option))
 			{
-				//Added by Branden Visser - Check that the state is consistent
-				if (checkSubmissionStateConsistency(state, actualGradeSubmissionId)) {
 					// preview grading
 					doPreview_grade_submission(data);
 				}
-			}
 			else if ("cancelgrade".equals(option))
 			{
 				// cancel grading
@@ -7667,10 +7658,10 @@ public class AssignmentAction extends PagedResourceActionII
 	// added by Branden Visser - Check that the state is consistent
 	boolean checkSubmissionStateConsistency(SessionState state, String actualGradeSubmissionId) {
 		String stateGradeSubmissionId = (String)state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
-		Log.debug("chef", "doAssignment_form(): stateGradeSubmissionId = " + stateGradeSubmissionId);
+		Log.debug("chef", "checkSubmissionStateConsistency(): stateGradeSubmissionId = " + stateGradeSubmissionId);
 		boolean is_good = stateGradeSubmissionId.equals(actualGradeSubmissionId);
 		if (!is_good) {
-		    Log.warn("chef", "doAssignment_form(): State is inconsistent! Aborting grade save.");
+		    Log.warn("chef", "checkSubissionStateConsistency(): State is inconsistent! Aborting grade save.");
 		    addAlert(state, rb.getString("grading.alert.multiTab"));
 		}
 		return is_good;
@@ -7851,6 +7842,12 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		ParameterParser params = data.getParameters();
 		String sId = params.getString("submissionId");
+		
+		//Added by Branden Visser - Check that the state is consistent
+		if (!checkSubmissionStateConsistency(state, sId)) {
+			return false;
+		}
+		
 		AssignmentSubmission submission = getSubmission(sId, "readGradeForm", state);
 		
 		// security check for allowing grading submission or not
