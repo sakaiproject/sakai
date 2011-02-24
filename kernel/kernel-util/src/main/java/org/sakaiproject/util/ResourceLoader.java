@@ -49,10 +49,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	protected ClassLoader classLoader = null;
 
 	// cached set of ResourceBundle objects
-	protected Hashtable bundles = new Hashtable();
+	protected Hashtable<Locale, ResourceBundle> bundles = new Hashtable<Locale, ResourceBundle>();
 
     // cached set of last time bundle was loaded
-    protected Hashtable bundlesTimestamp = new Hashtable();
+    protected Hashtable<Locale, Date> bundlesTimestamp = new Hashtable<Locale, Date>();
 
 	// current user id
 	protected String userId = null;
@@ -577,9 +577,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	/**
 	 ** Return the ResourceBundle properties as a Map object
 	 **/
-	protected Map getBundleAsMap()
+	protected Map<Object, Object> getBundleAsMap()
 	{
-		Map bundle = new Hashtable();
+		Map<Object, Object> bundle = new Hashtable<Object, Object>();
 
 		for (Enumeration e = getBundle().getKeys(); e.hasMoreElements();)
 		{
