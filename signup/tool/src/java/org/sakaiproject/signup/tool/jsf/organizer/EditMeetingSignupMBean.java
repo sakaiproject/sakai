@@ -65,7 +65,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private boolean showAttendeeName;
 
 	// private int addMoreTimeslots;
-
+	
+	//Location selected from the dropdown
+	private String selectedLocation;
+	
 	private int durationOfTslot;
 
 	private boolean unlimited;
@@ -571,6 +574,19 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(Utilities.rb.getString("event.timeslot_duration_should_not_lessThan_one"));
 			return;
 		}
+		
+		//Set Location		
+		if (this.signupMeeting.getLocation()==null || this.signupMeeting.getLocation().equals("")){
+			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
+				return;
+			}
+			this.signupMeeting.setLocation(selectedLocation);
+			
+		}
+		//clear the location fields
+		this.selectedLocation="";
 
 	}
 	
@@ -658,6 +674,19 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	public void setSignupMeeting(SignupMeeting signupMeeting) {
 		this.signupMeeting = signupMeeting;
 	}
+	
+	/**
+ 	 * This method is called to get all locations to populate the dropdown
+ 	 * 
+ 	 * @return list of allLocations
+ 	 */
+ 	public List<SelectItem> getAllLocations(){
+ 		
+ 		List<SelectItem> locations= new ArrayList<SelectItem>();
+ 		locations.addAll(Utilities.getSignupMeetingsBean().getAllLocations());
+ 		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
+ 		return locations;
+ 	}
 
 	/**
 	 * Check to see if the attendees are limited in the event/meeting.
@@ -676,6 +705,26 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setUnlimited(boolean unlimited) {
 		this.unlimited = unlimited;
+	}
+	
+	
+	/**
+	 * This is a getter method to provide selected location.
+	 * 
+	 * @return String
+	 */
+	public String getselectedLocation() {
+		return selectedLocation;
+	}
+
+	/**
+	 * This is a setter.
+	 * 
+	 * @param selectedLoction
+	 *           String that represents the selected location
+	 */
+	public void setselectedLocation(String selectedLocation) {
+		this.selectedLocation = selectedLocation;
 	}
 
 	/**

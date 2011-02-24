@@ -34,6 +34,7 @@ import javax.faces.component.html.HtmlInputHidden;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,6 +92,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private boolean recurrence;
 
 	private String signupBeginsType;
+	
+	//Location selected from the dropdown
+	private String selectedLocation;
+	
+	//New Location added in the editable field
+	private String customLocation;
 
 	private String repeatType;
 
@@ -192,6 +199,22 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
 	}
+	
+	public String getselectedLocation() {
+		return selectedLocation;
+	}
+
+	public void setselectedLocation(String selectedLocation) {
+		this.selectedLocation = selectedLocation;
+	}
+	
+	public String getcustomLocation() {
+		return customLocation;
+	}
+
+	public void setcustomLocation(String customLocation) {
+		this.customLocation = customLocation;
+	}
 
 	/**
 	 * The default Constructor. It will initialize all the required variables.
@@ -286,7 +309,20 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
-
+	
+ 	/**
+ 	 * This method is called to get all locations to populate the dropdown, for new signup creation.
+ 	 * 
+ 	 * @return list of allLocations
+ 	 */
+ 	public List<SelectItem> getAllLocations(){
+ 		
+ 		List<SelectItem> locations= new ArrayList<SelectItem>();
+ 		locations.addAll(Utilities.getSignupMeetingsBean().getAllLocations());
+ 		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
+ 		return locations;
+ 	}
+ 	
 	/**
 	 * This is a JSF action call method by UI to navigate to the next page.
 	 * 
@@ -376,6 +412,23 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		String step = (String) currentStepHiddenInfo.getValue();
 
 		if (step.equals("step1")) {
+			
+			//Set Location		
+			if (this.customLocation!=null && !this.customLocation.equals("")){
+				this.signupMeeting.setLocation(customLocation);
+				
+			}
+			else{
+				if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
+					validationError = true;
+					Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
+					return;
+				}
+				this.signupMeeting.setLocation(selectedLocation);
+			}
+			//clear the location fields
+			this.customLocation="";
+			this.selectedLocation="";
 
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
@@ -1685,6 +1738,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	public boolean isAttachmentsEmpty(){
 		if (this.attachments !=null && this.attachments.size()>0)
+			return false;
+		else
+			return true;
+	}
+	
+	public boolean isAllLocationsEmpty(){
+		if (Utilities.getSignupMeetingsBean().isMeetingsAvailable())
 			return false;
 		else
 			return true;

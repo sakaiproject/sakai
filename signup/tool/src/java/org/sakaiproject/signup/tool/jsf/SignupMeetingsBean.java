@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
@@ -169,6 +171,21 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		signupMeetings = null;// TODO:do it more efficiently
 
 		return MAIN_EVENTS_LIST_PAGE_URL;
+	}
+
+	public List<SelectItem> getAllLocations(){
+		
+		Set<String> set = new HashSet<String>();
+		List<SelectItem> locations= new ArrayList<SelectItem>();
+		List<SignupMeetingWrapper> allMeetings = getAllSignupMeetings();
+		for(SignupMeetingWrapper meeting :allMeetings)
+		{
+			String location= meeting.getMeeting().getLocation();
+			if(set.add(meeting.getMeeting().getLocation())){
+				locations.add(new SelectItem(meeting.getMeeting().getLocation()));
+			}
+		}
+		return locations;
 	}
 
 	/**
