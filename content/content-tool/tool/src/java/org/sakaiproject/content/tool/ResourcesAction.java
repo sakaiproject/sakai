@@ -4057,6 +4057,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("tlang",trb);
 		context.put("slang",srb);
 		
+		// Issue SAK-19442
+		// ... pass the resource loader object
+		ResourceLoader pRb = new ResourceLoader("permissions");
+		HashMap<String, String> pRbValues = new HashMap<String, String>();
+		for(Iterator<Entry<String, String>> mapIter = pRb.entrySet().iterator(); mapIter.hasNext();)
+		{
+			Entry<String, String> entry = mapIter.next();
+			pRbValues.put(entry.getKey(), entry.getValue());
+		}
+		state.setAttribute("permissionDescriptions",  pRbValues);
+		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
@@ -6661,15 +6672,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsHelper.PREFIX, "content.");
 
-		// ... pass the resource loader object
-		ResourceLoader pRb = new ResourceLoader("permissions");
-		HashMap<String, String> pRbValues = new HashMap<String, String>();
-		for(Iterator<Entry<String, String>> mapIter = pRb.entrySet().iterator(); mapIter.hasNext();)
-		{
-			Entry<String, String> entry = mapIter.next();
-			pRbValues.put(entry.getKey(), entry.getValue());
-		}
-		state.setAttribute("permissionDescriptions",  pRbValues);
 		
 		String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
 		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
