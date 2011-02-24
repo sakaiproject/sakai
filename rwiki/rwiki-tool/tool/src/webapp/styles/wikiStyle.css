@@ -677,7 +677,11 @@ img {
 }
 img.left { display: block; left: 0px }
 img.right { display: block; right: 0px }
-img.center { text-align: center }
+img.center { 
+	margin-left:auto; 
+	margin-right:auto; 
+	display:block;
+}
 img.float-left {
 	float: left;
 	margin-top: 3px;
