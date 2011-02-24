@@ -462,11 +462,11 @@ public class QuestionPoolData
     newQ.setIntellectualPropertyId(intellectualPropertyId);
     newQ.setOrganizationName(organizationName);
     HashSet s = new HashSet();
-    Iterator iter = questionPoolItems.iterator();
-    while (iter.hasNext()){
-      QuestionPoolItemData item = (QuestionPoolItemData)iter.next();
-      s.add(item.clone());
-    } 
+    //Iterator iter = questionPoolItems.iterator();
+    //while (iter.hasNext()){
+      //QuestionPoolItemData item = (QuestionPoolItemData)iter.next();
+      //s.add(item.clone());
+    //} 
     newQ.setQuestionPoolItems(s);
     return newQ;
   }
