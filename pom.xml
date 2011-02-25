@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  	<modelVersion>4.0.0</modelVersion>
+  
+  	<groupId>au.edu.anu.portal.portlets</groupId>
+  	<artifactId>simple-rss-portlet</artifactId>
+  	<name>Simple RSS portlet for uPortal</name>
+  	
+  	<version>1.0-SNAPSHOT</version>
+  	<packaging>war</packaging>
+  	 	
+  	<organization>
+        <name>Division of Information, Australian National University</name>
+        <url>http://information.anu.edu.au/information/</url>
+    </organization>
+    
+    <inceptionYear>2010</inceptionYear>
+	
+	<developers>
+		<developer>
+			<name>Steve Swinsburg</name>
+			<email>steve.swinsburg@anu.edu.au</email>
+		</developer>
+	</developers>
+    
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<prerequisites>
+		<maven>2.2.1</maven>
+	</prerequisites>
+
+	<repositories>
+        <repository>
+            <id>jasig-m2</id>
+            <name>Jasig Maven2 Repository</name>
+            <url>http://developer.jasig.org/repo/content/repositories/m2/</url>
+        </repository>
+        <repository>
+            <id>jasig-3rd-party</id>
+            <name>Jasig 3rd Party Repository</name>
+            <url>http://developer.jasig.org/repo/content/repositories/3rd-party</url>
+        </repository>
+        <repository>
+            <id>Codehaus Snapshots</id>
+            <url>http://snapshots.repository.codehaus.org/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+		<repository>
+            <id>java-net-download</id>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
+        <repository>
+			<id>es-maven</id>
+			<name>Enterprise Systems Maven Repository</name>
+			<url>https://es-maven.anu.edu.au/maven2</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+        
+    </repositories>
+  
+  	<distributionManagement>
+	  	<downloadUrl>https://es-maven.anu.edu.au/</downloadUrl>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>es-maven</id>
+			<name>Enterprise Systems Maven Repository</name>
+			<url>sftp://es-maven.anu.edu.au/export/web/es-maven/maven2/</url>
+			<layout>default</layout>
+		</repository>
+		<site>
+      		<id>es-maven-site</id>
+      		<url>sftp://es-maven.anu.edu.au/export/web/es-maven/site/${artifactId}</url>
+    	</site>
+	</distributionManagement>
+  	
+  	<scm>
+      	<developerConnection>scm:svn:https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/trunk</developerConnection>
+      	<url>https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/trunk</url>
+   	</scm> 
+  
+    <dependencies>
+  		
+  		<!-- external bundled dependencies -->
+      	<dependency>
+         	<groupId>javax.servlet</groupId>
+         	<artifactId>jstl</artifactId>
+         	<version>1.2</version>
+      	</dependency>
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome</artifactId>
+			<version>1.0</version>
+		</dependency>
+		
+		
+		<!-- ehcache, requires a slf4j impl-->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+		
+		
+		<!--  external shared dependencies -->
+		<dependency>
+      		<groupId>javax.portlet</groupId>
+      		<artifactId>portlet-api</artifactId>
+      		<version>1.0</version>
+      		<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+      		<groupId>javax.servlet</groupId>
+      		<artifactId>servlet-api</artifactId>
+      		<version>2.4</version>
+      		<scope>provided</scope>
+    	</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		
+		<!-- portlet taglib -->
+		<dependency>
+			<groupId>org.apache.pluto</groupId>
+	      	<artifactId>pluto-taglib</artifactId>
+	      	<version>1.1.7</version>
+	      	<type>jar</type>
+	      	<scope>provided</scope>
+	      	<exclusions>
+	        	<exclusion>
+	          		<groupId>commons-logging</groupId>
+	          		<artifactId>commons-logging-api</artifactId>
+	        	</exclusion>
+	      	</exclusions>
+	    </dependency>
+	    
+	    <!--  resource server -->
+	    <dependency>
+			<groupId>org.jasig.resourceserver</groupId>
+    		<artifactId>resource-server-utils</artifactId>
+    		<version>1.0.5</version>
+    		<exclusions>
+		        <exclusion>
+		            <groupId>commons-logging</groupId>
+		            <artifactId>commons-logging</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>net.sf.ehcache</groupId>
+		            <artifactId>ehcache</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>net.sf.ehcache</groupId>
+		            <artifactId>ehcache-web</artifactId>
+		        </exclusion>
+    		</exclusions>
+		</dependency>
+		
+    	
+	</dependencies>
+	
+	<properties>
+		<war.name>${project.artifactId}</war.name>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+  
+	<build>
+		<finalName>${war.name}</finalName>
+		<resources>
+			<!--  include log4j.properties -->
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/resources</directory>
+			</resource>
+			
+			<!--  include i18n properties -->
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- configure to use Java 6 to compile--> 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<!-- configure maven-war-plugin to use the updated web.xml that the pluto plugin creates -->
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webXml>${project.build.directory}/pluto-resources/web.xml</webXml>
+				</configuration>
+			</plugin>
+			<!-- bind 'pluto:assemble' goal to 'generate-resources' lifecycle -->
+			<plugin>
+				<groupId>org.apache.pluto</groupId>
+				<artifactId>maven-pluto-plugin</artifactId>
+				<version>1.1.7</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!--  tell eclipse to get the sources and javadocs if available, and link them up -->
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-eclipse-plugin</artifactId>
+        		<configuration>
+          			<downloadSources>true</downloadSources>
+          			<downloadJavadocs>true</downloadJavadocs>
+        		</configuration>
+      		</plugin>
+      		
+      		<!--  release plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+          			<tagBase>https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/tags/</tagBase>
+        		</configuration>
+        	</plugin>
+			
+		</plugins>
+		
+		<extensions>
+			<!-- Enabling the use of FTP -->
+      		<extension>
+        		<groupId>org.apache.maven.wagon</groupId>
+         		<artifactId>wagon-ftp</artifactId>
+         		<version>1.0-beta-6</version>
+      		</extension>
+    	</extensions>
+	</build>  
+	
+	<profiles>
+		<profile>
+			<id>deploy-to-tomcat</id>
+			<activation>
+				<property>
+        			<name>deploy</name>
+      			</property>
+			</activation>
+			<build>
+				<plugins>
+				<!-- deploy artifact to Tomcat -->
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<configuration>
+									
+									<tasks>
+										<!-- Check environment -->
+										<fail message="'-Dmaven.tomcat.home=/path/to/tomcat' must be specified">
+											<condition>
+												<not>
+													<isset property="maven.tomcat.home" />
+												</not>
+											</condition>
+										</fail>
+										
+										<!-- deploy updated war -->
+										<echo message="Deploying webapp." />
+										<property name="webapp.src" value="target/${war.name}.war" />
+										<property name="webapp.dest" value="${maven.tomcat.home}/webapps/${war.name}" />
+										<delete dir="${webapp.dest}" />						
+										<unwar src="${webapp.src}" dest="${webapp.dest}" overwrite="true" />
+									</tasks>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin> 
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
+	
+</project>
