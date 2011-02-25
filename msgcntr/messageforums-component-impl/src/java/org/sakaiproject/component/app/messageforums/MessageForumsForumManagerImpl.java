@@ -1193,7 +1193,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private boolean isForumLocked(final Long id) {
         if (id == null) {
-            LOG.error("isForumLocked failed with id: " + id);
+            LOG.error("isForumLocked failed with id: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -1426,7 +1426,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipList)
 		{
 			if (membershipList == null) {
-	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevel failed with membershipList: " + membershipList);
+	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevel failed with membershipList: null");
 	            throw new IllegalArgumentException("Null Argument");
 	        }
 
@@ -1447,7 +1447,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevelName(final List membershipList)
 		{
 			if (membershipList == null) {
-	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName failed with membershipList: " + membershipList);
+	            LOG.error("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName failed with membershipList: null");
 	            throw new IllegalArgumentException("Null Argument");
 	        }
 

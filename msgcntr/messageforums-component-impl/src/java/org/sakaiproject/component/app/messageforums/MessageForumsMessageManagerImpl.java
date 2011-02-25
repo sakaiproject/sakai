@@ -503,7 +503,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     public int findViewableMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findViewableMessageCountByTopicId failed with topicId: " + topicId);
+            LOG.error("findViewableMessageCountByTopicId failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -545,7 +545,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     */
    public int findUnreadViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
        if (topicId == null) {
-           LOG.error("findUnreadViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + " and userid: " + userId);
+           LOG.error("findUnreadViewableMessageCountByTopicIdByUserId failed with topicId: null and userid: " + userId);
            throw new IllegalArgumentException("Null Argument");
        }
 
@@ -560,7 +560,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     */
    public int findUnreadViewableMessageCountByTopicId(final Long topicId) {
        if (topicId == null) {
-           LOG.error("findUnreadViewableMessageCountByTopicId failed with topicId: " + topicId);
+           LOG.error("findUnreadViewableMessageCountByTopicId failed with topicId: null");
            throw new IllegalArgumentException("Null Argument");
        }
 
@@ -574,7 +574,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public int findReadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findReadMessageCountByTopicId failed with topicId: " + topicId);
+            LOG.error("findReadMessageCountByTopicId failed with topicId: Null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -620,7 +620,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      */
     public int findReadViewableMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findReadViewableMessageCountByTopicId failed with topicId: " + topicId);
+            LOG.error("findReadViewableMessageCountByTopicId failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -632,7 +632,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public List findMessagesByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findMessagesByTopicId failed with topicId: " + topicId);
+            LOG.error("findMessagesByTopicId failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -651,7 +651,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public List findUndeletedMessagesByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findUndeletedMessagesByTopicId failed with topicId: " + topicId);
+            LOG.error("findUndeletedMessagesByTopicId failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -670,7 +670,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public int findMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
-            LOG.error("findMessageCountByTopicId failed with topicId: " + topicId);
+            LOG.error("findMessageCountByTopicId failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -1252,7 +1252,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     public void markMessageApproval(Long messageId, boolean approved)
     {
     	if (messageId == null) {
-            LOG.error("markMessageApproval failed with messageId: " + messageId);
+            LOG.error("markMessageApproval failed with messageId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 
@@ -1586,7 +1586,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	public List getPendingMsgsInSiteByMembership(final List membershipList)
 	{   	
 		if (membershipList == null) {
-            LOG.error("getPendingMsgsInSiteByMembership failed with membershipList: " + membershipList);
+            LOG.error("getPendingMsgsInSiteByMembership failed with membershipList: null");
             throw new IllegalArgumentException("Null Argument");
         }
 		
@@ -1655,7 +1655,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	public List getPendingMsgsInTopic(final Long topicId)
 	{
 		if (topicId == null) {
-            LOG.error("getPendingMsgsInTopic failed with topicId: " + topicId);
+            LOG.error("getPendingMsgsInTopic failed with topicId: null");
             throw new IllegalArgumentException("Null Argument");
         }
 

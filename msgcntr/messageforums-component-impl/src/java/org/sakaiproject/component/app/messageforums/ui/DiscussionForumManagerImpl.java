@@ -539,7 +539,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   {
 	  if (topicId == null)
 	  {
-		  LOG.error("approveAllPendingMessages failed with topicId: " + topicId);
+		  LOG.error("approveAllPendingMessages failed with topicId: Null" );
           throw new IllegalArgumentException("Null Argument");
 	  }
 	  List messages = this.getMessagesByTopicId(topicId);

@@ -838,13 +838,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     if (typeUuid == null)
     {
-      LOG.error("findMessageCount failed with typeUuid: " + typeUuid);
+      LOG.error("findMessageCount failed with typeUuid: null");
       throw new IllegalArgumentException("Null Argument");
     }    
     
     if (aggregateList == null)
     {
-      LOG.error("findMessageCount failed with aggregateList: " + aggregateList);
+      LOG.error("findMessageCount failed with aggregateList: null");
       throw new IllegalStateException("aggregateList is null");
     }
     
@@ -873,13 +873,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     if (typeUuid == null)
     {
-      LOG.error("findUnreadMessageCount failed with typeUuid: " + typeUuid);
+      LOG.error("findUnreadMessageCount failed with typeUuid: null");
       throw new IllegalArgumentException("Null Argument");
     }    
     
     if (aggregateList == null)
     {
-      LOG.error("findMessageCount failed with aggregateList: " + aggregateList);
+      LOG.error("findMessageCount failed with aggregateList: Null");
       throw new IllegalStateException("aggregateList is null");
     }
     
