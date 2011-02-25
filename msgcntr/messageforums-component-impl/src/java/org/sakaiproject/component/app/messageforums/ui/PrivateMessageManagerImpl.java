@@ -899,15 +899,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return unreadCount;    
   }
   
-  /**
-   * initialize message counts
-   * @param typeUuid
-   */
-  private List initializeMessageCounts(final String userId)
-  {    
-	  return initializeMessageCounts(userId, getContextId());
-  }
-  
+
   private List initializeMessageCounts(final String userId, final String contextId)
   {
     if (LOG.isDebugEnabled())
