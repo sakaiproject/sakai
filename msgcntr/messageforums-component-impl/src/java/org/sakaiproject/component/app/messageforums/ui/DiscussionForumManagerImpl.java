@@ -66,7 +66,6 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
-import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
@@ -1754,10 +1753,6 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return false;
   }
   
-  private boolean isRoleSwapView()
-  {	 
-	return isRoleSwapView(getContextSiteId());
-  }
   private boolean isRoleSwapView(String siteId)
   {
 	return (securityService.getUserEffectiveRole(siteId) != null);

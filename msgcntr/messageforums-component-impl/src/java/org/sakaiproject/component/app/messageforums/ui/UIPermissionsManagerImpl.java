@@ -37,13 +37,11 @@ import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
@@ -51,13 +49,12 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -959,10 +956,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    * the current user is a member of
    * @return
    */
-  private Iterator getGroupNamesByCurrentUser() {
-	  return getGroupNamesByCurrentUser(toolManager.getCurrentPlacement().getContext());
-  }
-  
   private Iterator getGroupNamesByCurrentUser(String siteId)
   {
     List memberof = new ArrayList();
@@ -1421,11 +1414,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  return checkBaseConditions(topic, forum, getCurrentUserId(), getContextId());
   }
   
-  private boolean checkBaseConditions(DiscussionTopic topic,
-      DiscussionForum forum, String userId)
-  {
-	  return checkBaseConditions(topic, forum, userId, getContextSiteId());
-  }
+
   
   private boolean checkBaseConditions(DiscussionTopic topic,
 		  DiscussionForum forum, String userId, String contextSiteId)
