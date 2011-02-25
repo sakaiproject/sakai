@@ -7614,7 +7614,7 @@ extends VelocityPortletStateAction
 		
 		String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
 		state.setAttribute("groupAware", groupAware != null?Boolean.valueOf(groupAware):Boolean.FALSE);
-
+		state.removeAttribute("menu"); //Menu not required in the permission view
 	}
 
 	/**
