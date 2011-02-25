@@ -3026,14 +3026,7 @@ private   int   getNum(char letter,   String   a)
 		  e.printStackTrace();
 	  }
 
-	  User currentuser=null;
-	  try {
-		  currentuser = UserDirectoryService.getUser(getUserId());
-	  } catch (UserNotDefinedException e) {
-		  // TODO Auto-generated catch block
-		  e.printStackTrace();
-	  }
-
+	  
 	  List tmpRecipList = currentMessage.getRecipients();
 
 	  Map<User, Boolean> returnSet = new HashMap<User, Boolean>();

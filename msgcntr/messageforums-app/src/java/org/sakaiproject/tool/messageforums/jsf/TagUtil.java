@@ -192,7 +192,7 @@ public class TagUtil
             setMethodBinding(component, "action", value, new Class[] {});
         } else
         {
-            FacesContext context = FacesContext.getCurrentInstance();
+           
             MethodBinding mb = new ActionMethodBinding(value);
             component.getAttributes().put("action", mb);
         }
