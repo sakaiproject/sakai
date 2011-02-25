@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -71,7 +70,6 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessage
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -91,7 +89,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 public class PrivateMessagesTool
@@ -218,7 +215,7 @@ public class PrivateMessagesTool
   
   private Area area;
   private PrivateForum forum;  
-  private List pvtTopics=new ArrayList();
+  private List<PrivateTopic> pvtTopics=new ArrayList<PrivateTopic>();
   private List decoratedPvtMsgs;
   //huxt
   private String msgNavMode="privateMessages" ;//============
@@ -450,8 +447,9 @@ public class PrivateMessagesTool
       if (getPvtAreaEnabled() && decoratedForum.getForum() != null){  
     	  
     	int countForFolderNum = 0;// only three folder 
-    	Iterator iterator = pvtTopics.iterator(); 
-        for (int indexlittlethanTHREE=0;indexlittlethanTHREE<3;indexlittlethanTHREE++)//Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)//only three times
+    	Iterator<PrivateTopic> iterator = pvtTopics.iterator(); 
+    	//MSGCNTR-472 we need the first three but need to guard against there being < 3 elements
+        for (int i = 0;i < 3 && iterator.hasNext(); i++)//only three times
         {
           PrivateTopic topic = (PrivateTopic) iterator.next();
           
@@ -481,7 +479,7 @@ public class PrivateMessagesTool
           }       
         }
         
-        while(iterator.hasNext())//add more folder 
+        while(iterator.hasNext())//add more folders 
         {
                PrivateTopic topic = (PrivateTopic) iterator.next();
                if (topic != null)
