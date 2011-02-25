@@ -3,8 +3,8 @@
         ID bigint not null auto_increment,
         USER_UUID varchar(99) not null,
         COMPANY_NAME varchar(255),
-        COMPANY_DESCRIPTION varchar(255),
-        COMPANY_WEB_ADDRESS text,
+        COMPANY_DESCRIPTION text,
+        COMPANY_WEB_ADDRESS varchar(255),
         primary key (ID)
     );
 

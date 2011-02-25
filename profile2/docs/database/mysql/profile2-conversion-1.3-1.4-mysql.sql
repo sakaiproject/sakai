@@ -47,8 +47,8 @@ create index PROFILE_M_P_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ)
 create table PROFILE_GALLERY_IMAGES_T (
 	ID bigint not null auto_increment,
 	USER_UUID varchar(99) not null,
-	RESOURCE_MAIN varchar(255) not null,
-	RESOURCE_THUMB varchar(255) not null,
+	RESOURCE_MAIN text not null,
+	RESOURCE_THUMB text not null,
 	DISPLAY_NAME varchar(255) not null,
 	primary key (ID)
 );
@@ -118,3 +118,7 @@ alter table PROFILE_PRIVACY_T add MY_KUDOS int not null DEFAULT 0;
 
 /* add gallery feed preference (PRFL-382) */
 alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null DEFAULT true;
+
+/* adjust size of the profile images resource uri columns */
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text;
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text;
