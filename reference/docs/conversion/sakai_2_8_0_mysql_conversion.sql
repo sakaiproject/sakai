@@ -209,6 +209,10 @@ alter table PROFILE_PRIVACY_T add MY_KUDOS int not null default 0;
 -- PRFL-382 add gallery feed preference
 alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null default true;
 
+-- adjust size of the profile images resource uri columns
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text;
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text;
+
 -- Profile2 1.3-1.4 upgrade end
 
 -- SAK-18864/SAK-19951/SAK-19965 adds missing scheduler_trigger_events table for new persistent jobscheduler event feature
