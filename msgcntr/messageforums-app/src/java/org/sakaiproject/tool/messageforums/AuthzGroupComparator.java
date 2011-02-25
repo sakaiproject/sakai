@@ -30,7 +30,7 @@ import org.sakaiproject.authz.api.Role;
 
 public class AuthzGroupComparator implements Comparator {
 
-	private Log LOG = LogFactory.getLog(DiscussionForumTool.class);
+	private static Log LOG = LogFactory.getLog(DiscussionForumTool.class);
 
 	private String m_property = null;
 
