@@ -230,7 +230,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					pf = getPrivateMessageManager().initializationHelper(pf, area, userId);
 					List pvtTopics = pf.getTopics();
 					Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
-					PrivateForum forum=pf;
+					
 
 
 
@@ -588,24 +588,18 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	private String getLanguage(String navName)
 	{
 		String Tmp= "";
-		Locale loc = null;
 		//getLocale( String userId )
-		ResourceLoader rl = new ResourceLoader();
-		loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
+		
+		//( userId);//SessionManager.getCurrentSessionUserId() );
 
 		//  List topicsbyLocalization= new ArrayList();// only three folder supported, if need more, please modifify here
 
-		String local_received=rb.getString("pvt_received");
-		String local_sent = rb.getString("pvt_sent");
-		String local_deleted= rb.getString("pvt_deleted");
-
-		String current_NAV= rb.getString("pvt_message_nav");
 		//
 		//		  topicsbyLocalization.add(local_received);
 		//		  topicsbyLocalization.add(local_sent);
 		//		  topicsbyLocalization.add(local_deleted);
 
-		String localLanguage=loc.getLanguage();
+		
 
 		if(navName.equals("Received")||navName.equals("Sent")||navName.equals("Deleted"))
 		{
@@ -629,34 +623,17 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 	private String getPrivateMessageTypeFromContext(String navMode){    
 
-		Locale loc = null;
-		//getLocale( String userId )
-		ResourceLoader rl = new ResourceLoader();
-		loc = rl.getLocale();//( userId);//SessionManager.getCurrentSessionUserId() );
-
-		List topicsbyLocalization= new ArrayList();// only three folder supported, if need more, please modifify here
+		List<String> topicsbyLocalization= new ArrayList<String>();// only three folder supported, if need more, please modifify here
 
 
 		String local_received=rb.getString("pvt_received");
 		String local_sent = rb.getString("pvt_sent");
 		String local_deleted= rb.getString("pvt_deleted");
-
-
-		String current_NAV= rb.getString("pvt_message_nav");
+		
 
 		topicsbyLocalization.add(local_received);
 		topicsbyLocalization.add(local_sent);
 		topicsbyLocalization.add(local_deleted);
-
-
-
-
-
-
-
-		String current_NAV2= rb.getString("pvt_message_nav");
-		String typeUuid="";  // folder uuid
-
 
 		//need to add more dictionary to support more language
 		if (((String) topicsbyLocalization.get(0)).equalsIgnoreCase(navMode)||"Recibidos".equalsIgnoreCase(navMode)||"Received".equalsIgnoreCase(navMode)){

@@ -1445,6 +1445,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  if(recordIndex != -1){
 		  Site currentSite;
 		  try {
+			  //TODO is this only used to prevent increments if the site doesn't exit? DH
 			  currentSite = SiteService.getSite(contextId);
 			  incrementMessagesSynopticToolInfo(searchRecipient
 					  .getUserId(), contextId,

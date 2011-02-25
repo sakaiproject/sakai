@@ -2459,7 +2459,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   	  }
 
 
-  	  Set<Role> rolesInSite = new HashSet<Role>();
+  	  Set<Role> rolesInSite = null;
   	  Set<Group> groupsInSite = new HashSet<Group>();
 
   	  Site currentSite;
