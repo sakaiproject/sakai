@@ -27,12 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
-
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.messageforums.DiscussionForumTool;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 
 
 
@@ -59,13 +57,10 @@ public class DiscussionMessageBean
   private boolean hasPreThread;
   private long nextThreadId;
   private long preThreadId;
-  private String parentTopicTitle;
-  private String parentForumTitle;
   private boolean revise;
-  private boolean deleted;
   private boolean userCanDelete;
   private boolean userCanEmail;
-  private String authorEmail;
+  
 
 
   private MessageForumsMessageManager messageManager;

@@ -20,8 +20,6 @@ import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -552,7 +550,6 @@ public class MessageForumSynopticBeanLite {
 		private String messagesUrl, forumUrl, messagesFormattedDate, 
 			forumFormattedDate, siteUrl;
 		private HashMap receivedFolderUuidByContextId;
-		private List siteList;
 		private boolean originalDisplayValue, doesForumsExist, doesMessagesExist;
 
 		

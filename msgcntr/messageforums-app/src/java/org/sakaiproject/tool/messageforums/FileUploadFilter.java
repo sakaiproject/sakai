@@ -49,7 +49,7 @@ public class FileUploadFilter implements Filter {
 
     private String repositoryPath = "/fileUpload";
 
-    private FileWriter fw;
+    
 
     public void init(FilterConfig config) throws ServletException {
         repositoryPath = config.getInitParameter("org.sakaiproject.tool.messageforums.FileUploadFilter.repositoryPath");
