@@ -14,7 +14,7 @@
 	    <property name="from" column="FROM_UUID" length="99" not-null="true" index="PROFILE_M_FROM_UUID_I" />
 		<property name="message" column="MESSAGE_BODY" type="string" length="4000" not-null="true"/>
 		<property name="thread" column="MESSAGE_THREAD" length="36" not-null="true" index="PROFILE_M_THREAD_I" />
-		<property name="datePosted" column="DATE_POSTED" not-null="true" index="PROFILE_M_DATE_POSTED_I" />
+		<property name="datePosted" column="DATE_POSTED" not-null="true" type="timestamp" index="PROFILE_M_DATE_POSTED_I" />
 
   	</class>
   	

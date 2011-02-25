@@ -13,7 +13,7 @@
 
 		<property name="score" column="SCORE" not-null="true" />
 		<property name="percentage" column="PERCENTAGE" not-null="true" />
-		<property name="dateAdded" column="DATE_ADDED" not-null="true" />
+		<property name="dateAdded" column="DATE_ADDED" type="timestamp" not-null="true" />
   	</class>
   	
   	<query name="getKudosRecord">
