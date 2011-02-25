@@ -193,10 +193,9 @@ $(function() {
 		$("#change-forum-p").hide();		
 		$("#change-resource-p").hide();	
 		$("#change-page-p").hide();	
-		$("#item-next").hide();	
-		$("#label-item-next").hide();	
-		$("#item-button").hide();	
-		$("#label-item-button").hide();	
+		$("#edit-item-object-p").hide();	
+		$("#edit-item-settings-p").hide();	
+		$("#pagestuff").hide();
 		
 		var row = $(this).parent().parent().parent();
 		var itemid = row.find(".current-item-id2").text();
@@ -215,10 +214,11 @@ $(function() {
 		
 		var req = row.find(".requirement-text").text();
 		var type = row.find(".type").text();
+		var editurl = row.find(".edit-url").text();
+		var editsettingsurl = row.find(".edit-settings-url").text();
 		
 		if(type == 'page') {
-		    $("#item-next").show();
-		    $("#label-item-next").show();
+                    $("#pagestuff").show();
 		    var pagenext = row.find(".page-next").text();
 		    if(pagenext == "true") {
 			$("#item-next").attr("checked", true);
@@ -227,8 +227,6 @@ $(function() {
 			$("#item-next").attr("checked", false);
 		    }
 
-		    $("#item-button").show();
-		    $("#label-item-button").show();
 		    var pagebutton = row.find(".page-button").text();
 		    if(pagebutton == "true") {
 			$("#item-button").attr("checked", true);
@@ -249,16 +247,35 @@ $(function() {
 				$("#change-quiz").attr("href", 
 				      $("#change-quiz").attr("href").replace("itemId=-1", "itemId=" + itemid));
 				$("#require-label").text(msg("simplepage.require_submit_assessment"));
+				$("#edit-item-object-p").show();
+				$("#edit-item-object").attr("href", 
+					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
+				$("#edit-item-text").text(msg("simplepage.edit_quiz"));
+				$("#edit-item-settings-p").show();
+				$("#edit-item-settings").attr("href", 
+					$("#edit-item-settings").attr("href").replace("source=SRC", "source="+escape(editsettingsurl)));
+				$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
+
 			}else if (type == 8){
 				$("#change-forum-p").show();
 				$("#change-forum").attr("href", 
 				      $("#change-forum").attr("href").replace("itemId=-1", "itemId=" + itemid));
 				$("#require-label").text(msg("simplepage.require_submit_forum"));
+				$("#edit-item-object-p").show();
+				$("#edit-item-object").attr("href", 
+					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
+				$("#edit-item-text").text(msg("simplepage.edit_topic"));
+
 			}else {
 				$("#change-assignment-p").show();
 				$("#change-assignment").attr("href", 
 				     $("#change-assignment").attr("href").replace("itemId=-1", "itemId=" + itemid));
 				$("#require-label").text(msg("simplepage.require_submit_assignment"));
+				$("#edit-item-object-p").show();
+				$("#edit-item-object").attr("href", 
+					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
+				$("#edit-item-text").text(msg("simplepage.edit_assignment"));
+
 			}
 			
 			if(type == 3 || type == 6) {

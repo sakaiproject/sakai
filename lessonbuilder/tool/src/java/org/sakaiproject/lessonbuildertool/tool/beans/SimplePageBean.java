@@ -138,6 +138,7 @@ public class SimplePageBean {
         private boolean subpageButton = false;
 	private List<Long> currentPath = null;
     	private Set<Long>allowedPages = null;    
+        private Site currentSite = null; // cache, can be null; used by getCurrentSite
 
         private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
 
@@ -223,6 +224,15 @@ public class SimplePageBean {
 	    public Long pageId;
 	    public Long pageItemId;
 	    public String title;
+	}
+
+        public static class UrlItem {
+	    public String Url;
+	    public String label;
+	    public UrlItem(String Url, String label) {
+		this.Url = Url;
+		this.label = label;
+	    }
 	}
 
     // Image types
@@ -712,14 +722,26 @@ public class SimplePageBean {
 		}
 	}
 
+    // not clear whether it's worth caching this. The first time it's called for a site
+    // the pages are fetched. Beyond that it's a linear search of pages that are in memory
+    // ids are sakai.assignment.grades, sakai.samigo, sakai.mneme, sakai.forums, sakai.jforum.tool
+        public String getCurrentTool(String commonToolId) {
+	    Site site = getCurrentSite();
+	    ToolConfiguration tool = site.getToolForCommonId(commonToolId);
+	    if (tool == null)
+		return null;
+	    return tool.getId();
+	}
+
 	private Site getCurrentSite() {
-		Site site = null;
-		try {
-			site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-		} catch (Exception impossible) {
-			impossible.printStackTrace();
-		}
-		return site;
+	    if (currentSite != null) // cached value
+		return currentSite;
+	    try {
+		currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+	    } catch (Exception impossible) {
+		impossible.printStackTrace();
+	    }
+	    return currentSite;
 	}
 
 	public String getCurrentSiteId() {

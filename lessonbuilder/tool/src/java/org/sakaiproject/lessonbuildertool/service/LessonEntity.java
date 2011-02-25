@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Date;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
 /**
  * Interface to all assignments, tests and other external assignment-like things
@@ -113,5 +114,20 @@ public interface LessonEntity {
     public LessonSubmission getSubmission(String user);
     public int getSubmissionCount(String user);
 
+    // calls to original tool. they take the bean as an argument so they can get to
+    // the current site and tool, and cache information
+
+   // URL to create a new item. Normally called from the generic entity, not a specific one
+    // can't be null.
+    // it's a list because we support more than one kind of tool.
+    public List<SimplePageBean.UrlItem> createNewUrls(SimplePageBean bean);
+
+    // URL to edit an existing entity. 
+    // Can be null if we can't get one or it isn't needed
+    public String editItemUrl(SimplePageBean bean);
+
+    // for most entities editItem is enough, however tests allow separate editing of
+    // contents and settings. This will be null except in that situation
+    public String editItemSettingsUrl(SimplePageBean bean);
 
 }

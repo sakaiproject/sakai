@@ -36,9 +36,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -62,6 +64,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 
+import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * Interface to Message Forums, the forum that comes with Sakai
@@ -86,6 +89,7 @@ public class SamigoEntity implements LessonEntity {
 
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
+    private static boolean samigo_linked = false;
 
     static PublishedAssessmentService pService = new PublishedAssessmentService();
 
@@ -112,9 +116,15 @@ public class SamigoEntity implements LessonEntity {
 	memoryService = m;
     }
 
+    static MessageLocator messageLocator = null;
+    public void setMessageLocator(MessageLocator m) {
+	messageLocator = m;
+    }
+
     public void init () {
 	assessmentCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
+	samigo_linked = ServerConfigurationService.getBoolean("lessonbuilder.samigo.editlink", false);
 
 	log.info("init()");
 
@@ -429,5 +439,49 @@ public class SamigoEntity implements LessonEntity {
 	else
 	    return 1;
     }
+
+
+    // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
+    // can't be null                                                                                                                         
+    public List<UrlItem> createNewUrls(SimplePageBean bean) {
+	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	String tool = bean.getCurrentTool("sakai.samigo");
+	if (tool != null) {
+	    tool = "/portal/tool/" + tool + "/jsf/index/mainIndex";
+	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_samigo")));
+	}
+	if (nextEntity != null)
+	    list.addAll(nextEntity.createNewUrls(bean));
+	return list;
+    }
+
+    // URL to edit an existing entity.                                                                                                       
+    // Can be null if we can't get one or it isn't needed                                                                                    
+    public String editItemUrl(SimplePageBean bean) {
+	String tool = bean.getCurrentTool("sakai.samigo");
+	if (tool == null)
+	    return null;
+    
+	if (samigo_linked)
+	    return "/portal/tool/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id;
+	else
+	    return "/portal/tool/" + tool + "/jsf/index/mainIndex";
+    }
+
+
+    // for most entities editItem is enough, however tests allow separate editing of                                                         
+    // contents and settings. This will be null except in that situation                                                                     
+    public String editItemSettingsUrl(SimplePageBean bean) {
+	String tool = bean.getCurrentTool("sakai.samigo");
+	if (tool == null)
+	    return null;
+    
+	if (samigo_linked)
+	    return "/portal/tool/" + tool + "/jsf/author/editLink?publishedAssessmentId=" + id + "&settings=true";
+	else
+	    return "/portal/tool/" + tool + "/jsf/index/mainIndex";
+
+    }
+
 
 }

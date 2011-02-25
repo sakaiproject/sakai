@@ -97,6 +97,8 @@ setMainFrameHeight(window.name);
 					    <span rsf:id="requirement-text" class="requirement-text"></span>
 					    <span rsf:id="page-next" class="page-next"></span>
 					    <span rsf:id="page-button" class="page-button"></span>
+					    <span rsf:id="edit-url" class="edit-url"></span>
+					    <span rsf:id="edit-settings-url" class="edit-settings-url"></span>
 					  </div>
 					</td>
 					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
@@ -208,6 +210,10 @@ setMainFrameHeight(window.name);
 			  <p rsf:id="msg=simplepage.page_notblank" id="simplepage.page_notblank"></p>
 			  <p rsf:id="msg=simplepage.tag_iframe" id="simplepage.tag_iframe"></p>
 			  <p rsf:id="msg=simplepage.tag_img" id="simplepage.tag_img"></p>
+			  <p rsf:id="msg=simplepage.edit_quiz" id="simplepage.edit_quiz"></p>
+			  <p rsf:id="msg=simplepage.edit_quiz_settings" id="simplepage.edit_quiz_settings"></p>
+			  <p rsf:id="msg=simplepage.edit_assignment" id="simplepage.edit_assignment"></p>
+			  <p rsf:id="msg=simplepage.edit_topic" id="simplepage.edit_topic"></p>
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -281,10 +287,20 @@ setMainFrameHeight(window.name);
 						  <a href="#" rsf:id="change-page" id="change-page"><span rsf:id="msg.simplepage.change_page"></span></a>
 					        </p>
 
+						<p class="shorttext required" id="edit-item-object-p">
+						  <a href="#" rsf:id="edit-item-object" id="edit-item-object"><span rsf:id="edit-item-text" id="edit-item-text"></span></a>
+					        </p>
+
+						<p class="shorttext required" id="edit-item-settings-p">
+						  <a href="#" rsf:id="edit-item-settings" id="edit-item-settings"><span rsf:id="edit-item-settings-text" id="edit-item-settings-text"></span></a>
+					        </p>
+
+						<div id="pagestuff">
 						<input type="checkbox" name="item-next" id="item-next" rsf:id="item-next" />
 						<label for="item-next" id="label-item-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
 						<input type="checkbox" name="item-button" id="item-button" rsf:id="item-button" />
 						<label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
+						</div>
 
 					</div>
 					

@@ -48,11 +48,13 @@
   <bean id="org.sakaiproject.lessonbuildertool.service.JForumEntity"
 	class="org.sakaiproject.lessonbuildertool.service.JForumEntity">
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.ForumEntity"
 	class="org.sakaiproject.lessonbuildertool.service.ForumEntity">
     <property name = "nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
+    <property name="messageLocator" ref="messageLocator"/>
   </bean>
   
   <bean id="org.sakaiproject.lessonbuildertool.service.SamigoEntity"
@@ -63,6 +65,7 @@
     <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="nextEntity"><ref bean="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.MnemeEntity"
@@ -72,6 +75,7 @@
     <property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
     <property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService" /></property>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"
@@ -80,6 +84,7 @@
         destroy-method="destroy">
 
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"

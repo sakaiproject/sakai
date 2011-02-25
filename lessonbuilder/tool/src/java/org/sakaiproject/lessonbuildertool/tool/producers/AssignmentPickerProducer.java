@@ -33,6 +33,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
@@ -46,6 +47,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -118,6 +120,18 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			    assignId = currentItem.getSakaiId();
 			}
 			
+			List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);
+			for (UrlItem createLink: createLinks) {
+			    UIBranchContainer link = UIBranchContainer.make(tofill, "assignment-create:");
+			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
+			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
+			    view.setSource(createLink.Url);
+			    view.setPath(VIEW_ID);
+			    view.setTitle(messageLocator.getMessage("simplepage.return_assignment"));
+			    UIInternalLink.make(link, "assignment-create-link", createLink.label , view);
+			}
+
 			UIForm form = UIForm.make(tofill, "assignment-picker");
 
 			List<LessonEntity> alist = assignmentEntity.getEntitiesInSite();

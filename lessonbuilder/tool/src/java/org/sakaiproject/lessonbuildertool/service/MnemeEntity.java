@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentDates;
@@ -57,6 +58,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
+
+import uk.org.ponder.messageutil.MessageLocator;
 
 
 /**
@@ -101,6 +104,11 @@ public class MnemeEntity implements LessonEntity {
     static MemoryService memoryService = null;
     public void setMemoryService(MemoryService m) {
 	memoryService = m;
+    }
+
+    static MessageLocator messageLocator = null;
+    public void setMessageLocator(MessageLocator m) {
+	messageLocator = m;
     }
 
     public void init () {
@@ -296,6 +304,41 @@ public class MnemeEntity implements LessonEntity {
 	    return 0;
 	else
 	    return 1;
+    }
+
+    // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
+    // can't be null                                                                                                                         
+    public List<UrlItem> createNewUrls(SimplePageBean bean) {
+	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	String tool = bean.getCurrentTool("sakai.mneme");
+	if (tool != null) {
+	    tool = "/portal/tool/" + tool + "/assessments";
+	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_mneme")));
+	}
+	if (nextEntity != null)
+	    list.addAll(nextEntity.createNewUrls(bean));
+	return list;
+    }
+
+    // URL to edit an existing entity.                                                                                                       
+    // Can be null if we can't get one or it isn't needed                                                                                    
+    public String editItemUrl(SimplePageBean bean) {
+	String tool = bean.getCurrentTool("sakai.mneme");
+	if (tool == null)
+	    return null;
+    
+	return "/portal/tool/" + tool + "/assessment_edit/" + id + "/1";
+    }
+
+
+    // for most entities editItem is enough, however tests allow separate editing of                                                         
+    // contents and settings. This will be null except in that situation                                                                     
+    public String editItemSettingsUrl(SimplePageBean bean) {
+	String tool = bean.getCurrentTool("sakai.mneme");
+	if (tool == null)
+	    return null;
+    
+	return "/portal/tool/" + tool + "/assessment_settings/" + id + "/1";
     }
 
 }

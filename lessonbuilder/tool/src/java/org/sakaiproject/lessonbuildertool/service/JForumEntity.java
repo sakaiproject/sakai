@@ -35,6 +35,8 @@ import java.util.Date;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletContext;
 
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -46,6 +48,8 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.tool.api.ToolManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
+
+import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * Interface to JForums, an optional forums system from Foothills
@@ -83,6 +87,11 @@ public class JForumEntity implements LessonEntity {
     private static ToolManager toolManager = null;
     public void setToolManager(ToolManager t) {
 	toolManager = t;
+    }
+
+    static MessageLocator messageLocator = null;
+    public void setMessageLocator(MessageLocator m) {
+	messageLocator = m;
     }
 
     protected JForumEntity() {
@@ -408,5 +417,33 @@ public class JForumEntity implements LessonEntity {
 
 	return 0;
     }
+
+    // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
+    // can't be null                                                                                                                         
+    public List<UrlItem> createNewUrls(SimplePageBean bean) {
+	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	String tool = bean.getCurrentTool("sakai.jforum.tool");
+	if (tool != null) {
+	    tool = "/portal/tool/" + tool + "/forums/list.page";
+	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_jforum")));
+	}
+	if (nextEntity != null)
+	    list.addAll(nextEntity.createNewUrls(bean));
+	return list;
+    }
+
+    // URL to edit an existing entity.                                                                                                       
+    // Can be null if we can't get one or it isn't needed                                                                                    
+    public String editItemUrl(SimplePageBean bean) {
+	return getUrl();
+    }
+
+
+    // for most entities editItem is enough, however tests allow separate editing of                                                         
+    // contents and settings. This will be null except in that situation                                                                     
+    public String editItemSettingsUrl(SimplePageBean bean) {
+	return null;
+    }
+
 
 }

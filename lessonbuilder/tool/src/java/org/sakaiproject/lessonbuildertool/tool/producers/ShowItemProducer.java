@@ -84,6 +84,19 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
     
 	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
 
+	    // to do assignment/quiz, etc arguments are
+	    //   sendingpage, itemid - reflect the item that the user clicked
+	    //   source - URL to call
+	    //   clearattr may be used for Samigo hack
+	    //   return is to sendingpage, with path coming from current path retrieved from SimplePageBean
+	    // to create a new assignment, quiz, etc
+	    //   path non-null is what triggers this
+	    //   sendingpage, itemid - these are arguments that we'll use to return to the "add assignment" page
+	    //   source - URL to call
+	    //   clearattr may be used for Samigo hack
+	    //   path - viewID to return to
+	    //   title - the string for the return button
+
 	    // as far as I can see there are no permissions issues here. It just
 	    // sticks things in an iframe. The stuff it sticks had better check though
 
@@ -114,12 +127,19 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (sendingPage != -1 && breadcrumbs != null && breadcrumbs.size() > 0) {
 		SimplePageBean.PathEntry entry = breadcrumbs.get(breadcrumbs.size()-1);
 
-		GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-		view.setSendingPage(entry.pageId);
-		view.setItemId(entry.pageItemId);
-		// path defaults to null, which is next
-
-		UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
+		String returnView = ((GeneralViewParameters) params).getPath();
+		if (returnView == null || returnView.equals("")) {
+		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+		    view.setSendingPage(entry.pageId);
+		    view.setItemId(entry.pageItemId);
+		    // path defaults to null, which is next
+		    UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
+		} else {
+		    GeneralViewParameters view = new GeneralViewParameters(returnView);
+		    view.setSendingPage(sendingPage);;
+		    view.setItemId(((GeneralViewParameters) params).getItemId());
+		    UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
+		}
 	    }
 	    UILink.make(tofill, "iframe1", ((GeneralViewParameters) params).getSource());
 	}

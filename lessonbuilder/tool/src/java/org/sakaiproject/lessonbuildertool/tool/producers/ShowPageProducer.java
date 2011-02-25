@@ -63,6 +63,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -553,10 +554,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // markers for quiz or forum. I ran out of numbers and started using
 					    // text for things that aren't scoring types. That's better anyway
 						int type = 4;
+						LessonEntity assignment = null;
 						if (!i.getSakaiId().equals(SimplePageItem.DUMMY)) {
-						    LessonEntity assignment = assignmentEntity.getEntity(i.getSakaiId());
+						    assignment = assignmentEntity.getEntity(i.getSakaiId());
 						    if (assignment != null)
 							type = assignment.getTypeOfGrade();
+						    String editUrl = assignment.editItemUrl(simplePageBean);
+						    if (editUrl != null)
+							UIOutput.make(tableRow, "edit-url", editUrl);
 						}
 
 						UIOutput.make(tableRow, "type", String.valueOf(type));
@@ -569,14 +574,31 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "type", "6"); // Not used by assignments, so it is
 										      // safe to dedicate to assessments
 						UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
+						LessonEntity quiz = quizEntity.getEntity(i.getSakaiId());
+						if (quiz != null) {
+						    String editUrl = quiz.editItemUrl(simplePageBean);
+						    if (editUrl != null)
+							UIOutput.make(tableRow, "edit-url", editUrl);
+						    editUrl = quiz.editItemSettingsUrl(simplePageBean);
+						    if (editUrl != null)
+							UIOutput.make(tableRow, "edit-settings-url", editUrl);
+
+						}
 					} else if (i.getType() == SimplePageItem.FORUM) {
 						UIOutput.make(tableRow, "extra-info");
 						UIOutput.make(tableRow, "type", "8"); 
+						LessonEntity forum = forumEntity.getEntity(i.getSakaiId());
+						if (forum != null) {
+						    String editUrl = forum.editItemUrl(simplePageBean);
+						    if (editUrl != null)
+							UIOutput.make(tableRow, "edit-url", editUrl);
+						}
 					} else if (i.getType() == SimplePageItem.PAGE) {
 						UIOutput.make(tableRow, "type", "page"); 
 						UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
 						UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
 					}
+
 				}
 
 		// the following are for the inline item types. Multimedia is the most complex because
@@ -886,7 +908,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// now output the dialogs. but only for faculty (to avoid making the file bigger)
 		if (canEditPage)
 		    createSubpageDialog(tofill, currentPage);
-		createEditItemDialog(tofill, currentPage);
+		createEditItemDialog(tofill, currentPage, pageItem);
 		createAddMultimediaDialog(tofill, currentPage);
 		createEditMultimediaDialog(tofill, currentPage);
 		createEditTitleDialog(tofill, currentPage, pageItem);
@@ -1026,7 +1048,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
 				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 				UIInternalLink.make(container, "link", view);
-
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -1185,7 +1206,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	}
 
-	private void createEditItemDialog(UIContainer tofill, SimplePage currentPage) {
+        private void createEditItemDialog(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem) {
 		UIOutput.make(tofill, "edit-item-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edititem_header")));
 
 		UIForm form = UIForm.make(tofill, "edit-form");
@@ -1221,6 +1242,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.viewID = PagePickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-page", messageLocator.getMessage("simplepage.change_page"), params);
+
+		params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.setItemId(pageItem.getId());
+		params.setPath(VIEW_ID);
+		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
+		params.setSource("SRC");
+		params.viewID = ShowItemProducer.VIEW_ID;
+		UIInternalLink.make(form, "edit-item-object", params);
+		UIOutput.make(form, "edit-item-text");
+
+		params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.setItemId(pageItem.getId());
+		params.setPath(VIEW_ID);
+		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
+		params.setSource("SRC");
+		params.viewID = ShowItemProducer.VIEW_ID;
+		UIInternalLink.make(form, "edit-item-settings", params);
+		UIOutput.make(form, "edit-item-settings-text");
 
 		UIBoundBoolean.make(form, "item-next", "#{simplePageBean.subpageNext}", false);
 		UIBoundBoolean.make(form, "item-button", "#{simplePageBean.subpageButton}", false);

@@ -34,6 +34,8 @@ import java.util.Comparator;
 import java.util.Date;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -41,6 +43,8 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.component.cover.ComponentManager;
+
+import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * Interface to Message Forums, the forum that comes with Sakai
@@ -70,6 +74,11 @@ public class ForumEntity implements LessonEntity {
 	nextEntity = e;
     }
     
+    static MessageLocator messageLocator = null;
+    public void setMessageLocator(MessageLocator m) {
+	messageLocator = m;
+    }
+
     // to create bean. the bean is used only to call the pseudo-static
     // methods such as getEntitiesInSite. So type, id, etc are left uninitialized
 
@@ -257,6 +266,33 @@ public class ForumEntity implements LessonEntity {
     }
     public int getSubmissionCount(String user) {
 	return messageManager.findAuhtoredMessageCountByTopicIdByUserId(id, user);
+    }
+
+    // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
+    // can't be null                                                                                                                         
+    public List<UrlItem> createNewUrls(SimplePageBean bean) {
+	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	String tool = bean.getCurrentTool("sakai.forums");
+	if (tool != null) {
+	    tool = "/portal/tool/" + tool + "/discussionForum/forumsOnly/dfForums";
+	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_forums")));
+	}
+	if (nextEntity != null)
+	    list.addAll(nextEntity.createNewUrls(bean));
+	return list;
+    }
+
+    // URL to edit an existing entity.                                                                                                       
+    // Can be null if we can't get one or it isn't needed                                                                                    
+    public String editItemUrl(SimplePageBean bean) {
+	return getUrl();
+    }
+
+
+    // for most entities editItem is enough, however tests allow separate editing of                                                         
+    // contents and settings. This will be null except in that situation                                                                     
+    public String editItemSettingsUrl(SimplePageBean bean) {
+	return null;
     }
 
 }

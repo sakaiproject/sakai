@@ -84,11 +84,15 @@ If you are using Mneme, check the version number for org.etudes.mneme
 in tool/pom.xml. Make sure the version number matches the version of
 Mneme that you are using.
 
-SAMIGO FIX
+SAMIGO FIXES
 
 You can skip this section when you're first trying out Lesson Builder.
 However I wouldn't use it in production without looking at this
-section.
+section. There are two things you'll want to do to Samigo:
+* fix some of its HTML so that it doesn't "escape" its frame
+* add a JSP to allow Lesson Builder to edit quizes and settings
+
+1. FIX SAMIGO SO IT WON'T ESCAPE ITS FRAME
 
 As distributed, Samigo (Tests and Quizes) has a problem: when you get
 to the end of a test, the "Continue" button will take you back to the
@@ -145,6 +149,31 @@ The section starts with <h:commandButton and ends with />
 onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
     disabled="#{delivery.actionString=='previewAssessment'}"/>
+
+2. ALLOW LESSON BUILDER TO EDIT ASSESSMENTS
+
+Lesson Builder will let you create and edit items directly
+from Lesson Builder. Tools other than Samigo have URLs Lesson
+Builder can call to do this. Samigo does not. Thus I supply
+a jsp that will add this ability to Samigo.
+
+editLink.jsp should be installed as
+
+tomcat/webapps/samigo-app/jsf/author/editLink.jsp 
+
+You don't need source to do this. The jsp can be moved into
+place once Sakai haS been installed. If you build from source
+it can be put into the source tree as
+
+.../sam/samigo-app/src/webapp/jsf/author/editLink.jsp
+
+Once you've done this, you'll need to add this property
+to sakai.properties:
+
+   lessonbuilder.samigo.editlink=true
+
+Without the property, Lesson Builder will call the 
+Samigo main page when you ask to edit an assessment.
 
 
 FLV PLAYER
