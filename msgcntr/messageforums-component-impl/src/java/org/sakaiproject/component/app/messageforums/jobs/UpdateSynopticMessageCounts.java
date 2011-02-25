@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -323,18 +324,17 @@ public class UpdateSynopticMessageCounts implements Job{
 
 				//forums count:
 				HashMap<Long, DecoratedForumInfo> dfHM = null;
-				Set<Long> dfKeySet = null;
 				if (isMessageForumsPageInSite || isForumsPageInSite){			
 					dfHM = allTopicsAndForumsHM.get(siteId);
 					if(dfHM != null){
 						//site has forums added to the tool
-						dfKeySet = dfHM.keySet();
+						Set<Entry<Long, DecoratedForumInfo>> dfEntrySet = dfHM.entrySet();
 
+						for (Iterator<Entry<Long, DecoratedForumInfo>> iterator = dfEntrySet.iterator(); iterator.hasNext();) {
+							Entry<Long, DecoratedForumInfo> entry = iterator.next(); 
+							Long dfId = entry.getKey();
 
-						for (Iterator iterator = dfKeySet.iterator(); iterator.hasNext();) {
-							Long dfId = (Long) iterator.next();
-
-							DecoratedForumInfo dForum = dfHM.get(dfId);
+							DecoratedForumInfo dForum = entry.getValue();
 							boolean isInstructor = getForumManager().isInstructor(userId, "/site/" + siteId);
 
 							// Only count unread messages for forums the user can view:

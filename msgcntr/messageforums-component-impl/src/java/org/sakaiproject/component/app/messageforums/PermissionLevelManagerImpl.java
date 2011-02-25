@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -213,9 +214,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		newPermissionLevel.setTypeUuid(typeUuid);
 			
 		// set permission properties using reflection
-		for (Iterator i = mask.keySet().iterator(); i.hasNext();){
-			String key = (String) i.next();
-			Boolean value = (Boolean) mask.get(key);
+		for (Iterator<Entry<String, Boolean>> i = mask.entrySet().iterator(); i.hasNext();){
+			Entry<String, Boolean> entry = i.next();
+			String key = entry.getKey();
+			Boolean value = entry.getValue();
 			try{
 			  PropertyUtils.setSimpleProperty(newPermissionLevel, key, value);
 			}
@@ -249,9 +251,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		newPermissionLevel.setTypeUuid(typeUuid);
 			
 		// set permission properties using reflection
-		for (Iterator i = mask.keySet().iterator(); i.hasNext();){
-			String key = (String) i.next();
-			Boolean value = (Boolean) mask.get(key);
+		for (Iterator<Entry<String, Boolean>> i = mask.entrySet().iterator(); i.hasNext();){
+			Entry<String, Boolean> entry = i.next();
+ 			String key = entry.getKey();
+			Boolean value = entry.getValue();
 			try{
 			  PropertyUtils.setSimpleProperty(newPermissionLevel, key, value);
 			}
