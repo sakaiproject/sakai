@@ -966,7 +966,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 * @param site
 	 * @return
 	 */
-	private List getPermittedPagesInOrder(Site site)
+	public List getPermittedPagesInOrder(Site site)
 	{
 		// Get all of the pages
 		List pages = site.getOrderedPages();

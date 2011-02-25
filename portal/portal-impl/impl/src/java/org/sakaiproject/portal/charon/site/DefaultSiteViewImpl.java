@@ -24,6 +24,7 @@ package org.sakaiproject.portal.charon.site;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,9 +35,13 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+
+import org.sakaiproject.util.Web;
 
 /**
  * @author ieb
@@ -69,8 +74,6 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 	 */
 	public Object getRenderContextObject()
 	{
-
-		
 		// Get the list of sites in the right order,
 		// My WorkSpace will be the first in the list
 
@@ -96,11 +99,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 
 		} // ignore
 
-        int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
-
-		
-		
-		
+		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
 		
 		boolean loggedIn = session.getUserId() != null;
 
@@ -178,19 +177,41 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 
 		
 		processMySites();
+
+System.out.println("MY="+mySites.size()+" More="+moreSites.size()+" MWI="+myWorkspaceSiteId);
 		
-		
+ 		String profileToolUrl = null;
+                if ( myWorkspaceSiteId != null ) for (Iterator iSi = mySites.iterator(); iSi.hasNext();)
+                {
+                        Site s = (Site) iSi.next();
+                        if ( !myWorkspaceSiteId.equals(s.getId()) ) continue;
+                	List pages = siteHelper.getPermittedPagesInOrder(s);
+                	for (Iterator iPg = pages.iterator(); iPg.hasNext();)
+                	{
+                        	SitePage p = (SitePage) iPg.next();
+				List<ToolConfiguration> pTools = p.getTools();
+                        	Iterator iPt = pTools.iterator();
+                        	while (iPt.hasNext())
+                        	{
+                                	ToolConfiguration placement = (ToolConfiguration) iPt.next();
+					if ( "sakai.profile2".equals(placement.getToolId()) ) {
+                				profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+						break;
+					}
+				}
+			}
+		}
+
+		if ( profileToolUrl != null ) {
+			renderContextMap.put("profileToolUrl", profileToolUrl);
+		}
+
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
-				/* includeSummary */false, /* expandSite */false,
+				/* includeSummary */false, /* expandSite */true,
 				/* resetTools */"true".equals(serverConfigurationService
 						.getString(Portal.CONFIG_AUTO_RESET)),
 				/* doPages */true, /* toolContextPath */null, loggedIn);
-		
-		
-		
-		
-		
 
 		renderContextMap.put("tabsSites", l);
 
@@ -201,8 +222,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		{
 			List<Map> m = siteHelper.convertSitesToMaps(request, moreSites, prefix,
 					currentSiteId, myWorkspaceSiteId,
-					/* includeSummary */false, /* expandSite */
-					false,
+					/* includeSummary */false, /* expandSite */ false,
 					/* resetTools */"true".equals(serverConfigurationService
 							.getString(Portal.CONFIG_AUTO_RESET)),
 					/* doPages */true, /* toolContextPath */null, loggedIn);

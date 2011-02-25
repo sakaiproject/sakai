@@ -23,9 +23,15 @@
 					<div id="mastLogin">
 					#if (!${loginTopLogin})
 						<div id="loginLinks">
+						#if (${tabsSites.profileToolUrl})
+<a href="${tabsSites.profileToolUrl}" target="_new">
+						#end
 						#if (${displayUserloginInfo})
-							<span id="loginUser">${loginUserDispName} (${loginUserDispId}) | </span>
+							<span id="loginUser">${loginUserDispName} (${loginUserDispId})</span>
 						#end						
+						#if (${tabsSites.profileToolUrl})
+</a>
+						#end
 						#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
 						#else
@@ -59,26 +65,35 @@
 
 						<a id="sitetabs" class="skip" name="sitetabs"></a>
 							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
-							<ul id="siteLinkList">
+<ul class="topnav">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
 								#if (${site.isMyWorkspace})
-							<li class="selectedTab"><a href="#"><span>${rloader.sit_mywor}</span></a></li>
-							<li class="more-tab"><a href="#" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>Sites</span></a></li>
-#set ( $siteTab = 1 )
+<li class="nav-selected nav-menu"><a href="#"><span>${rloader.sit_mywor}</span></a>
 								#else
-							<li class="selectedTab"><a href="#"><span>${site.siteTitle}</span></a></li>
+<li class="nav-selected nav-menu"><a href="#"><span>${site.siteTitle}</span></a>
 								#end
 							#else
 								#if (${site.isMyWorkspace})
-							<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a></li>
-							<li class="more-tab"><a href="#" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>Sites</span></a></li>
-#set ( $siteTab = 1 )
+<li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a>
 								#else
-							<li><a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a></li>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a>
 								#end
 							#end
+<ul class="nav-submenu subnav">
+#set ( $pageCount = 0 )
+    #foreach ( $page in $site.sitePages.pageNavTools ) 
+        #set ($pageCount =$pageCount + 1)       
+        #if (${page.isPage} && $pageCount < 6 )
+<li><span><a href="${page.pageRefUrl}" title="${page.pageTitle}">${page.pageTitle}</a></span></li>
+        #end
+    #end
+</ul>
+</li>
 						#end
+
+<li class="more-tab"><a href="#" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>-More-</span></a></li>
+#set ( $siteTab = 1 )
 						#if ($tabsSites.tabsMoreSitesShow && $useDHTMLMore && $siteTab == 0)
 							<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
 						#end
@@ -133,7 +148,7 @@
 <div id="selectSite" style="display:none">
          <p style="text-align:right;width:500px;">
          <span style="font-weight:bold;">Search:</span> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />&nbsp;
-         <img id="imgSearch" src="/images/cancel.gif" alt="Cancel Search" title="Cancel Search" style="width:150px;width:14px;height:14px;" />
+         <img id="imgSearch" src="/portal/styles/neotmp/cancel.gif" alt="Cancel Search" title="Cancel Search" style="width:150px;width:14px;height:14px;" />
      </p>
      <table id="tblSearch" cellpadding="2" cellspacing="0" border="1" style="width:500px;">
 						#foreach ( $site in $tabsSites.tabsSites ) 
@@ -147,71 +162,90 @@
 						#end	
       </table>
      <script language="javascript" type="text/javascript">
-         jQuery.expr[":"].containsNoCase = function(el, i, m) {
-var search = m[3];
-if (!search) returnfalse;
-return eval("/" + search + "/i").test($(el).text());
-         };
+
+         // case insensitive version of :contains
+         jQuery.extend(
+            jQuery.expr[':'], {
+                Contains: "jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase())>=0"
+            }
+         );
   
          jQuery(document).ready(function() {
-// used for the first example in the blog post
-             jQuery('li:contains(\'DotNetNuke\')').css('color', '#0000ff').css('font-weight', 'bold');
-  
-// hide the cancel search image
              jQuery('#imgSearch').hide();
-  
-// reset the search when the cancel image is clicked
              jQuery('#imgSearch').click(function() {
                  resetSearch();
              });
   
-// cancel the search if the user presses the ESC key
              jQuery('#txtSearch').keyup(function(event) {
-if (event.keyCode == 27) {
+             if (event.keyCode == 27) {
                      resetSearch();
                  }
              });
   
-// execute the search
              jQuery('#txtSearch').keyup(function() {
-// only search when there are 3 or more characters in the textbox
-if (jQuery('#txtSearch').val().length > 2) {
-// hide all rows
+                  if (jQuery('#txtSearch').val().length > 2) {
                      jQuery('#tblSearch tr').hide();
-// show the header row
-                     jQuery('#tblSearch tr:first').show();
-// show the matching rows (using the containsNoCase from Rick Strahl)
-                     jQuery('#tblSearch tr td:containsNoCase(\'' + jQuery('#txtSearch').val() + '\')').parent().show();
-// show the cancel search image
+                     // jQuery('#tblSearch tr:first').show();
+                     jQuery('#tblSearch tr td:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent().show();
                      jQuery('#imgSearch').show();
                  }
-elseif (jQuery('#txtSearch').val().length == 0) {
-// if the user removed all of the text, reset the search
+                 if (jQuery('#txtSearch').val().length == 0) {
                      resetSearch();
                  }
   
-// if there were no matching rows, tell the user
-if (jQuery('#tblSearch tr:visible').length == 1) {
-// remove the norecords row if it already exists
+                 // Should be <=1 if there is a header line
+                 if (jQuery('#tblSearch tr:visible').length < 1) {
                      jQuery('.norecords').remove();
-// add the norecords row
                      jQuery('#tblSearch').append('<tr class="norecords"><td colspan="5" class="Normal">No records were found</td></tr>');
                  }
              });
          });
   
 function resetSearch() {
-// clear the textbox
              jQuery('#txtSearch').val('');
-// show all table rows
              jQuery('#tblSearch tr').show();
-// remove any no records rows
              jQuery('.norecords').remove();
-// remove the cancel search image
              jQuery('#imgSearch').hide();
-// make sure we re-focus on the textbox for usability
              jQuery('#txtSearch').focus();
          }
+
+
+jQuery(document).ready(function() {
+  var toggle = function(direction, display) {
+    return function() {
+      var self = this;
+      var ul = jQuery("ul", this);
+      if( ul.css("display") == display && !self["block" + direction] ) {
+        self["block" + direction] = true;
+        ul["slide" + direction]("slow", function() {
+          self["block" + direction] = false;
+        });
+      }
+    };
+  }
+  // jQuery("li.nav-menu").hover(toggle("Down", "none"), toggle("Up", "block"));
+  // jQuery("li.nav-menu ul").hide();
+});
+
+jQuery(document).ready(function(){
+	jQuery("ul.subnav").parent().append('<span class="drop"></span>'); 
+	jQuery("ul.topnav li span.drop").click(function() { 
+
+		jQuery(this).parent().find("ul.subnav").slideDown('fast').show(); 
+
+		jQuery(this).parent().hover(function() {
+		}, function(){
+			jQuery(this).parent().find("ul.subnav").slideUp('slow'); 
+		});
+
+		}).hover(function() {
+			jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
+		}, function(){	//On Hover Out
+			jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
+	});
+
+});
+
 </script>
 </div>
 #else
