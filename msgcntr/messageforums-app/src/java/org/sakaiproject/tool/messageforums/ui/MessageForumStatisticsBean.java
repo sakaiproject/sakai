@@ -20,68 +20,37 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
-import java.io.IOException;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Set;
-import java.util.Vector;
+import java.util.TreeMap;
 
-import javax.faces.event.ActionEvent;
-import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UnreadStatus;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBean.DecoratedCompiledMessageStats;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class MessageForumStatisticsBean {
@@ -360,25 +329,25 @@ public class MessageForumStatisticsBean {
 	private boolean isLastParticipant = false;
 	
 	//Comparatibles
-	public static Comparator NameComparatorAsc;
-	public static Comparator AuthoredComparatorAsc;
-	public static Comparator ReadComparatorAsc;
-	public static Comparator UnreadComparatorAsc;
-	public static Comparator PercentReadComparatorAsc;
-	public static Comparator NameComparatorDesc;
-	public static Comparator AuthoredComparatorDesc;
-	public static Comparator ReadComparatorDesc;
-	public static Comparator UnreadComparatorDesc;
-	public static Comparator PercentReadComparatorDesc;
-	public static Comparator DateComparaterDesc;
-	public static Comparator ForumTitleComparatorAsc;
-	public static Comparator ForumTitleComparatorDesc;
-	public static Comparator TopicTitleComparatorAsc;
-	public static Comparator TopicTitleComparatorDesc;
-	public static Comparator ForumDateComparatorAsc;
-	public static Comparator ForumDateComparatorDesc;
-	public static Comparator ForumSubjectComparatorAsc;
-	public static Comparator ForumSubjectComparatorDesc;
+	public static Comparator nameComparatorAsc;
+	public static Comparator authoredComparatorAsc;
+	public static Comparator readComparatorAsc;
+	public static Comparator unreadComparatorAsc;
+	public static Comparator percentReadComparatorAsc;
+	public static Comparator nameComparatorDesc;
+	public static Comparator authoredComparatorDesc;
+	public static Comparator readComparatorDesc;
+	public static Comparator unreadComparatorDesc;
+	public static Comparator percentReadComparatorDesc;
+	public static Comparator dateComparaterDesc;
+	public static Comparator forumTitleComparatorAsc;
+	public static Comparator forumTitleComparatorDesc;
+	public static Comparator topicTitleComparatorAsc;
+	public static Comparator topicTitleComparatorDesc;
+	public static Comparator forumDateComparatorAsc;
+	public static Comparator forumDateComparatorDesc;
+	public static Comparator forumSubjectComparatorAsc;
+	public static Comparator forumSubjectComparatorDesc;
 
 	
 	public Map getCourseMemberMap(){
@@ -948,101 +917,101 @@ public class MessageForumStatisticsBean {
 	private Comparator determineComparator(){
 		if(ascending){
 			if (sortBy.equals(NAME_SORT)){
-				return NameComparatorAsc;
+				return nameComparatorAsc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
-				return AuthoredComparatorAsc;
+				return authoredComparatorAsc;
 			}else if (sortBy.equals(READ_SORT)){
-				return ReadComparatorAsc;
+				return readComparatorAsc;
 			}else if (sortBy.equals(UNREAD_SORT)){
-				return UnreadComparatorAsc;
+				return unreadComparatorAsc;
 			}else if (sortBy.equals(PERCENT_READ_SORT)){
-				return PercentReadComparatorAsc;
+				return percentReadComparatorAsc;
 			}
 		}else{
 			if (sortBy.equals(NAME_SORT)){
-				return NameComparatorDesc;
+				return nameComparatorDesc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
-				return AuthoredComparatorDesc;
+				return authoredComparatorDesc;
 			}else if (sortBy.equals(READ_SORT)){
-				return ReadComparatorDesc;
+				return readComparatorDesc;
 			}else if (sortBy.equals(UNREAD_SORT)){
-				return UnreadComparatorDesc;
+				return unreadComparatorDesc;
 			}else if (sortBy.equals(PERCENT_READ_SORT)){
-				return PercentReadComparatorDesc;
+				return percentReadComparatorDesc;
 			}
 		}
 		//default return NameComparatorAsc
-		return NameComparatorAsc;
+		return nameComparatorAsc;
 	}
 	
 	private Comparator determineComparatorByUser(){
 		if(ascendingForUser){
 			if (sortByUser.equals(FORUM_TITLE_SORT)){
-				return ForumTitleComparatorAsc;
+				return forumTitleComparatorAsc;
 			}else if (sortByUser.equals(FORUM_DATE_SORT)){
-				return ForumDateComparatorAsc;
+				return forumDateComparatorAsc;
 			}else if (sortByUser.equals(FORUM_SUBJECT_SORT)){
-				return ForumSubjectComparatorAsc;
+				return forumSubjectComparatorAsc;
 			}else if (sortByUser.equals(TOPIC_TITLE_SORT)){
-				return TopicTitleComparatorAsc;
+				return topicTitleComparatorAsc;
 			}
 		}else{
 			if (sortByUser.equals(FORUM_TITLE_SORT)){
-				return ForumTitleComparatorDesc;
+				return forumTitleComparatorDesc;
 			}else if (sortByUser.equals(FORUM_DATE_SORT)){
-				return ForumDateComparatorDesc;
+				return forumDateComparatorDesc;
 			}else if (sortByUser.equals(FORUM_SUBJECT_SORT)){
-				return ForumSubjectComparatorDesc;
+				return forumSubjectComparatorDesc;
 			}else if (sortByUser.equals(TOPIC_TITLE_SORT)){
-				return TopicTitleComparatorDesc;
+				return topicTitleComparatorDesc;
 			}
 		}
 		//default return NameComparatorAsc
-		return ForumDateComparatorDesc;
+		return forumDateComparatorDesc;
 	}
 	
 	private Comparator determineComparatorByUser2(){
 		if(ascendingForUser2){
 			if (sortByUser2.equals(FORUM_TITLE_SORT2)){
-				return ForumTitleComparatorAsc;
+				return forumTitleComparatorAsc;
 			}else if (sortByUser2.equals(FORUM_DATE_SORT2)){
-				return ForumDateComparatorAsc;
+				return forumDateComparatorAsc;
 			}else if (sortByUser2.equals(FORUM_SUBJECT_SORT2)){
-				return ForumSubjectComparatorAsc;
+				return forumSubjectComparatorAsc;
 			}else if (sortByUser2.equals(TOPIC_TITLE_SORT2)){
-				return TopicTitleComparatorAsc;
+				return topicTitleComparatorAsc;
 			}
 		}else{
 			if (sortByUser2.equals(FORUM_TITLE_SORT2)){
-				return ForumTitleComparatorDesc;
+				return forumTitleComparatorDesc;
 			}else if (sortByUser2.equals(FORUM_DATE_SORT2)){
-				return ForumDateComparatorDesc;
+				return forumDateComparatorDesc;
 			}else if (sortByUser2.equals(FORUM_SUBJECT_SORT2)){
-				return ForumSubjectComparatorDesc;
+				return forumSubjectComparatorDesc;
 			}else if (sortByUser2.equals(TOPIC_TITLE_SORT2)){
-				return TopicTitleComparatorDesc;
+				return topicTitleComparatorDesc;
 			}
 		}
 		//default return NameComparatorAsc
-		return ForumDateComparatorDesc;
+		return forumDateComparatorDesc;
 	}
 	
 	private Comparator determineComparatorByUser3(){
 		if(ascendingForUser3){
 			if (sortByUser3.equals(TOPIC_TITLE_SORT3)){
-				return TopicTitleComparatorAsc;
+				return topicTitleComparatorAsc;
 			}else if (sortByUser3.equals(FORUM_DATE_SORT3)){
-				return ForumDateComparatorAsc;
+				return forumDateComparatorAsc;
 			}
 		}else{
 			if (sortByUser3.equals(TOPIC_TITLE_SORT3)){
-				return TopicTitleComparatorDesc;
+				return topicTitleComparatorDesc;
 			}else if (sortByUser3.equals(FORUM_DATE_SORT3)){
-				return ForumDateComparatorDesc;
+				return forumDateComparatorDesc;
 			}
 		}
 		//default return NameComparatorAsc
-		return ForumDateComparatorDesc;
+		return forumDateComparatorDesc;
 	}
 
 	
@@ -1050,7 +1019,7 @@ public class MessageForumStatisticsBean {
 		/**
 		 * Comparators for DecoratedCompileMessageStatistics
 		 */
-		NameComparatorAsc = new Comparator(){
+		nameComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String name1 = ((DecoratedCompiledMessageStatistics) item).getSiteUser().toUpperCase();
 				String name2 = ((DecoratedCompiledMessageStatistics) anotherItem).getSiteUser().toUpperCase();
@@ -1058,7 +1027,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		AuthoredComparatorAsc = new Comparator(){
+		authoredComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsAmt();
 				int authored2 = ((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsAmt();
@@ -1066,7 +1035,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ReadComparatorAsc = new Comparator(){
+		readComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
 				int read2 = ((DecoratedCompiledMessageStatistics) anotherItem).getReadForumsAmt();
@@ -1074,7 +1043,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		UnreadComparatorAsc = new Comparator(){
+		unreadComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int unread1 = ((DecoratedCompiledMessageStatistics) item).getUnreadForumsAmt();
 				int unread2 = ((DecoratedCompiledMessageStatistics) anotherItem).getUnreadForumsAmt();
@@ -1082,7 +1051,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		PercentReadComparatorAsc = new Comparator(){
+		percentReadComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				double percentRead1 = ((DecoratedCompiledMessageStatistics) item).getPercentReadForumsAmt();
 				double percentRead2 = ((DecoratedCompiledMessageStatistics) anotherItem).getPercentReadForumsAmt();
@@ -1097,7 +1066,7 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		};
-		NameComparatorDesc = new Comparator(){
+		nameComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String name1 = ((DecoratedCompiledMessageStatistics) item).getSiteUser().toUpperCase();
 				String name2 = ((DecoratedCompiledMessageStatistics) anotherItem).getSiteUser().toUpperCase();
@@ -1105,7 +1074,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ForumTitleComparatorAsc = new Comparator(){
+		forumTitleComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String title1 = ((DecoratedCompiledUserStatistics) item).getForumTitle().toUpperCase();
 				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumTitle().toUpperCase();
@@ -1113,7 +1082,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		TopicTitleComparatorAsc = new Comparator(){
+		topicTitleComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String title1 = ((DecoratedCompiledUserStatistics) item).getTopicTitle().toUpperCase();
 				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getTopicTitle().toUpperCase();
@@ -1121,7 +1090,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ForumDateComparatorAsc = new Comparator(){
+		forumDateComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
 				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
@@ -1129,7 +1098,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ForumSubjectComparatorAsc = new Comparator(){
+		forumSubjectComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String subject1 = ((DecoratedCompiledUserStatistics) item).getForumSubject().toUpperCase();
 				String subject2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumSubject().toUpperCase();
@@ -1137,7 +1106,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 
-		AuthoredComparatorDesc = new Comparator(){
+		authoredComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsAmt();
 				int authored2 = ((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsAmt();
@@ -1145,7 +1114,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ReadComparatorDesc = new Comparator(){
+		readComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
 				int read2 = ((DecoratedCompiledMessageStatistics) anotherItem).getReadForumsAmt();
@@ -1153,7 +1122,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		UnreadComparatorDesc = new Comparator(){
+		unreadComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int unread1 = ((DecoratedCompiledMessageStatistics) item).getUnreadForumsAmt();
 				int unread2 = ((DecoratedCompiledMessageStatistics) anotherItem).getUnreadForumsAmt();
@@ -1161,7 +1130,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		PercentReadComparatorDesc = new Comparator(){
+		percentReadComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				double percentRead1 = ((DecoratedCompiledMessageStatistics) item).getPercentReadForumsAmt();
 				double percentRead2 = ((DecoratedCompiledMessageStatistics) anotherItem).getPercentReadForumsAmt();
@@ -1181,7 +1150,7 @@ public class MessageForumStatisticsBean {
 		 * Comparator for DecoratedCompiledUserStatistics
 		 */
 		
-		DateComparaterDesc = new Comparator(){
+		dateComparaterDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
 				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
@@ -1189,7 +1158,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ForumTitleComparatorDesc = new Comparator(){
+		forumTitleComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String title1 = ((DecoratedCompiledUserStatistics) item).getForumTitle().toUpperCase();
 				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumTitle().toUpperCase();
@@ -1197,7 +1166,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		TopicTitleComparatorDesc = new Comparator(){
+		topicTitleComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String title1 = ((DecoratedCompiledUserStatistics) item).getTopicTitle().toUpperCase();
 				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getTopicTitle().toUpperCase();
@@ -1205,7 +1174,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ForumDateComparatorDesc = new Comparator(){
+		forumDateComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
 				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
@@ -1213,7 +1182,7 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
-		ForumSubjectComparatorDesc = new Comparator(){
+		forumSubjectComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				String subject1 = ((DecoratedCompiledUserStatistics) item).getForumSubject().toUpperCase();
 				String subject2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumSubject().toUpperCase();
