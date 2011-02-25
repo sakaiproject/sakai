@@ -3464,10 +3464,11 @@ private   int   getNum(char letter,   String   a)
     String attachId = null;
     
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
+    Iterator<Entry<Object, String>> itr = paramMap.entrySet().iterator();
     while(itr.hasNext())
     {
-      Object key = itr.next();
+      Entry<Object, String> entry = itr.next();
+    	Object key = entry.getKey();
       if( key instanceof String)
       {
         String name =  (String)key;
@@ -3475,7 +3476,7 @@ private   int   getNum(char letter,   String   a)
         
         if(pos>=0 && name.length()==pos+"pvmsg_current_attach".length())
         {
-          attachId = (String)paramMap.get(key);
+          attachId = entry.getValue();
           break;
         }
       }
@@ -3507,10 +3508,11 @@ private   int   getNum(char letter,   String   a)
     String attachId = null;
     
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
+    Iterator<Entry<Object, String>> itr = paramMap.entrySet().iterator();
     while(itr.hasNext())
     {
-      Object key = itr.next();
+      Entry<Object, String> entry = itr.next();
+      Object key = entry.getKey();
       if( key instanceof String)
       {
         String name =  (String)key;
@@ -3518,7 +3520,7 @@ private   int   getNum(char letter,   String   a)
         
         if(pos>=0 && name.length()==pos+"remsg_current_attach".length())
         {
-          attachId = (String)paramMap.get(key);
+          attachId = entry.getValue();
           break;
         }
       }
@@ -4851,10 +4853,11 @@ private   int   getNum(char letter,   String   a)
 			if (toolSession != null) {
 				ResourceLoader pRb = new ResourceLoader(PERMISSIONS_BUNDLE);
 				HashMap<String, String> pRbValues = new HashMap<String, String>();
-				for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+				for (Iterator<Entry<String, String>> iEntries = pRb.entrySet().iterator();iEntries.hasNext();)
 				{
-					String key = (String) iKeys.next();
-					pRbValues.put(key, (String) pRb.get(key));
+					Entry<String, String> entry = iEntries.next();
+					String key = entry.getKey();
+					pRbValues.put(key, entry.getValue());
 				}
 
 				toolSession.setAttribute("permissionDescriptions", pRbValues); 

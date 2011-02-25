@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIForm;
 import javax.faces.component.UIViewRoot;
@@ -203,11 +205,12 @@ public class RendererUtil
      */
     public static void writeAttributes(Map attributeMap, ResponseWriter writer) throws IOException
     {
-        Iterator iter = attributeMap.keySet().iterator();
+        Iterator<Entry<String, String>> iter = attributeMap.entrySet().iterator();
         while (iter.hasNext())
         {
-            String key = (String) iter.next();
-            String value = (String) attributeMap.get(key);
+        	Entry<String, String> entry = iter.next();
+            String key = entry.getKey();
+            String value = entry.getValue();
             if (value == null)
                 value = "";
             writer.writeAttribute(key, value, key);

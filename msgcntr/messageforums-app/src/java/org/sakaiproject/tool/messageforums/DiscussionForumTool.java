@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -3391,10 +3392,11 @@ public class DiscussionForumTool
     String attachId = null;
 
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
+    Iterator<Entry<Object, String>> itr = paramMap.entrySet().iterator();
     while (itr.hasNext())
     {
-      Object key = itr.next();
+      Entry<Object, String> entry = itr.next();
+      Object key = entry.getKey();
       if (key instanceof String)
       {
         String name = (String) key;
@@ -3402,7 +3404,7 @@ public class DiscussionForumTool
 
         if (pos >= 0 && name.length() == pos + "dfmsg_current_attach".length())
         {
-          attachId = (String) paramMap.get(key);
+          attachId = entry.getValue();
           break;
         }
       }
@@ -4370,10 +4372,11 @@ public class DiscussionForumTool
     String attachId = null;
 
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
+    Iterator<Entry<Object, String>> itr = paramMap.entrySet().iterator();
     while (itr.hasNext())
     {
-      Object key = itr.next();
+      Entry<Object, String> entry = itr.next();
+      Object key = entry.getKey();
       if (key instanceof String)
       {
         String name = (String) key;
@@ -4381,7 +4384,7 @@ public class DiscussionForumTool
 
         if (pos >= 0 && name.length() == pos + "dfmsg_current_attach".length())
         {
-          attachId = (String) paramMap.get(key);
+          attachId = entry.getValue();
           break;
         }
       }
@@ -5565,10 +5568,11 @@ public class DiscussionForumTool
     String attachId = null;
 
     Map paramMap = context.getRequestParameterMap();
-    Iterator itr = paramMap.keySet().iterator();
+    Iterator<Entry<Object, String>> itr = paramMap.entrySet().iterator();
     while (itr.hasNext())
     {
-      Object key = itr.next();
+      Entry<Object, String> entry = itr.next();
+      Object key = entry.getKey();
       if (key instanceof String)
       {
         String name = (String) key;
@@ -5576,7 +5580,7 @@ public class DiscussionForumTool
 
         if (pos >= 0 && name.length() == pos + "dfmsg_current_attach".length())
         {
-          attachId = (String) paramMap.get(key);
+          attachId = entry.getValue();
           break;
         }
       }
