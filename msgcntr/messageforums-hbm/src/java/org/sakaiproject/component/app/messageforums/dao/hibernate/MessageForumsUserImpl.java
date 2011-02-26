@@ -38,8 +38,7 @@ public class MessageForumsUserImpl implements MessageForumsUser {
     private ActorPermissions apModerators; 
     private PrivateMessage privateMessage;            
      
-    // indecies for hibernate
-    private int mesindex;    
+    // Indices for hibernate
     private int apmoderatorsindex;
     private int apcontributorsindex;
     private int apaccessorsindex;

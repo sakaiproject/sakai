@@ -20,12 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import java.beans.PropertyDescriptor;
-
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
 public class PermissionLevelImpl extends MutableEntityImpl 
-                                 implements PermissionLevel, Comparable{
+                                 implements PermissionLevel, Comparable, Cloneable{
 					
 	private String typeUuid;
 	private String name;

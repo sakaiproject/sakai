@@ -43,19 +43,15 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     //private int ptindex;
     
     
-    public static Comparator TITLE_COMPARATOR;
+    public static Comparator<Topic> TITLE_COMPARATOR;
     
-    private static final List lookupOrderList = 
+    private static final List<String> lookupOrderList = 
       Arrays.asList(new String[] {"pvt_received", "pvt_sent", "pvt_deleted", "pvt_drafts"}); 
     
     static {
-      TITLE_COMPARATOR = new Comparator()
+      TITLE_COMPARATOR = new Comparator<Topic>()
       {                
-        private String title1, title2;                
-        private Integer index1, index2;
-        
-        
-        public int compare(Object topic, Object otherTopic)
+        public int compare(Topic topic, Topic otherTopic)
         {
           if (topic != null && otherTopic != null
               && topic instanceof Topic && otherTopic instanceof Topic)
