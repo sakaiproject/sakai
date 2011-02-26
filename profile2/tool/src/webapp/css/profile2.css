@@ -1435,3 +1435,9 @@ main-profile-tabpanel .tab-row a:visited.active,
 .pager {
 	margin-top: 10px;
 }
+
+/* visible to screen reader only */
+.offscreen {
+	position: absolute;
+	left: -999em;
+}

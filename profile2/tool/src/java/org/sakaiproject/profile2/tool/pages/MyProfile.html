@@ -78,16 +78,16 @@
 			setMainFrameHeight(window.name);
 
 			//hide edit buttons
-			$(".edit-button").hide();
-			$(".edit-image-button").hide();
+			$(".edit-button").addClass("offscreen");
+			$(".edit-image-button").addClass("offscreen");
 
 			//on hover over the profile image, show the edit link
 			$("#myPhoto").hover(
 				function () {
-					$(this).children(".edit-image-button").show();
+					$(this).children(".edit-image-button").removeClass("offscreen");
 				}, 
 				function () {
-					$(this).children(".edit-image-button").hide();
+					$(this).children(".edit-image-button").addClass("offscreen");
 				}
 			);
 

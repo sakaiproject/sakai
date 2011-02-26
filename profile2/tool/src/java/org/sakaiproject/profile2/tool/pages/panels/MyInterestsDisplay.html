@@ -30,8 +30,13 @@
 	<div class="mainSection editable">
 		<div class="mainSectionHeading"><span wicket:id="heading">[Personal Information]</span></div>
 		
-		<a href="#" wicket:id="editButton" class="edit-button"><span wicket:id="editButtonLabel">edit</span></a>
-		
+		<a href="#" wicket:id="editButton" class="edit-button">
+			<span wicket:id="editButtonLabel">edit</span> 
+			<span class="offscreen">
+				<wicket:message key="accessibility.edit.personal" />
+			</span>
+		</a>
+				
 		<div class="mainSectionContent">
 				
 			<!--  message if no fields filled in -->	
@@ -70,17 +75,18 @@
 	
 	<!-- panel specific Javascript -->
 	<script type="text/javascript">
+
 		//force hide on init
-		$(".edit-button").hide();
+		$(".edit-button").addClass("offscreen");
 	
 		//show the edit button when hovering over an editable section
 		$(document).ready(function(){ 
 			$(".editable").hover(
 				function () {
-					$(this).children(".edit-button").show();
+					$(this).children(".edit-button").removeClass("offscreen");
 				}, 
 				function () {
-					$(this).children(".edit-button").hide();
+					$(this).children(".edit-button").addClass("offscreen");;
 				}
 			);
 		});
