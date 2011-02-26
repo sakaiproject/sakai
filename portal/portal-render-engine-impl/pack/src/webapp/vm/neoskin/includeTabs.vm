@@ -24,7 +24,7 @@
 					#if (!${loginTopLogin})
 						<div id="loginLinks">
 						#if (${tabsSites.profileToolUrl})
-<a href="${tabsSites.profileToolUrl}" target="_new">
+<a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true">
 						#end
 						#if (${displayUserloginInfo})
 							<span id="loginUser">${loginUserDispName} (${loginUserDispId})</span>
@@ -84,7 +84,7 @@
 #set ( $pageCount = 0 )
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
-        #if (${page.isPage} && $pageCount < 6 )
+        #if (${page.isPage} && $pageCount < 100 )
 <li><span><a href="${page.pageRefUrl}" title="${page.pageTitle}">${page.pageTitle}</a></span></li>
         #end
     #end
@@ -92,7 +92,7 @@
 </li>
 						#end
 
-<li class="more-tab"><a href="#" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>-More-</span></a></li>
+<li class="more-tab"><a href="#" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>-Active Sites-</span></a></li>
 #set ( $siteTab = 1 )
 						#if ($tabsSites.tabsMoreSitesShow && $useDHTMLMore && $siteTab == 0)
 							<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>

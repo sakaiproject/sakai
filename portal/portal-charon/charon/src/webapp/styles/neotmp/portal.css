@@ -94,10 +94,16 @@ site types are a local setting - adjust */
 
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
+#togglebar{
+	padding: 0;
+	margin-top: 0em;
+	margin-left: 12.3em;
+}
+
 #content{
 	padding: 0;
 	margin-top: .5em;
-	margin-left: 12.3em;
+	margin-left: 13.3em;
 }
 /*margin tweak for IE to avoid float drop*/
 * html #content{margin-left:12.3em}
@@ -662,10 +668,10 @@ page estate
 	display:block;
 	height:16px;
 	padding-right:0 !important;
-	width:16px;
+	width:0px;
 }
 .sakaiMinimizePageNavigation #toolMenu{
-	width:16px;
+	width:0px;
 }
 .sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #presenceWrapper{
 	display:none
@@ -683,8 +689,13 @@ page estate
 	margin-right:1em;
 	border-right:none;
 }
+.sakaiMinimizePageNavigation #togglebar{
+	padding-left:0em;
+	margin-top: 0em;
+	margin-left:0;
+}
 .sakaiMinimizePageNavigation #content{
-	padding-left:2em;
+	padding-left:3em;
 	margin-left:0;
 }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{

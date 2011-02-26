@@ -225,9 +225,13 @@ public class SiteHandler extends WorksiteHandler
 				.getSkin(), req);
 		
 		// Have we been requested to display minimized and are we logged in?
-		if (session.getUserId() != null) {
+		if (session.getUserId() != null ) {
 			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
+                        String reqParm = req.getParameter(portal.SAKAI_NAV_MINIMIZED);
+                	String minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
                 	if ( c != null && "true".equals(c.getValue()) ) {
+				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
+			} else if ( reqParm != null &&  "true".equals(reqParm) && ! "false".equals(minStr) ) {
 				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
 			}
 		}
