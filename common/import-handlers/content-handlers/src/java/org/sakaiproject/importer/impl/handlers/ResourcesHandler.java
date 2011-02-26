@@ -398,15 +398,15 @@ public class ResourcesHandler implements HandlesImportable {
 	
 	private String makeIdClean (String path) {
 		String [] parts = path.split("/");
-		String rv = "";
+		StringBuilder rv = new StringBuilder();
 		
 		for (int i = 0; i < parts.length; i++) {
 			if (parts[i].length() > 0) {
-				rv += "/" + Validator.escapeResourceName(parts[i]);
+				rv.append("/" + Validator.escapeResourceName(parts[i]));
 			}
 		}
 		
-		return rv;
+		return rv.toString();
 	}
 
 	public ContentHostingService getContentHostingService() {

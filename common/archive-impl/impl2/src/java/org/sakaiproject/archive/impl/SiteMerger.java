@@ -88,7 +88,7 @@ public class SiteMerger {
 	private String[] new_toolIds = {"sakai.preferences", "sakai.online", "sakai.siteinfo", "sakai.sitesetup", "sakai.discussion"};
 	
 	//SWG TODO I have a feeling this is a bug
-	protected HashSet UsersListAllowImport = new HashSet(); 
+	protected HashSet<String> usersListAllowImport = new HashSet<String>(); 
 	/**
 	* Process a merge for the file, or if it's a directory, for all contained files (one level deep).
 	* @param fileName The site name (for the archive file) to read from.
@@ -265,7 +265,7 @@ public class SiteMerger {
 						String msg = "";
 						if ((system.equalsIgnoreCase(ArchiveService.FROM_SAKAI) || system.equalsIgnoreCase(ArchiveService.FROM_SAKAI_2_8)) 
                                 && (checkSakaiService(filterSakaiService,filteredSakaiService, serviceName)))
-							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, UsersListAllowImport);
+							msg = service.merge(siteId, element, fileName, fromSite, attachmentNames, new HashMap() /* empty userIdTran map */, usersListAllowImport);
 							
 						results.append(msg);
 					}
@@ -495,7 +495,7 @@ public class SiteMerger {
 
 					String userId = element3.getAttribute("userId");	
 					// this user has a qualified role, his/her resource will be imported
-					UsersListAllowImport.add(userId);
+					usersListAllowImport.add(userId);
 				}
 			} // for
 		}

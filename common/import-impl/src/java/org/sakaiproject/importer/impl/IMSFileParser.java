@@ -48,8 +48,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public abstract class IMSFileParser extends ZipFileParser {
-	protected Map resourceMap = new HashMap();
-	protected Map translatorMap = new HashMap();
+	protected Map<String, Node> resourceMap = new HashMap<String, Node>();
+	protected Map<String, IMSResourceTranslator> translatorMap = new HashMap<String, IMSResourceTranslator>();
 	protected Map dependencies = new HashMap();
 	protected Document archiveManifest;
 	protected ResourceHelper resourceHelper;
@@ -289,14 +289,14 @@ public abstract class IMSFileParser extends ZipFileParser {
 		translatorMap.put(t.getTypeName(), t);
 	}
 	
-	protected abstract class ResourceHelper implements ManifestResource {
+	protected abstract static class ResourceHelper implements ManifestResource {
 
 		public String getDependency(Node node) {
 			return XPathHelper.getNodeValue("./dependency/@identifierref", node);
 		}
 	}
 	
-	protected abstract class ItemHelper implements ManifestItem {
+	protected abstract static class ItemHelper implements ManifestItem {
 		
 		public String getResourceId(Node itemNode) {
 			return XPathHelper.getNodeValue("./@identifierref", itemNode);
@@ -329,6 +329,6 @@ public abstract class IMSFileParser extends ZipFileParser {
 		}
 	}
 	
-	protected abstract class ManifestHelper implements Manifest {}
+	protected abstract static class ManifestHelper implements Manifest {}
 
 }

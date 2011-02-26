@@ -28,23 +28,64 @@ import org.sakaiproject.api.common.manager.Persistable;
  */
 public interface Type extends Persistable
 {
+	/**
+	 * 
+	 * @return
+	 */
 	public String getAuthority();
 
+	/**
+	 * 
+	 * @param authority
+	 */
 	public void setAuthority(String authority);
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDomain();
 
+	/**
+	 * 
+	 * @param domain
+	 */
 	public void setDomain(String domain);
 
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getKeyword();
 
+	/**
+	 * 
+	 * @param keyword
+	 */
 	public void setKeyword(String keyword);
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDisplayName();
 
+	/**
+	 * 
+	 * @param displayName
+	 */
 	public void setDisplayName(String displayName);
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getDescription();
 
+	/**
+	 * 
+	 * @param description
+	 */
 	public void setDescription(String description);
 }

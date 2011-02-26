@@ -27,7 +27,7 @@ package org.sakaiproject.api.common.type;
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  * @see {@link java.lang.Error}
  */
-public class UnsupportedTypeException extends Error
+public class UnsupportedTypeException extends Exception
 {
 	private static final long serialVersionUID = 3258132466203242544L;
 
