@@ -1034,7 +1034,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	getHibernateTemplate().execute(hc);
     }
 
-    public List getPermissionsForUser(final Long gradebookId, final String userId) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUser(final Long gradebookId, final String userId) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUser");
@@ -1110,7 +1110,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);    	
     }
     
-    public List getPermissionsForUserAnyGroupForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserAnyGroupForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");

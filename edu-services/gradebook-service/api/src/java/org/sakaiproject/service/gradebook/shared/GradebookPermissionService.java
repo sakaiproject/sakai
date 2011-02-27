@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+
 public interface GradebookPermissionService
 {
   /**
@@ -30,7 +31,7 @@ public interface GradebookPermissionService
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categories, int cateType, List sectionIds) throws IllegalArgumentException;
+	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categories, int cateType, List<String> sectionIds) throws IllegalArgumentException;
 	
   /**
    * Get true/false value for current user which indicats if he has permission for all
@@ -74,7 +75,7 @@ public interface GradebookPermissionService
    * @throws IllegalArgumentException
    * @return Map of student IDs with grade/view as function value
    */
-	public Map getStudentsForItem(Long gradebookId, String userId, List studentIds, int cateType, Long categoryId, List courseSections) throws IllegalArgumentException;
+	public Map<String, String> getStudentsForItem(Long gradebookId, String userId, List<String> studentIds, int cateType, Long categoryId, List courseSections) throws IllegalArgumentException;
 	
 /**
    * Get students IDs that the current grader can either view or grade.
@@ -92,7 +93,7 @@ public interface GradebookPermissionService
    * @throws IllegalArgumentException
    * @return Map of student IDs with grade/view as function value
    */
-	public Map getStudentsForItem(String gradebookUid, String userId, List studentIds, int cateType, Long categoryId, List courseSections) throws IllegalArgumentException;
+	public Map<String, String> getStudentsForItem(String gradebookUid, String userId, List<String> studentIds, int cateType, Long categoryId, List courseSections) throws IllegalArgumentException;
 	
 
   /**
@@ -205,7 +206,7 @@ public interface GradebookPermissionService
 	  * @param groupIds
 	  * @return List of group ids that user has some authorization to view
 	  */
-	 public List getViewableGroupsForUser(Long gradebookId, String userId, List groupIds);
+	 public List<String> getViewableGroupsForUser(Long gradebookId, String userId, List<String> groupIds);
 	 
 	 /**
 	  * Get all group ids associated with groups that contain at least one member
@@ -215,7 +216,7 @@ public interface GradebookPermissionService
 	  * @param groupIds
 	  * @return List of group ids that user has some authorization to view
 	  */
-	 public List getViewableGroupsForUser(String gradebookUid, String userId, List groupIds);
+	 public List<String> getViewableGroupsForUser(String gradebookUid, String userId, List<String> groupIds);
 	 
 	 /**
 	  * Get a unique list of students that the current user has grader permissions to view in some capacity
