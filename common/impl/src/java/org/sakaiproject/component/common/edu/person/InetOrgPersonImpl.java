@@ -579,7 +579,7 @@ public class InetOrgPersonImpl extends OrganizationalPersonImpl implements Perso
 		catch (Exception e)
 		{
 			LOG.error(e.getMessage(), e);
-			throw new Error(e);
+			throw new RuntimeException(e);
 		}
 		finally
 		{

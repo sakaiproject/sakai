@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.common.manager;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -65,10 +66,16 @@ public class PersistableHelper
 			PropertyUtils.setProperty(persistable, LASTMODIFIEDBY, actor);
 			PropertyUtils.setProperty(persistable, LASTMODIFIEDDATE, now);
 		}
-		catch (Exception e)
+		catch (NoSuchMethodException e)
 		{
 			LOG.error(e);
-			throw new Error(e);
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			LOG.error(e);
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			LOG.error(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -90,10 +97,16 @@ public class PersistableHelper
 			PropertyUtils.setProperty(persistable, CREATEDBY, actor);
 			PropertyUtils.setProperty(persistable, CREATEDDATE, now);
 		}
-		catch (Exception e)
+		catch (NoSuchMethodException e)
 		{
 			LOG.error(e);
-			throw new Error(e);
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			LOG.error(e);
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			LOG.error(e);
+			throw new RuntimeException(e);
 		}
 	}
 
