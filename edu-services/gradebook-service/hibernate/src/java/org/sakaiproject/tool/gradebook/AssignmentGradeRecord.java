@@ -33,8 +33,13 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
-public class AssignmentGradeRecord extends AbstractGradeRecord {
-    private Double pointsEarned;
+public class AssignmentGradeRecord extends AbstractGradeRecord implements Cloneable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8259092798479256962L;
+	
+	private Double pointsEarned;
     private String letterEarned;
     private String userEnteredGrade;
     private Double percentEarned;
