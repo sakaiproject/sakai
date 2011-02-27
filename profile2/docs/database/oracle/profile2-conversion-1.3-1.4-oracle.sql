@@ -121,7 +121,9 @@ alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) default 0;
 /* add gallery feed preference (PRFL-382) */
 alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) default 1;
 
-/* adjust size of the profile images resource uri columns */
+/* adjust size of the profile images resource uri columns (PRFL-392) */
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000);
 alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000);
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN varchar2(4000);
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB varchar2(4000);
 

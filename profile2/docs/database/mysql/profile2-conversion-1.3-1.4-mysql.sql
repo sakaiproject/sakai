@@ -119,6 +119,10 @@ alter table PROFILE_PRIVACY_T add MY_KUDOS int not null DEFAULT 0;
 /* add gallery feed preference (PRFL-382) */
 alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null DEFAULT true;
 
-/* adjust size of the profile images resource uri columns */
+/* adjust size of the profile images resource uri columns (PRFL-392) */
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text;
 alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN text;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB text;
+
+
