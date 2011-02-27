@@ -22,23 +22,24 @@
 
 package org.sakaiproject.tool.gradebook.facades.sections;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.site.api.Group;
-
-import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.tool.gradebook.facades.Authn;
+import org.sakaiproject.tool.gradebook.facades.Authz;
 
 /**
  * An implementation of Gradebook-specific authorization needs based
@@ -311,29 +312,29 @@ public class AuthzSectionsImpl implements Authz {
 	
 	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid) {
 		Map enrollmentMap = new HashMap();
-		List filteredEnrollments = new ArrayList();
+		List<EnrollmentRecord> filteredEnrollments = null;
 		if (optionalSearchString != null)
 			filteredEnrollments = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, optionalSearchString);
 		else
 			filteredEnrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
 		
-		if (filteredEnrollments.isEmpty()) 
+		if (filteredEnrollments == null || filteredEnrollments.isEmpty()) 
 			return enrollmentMap;
 		
 		// get all the students in the filtered section, if appropriate
-		Map studentsInSectionMap = new HashMap();
+		Map<String, EnrollmentRecord> studentsInSectionMap = new HashMap<String, EnrollmentRecord>();
 		if (optionalSectionUid !=  null) {
-			List sectionMembers = getSectionEnrollmentsTrusted(optionalSectionUid);
+			List<EnrollmentRecord> sectionMembers = getSectionEnrollmentsTrusted(optionalSectionUid);
 			if (!sectionMembers.isEmpty()) {
-				for(Iterator memberIter = sectionMembers.iterator(); memberIter.hasNext();) {
+				for(Iterator<EnrollmentRecord> memberIter = sectionMembers.iterator(); memberIter.hasNext();) {
 					EnrollmentRecord member = (EnrollmentRecord) memberIter.next();
 					studentsInSectionMap.put(member.getUser().getUserUid(), member);
 				}
 			}
 		}
 		
-		Map studentIdEnrRecMap = new HashMap();
-		for (Iterator enrIter = filteredEnrollments.iterator(); enrIter.hasNext();) {
+		Map<String, EnrollmentRecord> studentIdEnrRecMap = new HashMap<String, EnrollmentRecord>();
+		for (Iterator<EnrollmentRecord> enrIter = filteredEnrollments.iterator(); enrIter.hasNext();) {
 			EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
 			String studentId = enr.getUser().getUserUid();
 			if (optionalSectionUid != null) {

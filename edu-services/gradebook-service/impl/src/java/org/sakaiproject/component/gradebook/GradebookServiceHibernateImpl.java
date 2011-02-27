@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -1459,16 +1460,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
       Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
 
-      Map<EnrollmentRecord, String> enrRecFunctionMap = enrRecFunctionMap = authz.findMatchingEnrollmentsForItemForUser(userUid, gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
+      Map<EnrollmentRecord, String> enrRecFunctionMap  = authz.findMatchingEnrollmentsForItemForUser(userUid, gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
       if (enrRecFunctionMap == null) {
           return new HashMap();
       }
 
       Map<String, String> studentIdFunctionMap = new HashMap();
-      for (Iterator enrIter = enrRecFunctionMap.keySet().iterator(); enrIter.hasNext();) {
-          EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+      for (Iterator<Entry<EnrollmentRecord, String>> enrIter = enrRecFunctionMap.entrySet().iterator(); enrIter.hasNext();) {
+    	  Entry<EnrollmentRecord, String> entry = enrIter.next();
+          EnrollmentRecord enr = entry.getKey();
           if (enr != null && enrRecFunctionMap.get(enr) != null) {
-              studentIdFunctionMap.put(enr.getUser().getUserUid(), enrRecFunctionMap.get(enr));
+              studentIdFunctionMap.put(enr.getUser().getUserUid(), entry.getValue());
           }
       }
       return studentIdFunctionMap;
