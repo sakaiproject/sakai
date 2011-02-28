@@ -104,6 +104,40 @@ function setupAssignNew(){
                     $('#' + nodeType + '_userselect').show();
                     validation = 'failed';
                 }
+                
+                // need to check the date sequence
+                // release date
+                var allPurposeReleaseHour = $('#' + nodeType + '_releaseHour').val();
+                if ($('#' + nodeType + '_releaseAMPM').val()=="PM")
+                {
+                	allPurposeReleaseHour=parseInt(allPurposeReleaseHour) + 12;
+                }
+                var allPurposeReleaseDate = new Date($('#' + nodeType + '_releaseYear').val(), 
+                								$('#' + nodeType + '_releaseMonth').val()-1,// month in Javascript date starts with 0
+                								$('#' + nodeType + '_releaseDay').val(),
+                								allPurposeReleaseHour,
+                								$('#' + nodeType + '_releaseMin').val(),
+                								0, // seconds
+                								0); // milliseconds
+                // retract date
+                var allPurposeRetractHour = $('#' + nodeType + '_retractHour').val();
+                if ($('#' + nodeType + '_retractAMPM').val()=="PM")
+                {
+                	allPurposeRetractHour= parseInt(allPurposeRetractHour) + 12;
+                }
+                var allPurposeRetractDate = new Date($('#' + nodeType + '_retractYear').val(), 
+                								$('#' + nodeType + '_retractMonth').val()-1,// month in Javascript date starts with 0
+                								$('#' + nodeType + '_retractDay').val(),
+                								allPurposeRetractHour,
+                								$('#' + nodeType + '_retractMin').val(),
+                								0, // seconds
+                								0); // milliseconds
+                if (allPurposeReleaseDate >= allPurposeRetractDate)
+                {
+                	// show alert if release date is after retract date
+                	validation = 'failed';
+                	$('#' + nodeType + '_release_after_retract_message').show();
+                }
             }
             else {
                 titleOK = true;

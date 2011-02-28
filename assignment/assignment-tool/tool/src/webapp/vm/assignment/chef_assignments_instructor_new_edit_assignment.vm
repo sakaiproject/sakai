@@ -1087,6 +1087,9 @@ $(document).ready(function() {
 			<div class="act">
 				<input type="button" name="allPurposeAttach" id="allPurposeAttach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='allPurposeAttach';document.newAssignmentForm.submit();return false;"/>
 			</div>
+			<div class="validationError alertMessage" id="allPurpose_release_after_retract_message">
+				$tlang.getString("allPurpose.alert.release.afer.retract")
+			</div>
 			<table id="allPurposeAttachShowWhen">
 				<tr>
 					<td>
@@ -1107,7 +1110,7 @@ $(document).ready(function() {
 					<td colspan="3">
 						<label for="allPurposeShowFrom">
 							$tlang.getString("allPurpose.show.from")
-						</label>
+						</label>	
 					</td>
 				</tr>
 				<tr>
