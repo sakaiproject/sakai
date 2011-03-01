@@ -1532,7 +1532,7 @@ public class UserPrefsTool
 	public String processActionNotiCancel()
 	{
 		LOG.debug("processActionNotiCancel()");
-		processRegisteredNotificationItems();
+		initRegisteredNotificationItems();
 		return "noti";
 	}
 
