@@ -1115,3 +1115,34 @@ ul.makeMenu li.menuClose a:hover {
 .menuOpen{
 	cursor:pointer;
 }
+
+
+#davdocs_step1{
+        border: 3px solid #eee;
+        padding: 1em;
+        background-color: #FFFCE9;
+
+}
+
+#davdocs_step2{
+        margin-top: 1.2em;
+        border: 3px solid #eee;
+        padding: 1em;
+        background-color: #EBFFE8;
+
+}
+
+#davdocs_step2 ul{
+               list-style-type: none;
+}
+
+#davdocs_step2 ul li{
+               display: inline;
+               margin-right: 1.5em;
+}
+
+.webdav_os{
+                margin-top: 4em;
+                border: 3px solid #eee;
+                padding: 2em;
+}
