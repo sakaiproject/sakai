@@ -25,6 +25,7 @@
 				<li>
 	      			<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
 	      			<span class="news-item-excerpt">${SyndEntry.description.value}</span>
+	      			<span>${SyndEntry.enclosures.get(0).url}</span>
 	    		</li>
     		</c:forEach>
 			
