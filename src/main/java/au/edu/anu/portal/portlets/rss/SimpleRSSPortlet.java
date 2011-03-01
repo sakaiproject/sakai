@@ -26,6 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.sun.syndication.feed.synd.SyndFeed;
+
 import au.edu.anu.portal.portlets.rss.utils.Constants;
 import au.edu.anu.portal.portlets.rss.utils.Messages;
 
@@ -50,7 +52,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	//cache
 	private Cache cache;
 	private final String CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache";
-	
+		
 	public void init(PortletConfig config) throws PortletException {	   
 	   super.init(config);
 	   log.info("Simple RSS Portlet init()");
@@ -86,9 +88,19 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		log.info("Simple RSS doView()");
 		
-		//get data
+		//get feed data
+		SyndFeed feed = getFeedContent(request, response);
 		
-		//request.setAttribute("proxyContextUrl", proxy.toString());
+		//catch - errors already handled
+		if(feed == null) {
+			return;
+		}
+		
+		//get max items (subtract 1 since it will be used in a 0 based index)
+		int maxItems = getConfiguredMaxItems(request) - 1;
+		
+		request.setAttribute("SyndFeed", feed);
+		request.setAttribute("maxItems", maxItems);
 		
 		dispatch(request, response, viewUrl);
 	}	
@@ -123,7 +135,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		String portletTitle = request.getParameter("portletTitle");
 		String feedUrl = request.getParameter("feedUrl");
 		
-		//validate
+		//check not readonly
 		try {
 			prefs.setValue("portlet_title", portletTitle);
 			prefs.setValue("feed_url", feedUrl);
@@ -133,13 +145,13 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			log.error(e);
 		}
 		
-		//save them
+		//validate and save
 		if(success) {
 			try {
 				prefs.store();
 				response.setPortletMode(PortletMode.VIEW);
 			} catch (ValidatorException e) {
-				response.setRenderParameter("errorMessage", e.getMessage());
+				response.setRenderParameter("errorMessage", e.getMessage() + ":" + e.getFailedKeys());
 				log.error(e);
 			} catch (IOException e) {
 				response.setRenderParameter("errorMessage", Messages.getString("error.form.save.error"));
@@ -148,17 +160,9 @@ public class SimpleRSSPortlet extends GenericPortlet{
 				e.printStackTrace();
 			}
 		}
+		
 	}
 	
-	/**
-	 * Gets the unique namespace for this portlet
-	 * @param response
-	 * @return
-	 */
-	private String getPortletNamespace(RenderResponse response) {
-		return response.getNamespace();
-	}
-			
 	
 	/**
 	 * Get the feed content
@@ -166,29 +170,66 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * @param response
 	 * @return Map of params or null if any required data is missing
 	 */
-	private Map<String,String> getFeedContent(RenderRequest request, RenderResponse response) {
+	private SyndFeed getFeedContent(RenderRequest request, RenderResponse response) {
 		
-		Map<String,String> params = new HashMap<String,String>();
+		SyndFeed feed;
 		
 		//check cache, otherwise get fresh
-		String cacheKey = getPortletNamespace(response);
+		//we use the feedUrl as the cacheKey
+		String feedUrl = getConfiguredFeedUrl(request);
+		if(StringUtils.isBlank(feedUrl)) {
+			log.error("No feed URL configured");
+			doError("error.no.config", "error.heading.config", request, response);
+			return null;
+		}
+		
+		String cacheKey = feedUrl;
+		
 		Element element = cache.get(cacheKey);
 		if(element != null) {
 			log.info("Fetching data from cache for: " + cacheKey);
-			params = (Map<String, String>) element.getObjectValue();
+			feed = (SyndFeed) element.getObjectValue();
+			if(feed == null) {
+				log.warn("Cache data invalid, attempting a refresh...");
+				feed = getRemoteFeed(feedUrl, request, response);
+			}
 		} else {
 		
-			//get feed data
-			
-			//cache the data, must be done before signing
-			log.info("Adding data to cache for: " + cacheKey);
-			cache.put(new Element(cacheKey, params));
+			//get from remote
+			feed = getRemoteFeed(feedUrl, request, response);
 		}
 		
-		
-		
-		return params;
+		return feed;
 	}
+	
+	/**
+	 * Helper to get the remote feed data and cache it
+	 * @param feedUrl
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	private SyndFeed getRemoteFeed(String feedUrl, RenderRequest request, RenderResponse response) {
+		
+		//get feed data
+		SyndFeed feed = new FeedParser().parseFeed(feedUrl);
+		if(feed == null) {
+			log.error("No data was returned from remote server.");
+			doError("error.no.remote.data", "error.heading.general", request, response);
+			return null;
+		}
+		
+		//cache the data,
+		log.info("Adding data to cache for: " + feedUrl);
+		cache.put(new Element(feedUrl, feed));
+		
+		return feed;
+	}
+	
+	
+	
+	
+	
 	
 	/**
 	 * Get the preferred portlet title if set, or default from Constants
@@ -208,6 +249,16 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	private String getConfiguredFeedUrl(RenderRequest request) {
 	      PortletPreferences pref = request.getPreferences();
 	      return pref.getValue("feed_url", Constants.FEED_URL_DEFAULT);
+	}
+	
+	/**
+	 * Get the preferred max number of items, or default from Constants
+	 * @param request
+	 * @return
+	 */
+	private int getConfiguredMaxItems(RenderRequest request) {
+	      PortletPreferences pref = request.getPreferences();
+	      return Integer.valueOf(pref.getValue("max_items", Integer.toString(Constants.MAX_ITEMS)));
 	}
 	
 	

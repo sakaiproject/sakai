@@ -44,6 +44,7 @@
 <div class="simple-rss-portlet">
 
 	<div class="simple-rss-portlet-form">
+				
 		<c:if test="${not empty errorMessage}">
 			<p class="portlet-msg-error">${errorMessage}</p>
 		</c:if>

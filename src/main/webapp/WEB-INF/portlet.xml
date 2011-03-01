@@ -39,6 +39,12 @@
 			<value>/pages/config.jsp</value>
 		</init-param>
 		
+		<portlet-preferences>
+         	<preferences-validator>
+				au.edu.anu.portal.portlets.rss.validator.SimpleRSSPreferencesValidator
+			</preferences-validator>
+      	</portlet-preferences>
+		
 	</portlet>
 	
 </portlet-app>
