@@ -115,6 +115,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 
 		request.setAttribute("configuredPortletTitle", getConfiguredPortletTitle(request));
 		request.setAttribute("configuredFeedUrl", getConfiguredFeedUrl(request));
+		request.setAttribute("configuredMaxItems", getConfiguredMaxItems(request));
 		
 		dispatch(request, response, configUrl);
 	}
@@ -133,12 +134,19 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		//get prefs and submitted values
 		PortletPreferences prefs = request.getPreferences();
 		String portletTitle = request.getParameter("portletTitle");
+		String maxItems = request.getParameter("maxItems");
 		String feedUrl = request.getParameter("feedUrl");
+		
+		//portlet title could be blank, set to default
+		if(StringUtils.isBlank(portletTitle)){
+			portletTitle=Constants.PORTLET_TITLE_DEFAULT;
+		}
 		
 		//check not readonly
 		try {
 			prefs.setValue("portlet_title", portletTitle);
 			prefs.setValue("feed_url", feedUrl);
+			prefs.setValue("max_items", maxItems);
 		} catch (ReadOnlyException e) {
 			success = false;
 			response.setRenderParameter("errorMessage", Messages.getString("error.form.readonly.error"));

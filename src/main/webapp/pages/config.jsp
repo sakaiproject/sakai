@@ -55,6 +55,9 @@
 			<p><fmt:message key="config.portlet.title" /></p>
 			<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="25"/>
 			
+			<p><fmt:message key="config.portlet.maxitems" /></p>
+			<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
+			
 			<p><fmt:message key="config.portlet.url" /></p>
 			<input type="text" name="feedUrl" value="${configuredFeedUrl}" size="60" />
 			
