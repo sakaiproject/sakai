@@ -70,10 +70,12 @@
 	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
 	 	<f:verbatim></div><br /></f:verbatim>
 			  
-	 	<h:outputText value="#{msgs.privacy_choose}" />
+        <h:outputText value="#{msgs.privacy_no_choices}" rendered="#{privacyBean.sitesEmpty}" />
+	 	<h:outputText value="#{msgs.privacy_choose}" rendered="#{not privacyBean.sitesEmpty}" />
 
    		<h:selectOneMenu value="#{privacyBean.selectedSite}" immediate="true" onchange="this.form.submit( );"
-      									valueChangeListener="#{privacyBean.processSiteSelected}" id="siteSelect">
+      									valueChangeListener="#{privacyBean.processSiteSelected}" 
+                                        id="siteSelect" rendered="#{not privacyBean.sitesEmpty}">
         	<f:selectItems value="#{privacyBean.sites}" />
 		</h:selectOneMenu>
 	  
@@ -140,7 +142,7 @@
 
   	</h:panelGroup>
          
-   		<h:panelGroup rendered="#{privacyBean.myWorkspace}" >
+   		<h:panelGroup rendered="#{privacyBean.myWorkspace && not privacyBean.sitesEmpty}" >
  	  	  <sakai:button_bar>
         	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
                 accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" />

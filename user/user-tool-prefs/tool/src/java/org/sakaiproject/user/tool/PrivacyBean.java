@@ -253,6 +253,14 @@ public class PrivacyBean {
 		return sites;
 	}
 
+	/**
+	 * @return true if there are no sites for the current user OR false otherwise
+	 */
+	public boolean getSitesEmpty() {
+	    // sites has 1 item in it even if there are no sites in it
+	    return (this.sites == null || this.sites.length <= 1);
+	}
+
 	/** ========== processes iteraction on UI ========== */
 
 	/**
