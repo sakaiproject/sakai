@@ -276,7 +276,7 @@ function uncheckOther(field){
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{templateMessages.enter_template_info_section}">
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}"/>
-        <h:inputText id="assessment_title" size="80" value="#{publishedSettings.title}" />
+        <h:inputText id="assessment_title" size="80" maxlength="255" value="#{publishedSettings.title}" />
 
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_creator}"  rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
@@ -284,7 +284,7 @@ function uncheckOther(field){
 
         <h:outputLabel for="assessment_author" rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
 
-        <h:inputText id="assessment_author" size="80" value="#{publishedSettings.authors}"
+        <h:inputText id="assessment_author" size="80" maxlength="255" value="#{publishedSettings.authors}"
           rendered="#{publishedSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"/>

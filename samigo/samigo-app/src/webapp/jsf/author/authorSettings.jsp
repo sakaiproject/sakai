@@ -360,7 +360,7 @@ function setBlockDivs()
       summary="#{templateMessages.enter_template_info_section}">
 
         <h:outputLabel for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}"/>
-        <h:inputText id="assessment_title" size="80" value="#{assessmentSettings.title}" />
+        <h:inputText id="assessment_title" size="80" maxlength="255" value="#{assessmentSettings.title}" />
 
         <h:outputLabel for="creator" value="#{assessmentSettingsMessages.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
