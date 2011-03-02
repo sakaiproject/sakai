@@ -60,7 +60,7 @@
       <h:outputLabel for="tempName" value="#{templateMessages.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
       <!--h:outputText value="#{templateMessages.index_templates_title}" /-->
 <h:panelGroup  rendered="#{authorization.createTemplate}" >
-      <h:inputText id="tempName" value="#{template.newName}" size="60"/>
+      <h:inputText id="tempName" value="#{template.newName}" size="60" maxlength="255" />
 
       <h:commandButton type="submit" id="Submit" value="#{templateMessages.index_button_create}" action="#{template.getOutcome}">
               <f:actionListener
