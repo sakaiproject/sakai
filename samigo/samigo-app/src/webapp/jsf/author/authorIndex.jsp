@@ -184,7 +184,7 @@ $(document).ready(function() {
 		  <f:verbatim><span class="new_assessment"></f:verbatim>
 	      <h:outputText value="#{authorFrontDoorMessages.assessment_create}"/>
 	      <f:verbatim></span></f:verbatim>
-		  <h:inputText id="title" value="#{author.assessTitle}" size="32" />
+		  <h:inputText id="title" maxlength="255" value="#{author.assessTitle}" size="32" />
     	</div>
 
     	<div>
