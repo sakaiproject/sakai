@@ -12,41 +12,17 @@
 
 <%@ page import="au.edu.anu.portal.portlets.rss.utils.Constants" %>
 
-
-
 <portlet:defineObjects /> 
 <fmt:setBundle basename="au.edu.anu.portal.portlets.rss.utils.messages" />
 
-
-<style type="text/css">
-
-.simple-rss-portlet form p {
-	margin-top: 1em;
-	margin-bottom: 0;
-	font-size: 0.9em;
-	font-weight: bold;
-}
-
-.simple-rss-portlet-form {
-	float:left;
-  	width: 600px;
-}
-
-.simple-rss-portlet form input {
-	width: inherit !important;
-}
-
-
-
-</style>
-
+<link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
 
 <div class="simple-rss-portlet">
 
 	<div class="simple-rss-portlet-form">
 				
 		<c:if test="${not empty errorMessage}">
-			<p class="portlet-msg-error">${errorMessage}</p>
+			<div class="portlet-msg-error"><p>${errorMessage}</p></div>
 		</c:if>
 			
 		

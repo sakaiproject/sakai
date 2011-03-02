@@ -46,25 +46,30 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	
 	// pages
 	private String viewUrl;
+	private String editUrl;
 	private String errorUrl;
-	private String configUrl;
 	
 	//cache
-	private Cache cache;
-	private final String CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache";
-		
+	private CacheManager cacheManager;
+	private Cache feedCache;
+	private Cache imageCache;
+	
+	private final String FEED_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed";
+	private final String IMAGE_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images";
+	
 	public void init(PortletConfig config) throws PortletException {	   
 	   super.init(config);
 	   log.info("Simple RSS Portlet init()");
 	   
 	   //pages
 	   viewUrl = config.getInitParameter("viewUrl");
+	   editUrl = config.getInitParameter("editUrl");
 	   errorUrl = config.getInitParameter("errorUrl");
-	   configUrl = config.getInitParameter("configUrl");
 
 	   //setup cache
-	   CacheManager manager = new CacheManager();
-	   cache = manager.getCache(CACHE_NAME);
+	   cacheManager = new CacheManager();
+	   feedCache = cacheManager.getCache(FEED_CACHE_NAME);
+	   imageCache = cacheManager.getCache(IMAGE_CACHE_NAME);
 	}
 	
 	/**
@@ -96,28 +101,43 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			return;
 		}
 		
+		//get the images that are associated with the entries in this feed
+		Map<String,String> images = getEntryImages(feed, request, response);
+		
 		//get max items (subtract 1 since it will be used in a 0 based index)
 		int maxItems = getConfiguredMaxItems(request) - 1;
 		
 		request.setAttribute("SyndFeed", feed);
+		request.setAttribute("EntryImages", images);
 		request.setAttribute("maxItems", maxItems);
 		
 		dispatch(request, response, viewUrl);
 	}	
 	
-	
-	
 	/**
-	 * Custom mode handler for CONFIG view
+	 * Custom mode handler for EDIT view
 	 */
-	protected void doConfig(RenderRequest request, RenderResponse response) throws PortletException, IOException {
-		log.info("Simple RSS doConfig()");
+	protected void doEdit(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+		log.info("Simple RSS doEdit()");
 
+		//get preferences
 		request.setAttribute("configuredPortletTitle", getConfiguredPortletTitle(request));
 		request.setAttribute("configuredFeedUrl", getConfiguredFeedUrl(request));
 		request.setAttribute("configuredMaxItems", getConfiguredMaxItems(request));
 		
-		dispatch(request, response, configUrl);
+		//get any error message that is in the request and pass it on
+		request.setAttribute("errorMessage", request.getParameter("errorMessage"));
+		
+		dispatch(request, response, editUrl);
+	}
+	
+	/**
+	 * Custom mode handler for CONFIG view
+	 * Identical to EDIT mode.
+	 */
+	protected void doConfig(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+		log.info("Simple RSS doConfig()");
+		doEdit(request,response);
 	}
 	
 	/**
@@ -126,9 +146,8 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	public void processAction(ActionRequest request, ActionResponse response) {
 		log.info("Simple RSS processAction()");
 		
-		//At this stage we only ever accept actions from the CONFIG mode.
-		//If in future we allow user editing, then a check needs to be done here to see
-		//from what PortletMode the processAction was called (see doDispatch)
+		//this handles both EDIT and CONFIG modes in exactly the same way.
+		//if we need to split, check PortletMode.
 		
 		boolean success = true;
 		//get prefs and submitted values
@@ -158,8 +177,9 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			try {
 				prefs.store();
 				response.setPortletMode(PortletMode.VIEW);
+				
 			} catch (ValidatorException e) {
-				response.setRenderParameter("errorMessage", e.getMessage() + ":" + e.getFailedKeys());
+				response.setRenderParameter("errorMessage", e.getMessage());
 				log.error(e);
 			} catch (IOException e) {
 				response.setRenderParameter("errorMessage", Messages.getString("error.form.save.error"));
@@ -168,6 +188,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 				e.printStackTrace();
 			}
 		}
+		
 		
 	}
 	
@@ -193,7 +214,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		
 		String cacheKey = feedUrl;
 		
-		Element element = cache.get(cacheKey);
+		Element element = feedCache.get(cacheKey);
 		if(element != null) {
 			log.info("Fetching data from cache for: " + cacheKey);
 			feed = (SyndFeed) element.getObjectValue();
@@ -229,13 +250,42 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		
 		//cache the data,
 		log.info("Adding data to cache for: " + feedUrl);
-		cache.put(new Element(feedUrl, feed));
+		feedCache.put(new Element(feedUrl, feed));
 		
 		return feed;
 	}
 	
 	
-	
+	/**
+	 * Helper for extracting the images associated with the entries in a feed, and cache their URLs
+	 * @param feed
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	private Map<String,String> getEntryImages(SyndFeed feed, RenderRequest request, RenderResponse response) {
+		
+		Map<String,String> images;
+		
+		String feedUrl = getConfiguredFeedUrl(request);
+		
+		//check cache
+		Element element = imageCache.get(feedUrl);
+		if(element != null) {
+			log.info("Fetching data from image cache for: " + feedUrl);
+			return (Map<String,String>) element.getObjectValue();
+		} else {
+		
+			//parse the feed
+			images = FeedParser.parseEntryImages(feed);
+		}
+		
+		//cache the data,
+		log.info("Adding data to image cache for: " + feedUrl);
+		imageCache.put(new Element(feedUrl, images));
+		return images;
+		
+	}
 	
 	
 	
@@ -326,6 +376,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	
 	public void destroy() {
 		log.info("destroy()");
+		cacheManager.shutdown();
 	}
 	
 	

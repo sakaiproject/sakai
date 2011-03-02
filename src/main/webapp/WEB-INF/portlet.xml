@@ -17,6 +17,7 @@
 		<supports>
 			<mime-type>text/html</mime-type>
 			<portlet-mode>VIEW</portlet-mode>
+			<portlet-mode>EDIT</portlet-mode>
 			<portlet-mode>CONFIG</portlet-mode>
 		</supports>
 		<supported-locale>en</supported-locale>
@@ -31,12 +32,12 @@
 			<value>/pages/view.jsp</value>
 		</init-param>
 		<init-param>
-			<name>errorUrl</name>
-			<value>/pages/error.jsp</value>
+			<name>editUrl</name>
+			<value>/pages/edit.jsp</value>
 		</init-param>
 		<init-param>
-			<name>configUrl</name>
-			<value>/pages/config.jsp</value>
+			<name>errorUrl</name>
+			<value>/pages/error.jsp</value>
 		</init-param>
 		
 		<portlet-preferences>

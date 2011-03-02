@@ -1,0 +1,15 @@
+.simple-rss-portlet form p {
+	margin-top: 1em;
+	margin-bottom: 0;
+	font-size: 0.9em;
+	font-weight: bold;
+}
+
+.simple-rss-portlet-form {
+	float:left;
+  	width: 600px;
+}
+
+.simple-rss-portlet form input {
+	width: inherit !important;
+}

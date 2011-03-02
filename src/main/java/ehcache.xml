@@ -16,9 +16,17 @@
         memoryStoreEvictionPolicy="LRU" 
     />
 
-    <!-- pebble quota cache: ttl = 6 hours -->
-    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache"
-        maxElementsInMemory="10000"
+    <!-- feed cache: ttl: 1 hours -->
+    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed"
+        maxElementsInMemory="1000"
+        eternal="false"
+        timeToLiveSeconds="3600" 
+        overflowToDisk="false"
+        memoryStoreEvictionPolicy="LRU" />
+        
+    <!-- entry image cache: ttl = 6 hours -->
+    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images"
+        maxElementsInMemory="1000"
         eternal="false"
         timeToLiveSeconds="21600" 
         overflowToDisk="false"

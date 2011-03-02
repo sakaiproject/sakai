@@ -5,11 +5,24 @@
 
 <portlet:defineObjects />
 
+
+<style type="text/css">
+
+.news-item-img {
+	float:left;
+	margin-right: 10px;
+	max-width: 100px;
+}
+
+.news-items li {
+    display:inline-block;
+}
+
+</style>
+
+
 <div class="news-feed">
 
-
-
-	
 	<div class="news-source">
 		<c:if test="${not empty SyndFeed.image}">
 			<a target="_blank" href="${SyndFeed.image.link}">
@@ -23,9 +36,12 @@
 		<ul>
 			<c:forEach items="${SyndFeed.entries}" var="SyndEntry" end="${maxItems}">
 				<li>
+					<c:if test="${not empty EntryImages[SyndEntry.uri]}">
+						<img src="${EntryImages[SyndEntry.uri]}" class="news-item-img"/>
+					</c:if>
 	      			<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
 	      			<span class="news-item-excerpt">${SyndEntry.description.value}</span>
-	      			<span>${SyndEntry.enclosures.get(0).url}</span>
+	      				      			
 	    		</li>
     		</c:forEach>
 			

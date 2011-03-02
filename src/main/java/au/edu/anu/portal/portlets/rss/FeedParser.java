@@ -3,7 +3,15 @@ package au.edu.anu.portal.portlets.rss;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.sun.syndication.feed.synd.SyndEnclosure;
+import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
@@ -59,5 +67,45 @@ public class FeedParser {
 	}
 	
 	
+	/**
+	 * Parses the enclosures contained in an RSS feed and extracts the <b>first</b> image that matches the allowed types
+	 * then adds it to the map with the Entry URI as key and the Enclosure URL as value.
+	 * @param feed
+	 * @return
+	 */
+	public static Map<String, String> parseEntryImages(SyndFeed feed) {
+		
+		Map<String,String> images = new HashMap<String,String>();
+		
+		List<String> imageTypes = new ArrayList<String>();
+		imageTypes.add("image/jpeg");
+		imageTypes.add("image/gif");
+		imageTypes.add("image/png");
+		imageTypes.add("image/jpg");
+		//add more types as required
+		
+		
+		List<SyndEntry> entries = feed.getEntries();
+		for(SyndEntry entry: entries) {
+			
+			//get entry uri, but it could be blank so if so, skip this item
+			if(StringUtils.isBlank(entry.getUri())) {
+				continue;
+			}
+			
+			//for each enclosure attached to an entry get the first image and use that.
+			List<SyndEnclosure> enclosures = entry.getEnclosures();
+			for(SyndEnclosure enclosure: enclosures) {
+				String type = enclosure.getType();
+				if(StringUtils.isNotBlank(type)){
+					if(imageTypes.contains(type)){
+						images.put(entry.getUri(), enclosure.getUrl());
+					}
+				}
+			}
+		}
+		
+		return images;
+	}
 	
 }
