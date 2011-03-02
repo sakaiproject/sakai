@@ -36,6 +36,15 @@
 <!-- content... -->
  <div class="portletBody">
 
+<SCRIPT LANGUAGE="JavaScript">
+<!-- Begin
+function textCounter(field, maxlimit) {
+	if (field.value.length > maxlimit) // if too long...trim it!
+		field.value = field.value.substring(0, maxlimit);
+}
+// End -->
+</script>
+
 
  <h:form id="questionpool">
 <h3 class="insColor insBak insBor">
@@ -45,24 +54,40 @@
 <h:outputText value="#{questionPoolMessages.add_p_required}"/>
  <div class="tier1">
  <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}"/>
-  
-  <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}"/>
+
+  <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}"/>
+  <h:inputText id="namefield" maxlength="255" size="30" value="#{questionpool.currentPool.displayName}"/>
 
   <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
  
   <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept} "/>
-  <h:inputText id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}"/>
+  <h:inputText id="orgfield" maxlength="255" size="30" value="#{questionpool.currentPool.organizationName}"/>
 
   <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}"/>
-  <h:inputTextarea id="descfield" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
+  <h:inputTextarea id="descfield" value="#{questionpool.currentPool.description}" cols="40" rows="6"
+		  onblur="textCounter(this,255);"
+		  onchange="textCounter(this,255);"
+		  onclick="textCounter(this,255);"
+		  ondblclick="textCounter(this,255);"
+		  onfocus="textCounter(this,255);"
+		  onkeydown="textCounter(this,255);"
+		  onkeyup="textCounter(this,255);"
+		  onkeypress="textCounter(this,255);"
+		  onmouseup="textCounter(this,255);"
+		  onmousemove="textCounter(this,255);"
+		  onmouseout="textCounter(this,255);"
+		  onmouseover="textCounter(this,255);"
+	/>
+
+
+
 
   <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} "/>
-  <h:inputText id="objfield" size="30" value="#{questionpool.currentPool.objectives}"/>
+  <h:inputText id="objfield" maxlength="255" size="30" value="#{questionpool.currentPool.objectives}"/>
  
   <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} "/>
-  <h:inputText id="keyfield" size="30" value="#{questionpool.currentPool.keywords}"/>
+  <h:inputText id="keyfield" maxlength="255" size="30" value="#{questionpool.currentPool.keywords}"/>
 </h:panelGrid>
  </p>
 
