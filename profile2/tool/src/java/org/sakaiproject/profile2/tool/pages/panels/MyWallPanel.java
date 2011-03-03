@@ -83,12 +83,8 @@ public class MyWallPanel extends Panel {
 
 			throw new RestartResponseException(new MyProfile());
 		}
-
-		MyWallContainer myWallContainer = new MyWallContainer(
-				"myWallContainer", userUuid);
-		myWallContainer.setOutputMarkupId(true);
-		add(myWallContainer);
-
+		
+		renderWallPanel(userUuid);
 	}
 	
 	/**
@@ -98,121 +94,120 @@ public class MyWallPanel extends Panel {
 
 		super(panelId);
 
-		MyWallContainer myWallContainer = new MyWallContainer(
-				"myWallContainer", sakaiProxy.getCurrentUserId());
-		myWallContainer.setOutputMarkupId(true);
-		add(myWallContainer);
+		renderWallPanel(sakaiProxy.getCurrentUserId());
 	}
-	
-	// separate container is used so we can update by AJAX in tabs
-	private class MyWallContainer extends WebMarkupContainer {
 		
-		private static final long serialVersionUID = 1L;
+	private void renderWallPanel(final String userUuid) {
 
-		public MyWallContainer(String panelId, String userUuid) {
-			super(panelId);
-			
-			renderWallPanel(userUuid);
-		}
+		setOutputMarkupId(true);
 		
-		private void renderWallPanel(final String userUuid) {
-			
-			// container which wraps list
-			final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
-					"wallItemsContainer");
+		// container which wraps list
+		final WebMarkupContainer wallItemsContainer = new WebMarkupContainer(
+				"wallItemsContainer");
 
-			wallItemsContainer.setOutputMarkupId(true);
-			add(wallItemsContainer);
-			
-			WallItem wallItem = new WallItem();
-			// always post to my wall as current user, to ensure super users cannot
-			// make posts as other users
-			wallItem.setCreatorUuid(sakaiProxy.getCurrentUserId());
-			wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_POST);
-			
-			// form for posting to my wall
-			Form<WallItem> form = new Form<WallItem>("myWallPostForm", new Model<WallItem>(wallItem));
-			form.setOutputMarkupId(true);
-			add(form);
-			
-			// form submit feedback
-			final Label formFeedback = new Label("formFeedback");
-			formFeedback.setOutputMarkupPlaceholderTag(true);
-			form.add(formFeedback);
-			
-	        final FeedbackPanel feedback = new FeedbackPanel("feedback");
-	        feedback.setOutputMarkupId(true);
-	        form.add(feedback);
-	        
-	        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
-	        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
-			
-			// container for posting to my wall
-			WebMarkupContainer myWallPostContainer = new WebMarkupContainer("myWallPostContainer");
-			TextArea<String> myWallPost = new TextArea<String>("myWallPost", new PropertyModel<String>(wallItem, "text"));
-			myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(TinyMCESettings.Align.left)));
-			
-			myWallPostContainer.add(myWallPost);
-			
-			form.add(myWallPostContainer);
-			
-			IndicatingAjaxButton submitButton = new IndicatingAjaxButton("myWallPostSubmit", form) {
-				private static final long serialVersionUID = 1L;
+		wallItemsContainer.setOutputMarkupId(true);
+		add(wallItemsContainer);
 
-				@SuppressWarnings("unchecked")
-				protected void onSubmit(AjaxRequestTarget target, Form form) {
-					
-					if (false == save(form, userUuid)) {
-						formFeedback.setDefaultModel(new ResourceModel("error.wall.post.failed"));
-						formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
-						target.addComponent(formFeedback);
-					} else {
-						MyWallContainer newContainer = new MyWallContainer(MyWallContainer.this.getId(), userUuid);
-						newContainer.setOutputMarkupId(true);
-						MyWallContainer.this.replaceWith(newContainer);
-						if (null != target) {
-							target.addComponent(newContainer);
-							target.appendJavascript("setMainFrameHeight(window.name);");
-						}
+		WallItem wallItem = new WallItem();
+		// always post to my wall as current user, to ensure super users cannot
+		// make posts as other users
+		wallItem.setCreatorUuid(sakaiProxy.getCurrentUserId());
+		wallItem.setType(ProfileConstants.WALL_ITEM_TYPE_POST);
+
+		// form for posting to my wall
+		Form<WallItem> form = new Form<WallItem>("myWallPostForm",
+				new Model<WallItem>(wallItem));
+		form.setOutputMarkupId(true);
+		add(form);
+
+		// form submit feedback
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		form.add(formFeedback);
+
+		final FeedbackPanel feedback = new FeedbackPanel("feedback");
+		feedback.setOutputMarkupId(true);
+		form.add(feedback);
+
+		int[] filteredErrorLevels = new int[] { FeedbackMessage.ERROR };
+		feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(
+				filteredErrorLevels));
+
+		// container for posting to my wall
+		WebMarkupContainer myWallPostContainer = new WebMarkupContainer(
+				"myWallPostContainer");
+		TextArea<String> myWallPost = new TextArea<String>("myWallPost",
+				new PropertyModel<String>(wallItem, "text"));
+		myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(
+				TinyMCESettings.Align.left)));
+
+		myWallPostContainer.add(myWallPost);
+
+		form.add(myWallPostContainer);
+
+		IndicatingAjaxButton submitButton = new IndicatingAjaxButton(
+				"myWallPostSubmit", form) {
+			private static final long serialVersionUID = 1L;
+
+			@SuppressWarnings("unchecked")
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+
+				if (false == save(form, userUuid)) {
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.wall.post.failed"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
+				} else {
+					MyWallPanel newContainer = new MyWallPanel(MyWallPanel.this
+							.getId());
+					newContainer.setOutputMarkupId(true);
+					MyWallPanel.this.replaceWith(newContainer);
+					if (null != target) {
+						target.addComponent(newContainer);
+						target
+								.appendJavascript("setMainFrameHeight(window.name);");
 					}
 				}
-			};
-			submitButton.setModel(new ResourceModel("button.wall.post"));
-			submitButton.add(new TinyMceAjaxSubmitModifier());
-			myWallPostContainer.add(submitButton);
-			
-			WallItemDataProvider provider = new WallItemDataProvider(userUuid);
-
-			// if no wall items, display a message
-			if (0 == provider.size()) {
-				add(new Label("wallInformationMessage",
-						new ResourceModel("text.wall.no.items")));
-			} else {
-				// blank label when there are items to display
-				add(new Label("wallInformationMessage"));
 			}
+		};
+		submitButton.setModel(new ResourceModel("button.wall.post"));
+		submitButton.add(new TinyMceAjaxSubmitModifier());
+		myWallPostContainer.add(submitButton);
 
-			// TODO haven't decided whether to add a navigator yet
+		WallItemDataProvider provider = new WallItemDataProvider(userUuid);
 
-			DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
-					"wallItems", provider) {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				protected void populateItem(Item<WallItem> item) {
-
-					WallItem wallItem = (WallItem) item.getDefaultModelObject();
-				
-					item.add(new WallItemPanel("wallItemPanel", userUuid, wallItem));
-				}
-			};
-
-			wallItemsDataView.setOutputMarkupId(true);
-			// wallItemsDataView.setItemsPerPage(10);
-
-			wallItemsContainer.add(wallItemsDataView);
+		// if no wall items, display a message
+		if (0 == provider.size()) {
+			add(new Label("wallInformationMessage", new ResourceModel(
+					"text.wall.no.items")));
+		} else {
+			// blank label when there are items to display
+			add(new Label("wallInformationMessage"));
 		}
+
+		// TODO haven't decided whether to add a navigator yet
+
+		DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
+				"wallItems", provider) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(Item<WallItem> item) {
+
+				WallItem wallItem = (WallItem) item.getDefaultModelObject();
+
+				item
+						.add(new WallItemPanel("wallItemPanel", userUuid,
+								wallItem));
+			}
+		};
+
+		wallItemsDataView.setOutputMarkupId(true);
+		// wallItemsDataView.setItemsPerPage(10);
+
+		wallItemsContainer.add(wallItemsDataView);
 	}
 	
 	// called when form is saved
