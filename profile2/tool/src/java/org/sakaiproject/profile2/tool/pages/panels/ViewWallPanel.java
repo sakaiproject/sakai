@@ -41,7 +41,6 @@ import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
-import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 import wicket.contrib.tinymce.TinyMceBehavior;
@@ -73,6 +72,8 @@ public class ViewWallPanel extends Panel {
 
 		super(panelId);
 
+		setOutputMarkupId(true);
+		
 		final String currentUserId = sakaiProxy.getCurrentUserId();
 		
 		// container which wraps list
@@ -131,7 +132,13 @@ public class ViewWallPanel extends Panel {
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
 					target.addComponent(formFeedback);
 				} else {
-					setResponsePage(new ViewProfile(userUuid));
+					ViewWallPanel newPanel = new ViewWallPanel(ViewWallPanel.this.getId(), userUuid);
+					newPanel.setOutputMarkupId(true);
+					ViewWallPanel.this.replaceWith(newPanel);
+					if (null != target) {
+						target.addComponent(newPanel);
+						target.appendJavascript("setMainFrameHeight(window.name);");
+					}
 				}
 			}
 		};
