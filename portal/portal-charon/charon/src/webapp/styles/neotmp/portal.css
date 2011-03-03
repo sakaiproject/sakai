@@ -1335,7 +1335,7 @@ ul.nav-submenu li.submenuitem a {
 	padding-left: 25px;
 }
 
-ul.nav-submenu li.submenuitem a:hover, ul.nav-submenu lisubmenuitem a:focus { /*--Hover effect for subnav links--*/
+ul.nav-submenu li.submenuitem a:hover, ul.nav-submenu li.submenuitem a:focus { /*--Hover effect for subnav links--*/
     color:#9c3;
 }
 
@@ -1352,8 +1352,8 @@ ul#otherSiteList{
 ul#otherSiteList li{
     background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
     border-radius: 5px;
--moz-border-radius: 5px;
--webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 ul#otherSiteList li a{
     display:block;
