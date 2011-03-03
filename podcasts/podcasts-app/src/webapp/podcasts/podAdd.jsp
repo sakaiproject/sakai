@@ -23,7 +23,7 @@
        <h:outputText value="#{msgs.add_directions}" styleClass="indnt1 instruction" /><br />
        <h:outputText value="#{msgs.required_prompt}" styleClass="indnt1 instruction" />
        <span class="reqStarInline indnt1">*</span>
-       <h:messages styleClass="alertMessage" id="errorMessages"/>
+       <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
     </div>
     <br /><br />
     
