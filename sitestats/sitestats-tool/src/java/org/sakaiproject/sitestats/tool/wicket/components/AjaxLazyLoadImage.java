@@ -18,6 +18,8 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -57,6 +59,8 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	private int							maxWidth							= 800;
 	private int							maxHeight							= 600;
 
+	
+	private static Log LOG = LogFactory.getLog(AjaxLazyLoadImage.class);
 	// State:
 	// 0:add loading component
 	// 1:loading component added, waiting for ajax replace
@@ -238,7 +242,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 				try{
 					selectedWidth = (int) Float.parseFloat(req.getParameter("width"));					
 				}catch(NumberFormatException e){
-					e.printStackTrace();
+					LOG.debug("NumberFormatException",e);
 					selectedWidth = 400;
 				}
 				try{
@@ -247,7 +251,7 @@ public abstract class AjaxLazyLoadImage extends Panel {
 						selectedHeight = 200;
 					}
 				}catch(NumberFormatException e){
-					e.printStackTrace();
+					LOG.debug("NumberFormatException",e);
 					selectedHeight = 200;
 				}
 				
