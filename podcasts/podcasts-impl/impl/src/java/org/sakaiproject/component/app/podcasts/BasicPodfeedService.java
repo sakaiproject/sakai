@@ -31,15 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.ResourceBundle;
-
-//import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
+import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
+import org.sakaiproject.api.app.podcasts.exception.PodcastException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -52,14 +50,12 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.module.DCModuleImpl;
 import com.sun.syndication.feed.module.itunes.EntryInformation;
 import com.sun.syndication.feed.module.itunes.EntryInformationImpl;
-import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.rss.Channel;
 import com.sun.syndication.feed.rss.Description;
 import com.sun.syndication.feed.rss.Enclosure;
@@ -161,7 +157,7 @@ public class BasicPodfeedService implements PodfeedService {
 			// catches IdUnusedException, PermissionException
 			LOG.error(e.getMessage() + " attempting to get feed title (getting podcast folder) "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
-			throw new Error(e);
+			throw new PodcastException(e);
 			
 		}
 		finally {
@@ -210,7 +206,7 @@ public class BasicPodfeedService implements PodfeedService {
 		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException attempting to get feed title (getting podcast folder) "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
-			throw new Error(e);
+			throw new PodcastException(e);
 
 		}
 
@@ -276,7 +272,7 @@ public class BasicPodfeedService implements PodfeedService {
 		catch (IdUnusedException e) {
 			LOG.error("IdUnusedException attempting to get feed title (getting podcast folder) "
 					+ "for site: " + siteId + ". " + e.getMessage(), e);
-			throw new Error(e);
+			throw new PodcastException(e);
 		}
 		
 		return feedDescription;
@@ -461,7 +457,7 @@ public class BasicPodfeedService implements PodfeedService {
 						+ " for site: " + siteId + ". " + e.getMessage(), e);
 			podcastService.cancelContentCollection(contentCollection);
 			
-			throw new Error(e);
+			throw new PodcastException(e);
 		}
 
 	}
@@ -549,7 +545,7 @@ public class BasicPodfeedService implements PodfeedService {
 			LOG.error(
 					"Feed exception while attempting to write out the final xml file. "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
-			throw new Error(e);
+			throw new PodcastException(e);
 
 		}
 	}
@@ -587,11 +583,11 @@ public class BasicPodfeedService implements PodfeedService {
 		catch (PermissionException e) {
 			LOG.error("PermissionException getting podcasts in order to generate podfeed for site: "
 					+ siteId + ". " + e.getMessage(), e);
-			throw new Error(e);
+			throw new PodcastException(e);
 		} 
 		catch (Exception e) {
 			LOG.info(e.getMessage() + "for site: " + siteId, e);
-			throw new Error(e);
+			throw new PodcastException(e);
 		} 
 		finally {
 			securityService.popAdvisor();
