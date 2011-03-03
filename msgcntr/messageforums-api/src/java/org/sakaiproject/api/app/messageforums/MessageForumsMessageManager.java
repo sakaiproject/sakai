@@ -64,6 +64,7 @@ public interface MessageForumsMessageManager {
     public void deleteUnreadStatus(Long topicId, Long messageId);
 
     public int findMessageCountByTopicId(Long topicId);
+    public int findMessageCountByForumId(Long forumId);
     
     public int findMessageCountTotal();
     
@@ -81,6 +82,8 @@ public interface MessageForumsMessageManager {
      * as DRAFT or DELETED.
      */
     public List<Message> findAuthoredMessagesForStudent(String studentId);
+    public List<Message> findAuthoredMessagesForStudentByTopicId(String studentId, final Long topicId);
+    public List<Message> findAuthoredMessagesForStudentByForumId(String studentId, final Long forumId);
     
     /**
      * @return Each item in the list will be an array consisting of two elements.  The element
@@ -88,6 +91,8 @@ public interface MessageForumsMessageManager {
      * to the number of messages that student has authored in the site.
      */
     public List<Object[]> findAuthoredMessageCountForAllStudents();
+    public List<Object[]> findAuthoredMessageCountForAllStudentsByTopicId(final Long topicId);
+    public List<Object[]> findAuthoredMessageCountForAllStudentsByForumId(final Long forumId);
     
     public int findUnreadMessageCountByTopicIdByUserId(Long topicId, String userId);
     
@@ -109,6 +114,10 @@ public interface MessageForumsMessageManager {
      * to the number of messages that student has read in the site.
      */
     public List<Object[]> findReadMessageCountForAllStudents();
+    public List<Object[]> findReadMessageCountForAllStudentsByTopicId(final Long topicId);
+    public List<Object[]> findReadMessageCountForAllStudentsByForumId(final Long forumId);
+    
+    
     
     /**
      * @param studentId The id of the student whose read messages we are searching for.
@@ -116,6 +125,8 @@ public interface MessageForumsMessageManager {
      * as DRAFT or DELETED.
      */
     public List<Message> findReadMessagesForStudent(String studentId);
+    public List<Message> findReadMessagesForStudentByTopicId(String studentId, final Long topicId);
+    public List<Message> findReadMessagesForStudentByForumId(String studentId, final Long forumId);
     
     public int findReadViewableMessageCountByTopicId(Long topicId);
 

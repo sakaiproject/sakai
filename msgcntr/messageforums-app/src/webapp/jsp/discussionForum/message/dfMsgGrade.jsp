@@ -1,3 +1,8 @@
+<%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
+                 javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
+                 org.sakaiproject.api.app.messageforums.*,
+                 org.sakaiproject.site.cover.SiteService,
+                 org.sakaiproject.tool.cover.ToolManager;"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -6,21 +11,98 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
+
+
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
+
+		<%
+		FacesContext context = FacesContext.getCurrentInstance();
+		Application app = context.getApplication();
+		ValueBinding binding = app.createValueBinding("#{ForumTool}");
+		DiscussionForumTool forumTool = (DiscussionForumTool) binding.getValue(context);
+		
+		
+			
+		//Check if user called this page with a popup dialog
+		
+		String messageId = request.getParameter("messageId");
+		String topicId = request.getParameter("topicId");
+		String forumId = request.getParameter("forumId");
+		String userId = request.getParameter("userId");
+		String frameId = request.getParameter("frameId");
+		String dialogDivId = request.getParameter("dialogDivId");
+		String gradesSavedDiv = request.getParameter("gradesSavedDiv");
+		
+		boolean isDialogBox = false;
+		if(
+		//messageId != null && !"".equals(messageId) &&
+			userId != null && !"".equals(userId) &&
+			forumId != null && !"".equals(forumId)){
+			//message info was passed via parameters...
+			//set up this information in DiscussionForumTool
+			//All permission will be hanlded in "rendered" fields in this page below
+			
+			isDialogBox = true;
+			
+			
+			
+			String noProcessing = request.getParameter("noProccessing");	
+			if(noProcessing == null || "". equals(noProcessing)){
+				//this will set all the variables that need to be set
+				String result = forumTool.processDfMsgGrdFromThread(messageId, topicId, forumId, userId);
+			}
+		%>
+			<script type="text/javascript" language="javascript">
+				parent.dialogutil.replaceBodyOnLoad("myLoaded();", this);
+		
+				function myLoaded() {
+				  //  resetHeight();
+				    //don't want to update the parent's height cause that'll jack up the sizing we've already done.
+				 }
+			
+			</script>
+		
+		<%	
+		}
+		%>
+		
+		<script type="text/javascript" language="javascript">
+		
+			function closeDialogBoxIfExists(){
+				//if isDialogBox, there will be javascript that is ran, otherwise its an empty function
+				<% if(isDialogBox){ %>
+					parent.dialogutil.closeDialog('<%=dialogDivId%>','<%=frameId%>');
+				<% }%>
+			}
+			<%
+		
+			if(forumTool.isDialogGradeSavedSuccessfully()){
+				forumTool.setDialogGradeSavedSuccessfully(false);
+				%>
+				parent.dialogutil.showDiv('<%=gradesSavedDiv%>');
+				closeDialogBoxIfExists();
+				<%
+			}			
+			%>
+		</script>
+
+		
       <h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
 			<h4>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
-				<h:outputText value=" #{msgs.cdfm_dash} " /> 
+				<h:outputText value=" #{msgs.cdfm_dash} " rendered="#{!empty ForumTool.selectedTopic}"/> 
 				<h:outputText	value="#{ForumTool.selectedTopic.topic.title}" />
 			</h4>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
-			  
+			<h:panelGroup rendered="#{ForumTool.selectedMessage != null}">
+			<f:verbatim>
 			<div class="singleMessage">
+			</f:verbatim>
 				<h:outputText value="#{ForumTool.selectedMessage.message.title}" styleClass="title"/>
 				<h:outputText value="#{ForumTool.selectedMessage.message.author}" />
 				<h:outputText value=" #{msgs.cdfm_openb} " />
@@ -39,8 +121,10 @@
 					</h:column>
 				</h:dataTable>
 				<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}"  style="display:block;margin-top:2em" styleClass="textPanel"/>
-			</div>	
-
+			<f:verbatim>
+			</div>
+			</f:verbatim>
+			</h:panelGroup>
 
 			
 			<p class="instruction" style="margin-top:1em">
@@ -89,10 +173,30 @@
     </h:panelGrid>
 
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}" 
-      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
-      <sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" />
+    	<% if(isDialogBox){ %>
+			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
+	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
+		<% }else {%>	
+			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
+	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>	      			
+      	<%}%>
+      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="closeDialogBoxIfExists();" />
     </sakai:button_bar>
+    
+    <% if(isDialogBox){ %>
+    <!-- This is used to keep the dialogbox state when going to the next page (this page) -->
+    <f:verbatim>
+    
+    <input type="text" id="userId" name="userId" value="<%=userId%>" style="display: none;"/>
+    <input type="text" id="messageId" name="messageId" value="<%=messageId%>" style="display: none;"/> 
+    <input type="text" id="topicId" name="topicId" value="<%=topicId%>" style="display: none;"/>
+    <input type="text" id="forumId" name="forumId" value="<%=forumId%>" style="display: none;"/>
+    <input type="text" id="frameId" name="frameId" value="<%=frameId%>" style="display: none;"/>
+    <input type="text" id="dialogDivId" name="dialogDivId" value="<%=dialogDivId%>" style="display: none;"/>
+    <input type="text" id="gradesSavedDiv" name="gradesSavedDiv" value="<%=gradesSavedDiv%>" style="display: none;"/>
+    <input type="text" id="noProccessing" name="noProccessing" value="true" style="display: none;"/>
+    </f:verbatim>
+    <%}%>
   </h:form>
 </sakai:view>
 </f:view>

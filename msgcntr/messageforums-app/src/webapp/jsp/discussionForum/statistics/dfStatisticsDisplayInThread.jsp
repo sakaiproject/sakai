@@ -12,6 +12,16 @@
   	    <script type="text/javascript" src="/library/js/jquery.js"></script>
        	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+       	
+       	<script type="text/javascript">
+  			$(document).ready(function() {
+				$(".messageBody").each(function(index){
+					var msgBody = $(this).html();
+					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
+	  				fckeditor_word_count_fromMessage(msgBody,'wordCountSpan');
+				});
+			});
+		</script>
   	
   		<sakai:tool_bar>
 			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
@@ -25,8 +35,25 @@
 		<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      	rendered="#{ForumTool.forumsTool}" />
 		<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-		<h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
-		<f:verbatim><h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		<h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{empty mfStatisticsBean.selectedAllTopicsTopicId && empty mfStatisticsBean.selectedAllTopicsForumId}"/>
+		<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId || !empty mfStatisticsBean.selectedAllTopicsForumId}"/>				
+	      <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsForumId}">
+		      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
+			    <f:param value="" name="topicId"/>
+			    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
+			    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsForumTitle}" />
+	      	  </h:commandLink>
+		  </h:panelGroup>
+		  <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId}">
+	      	  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+		      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
+			    <f:param value="#{mfStatisticsBean.selectedAllTopicsTopicId}" name="topicId"/>
+			    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
+			    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsTopicTitle}" />
+	      	  </h:commandLink>
+	      </h:panelGroup> 
+	    <f:verbatim><h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 		<h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}">
 		</h:commandLink>
 		<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
@@ -73,6 +100,14 @@
 			<h:panelGroup rendered="#{ForumTool.selectedMsgId==msgDecorateBean.message.id}">
 				<f:verbatim><a name="boldMsg"></a></f:verbatim>
 				<f:verbatim><div style="border:1px solid #fc6;background:#ffe;padding:0 5px"></f:verbatim>
+					<f:verbatim>
+	  					<span id="messageBody" class="messageBody" style="display: none" class="messageBody">
+	  				</f:verbatim>
+	  					<h:outputText escape="false" value="#{msgDecorateBean.message.body}"/>
+					<f:verbatim>  					
+	  					</span>	
+	  					<span><img src="/library/image/silk/table_add.png" />&nbsp;</f:verbatim><h:outputText value="#{msgs.cdfm_message_count}" /><f:verbatim>:&nbsp;<span  id="wordCountSpan"> </span></span>			
+		  			</f:verbatim>
 					<f:verbatim><a name="boldMsg"></a></f:verbatim>
 					<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
 						<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">

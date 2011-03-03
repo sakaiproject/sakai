@@ -41,6 +41,12 @@
 				                 title=" #{msgs.cdfm_forum_settings}">
 					  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				  </h:commandLink>
+				  <h:outputText  value=" | " rendered="#{ForumTool.instructor}"/>
+					<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
+	  				    <f:param value="" name="topicId"/>
+	  				    <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+	  				    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+		          	</h:commandLink>
 				<%--
 				<h:outputText  value=" | "   rendered="#{ForumTool.selectedForum.changeSettings}"/>
 				<h:outputText  value=" Delete "  styleClass="todo"  rendered="#{ForumTool.selectedForum.changeSettings}"/>
@@ -127,6 +133,13 @@
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 							</h:commandLink>
+							
+						<h:outputText  value=" | " rendered="#{ForumTool.instructor}"/>
+						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
+		  				    <f:param value="#{topic.topic.id}" name="topicId"/>
+		  				    <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+		  				    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+			          	</h:commandLink>
                                     			
 						<h:outputText  value=" | "   rendered="#{topic.changeSettings}" />
 						<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" 

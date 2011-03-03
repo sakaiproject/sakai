@@ -11,7 +11,7 @@
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-  		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
+  		<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -22,6 +22,11 @@
 			      <h:outputText value="#{msgs.stat_list}" />
 			    <f:verbatim></h3></f:verbatim>
           </h:panelGroup>
+          <h:panelGroup styleClass="itemNav specialLink">     
+			<h:outputText value="#{msgs.cdfm_statistics} #{msgs.stat_byUser} " />
+			<h:outputText value="#{msgs.cdfm_toolbar_separator} " />
+			<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}" title="#{msgs.cdfm_statistics} #{msgs.stat_byTopic}"/>				
+		  </h:panelGroup>
         </h:panelGrid>
   	
 

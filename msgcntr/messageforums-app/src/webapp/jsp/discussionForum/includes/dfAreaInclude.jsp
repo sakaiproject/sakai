@@ -32,6 +32,13 @@
 				<h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
 					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
+				
+				<h:outputText  value=" | " rendered="#{ForumTool.instructor}"/>
+				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
+  				    <f:param value="" name="topicId"/>
+  				    <f:param value="#{forum.forum.id}" name="forumId"/>
+  				    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+	          	</h:commandLink>  	
                 
                 <h:outputText  value=" | " rendered="#{forum.changeSettings}"/>
 
@@ -130,6 +137,13 @@
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{forum.forum.id}" name="forumId"/>
 							</h:commandLink>
+							
+							<h:outputText  value=" | "  rendered="#{ForumTool.instructor}"/>
+							<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
+			  				    <f:param value="#{topic.topic.id}" name="topicId"/>
+			  				    <f:param value="#{forum.forum.id}" name="forumId"/>
+			  				    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+				          	</h:commandLink>  	
                             
 							<h:outputText  value=" | " rendered="#{topic.changeSettings}"/>
 							
@@ -138,6 +152,7 @@
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{forum.forum.id}" name="forumId"/>
 							</h:commandLink>
+							
 							
 							
 							<%-- delete this topic  link, a string now - needs a real rendered attribute --%>

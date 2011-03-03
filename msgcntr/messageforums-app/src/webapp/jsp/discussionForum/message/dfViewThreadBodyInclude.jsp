@@ -1,5 +1,29 @@
 <%-- Display single message in threaded view. (included for each message). --%>
 <%-- designNote: what does read/unread mean in this context since I am seeing the whole message?--%>
+
+<%
+  	String thisId = request.getParameter("panel");
+  	if (thisId == null) 
+  	{
+    	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+ 		 }
+ 	
+%>
+<script type="text/javascript">
+
+
+	var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
+	
+	function resize(){
+		mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+	}
+	
+	function dialogLinkClick(link){
+		var position =  $(link).position();
+		dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
+	}
+</script>
+
 <h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 	<f:verbatim><div class="hierItemBlock" ></f:verbatim>
 			<%-- a deleted message --%>
@@ -83,11 +107,17 @@
                     </h:panelGroup>
 					<%-- link to grade --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-						<h:commandLink action="#{ForumTool.processDfMsgGrdFromThread}" value="#{msgs.cdfm_button_bar_grade}">
-							<f:param value="#{message.message.id}" name="messageId" />
-							<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
-							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId" />
-						</h:commandLink>
+						<h:outputLink value="../message/dfMsgGrade" target="dialogFrame"
+							onclick="dialogLinkClick(this);">
+							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+							<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+							<f:param value="#{message.message.id}" name="messageId"/>
+							<f:param value="dialogDiv" name="dialogDivId"/>
+							<f:param value="dialogFrame" name="frameId"/>
+							<f:param value="gradesSavedDiv" name="gradesSavedDiv"/>
+							<f:param value="#{message.message.createdBy}" name="userId"/>
+							<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
+						</h:outputLink>
 						<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
 					</h:panelGroup>
 					<%-- Revise other action --%>

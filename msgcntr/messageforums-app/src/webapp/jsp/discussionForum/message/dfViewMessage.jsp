@@ -10,6 +10,7 @@
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 		<h:form id="msgForum" styleClass="specialLink">
 			<script type="text/javascript" src="/library/js/jquery.js"></script>
+			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
 			<script type="text/javascript">
@@ -32,6 +33,9 @@
 						event.preventDefault();
 						$('#permalinkHolder').fadeOut('fast');
 					});
+					var msgBody = document.getElementById("msgForum:messageBody").innerHTML;
+					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
+					fckeditor_word_count_fromMessage(msgBody, "counttotal");
 
 					});
 			</script>
@@ -120,8 +124,11 @@
 					hideBorder="true"/>
 			</div>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
-
-
+			<f:subview id="wordCountView" rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
+				<f:verbatim>
+					<span style="margin-left:1em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>
+				</f:verbatim>
+			</f:subview>
 			<h:panelGrid columns="2" 
 					width="100%" 
 					summary="layout" 
@@ -231,7 +238,7 @@
 					</h:panelGroup>
 				</h:panelGrid>
 				<f:verbatim><div class="textPanel"></f:verbatim>
-					<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" 
+					<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" id="messageBody" 
 							rendered="#{!ForumTool.selectedMessage.message.deleted}" />
 				<f:verbatim></div></f:verbatim>
 				<h:dataTable value="#{ForumTool.selectedMessage.attachList}" var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" summary="layout"  style="font-size:.9em;width:auto;margin-left:1em" border="0">

@@ -158,6 +158,9 @@
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.deleted=false]]>
   </query>
   
+  <query name="findMessageCountByForumId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.openForum.id = :forumId and message.draft = false and message.deleted=false]]>
+  </query>
 
   <query name="findMessageCountsForMainPage"><![CDATA[
     select topic.id, count(msg)
@@ -220,6 +223,28 @@
     order by message.created desc
   ]]></query>
   
+  <query name="findReadMessagesForStudentByTopicId"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join fetch message.topic join fetch message.topic.openForum
+    where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
+      us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
+      and message.topic.id = :topicId
+    order by message.created desc
+  ]]></query>
+  
+  <query name="findReadMessagesForStudentByForumId"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join fetch message.topic join fetch message.topic.openForum
+    where message.id = us.messageId and message.topic.openForum.area.contextId = :contextId and 
+      us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
+      and message.topic.openForum.id = :forumId
+    order by message.created desc
+  ]]></query>
+  
   <query name="findReadMessageCountForAllStudents"><![CDATA[
     select us.userId, count(*)
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
@@ -230,6 +255,34 @@
     where message.id = us.messageId 
       and area.contextId = :contextId 
       and us.read = true and message.draft = false and message.deleted = false
+    group by us.userId
+  ]]></query>
+  
+  <query name="findReadMessageCountForAllStudentsByTopicId"><![CDATA[
+    select us.userId, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where message.id = us.messageId 
+      and area.contextId = :contextId 
+      and us.read = true and message.draft = false and message.deleted = false
+      and topic.id = :topicId
+    group by us.userId
+  ]]></query>
+  
+  <query name="findReadMessageCountForAllStudentsByForumId"><![CDATA[
+    select us.userId, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where message.id = us.messageId 
+      and area.contextId = :contextId 
+      and us.read = true and message.draft = false and message.deleted = false
+      and forum.id = :forumId
     group by us.userId
   ]]></query>
 
@@ -266,6 +319,26 @@
       and message.draft = false and message.deleted = false
     order by message.created desc
   ]]></query>
+  
+  <query name="findAuthoredMessagesForStudentByTopicId"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join fetch message.topic join fetch message.topic.openForum
+    where message.topic.openForum.area.contextId = :contextId and message.createdBy = :userId 
+      and message.draft = false and message.deleted = false
+      and message.topic.id = :topicId
+    order by message.created desc
+  ]]></query>
+  
+  <query name="findAuthoredMessagesForStudentByForumId"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join fetch message.topic join fetch message.topic.openForum
+    where message.topic.openForum.area.contextId = :contextId and message.createdBy = :userId 
+      and message.draft = false and message.deleted = false
+      and message.topic.openForum.id = :forumId
+    order by message.created desc
+  ]]></query>
 
   <query name="findAuthoredMessageCountForAllStudents"><![CDATA[
     select message.createdBy, count(*) 
@@ -274,6 +347,26 @@
       join topic.openForum forum
       join forum.area area
     where area.contextId = :contextId and message.draft = false and message.deleted = false
+    group by message.createdBy
+  ]]></query>
+  
+  <query name="findAuthoredMessageCountForAllStudentsByTopicId"><![CDATA[
+    select message.createdBy, count(*) 
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and topic.id = :topicId
+    group by message.createdBy
+  ]]></query>
+  
+  <query name="findAuthoredMessageCountForAllStudentsByForumId"><![CDATA[
+    select message.createdBy, count(*) 
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and forum.id = :forumId
     group by message.createdBy
   ]]></query>
 

@@ -17,7 +17,10 @@
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
-       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+       		<script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+       		<script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+  			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
+  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 		
@@ -48,6 +51,7 @@
 			});
 		});
 		</script>	
+		
 		// element into which the value gets insert and retrieved from
 		<span class="highlight"  id="maxthreaddepth" class="skip"><h:outputText value="#{msgs.cdfm_maxthreaddepth}" /></span>
 //--%>
@@ -116,7 +120,13 @@
 					 </h:commandLink>
 				 </h:panelGroup>
 			</h:panelGrid>
-
+		
+	  	<f:verbatim>
+			<div id="dialogDiv" title="Grade Messages" style="display:none">
+	    		<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+	    	</div>
+		</f:verbatim>
+		
 				 <%@include file="dfViewSearchBarThread.jsp"%>
 		
 		<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>

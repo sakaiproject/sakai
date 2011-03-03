@@ -162,6 +162,7 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
+  private String selectedGradedUserId;
   private DiscussionAreaBean template;
   private DiscussionMessageBean selectedThreadHead;
   private List selectedThread = new ArrayList();
@@ -178,6 +179,7 @@ public class DiscussionForumTool
   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
+  private static final String USER_ID = "userId";
   private static final String MESSAGE_ID = "messageId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
   private static final String FROMPAGE = "fromPage";
@@ -338,8 +340,17 @@ public class DiscussionForumTool
   private int selectedMessageCount = 0;
   private int functionClick = 0;
 
+  private boolean dialogGradeSavedSuccessfully = false;
   
-  // email notification options
+  public boolean isDialogGradeSavedSuccessfully() {
+	  return dialogGradeSavedSuccessfully;
+  }
+
+  public void setDialogGradeSavedSuccessfully(boolean dialogGradeSavedSuccessfully) {
+	  this.dialogGradeSavedSuccessfully = dialogGradeSavedSuccessfully;
+  }
+
+// email notification options
   private EmailNotificationBean watchSettingsBean;
   
   private boolean needToPostFirst;
@@ -2584,6 +2595,7 @@ public class DiscussionForumTool
   
   public void getThreadFromMessage()
   {
+	  if(selectedMessage != null){
 	    Message mes = selectedMessage.getMessage();
 	    String messageId = mes.getId().toString();
 	    while( mes.getInReplyTo() != null) {
@@ -2624,6 +2636,7 @@ public class DiscussionForumTool
 	    	}
 	    }
 	    refreshSelectedMessageSettings(selectedMessage.getMessage());
+	  }
   }
 
   
@@ -3976,72 +3989,72 @@ public class DiscussionForumTool
   {
 	  String messageId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
-	    if (messageId == null)
-	    {
-	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
-	      return gotoMain();
-	    }
+	    String forumId = getExternalParameterByKey(FORUM_ID);
+	    String userId = getExternalParameterByKey(USER_ID);
 	    if (topicId == null)
 	    {
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
-	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
-	        messageId));
-	    if (message == null)
-	    {
-	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
-	      return gotoMain();
+	    if((messageId == null || "".equals(messageId)) && (userId == null || "".equals(userId))){
+	    	setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+		      return gotoMain();
 	    }
+	    return processDfMsgGrdFromThread(messageId, topicId, forumId, userId);
+  }
+  
+  public String processDfMsgGrdFromThread(String messageId, String topicId, String forumId, String userId){
+	  
+	  selectedGradedUserId = userId;
+  
+	  // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	  if(messageId != null && !"".equals(messageId)){
+		  Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
+				  messageId));
+		  if (message == null)
+		  {
+			  setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+			  return gotoMain();
+		  }
 
-	    selectedMessage = new DiscussionMessageBean(message, messageManager);
-	  return processDfMsgGrd();
+		  selectedMessage = new DiscussionMessageBean(message, messageManager);
+
+	  }else{
+		  selectedMessage = null;
+	  }
+
+	  if(selectedForum == null || (forumId != null && !selectedForum.getForum().getId().equals(forumId))){
+		  DiscussionForum forum = forumManager.getForumById(Long.parseLong(forumId));
+		  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+	  }
+
+	  if(topicId == null || "".equals(topicId)){
+		  selectedTopic = null;
+	  }else if(selectedTopic == null || !selectedTopic.getTopic().getId().equals(topicId)){
+		  DiscussionTopic topic = forumManager.getTopicById(Long.parseLong(topicId));
+		  selectedTopic = getDecoratedTopic(topic);
+	  }    
+	    
+	  if(selectedMessage != null){
+		  return processDfMsgGrd();
+	  }else{
+		  return processDfMsgGrdHelper(userId, null);
+	  }
   }
   
   public String processDfMsgGrd()
   {
-	  selectedMessageCount = 0;
-	  functionClick ++;
-
-	  if(selectedTopic == null)
-  	{
-  		LOG.debug("selectedTopic is null in processDfMsgGrd");
-  		return gotoMain();
-  	}
-  	
-  	grade_too_large_make_sure = false;
-  	
-	  selectedAssign = DEFAULT_GB_ITEM; 
-	  resetGradeInfo();
-
 	  try
 	  {
 		  String createdById = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
-		  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
 		  String msgAssignmentName = selectedMessage.getMessage().getGradeAssignmentName();
-		  String topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
-		  String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
-		  
-		  String selAssignmentName = null;
-		  if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
-			  selAssignmentName = msgAssignmentName;
-		  } else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
-			  selAssignmentName = topicDefaultAssignment;
-		  } else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
-			  selAssignmentName = forumDefaultAssignment;
-		  }
-		  
-		  if (selAssignmentName != null) {
-			  setUpGradeInformation(gradebookUid, selAssignmentName, createdById);  
-		  } else {
-			  // this is the "Select a gradebook item" selection
-			  allowedToGradeItem = false;
-			  selGBItemRestricted = true;
-		  }
-		  
+
+		  String returnStr = processDfMsgGrdHelper(createdById, msgAssignmentName);
+
 		  // mark this message as read
 		  messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), selectedMessage.getMessage().getId(), true);
+		  
+		  return returnStr;
 	  }
 	  catch(Exception e) 
 	  { 
@@ -4049,6 +4062,42 @@ public class DiscussionForumTool
 		  e.printStackTrace(); 
 		  return null; 
 	  } 
+  }
+  
+  private String processDfMsgGrdHelper(String userId, String msgAssignmentName){
+	  selectedMessageCount = 0;
+	  functionClick ++;
+
+	  
+  	grade_too_large_make_sure = false;
+  	
+	  selectedAssign = DEFAULT_GB_ITEM; 
+	  resetGradeInfo();
+
+	  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+
+	  String topicDefaultAssignment = null;
+	  if(selectedTopic != null){
+		  topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
+	  }
+	  String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
+
+	  String selAssignmentName = null;
+	  if (msgAssignmentName !=null && msgAssignmentName.trim().length()>0) {
+		  selAssignmentName = msgAssignmentName;
+	  } else if (topicDefaultAssignment != null && topicDefaultAssignment.trim().length() > 0) {
+		  selAssignmentName = topicDefaultAssignment;
+	  } else if (forumDefaultAssignment != null && forumDefaultAssignment.trim().length() > 0) {
+		  selAssignmentName = forumDefaultAssignment;
+	  }
+
+	  if (selAssignmentName != null) {
+		  setUpGradeInformation(gradebookUid, selAssignmentName, userId);  
+	  } else {
+		  // this is the "Select a gradebook item" selection
+		  allowedToGradeItem = false;
+		  selGBItemRestricted = true;
+	  }
 
 	  return GRADE_MESSAGE; 
   }
@@ -4830,7 +4879,7 @@ public class DiscussionForumTool
    * @param message
    * @return
    */
-  private String getEventReference(Message message) 
+  private String getEventReference(Object obj) 
   {
 	  String eventMessagePrefix = "";
 	  final String toolId = ToolManager.getCurrentTool().getId();
@@ -4842,7 +4891,7 @@ public class DiscussionForumTool
   	  else
   		  eventMessagePrefix = "/forums";
   	
-	  return eventMessagePrefix + getContextSiteId() + "/" + message.toString() + "/" + SessionManager.getCurrentSessionUserId();
+	  return eventMessagePrefix + getContextSiteId() + "/" + obj.toString() + "/" + SessionManager.getCurrentSessionUserId();
   }
   
   /**
@@ -5862,8 +5911,13 @@ public class DiscussionForumTool
 
 			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
 				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
-				  String selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();		  
-				  String studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+				  String selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();	
+				  String studentId;
+				  if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
+					  studentId = selectedGradedUserId;
+				  }else{
+					  studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
+				  }				   
 				  
 				  setUpGradeInformation(gradebookUid, selAssignName, studentId);
 			  } else {
@@ -5941,6 +5995,15 @@ public class DiscussionForumTool
     return true;
   }
   
+  public String processDfGradeSubmitFromDialog(){
+	  String result = processDfGradeSubmit();
+	  if(MESSAGE_VIEW.equals(result)){
+		  //success
+		  dialogGradeSavedSuccessfully = true;
+	  }
+	  return null;
+  }
+  
   public String processDfGradeSubmit() 
   { 
 	GradebookService gradebookService = getGradebookService();
@@ -5955,12 +6018,6 @@ public class DiscussionForumTool
 		}
 	  functionClick = 0;
 	  selectedMessageCount = 0;
-
-  	if(selectedTopic == null)
-  	{ 
-  		LOG.debug("selectedTopic is null in processDfGradeSubmit");
-  		return gotoMain();
-  	}
   	
 	  gbItemScore = gradePoint;
 	  gbItemComment = gradeComment;
@@ -6007,8 +6064,13 @@ public class DiscussionForumTool
     {   
         String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
         String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
-        String studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
-
+        String studentUid;
+        if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
+        	studentUid = selectedGradedUserId;
+        }else{
+        	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+        }
+        
         gradebookService.setAssignmentScore(gradebookUuid,  
         		  selectedAssignName, studentUid, gradeAsDouble, "");
         if (gradeComment != null && gradeComment.trim().length() > 0)
@@ -6017,11 +6079,13 @@ public class DiscussionForumTool
       		  selectedAssignName, studentUid, gradeComment);
         }
         
-        Message msg = selectedMessage.getMessage();
-        msg.setGradeAssignmentName(selectedAssignName);
-        msg.setTopic((DiscussionTopic) forumManager
-                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-        forumManager.saveMessage(msg, false);
+        if(selectedMessage != null){
+        	Message msg = selectedMessage.getMessage();
+        	msg.setGradeAssignmentName(selectedAssignName);
+        	msg.setTopic((DiscussionTopic) forumManager
+        			.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+        	forumManager.saveMessage(msg, false);
+        }
         
         setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
     } 
@@ -6035,7 +6099,15 @@ public class DiscussionForumTool
       e.printStackTrace(); 
     } 
         
-    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, getEventReference(selectedMessage.getMessage()), true));
+    String eventRef = "";
+    if(selectedMessage != null){
+    	eventRef = getEventReference(selectedMessage.getMessage());
+    }else if(selectedTopic != null){
+    	eventRef = getEventReference(selectedTopic.getTopic());
+    }else if(selectedForum != null){
+    	eventRef = getEventReference(selectedForum.getForum());
+    }
+    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, eventRef, true));
     
     gradeNotify = false; 
     selectedAssign = DEFAULT_GB_ITEM; 

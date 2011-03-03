@@ -452,17 +452,22 @@ function FCKeditor_OnComplete(editorInstance) {
 }
 
 function fckeditor_word_count(editorInstance) {
-
-    var matches = editorInstance.GetData().replace(/<[^<|>]+?>|&nbsp;/gi,' ').match(/\b/g);
+     document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + getWordCount(editorInstance.GetData()) + ")</span>";
+}
+  
+ function fckeditor_word_count_fromMessage(msgStr, countSpan){
+ 	document.getElementById(countSpan).innerHTML = "<span class='highlight'>(" + getWordCount(msgStr) + ")</span>";
+ }
+ 
+ function getWordCount(msgStr) {
+ 
+     var matches = msgStr.replace(/<[^<|>]+?>|&nbsp;/gi,' ').match(/\b/g);
     var count = 0;
     if(matches) {
         count = matches.length/2;
     }
 
-	if(document.getElementById('counttotal')){
-    	document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + count + ")</span>";
-    }
-
+    return count;
 }
 
 function InsertHTML(header) { 

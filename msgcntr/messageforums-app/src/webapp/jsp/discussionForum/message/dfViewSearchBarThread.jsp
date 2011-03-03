@@ -12,3 +12,10 @@
   
 
 <h:messages styleClass="alertMessage" id="errorMessages"  />
+<f:verbatim>
+	<div class="success" id="gradesSavedDiv" class="success" style="display:none">
+</f:verbatim>
+	<h:outputText value="#{msgs.cdfm_grade_successful}"/>
+<f:verbatim>
+	</div>
+</f:verbatim>

@@ -5,13 +5,122 @@
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
+
+<%
+  	String thisId = request.getParameter("panel");
+  	if (thisId == null) 
+  	{
+    	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+ 		 }
+ 	
+%>
+
 <f:view>
   <sakai:view>
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
 		<!--discussionForum/statistics/dfStatisticsUser.jsp-->
-  	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+		<script type="text/javascript">
+
+	
+			var iframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
+			
+			function resize(){
+				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+			}
+		
+		
+			function mySetMainFrameHeight(id)
+			{
+				// run the script only if this window's name matches the id parameter
+				// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
+				if (typeof window.name != "undefined" && id != window.name) return;
+			
+				var frame = parent.document.getElementById(id);
+				if (frame)
+				{
+			
+					var objToResize = (frame.style) ? frame.style : frame;
+			  
+			    // SAK-11014 revert           if ( false ) {
+			
+					var height; 		
+					var offsetH = document.body.offsetHeight;
+					var innerDocScrollH = null;
+			
+					if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+					{
+						// very special way to get the height from IE on Windows!
+						// note that the above special way of testing for undefined variables is necessary for older browsers
+						// (IE 5.5 Mac) to not choke on the undefined variables.
+			 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+						innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+					}
+				
+					if (document.all && innerDocScrollH != null)
+					{
+						// IE on Windows only
+						height = innerDocScrollH;
+					}
+					else
+					{
+						// every other browser!
+						height = offsetH;
+					}
+			   // SAK-11014 revert		} 
+			
+			   // SAK-11014 revert             var height = getFrameHeight(frame);
+			
+					// here we fudge to get a little bigger
+					var newHeight = height + 40;
+			
+					// but not too big!
+					if (newHeight > 32760) newHeight = 32760;
+			
+					// capture my current scroll position
+					var scroll = findScroll();
+			
+					// resize parent frame (this resets the scroll as well)
+					objToResize.height=newHeight + "px";
+			
+					// reset the scroll, unless it was y=0)
+					if (scroll[1] > 0)
+					{
+						var position = findPosition(frame);
+						parent.window.scrollTo(position[0]+scroll[0], position[1]+scroll[1]);
+					}
+				}
+			}
+			
+		</script>
+		
+  	    <script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+   		<script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+		<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
+		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+       	
   	
+  		<script type="text/javascript">
+  			$(document).ready(function() {
+				$(".messageBody").each(function(index){
+					var msgBody = $(this).html();
+					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
+					var wordCountId = $(this).attr('id').substring(11, $(this).attr('id').length);
+					$("#wordCountSpan" + wordCountId).html(getWordCount(msgBody));
+	  				//fckeditor_word_count_fromMessage(msgBody,'wordCountSpan' + wordCountId);
+				});
+			});
+			
+			function dialogLinkClick(link){
+				var position =  $(link).position();
+				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
+			}
+		</script>
+  		<f:verbatim>
+			<div id="dialogDiv" title="Grade Messages" style="display:none">
+		       <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+		    </div>
+		</f:verbatim>
   		<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
@@ -20,7 +129,24 @@
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
+			      <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{empty mfStatisticsBean.selectedAllTopicsTopicId && empty mfStatisticsBean.selectedAllTopicsForumId}"/>
+			      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByAllTopics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}" rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId || !empty mfStatisticsBean.selectedAllTopicsForumId}"/>
+			      <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsForumId}">
+				      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
+	  				    <f:param value="" name="topicId"/>
+	  				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
+	  				    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsForumTitle}" />
+		          	  </h:commandLink>
+				  </h:panelGroup>
+				  <h:panelGroup rendered="#{!empty mfStatisticsBean.selectedAllTopicsTopicId}">
+			      	  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+				      <h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true">
+	  				    <f:param value="#{mfStatisticsBean.selectedAllTopicsTopicId}" name="topicId"/>
+	  				    <f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
+	  				    <h:outputText value="#{mfStatisticsBean.selectedAllTopicsTopicTitle}" />
+		          	  </h:commandLink>
+		          </h:panelGroup>  
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			      <h:outputText value="#{mfStatisticsBean.selectedSiteUser}" />
 			    <f:verbatim></div></f:verbatim>
@@ -45,7 +171,13 @@
 		</h:panelGroup>
 
         </h:panelGrid>
-
+		<f:verbatim>
+	  		<div class="success" id="gradesSavedDiv" class="success" style="display:none">
+	  	</f:verbatim>
+	  		<h:outputText value="#{msgs.cdfm_grade_successful}"/>
+	  	<f:verbatim>
+	  		</div>
+	  	</f:verbatim>
 	  	<h:panelGrid columns="2" summary="layout" width="100%" style="margin:0">
    			<h:panelGroup>
     			<f:verbatim><h4 style="margin:0;padding:0"></f:verbatim>
@@ -104,15 +236,40 @@
   							<f:param value="#{stat.msgId}" name="msgId"/> 				  			
   				 </h:commandLink>
   				 </h:column>
+  			<h:column>
+  				<f:facet name="header">
+  					<h:outputText value="#{msgs.stat_forum_word_count}"  />				   
+  				</f:facet>
+  				<f:verbatim>
+  					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
+  				</f:verbatim>
+  					<h:outputText escape="false" value="#{stat.message}"/>
+				<f:verbatim>  					
+  					</span>  				
+	  				<span id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>">
+	  				</span>	  				
+	  			</f:verbatim>
+  			</h:column>  			
   				 <h:column>
-  			
-  			
-  			<h:commandLink action="#{ForumTool.processActionDisplayInThread}" value="#{msgs.stat_display_in_thread}" title=" #{msgs.stat_display_in_thread}">	
-  				  		<f:param value="#{stat.topicId}" name="topicId"/>
-  				  		<f:param value="#{stat.forumId}" name="forumId"/>
-  				  		<f:param value="#{stat.msgId}" name="msgId"/>
-  				  		
-  			</h:commandLink>
+  					<h:outputLink value="../message/dfMsgGrade" target="dialogFrame"
+						onclick="dialogLinkClick(this);">
+						<f:param value="#{stat.forumId}" name="forumId"/>
+						<f:param value="#{stat.topicId}" name="topicId"/>
+						<f:param value="#{stat.msgId}" name="messageId"/>
+						<f:param value="#{mfStatisticsBean.selectedSiteUserId}" name="userId"/>						
+						<f:param value="dialogDiv" name="dialogDivId"/>
+						<f:param value="dialogFrame" name="frameId"/>
+						<f:param value="gradesSavedDiv" name="gradesSavedDiv"/>
+						<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+						<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
+					</h:outputLink>
+					<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
+					<h:commandLink action="#{ForumTool.processActionDisplayInThread}" value="#{msgs.stat_display_in_thread}" title=" #{msgs.stat_display_in_thread}">	
+		  				  		<f:param value="#{stat.topicId}" name="topicId"/>
+		  				  		<f:param value="#{stat.forumId}" name="forumId"/>
+		  				  		<f:param value="#{stat.msgId}" name="msgId"/>
+		  				  		
+		  			</h:commandLink>
   			</h:column>
   		</h:dataTable>
   		
