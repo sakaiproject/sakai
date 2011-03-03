@@ -344,6 +344,16 @@
 				</h:commandButton>
 			<%}%>
 		</h:panelGroup>
+
+
+<% if(isDialogBox){ %>
+    <!-- This is used to keep the dialogbox state when going to the next page (this page) -->
+    <f:verbatim>
+    <input type="text" id="siteUserId" name="siteUserId" value="<%= selectedUserId%>" style="display: none;"/>
+    <input type="text" id="frameId" name="frameId" value="<%=frameId%>" style="display: none;"/>
+    <input type="text" id="dialogDivId" name="dialogDivId" value="<%=dialogDivId%>" style="display: none;"/>
+    </f:verbatim>
+<%}%>
 		
   	</h:form>
   </sakai:view>
