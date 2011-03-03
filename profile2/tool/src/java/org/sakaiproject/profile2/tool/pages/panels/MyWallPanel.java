@@ -159,12 +159,12 @@ public class MyWallPanel extends Panel {
 							new Model<String>("alertMessage")));
 					target.addComponent(formFeedback);
 				} else {
-					MyWallPanel newContainer = new MyWallPanel(MyWallPanel.this
+					MyWallPanel newPanel = new MyWallPanel(MyWallPanel.this
 							.getId());
-					newContainer.setOutputMarkupId(true);
-					MyWallPanel.this.replaceWith(newContainer);
+					newPanel.setOutputMarkupId(true);
+					MyWallPanel.this.replaceWith(newPanel);
 					if (null != target) {
-						target.addComponent(newContainer);
+						target.addComponent(newPanel);
 						target
 								.appendJavascript("setMainFrameHeight(window.name);");
 					}
