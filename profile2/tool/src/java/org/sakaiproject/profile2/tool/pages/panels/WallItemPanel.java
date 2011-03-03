@@ -28,7 +28,6 @@ import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
-import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -60,6 +59,8 @@ public class WallItemPanel extends Panel {
 	public WallItemPanel(String id, final String userUuid, WallItem wallItem) {
 		super(id);
 
+		setOutputMarkupId(true);
+		
 		// image wrapper, links to profile
 		Link<String> wallItemPhoto = new Link<String>("wallItemPhotoWrap",
 				new Model<String>(wallItem.getCreatorUuid())) {
@@ -111,7 +112,7 @@ public class WallItemPanel extends Panel {
 						.getModelObject());
 
 				// delete link should only appear when viewing own profile
-				setResponsePage(new MyProfile());
+				target.appendJavascript("$('#" + WallItemPanel.this.getMarkupId() + "').slideUp();");
 			}
 		};
 
