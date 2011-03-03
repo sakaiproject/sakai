@@ -201,6 +201,13 @@ public interface DiscussionForumManager
   public DiscussionTopic getTopicById(Long topicId);
   public DiscussionTopic getTopicByUuid(String uuid);
 
+  
+  /**
+   * Get the attachments for a forum
+   * @param topicId
+   * @return
+   */
+  public List<Attachment> getTopicAttachments(Long topicId);
   /**
    * @return
    */

@@ -879,10 +879,10 @@ public class DiscussionTopicBean
 
 	}
 
-	public ArrayList getAttachList()
+	public List<DecoratedAttachment> getAttachList()
 	{
-		ArrayList decoAttachList = new ArrayList();
-		List attachList = topic.getAttachments(); 
+		List<DecoratedAttachment> decoAttachList = new ArrayList<DecoratedAttachment>();
+		List<Attachment> attachList =  forumManager.getTopicAttachments(topic.getId()); //topic.getAttachments(); 
 		if(attachList != null)
 		{
 			for(int i=0; i<attachList.size(); i++)

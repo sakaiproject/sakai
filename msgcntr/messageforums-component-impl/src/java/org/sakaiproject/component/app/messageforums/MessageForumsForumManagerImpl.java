@@ -40,6 +40,7 @@ import org.hibernate.Session;
 import org.hibernate.collection.PersistentSet;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -389,7 +390,23 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         
         return (Topic) getHibernateTemplate().execute(hcb);
       }
-            
+
+    
+    public List<Attachment> getTopicAttachments(final Long topicId) {
+    	if (topicId == null) {
+    		throw new IllegalArgumentException("Null Argument topicId");
+    	}
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery("findTopicAttachments");
+    			q.setParameter("topic", topicId, Hibernate.LONG);
+    			return q.list();
+    		}
+    	};
+    	return (List<Attachment>)getHibernateTemplate().executeFind(hcb);
+    } 
+
+    
     public BaseForum getForumByIdWithTopics(final Long forumId) {
 
       if (forumId == null) {
@@ -1504,6 +1521,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			};
 
 			return (Topic) getHibernateTemplate().execute(hcb);
-		} 
+		}
+
+		
 
 }
