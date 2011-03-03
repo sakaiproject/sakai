@@ -1359,7 +1359,7 @@ ul#otherSiteList{
     padding:0;
 }
 ul#otherSiteList li{
-    background: #222 url(topnav_bg.gif) 0  -1px   repeat-x;
+    background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
     border-radius: 5px;
 -moz-border-radius: 5px;
 -webkit-border-radius: 5px;
