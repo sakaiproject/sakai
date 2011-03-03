@@ -1925,24 +1925,9 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("include", Boolean.valueOf(site.isPubView()));
 
 				// site contact information
-				String contactName = siteProperties
-						.getProperty(Site.PROP_SITE_CONTACT_NAME);
-				String contactEmail = siteProperties
-						.getProperty(Site.PROP_SITE_CONTACT_EMAIL);
-				if (contactName == null && contactEmail == null) {
-					User u = site.getCreatedBy();
-					String email = u.getEmail();
-					if (email != null) {
-						contactEmail = u.getEmail();
-					}
-					contactName = u.getDisplayName();
-				}
-				if (contactName != null) {
-					context.put("contactName", contactName);
-				}
-				if (contactEmail != null) {
-					context.put("contactEmail", contactEmail);
-				}
+				context.put("contactName", siteInfo.site_contact_name);
+				context.put("contactEmail", siteInfo.site_contact_email);
+				
 				if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
 					context.put("isCourseSite", Boolean.TRUE);
 					
@@ -2114,14 +2099,6 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				context.put("titleEditableSiteType", state
 						.getAttribute(TITLE_EDITABLE_SITE_TYPE));
-			}
-
-			// defalt the site contact person to the site creator
-			if (siteInfo.site_contact_name.equals(NULL_STRING)
-					&& siteInfo.site_contact_email.equals(NULL_STRING)) {
-				User u = UserDirectoryService.getCurrentUser();
-				siteInfo.site_contact_name = u != null? u.getDisplayName():"";
-				siteInfo.site_contact_email = u != null?u.getEmail():"";
 			}
 
 			// those manual inputs
@@ -4688,6 +4665,12 @@ public class SiteAction extends PagedResourceActionII {
 		SiteInfo siteInfo = new SiteInfo();
 		siteInfo.site_type = type;
 		siteInfo.published = true;
+		User u = UserDirectoryService.getCurrentUser();
+		if (u != null)
+		{
+			siteInfo.site_contact_name=u.getDisplayName();
+			siteInfo.site_contact_email=u.getEmail();
+		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 
 		// set tool registration list
@@ -8367,6 +8350,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		// site contact information
 		String name = StringUtils.trimToEmpty(params.getString("siteContactName"));
+		if (name.length() == 0)
+		{
+			addAlert(state, rb.getString("alert.sitediinf.sitconnam"));
+		}
 		siteInfo.site_contact_name = name;
 		String email = StringUtils.trimToEmpty(params
 				.getString("siteContactEmail"));
@@ -9524,16 +9511,14 @@ public class SiteAction extends PagedResourceActionII {
 				String contactName = siteProperties.getProperty(Site.PROP_SITE_CONTACT_NAME);
 				String contactEmail = siteProperties.getProperty(Site.PROP_SITE_CONTACT_EMAIL);
 				if (contactName == null && contactEmail == null) {
-					String creatorId = siteProperties.getProperty(ResourceProperties.PROP_CREATOR);
-					try {
-						User u = UserDirectoryService.getUser(creatorId);
+					User u = site.getCreatedBy();
+					if (u != null)
+					{
 						String email = u.getEmail();
 						if (email != null) {
 							contactEmail = u.getEmail();
 						}
 						contactName = u.getDisplayName();
-					} catch (UserNotDefinedException e) 
-					{
 					}
 				}
 				if (contactName != null) {
