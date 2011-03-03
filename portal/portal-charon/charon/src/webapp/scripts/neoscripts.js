@@ -50,22 +50,28 @@ var dhtml_more_tabs = function() {
 var dhtml_view_sites = function() {
 	// first time through set up the DOM
 	jQuery('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
-	jQuery('#selectSite').css('top','54px');       // set its top position
+	jQuery('#selectSite').css('top','45px');       // set its top position
         jQuery('#selectSite').css('left','4px');
         jQuery('#selectSite').css('margin','0 auto');
         jQuery('#selectSite').css('width','90%');
 	jQuery('#selectSite').css('z-index',9900);                                 // explicitely set the z-index
-	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
+//	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
 	
 	// then recast the function to the post initialized state which will run from then on
 	dhtml_view_sites = function() {
 		if (jQuery('#selectSite').css('display') == 'none' ) {
-			jQuery('div#selectSite').show();
+            jQuery('div#selectSite').slideDown('slow',function(){
+                // check if $('#otherSiteList li').length > some number, then show search
+                // otherwise not
+                jQuery('div#selectSite div').show();
+                jQuery('#txtSearch').focus();
+            });
 			createDHTMLMask(dhtml_view_sites) ;
 			jQuery('.selectedTab').bind('click',function(){dhtml_view_sites();return false;});
 		} else {
 			// hide the dropdown
-			jQuery('div#selectSite').hide(); // hide the box
+            jQuery('div#selectSite div').hide();
+			jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
 			removeDHTMLMask()
 			jQuery('.selectedTab').unbind('click');
 		}

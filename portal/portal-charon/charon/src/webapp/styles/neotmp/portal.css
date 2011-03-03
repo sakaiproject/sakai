@@ -27,7 +27,9 @@ body{
 	overflow:hidden;
 	border-bottom:2px solid #09C
 }
-
+#headerMax{
+        position:fixed;
+}
 /*accessibility links wrapper */
 #skipNav{
 }
@@ -61,10 +63,11 @@ a.lastBreadCrumb{
 
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-	width: 98%;
+	width: 100%;
 	clear:both;
-	margin: 0 auto;
-	padding-top: 10px;
+	margin: 0;
+    position:relative;
+	padding-top: 50px;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -135,34 +138,6 @@ site types are a local setting - adjust */
 }
 
 
-/*PART 2 - HEADER IFRAME SETTINGS*/	
-/*iframe sizes for different states*/
-/*gone for 2.3
-.sitenav-log{
-	user not logged in
-	height: 90px;
-	width: 100%;
-	border-bottom:1px solid #09c
-}
-
-.sitenav-max{
-	user logged in 
-	height: 7.8em;
-	max-height:140px;
-	min-height:100px;
-	width: 100%;
-}
-
-* html .sitenav-max{
-	user logged in - iframe height tweak for IE
-	height: 8em;
-	}
-.sitenav-min{
-	no logos or banners
-	height: 2em;
-	width: 100%;
-}*/
-
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
 /*depending on site type - different border-bottoms for the site menu parent block
 site types are a local setting - adjust */
@@ -214,10 +189,12 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*container wrapping,depending on Sakai settings:1) a login form,2) a login link for CAS,3) a logout link*/
 #mastLogin{
-	float: right;
-	text-align: right;
+    position:absolute;
+    top:10px;
+    right:0;
+    	text-align: right;
 	padding-right: 15px;
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 /*the anchor for the login link for CAS above can be an image - treated here*/
@@ -233,7 +210,6 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 }
 
 #mastLogin a:hover{
-	color: #09c;
 	text-decoration: none;
 }
 
@@ -273,17 +249,26 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*block for login/logout links */
 #loginLinks{
+    color:#fff;
 	margin: 0;
 	padding:6px 0 0 6px;
 }
 
 /*main CAS link*/
 #loginLink1{
+    padding:0 5px;
 }
 
 /*secondary CAS link*/
 #loginLink2{
+
 }
+#loginUser{
+    color:#ccc    
+}
+#loginUser:after{
+    content:' |'
+    }
 
 /*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
@@ -299,12 +284,13 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	font-size: 100%;
 	line-height: normal;
 	z-index: 2000;
-        padding: 6px;
+    padding: 6px 0;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
 #siteNav{
-	width:100%;
+    height:35px;
+    padding: 0 6px;
 }
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
@@ -475,11 +461,18 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	top: 2.5em;
 	right: 4px;
 	line-height: 1.5em;
-	background-color: #FFFFFF; 
-	border: 2px solid #013F68;
+	background-color: #454A4F; 
 	border-top-width: 0;
 	width: 75%;
 	z-index: 9999;
+    -moz-box-shadow: 3px 3px 4px #000;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	box-shadow: 3px 3px 4px #000;
+    border-radius: 0px 0px 10px 10px;
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
 }
 
 html>body .dhtml_more_tabs {
@@ -1277,15 +1270,19 @@ div#privacy_overlay {
 
 ul.topnav {
 	list-style: none;
-	padding: 0 20px;
-	margin: 0;
+	padding: 0;
+	margin: 0 ;
+    width:100%;
 	float: left;
+    background: #222 url(images/topnav_bg.gif) repeat-x;
+/*
 	width: 920px;
-	background: #222;
-	font-size: 1.2em;
-	background: url(topnav_bg.gif) repeat-x;
+*/
+	font-size: 1.1em;
+
 }
 ul.topnav li {
+	background: #222 url(images/topnav_bg.gif) repeat-x;
 	float: left;
 	margin: 0;
 	padding: 0 15px 0 0;
@@ -1299,13 +1296,14 @@ ul.topnav li a{
 	float: left;
 }
 ul.topnav li a:hover{
-	background: url(topnav_hover.gif) no-repeat center top;
+	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
+    margin-top:3px;
 	height: 35px;
 	float: left;
-	background: url(subnav_btn.gif) no-repeat center top;
+	background: url(images/subnav_btn.gif) no-repeat center top;
 }
 ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
 ul.topnav li ul.subnav {
@@ -1313,27 +1311,79 @@ ul.topnav li ul.subnav {
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
 	left: 0; top: 35px;
 	background: #333;
+    font-size:.9em;
 	margin: 0; padding: 0;
 	display: none;
 	float: left;
-	width: 170px;
+	width: 210px;
 	border: 1px solid #111;
+    white-space:nowrap;
+    z-index:100;
+	-moz-box-shadow: 3px 3px 4px #000;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	box-shadow: 3px 3px 4px #000;
+}
+    
 }
 ul.topnav li ul.subnav li{
 	margin: 0; padding: 0;
-	border-top: 1px solid #252525; /*--Create bevel effect--*/
-	border-bottom: 1px solid #444; /*--Create bevel effect--*/
 	clear: both;
-	width: 170px;
+	width: 210px;
 }
 html ul.topnav li ul.subnav li a {
-	float: left;
-	width: 145px;
-	background: #333 url(dropdown_linkbg.gif) no-repeat 10px center;
+	outline:none;
+	/*
+float: left;
+*/
+    
+	width: 170px;
+/*
+	background: #333 url(images/dropdown_linkbg.gif) no-repeat 10px center;
+*/
 	padding-left: 20px;
 }
-html ul.topnav li ul.subnav li a:hover { /*--Hover effect for subnav links--*/
-	background: #222 url(dropdown_linkbg.gif) no-repeat 10px center;
+
+html ul.topnav li ul.subnav li a:hover, html ul.topnav li ul.subnav li a:focus { /*--Hover effect for subnav links--*/
+    color:#9c3;
+    background: url(images/dropdown_linkbg.gif) no-repeat 10px center;
 }
 
-
+ul#otherSiteList{
+    -moz-column-width:15em;
+    -webkit-column-width:15em;
+	-moz-column-gap: 5px;
+	-webkit-column-gap: 5px;
+	column-width:15em;
+	column-gap: 5px;
+    margin:5px;
+    padding:0;
+}
+ul#otherSiteList li{
+    background: #222 url(topnav_bg.gif) 0  -1px   repeat-x;
+    border-radius: 5px;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+}
+ul#otherSiteList li a{
+    display:block;
+    padding:10px;
+    color:#fff;
+    text-decoration:none !important;
+}
+ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active{
+   color:#9c3
+}
+#otherSiteSearch{
+    margin:5px;
+    padding:5px;
+}
+#otherSiteSearch *{
+    vertical-align:middle;
+}
+#otherSiteSearch label{
+    color:#fff;
+    padding-right:2em;
+}
+#otherSiteSearch span#noSearchResults{
+    color:#fc6
+}

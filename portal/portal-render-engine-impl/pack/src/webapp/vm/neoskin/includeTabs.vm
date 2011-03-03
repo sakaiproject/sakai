@@ -65,7 +65,7 @@
 
 						<a id="sitetabs" class="skip" name="sitetabs"></a>
 							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
-<ul class="topnav">
+<ul class="topnav" role="navigation">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
 								#if (${site.isMyWorkspace})
@@ -146,11 +146,25 @@
 
 #if ( $siteTab == 1 )
 <div id="selectSite" style="display:none">
-         <p style="text-align:right;width:500px;">
-         <span style="font-weight:bold;">Search:</span> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />&nbsp;
-         <img id="imgSearch" src="/portal/styles/neotmp/cancel.gif" alt="Cancel Search" title="Cancel Search" style="width:150px;width:14px;height:14px;" />
-     </p>
-     <table id="tblSearch" cellpadding="2" cellspacing="0" border="1" style="width:500px;">
+         <div id="otherSiteSearch">
+         	<label for="txtSearch">Search</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+	        <a id="imgSearch" href="#"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
+			<span id="noSearchResults" style="display:none">No search results found</span>
+     	</div>
+     	<ul id="otherSiteList">
+						#foreach ( $site in $tabsSites.tabsSites ) 
+								#if (${site.isMyWorkspace})
+								#else
+							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span>${site.fullTitle}</span></a></li>
+								#end
+						#end
+						#foreach( $site in $tabsSites.tabsMoreSites )
+							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span>${site.fullTitle}</span></a></li>
+						#end	
+      </ul>
+
+#*
+     	<table id="tblSearch" cellpadding="2" cellspacing="0" border="1" style="width:500px;">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 								#if (${site.isMyWorkspace})
 								#else
@@ -161,7 +175,8 @@
 							<tr><td><a href="${site.siteUrl}" title="${site.fullTitle}"><span>${site.fullTitle}</span></a></td></tr>
 						#end	
       </table>
-     <script language="javascript" type="text/javascript">
+*# 
+    <script language="javascript" type="text/javascript">
 
          // case insensitive version of :contains
          jQuery.extend(
@@ -184,28 +199,28 @@
   
              jQuery('#txtSearch').keyup(function() {
                   if (jQuery('#txtSearch').val().length > 2) {
-                     jQuery('#tblSearch tr').hide();
-                     // jQuery('#tblSearch tr:first').show();
-                     jQuery('#tblSearch tr td:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent().show();
-                     jQuery('#imgSearch').show();
+                     jQuery('#otherSiteList li').hide();
+                     // jQuery('#otherSiteList li:first').show();
+                     jQuery('#otherSiteList li a:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent().show();
+                     jQuery('#imgSearch').fadeIn('slow');
                  }
                  if (jQuery('#txtSearch').val().length == 0) {
                      resetSearch();
                  }
   
                  // Should be <=1 if there is a header line
-                 if (jQuery('#tblSearch tr:visible').length < 1) {
+                 if (jQuery('#otherSiteList li:visible').length < 1) {
                      jQuery('.norecords').remove();
-                     jQuery('#tblSearch').append('<tr class="norecords"><td colspan="5" class="Normal">No records were found</td></tr>');
+                     jQuery('#otherSiteSearch #noSearchResults').fadeIn('slow');
                  }
              });
          });
   
 function resetSearch() {
              jQuery('#txtSearch').val('');
-             jQuery('#tblSearch tr').show();
-             jQuery('.norecords').remove();
-             jQuery('#imgSearch').hide();
+             jQuery('#otherSiteList li').show();
+             jQuery('#noSearchResults').fadeOut();
+             jQuery('#imgSearch').fadeOut();
              jQuery('#txtSearch').focus();
          }
 
@@ -228,8 +243,27 @@ jQuery(document).ready(function() {
 });
 
 jQuery(document).ready(function(){
-	jQuery("ul.subnav").parent().append('<span class="drop"></span>'); 
+	jQuery("ul.subnav").parent().append('<span class="drop" tabindex="-1"></span>'); 
+	$("ul.subnav").each(function(){
+		$(this).children('li:last').addClass('lastMenuItem')
+	});
+	$('.lastMenuItem a').blur(function(e){
+		jQuery(this).parents('ul.subnav').slideUp('fast').hide(); 
+	});
+	$('.topnav a').keydown(function(e){
+	    if (e.keyCode == 40) {
+			jQuery('#selectSite').hide();
+			jQuery(this).parent().find("ul.subnav").slideDown('fast').show(); 
+			jQuery(this).parent().find("ul.subnav a:first").focus(); 
+	    }
+	    if (e.keyCode == 38) {
+			jQuery(this).parent().find("ul.subnav").slideUp('fast').hide(); 
+	    }
+
+	});
+
 	jQuery("ul.topnav li span.drop").click(function() { 
+		jQuery('#selectSite').hide();
 
 		jQuery(this).parent().find("ul.subnav").slideDown('fast').show(); 
 
