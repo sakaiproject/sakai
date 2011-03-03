@@ -1275,9 +1275,6 @@ ul.topnav {
     width:100%;
 	float: left;
     background: #222 url(images/topnav_bg.gif) repeat-x;
-/*
-	width: 920px;
-*/
 	font-size: 1.1em;
 
 }
@@ -1295,7 +1292,7 @@ ul.topnav li a{
 	text-decoration: none;
 	float: left;
 }
-ul.topnav li a:hover{
+li.nav-menu > a:hover{
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
@@ -1330,22 +1327,16 @@ ul.topnav li ul.subnav li{
 	clear: both;
 	width: 210px;
 }
-html ul.topnav li ul.subnav li a {
-	outline:none;
-	/*
-float: left;
-*/
-    
+ul.nav-submenu li.submenuitem a {
+    background-position: 3px center !important;
+    background-repeat: no-repeat !important;
+    outline:none;
 	width: 170px;
-/*
-	background: #333 url(images/dropdown_linkbg.gif) no-repeat 10px center;
-*/
-	padding-left: 20px;
+	padding-left: 25px;
 }
 
-html ul.topnav li ul.subnav li a:hover, html ul.topnav li ul.subnav li a:focus { /*--Hover effect for subnav links--*/
+ul.nav-submenu li.submenuitem a:hover, ul.nav-submenu lisubmenuitem a:focus { /*--Hover effect for subnav links--*/
     color:#9c3;
-    background: url(images/dropdown_linkbg.gif) no-repeat 10px center;
 }
 
 ul#otherSiteList{
