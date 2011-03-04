@@ -4,22 +4,7 @@
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet" %>
 
 <portlet:defineObjects />
-
-
-<style type="text/css">
-
-.news-item-img {
-	float:left;
-	margin-right: 10px;
-	max-width: 100px;
-}
-
-.news-items li {
-    display:inline-block;
-}
-
-</style>
-
+<link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
 
 <div class="news-feed">
 

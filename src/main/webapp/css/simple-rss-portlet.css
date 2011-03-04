@@ -13,3 +13,15 @@
 .simple-rss-portlet form input {
 	width: inherit !important;
 }
+
+
+/** overrides for CSyndFeed **/
+.news-item-img {
+	float:left;
+	margin-right: 10px;
+	max-width: 100px;
+}
+
+.news-items li {
+    display:inline-block;
+}
