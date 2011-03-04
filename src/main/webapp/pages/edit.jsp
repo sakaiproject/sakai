@@ -22,7 +22,7 @@
 	<div class="simple-rss-portlet-form">
 				
 		<c:if test="${not empty errorMessage}">
-			<div class="portlet-msg-error"><p>${errorMessage}</p></div>
+			<p class="portlet-msg-error">${errorMessage}</p>
 		</c:if>
 			
 		

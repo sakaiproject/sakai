@@ -280,9 +280,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			images = FeedParser.parseEntryImages(feed);
 		}
 		
-		//cache the data,
-		log.info("Adding data to image cache for: " + feedUrl);
-		imageCache.put(new Element(feedUrl, images));
+		//cache the data
+		if(images.size() > 0) {
+			log.info("Adding data to image cache for: " + feedUrl);
+			imageCache.put(new Element(feedUrl, images));
+		}
 		return images;
 		
 	}
