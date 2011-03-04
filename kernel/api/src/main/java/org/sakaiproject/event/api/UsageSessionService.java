@@ -39,6 +39,7 @@ public interface UsageSessionService
 	public static final String EVENT_LOGIN = "user.login";
 	public static final String EVENT_LOGIN_WS = "user.login.ws";
 	public static final String EVENT_LOGIN_DAV = "user.login.dav";
+	public static final String EVENT_LOGIN_CONTAINER = "user.login.container";
 
 	/** Name for the event of logging out. */
 	public static final String EVENT_LOGOUT = "user.logout";

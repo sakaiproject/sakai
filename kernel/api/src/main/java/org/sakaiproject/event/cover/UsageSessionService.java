@@ -58,7 +58,8 @@ public class UsageSessionService
 	public static java.lang.String EVENT_LOGIN = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN;
 	public static java.lang.String EVENT_LOGIN_WS = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN_WS;
 	public static java.lang.String EVENT_LOGIN_DAV = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN_DAV;
-
+	public static java.lang.String EVENT_LOGIN_CONTAINER = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGIN_CONTAINER;
+	
 	public static java.lang.String EVENT_LOGOUT = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGOUT;
 
 	public static java.lang.String USAGE_SESSION_KEY = org.sakaiproject.event.api.UsageSessionService.USAGE_SESSION_KEY;
