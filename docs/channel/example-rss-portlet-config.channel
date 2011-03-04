@@ -29,8 +29,8 @@
     </parameter>
     <parameter> 
       <name>portletName</name>  
-      <!-- change this to the fname that you want for this portlet instance -->
-      <value>simple-rss-portlet-1</value>  
+      <!-- DO NOT CHANGE THIS (unless you change the portlet-name in portlet.xml) -->
+      <value>simple-rss-portlet</value>  
       <description></description>  
       <ovrd>N</ovrd> 
     </parameter>
