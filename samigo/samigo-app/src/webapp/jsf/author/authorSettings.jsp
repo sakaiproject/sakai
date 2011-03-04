@@ -626,7 +626,7 @@ function setBlockDivs()
 
     <!-- NUMBER OF SUBMISSIONS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
-      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="unlimitedSubmissions" value="#{assessmentSettingsMessages.submissions}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
+      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.submissions}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
       <f:verbatim><table><tr><td></f:verbatim>
         <h:selectOneRadio id="unlimitedSubmissions1" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection" rendered="#{assessmentSettings.itemNavigation!=1}">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
