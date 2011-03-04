@@ -40,7 +40,7 @@ import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
 /**
  * Controls the edit students page (where students are assigned to sections).
  * 
@@ -110,8 +110,16 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		// Reset all lists
 		init();
 	}
+	public String update(){
+		//false as default
+		boolean overrideSections = ServerConfigurationService.getBoolean("sections.override", true);
+		if (overrideSections)
+			return update_with_override();
+		else
+			return update_without_override();
+	}
 	
-	public String update() {
+	private String update_with_override(){
 		CourseSection section = getSectionManager().getSection(sectionUuid);
 		
 		// The section might have been deleted
@@ -170,7 +178,84 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 							Integer.toString(availableUserUuids.size()),
 							Integer.toString(availableUserUuids.size() - availableSectionMax.intValue()) }));
 		}
+		return "overview";
+	}
+	
+	
+	private String update_without_override() {
+		CourseSection section = getSectionManager().getSection(sectionUuid);
 		
+		// The section might have been deleted
+		if(section == null) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_section_deleted"));
+			return "overview";
+		}else{
+			Set selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
+			int totalEnrollments = selectedUserUuids.size();
+			Integer sectionMaxEnrollments = section.getMaxEnrollments();
+			int maxEnrollments = Integer.MAX_VALUE;
+
+			if (sectionMaxEnrollments!=null){
+				maxEnrollments = sectionMaxEnrollments.intValue(); 
+			}
+			
+			try {
+				if(totalEnrollments<=maxEnrollments)
+					getSectionManager().setSectionMemberships(selectedUserUuids, Role.STUDENT, sectionUuid);
+			} catch (RoleConfigurationException rce) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+				return null;
+			}
+			
+			// If the "available" box is a section, update that section's members as well
+			Set availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
+			if(StringUtils.trimToNull(availableSectionUuid) != null) {
+				availableUserUuids = getHighlightedUsers("memberForm:availableUsers");
+				if (totalEnrollments <= maxEnrollments) {			
+					try {
+						getSectionManager().setSectionMemberships(availableUserUuids, Role.STUDENT, availableSectionUuid);					
+					} catch (RoleConfigurationException rce) {
+						JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+						return null;
+					}
+				}
+			}
+			
+			if (totalEnrollments<=maxEnrollments){
+				StringBuffer titles = new StringBuffer();
+				titles.append(sectionTitle);
+				if(StringUtils.trimToNull(availableSectionUuid) != null) {
+					titles.append(" ");
+					titles.append(JsfUtil.getLocalizedMessage("and"));
+					titles.append(" ");
+					titles.append(availableSectionTitle);
+				}
+
+				// Add the success message first, before any caveats (see below)
+				JsfUtil.addRedirectSafeInfoMessage(JsfUtil.getLocalizedMessage(
+						"edit_student_successful", new String[] {titles.toString()}));				
+			}
+
+	
+			// If the selected section is now overenrolled, let the user know
+			if(sectionMax != null && selectedUserUuids.size() > sectionMax.intValue()) {
+				JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+						"edit_student_over_max_warning_try", new String[] {
+								Integer.toString(totalEnrollments),
+								sectionTitle,
+								Integer.toString(totalEnrollments - sectionMax.intValue()) }));
+			}
+	
+			
+			// If the available section is now overenrolled, let the user know
+			if(availableSectionMax != null && availableUserUuids.size() > availableSectionMax.intValue()) {
+				JsfUtil.addRedirectSafeWarnMessage(JsfUtil.getLocalizedMessage(
+						"edit_student_over_max_warning_try", new String[] {
+								Integer.toString(availableUserUuids.size()),
+								availableSectionTitle,
+								Integer.toString(availableUserUuids.size() - availableSectionMax.intValue()) }));
+			}
+		}		
 		return "overview";
 	}
 
