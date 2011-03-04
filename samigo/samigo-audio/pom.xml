@@ -34,7 +34,7 @@
         <profile>
             <id>jarsign</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -49,9 +49,9 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <keystore>${sakai.samigo-audio.jarsign.keystore.location}</keystore>
-                            <alias>${sakai.samigo-audio.jarsign.alias}</alias>
-                            <storepass>${sakai.samigo-audio.jarsign.password}</storepass>
+                            <keystore>/opt/applet-keystore/audio_applet_keystore</keystore>
+                            <alias>audioApplet</alias>
+                            <storepass>password</storepass>
                             <verify>true</verify>
                         </configuration>
                     </plugin>

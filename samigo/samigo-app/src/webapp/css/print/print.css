@@ -129,12 +129,23 @@ blockquote {
 	margin-left:3em;
 }
 
+#qb_print .part_title_text {
+    font-size: 1.2em;
+    color: #01a5cb;
+    padding: 3em 0em 1em 1em;
+    font-weight: normal;
+}
+
 #qb_print .part_title {
     font-size: 1.2em;
     color: #01a5cb;
-    padding: 3em 3em 1em 1em;
     font-weight: normal;
 
+}
+
+#qb_print .part_info {
+    font-weight: normal;
+    padding: 2em;
 }
 
 #qb_print .quiz {

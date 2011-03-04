@@ -145,15 +145,21 @@ document.links[newindex].onclick();
         <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
         <h:column>
           <h:panelGroup id="fullTitle">
-		    <h:panelGroup id="partIntro" styleClass="part_title" rendered="#{printSettings.showPartIntros && pdfAssessment.sizeDeliveryParts > 1}">
-		      <h:outputText id="number" value="#{authorMessages.p} #{partBean.number}: " escape="false" />
-		      <h:outputText id="title" value="#{partBean.title}" escape="false" />
+		    <h:panelGroup id="partIntro" rendered="#{printSettings.showPartIntros && pdfAssessment.sizeDeliveryParts >= 1}">
+		      <h:panelGrid border="0">
+		        <h:panelGroup>
+		          <h:outputText id="number" value="#{authorMessages.p} #{partBean.number}: " escape="false" styleClass="part_title_text" />
+		          <h:outputText id="title" value="#{partBean.title}" escape="false" styleClass="part_title" />
+		        </h:panelGroup>
+		        <h:outputText value = "&nbsp;" escape="false"/>
+		        <h:outputText id="description" value="#{partBean.description}" escape="false" styleClass="part_info" />
+		      </h:panelGrid>
             </h:panelGroup>
           </h:panelGroup>
           
           <!-- BEGIN ASSESSMENT PARTS & QUESTIONS -->
           <h:dataTable id="items" width="100%" headerClass="regHeading" value="#{partBean.itemContents}" var="question"
-                                columnClasses="col-printQNum, col-printQues" rowClasses="item" >
+                                columnClasses="col-printQNum, col-printQues" rowClasses="item" border="0">
             
             <h:column>
               <h:outputText value="<h3>" escape="false" />
