@@ -29,7 +29,7 @@
 		<form method="POST" action="<portlet:actionURL/>" id="<portlet:namespace/>_config">
 		
 			<p><fmt:message key="config.portlet.title" /></p>
-			<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="25"/>
+			<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="40"/>
 			
 			<p><fmt:message key="config.portlet.maxitems" /></p>
 			<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
