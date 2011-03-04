@@ -50,7 +50,7 @@ var dhtml_more_tabs = function() {
 var dhtml_view_sites = function() {
 	// first time through set up the DOM
 	jQuery('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
-	jQuery('#selectSite').css('top','45px');       // set its top position
+	jQuery('#selectSite').css('top','38px');       // set its top position
         jQuery('#selectSite').css('left','4px');
         jQuery('#selectSite').css('margin','0 auto');
         jQuery('#selectSite').css('width','90%');

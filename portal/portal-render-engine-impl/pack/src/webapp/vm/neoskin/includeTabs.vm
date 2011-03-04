@@ -85,7 +85,7 @@
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
         #if (${page.isPage} && $pageCount < 100 )
-<li class="submenuitem"><span><a href="${page.pageRefUrl}" title="${page.pageTitle}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
+<li class="submenuitem"><span><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
         #end
     #end
 </ul>
@@ -177,7 +177,7 @@
       </table>
 *# 
     <script language="javascript" type="text/javascript">
-
+			
          // case insensitive version of :contains
          jQuery.extend(
             jQuery.expr[':'], {
@@ -186,6 +186,8 @@
          );
   
          jQuery(document).ready(function() {
+			var siteTitle = ($('.nav-selected span:first').text())
+			$('.portletTitle h2').prepend(siteTitle + ': ' )
              jQuery('#imgSearch').hide();
              jQuery('#imgSearch').click(function() {
                  resetSearch();
@@ -315,46 +317,8 @@ jQuery(document).ready(function(){
 				</div> <!-- /selectNav -->
 				#end
 #end
-			</div> <!-- /tabsCssClass -->
-                                #if ( $portalBreadCrumbs or $portalPwd ) 
-      			<ul id="siteHierarchy"> 
-     					#set ($tabTotal =0)
-      					#foreach ( $pwd in $portalPwd )
-          					#set ($tabTotal =$tabTotal + 1)       
-                                        #end
-      					#foreach ( $crumb in $portalBreadCrumbs )
-          					#set ($tabTotal = $tabTotal + 1)       
-                                        #end
-     				 	#set ($tabCountBread =0)
-      					#foreach ( $pwd in $portalPwd )
-          					#set ($tabCountBread =$tabCountBread + 1)       
-          			<li>
-          					#if ($tabCountBread > 1)
-                		<span class="breadSeparator">${rloader.bread_separator}</span>
-          					#end
-          					## note: keep all the tags in this block in the same line 
-						#if ($tabCountBread == $tabTotal )
-                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
-						#else
-                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
-						#end
-                  	</li>
-      					#end
-      					#foreach ( $pwd in $portalBreadCrumbs )
-          					#set ($tabCountBread =$tabCountBread + 1)       
-          			<li>
-          					#if ($tabCountBread > 1)
-                		<span class="breadSeparator">${rloader.bread_separator}</span>
-          					#end
-          					## note: keep all the tags in this block in the same line 
-						#if ($tabCountBread == $tabTotal )
-                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
-						#else
-                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
-						#end
-                  	</li>
-      					#end
-      			</ul>
-				#end
+			</div>
+			 <!-- /tabsCssClass -->
+
 <!-- end includeTabs -->
 <!-- END from includeTabs.vm -->

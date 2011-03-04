@@ -191,9 +191,10 @@
 			#end
 			<!-- end include Bottom -->
 				</div>
-				<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
+				<div class="sakaiCopyrightInfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
+				<div id="footerAppTray">appTray</div>
 			</div>
 #else
 <!-- dont compact -->
