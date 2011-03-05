@@ -1,6 +1,7 @@
 package org.sakaiproject.scheduler.events.hibernate;
 
 import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
+import org.sakaiproject.springframework.orm.hibernate.EnumUserType;
 
 /**
  * This custom user type was created based on the EnumUserType class modelled at:
