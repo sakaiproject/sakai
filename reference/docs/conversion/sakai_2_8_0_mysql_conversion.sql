@@ -31,7 +31,7 @@ alter table GB_GRADE_RECORD_T add column USER_ENTERED_GRADE varchar(255) default
 -- MSGCNTR-309 start and end dates on Forums and Topics
 alter table MFR_AREA_T add column AVAILABILITY_RESTRICTED bit;
 update MFR_AREA_T set AVAILABILITY_RESTRICTED=0 where AVAILABILITY_RESTRICTED is null;
-alter table MFR_AREA_T modify column AVAILABILITY_RESTRICTED bit not null default '';
+alter table MFR_AREA_T modify column AVAILABILITY_RESTRICTED bit not null default '0';
 
 alter table MFR_AREA_T add column AVAILABILITY bit;
 update MFR_AREA_T set AVAILABILITY=1 where AVAILABILITY is null;
@@ -43,7 +43,7 @@ alter table MFR_AREA_T add column CLOSE_DATE datetime;
 
 alter table MFR_OPEN_FORUM_T add column AVAILABILITY_RESTRICTED bit;
 update MFR_OPEN_FORUM_T set AVAILABILITY_RESTRICTED=0 where AVAILABILITY_RESTRICTED is null;
-alter table MFR_OPEN_FORUM_T modify column AVAILABILITY_RESTRICTED bit not null default '';
+alter table MFR_OPEN_FORUM_T modify column AVAILABILITY_RESTRICTED bit not null default '0';
 
 alter table MFR_OPEN_FORUM_T add column AVAILABILITY bit;
 update MFR_OPEN_FORUM_T set AVAILABILITY=1 where AVAILABILITY is null;
@@ -55,7 +55,7 @@ alter table MFR_OPEN_FORUM_T add column CLOSE_DATE datetime;
 
 alter table MFR_TOPIC_T add column AVAILABILITY_RESTRICTED bit;
 update MFR_TOPIC_T set AVAILABILITY_RESTRICTED=0 where AVAILABILITY_RESTRICTED is null;
-alter table MFR_TOPIC_T modify column AVAILABILITY_RESTRICTED bit not null default '';
+alter table MFR_TOPIC_T modify column AVAILABILITY_RESTRICTED bit not null default '0';
 
 alter table MFR_TOPIC_T add column AVAILABILITY bit;
 update MFR_TOPIC_T set AVAILABILITY=1 where AVAILABILITY is null;
