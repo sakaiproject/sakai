@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-private</artifactId>
-	    <version>1.2.0-SNAPSHOT</version>
+	    <version>${sakai.kernel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
