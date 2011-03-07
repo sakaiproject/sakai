@@ -763,19 +763,8 @@ public class MySearch extends BasePage {
 		if (null == searchHistoryCookie) {
 			searchHistory = new StringBuilder();
 		} else {
-			searchHistory = new StringBuilder(searchHistoryCookie.getValue());
-		}
-		
-		// TODO remove duplicates?
-		
-		String[] recentSearches = searchHistory.toString().split(ProfileConstants.SEARCH_HISTORY_COOKIE_DELIMITER);
-		if (recentSearches.length == ProfileConstants.DEFAULT_MAX_SEARCH_HISTORY) {
-			searchHistory = new StringBuilder();
-			// remove oldest previous search
-			for (int i = 1; i < ProfileConstants.DEFAULT_MAX_SEARCH_HISTORY; i++) {
-				searchHistory.append(recentSearches[i]);
-				searchHistory.append(ProfileConstants.SEARCH_HISTORY_COOKIE_DELIMITER);
-			}
+			String[] recentSearches = searchHistoryCookie.getValue().toString().split(ProfileConstants.SEARCH_HISTORY_COOKIE_DELIMITER);
+			searchHistory = cleanSearchHistory(recentSearches, searchText);
 		}
 		
 		searchHistory.append(searchCookieValuePrefix);
@@ -789,6 +778,33 @@ public class MySearch extends BasePage {
 		// don't persist indefinitely
 		searchHistoryCookie.setMaxAge(-1);
 		getWebRequestCycle().getWebResponse().addCookie(searchHistoryCookie);
+	}
+
+	private StringBuilder cleanSearchHistory(String[] recentSearches,
+			String newSearch) {
+		StringBuilder searchHistory = new StringBuilder();
+
+		// remove oldest previous search
+		int firstSearch;
+		if (recentSearches.length == ProfileConstants.DEFAULT_MAX_SEARCH_HISTORY) {
+			firstSearch = 1;
+		} else {
+			firstSearch = 0;
+		}
+
+		for (int i = firstSearch; i < recentSearches.length; i++) {
+			// check for duplicates			
+			if (false == recentSearches[i]
+					.substring(recentSearches[i].indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR) + 1)
+					.equals(newSearch)) {
+				
+				searchHistory.append(recentSearches[i]);
+				searchHistory.append(ProfileConstants.SEARCH_HISTORY_COOKIE_DELIMITER);
+			}
+
+		}
+		return searchHistory;
+
 	}
 	
 	private int getCookiePageNumber() {
