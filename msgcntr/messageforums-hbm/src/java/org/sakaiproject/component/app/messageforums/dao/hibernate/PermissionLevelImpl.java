@@ -331,7 +331,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
     		result = result + temp;
     }
     catch(Exception e){
-    	throw new Error(e);
+    	throw new RuntimeException(e);
     }
         
     return result;    

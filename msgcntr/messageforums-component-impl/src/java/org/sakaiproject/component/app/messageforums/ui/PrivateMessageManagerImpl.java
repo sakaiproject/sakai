@@ -1361,7 +1361,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       LOG.error("markMessageAsReadForUser(message: " + message
           + ") has empty recipient list");
-      throw new Error("markMessageAsReadForUser(message: " + message
+      throw new RuntimeException("markMessageAsReadForUser(message: " + message
           + ") has empty recipient list");
     }
     
@@ -1426,7 +1426,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  {
 		  LOG.error("markMessageAsUnreadForUser(message: " + message
 				  + ") has empty recipient list");
-		  throw new Error("markMessageAsUnreadForUser(message: " + message
+		  throw new RuntimeException("markMessageAsUnreadForUser(message: " + message
 				  + ") has empty recipient list");
 
 	  }
@@ -1494,7 +1494,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     {
       LOG.error("getPrivateMessageWithRecipients(message: " + message
           + ") could not find message");
-      throw new Error("getPrivateMessageWithRecipients(message: " + message
+      throw new RuntimeException("getPrivateMessageWithRecipients(message: " + message
           + ") could not find message");
     }
 
