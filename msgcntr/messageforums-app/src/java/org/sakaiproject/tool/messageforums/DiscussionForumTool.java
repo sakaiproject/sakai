@@ -4023,14 +4023,14 @@ public class DiscussionForumTool
 		  selectedMessage = null;
 	  }
 
-	  if(selectedForum == null || (forumId != null && !selectedForum.getForum().getId().equals(forumId))){
+	  if(selectedForum == null || (forumId != null && !selectedForum.getForum().getId().toString().equals(forumId))){
 		  DiscussionForum forum = forumManager.getForumById(Long.parseLong(forumId));
 		  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
 	  }
 
 	  if(topicId == null || "".equals(topicId)){
 		  selectedTopic = null;
-	  }else if(selectedTopic == null || !selectedTopic.getTopic().getId().equals(topicId)){
+	  }else if(selectedTopic == null || !selectedTopic.getTopic().getId().toString().equals(topicId)){
 		  DiscussionTopic topic = forumManager.getTopicById(Long.parseLong(topicId));
 		  selectedTopic = getDecoratedTopic(topic);
 	  }    
