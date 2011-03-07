@@ -44,6 +44,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -456,8 +457,17 @@ public class MySearch extends BasePage {
 		Label searchHistoryLabel = new Label("searchHistoryLabel", new ResourceModel("text.search.history"));
 		searchHistoryContainer.add(searchHistoryLabel);
 		
-		// TODO model needs to update
-		ListView<String> searchHistoryList = new ListView<String>("searchHistoryList", getPreviousSearches()) {
+		IModel<List<String>> searchHistoryModel =  new LoadableDetachableModel<List<String>>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected List<String> load() {
+				return getPreviousSearches();
+			}
+			
+		};
+		ListView<String> searchHistoryList = new ListView<String>("searchHistoryList", searchHistoryModel) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -497,7 +507,6 @@ public class MySearch extends BasePage {
 				item.add(link);
 			}
 		};
-		searchHistoryList.setOutputMarkupPlaceholderTag(true);
 		
 		searchHistoryContainer.add(searchHistoryList);
 		add(searchHistoryContainer);
@@ -656,7 +665,6 @@ public class MySearch extends BasePage {
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
 			target.addComponent(resultsContainer);
-			// TODO model of search history listview needs to be updated
 			searchHistoryContainer.setVisible(true);
 			target.addComponent(searchHistoryContainer);
 			target.appendJavascript("setMainFrameHeight(window.name);");
@@ -727,7 +735,6 @@ public class MySearch extends BasePage {
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
 			target.addComponent(resultsContainer);
-			// TODO model of search history listview needs to be updated
 			searchHistoryContainer.setVisible(true);
 			target.addComponent(searchHistoryContainer);
 			target.appendJavascript("setMainFrameHeight(window.name);");
