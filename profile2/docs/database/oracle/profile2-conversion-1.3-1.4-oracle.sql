@@ -16,7 +16,7 @@ create table PROFILE_MESSAGES_T (
 	FROM_UUID varchar2(99) not null,
 	MESSAGE_BODY varchar2(4000) not null,
 	MESSAGE_THREAD varchar2(36) not null,
-	DATE_POSTED date not null,
+	DATE_POSTED timestamp(6) not null,
 	primary key (ID)
 );
 
@@ -79,7 +79,7 @@ create table PROFILE_KUDOS_T (
 	USER_UUID varchar2(99) not null,
 	SCORE number(10,0) not null,
 	PERCENTAGE number(19,2) not null,
-	DATE_ADDED date not null,
+	DATE_ADDED timestamp(6) not null,
 	primary key (USER_UUID)
 );
 
