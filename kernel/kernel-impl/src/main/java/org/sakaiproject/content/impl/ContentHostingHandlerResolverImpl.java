@@ -29,7 +29,7 @@ import org.sakaiproject.util.StorageUser;
 /**
  * <p>
  * Implementation of the Handler Resolver. This class chains back to the storage to get local entities but then resolves the IDs through to virtual content entities based on the name ContentHostingHandlers. The primary 3 methods are getRealParent(),
- * getVirtualEntity(), and getVirtualChild(). The remaining methods are largely plumbing, proxying the Storage mechanism that is being used. The Storage mechanims must be aware that this code will cause re-entry into the Sotrage methods and so the Storage
+ * getVirtualEntity(), and getVirtualChild(). The remaining methods are largely plumbing, proxying the Storage mechanism that is being used. The Storage mechanims must be aware that this code will cause re-entry into the Storage methods and so the Storage
  * <b>must</b> implement some sort of call stack advisor to prevent recursion.
  * </p>
  * <p>
@@ -82,8 +82,8 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 		if (ce == null)
 		{
 			if (id.equals(Entity.SEPARATOR)) {
-				// If the entity is the root and we didint get anything, there is nothing we can do
-				// no root, no content, no point in trying to get annother one
+				// If the entity is the root and we didn't get anything, there is nothing we can do
+				// no root, no content, no point in trying to get another one
 				log.fatal("Unable to get Root node of the repository");
 				throw new AssertionError("Unable to Get Root repository "+Entity.SEPARATOR);
 			}

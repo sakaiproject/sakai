@@ -64,6 +64,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.KernelConfigurationError;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
@@ -1043,7 +1044,11 @@ public class DbContentService extends BaseContentService
                          * While this may be harmful is bad practice and prevents us identifying real issues
                          */
                         cleanup(connection, statement, rs, selectStatement, updateStatement);
-                        System.exit(-10);
+                        throw new KernelConfigurationError("There are migrated content collection entries in the \n" +
+                        		"BINARY_ENTITY column  of CONTENT_RESOURCE_DELETE you must ensure that this \n" +
+                        		"data is not required and set all entries to null before starting \n" +
+                        		"up with migrate data disabled. Failure to do this could loose \n" +
+                        "updates since this database was upgraded");
                     }
                 }
 
