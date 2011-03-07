@@ -88,7 +88,7 @@ public class PagingPosition implements Cloneable
 		}
 		catch (CloneNotSupportedException ignore)
 		{
-			throw new Error("Assertion failure");
+			throw new RuntimeException("Assertion failure");
 		}
 	}
 

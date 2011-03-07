@@ -85,7 +85,7 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 				// If the entity is the root and we didint get anything, there is nothing we can do
 				// no root, no content, no point in trying to get annother one
 				log.fatal("Unable to get Root node of the repository");
-				throw new Error("Unable to Get Root repository "+Entity.SEPARATOR);
+				throw new AssertionError("Unable to Get Root repository "+Entity.SEPARATOR);
 			}
 			int lastSlash = id.lastIndexOf(Entity.SEPARATOR, id.length() - 2);
 			if (lastSlash > 0)

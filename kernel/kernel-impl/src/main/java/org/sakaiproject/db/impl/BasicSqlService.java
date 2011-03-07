@@ -30,7 +30,13 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -277,7 +283,7 @@ public abstract class BasicSqlService implements SqlService
 			}
 			catch (SQLException e)
 			{
-				throw new Error(e);
+				throw new AssertionError(e);
 			}
 		}
 	}
