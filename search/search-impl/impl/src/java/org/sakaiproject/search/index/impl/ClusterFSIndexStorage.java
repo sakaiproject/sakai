@@ -657,14 +657,14 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 										+ mergeIndexWriter.docCount() + " documents ");
 							}
 
-							mergeIndexWriter.close();
+							
 							// mark the segment as create and ready of upload
 							mergeSegment.setCreated();
 							mergeSegment.touchSegment();
 
 							if (log.isDebugEnabled())
 								log.debug("Done " + groupstomerge[i]);
-							mergeIndexWriter = null;
+							
 							// remove old segments
 							mergeOk = true;
 						}
@@ -672,14 +672,6 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						{
 							log.error("Failed to merge search segments "
 									+ ex.getMessage());
-							try
-							{
-								mergeIndexWriter.close();
-							}
-							catch (Exception ex2)
-							{
-								log.debug(ex2);
-							}
 							try
 							{
 								clusterFS.removeLocalSegment(mergeSegment);
