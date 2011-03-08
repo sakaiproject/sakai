@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -496,6 +497,38 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 		return prefs;
 	}
 
+	
+	
+	/**
+	 ** Get user's preferred locale (or null if not set)
+	 ***/
+	public Locale getLocale(String userId)
+	{
+		Locale loc = null;
+		Preferences prefs = getPreferences(userId);
+		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
+		String localeString = locProps.getProperty(Preferences.FIELD_LOCALE);
+		
+		// Parse user locale preference if set
+		if (localeString != null)
+		{
+			String[] locValues = localeString.split("_");
+			if (locValues.length > 2)
+				loc = new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+			else if (locValues.length == 2)
+				loc = new Locale(locValues[0], locValues[1]); // language, country
+			else if (locValues.length == 1) 
+				loc = new Locale(locValues[0]); // just language
+		}
+		
+		return loc;
+	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * @inheritDoc
 	 */

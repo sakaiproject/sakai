@@ -21,6 +21,8 @@
 
 package org.sakaiproject.user.cover;
 
+import java.util.Locale;
+
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -122,5 +124,12 @@ public class PreferencesService
 		if (service == null) return null;
 
 		return service.edit(param0);
+	}
+	
+	public static Locale getLocale(String userId) {
+		org.sakaiproject.user.api.PreferencesService service = getInstance();
+		if (service == null) return null;
+
+		return service.getLocale(userId);
 	}
 }

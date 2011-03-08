@@ -21,6 +21,8 @@
 
 package org.sakaiproject.user.api;
 
+import java.util.Locale;
+
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -118,4 +120,12 @@ public interface PreferencesService extends EntityProducer
 	 *        The PreferencesEdit object to remove.
 	 */
 	void remove(PreferencesEdit edit);
+	
+	
+	/**
+	 *  Get user's preferred locale (or null if not set)
+	 * @param userId
+	 * @return
+	 */
+	public Locale getLocale( String userId );
 }

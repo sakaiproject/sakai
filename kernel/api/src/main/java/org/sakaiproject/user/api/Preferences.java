@@ -33,6 +33,12 @@ import org.sakaiproject.entity.api.ResourceProperties;
  */
 public interface Preferences extends Entity, Comparable
 {
+	
+	/**
+	 * Field in which the users local preference is stored
+	 */
+	public static String FIELD_LOCALE = "locale";
+	
 	/**
 	 * Access the user of the user who owns these Preferences.
 	 * 

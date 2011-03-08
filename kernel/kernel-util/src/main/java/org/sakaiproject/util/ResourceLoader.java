@@ -213,6 +213,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 					 loc = setContextLocale(null);
 			 }
 		 }
+		 //FIXME NPE's should not be explicitly caught - rather check the session above fo null
 		 catch(NullPointerException e) 
 		 {
 			if (M_log.isWarnEnabled()) {
@@ -250,26 +251,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	/**
 	 ** Get user's preferred locale (or null if not set)
 	 ***/
-	public Locale getLocale( String userId )
+	public Locale getLocale(String userId)
 	{
-		Locale loc = null;
-		Preferences prefs = PreferencesService.getPreferences(userId);
-		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
-		String localeString = locProps.getProperty(LOCALE_KEY);
-		
-		// Parse user locale preference if set
-		if (localeString != null)
-		{
-			String[] locValues = localeString.split("_");
-			if (locValues.length > 2)
-				loc = new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-			else if (locValues.length == 2)
-				loc = new Locale(locValues[0], locValues[1]); // language, country
-			else if (locValues.length == 1) 
-				loc = new Locale(locValues[0]); // just language
-		}
-		
-		return loc;
+		return PreferencesService.getLocale(userId);
 	}
 	
 	/**
