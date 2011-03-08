@@ -623,7 +623,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			     if (page == null) {
 				 page = site.addPage(); 
-				 tool = page.addTool();
+				 tool = page.addTool(LESSONBUILDER_ID);
 			     }
 
 			     String toolId = tool.getPageId();
@@ -632,7 +632,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				 continue;
 			     }
 
-			     tool.setTool(LESSONBUILDER_ID, tr);
 			     tool.setTitle(toolTitle);
 			     if (rolelist != null)
 				 tool.getPlacementConfig().setProperty("functions.require", rolelist);

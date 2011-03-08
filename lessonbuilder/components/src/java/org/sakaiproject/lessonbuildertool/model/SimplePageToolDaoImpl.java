@@ -357,4 +357,25 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	return new SimplePageLogEntryImpl(userId, itemId);
     }
 
+    public SimplePageItem copyItem(SimplePageItem old) {
+	SimplePageItem item =  new SimplePageItemImpl();
+	item.setPageId(old.getPageId());
+	item.setSequence(old.getSequence());
+	item.setType(old.getType());
+	item.setSakaiId(old.getSakaiId());
+	item.setName(old.getName());
+	item.setHtml(old.getHtml());
+	item.setDescription(old.getDescription());
+	item.setHeight(old.getHeight());
+	item.setWidth(old.getWidth());
+	item.setAlt(old.getAlt());
+	item.setNextPage(old.getNextPage());
+	item.setFormat(old.getFormat());
+	item.setRequired(old.isRequired());
+	item.setAlternate(old.isAlternate());
+	item.setPrerequisite(old.isPrerequisite());
+	item.setSubrequirement(old.getSubrequirement());
+	item.setRequirementText(old.getRequirementText());
+	return item;
+   }
 }

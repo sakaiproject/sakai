@@ -78,6 +78,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -124,6 +125,7 @@ public class SimplePageBean {
         public static final String FILTERHTML = "lessonbuilder.filterhtml";
         public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
+        public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
 
 	private static String PAGE = "simplepage.page";
 	private static String SITE_UPD = "site.upd";
@@ -133,6 +135,7 @@ public class SimplePageBean {
 	private SimplePageToolDao simplePageToolDao;
 	private String contents = null;
 	private String pageTitle = null;
+	private String newPageTitle = null;
 	private String subpageTitle = null;
         private boolean subpageNext = false;
         private boolean subpageButton = false;
@@ -179,6 +182,9 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
         private String mimetype;
+
+        private String numberOfPages;
+        private boolean copyPage;
 
 	private String alt = null;
 	private String order = null;
@@ -379,6 +385,18 @@ public class SimplePageBean {
 
 	public void setPageTitle(String title) {
 		pageTitle = title;
+	}
+
+	public void setNewPageTitle(String title) {
+		newPageTitle = title;
+	}
+
+	public void setNumberOfPages(String n) {
+		numberOfPages = n;
+	}
+
+	public void setCopyPage(boolean c) {
+		this.copyPage = c;
 	}
 
 	public String getContents() {
@@ -1625,9 +1643,83 @@ public class SimplePageBean {
 		}
 	}
 
-    // when a gradebook entry is added or point value for page changed, need to
-    // add or update all student entries for the page
-    // this only updates grades for users that are complete. Others should have 0 score, which won't change
+	public String addPages()  {
+	    // javascript should have checked all this
+	    if (newPageTitle == null || newPageTitle.equals(""))
+		return "fail";
+
+	    int numPages = 1;
+	    if (numberOfPages !=null && !numberOfPages.equals(""))
+		numPages = Integer.valueOf(numberOfPages);
+	    
+	    String prefix = "";
+	    String suffix = "";
+	    int start = 1;
+
+	    if (numPages > 1) {
+		Pattern pattern = Pattern.compile("(\\D*)(\\d+)(.*)");
+		Matcher matcher = pattern.matcher(newPageTitle);
+
+		if (!matcher.matches())
+		    return "fail";
+
+		prefix = matcher.group(1);
+		suffix = matcher.group(3);
+		start = Integer.parseInt(matcher.group(2));
+	    }
+
+	    if (numPages == 1) {
+		addPage(newPageTitle, copyPage);
+	    } else {
+		while (numPages > 0) {
+		    String title = prefix + Integer.toString(start) + suffix;
+		    addPage(title, copyPage);		    
+		    numPages--;
+		    start++;
+		}
+	    }
+	    return "success";
+	}
+
+        private void addPage(String title, boolean copyCurrent) {
+
+	    Site site = getCurrentSite();
+	    SitePage sitePage = site.addPage();
+
+	    ToolConfiguration tool = sitePage.addTool(LESSONBUILDER_ID);
+	    tool.setTitle(title);
+	    String toolId = tool.getPageId();
+
+	    sitePage.setTitle(title);
+	    sitePage.setTitleCustom(true);
+	    try {
+		siteService.save(site);
+	    } catch (Exception e) {
+		System.out.println("SimplePageBean unable to save site " + e);
+	    }
+	    currentSite = null; // force refetch, since we've changed it
+
+	    SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
+	    simplePageToolDao.saveItem(page);
+
+	    SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
+	    simplePageToolDao.saveItem(item);
+
+	    if (copyCurrent) {
+		long oldPageId = getCurrentPageId();
+		long newPageId = page.getPageId();
+		for (SimplePageItem oldItem: simplePageToolDao.findItemsOnPage(oldPageId)) {
+		    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
+		    newItem.setPageId(newPageId);
+		    simplePageToolDao.saveItem(newItem);
+		}
+	    }
+
+	}
+
+        // when a gradebook entry is added or point value for page changed, need to
+        // add or update all student entries for the page
+        // this only updates grades for users that are complete. Others should have 0 score, which won't change
 	public void recomputeGradebookEntries(Long pageId, String newPoints) {
 	    Map<String, String> userMap = new HashMap<String,String>();
 	    List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(pageId));
@@ -1638,7 +1730,7 @@ public class SimplePageBean {
 		for (String user: users)
 		    userMap.put(user, newPoints);
 	    }
-
+	    
 	    gradebookIfc.updateExternalAssessmentScores(getCurrentSiteId(), "lesson-builder:" + pageId, userMap);
 	}
 

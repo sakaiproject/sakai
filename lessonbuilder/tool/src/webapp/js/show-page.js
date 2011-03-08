@@ -45,6 +45,14 @@ $(function() {
 		draggable: false
 	});
 	
+	$('#new-page-dialog').dialog({
+		autoOpen: false,
+		width: 600,
+		modal: false,
+		resizable: false,
+		draggable: false
+	});
+
 	$('#youtube-dialog').dialog({
 		autoOpen: false,
 		width: 600,
@@ -98,6 +106,14 @@ $(function() {
 		}
 	    });
 
+	$('#new-page').click(function(){
+		var position =  $(this).position();
+		$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
+		$('.hideOnDialog').hide();
+		$('#new-page-dialog').dialog('open');
+		return false;
+	});
+
 	var outerWidth = $('#outer').width();
 	if (outerWidth < 500) {
 	    $("#subpage-dialog").dialog("option", "width", outerWidth-10);
@@ -105,6 +121,7 @@ $(function() {
 	    $("#edit-multimedia-dialog").dialog("option", "width", outerWidth-10);
 	    $("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
 	    $("#edit-title-dialog").dialog("option", "width", outerWidth-10);
+	    $("#new-page-dialog").dialog("option", "width", outerWidth-10);
 	    $("#youtube-dialog").dialog("option", "width", outerWidth-10);
 	    $("#movie-dialog").dialog("option", "width", outerWidth-10);
 	    $("#subpage-link").dialog("option", "width", outerWidth-10);
@@ -506,6 +523,7 @@ $(function() {
 	 });
 	
 	$('#edit-title-error-container').hide();
+	$('#new-page-error-container').hide();
 	$('#edit-item-error-container').hide();
 	$('#subpage-error-container').hide();
 	$("#require-label2").hide();
@@ -538,6 +556,11 @@ function closeEditTitleDialog() {
 	$('#edit-title-error-container').hide();
 }
 
+function closeNewPageDialog() {
+	$('#new-page-dialog').dialog('close');
+	$('#new-page-error-container').hide();
+}
+
 function closeYoutubeDialog() {
 	$('#edit-youtube-error-container').hide();
 	$('#youtube-dialog').dialog('close');
@@ -556,6 +579,30 @@ function checkEditTitleForm() {
 		$('#edit-title-error-container').hide();
 		return true;
 	}
+}
+
+// these tests assume \d finds all digits. This may not be true for non-Western charsets
+function checkNewPageForm() {
+    if($('#newPage').val() == '') {
+        $('#new-page-error').text(msg("simplepage.title_notblank"));
+        $('#new-page-error-container').show();
+        return false;
+    }
+    if($('#new-page-number').val() != '') {
+        if(! $('#new-page-number').val().match('^\\d*$')) {
+            $('#new-page-error').text(msg("simplepage.number_pages_not_number"));
+            $('#new-page-error-container').show();
+            return false;
+        }
+        if (!$('#newPage').val().match('\\d')) {
+            $('#new-page-error').text(msg("simplepage.title_no_number"));
+            $('#new-page-error-container').show();
+            return false;
+        }
+    }
+    $('#new-page-error-container').hide();
+    return true;
+
 }
 
 function checkYoutubeForm() {

@@ -43,6 +43,12 @@ public interface SimplePageItem {
     // sakaiId used for an item copied from another site with no real content
         public static final String DUMMY = "/dummy";
 
+
+    /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. 
+       If you change this, make very sure you change the archive and restore code in LessonBuilderEntityProducer
+       and the copy code here.  Also copyItem in SimplePageBean.
+       WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. */
+
     public long getId();
 
     public long getPageId();

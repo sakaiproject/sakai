@@ -112,4 +112,6 @@ public interface SimplePageToolDao {
 
     public SimplePageLogEntry makeLogEntry(String userId, long itemId);
 
+    public SimplePageItem copyItem(SimplePageItem old);
+
 }

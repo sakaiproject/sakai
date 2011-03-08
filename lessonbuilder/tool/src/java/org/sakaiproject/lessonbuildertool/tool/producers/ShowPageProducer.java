@@ -355,6 +355,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "edit-title").
 			    decorate(new UIFreeAttributeDecorator("title", 
 				 messageLocator.getMessage("simplepage.editTitle")));
+			if (pageItem.getPageId() == 0) {// top level page
+			    UIOutput.make(tofill, "new-page").
+				decorate(new UIFreeAttributeDecorator("title", 
+				      messageLocator.getMessage("simplepage.new-page-tooltip")));
+			}
+
 			UIOutput.make(tofill, "dialogDiv");
 		} else if (!simplePageBean.canReadPage())
 		        return;
@@ -912,6 +918,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createAddMultimediaDialog(tofill, currentPage);
 		createEditMultimediaDialog(tofill, currentPage);
 		createEditTitleDialog(tofill, currentPage, pageItem);
+		createNewPageDialog(tofill, currentPage, pageItem);
 		createYoutubeDialog(tofill);
 		createMovieDialog(tofill, currentPage);
 	}
@@ -1416,6 +1423,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "create-title", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.editTitle}");
 		UICommand.make(form, "cancel-title", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+	}
+
+	private void createNewPageDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
+		UIOutput.make(tofill, "new-page-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page")));
+
+		UIForm form = UIForm.make(tofill, "new-page-form");
+
+		UIInput.make(form, "newPage", "#{simplePageBean.newPageTitle}");
+
+		UIInput.make(form, "new-page-number", "#{simplePageBean.numberOfPages}");
+
+		UIBoundBoolean.make(form, "new-page-copy", "#{simplePageBean.copyPage}", false);
+
+		UICommand.make(form, "new-page-submit", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.addPages}");
+		UICommand.make(form, "new-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 
     /* 

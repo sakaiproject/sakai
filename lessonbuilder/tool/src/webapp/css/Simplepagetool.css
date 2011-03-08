@@ -86,6 +86,15 @@
 	border-width:2px;
 	width:100%;
 }
+
+.inset-text {
+	margin-top:1em;
+	border-style:solid;
+	padding-left:.5em;
+	border-width:2px;
+	width:97%;
+}
+
 .disabled:link {
 	color:#cccccc;	
 }

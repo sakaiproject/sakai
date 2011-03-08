@@ -60,7 +60,7 @@ setMainFrameHeight(window.name);
 		
 		<br rsf:id="breakAfterWarnings" />
 		
-		<div><a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note" style="float:right"></a><span class="title" rsf:id="pagetitle"></span><a class="usebutton" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a> </div>
+		<div><a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note" style="float:right"></a><span class="title" rsf:id="pagetitle"></span><a class="usebutton" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a> <a class="usebutton" href="#" rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a> </div>
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar">
 			<a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a>
@@ -214,6 +214,8 @@ setMainFrameHeight(window.name);
 			  <p rsf:id="msg=simplepage.edit_quiz_settings" id="simplepage.edit_quiz_settings"></p>
 			  <p rsf:id="msg=simplepage.edit_assignment" id="simplepage.edit_assignment"></p>
 			  <p rsf:id="msg=simplepage.edit_topic" id="simplepage.edit_topic"></p>
+			  <p rsf:id="msg=simplepage.number_pages_not_number" id="simplepage.number_pages_not_number"></p>
+			  <p rsf:id="msg=simplepage.title_no_number" id="simplepage.title_no_number"></p>
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -449,9 +451,9 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 					
 					<div rsf:id="hideContainer">
 						<input type="checkbox" id="page-prerequisites" rsf:id="page-prerequisites" />
-						<label for="page-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label><br />
+						<label for="page-prerequisites"><span rsf:id="msg=simplepage.page_prerequisites_label"></span></label><br />
 						<input type="checkbox" id="page-required" rsf:id="page-required" />
-						<label for="page-required"><span rsf:id="msg=simplepage.require"></span></label><br />
+						<label for="page-required"><span rsf:id="msg=simplepage.page_require"></span></label><br />
 
 					        <input type="checkbox" id="hide" rsf:id="hide" />
 						<label for="hide"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label><br />
@@ -482,6 +484,41 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 				</form>
 			</div>
 			
+			<div id="new-page-dialog" rsf:id="new-page-dialog">
+			        <div style="margin-bottom: 2em" rsf:id="msg=simplepage.new-page-explanation"></div>
+				<div class="ui-widget" id="new-page-error-container">
+					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+						<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="new-page-error"></span></p>
+					</div>
+				</div>
+
+				<form action="#" rsf:id="new-page-form">
+					<p class="shorttext required">
+						<span class="reqStar">*</span>
+						<label rsf:id="msg=simplepage.new-page-title" for="newPage"></label>
+						<input rsf:id="newPage" id="newPage" /><br />
+					</p>
+					
+					<label for="new-page-number"><span rsf:id="msg=simplepage.new-page-number"></span></label>
+					<input type="text" name="new-page-number" id="new-page-number" rsf:id="new-page-number" />
+					<span rsf:id="msg=simplepage.new-page-number-2"></span>
+					<br />
+
+					<input type="checkbox" name="new-page-copy" id="new-page-copy" rsf:id="new-page-copy" />
+					<label for="new-page-copy"><span rsf:id="msg=simplepage.new-page-copy"></span></label><br />
+
+					<div style="margin-top: .5em"></div>
+					<input class="bold" type="submit" onclick="event.returnValue = checkNewPageForm(); return checkNewPageForm();" rsf:id="new-page-submit" />
+					<input type="submit" rsf:id="new-page-cancel"  onclick="closeNewPageDialog(); return false" />
+					<div class="inset-text">
+					  <p rsf:id="msg=simplepage.new-page-explanation-1"></p>
+					  <p rsf:id="msg=simplepage.new-page-explanation-2"></p>
+					</div>
+
+				</form>
+			</div>
+
 			<div id="youtube-dialog" rsf:id="youtube-dialog">
 				<div class="ui-widget" id="edit-youtube-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 

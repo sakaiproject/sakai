@@ -31,6 +31,11 @@ public interface SimplePage {
     public static String PERMISSION_LESSONBUILDER_READ = "lessonbuilder.read";
     public static String PERMISSION_LESSONBUILDER_PREFIX = "lessonbuilder.";
 
+    /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. 
+       If you change this, make very sure you change the archive and restore code in LessonBuilderEntityProducer
+       and the copy code here.
+       WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. */
+
     public long getPageId();
 
     public void setPageId(long p);
