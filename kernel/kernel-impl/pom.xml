@@ -189,10 +189,10 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
     </dependency>
-    <dependency>
+   <dependency>
       <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp</artifactId>
-      <version>2.1.0</version>
+      <version>3.1.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
