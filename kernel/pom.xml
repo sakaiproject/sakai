@@ -417,11 +417,6 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-        <pluginRepository>
-            <id>xebia-maven2</id>
-            <name>Xebia Maven2 Repository</name>
-            <url>http://mojo.os.xebia.com/repository</url>
-        </pluginRepository>
     </pluginRepositories>
     <repositories>
         <repository>
@@ -816,8 +811,8 @@
     <reporting>
         <plugins>
             <plugin>
-                <groupId>com.xebia.mojo</groupId>
-                <artifactId>maven-dashboard-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dashboard-maven-plugin</artifactId>
                 <configuration>
                     <reports>
                         <report>findbugs-maven-plugin</report>
