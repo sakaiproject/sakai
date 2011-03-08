@@ -107,31 +107,7 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo);
-	
-	
-	/**
-	 * Find all users that match the search string in either name or email. 
-	 * 
-	 * <p>Searches SakaiPerson, UserDirectorySerice internal users as well as external users if your
-	 * provider supports SearchExternalUsersUDP.</p>
-	 * 
-	 * <p>This list is automatically cleaned for non-existent users by way of UserDirectoryService.getUsers.</p>
-	 * 
-	 * @param search 	string to search for
-	 * @return List 	Persons
-	 */
-	public List<Person> findUsersByNameOrEmail(String search);
-
-	/**
-	 * Find all users that match the search string in any of the relevant SakaiPerson fields
-	 *
-	 * <p>This list is automatically cleaned for non-existent users by way of UserDirectoryService.getUsers.</p>
-	 * 
-	 * @param search 	string to search for
-	 * @return List 	Persons
-	 */
-	public List<Person> findUsersByInterest(String search, boolean includeBusinessBio);
-	
+		
 	/**
 	 * Get a BasicPerson
 	 * @param userUuid

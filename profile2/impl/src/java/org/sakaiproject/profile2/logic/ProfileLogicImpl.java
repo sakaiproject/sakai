@@ -283,64 +283,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return false;
 	}
 	
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<Person> findUsersByNameOrEmail(String search) {
-				
-		//add users from SakaiPerson (clean list)
-		List<String> sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);
-		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
-
-		//add local users from UserDirectoryService
-		users.addAll(sakaiProxy.searchUsers(search));
-		
-		//add external users from UserDirectoryService
-		users.addAll(sakaiProxy.searchExternalUsers(search));
-		
-		//remove duplicates
-		ProfileUtils.removeDuplicates(users);
-		
-		log.debug("Found " + users.size() + " results for search: " + search);
-		
-		//restrict to only return the max number. UI will print message
-		int maxResults = sakaiProxy.getMaxSearchResults();
-		if(users.size() >= maxResults) {
-			users = users.subList(0, maxResults);
-		}
-		
-		//remove invisible
-		users = removeInvisibleUsers(users);
-		
-		return getPersons(users);
-	}
-	
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<Person> findUsersByInterest(String search, boolean includeBusinessBio) {
-				
-		//add users from SakaiPerson		
-		List<String> sakaiPersonUuids = dao.findSakaiPersonsByInterest(search, includeBusinessBio);
-		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
-		
-		//restrict to only return the max number. UI will print message
-		int maxResults = sakaiProxy.getMaxSearchResults();
-		if(users.size() >= maxResults) {
-			users = users.subList(0, maxResults);
-		}
-		
-		//remove invisible
-		users = removeInvisibleUsers(users);
-		
-		return getPersons(users);
-	}
-	
-	
-	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -544,33 +486,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return;
 	}
 	
-	
-	
-	
-	/**
-	 * Remove invisible users from the list
-	 * @param users
-	 * @return cleaned list
-	 */
-	private List<User> removeInvisibleUsers(List<User> users){
-		
-		//if superuser return list unchanged.
-		if(sakaiProxy.isSuperUser()){
-			return users;
-		}
-		
-		//get list of invisible users as Users
-		List<User> invisibleUsers = sakaiProxy.getUsers(sakaiProxy.getInvisibleUsers());
-		if(invisibleUsers.isEmpty()) {
-			return users;
-		}
-		
-		//remove
-		users.removeAll(invisibleUsers);
-		
-		return users;
-	}
-	
 	/**
 	 * Convenience method to map a SakaiPerson object onto a UserProfile object
 	 * 
@@ -671,10 +586,6 @@ public class ProfileLogicImpl implements ProfileLogic {
 
 		return sakaiPerson;
 	}
-	
-
-	
-	
 	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {

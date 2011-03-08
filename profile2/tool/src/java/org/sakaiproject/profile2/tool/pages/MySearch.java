@@ -612,7 +612,7 @@ public class MySearch extends BasePage {
 		sbiInterestField.updateModel();
 		
 		//search both UDP and SakaiPerson for matches.
-		results = new ArrayList<Person>(profileLogic.findUsersByNameOrEmail(searchText));
+		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchText));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -682,7 +682,7 @@ public class MySearch extends BasePage {
 		sbnNameField.updateModel();
 		
 		//search SakaiPerson for matches
-		results = new ArrayList<Person>(profileLogic.findUsersByInterest(searchText, sakaiProxy.isBusinessProfileEnabled()));
+		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchText, sakaiProxy.isBusinessProfileEnabled()));
 		Collections.sort(results);
 		
 		int numResults = results.size();

@@ -153,6 +153,14 @@
         	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
         	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
     </bean>
+    
+    <!-- ProfileSearchLogicImpl -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl">
+    		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+    		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
 	
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
