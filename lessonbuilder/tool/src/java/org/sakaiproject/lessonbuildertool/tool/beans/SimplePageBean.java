@@ -1671,6 +1671,11 @@ public class SimplePageBean {
 	    if (numPages == 1) {
 		addPage(newPageTitle, copyPage);
 	    } else {
+		// note sure what to do here. We have to have a maximum to prevent creating 1,000,000 pages due
+		// to a typo. This allows one a week for a year. Surely that's enough. We can make it 
+		// configurable if necessary.
+		if (numPages > 52)
+		    numPages = 52;
 		while (numPages > 0) {
 		    String title = prefix + Integer.toString(start) + suffix;
 		    addPage(title, copyPage);		    
