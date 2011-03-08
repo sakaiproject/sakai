@@ -114,7 +114,7 @@ public class ContainerLogin extends HttpServlet
 			Authentication a = AuthenticationManager.authenticate(e);
 
 			// login the user
-			if (UsageSessionService.login(a, req))
+			if (UsageSessionService.login(a.getUid(), a.getEid(), req.getRemoteAddr(), req.getHeader("user-agent"), UsageSessionService.EVENT_LOGIN_CONTAINER))
 			{
 				// get the return URL
 				String url = getUrl(session, Tool.HELPER_DONE_URL);
