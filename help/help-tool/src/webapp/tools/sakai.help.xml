@@ -8,7 +8,7 @@
 
 		<!-- generic help collections -->
 		<configuration name="help.collections" 
-			value="sakai_iframe_myworkspace,sakai_menubar,sakai_course_sites,sakai_permissions,sakai_accessibility" 
+			value="sakai_iframe_myworkspace,sakai_menubar,sakai_course_sites,sakai_permissions,sakai_accessibility,sakai_editor" 
 			type="final" />	
 
 	</tool>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="editorHelp" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>baep</value></property>
+      <property name="name"><value>Pasting from Microsoft Word</value></property>
+      <property name="location"><value>/sakai_editor/baep.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="menubarCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Rich-text Editor</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="editorHelp"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
