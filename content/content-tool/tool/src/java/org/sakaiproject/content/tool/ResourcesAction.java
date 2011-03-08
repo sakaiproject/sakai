@@ -4191,6 +4191,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("availability_is_enabled", Boolean.TRUE);
 		}
 
+		boolean showWebdavLink = ServerConfigurationService.getBoolean("resources.show_webdav.link", Boolean.TRUE);
+		if (showWebdavLink) {
+			context.put("showWebdavLink", Boolean.TRUE);
+		}
+
 		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
 		
 		List cPath = getCollectionPath(state);
