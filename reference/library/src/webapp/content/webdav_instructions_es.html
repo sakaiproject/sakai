@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>Subir-Bajar M&uacute;ltiples Recursos</title>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").indexOf("portal")));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,(a.getAttribute("href").indexOf("skin") + 5 )));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		// -->
+		</script>
+	</head>
+	<body>
+		<div>
+			<p><strong>Paso 2 - </strong>Seleccione su sistema operativo y siga las instrucciones de configuraci&oacute;n:
+			<ul class="attachList">
+				<li><a href="#desc">Descripci&oacute;n</a></li>
+				<li><a href="#win">Configurar  WebDAV para Windows XP</a></li>
+				<li><a href="#vista">Configurar WebDAV para Windows Vista / Windows 7</a></li>
+				<li><a href="#osx">Configurar WebDAV para Mac (OS 10.0 - 10.3)</a></li>
+				<li><a href="#osxx">Configurar WebDAV para Mac (OS 10.4)</a></li>
+				<li><a href="#linux">Configurar WebDAV para Linux usando la Consola</a></li>				
+			</ul>
+		
+			<a name="desc"></a>
+			<h4>Descripci&oacute;n</h4>
+			<p>La mayor&iacute;a de los sistemas operativos modernos proporcionan soporte para WebDAV, haciendo que los ficheros de un servidor WebDAV aparezcan como almacenados en un directorio local.</p>
+			<p>WebDAV proporciona funcionalidades para crear, cambiar y mover documentos en un servidor remoto (t&uacute;picamente un servidor web). Esto se utiliza sobre todo para permitir la edici&oacute;n de los documentos que sirve un servidor web.</p>
+		  <p>Es posible  copiar un archivo de su sistema local a Recursos usando el bot&oacute;n A&ntilde;adir en la herramienta  Recursos. Si quiere copiar varios archivos o una carpeta entera de una sola vez, el software WebDAV 
+			se puede usar para arrastrar los archivos o carpetas desde el ordenador local a Recursos de Sakai o viceversa.</p>
+			<p>
+				Se requieren varios pasos de configuraci&oacute;n para que su ordenador trate el sitio de Recursos como otra carpeta de su sistema de archivos local. Una vez ha configurado una carpeta para un sitio en particular usando  
+				WebDAV, puede arrastrar archivos y carpetas al &aacute;rea Recursos del sitio desde su ordenador local o viceversa. 
+				Tenga en cuenta que estas conexiones son espec&iacute;ficas del ordenador que est&aacute; usando, as&iacute; que si cambia el/los ordenadores tendr&aacute; que configurar la conexi&oacute;n de nuevo.
+			</p>
+			
+			<p>
+				Una vez configurado su cliente WebDav, se le solicitar&aacute;n su usuario y contrase&ntilde;a para el acceso a los datos. DEBE INDICAR EL USUARIO Y CONTRASE&Ntilde;A CON EL QUE ACCEDI&Oacute; A SAKAI.				
+			</p>
+			<a name="win"></a>
+		
+			<h4>Configurar WebDAV para Windows XP</h4>
+			<p>
+				Nota: Debe haber al menos un objeto (archivo, carpeta etc.) en el &aacute;rea de recursos del sitio  antes de comenzar el proceso de configuraci&oacute;n. Este proceso debe realizarse una vez para cada sitio en Sakai antes de que se pueda usar  WebDAV para transferir archivos a  cualquier sitio, o viceversa.
+			</p>
+			<ol>
+				<li>Doble-click en el icono de  Mis Sitios de Red en el escritorio del  PC para abrir la carpeta Sitios de Red.</li>
+				<li>Doble-click en  el icono Agregar Sitios de Red. </li>
+				<li>Hacer click en Siguiente. </li>
+		
+				<li>Hacer click en la opci&oacute;n: &quot;Elija otra ubicaci&oacute;n de red.&quot;</li>
+				<li>Hacer click en Siguiente. </li>
+				<li>
+					En el campo &quot;Direcci&oacute;n de Red o Internet&quot;, introducir la direcci&oacute;n  URL para este sitio mostrada arriba.<br />					
+			  </li>
+			  <li>
+					Hacer click en Siguiente. <br />
+				  Nota: Si recibe un mensaje de alerta como &quot;La ruta que ha introducido no parece v&aacute;lida,&quot; es posible que a&uacute;n no haya recursos en el sitio. Vaya al sitio y a&ntilde;ada un archivo para inicializar la carpeta de Recursos, y vuelva al Paso 1.
+			  </li>
+				<li>Cuando  pregunte por el nombre de usuario y password, introducir el nombre de usuario y password de Sakai </li>
+				<li>
+					Introducir un nombre para los recursos del sitio que se est&aacute; a&ntilde;adiendo. Este nombre se usa en tu ordenador cuando se referencie la carpeta de recursos del sitio.					
+				</li>
+				<li>Hacer click en &quot;Finalizar&quot; para completar la configuraci&oacute;n.</li>
+				<li>
+					Cuando el proceso de configuraci&oacute;n haya terminado, la carpeta de recursos del sitio  aparecer&aacute; en Mis Sitios de Red como una carpeta. 
+					Aparecer&aacute; tambi&eacute;n bajo  Mis Sitios de Red en el Explorador de Windows, donde actuar&aacute; como cualquier otra carpeta dentro del Explorador.
+				</li>
+				<li>Ahora es posible  arrastrar archivos y carpetas al ordenador y la carpeta de Recursos de cada sitio en Sakai, y viceversa.</li>
+			</ol>
+
+			<a name="vista"></a>
+			<h4>Configurar WebDAV para Windows Vista / Windows 7</h4>
+			<p>Nota 1: En primer lugar, instale <a href="https://poliformat.upv.es/access/content/public/Webfldrs-KB907306-ESN.exe">el parche de Webdav para Windows Vista / Windows 7</a></p>
+		
+			<p>
+				Nota 2: Debe haber al menos un objeto (archivo, carpeta etc.) en el &aacute;rea de recursos del sitio antes de comenzar el proceso de configuraci&oacute;n. Este proceso debe realizarse una vez para cada sitio en Sakai antes de que se pueda usar WebDAV para transferir archivos a cualquier sitio, o viceversa.</p>
+			<p>
+				Nota 3: Existen unos cuantos problemas conocidos con el soporte de WebDAV en Windows Vista / Windows 7. Puede experimentar dificultades usando  WebDAV como se describe a continuaci&oacute;n.
+			</p>
+
+			<ol>
+			<li>Desde el escritorio, hacer click en Equipo.</li>
+			
+			<li>Hacer click en Conectar a Unidad de Red.</li>
+			
+			<li>En la pantalla de Conectar a Unidad de Red, hacer click en "Conectarse a un sitio Web para usarlo como almac&eacute;n de documentos e im&aacute;genes", y despues hacer 
+			click en Siguiente.</li>
+			
+			<li>Hacer click en "Elija una ubicaci&oacute;n de Red predeterminada", y luego
+			en Siguiente.</li>
+
+			<li>En el campo &quot;Direcci&oacute;n de Red o Internet&quot;, introducir la direcci&oacute;n URL para este sitio mostrada arriba.</li>
+
+			<li>Cuando lo indique, introducir el nombre de usuario y password de Sakai.</li>
+
+			<li>Ahora es posible arrastrar archivos y carpetas al ordenador y la carpeta de Recursos de cada sitio en Sakai, o viceversa. 
+			Es posible que no se pueda acceder al contenido de la carpeta desde Windows, pero igualmente con el bot&oacute;n derecho se pueden pegar archivos y carpetas.</li>
+			</ol>
+
+			<a name="osx"></a>
+			<h4>Configurar WebDAV para Mac (OS 10.0 - 10.3)</h4>
+			<p>
+				Nota 1: Estas instrucciones incluyen la descarga de un programa llamado  Goliath. Algunos usuarios han informado de errores usando este programa con Sakai, incluyendo la imposibilidad de crear nuevas carpetas o descargar carpetas a su ordenador local.
+			</p>
+			<p>
+				Nota 2: Debe haber al menos un objeto (archivo, carpeta etc.) en el &aacute;rea de recursos del sitio antes de comenzar el proceso de configuraci&oacute;n. Este proceso debe realizarse una vez para cada sitio en Sakai antes de que se pueda usar WebDAV para transferir archivos a cualquier sitio, o viceversa.</p>
+		
+			<ol>
+				<li>
+					Descargar el cliente de  WebDav, Goliath, en:<br />
+					<a href="http://www.webdav.org/goliath/#download" target="_blank">
+						<code>http://www.webdav.org/goliath/#download</code>
+					</a>
+			  </li>
+				<li>
+					Descomprimir el archivo y hacer doble-click en el fichero .dmg. (Dependiendo de la versi&oacute;n y configuraci&oacute;n de  Stuffit, 
+					la imagen del disco puede montarse autom&aacute;ticamente.)
+				</li>
+				<li>
+					Ahora estar&aacute; disponible una imagen de disco llamada"Goliath 1.0". Arrastrar y soltar la carpeta  Goliath contenida dentro de la imagen de disco al disco duro.					
+				</li>
+				  
+				<li>Abrir la aplicaci&oacute;n  Goliath.  Se encontrar&aacute; probablemente en la carpeta Aplicaciones.</li>
+				<li>En el cuadro de di&aacute;logo de Conexi&oacute;n  WebDav, introducir la ruta como se indica arriba.</li>
+				<li>Introducir el nombre de usuario y password de Sakai.</li>
+				<li>Hacer click en la pesta&ntilde;a de Opciones  Avanzadas y comprobar el cuadro junto a "Deshabilitar la Codificaci&oacute;n de un Recurso  Macintosh."</li>
+				<li>Hacer click en "OK"</li>
+				<li>
+					Aparecer&aacute; ahora una ventana en la pantalla del Mac que representa los recursos que hay en el sitio. Ahora es posible arrastrar y soltar archivos dentro de esta ventana o usar el menu "Web" para subir o descargar archivos.
+				</li>
+			</ol>
+		
+			<a name="osxx"></a>
+			<h4>Configurar WebDAV para Mac (OS 10.4)</h4>
+			<p>
+				Nota: Debe haber al menos un objeto (archivo, carpeta etc.) en el &aacute;rea de recursos del sitio antes de comenzar el proceso de configuraci&oacute;n. Este proceso debe realizarse una vez para cada sitio en Sakai antes de que se pueda usar WebDAV para transferir archivos a cualquier sitio, o viceversa.</p>
+			<ol>
+		
+				<li>Desde el Buscador, seleccionar "Ir" desde la barra de Menu y despu&eacute;s seleccionar "Conectar a un Servidor..."</li>
+				<li>En el cuadro de di&aacute;logo resultante, introducir la ruta como se muestra arriba.</li>
+				<li>Presionar el bot&oacute;n "+" para almacenar esta ruta para su uso futuro.</li>
+				<li>Hacer click en "Conectar"</li>
+		
+				<li>Introducir  el nombre de usuario y password de Sakai y hacer click en "OK"</li>
+				<li>
+				Aparecer&aacute; ahora una ventana en la pantalla del  Macintosh que representa los recursos del sitio. 
+			  Ahora es posible arrastrar y soltar archivos dentro de esta ventana y eliminar archivos al arrastrarlos a la Papelera. </li>
+			</ol>
+
+			<a name="linux"></a>
+			<h4>Configurar WebDAV para Linux utilizando la Consola</h4>
+			<p>Nota 1: Debe haber al menos un objeto (archivo, carpeta etc.) en el &aacute;rea de recursos del sitio antes de comenzar el proceso de configuraci&oacute;n. Este proceso debe realizarse una vez para cada sitio, en Sakai antes de que se pueda usar WebDAV para transferir archivos a cualquier sitio, o viceversa.</p>
+			<p>Nota 2: Es necesario tener instalado en el sistema el driver WebDAV. En la mayor&iacute;a de la distribuciones de Linux existe una versi&oacute;n precompilada. Si existe, simplemente tenemos que instalar el paquete correspondiente. Por ejemplo en Ubuntu se puede instalar escribiendo desde una terminal el comando:</p>
+			<p>sudo aptitude install davfs2</P>
+			<ol>
+				<li>Abrir un terminal en Linux.</li>
+				<li>Ejecutar el siguiente comando, con un usuario con permisos de administrador:</li>
+				<p>mount -t davfs server-url mountpoint -o uid=usuario,gid=grupo</p>
+				<p>donde server-url es la URL para este sitio  proporciona arriba y mountpoint es el directorio donde queremos montar la carpeta de recursos, uid es su nombre de usuario en su m&aacute;quina local y gid el grupo al que pertenece el usuario.</p>
+				<p>NOTA: el usuario introducido es el usuario de la m&aacute;quina donde se est&aacute; ejecutando el comando, no confundir con el usuario Sakai.</p>
+				<li>Aparecer&aacute; un mensaje similar a:</li><br />
+				Please enter the username to authenticate with server<br />
+				https://x.x.x/dav/xxx<br />
+				hit enter for none<br />
+				Username:<br />
+				<p>Introducir el nombre de usuario Sakai.</p>
+				<li>A continuaci&oacute;n de exigir&aacute; el password del usuario introducido con un mensaje similar a:</li><br />
+				Please enter the password to authenticate  with server<br />
+				https://x.x.x/dav/xxx<br />
+				hit enter for none<br />
+				Username:<br />
+				<p>Introduzca el password.</p>
+				<li>Si 	todo ha funcionado correctamente, podremos acceder a la carpeta de recursos del sitio accediendo al directorio indicado al montar la carpeta.</li>
+			</ol>		
+
+		</div>
+		
+	</body>
+</html>
