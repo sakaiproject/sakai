@@ -56,9 +56,12 @@
 	
 	<!-- gets all threads that a user has had messages sent to them in. afterwards, must be expanded to get latest message object, and then sorted. -->
 	<sql-query name="getMessageThreads">
-    	<return alias="thread" class="MessageThread"/>
+    	<return alias="thread" class="MessageThread">
+    		<return-property name="id" column="threadId"/>
+    		<return-property name="subject" column="threadSubject"/>
+    	</return>
     	<![CDATA[
-    	SELECT {thread.*} from PROFILE_MESSAGE_PARTICIPANTS_T participant, PROFILE_MESSAGES_T message, PROFILE_MESSAGE_THREADS_T thread where participant.PARTICIPANT_UUID = :uuid and participant.MESSAGE_ID=message.ID and message.MESSAGE_THREAD=thread.ID and participant.PARTICIPANT_UUID != message.FROM_UUID group by thread.ID
+    	SELECT distinct(thread.ID) as threadId, thread.SUBJECT as threadSubject from PROFILE_MESSAGE_PARTICIPANTS_T participant, PROFILE_MESSAGES_T message, PROFILE_MESSAGE_THREADS_T thread where participant.PARTICIPANT_UUID = :uuid and participant.MESSAGE_ID=message.ID and message.MESSAGE_THREAD=thread.ID and participant.PARTICIPANT_UUID != message.FROM_UUID
 		]]>
 	</sql-query>
 	
