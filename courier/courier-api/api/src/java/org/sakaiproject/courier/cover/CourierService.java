@@ -95,6 +95,22 @@ public class CourierService
 
 		service.clear(param0);
 	}
+
+	public static java.util.List<org.sakaiproject.courier.api.DeliveryProvider> getDeliveryProviders() {
+		org.sakaiproject.courier.api.CourierService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getDeliveryProviders();
+	}
+	
+	void registerDeliveryProvider(org.sakaiproject.courier.api.DeliveryProvider provider) {
+		org.sakaiproject.courier.api.CourierService service = getInstance();
+		if (service == null)
+			return;
+
+		service.registerDeliveryProvider(provider);
+	}
 }
 
 

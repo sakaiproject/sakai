@@ -26,13 +26,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.courier.api.CourierService;
 import org.sakaiproject.courier.api.Delivery;
+import org.sakaiproject.courier.api.DeliveryProvider;
 import org.sakaiproject.util.StringUtil;
 
 /**
@@ -65,6 +66,7 @@ public class BasicCourierService implements CourierService
 
         protected Object[] locks;
 
+	private List<DeliveryProvider> deliveryProviders = new Vector<DeliveryProvider>();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -261,5 +263,30 @@ public class BasicCourierService implements CourierService
 		if (deliveries == null) return false;
 
 		return (!deliveries.isEmpty());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.courier.api.CourierService#getDeliveryProviders()
+	 */
+	public List<DeliveryProvider> getDeliveryProviders() {
+		if(M_log.isDebugEnabled()) {
+			M_log.debug("getDeliveryProviders()");
+		}
+		if(deliveryProviders.isEmpty()) {
+			return null;
+		}
+		return new ArrayList<DeliveryProvider>(deliveryProviders );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.courier.api.CourierService#registerDeliveryProvider(org.sakaiproject.courier.api.DeliveryProvider)
+	 */
+	public void registerDeliveryProvider(DeliveryProvider provider) {
+		if(M_log.isDebugEnabled()) {
+			M_log.debug("registerDeliveryProvider(DeliveryProvider " + provider + ")");
+		}
+		this.deliveryProviders.add(provider);
 	}
 }

@@ -23,6 +23,7 @@ package org.sakaiproject.courier.tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -38,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.Delivery;
+import org.sakaiproject.courier.api.DeliveryProvider;
 import org.sakaiproject.courier.cover.CourierService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -107,6 +109,26 @@ public class CourierTool extends HttpServlet
 					// find all deliveries for the requested deivery address
 					List deliveries = CourierService.getDeliveries(deliveryId);
 	
+					// see if any DeliveryProviders have deliveries
+					List<DeliveryProvider> providers = CourierService.getDeliveryProviders();
+					if(providers != null) {
+						List<Delivery> moreDeliveries = new ArrayList<Delivery>();
+						for(DeliveryProvider provider : providers) {
+							List<Delivery> d = provider.getDeliveries(session.getId(), placementId);
+							if(d != null && ! d.isEmpty()) {
+								moreDeliveries.addAll(d);
+							}
+						}
+						if(moreDeliveries.isEmpty()) {
+							// use deliveries
+						} else if (deliveries.isEmpty()) {
+							deliveries = moreDeliveries;
+						} else {
+							// both lists have deliveries, so add moreDeliveries to deliveries
+							deliveries.addAll(moreDeliveries);
+						}
+					}
+					
 					// form the reply
 					sendDeliveries(res, deliveries);
 	

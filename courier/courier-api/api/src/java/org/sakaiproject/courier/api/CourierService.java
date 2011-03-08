@@ -83,4 +83,17 @@ public interface CourierService
 	 * @return true if there are deliveries for this client window, false if not.
 	 */
 	boolean hasDeliveries(String address);
+	
+	/**
+	 * Access a list of DeliveryProviders registered with the CourierService. 
+	 * @return A list of DeliveryProviders or null, if no DeliveryProviders 
+	 * 	are registered with the CourierService
+	 */
+	List<DeliveryProvider> getDeliveryProviders();
+	
+	/**
+	 * Register a DeliveryProvider with the CourierService.
+	 * @param provider
+	 */
+	void registerDeliveryProvider(DeliveryProvider provider);
 }
