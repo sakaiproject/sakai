@@ -110,7 +110,7 @@
 	#end
 	
 	#if($model.resourceTypeDef.hasRightsDialog()) 
-		#if ($!copyrightTypes)
+		#if ($!copyrightTypes.size() > 0)
 			<p class="shorttext">
 				<span class="reqStar">*</span>
 				<label for="copyright${DOT}$i">
