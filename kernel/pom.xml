@@ -813,6 +813,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>dashboard-maven-plugin</artifactId>
+		<version>1.0.0-beta-1</version>
                 <configuration>
                     <reports>
                         <report>findbugs-maven-plugin</report>
@@ -824,6 +825,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+		<version>2.2</version>
                 <configuration>
                     <aggregate>true</aggregate>
                 </configuration>
@@ -831,7 +833,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.0.1</version>
+                <version>2.3.1</version>
                 <configuration>
                     <findbugsXmlOutput>true</findbugsXmlOutput>
                     <xmlOutput>true</xmlOutput>
@@ -841,6 +843,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
+		<version>2.5</version>
                 <configuration>
                     <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
                     <sourceEncoding>utf-8</sourceEncoding>
@@ -868,6 +871,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>taglist-maven-plugin</artifactId>
+		<version>2.4</version>
                 <configuration>
                     <tags>
                         <tag>TODO</tag>
@@ -918,6 +922,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jxr-maven-plugin</artifactId>
+		<version>2.0-beta-1</version>
                 <configuration>
                     <linkJavadoc>true</linkJavadoc>
                     <javadocDir>apidocs</javadocDir>
@@ -926,14 +931,12 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jdepend-maven-plugin</artifactId>
+		<version>2.0-beta-2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>dashboard-maven-plugin</artifactId>
+		<version>2.7.2</version>
             </plugin>
         </plugins>
     </reporting>
@@ -1056,7 +1059,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.7</version>
                     <configuration>
                         <source>1.5</source>
                         <target>1.5</target>
