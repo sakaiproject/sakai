@@ -3,6 +3,7 @@ package org.sakaiproject.profile2.logic;
 import java.util.List;
 
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfileSearchTerm;
 
 /**
  * An interface for dealing with profile searches.
@@ -34,4 +35,36 @@ public interface ProfileSearchLogic {
 	 * @return List 	Persons
 	 */
 	public List<Person> findUsersByInterest(String search, boolean includeBusinessBio);
+		
+	/**
+	 * Retrieves the last search term made by the user with the given UUID.
+	 * 
+	 * @param userUuid the UUID of the user to query by.
+	 * @return the last search term made by the user with the given
+	 *         UUID. Returns <code>null</code> if no search term is found.
+	 */
+	public ProfileSearchTerm getLastSearchTerm(String userUuid);
+	
+	/**
+	 * Retrieves the search history for the user with the given UUID.
+	 * 
+	 * @param userUuid the UUID of the user to query by.
+	 * @return the search history for the user with the given UUID. Returns
+	 *         <code>null</code> if no search history is found.
+	 */
+	public List<ProfileSearchTerm> getSearchHistory(String userUuid);
+
+	/**
+	 * Adds the given profile search term to a user's search history. 
+	 * 
+	 * @param searchTerm the search term to add.
+	 */
+	public void addSearchTermToHistory(ProfileSearchTerm searchTerm);
+	
+	/**
+	 * Clears the search history for the user with the given UUID.
+	 * 
+	 * @param userUuid the UUID of the user to clear history for.
+	 */
+	public void clearSearchHistory(String userUuid);
 }

@@ -3,11 +3,19 @@
  */
 package org.sakaiproject.profile2.logic;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.model.ProfileSearchTerm;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
 
@@ -20,6 +28,9 @@ import org.sakaiproject.user.api.User;
 public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 
 	private static final Logger log = Logger.getLogger(ProfileSearchLogicImpl.class);
+	
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.search";
 	
 	/**
  	 * {@inheritDoc}
@@ -75,6 +86,81 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	}
 	
 	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileSearchTerm getLastSearchTerm(String userUuid) {
+		
+		List<ProfileSearchTerm> searchHistory = getSearchHistory(userUuid);
+		if (null != searchHistory && searchHistory.size() > 0) {
+			return searchHistory.get(searchHistory.size() - 1);
+		}
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<ProfileSearchTerm> getSearchHistory(String userUuid) {
+
+		if (cache.containsKey(userUuid)) {
+
+			List<ProfileSearchTerm> searchHistory = new ArrayList<ProfileSearchTerm>(
+					((Map<String, ProfileSearchTerm>) cache.get(userUuid))
+							.values());
+
+			Collections.sort(searchHistory);
+
+			return searchHistory;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void addSearchTermToHistory(ProfileSearchTerm searchTerm) {
+		
+		if (null == searchTerm) {
+			throw new IllegalArgumentException("search term cannot be null");
+		}
+		
+		if (null == searchTerm.getUserUuid()) {
+			throw new IllegalArgumentException("search term must contain UUID of user");
+		}
+		
+		Map<String, ProfileSearchTerm> searchHistory;
+		if (false == cache.containsKey(searchTerm.getUserUuid())) {
+			searchHistory = new HashMap<String, ProfileSearchTerm>();
+		} else {
+			searchHistory = (HashMap<String, ProfileSearchTerm>) cache.get(searchTerm.getUserUuid());
+		}
+		
+		if (searchHistory.size() == ProfileConstants.DEFAULT_MAX_SEARCH_HISTORY) {
+			searchHistory.remove(0);
+		}
+		
+		// if search term already in history, remove old one
+		searchHistory.remove(searchTerm.getSearchTerm());
+		// then add
+		searchHistory.put(searchTerm.getSearchTerm(), searchTerm);
+		
+		cache.put(searchTerm.getUserUuid(), searchHistory);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void clearSearchHistory(String userUuid) {
+		
+		if (cache.containsKey(userUuid)) {
+			cache.remove(userUuid);
+		} else {
+			log.warn("unable to clear search history; uuid not found: " + userUuid);
+		}
+	}
+	
+	/**
 	 * Remove invisible users from the list
 	 * @param users
 	 * @return cleaned list
@@ -98,6 +184,10 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		return users;
 	}
 	
+	public void init() {
+		cache = cacheManager.createCache(CACHE_NAME);
+	}
+	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
@@ -111,6 +201,11 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	private ProfileLogic profileLogic;
 	public void setProfileLogic(ProfileLogic profileLogic) {
 		this.profileLogic = profileLogic;
+	}
+	
+	private CacheManager cacheManager;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
 }

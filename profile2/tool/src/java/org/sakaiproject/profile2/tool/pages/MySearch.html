@@ -95,13 +95,16 @@
 				<div wicket:id="searchHistoryList">
 					<a href="#" wicket:id="previousSearchLink"><span wicket:id="previousSearchLabel">previousSearchLabel</span></a>
 				</div>
+				<form wicket:id="clearHistory">
+					<input type="submit" wicket:id="clearHistoryButton" value="Clear history"/>
+				</form>
 			</div>
 			
 			<!--  results -->
 			<div wicket:id="numSearchResultsContainer">
 				<div wicket:id="numSearchResults" class="search-results-header" tabindex="0">No results or 1-5 of 20 results</div>
 				<form wicket:id="clearResults">
-					<input type="submit" wicket:id="clearButton" value="Clear"/>
+					<input type="submit" wicket:id="clearButton" value="Clear results"/>
 				</form>
 			</div>
 			
@@ -131,12 +134,6 @@
 			</div>
 			
 			<div wicket:id="connectionWindow"></div>	
-			
-			
-			
-			
-			
-				
 					
 		</div>
 		

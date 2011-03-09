@@ -34,7 +34,8 @@
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
         
-	<!--  register the DAO as a transactional interceptor. Use the classloader proxy from gendao because this is a protected DAO -->
+	<!--  register the DAO as a transactional interceptor. Use the classloader proxy from gendao because this is a protected DAO
+-->
 	<bean id="org.sakaiproject.profile2.dao.ProfileDao"
 		class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">		
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -155,12 +156,14 @@
     </bean>
     
     <!-- ProfileSearchLogicImpl -->
-    <bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl">
-    		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
-    		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
-    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    </bean>
+	<bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
+		class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl"
+		init-method="init" singleton="true" depends-on="org.sakaiproject.profile2.cache.search">
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+	</bean>
 	
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
@@ -198,7 +201,8 @@
   	</bean>
   	
 	
-	<!-- Legacy bean that implements the original ProfileManager interface -->
+	<!-- Legacy bean that implements the original ProfileManager interface
+-->
 	<bean id="org.sakaiproject.profile2.legacy.ProfileManager" class="org.sakaiproject.profile2.legacy.ProfileManagerImpl" init-method="init" destroy-method="destroy">
        
         <property name="profileLogic">
@@ -313,7 +317,22 @@
 		<property name="timeToIdle" value="3600" />
     </bean>
     
-    <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551 -->
+    <!--  search cache -->
+    <bean id="org.sakaiproject.profile2.cache.search"
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        </property>
+        <property name="cacheName">
+            <value>org.sakaiproject.profile2.cache.search</value>
+        </property>
+        <property name="maxElementsInMemory" value="10000" />
+        <property name="diskPersistent" value="true" />
+        <property name="eternal" value="true" />
+    </bean>
+    
+    <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551
+-->
 	<bean id="org.sakaiproject.profile2.service.ProfileService"
     	class="org.sakaiproject.profile2.service.ProfileServiceImpl">
     	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
