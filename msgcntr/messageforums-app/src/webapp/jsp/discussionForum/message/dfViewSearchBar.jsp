@@ -99,4 +99,4 @@
   </h:panelGrid>
   
 
-<h:messages styleClass="alertMessage" id="errorMessages"  />
+<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />

@@ -14,7 +14,7 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		
     <sakai:tool_bar_message value="#{msgs.pvt_rename_folder_label}" />
-    <h:messages styleClass="alertMessage" id="errorMessages" /> 
+    <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
  
     <div class="instruction">
 	    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>

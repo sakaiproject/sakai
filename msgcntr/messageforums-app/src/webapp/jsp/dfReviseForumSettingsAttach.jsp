@@ -60,7 +60,7 @@
 		  <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 		  <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 		</div>
-			<h:messages styleClass="messageAlert" id="errorMessages"  /> 
+			<h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
      
 			<h:panelGrid columns="1" styleClass="jsfFormTable" columnClasses="shorttext">
 				<h:panelGroup>	

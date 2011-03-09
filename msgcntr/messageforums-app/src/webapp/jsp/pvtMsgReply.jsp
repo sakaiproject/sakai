@@ -79,7 +79,7 @@
 		  	 <sakai:instruction_message value="#{PrivateMessagesTool.privacyAlert}"/>
 		  </h:outputLink>
 		  
-		  <h:messages styleClass="alertMessage" id="errorMessages" /> 
+		  <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
 		  
 		  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
 			  <h:panelGroup styleClass="shorttext">

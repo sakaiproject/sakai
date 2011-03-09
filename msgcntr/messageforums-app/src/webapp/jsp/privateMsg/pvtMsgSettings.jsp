@@ -19,7 +19,7 @@
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" />
-			<h:messages styleClass="alertMessage" id="errorMessages" />
+			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
 			  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" 
 			  				rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">

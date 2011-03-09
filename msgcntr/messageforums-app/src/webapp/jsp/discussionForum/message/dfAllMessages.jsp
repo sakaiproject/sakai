@@ -67,7 +67,7 @@
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
  		</sakai:tool_bar>
- 		<h:messages styleClass="alertMessage" id="errorMessages" />
+ 		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 			<h:panelGrid columns="2" summary="layout" 	width="100%" styleClass="specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="specialLink"><h3></f:verbatim>

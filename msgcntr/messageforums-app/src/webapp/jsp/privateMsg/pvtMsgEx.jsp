@@ -17,7 +17,7 @@
 			
 			<%@include file="topNav.jsp" %>
 
-			<h:messages styleClass="alertMessage" id="errorMessages" />
+			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<%@include file="msgHeader.jsp"%>
 
 

@@ -172,7 +172,7 @@
 	  	<f:verbatim>
 	  		</div>
 	  	</f:verbatim>
-	  	<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
+	  	<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 		
   		<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>

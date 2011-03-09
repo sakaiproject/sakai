@@ -52,7 +52,7 @@
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
 				</div>
-				<h:messages styleClass="messageAlert" id="errorMessages"  />
+				<h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}" /></h4>
 				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
 				  <h:panelGroup><h:outputText id="outputLabel4"   value="#{msgs.cdfm_moderate_forums}"/>	</h:panelGroup>

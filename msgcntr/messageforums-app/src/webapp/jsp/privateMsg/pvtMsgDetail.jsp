@@ -14,7 +14,7 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/privateMsg/pvtMsgDetail.jsp-->
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
-			<h:messages styleClass="alertMessage" id="errorMessages" /> 
+			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
 
 <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 	<h:panelGroup>

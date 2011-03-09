@@ -27,7 +27,7 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 				<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 				<%--//designNote:  if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
-				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />  		
+				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>  		
   
   		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>	
   		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 

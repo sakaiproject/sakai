@@ -19,7 +19,7 @@
 				<h:outputText	value="#{ForumTool.selectedTopic.topic.title}" />
 			</h4>
 			
-			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
+			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}" />
 			  
 		<div class="singleMessage">
 			<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title"/>

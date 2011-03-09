@@ -57,7 +57,7 @@
 				</p>	
 	  </div>
 	  
-	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
+	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 	  
 		<h:dataTable id="pendingMsgs" value="#{ForumTool.pendingMessages}" width="100%" var="message" 
 				columnClasses="bogus,nopadd" styleClass="listHier specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">

@@ -11,7 +11,7 @@
 	</h:panelGroup>
   
 
-<h:messages styleClass="alertMessage" id="errorMessages"  />
+<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 <f:verbatim>
 	<div class="success" id="gradesSavedDiv" class="success" style="display:none">
 </f:verbatim>

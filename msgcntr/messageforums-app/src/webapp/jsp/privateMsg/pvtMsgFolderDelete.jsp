@@ -13,7 +13,7 @@
 		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:tool_bar_message value="#{msgs.pvt_delcon}" /> 
-			<h:messages styleClass="alertMessage" id="errorMessages" /> 
+			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
  
  			<table width="100%" class="listHier lines nolines" cellpadding="0" cellspacing="0">
  			  <tr>
