@@ -552,7 +552,7 @@ public class MySearch extends BasePage {
 			}				
 		};
 		clearHistoryButton.setOutputMarkupPlaceholderTag(true);
-		// TODO test this for empty list
+
 		if (null == searchLogic.getSearchHistory(currentUserUuid)) {
 			clearHistoryButton.setVisible(false); //invisible until we have something to clear
 		}
