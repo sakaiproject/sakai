@@ -277,7 +277,7 @@ function submitRemoveSection(index){
 			<label for="siteContactName">
 				$tlang.getString("sitediinf.sitconnam")
 			</label>
-			<input type="text" name="siteContactName" id="siteContactName" size="20" value="$!form_site_contact_name" />
+			<input type="text" name="siteContactName" id="siteContactName" size="20" value="$!validator.escapeHtml($!form_site_contact_name)" />
 		</p>				
 		<p class="shorttext">
 			<label for="siteContactEmail">
