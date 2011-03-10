@@ -57,9 +57,10 @@ public interface ProfileSearchLogic {
 	/**
 	 * Adds the given profile search term to a user's search history. 
 	 * 
+	 * @param userUuid the user whose history we're adding to.
 	 * @param searchTerm the search term to add.
 	 */
-	public void addSearchTermToHistory(ProfileSearchTerm searchTerm);
+	public void addSearchTermToHistory(String userUuid, ProfileSearchTerm searchTerm);
 	
 	/**
 	 * Clears the search history for the user with the given UUID.

@@ -119,7 +119,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public void addSearchTermToHistory(ProfileSearchTerm searchTerm) {
+	public void addSearchTermToHistory(String userUuid, ProfileSearchTerm searchTerm) {
 		
 		if (null == searchTerm) {
 			throw new IllegalArgumentException("search term cannot be null");
@@ -129,6 +129,10 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			throw new IllegalArgumentException("search term must contain UUID of user");
 		}
 		
+		if (false == userUuid.equals(searchTerm.getUserUuid())) {
+			throw new IllegalArgumentException("userUuid must match search term userUuid");
+		}
+		
 		Map<String, ProfileSearchTerm> searchHistory;
 		if (false == cache.containsKey(searchTerm.getUserUuid())) {
 			searchHistory = new HashMap<String, ProfileSearchTerm>();
@@ -136,12 +140,13 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			searchHistory = (HashMap<String, ProfileSearchTerm>) cache.get(searchTerm.getUserUuid());
 		}
 		
+		// if search term already in history, remove old one (do BEFORE checking size)
+		searchHistory.remove(searchTerm.getSearchTerm());
+		
 		if (searchHistory.size() == ProfileConstants.DEFAULT_MAX_SEARCH_HISTORY) {
-			searchHistory.remove(0);
+			searchHistory.remove(getSearchHistory(userUuid).get(0).getSearchTerm());
 		}
 		
-		// if search term already in history, remove old one
-		searchHistory.remove(searchTerm.getSearchTerm());
 		// then add
 		searchHistory.put(searchTerm.getSearchTerm(), searchTerm);
 		

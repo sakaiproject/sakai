@@ -496,7 +496,7 @@ public class MySearch extends BasePage {
 							
 							ProfileSearchTerm searchTerm = item.getModelObject();
 							// this will update its position in list
-							searchLogic.addSearchTermToHistory(searchTerm);
+							searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 							
 							if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchTerm.getSearchType())) {
 								searchByName(resultsListView, searchResultsNavigator,
@@ -586,7 +586,7 @@ public class MySearch extends BasePage {
 					searchTerm.setSearchPageNumber(0);
 					searchTerm.setSearchDate(new Date());
 					
-					searchLogic.addSearchTermToHistory(searchTerm);
+					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 					
 					// set cookie for current search (page 0 when submitting new search)
 					setSearchCookie(ProfileConstants.SEARCH_TYPE_NAME, searchText, 0);
@@ -631,7 +631,7 @@ public class MySearch extends BasePage {
 					searchTerm.setSearchPageNumber(0);
 					searchTerm.setSearchDate(new Date());
 					
-					searchLogic.addSearchTermToHistory(searchTerm);
+					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 					
 					// set cookie for current search (page 0 when submitting new search)
 					setSearchCookie(ProfileConstants.SEARCH_TYPE_INTEREST, searchText, 0);
