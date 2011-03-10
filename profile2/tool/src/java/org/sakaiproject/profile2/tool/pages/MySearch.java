@@ -22,12 +22,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -72,12 +76,19 @@ public class MySearch extends BasePage {
 	private AjaxButton clearHistoryButton;
 	private TextField<String> sbiInterestField;
 	private TextField<String> sbnNameField;
-			
+	
+	// Used independently of search history for current search, and
+	// transient because Cookie isn't serializable	 
+    private transient Cookie searchCookie = null;
+    
 	public MySearch() {
 		
 		log.debug("MySearch()");
 		
 		disableLink(searchLink);
+		
+		//check for current search cookie	 
+		searchCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.SEARCH_COOKIE);
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -157,7 +168,12 @@ public class MySearch extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-								
+				
+				// clear cookie if present	 
+                if (null != searchCookie) {	 
+                        getWebRequestCycle().getWebResponse().clearCookie(searchCookie);	 
+                }
+                
 				//clear the fields, hide self, then repaint
 				sbnNameField.clearInput();
 				sbnNameField.updateModel();
@@ -177,7 +193,7 @@ public class MySearch extends BasePage {
 			}				
 		};
 		clearButton.setOutputMarkupPlaceholderTag(true);
-		if (null == searchLogic.getLastSearchTerm(currentUserUuid)) {
+		if (null == searchCookie) {
 			clearButton.setVisible(false); //invisible until we have something to clear
 		}
 		clearButton.setModel(new ResourceModel("button.search.clear"));
@@ -198,7 +214,7 @@ public class MySearch extends BasePage {
 		//container which wraps list
 		resultsContainer = new WebMarkupContainer("searchResultsContainer");
 		resultsContainer.setOutputMarkupPlaceholderTag(true);
-		if (null == searchLogic.getLastSearchTerm(currentUserUuid)) {
+		if (null == searchCookie) {
 			resultsContainer.setVisible(false); //hide initially
 		}
 		
@@ -420,7 +436,8 @@ public class MySearch extends BasePage {
 				}
 		    }
 		};
-				
+		
+		resultsListView.add(new MySearchCookieBehavior(resultsListView));
 		resultsContainer.add(resultsListView);
 
 		final PagingNavigator searchResultsNavigator = new PagingNavigator("searchResultsNavigator", resultsListView);
@@ -483,11 +500,11 @@ public class MySearch extends BasePage {
 							
 							if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchTerm.getSearchType())) {
 								searchByName(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm);
+										searchHistoryContainer, target, searchTerm.getSearchTerm());
 								
 							} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchTerm.getSearchType())) {
 								searchByInterest(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm);
+										searchHistoryContainer, target, searchTerm.getSearchTerm());
 							}
 						}
 					}
@@ -533,7 +550,8 @@ public class MySearch extends BasePage {
 			}				
 		};
 		clearHistoryButton.setOutputMarkupPlaceholderTag(true);
-		if (null == searchLogic.getLastSearchTerm(currentUserUuid)) {
+		// TODO test this for empty list
+		if (null == searchLogic.getSearchHistory(currentUserUuid)) {
 			clearHistoryButton.setVisible(false); //invisible until we have something to clear
 		}
 		clearHistoryButton.setModel(new ResourceModel("button.search.history.clear"));
@@ -570,11 +588,14 @@ public class MySearch extends BasePage {
 					
 					searchLogic.addSearchTermToHistory(searchTerm);
 					
+					// set cookie for current search (page 0 when submitting new search)
+					setSearchCookie(ProfileConstants.SEARCH_TYPE_NAME, searchText, 0);
+					
 					//post view event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					
 					searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer,
-							target, searchTerm);	
+							target, searchText);	
 				}				
             }
 		};
@@ -612,11 +633,14 @@ public class MySearch extends BasePage {
 					
 					searchLogic.addSearchTermToHistory(searchTerm);
 					
+					// set cookie for current search (page 0 when submitting new search)
+					setSearchCookie(ProfileConstants.SEARCH_TYPE_INTEREST, searchText, 0);
+					
 					//post view event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
 					
 					searchByInterest(resultsListView, searchResultsNavigator,
-							searchHistoryContainer,	target, searchTerm);
+							searchHistoryContainer,	target, searchText);
 				}
             }
 		};
@@ -624,19 +648,18 @@ public class MySearch extends BasePage {
 		sbiForm.add(sbiSubmitButton);
         add(sbiForm);
         
-        ProfileSearchTerm lastSearchTerm = searchLogic.getLastSearchTerm(currentUserUuid);
-        if (null != lastSearchTerm) {
-        			
-        	if (lastSearchTerm.getSearchType().equals(ProfileConstants.SEARCH_TYPE_NAME)) {
-				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, lastSearchTerm);
-				sbnStringModel.setString(lastSearchTerm.getSearchTerm());
-        	} else if (lastSearchTerm.getSearchType().equals(ProfileConstants.SEARCH_TYPE_INTEREST)) {
-        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, lastSearchTerm);
-        		sbiStringModel.setString(lastSearchTerm.getSearchTerm());
+        if (null != searchCookie) {
+        	
+        	String searchString = getCookieSearchString(searchCookie.getValue());
+        	
+        	if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_NAME)) {
+				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString);
+				sbnStringModel.setString(searchString);
+        	} else if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_INTEREST)) {
+        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString);
+        		sbiStringModel.setString(searchString);
         	}
         }
-        
-
 	}
 	
 	// use null target when using cookie
@@ -644,14 +667,14 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			final WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, ProfileSearchTerm searchTerm) {
+			AjaxRequestTarget target, String searchTerm) {
 		
 		//clear the interest search field
 		sbiInterestField.clearInput();
 		sbiInterestField.updateModel();
 				
 		//search both UDP and SakaiPerson for matches.
-		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm.getSearchTerm()));
+		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -659,39 +682,37 @@ public class MySearch extends BasePage {
 		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 		
 		// set current page if previously-viewed search
-		int currentPage = searchTerm.getSearchPageNumber();
+		int currentPage = 0;
+		if (null != searchCookie) {
+			currentPage = getCookiePageNumber();
+		}
 				
 		//show the label wrapper
 		numSearchResultsContainer.setVisible(true);
 		
 		//text
 		if(numResults == 0) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchTerm } ));
 			resultsContainer.setVisible(false);
-			clearButton.setVisible(false);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == 1) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchTerm } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == maxResults) {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchTerm.getSearchTerm(), maxResults, maxResults } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchTerm, maxResults, maxResults } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else if (numResults > maxResultsPerPage) {
 	        resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchTerm } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchTerm } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		}
 		
@@ -701,6 +722,7 @@ public class MySearch extends BasePage {
 			target.addComponent(sbiInterestField);
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
+			clearButton.setVisible(true);
 			target.addComponent(resultsContainer);
 			clearHistoryButton.setVisible(true);
 			searchHistoryContainer.setVisible(true);
@@ -714,14 +736,14 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, ProfileSearchTerm searchTerm) {
+			AjaxRequestTarget target, String searchTerm) {
 		
 		//clear the name search field
 		sbnNameField.clearInput();
 		sbnNameField.updateModel();
 		
 		//search SakaiPerson for matches
-		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm.getSearchTerm(), sakaiProxy.isBusinessProfileEnabled()));
+		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm, sakaiProxy.isBusinessProfileEnabled()));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -729,39 +751,37 @@ public class MySearch extends BasePage {
 		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 
 		// set current page if previously-viewed search
-		int currentPage = searchTerm.getSearchPageNumber();
+		int currentPage = 0;
+		if (null != searchCookie) {
+			currentPage = getCookiePageNumber();
+		}
 		
 		//show the label wrapper
 		numSearchResultsContainer.setVisible(true);
 		
 		//text
 		if(numResults == 0) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchTerm } ));
 			resultsContainer.setVisible(false);
-			clearButton.setVisible(false);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == 1) {
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchTerm } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		} else if (numResults == maxResults) {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchTerm.getSearchTerm(), maxResults, maxResults } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchTerm, maxResults, maxResults } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else if (numResults > maxResultsPerPage) {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.paged.results", null, new Object[]{ numResults, resultsListView.getViewSize(), searchTerm } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(true);
 		} else {
 			resultsListView.setCurrentPage(currentPage);
-			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchTerm.getSearchTerm() } ));
+			numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchTerm } ));
 			resultsContainer.setVisible(true);
-			clearButton.setVisible(true);
 			searchResultsNavigator.setVisible(false);
 		}
 		
@@ -771,11 +791,67 @@ public class MySearch extends BasePage {
 			target.addComponent(sbiInterestField);
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
+			clearButton.setVisible(true);
 			target.addComponent(resultsContainer);
 			clearHistoryButton.setVisible(true);
 			searchHistoryContainer.setVisible(true);
 			target.addComponent(searchHistoryContainer);
 			target.appendJavascript("setMainFrameHeight(window.name);");
+		}
+	}
+	
+	private int getCookiePageNumber() {	  
+        return Integer.parseInt(searchCookie.getValue().substring(	 
+                searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER) + 1,	 
+                searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR)));
+        }
+	
+	private void updatePageNumber(int pageNumber, String cookieString) {
+		String searchType = getCookieSearchType(cookieString);
+		String searchString = getCookieSearchString(cookieString);
+
+		setSearchCookie(searchType, searchString, pageNumber);
+	}
+	
+	private void setSearchCookie(String searchCookieValuePrefix,
+			String searchText, int searchPageNumber) {
+
+		searchCookie = new Cookie(
+				ProfileConstants.SEARCH_COOKIE,
+				searchCookieValuePrefix
+						+ ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER
+						+ searchPageNumber
+						+ ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR
+						+ searchText);
+		// don't persist indefinitely
+		searchCookie.setMaxAge(-1);
+		getWebRequestCycle().getWebResponse().addCookie(searchCookie);
+	}
+	
+	private String getCookieSearchString(String cookieString) {
+		return cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR) + 1);
+	}
+
+	private String getCookieSearchType(String cookieString) {
+		return cookieString.substring(0, cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER));
+	}
+		         
+	// behaviour so we can set the current search cookie when the navigator page changes	 
+	private class MySearchCookieBehavior extends AbstractBehavior {
+
+		private static final long serialVersionUID = 1L;
+
+		private PageableListView<Person> view;
+
+		public MySearchCookieBehavior(PageableListView<Person> view) {
+			this.view = view;
+		}
+
+		@Override
+		public void beforeRender(Component component) {
+			if (searchCookie != null) {
+				updatePageNumber(view.getCurrentPage(), searchCookie.getValue());
+			}
 		}
 	}
 		
