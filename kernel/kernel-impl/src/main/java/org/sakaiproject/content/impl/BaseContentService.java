@@ -5539,8 +5539,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		
 		commitResourceEdit(edit, priority);
 
-		//check the content type
-		checkUpdateContentEncoding(edit.getId());
+		//check the content type if this is an HTML or TEXT file upload
+		if (ResourceType.TYPE_UPLOAD.equals(edit.getResourceType()) && 
+			(ResourceType.MIME_TYPE_HTML.equals(edit.getContentType()) || ResourceType.MIME_TYPE_TEXT.equals(edit.getContentType()))) {
+			checkUpdateContentEncoding(edit.getId());
+		}
 		
 		if (virusScanner.getEnabled()) {
 			try {
