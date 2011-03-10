@@ -162,6 +162,7 @@ import org.xml.sax.SAXException;
 
 import com.ibm.icu.impl.duration.impl.DataRecord.ECountVariant;
 import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 /**
  * <p>
@@ -416,6 +417,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
+	
 	
 	/** Configuration: cache, or not. */
 	protected boolean m_caching = false;
@@ -5637,10 +5639,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				 content.read(contentBytes);
 				 detector.setText(contentBytes);
 			}
-			
-			encoding = detector.detect().getName();
-			M_log.debug("detected character encoding of " + encoding + " origional was" + contentEncoding);
-			if (encoding != null && !contentEncoding.equals(encoding))
+			CharsetMatch match = detector.detect();
+			encoding = match.getName();
+			int confidence = match.getConfidence();
+			//KNL-683 we need a relatively good confidence before we change the encoding
+			int threshold = m_serverConfigurationService.getInt("content.encodingDetection.threshold", 70);
+			M_log.debug("detected character encoding of " + encoding + " with confidence of " + confidence + " origional was" + contentEncoding);
+			if (encoding != null && !contentEncoding.equals(encoding) && (confidence >= threshold))
 			{
 				ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
 				rpe.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
