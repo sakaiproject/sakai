@@ -266,7 +266,8 @@ public class SamigoEmailService {
 
 			//msg.addHeaderLine("Subject: " + subject);
 			msg.setSubject(subject, "UTF-8");
-			msg.addHeaderLine("To: no-reply@coursework.stanford.edu");
+			String noReplyEmaillAddress =  "no-reply@" + ServerConfigurationService.getServerName();
+			msg.addHeaderLine("To: " + noReplyEmaillAddress);
 			msg.setText(message, "UTF-8");
 			msg.addHeaderLine("Content-Type: text/html");
 
