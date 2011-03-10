@@ -108,7 +108,7 @@ public class MySearch extends BasePage {
 		add(sbnHeading);
 		
 		//setup form	
-        StringModel sbnStringModel = new StringModel();        
+        final StringModel sbnStringModel = new StringModel();        
         Form<StringModel> sbnForm = new Form<StringModel>("sbnForm", new Model<StringModel>(sbnStringModel));
         sbnForm.setOutputMarkupId(true);
 		
@@ -134,7 +134,7 @@ public class MySearch extends BasePage {
 		
 		
 		//setup form
-        StringModel sbiStringModel = new StringModel();
+        final StringModel sbiStringModel = new StringModel();
         Form<StringModel> sbiForm = new Form<StringModel>("sbiForm", new Model<StringModel>(sbiStringModel));
         sbiForm.setOutputMarkupId(true);
 		
@@ -499,10 +499,12 @@ public class MySearch extends BasePage {
 							searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 							
 							if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchTerm.getSearchType())) {
+								sbnStringModel.setString(searchTerm.getSearchTerm());
 								searchByName(resultsListView, searchResultsNavigator,
 										searchHistoryContainer, target, searchTerm.getSearchTerm());
 								
 							} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchTerm.getSearchType())) {
+								sbiStringModel.setString(searchTerm.getSearchTerm());
 								searchByInterest(resultsListView, searchResultsNavigator,
 										searchHistoryContainer, target, searchTerm.getSearchTerm());
 							}
