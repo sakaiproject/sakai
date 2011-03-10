@@ -197,21 +197,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	}
 
    protected Locale getUserLocale(String userId) {
-	   Locale loc = null;
-	   Preferences prefs = preferencesService.getPreferences(userId);
-	   ResourceProperties locProps = prefs.getProperties(InternationalizedMessages.APPLICATION_ID);
-	   String localeString = locProps.getProperty(InternationalizedMessages.LOCALE_KEY);
-
-	   if (localeString != null) {
-		   String[] locValues = localeString.split("_");
-		   if (locValues.length > 2) {
-			   loc = new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
-		   } else if (locValues.length > 1) {
-			   loc = new Locale(locValues[0], locValues[1]); // language, country
-		   } else if (locValues.length == 1) { 
-			   loc = new Locale(locValues[0]); // just language
-		   }
-	   }
+	   Locale loc =  preferencesService.getLocale(userId);
+	   
 	   //the user has no preference set - get the system default
 	   if (loc == null ) {
 		   String lang = System.getProperty("user.language");
