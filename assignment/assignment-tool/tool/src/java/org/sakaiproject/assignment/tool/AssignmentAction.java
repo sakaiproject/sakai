@@ -7969,9 +7969,15 @@ public class AssignmentAction extends PagedResourceActionII
 					// read in allowResubmit params 
 					readAllowResubmitParams(params, state, submission);
 				}
-				else
+				else 
 				{
-					resetAllowResubmitParams(state);
+					state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+					state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+					
+					if (!"read".equals(gradeOption))
+					{
+						resetAllowResubmitParams(state);
+					}
 				}
 				// record whether the resubmission options has been changed or not
 				hasChange = hasChange || change_resubmit_option(state, submission);
@@ -8080,16 +8086,15 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	protected void resetAllowResubmitParams(SessionState state)
 	{
-		state.removeAttribute(ALLOW_RESUBMIT_CLOSEMONTH);
-		state.removeAttribute(ALLOW_RESUBMIT_CLOSEDAY);
-		state.removeAttribute(ALLOW_RESUBMIT_CLOSEYEAR);
-		state.removeAttribute(ALLOW_RESUBMIT_CLOSEHOUR);
-		state.removeAttribute(ALLOW_RESUBMIT_CLOSEMIN);
-		state.removeAttribute(ALLOW_RESUBMIT_CLOSEAMPM);
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH,state.getAttribute(NEW_ASSIGNMENT_DUEMONTH));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY,state.getAttribute(NEW_ASSIGNMENT_DUEDAY));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR,state.getAttribute(NEW_ASSIGNMENT_DUEYEAR));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR,state.getAttribute(NEW_ASSIGNMENT_DUEHOUR));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN,state.getAttribute(NEW_ASSIGNMENT_DUEMIN));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEAMPM,state.getAttribute(NEW_ASSIGNMENT_DUEAMPM));
 		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-	}
-
+	} 
 	/**
 	 * Populate the state object, if needed - override to do something!
 	 */
