@@ -4,11 +4,14 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%-- Sakai JSF tag library --%>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
 	<sakai:view_content>
 		<h:form id="prefs_form">
 		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>			
+		<script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>			
 		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){
@@ -16,8 +19,11 @@
 				setupPrefsTabs('sl','sr');				
 			})  
 		</script>
-
-				
+<script type="text/javascript">
+jQuery(document).ready(function () {
+    fluid.reorderGrid("#prefs_form:dt1");
+});
+</script>
 				<sakai:stylesheet path="/css/prefs.css"/>
 				<sakai:tool_bar>
 			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmEdit}" value="Refresh" /--%>
@@ -62,6 +68,32 @@
 				
 				
 				<sakai:messages />
+                <f:verbatim><ul></f:verbatim>
+		<t:dataList id="dt1" value="#{UserPrefsTool.prefOrderItems}" 
+			var="item" layout="simple" 
+			rowIndexVar="counter"
+			itemStyleClass="dataListStyle">
+                <f:verbatim><span class="flc-reorderer-movable buttonlike" id="</f:verbatim>
+                        <t:outputText value="#{UserPrefsTool.tabCount}"></t:outputText>
+                <f:verbatim>:</f:verbatim>
+                        <t:outputText value="#{counter}"></t:outputText>
+                <f:verbatim>:</f:verbatim>
+                        <t:outputText value="#{item.value}"></t:outputText>
+                <f:verbatim>"></f:verbatim>
+                        <t:outputText value="#{item.label}"></t:outputText>
+                <f:verbatim></span></f:verbatim>
+		</t:dataList>
+                <f:verbatim><span class="flc-reorderer-movable buttonlike" id="hidden">HIDDEN</span></f:verbatim>
+		<t:dataList id="dt2" value="#{UserPrefsTool.prefExcludeItems}" 
+			var="item" layout="simple" 
+			itemStyleClass="dataListStyle">
+                <f:verbatim><span class="flc-reorderer-movable buttonlike" id="0:0:</f:verbatim>
+                        <t:outputText value="#{item.value}"></t:outputText>
+                <f:verbatim>"></f:verbatim>
+                        <t:outputText value="#{item.label}"></t:outputText>
+                <f:verbatim></span></f:verbatim>
+		</t:dataList>
+                <f:verbatim></ul></f:verbatim>
 				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br/><br/><h:outputText value="#{msgs.tab_inst_2}"/><br/><br/><h:outputText value="#{msgs.tab_inst_3}"/><br /><br /><h:outputText value="#{msgs.tab_inst_save}"/></p>
 				<table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout" border="0">
     			  <tr>
