@@ -753,6 +753,7 @@ public class ResourcesItem
      */
     public boolean hasCopyrightAlert()
     {
+System.out.println("SLO2 copyrightAlert: " + copyrightAlert);
     	return copyrightAlert;
     }
 
@@ -762,6 +763,7 @@ public class ResourcesItem
     public void setCopyrightAlert(boolean copyrightAlert)
     {
     	this.copyrightAlert = copyrightAlert;
+System.out.println("SLO copyrightAlert: " + copyrightAlert);
     }
 
 	/**

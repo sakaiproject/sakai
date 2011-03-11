@@ -59,184 +59,88 @@ cannot be accepted. For a list of unsupported characters, see <a href="content.h
 
 <a name="vista"> </a>
 
-<h3>Using Windows Vista</h3>
+<h3>Setting up WebDAV for Windows Vista/Windows 7</h3>
 
-<p><strong>Note:</strong> Connecting to your site's Resources using
-WebDAV on a computer running Windows Vista does not work
-reliably. Developers are currently investigating this issue. However,
-Microsoft has a software update available that may help correct
-connection problems for some users. For information about the update
-and how to download it, see article 907306 at the Microsoft Help and
-Support web site.</p>
-
-<p> <a href="http://support.microsoft.com/default.aspx" target="new">Search
-Microsoft Help and Support</a>.</p>
-
+<p><strong>Note:</strong> Use of Sakai's WebDAV functionality on Windows 
+Vista requires that you have Vista Service Pack 2 installed. If you do 
+not yet have Service Pack 2 installed, please run Windows Update by 
+clicking Start &gt; All Programs &gt; Windows Update.</p>
 
 <p>To add a shortcut to your Windows Vista computer that
 allows you to upload and access files in Drop Box using WebDAV:</p>
 
-<ol><li>From the desktop, click <strong><code>Computer</code></strong>.
+<ol>
+   	<li>From the desktop or the Start menu, click <strong>Computer</strong>.</li>
+   	<li>At the top of the window, click <strong>Map Network Drive</strong>.</li>
+	<li>Select a vacant drive letter (e.g., Z) from the <em>Drive</em> drop down menu.</li>
+	<li>In the <em>Folder</em> field, type (or copy and paste) the URL for this site shown above.  Click <strong>Finish</strong>.</li>
+	<li>When prompted, enter your Sakai username and password and click <strong>OK</strong>.</li>
+	<li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
+</ol>
 
-<br /><br />
-</li><li>Click <strong><code>Map Network Drive</code></strong>.
+<h5>Alternate method of setting up WebDAV on Windows Vista/Windows 7</h5>
 
-<br /><br />
-</li><li>On the Map Network Drive screen, click <strong><code>Connect to a Web site
-that you can use to store your documents and pictures</code></strong>, and then
-click <strong><code>Next</code></strong>.
+<p>If the process above yields connections errors, you may be able to utilize the WebDAV functionality to access your files using a free third-party client called <strong>AnyClient</strong>.  Follow this process to download, install, and configure AnyClient.</p>
 
-<br /><br />
-</li><li>Click <strong><code>Choose a custom network location</code></strong>, and then click
-<strong><code>Next</code></strong>.
-
-<br /><br />
-</li><li>In the "Internet or network address" field, enter a URL that
-points to the destination Drop Box tool, and then click <strong><code>Next</code></strong>.
-
-<p>Contact your site administrator for
-the URL's format. It will likely include the siteID for your site.</p>
-
-
-
-<p><strong>Note:</strong> For instructions on finding your siteID, see
-<a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
-</li></ol>
-
-<p>You may now drag and drop folders between your computer and the
-sites to which you just connected. To delete an item, right-click it
-and select <strong><code>Delete</code></strong>.</p>
+<ol>
+			  		<li>Visit the VersionTracker page for the AnyClient WebDAV client at: <a target="_blank" href="http://www.versiontracker.com/dyn/moreinfo/win/10854857">http://www.versiontracker.com/dyn/moreinfo/win/10854857</a>.</li>
+			  		<li>Click the <strong>Download Now</strong> link on the right side of the page.</li>
+			  		<li>Run the <strong>install.exe</strong> file and complete the setup wizard.</li>
+			  		<li>If the installer did not automatically launch AnyClient, click <strong>Start &gt; All Programs &gt; AnyClient &gt; AnyClient</strong> to open AnyClient.</li>
+			  		<li>Click <strong>Connect</strong> at the bottom-left corner.</li>
+			  		<li>Click <strong>New</strong> at the bottom-left corner and give this connection a meaningful name on the left menu (e.g., <em>History 101 Resources</em>).</li>
+			  		<li>In the <em>Host</em> dialog box, type (or copy and paste) the path as shown above.</li>
+					<li>Type in your Sakai username and password.</li>
+			  		<li>In the <em>Connection type</em> drop box, select WebDAV.</li>
+			  		<li>Click <strong>Save</strong> at the bottom of the window to save this connection for future use and click <strong>Connect</strong>.</li>
+</ol>
 
 <p><a href="#top">Back to top</a></p>
 
 <a name="xp"> </a>
 
-<h3>Using Windows XP</h3>
+<h3>Setting up WebDAV for Windows XP</h3>
 
-<p>To use the Add Network Place Wizard to add a shortcut to your computer 
-that allows you to upload and access files in Drop Box using WebDAV:</p>
-
-<ol><li>On the desktop, double-click <strong><code>My Network Places</code></strong>.
-
-<br /><br />
-</li><li>In the "Network Tasks" pane, click <strong><code>Add a network place</code></strong>.
-
-<br /><br />
-</li><li>On the welcome screen, click <strong><code>Next</code></strong>.
-
-<br /><br />
-</li><li>Select <strong><code>Choose another network location</code></strong>, and then click
-<strong><code>Next</code></strong>.
-
-<br /><br />
-</li><li>In the "Internet or network address:" field, enter a URL that
-points to the destination Drop Box tool.
-
-<p>Contact your site administrator for
-the URL's format. It will likely include the siteID for your site.</p>
-
-
-
-<p><strong>Note:</strong> For instructions on finding your siteID, see
-<a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
-</li></ol>
-
-<p>You may now drag and drop folders between your computer and the
-sites to which you just connected. However, you cannot delete items
-from a site by dragging them to the Recycle Bin on your desktop. To
-delete an item, right-click it and select <strong><code>Delete</code></strong>.</p>
-
+<ol>
+			  		<li>Double-click on the <strong>My Network Places</strong> icon on your PC desktop or click <strong>Start &gt; My Network Places</strong>.</li>
+			 	 	<li>Click <strong>Add a network place</strong> on the left menu.</li>
+			  		<li>Click <strong>Next</strong>.</li>
+			  		<li>Make sure that <em>Choose another network location</em> is selected and click <strong>Next</strong>.</li>
+				  	<li>In the <em>Internet or network address</em> field, type (or copy and paste) the URL for this site shown above and click <strong>Next</strong>.
+				  	</li><li>When prompted, enter your Sakai username and your password and click <strong>OK</strong>.</li>
+			  		<li>Enter a name for the course or project resources you are adding (e.g., <em>History 101 Resources)</em> and click <strong>Next</strong>.
+					</li><li>Click <strong>Finish</strong> to complete the set up.</li>
+</ol>
 
 <p><a href="#top">Back to top</a></p>
 
 <a name="tiger"> </a>
 
-<h3>Mac OS X 10.4 (Tiger) and 10.5 (Leopard)</h3>
+<h3>Setting up WebDAV for Mac (OS 10.4 - 10.6)</h3>
 
-<p>To use WebDAV to upload and access files in Mac OS X 10.4 (Tiger) and
-10.5 (Leopard):</p>
-
-<ol><li>In the Finder, press <code>Command-k </code>. (Alternatively, 
-from the <strong><code>Go</code></strong> menu, choose <strong><code>Connect to Server</code></strong>.)
-
-<br /><br />
-</li><li>In the "Server Address:" field, enter the URL that points to
-the destination Resources tool.
-
-<p>Contact your site administrator for
-the URL's format; it will likely include the siteID for your site.</p>
-
-
-
-<p><strong>Note:</strong> For instructions on finding your siteID, see
-<a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
-</li></ol>
-
-<p>You may now drag and drop folders between your computer and the
-sites to which you just connected.</p>
-
-<p>Optionally, you may click the <strong><code>+</code></strong> (plus sign) to the right
-of the server address after you enter it, and the server will be added
-to your list of favorite servers.</p>
-
-<p>When you log in, you can choose to have the passphrase remembered
-in your Keychain. If you do this, you will not be prompted for a
-passphrase when you log into your personal Resources or the Resources
-for any site to which you have access. Do not do this unless your
-computer is secured from use by others.</p>
-
-<p><strong>Note:</strong> When you use WebDAV to access resources using
-this method, you may notice that <code>.DS_store</code> files are
-being created. Apple's knowledge base provides <a href="http://support.apple.com/kb/HT1629" target="new">instructions</a>
-for eliminating this behavior. </p>
+<ol>
+					<li>From the menu bar at the top of the screen in Finder, select <strong>Go &gt; Connect to Server...</strong></li>
+					<li>In the <em>Server Address</em> dialog box, type (or copy and paste) the path as shown above.</li>
+					<li>Press the <strong>+</strong> button to save this path for future use.</li>
+					<li>Click <strong>Connect</strong>.</li>
+					<li>Type in your username and password and click <strong>Connect</strong>.</li>
+</ol>
 
 <p><a href="#top">Back to top</a></p>
 
 <a name="panther"> </a>
 
-<h3>Mac OS X 10.3 (Panther) and earlier</h3>
+<h3>Setting up WebDAV for Mac (OS 10.0 - 10.3)</h3>
 
-<p>Using WebDAV to upload and access files in Mac OS X 10.3 (Panther) and
-earlier requires a third-party client called Goliath.</p>
-
-<p><strong>Note:</strong> Goliath has some known performance issues, and
-may not work 100% of the time. Because of this, only limited support
-is available if you experience problems. </p>
-
-<p>You can download a free copy of Goliath from:</p>
-
-<span class="example">  <a href="http://www.webdav.org/goliath/installs/Goliath1_0_1.dmg.gz" target="new">http://www.webdav.org/goliath/installs/Goliath1_0_1.dmg.gz</a></span>
-
-<p>Once you have downloaded the file, double-click it to decompress
-it. Then double-click the resulting <code>.dmg</code> file. A
-disk image named <code>Goliath 1.0.1</code> should now be
-available. Then:</p>
-
-<ol><li>Drag and drop the Goliath folder contained within the disk image
-to your hard disk.
-
-<br /><br /> 
-</li><li>Open the Goliath application.
-
-<br /><br />
-</li><li>In the "Server Address:" field, enter the URL that points to
-the destination Resources tool.
-
-<p>Contact your site administrator for
-the URL's format; it will likely include the siteID for your site.</p>
-
-
-
-<p><strong>Note:</strong> For instructions on finding your siteID, see
-<a href="content.hlp?docId=atla">Determining your site's siteID</a>.</p>
-</li></ol>
-
-
-<p>The first time you attempt to connect, you may be prompted to
-accept a certificate for the site. Click <strong><code>OK</code></strong> if prompted.</p>
-
-<p>You may now drag and drop folders between your computer and the
-sites to which you just connected.</p>
+<ol>
+					<li>Download the Cyberduck WebDAV client at: <a target="_blank" href="http://update.cyberduck.ch/Cyberduck-2.8.5.dmg">http://update.cyberduck.ch/Cyberduck-2.8.5.dmg</a></li>
+					<li>Decompress the file and double-click on the .dmg file. (Depending on the configuration of your decompression software, the disk image may automatically mount.)</li>
+					<li>A disk image named <em>Cyberduck-2.8.5</em> should now be available. Simply drag and drop the folder from the disk image to your Applications folder.</li>
+					<li>Open the Cyberduck application in your Applications folder.</li>
+					<li>Click the <strong>Open Connection</strong> button.</li>
+					<li>In the <em>Server</em> dialog box, type (or copy and paste) the path as shown above.</li>
+					<li>Type in your Sakai username and password and click <strong>OK</strong>.</li>
+</ol>
 
 <p><a href="#top">Back to top</a></p>
 
