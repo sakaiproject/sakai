@@ -684,10 +684,7 @@ public class MySearch extends BasePage {
 		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 		
 		// set current page if previously-viewed search
-		int currentPage = 0;
-		if (null != searchCookie) {
-			currentPage = getCookiePageNumber();
-		}
+		int currentPage = getCurrentPageNumber();
 				
 		//show the label wrapper
 		numSearchResultsContainer.setVisible(true);
@@ -753,10 +750,7 @@ public class MySearch extends BasePage {
 		int maxResultsPerPage = sakaiProxy.getMaxSearchResultsPerPage();
 
 		// set current page if previously-viewed search
-		int currentPage = 0;
-		if (null != searchCookie) {
-			currentPage = getCookiePageNumber();
-		}
+		int currentPage = getCurrentPageNumber();
 		
 		//show the label wrapper
 		numSearchResultsContainer.setVisible(true);
@@ -802,11 +796,19 @@ public class MySearch extends BasePage {
 		}
 	}
 	
-	private int getCookiePageNumber() {	  
-        return Integer.parseInt(searchCookie.getValue().substring(	 
-                searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER) + 1,	 
-                searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR)));
-        }
+	private int getCurrentPageNumber() {
+		if (null == searchCookie) {
+			return 0;
+		} else {
+			return getCookiePageNumber();
+		}
+	}
+	
+	private int getCookiePageNumber() {
+		return Integer.parseInt(searchCookie.getValue().substring(
+			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER) + 1,
+			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR)));
+	}
 	
 	private void updatePageNumber(int pageNumber, String cookieString) {
 		String searchType = getCookieSearchType(cookieString);
