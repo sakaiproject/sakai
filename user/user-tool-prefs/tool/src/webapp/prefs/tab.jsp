@@ -83,7 +83,8 @@ jQuery(document).ready(function () {
                         <t:outputText value="#{item.label}"></t:outputText>
                 <f:verbatim></span></f:verbatim>
 		</t:dataList>
-                <f:verbatim><span class="flc-reorderer-movable buttonlike" id="hidden">HIDDEN</span></f:verbatim>
+                <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">&lt;-- TOP TABS -</span></f:verbatim>
+                <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">- HIDDEN SITES --&gt;</span></f:verbatim>
 		<t:dataList id="dt2" value="#{UserPrefsTool.prefExcludeItems}" 
 			var="item" layout="simple" 
 			itemStyleClass="dataListStyle">
