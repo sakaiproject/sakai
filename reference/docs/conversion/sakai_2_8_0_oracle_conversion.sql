@@ -122,7 +122,7 @@ CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID, TYPE_UUID, CO
 alter table EMAIL_TEMPLATE_ITEM add EMAILFROM varchar2(255);
 
 -- SAK-18855
-alter table POLL_POLL add POLL_IS_PUBLIC Number(1,0) default 0 not null;
+alter table POLL_POLL add POLL_IS_PUBLIC number(1,0);
 
 
 -- Profile2 1.3-1.4 upgrade start
