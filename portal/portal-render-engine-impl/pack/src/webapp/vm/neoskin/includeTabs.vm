@@ -32,6 +32,9 @@
 						#if (${tabsSites.profileToolUrl})
 </a>
 						#end
+						#if (${tabsSites.prefsToolUrl})
+<a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true">Preferences</a>
+						#end
 						#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
 						#else
