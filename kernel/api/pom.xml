@@ -72,5 +72,9 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+    </dependency>
   </dependencies>
 </project>
