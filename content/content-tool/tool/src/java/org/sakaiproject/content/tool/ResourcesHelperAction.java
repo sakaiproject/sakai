@@ -643,6 +643,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		model.metadataGroupsIntoContext(context);
 		// model.setPubviewPossible(! preventPublicDisplay);
 				
+		context.put("model", model);
 		context.put("type", model.getResourceTypeDef());
 		
 		context.put("pipes", pipes);
@@ -668,28 +669,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 		}
 
-		String defaultCopyrightAlert = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT_ALERT);
-System.out.println("SLO3a: " + defaultCopyrightAlert);
-		if(defaultCopyrightAlert == null || defaultCopyrightAlert.trim().equals(""))
-		{
-			defaultCopyrightAlert = ServerConfigurationService.getString("default.copyright.alert");
-System.out.println("SLO3b: " + defaultCopyrightAlert);
-			state.setAttribute(STATE_DEFAULT_COPYRIGHT_ALERT, defaultCopyrightAlert);
-		}
-		
-		if("true".equalsIgnoreCase(defaultCopyrightAlert))
-		{
-System.out.println("SLO4: set to true");
-			model.setCopyrightAlert(true);
-		}
-		
 		context.put("defaultCopyrightStatus", defaultCopyrightStatus);
 		
 		ResourceConditionsHelper.buildConditionContext(context, state);
 	
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
-		context.put("model", model);
 
 		return CREATE_UPLOADS_TEMPLATE;
 	}
