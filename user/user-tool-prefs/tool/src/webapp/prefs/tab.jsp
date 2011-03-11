@@ -84,7 +84,7 @@ jQuery(document).ready(function () {
                 <f:verbatim></span></f:verbatim>
 		</t:dataList>
                 <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">&lt;-- TOP TABS -</span></f:verbatim>
-                <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">- HIDDEN SITES --&gt;</span></f:verbatim>
+                <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">- HIDDEN --&gt;</span></f:verbatim>
 		<t:dataList id="dt2" value="#{UserPrefsTool.prefExcludeItems}" 
 			var="item" layout="simple" 
 			itemStyleClass="dataListStyle">
@@ -95,6 +95,25 @@ jQuery(document).ready(function () {
                 <f:verbatim></span></f:verbatim>
 		</t:dataList>
                 <f:verbatim></ul></f:verbatim>
+<f:verbatim>
+<p>This is not yet a functional tool - it is just a prototype 
+to stimulate design ideas (i.e.  note
+the lack of a save button.  The Real UI is at the bottom of the page.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</f:verbatim>
 				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br/><br/><h:outputText value="#{msgs.tab_inst_2}"/><br/><br/><h:outputText value="#{msgs.tab_inst_3}"/><br /><br /><h:outputText value="#{msgs.tab_inst_save}"/></p>
 				<table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout" border="0">
     			  <tr>
