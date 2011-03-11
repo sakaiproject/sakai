@@ -494,8 +494,9 @@ public class PodcastServiceImpl implements PodcastService {
 				}
 			} 
 			catch (IdUnusedException e) {
-				LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
-						+ " for site: " + siteId + ". " + e.getMessage());
+			    // SAK-19347 - removed unhelpful logs
+				//LOG.warn("IdUnusedException while trying to determine correct podcast folder id "
+				//		+ " for site: " + siteId + ". " + e.getMessage());
 				
 				// if we get here it does not exist so create
 				if (isStudent) {
