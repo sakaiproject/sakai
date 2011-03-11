@@ -1082,7 +1082,7 @@ below they are contextually defined depending on the column as an example,as you
 	background-image: url(../../image/silk/script.png );
 }
 
-.icon-blogger{
+.icon-blogger, .icon-sakai-clog{
 	background-image: url(../../image/silk/book_edit.png );
 }
 
