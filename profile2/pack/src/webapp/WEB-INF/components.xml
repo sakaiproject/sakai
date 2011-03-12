@@ -118,13 +118,17 @@
     
     <!-- ProfileConnectionsLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"
-    	class="org.sakaiproject.profile2.logic.ProfileConnectionsLogicImpl">
+    	class="org.sakaiproject.profile2.logic.ProfileConnectionsLogicImpl"
+    	init-method="init"
+    	singleton="true"
+    	depends-on="org.sakaiproject.profile2.cache.connections">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
     	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
     	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
     	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
     
     <!-- ProfileKudosLogic -->
@@ -329,6 +333,22 @@
         <property name="maxElementsInMemory" value="10000" />
         <property name="diskPersistent" value="true" />
         <property name="eternal" value="true" />
+    </bean>
+    
+    <!--  connections cache: ttl=6 hours-->
+    <bean id="org.sakaiproject.profile2.cache.connections"
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        </property>
+        <property name="cacheName">
+            <value>org.sakaiproject.profile2.cache.connections</value>
+        </property>
+        <property name="maxElementsInMemory" value="2000" />
+        <property name="diskPersistent" value="false" />
+        <property name="eternal" value="false" />
+        <property name="timeToLive" value="21600" />
+		<property name="timeToIdle" value="21600" />
     </bean>
     
     <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551

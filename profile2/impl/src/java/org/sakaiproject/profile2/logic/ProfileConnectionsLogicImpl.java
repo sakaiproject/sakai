@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.model.BasicConnection;
@@ -25,6 +27,10 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 
 	private static final Logger log = Logger.getLogger(ProfileConnectionsLogicImpl.class);
 
+	private Cache cache;
+	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.connections";
+	
+	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -450,6 +456,11 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		
 	}
 	
+	public void init() {
+		cache = cacheManager.createCache(CACHE_NAME);
+	}
+	
+	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
@@ -479,4 +490,10 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
 		this.preferencesLogic = preferencesLogic;
 	}
+	
+	private CacheManager cacheManager;
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+
 }
