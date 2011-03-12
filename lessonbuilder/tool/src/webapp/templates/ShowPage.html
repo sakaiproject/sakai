@@ -60,7 +60,13 @@ setMainFrameHeight(window.name);
 		
 		<br rsf:id="breakAfterWarnings" />
 		
-		<div><a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note" style="float:right"></a><span class="title" rsf:id="pagetitle"></span><a class="usebutton" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a> <a class="usebutton" href="#" rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a> </div>
+		<div>
+		  <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note" style="float:right"></a>
+		  <span class="title" rsf:id="pagetitle"></span>
+		  <a class="usebutton" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a>
+		  <a class="usebutton" href="#" rsf:id="remove-page" id="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a> 
+		  <a class="usebutton" href="#" rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a> 
+		</div>
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar">
 			<a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a>
@@ -516,6 +522,14 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 					  <p rsf:id="msg=simplepage.new-page-explanation-2"></p>
 					</div>
 
+				</form>
+			</div>
+
+			<div id="remove-page-dialog" rsf:id="remove-page-dialog">
+			        <div style="margin-bottom: 2em" rsf:id="msg=simplepage.remove-page-explanation"></div>
+				<form action="#" rsf:id="remove-page-form">
+				  <input class="bold" type="submit" rsf:id="remove-page-submit" id="remove-page-submit" />
+				  <input type="submit" rsf:id="remove-page-cancel"  onclick="closeRemovePageDialog(); return false" />
 				</form>
 			</div>
 

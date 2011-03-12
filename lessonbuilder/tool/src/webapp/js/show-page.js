@@ -53,6 +53,14 @@ $(function() {
 		draggable: false
 	});
 
+	$('#remove-page-dialog').dialog({
+		autoOpen: false,
+		width: 600,
+		modal: false,
+		resizable: false,
+		draggable: false
+	});
+
 	$('#youtube-dialog').dialog({
 		autoOpen: false,
 		width: 600,
@@ -114,6 +122,20 @@ $(function() {
 		return false;
 	});
 
+	$('#remove-page').click(function(){
+		var position =  $(this).position();
+		$("#remove-page-dialog").dialog("option", "position", [position.left, position.top]);
+		// rsf puts the URL on the non-existent src attribute
+		$('.hideOnDialog').hide();
+		$('#remove-page-dialog').dialog('open');
+		return false;
+	});
+
+	$('#remove-page-submit').click(function() {
+		window.location.href= $("#remove-page-submit").attr("src");
+		return false;
+	});
+
 	var outerWidth = $('#outer').width();
 	if (outerWidth < 500) {
 	    $("#subpage-dialog").dialog("option", "width", outerWidth-10);
@@ -122,6 +144,7 @@ $(function() {
 	    $("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
 	    $("#edit-title-dialog").dialog("option", "width", outerWidth-10);
 	    $("#new-page-dialog").dialog("option", "width", outerWidth-10);
+	    $("#remove-page-dialog").dialog("option", "width", outerWidth-10);
 	    $("#youtube-dialog").dialog("option", "width", outerWidth-10);
 	    $("#movie-dialog").dialog("option", "width", outerWidth-10);
 	    $("#subpage-link").dialog("option", "width", outerWidth-10);
@@ -559,6 +582,10 @@ function closeEditTitleDialog() {
 function closeNewPageDialog() {
 	$('#new-page-dialog').dialog('close');
 	$('#new-page-error-container').hide();
+}
+
+function closeRemovePageDialog() {
+	$('#remove-page-dialog').dialog('close');
 }
 
 function closeYoutubeDialog() {

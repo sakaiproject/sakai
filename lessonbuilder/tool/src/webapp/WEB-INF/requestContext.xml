@@ -95,6 +95,11 @@
 		<property name="messageLocator" ref="messageLocator"/>
 	</bean>
 
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.RemovePageProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="messageLocator" ref="messageLocator"/>
+	</bean>
+
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.QuizPickerProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />

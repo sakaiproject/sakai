@@ -356,6 +356,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    decorate(new UIFreeAttributeDecorator("title", 
 				 messageLocator.getMessage("simplepage.editTitle")));
 			if (pageItem.getPageId() == 0) {// top level page
+			    UIOutput.make(tofill, "remove-page").
+				decorate(new UIFreeAttributeDecorator("title", 
+				      messageLocator.getMessage("simplepage.remove-page-tooltip")));
 			    UIOutput.make(tofill, "new-page").
 				decorate(new UIFreeAttributeDecorator("title", 
 				      messageLocator.getMessage("simplepage.new-page-tooltip")));
@@ -919,6 +922,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createEditMultimediaDialog(tofill, currentPage);
 		createEditTitleDialog(tofill, currentPage, pageItem);
 		createNewPageDialog(tofill, currentPage, pageItem);
+		createRemovePageDialog(tofill, currentPage, pageItem);
 		createYoutubeDialog(tofill);
 		createMovieDialog(tofill, currentPage);
 	}
@@ -1438,6 +1442,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "new-page-submit", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.addPages}");
 		UICommand.make(form, "new-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+	}
+
+	private void createRemovePageDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
+		UIOutput.make(tofill, "remove-page-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page")));
+
+		UIForm form = UIForm.make(tofill, "remove-page-form");
+
+		GeneralViewParameters params = new GeneralViewParameters(RemovePageProducer.VIEW_ID);
+		UIInternalLink.make(form, "remove-page-submit", "", params).
+		    decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.remove")));
+
+		//		UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+		UICommand.make(form, "remove-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 
     /* 

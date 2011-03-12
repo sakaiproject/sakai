@@ -527,7 +527,7 @@ public class SimplePageBean {
 		    mimeType = t;
 		}
 		conn.getInputStream().close();
-	    } catch (Exception e) {log.error("connection error " + e);};
+	    } catch (Exception e) {log.error("getTypeOfUrl connection error " + e);};
 	    return mimeType;
 	}
 
@@ -735,7 +735,7 @@ public class SimplePageBean {
 
 			return "successDelete";
 		} else {
-			log.warn("Error Deleting Item: " + itemId);
+			log.warn("deleteItem error deleting Item: " + itemId);
 			return "failure";
 		}
 	}
@@ -787,7 +787,7 @@ public class SimplePageBean {
 	    SimplePageItem i = findItem(item);
 	    if (i != null) {
 		if ((long)currentPageId != (long)Long.valueOf(i.getSakaiId())) {
-		    log.warn("updatepage item permission failure " + i + " " + Long.valueOf(i.getSakaiId()) + " " + currentPageId);
+		    log.warn("updatePageItem permission failure " + i + " " + Long.valueOf(i.getSakaiId()) + " " + currentPageId);
 		    throw new PermissionException(getCurrentUserId(), "set item", Long.toString(item));
 		}
 	    }
@@ -968,17 +968,17 @@ public class SimplePageBean {
 			for(String s: items) {
 			    // don't see how this could happen, but it did
 			    if (s.trim().equals("")) {
-				log.warn("attempt to set invalid path: invalid item: " + op + ":" + logEntry.getPath());
+				log.warn("adjustPath attempt to set invalid path: invalid item: " + op + ":" + logEntry.getPath());
 				return null;
 			    }
 			    SimplePageItem i = findItem(Long.valueOf(s));
 			    if (i == null || i.getType() != SimplePageItem.PAGE) {
-				log.warn("attempt to set invalid path: invalid item: " + op);
+				log.warn("adjustPath attempt to set invalid path: invalid item: " + op);
 				return null;
 			    }
 			    SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
 			    if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
-				log.warn("attempt to set invalid path: invalid page: " + op);
+				log.warn("adjustPath attempt to set invalid path: invalid page: " + op);
 				return null;
 			    }
 			    PathEntry entry = new PathEntry();
@@ -1099,7 +1099,7 @@ public class SimplePageBean {
 			updatePageObject(subpage.getPageId());
 			updatePageItem(i.getId());
 		    } catch (PermissionException e) {
-			log.warn("createsubpage permission failed going to new page");
+			log.warn("createSubpage permission failed going to new page");
 			return "failed";
 		    }
 		    adjustPath((subpageNext ? "next" : "push"), subpage.getPageId(), i.getId(), i.getName());
@@ -1151,8 +1151,35 @@ public class SimplePageBean {
 		    simplePageToolDao.deleteItem(target);
 		}
 	    }
-
 	    return "success";
+
+	}
+
+    //  remove a top-level page from the left margin. Does not actually delete it.
+    //  this and addpages checks only edit page permission. should it check site.upd?
+        public String removePage() {
+	    if (!canEditPage())
+		return "permission-failed";
+
+	    Site site = getCurrentSite();
+	    SimplePage page = getCurrentPage();
+	    SitePage sitePage = site.getPage(page.getToolId());
+	    if (sitePage == null) {
+		log.error("removePage can't find site page for " + page.getPageId());
+		return "no-such-page";
+	    }
+	    
+	    site.removePage(sitePage);
+
+	    try {
+		siteService.save(site);
+	    } catch (Exception e) {
+		log.error("removePage unable to save site " + e);
+	    }
+
+	    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + page.getPageId(), true));
+	    return "success";
+
 	}
 
     // called from "save" in main edit item dialog
@@ -1250,10 +1277,10 @@ public class SimplePageBean {
 			return tc.getId();
 		} catch (IdUnusedException e) {
 			// This really shouldn't happen.
-		    log.warn("attempt to get tool config for " + tool + " failed. Tool missing from site?");
+		    log.warn("getToolId 1 attempt to get tool config for " + tool + " failed. Tool missing from site?");
 		    return null;
 		} catch (java.lang.NullPointerException e) {
-		    log.warn("attempt to get tool config for " + tool + " failed. Tool missing from site?");
+		    log.warn("getToolId 2 attempt to get tool config for " + tool + " failed. Tool missing from site?");
 		    return null;
 		}
 	}
@@ -1535,7 +1562,7 @@ public class SimplePageBean {
 			simplePageToolDao.update(i);
 			return "success";
 		} else {
-			log.warn("Could not find multimedia object: " + itemId);
+			log.warn("editMultimedia Could not find multimedia object: " + itemId);
 			return "cancel";
 		}
 	}
@@ -1700,7 +1727,7 @@ public class SimplePageBean {
 	    try {
 		siteService.save(site);
 	    } catch (Exception e) {
-		System.out.println("SimplePageBean unable to save site " + e);
+		log.error("addPage unable to save site " + e);
 	    }
 	    currentSite = null; // force refetch, since we've changed it
 
@@ -2346,7 +2373,7 @@ public class SimplePageBean {
 			group = simplePageToolDao.findGroup(item.getSakaiId());
 			if (group == null) {
 				// Something really weird is up.
-				log.warn("Can't create a group for " + item.getName() + " permissions.");
+				log.warn("checkItemPermissions Can't create a group for " + item.getName() + " permissions.");
 				return;
 			}
 		}
@@ -2380,10 +2407,10 @@ public class SimplePageBean {
 			} catch (org.sakaiproject.authz.api.GroupNotDefinedException ee) {
 			} catch (Exception e) {
 			    // some other failure from getAuthzGroup, shouldn't be possible
-			    log.warn("unable to join or unjoin group " + groupId);
+			    log.warn("checkItemPermissions unable to join or unjoin group " + groupId);
 			}
 
-			log.warn("Lesson Builder: User seems to have deleted group " + groupId + ". We'll recreate it.");
+			log.warn("checkItemPermissions: User seems to have deleted group " + groupId + ". We'll recreate it.");
 
 			// OK, group doesn't exist. When we recreate it, it's going to have a 
 			// different groupId, so we have to back out of everything and reset it
@@ -2525,7 +2552,7 @@ public class SimplePageBean {
 		    contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
 		    sakaiId = res.getId();
 
-		} catch (Exception e) {log.error("error " + e);};
+		} catch (Exception e) {log.error("addMultimedia error " + e);};
 	    } else if (mmUrl != null && !mmUrl.trim().equals("")) {
 		// user specified a URL, create the item
 		String url = mmUrl.trim();
@@ -2559,7 +2586,7 @@ public class SimplePageBean {
 		    res.setContent(url.getBytes());
 		    contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 		    sakaiId = res.getId();
-		} catch (Exception e) {log.error("error " + e);};
+		} catch (Exception e) {log.error("addMultimedia error " + e);};
 		
 		// connect to url and get mime type
 		mimeType = getTypeOfUrl(url);
@@ -2632,7 +2659,7 @@ public class SimplePageBean {
 			res.setContent(url.getBytes());
 			contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			item.setSakaiId(res.getId());
-		    } catch (Exception e) {log.error("error " + e);};
+		    } catch (Exception e) {log.error("updateYoutube error " + e);};
 		}
 
 		// even if there's some oddity with URLs, we do these updates

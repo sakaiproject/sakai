@@ -268,14 +268,19 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		UIForm form = UIForm.make(tofill, "page-picker");
 
 		ArrayList<String> values = new ArrayList<String>();
+		ArrayList<String> initValues = new ArrayList<String>();
 		for (PageEntry entry: entries)
-		    if (entry.level >= 0)
+		    if (entry.level >= 0) {
 			values.add(entry.pageId.toString());
+			initValues.add("");
+		    }
 
-		String selectedVariable = "#{simplePageBean.selectedEntity}";
+		UISelect select = null;
 		if (summaryPage)
-		    selectedVariable = "#{simplePageBean.selectedEntities}";
-		UISelect select = UISelect.make(form, "page-span", values.toArray(new String[1]), selectedVariable , null);
+		    select = UISelect.makeMultiple(form, "page-span", values.toArray(new String[1]), "#{simplePageBean.selectedEntities}" , initValues.toArray(new String[1]));
+		else
+		    select = UISelect.make(form, "page-span", values.toArray(new String[1]), "#{simplePageBean.selectedEntity}", null);
+
 		int index = 0;
 		boolean showDeleteButton = false;
 
