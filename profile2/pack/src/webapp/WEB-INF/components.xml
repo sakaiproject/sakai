@@ -273,7 +273,7 @@
     </bean>
     
     
-    <!-- kudos cache -->
+    <!-- kudos cache: ttl=12 hours -->
     <bean id="org.sakaiproject.profile2.cache.kudos"
         class="org.springframework.cache.ehcache.EhCacheFactoryBean">
         <property name="cacheManager">
@@ -285,8 +285,8 @@
         <property name="maxElementsInMemory" value="10000" />
         <property name="diskPersistent" value="false" />
         <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-		<property name="timeToIdle" value="3600" />
+        <property name="timeToLive" value="43200" />
+        <property name="timeToIdle" value="43200" />
     </bean>
     
     <!--  preferences cache -->

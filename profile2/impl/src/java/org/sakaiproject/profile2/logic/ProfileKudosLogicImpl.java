@@ -3,6 +3,7 @@ package org.sakaiproject.profile2.logic;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -16,6 +17,8 @@ import org.sakaiproject.profile2.hbm.model.ProfileKudos;
  */
 public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 
+	private static final Logger log = Logger.getLogger(ProfileKudosLogicImpl.class);
+
 	private Cache cache;
 	private final String CACHE_NAME = "org.sakaiproject.profile2.cache.kudos";
 	
@@ -24,8 +27,22 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
  	 * {@inheritDoc}
  	 */
 	public int getKudos(String userUuid){
-		ProfileKudos k = dao.getKudos(userUuid);
-		if(k == null){
+		
+		ProfileKudos k;
+		
+		if(cache.containsKey(userUuid)){
+			log.debug("Fetching kudos from cache for: " + userUuid);
+			k = (ProfileKudos)cache.get(userUuid);
+		} else {
+			k = dao.getKudos(userUuid);
+			
+			if(k != null){
+				log.debug("Adding kudos to cache for: " + userUuid);
+				cache.put(userUuid, k);
+			}
+		}
+		
+		if(k == null) {
 			return 0;
 		}
 		return k.getScore();
@@ -52,7 +69,12 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		k.setPercentage(percentage);
 		k.setDateAdded(new Date());
 		
-		return dao.updateKudos(k);
+		if(dao.updateKudos(k)){
+			log.debug("Adding kudos to cache for: " + userUuid);
+			cache.put(userUuid, k);
+			return true;
+		}
+		return false;
 	}
 	
 	
