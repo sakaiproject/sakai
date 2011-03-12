@@ -101,60 +101,6 @@
                             </componentProperties>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>export-db2</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-db2.properties</propertyfile>
-                                <outputfilename>db2/${project.ddl.name}-${parent.version}-db2.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <!-- 
-                    <execution>
-                        <id>export-mssql</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-mssql.properties</propertyfile>
-                                <outputfilename>mssql/${project.ddl.name}-${parent.version}-mssql.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-derby</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-derby.properties</propertyfile>
-                                <outputfilename>derby/${project.ddl.name}-${parent.version}-derby.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>export-postgres</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                        <configuration>
-                            <componentProperties>
-                                <propertyfile>hibernate-postgres.properties</propertyfile>
-                                <outputfilename>postgres/${project.ddl.name}-${parent.version}-postgres.sql</outputfilename>
-                            </componentProperties>
-                        </configuration>
-                    </execution>
-                    -->
                 </executions>
             </plugin>
         </plugins>
