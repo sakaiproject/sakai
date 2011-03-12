@@ -277,6 +277,7 @@ function updatePresence() {
                                 $('#presenceCount').removeClass('present').addClass('empty');
                         } 
                         $("#presenceIframe").html(frag);
+                        sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
 		},
 		// If we get an error, wait 60 seconds before retry
 		error: function(request, strError){
