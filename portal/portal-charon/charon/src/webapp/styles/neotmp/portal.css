@@ -707,9 +707,7 @@ a#toggleToolMenu{
 .sakaiMinimizePageNavigation #toolMenu{
 	width:0px;
 }
-.sakaiMinimizePageNavigation #worksiteLogo, .sakaiMinimizePageNavigation #presenceWrapper{
-	display:none
-}
+
 .sakaiMinimizePageNavigation #toolMenu li span,.sakaiMinimizePageNavigation #subSites li span{
     position:absolute; 
     left:-10000px; 
@@ -794,6 +792,28 @@ a#toggleToolMenu{
 	font-size: 	small;
 	margin: 5px 2px 15px 2px;
 	padding: 3px 3px 3px 2em;
+}
+
+#presenceToggle{
+	color: white;
+	text-decoration: none;
+}
+
+#footerAppTray span.present {
+        background-color: red;
+}
+
+#footerAppTray span.empty {
+}
+
+#presenceArea {
+	background-color: #ffffff;
+        border: 1px solid  #aaa;
+        position:fixed;
+        height: 250px;
+        width: 120px;
+        bottom: 50px;
+        right: 10px;
 }
 
 /*wrapper for all elements of presence display */
@@ -1011,7 +1031,7 @@ below they are contextually defined depending on the column as an example,as you
      padding:10px;
      bottom:0;
      text-align:center;
-     width:50px;
+     width:80px;
      outline:1px solid #ccc;
      color:#fff
 }    

@@ -251,12 +251,32 @@ function updatePresence() {
 		url: sakaiPresenceFragment,
 		cache: false,
 		success: function(frag){
-			var whereHead = frag.indexOf('<head>');
-			if ( whereHead > 0 ) {
-			 	location.reload();
-			} else {
-				$("#presenceIframe").html(frag);
-			}
+                        var whereul = frag.indexOf('<ul');
+                        if ( whereul < 1 ) {
+                                $("#presenceCount").html(' ');
+                                $('#presenceCount').removelass('present').addClass('empty');
+                                location.reload();
+                                return;
+                        }
+                        frag = frag.substr(whereul);
+                        var _s = frag;
+                        var _m = '<li'; // needle 
+                        var _c = 0;
+                        for (var i=0;i<_s.length;i++) {
+                                if (_m == _s.substr(i,_m.length)) _c++;
+                        }
+			// No need to attrct attention you are alone
+                        if ( _c > 1 ) {
+                                $("#presenceCount").html(_c+'');
+                                $('#presenceCount').removeClass('empty').addClass('present');
+                        } else if ( _c == 1 ) {
+                                $("#presenceCount").html(_c+'');
+                                $('#presenceCount').removeClass('present').addClass('empty');
+                        } else {
+                                $("#presenceCount").html(' ');
+                                $('#presenceCount').removeClass('present').addClass('empty');
+                        } 
+                        $("#presenceIframe").html(frag);
 		},
 		// If we get an error, wait 60 seconds before retry
 		error: function(request, strError){

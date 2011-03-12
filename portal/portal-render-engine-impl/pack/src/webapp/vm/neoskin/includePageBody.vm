@@ -10,6 +10,8 @@
 		#else
 			<div id="$pageWrapperClass">
 		#end
+
+
 				<div id="$pageColumnLayout">
 			#foreach ( $tool in $pageColumn0Tools ) 
 				#if ( $tool ) 
@@ -175,6 +177,7 @@
 				</div>
 			#end
 			</div>
+
 			<div>
 			<!-- include bottom -->
 			#if ( !$pagepopup)
@@ -194,8 +197,57 @@
 				<div class="sakaiCopyrightInfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
-				<div id="footerAppTray">appTray</div>
+				<div id="footerAppTray"><a href="#" id="presenceToggle">Presence</a> <span id="presenceCount">&nbsp;</span></div>
+
+
+
 			</div>
+
+
+			#if (${sitePages.pageNavShowPresenceLoggedIn})
+                             <div id="presenceArea" style="display: none">
+				<h1 class="skip">${rloader.sit_presencehead}</h1>
+				<div id="presenceWrapper">
+					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+#if (${sitePages.pageNavPresenceIframe})
+					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
+						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >
+					</iframe>
+#else
+				<div id="presenceIframe">
+					&nbsp;
+				</div>
+<script type="text/javascript">
+var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
+var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
+
+$(document).ready(function() {
+## Lets have presence delay a bit in case they are clicking really fast.
+    sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
+
+	$("#presenceToggle").click(function(e) {
+		e.preventDefault();
+		$('#presenceArea').toggle();
+/*
+                $(this).parent().find("#presenceArea").slideUp('fast').show();
+                $(this).parent().find("#presenceArea").slideUp('fast').show();
+
+                $(this).parent().hover(function() {
+                }, function(){
+                        $(this).parent().find("#presenceArea").slideDown('slow');
+                });
+*/
+        });
+
+} );
+
+</script>
+#end
+				</div>
+                           </div>
+			#end
+
+
 #else
 <!-- dont compact -->
 #end
