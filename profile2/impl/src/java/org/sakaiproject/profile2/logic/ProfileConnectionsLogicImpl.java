@@ -85,7 +85,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		
 		//get friends of current user
 		//TODO change this to be a single lookup rather than iterating over a list
-		List<String> friendUuids = dao.getConfirmedConnectionUserIdsForUser(userY);
+		List<String> friendUuids = getConfirmedConnectionUserIdsForUser(userY);
 		
 		//if list of confirmed friends contains this user, they are a friend
 		if(friendUuids.contains(userX)) {
@@ -167,6 +167,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 
 			//send email notification
 			sendConnectionEmailNotification(friendId, userId, ProfileConstants.EMAIL_NOTIFICATION_REQUEST);
+			
 			return true;
 		}
 		return false;
@@ -213,6 +214,10 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); 
 			//send email notification
 			sendConnectionEmailNotification(fromUser, toUser, ProfileConstants.EMAIL_NOTIFICATION_CONFIRM);
+			
+			//invalidate the confirmed connection caches for each user as they are now stale
+			evictFromCache(fromUser);
+			evictFromCache(toUser);
 			
 			return true;
 		} 
@@ -266,6 +271,11 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		//delete
 		if(dao.removeConnection(profileFriend)) {
 			log.info("User: " + userId + " remove friend: " + friendId);  
+			
+			//invalidate the confirmed connection caches for each user as they are now stale
+			evictFromCache(userId);
+			evictFromCache(friendId);
+			
 			return true;
 		}
 		return false;
@@ -397,13 +407,35 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			return users;
 		}
 		
-		users = sakaiProxy.getUsers(dao.getConfirmedConnectionUserIdsForUser(userUuid));
+		users = sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userUuid));
 		return users;
 	}
 	
 
-	
-	
+	/**
+	 * Helper method to get the list of confirmed connections for a user as a List<String> of uuids.
+	 * 
+	 * <p>First checks the cache and then goes to the dao if necessary.</p>
+	 * 
+	 * @param userUuid
+	 * @return List<String> of uuids, empty if none.
+	 */
+	private List<String> getConfirmedConnectionUserIdsForUser(final String userUuid) {
+
+		List<String> userUuids = new ArrayList<String>();
+		
+		if(cache.containsKey(userUuid)){
+			log.debug("Fetching connections from cache for: " + userUuid);
+			userUuids = (List<String>)cache.get(userUuid);
+		} else {
+			userUuids = dao.getConfirmedConnectionUserIdsForUser(userUuid);
+			if(userUuids != null){
+				log.debug("Adding connections to cache for: " + userUuid);
+				cache.put(userUuid, userUuids);
+			}
+		}
+		return userUuids;
+	}
 	
 	
 	
@@ -455,6 +487,16 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		}
 		
 	}
+	
+	/**
+	 * Helper to evict an item from a cache. 
+	 * @param cacheKey	the id for the data in the cache
+	 */
+	private void evictFromCache(String cacheKey) {
+		cache.remove(cacheKey);
+		log.info("Evicted data in cache for key: " + cacheKey);
+	}
+
 	
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);

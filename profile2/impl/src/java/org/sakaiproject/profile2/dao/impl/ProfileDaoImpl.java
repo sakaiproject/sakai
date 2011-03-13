@@ -73,9 +73,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 * {@inheritDoc}
  	 */
 	public List<String> getConfirmedConnectionUserIdsForUser(final String userId) {
-		
-		List<String> userUuids;
-		
+				
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
