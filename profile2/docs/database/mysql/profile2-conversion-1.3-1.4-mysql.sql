@@ -111,13 +111,13 @@ alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null;
 alter table PROFILE_PRIVACY_T drop SEARCH;
 
 /* add kudos preference (PRFL-336) */
-alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null;
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null default true;
 
 /* add kudos privacy (PRFL-336) */
 alter table PROFILE_PRIVACY_T add MY_KUDOS int not null;
 
 /* add gallery feed preference (PRFL-382) */
-alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null;
+alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null default true;
 
 /* adjust size of the profile images resource uri columns (PRFL-392) */
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text;

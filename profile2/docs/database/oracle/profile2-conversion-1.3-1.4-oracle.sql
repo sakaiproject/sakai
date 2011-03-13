@@ -113,13 +113,13 @@ alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE number(1,0) not null;
 alter table PROFILE_PRIVACY_T drop column SEARCH;
 
 /* add kudos preference (PRFL-336) */
-alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) not null;
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) not null default 1;
 
 /* add kudos privacy (PRFL-336) */
 alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) not null;
 
 /* add gallery feed preference (PRFL-382) */
-alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) not null;
+alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) not null default 1;
 
 /* adjust size of the profile images resource uri columns (PRFL-392) */
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000);
