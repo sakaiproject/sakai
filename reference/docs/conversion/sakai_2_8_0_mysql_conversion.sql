@@ -171,43 +171,43 @@ create table PROFILE_KUDOS_T (
 );
 
 -- PRFL-152, PRFL-186 add the new email message preference columns, default to 0
-alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW bit not null;
-alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY bit not null;
+alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW bit not null default false;
+alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY bit not null default false;
 
 -- PRFL-285 add social networking privacy column
-alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO int not null;
+alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO int not null default 0;
 
 -- PRFL-171 add the new gallery column
-alter table PROFILE_PRIVACY_T add MY_PICTURES int not null;
+alter table PROFILE_PRIVACY_T add MY_PICTURES int not null default 0;
 
 -- PRFL-194 add the new messages column
-alter table PROFILE_PRIVACY_T add MESSAGES int not null;
+alter table PROFILE_PRIVACY_T add MESSAGES int not null default 0;
 
 -- PRFL-210 add the new businessInfo column
-alter table PROFILE_PRIVACY_T add BUSINESS_INFO int not null;
+alter table PROFILE_PRIVACY_T add BUSINESS_INFO int not null default 0;
 
 -- PRFL-267 add the new staff and student info columns 
 -- and copy old ACADEMIC_INFO value into them to maintain privacy
-alter table PROFILE_PRIVACY_T add STAFF_INFO int not null;
-alter table PROFILE_PRIVACY_T add STUDENT_INFO int not null;
+alter table PROFILE_PRIVACY_T add STAFF_INFO int not null default 0;
+alter table PROFILE_PRIVACY_T add STUDENT_INFO int not null default 0;
 update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
 update PROFILE_PRIVACY_T set STUDENT_INFO = ACADEMIC_INFO;
 alter table PROFILE_PRIVACY_T drop ACADEMIC_INFO;
 
 -- PRFL-90 add the new useOfficialImage column
-alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null;
+alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE bit not null default false;
 
 -- PRFL-293 remove search privacy setting
 alter table PROFILE_PRIVACY_T drop SEARCH;
 
 -- PRFL-336 add kudos preference
-alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null;
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS bit not null default true;
 
 -- PRFL-336 add kudos privacy
-alter table PROFILE_PRIVACY_T add MY_KUDOS int not null;
+alter table PROFILE_PRIVACY_T add MY_KUDOS int not null default 0;
 
 -- PRFL-382 add gallery feed preference
-alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null;
+alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED bit not null default true;
 
 -- PRFL-392 adjust size of the profile images resource uri columns
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text;
