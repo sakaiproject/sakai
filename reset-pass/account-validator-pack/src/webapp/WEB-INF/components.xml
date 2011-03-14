@@ -74,10 +74,14 @@
 		<property name="validationLogic">
 		<ref bean="org.sakaiproject.accountvalidator.logic.ValidationLogic" />
 		</property>
-	<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-	<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-	<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
-		
+	        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+
    </bean>
 
    <!-- this is the helper that will register the above bean with the schedule manager

@@ -26,12 +26,16 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -39,11 +43,25 @@ import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.i18n.InternationalizedMessages;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 
 public class CheckValidations implements Job {
 
@@ -75,10 +93,47 @@ public class CheckValidations implements Job {
 		this.emailTemplateService = emailTemplateService;
 	}
 
+	
+	private ServerConfigurationService serverConfigurationService;	
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	
+	public SiteService siteService;
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	
+	private PreferencesService preferencesService;	
+	public void setPreferencesService(PreferencesService preferencesService) {
+		this.preferencesService = preferencesService;
+	}
+
+
+	private int maxDays = 90;
+	
+	public void setMaxDays(int maxDays) {
+		this.maxDays = maxDays;
+	}
+
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
+		//set the user information into the current session
+	    Session sakaiSession = sessionManager.getCurrentSession();
+	    sakaiSession.setUserId("admin");
+	    sakaiSession.setUserEid("admin");
+		
+		
 		Calendar cal = new GregorianCalendar();
-		cal.add(Calendar.DAY_OF_MONTH, -31);
+		cal.add(Calendar.DAY_OF_MONTH, (maxDays * -1));
 		Date maxAge = cal.getTime();
 		int maxAttempts =10;
 
@@ -100,21 +155,29 @@ public class CheckValidations implements Job {
 			log.info("account " + account.getUserId() + " created on  " + account.getValidationSent());
 
 			//has the user logged in - check for a authz realm
-			try {
-				AuthzGroup group = authzGroupService.getAuthzGroup("/site/~" + account.getUserId());
+			
+				
+				String userSiteId = siteService.getUserSiteId(account.getUserId());
+				if (siteService.siteExists(userSiteId)) {
 				log.info("looks like this user logged in!");
 				loggedInAccounts++;
 
 				
 				if (account.getValidationSent().before(maxAge) && account.getValidationsSent().intValue() <= maxAttempts) {
-					validationLogic.resendValidation(account.getValidationToken());
+					if (serverConfigurationService.getBoolean("accountValidator.resendValidations", true)) {
+						validationLogic.resendValidation(account.getValidationToken());
+					} else {
+						//Seeing the account is used assume Validated in Some way
+						account.setStatus(ValidationAccount.STATUS_CONFIRMED);
+						validationLogic.save(account);
+					}
 					usedAccounts.append(account.getUserId() + "\n");
 				} else if (account.getValidationsSent().intValue() > maxAttempts) {
 					//TODO What do we do in this case?
 				}
 
-			} catch (GroupNotDefinedException e) {
-
+			} else {
+				//user has never logged in
 				log.info("realm: " + "/site/~" + account.getUserId() + " does not seem to exist");
 				notLogedIn++;
 				if (account.getValidationSent().before(maxAge)) {
@@ -126,7 +189,9 @@ public class CheckValidations implements Job {
 		}
 		log.info("users have logged in: " + loggedInAccounts + " not logged in: " + notLogedIn);
 		log.info("we would delete: " + oldAccounts.size() + " accounts");
-		log.info("users:" + usedAccounts.toString());
+		if (log.isDebugEnabled()) {
+			log.debug("users:" + usedAccounts.toString());
+		}
 		
 		//as potentially a user could have added lots of accounts we don't want to spam them
 		Map<String, List<String>> addedMap = buildAddedMap(oldAccounts);
@@ -139,21 +204,30 @@ public class CheckValidations implements Job {
 			String creatorId = entry.getKey();
 			try {
 				User creator = userDirectoryService.getUser(creatorId);
+				Locale locale = getUserLocale(creatorId);
 				List<String> users = entry.getValue();
 				StringBuilder userText = new StringBuilder();
 				for (int i = 0; i < users.size(); i++) {
 					User u = userDirectoryService.getUser(users.get(i));
-					userText.append(u.getEid() + "\n");
+					//added the added date 
+					Time time = u.getCreatedTime();
+					DateTime dt = new DateTime(time.getTime());
+					DateTimeFormatter fmt = DateTimeFormat.longDate();
+					String str = fmt.withLocale(locale).print(dt);
+					userText.append(u.getEid() + " (" + str +")\n");
 					
-					//TODO we need to remove the user from realms and delete the token and user
+					removeCleaUpUser(u.getId());
 				}
 				
 				List<String> userReferences = new ArrayList<String>();
 				userReferences.add(creator.getReference());
 				
+				
+				
 				Map<String, String> replacementValues = new HashMap<String, String>();
 				replacementValues.put("userList", userText.toString());
-				
+				replacementValues.put("creatorName", creator.getDisplayName());
+				replacementValues.put("deleteDays", Integer.valueOf(maxDays).toString());
 				//now we send an email
 				emailTemplateService.sendRenderedMessages("validation.deleted", userReferences, replacementValues, "help@vula.uct.ac.za", "Vula Help");
 				
@@ -165,6 +239,45 @@ public class CheckValidations implements Job {
 			
 			
 		}
+		
+	}
+
+	private void removeCleaUpUser(String id) {
+		
+		
+		
+		UserEdit user;
+		try {
+			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(id), "site.visit", null);
+			Iterator<String> it = groups.iterator();
+			while (it.hasNext()) {
+				AuthzGroup group = authzGroupService.getAuthzGroup(it.next());
+				group.removeMember(id);
+				authzGroupService.save(group);
+			}
+			
+			
+			user = userDirectoryService.editUser(id);
+			userDirectoryService.removeUser(user);
+			ValidationAccount va = validationLogic.getVaLidationAcountByUserId(id);
+			validationLogic.deleteValidationAccount(va);
+		} catch (UserNotDefinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UserPermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UserLockedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GroupNotDefinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (AuthzPermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 
@@ -196,4 +309,23 @@ public class CheckValidations implements Job {
 		return ret;
 	}
 
+	 protected Locale getUserLocale(String userId) {
+		   Locale loc = preferencesService.getLocale(userId);
+		   //the user has no preference set - get the system default
+		   if (loc == null ) {
+			   String lang = System.getProperty("user.language");
+			   String region = System.getProperty("user.region");
+
+			   if (region != null) {
+				   log.debug("getting system locale for: " + lang + "_" + region);
+				   loc = new Locale(lang,region);
+			   } else { 
+				   log.debug("getting system locale for: " + lang );
+				   loc = new Locale(lang);
+			   }
+		   }
+
+		   return loc;
+	   }
+	
 }
