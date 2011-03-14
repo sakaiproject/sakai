@@ -220,6 +220,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	};
 
+	// define string that identifies this as the logged in users' my workspace
+	private String myWorkspaceSiteId = "~";
 
 	public String getPortalContext()
 	{
@@ -1261,6 +1263,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * If we cannot resolve the placement, we simply return the passed in
 	 * placement ID. If we cannot visit the site, we send the user to login
 	 * processing and return null to the caller.
+	 *
+	 * If the reference is to the magical, indexical MyWorkspace site ('~')
+	 * then replace ~ by their My Workspace.  Give them a chance to login
+	 * if necessary.
 	 */
 
 	public String getPlacement(HttpServletRequest req, HttpServletResponse res,
@@ -1268,6 +1274,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
 		if (siteId == null) return placementId; // Standard placement
+
+		// Try to resolve the indexical MyWorkspace reference
+		if (myWorkspaceSiteId.equals(siteId)) {
+		    // If not logged in then allow login.  You can't go to your workspace if 
+		    // you aren't known to the system.
+		    if (session.getUserId() == null)
+			{
+			    doLogin(req, res, session, req.getPathInfo(), false);
+			}
+		    // If the login was successful lookup the myworkworkspace site.
+		    if (session.getUserId() != null) {
+			siteId=getUserEidBasedSiteId(session.getUserEid());
+		    }
+		}
 
 		// find the site, for visiting
 		// Sites like the !gateway site allow visits by anonymous
