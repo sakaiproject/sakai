@@ -47,14 +47,10 @@ import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -210,8 +206,7 @@ public class CheckValidations implements Job {
 				for (int i = 0; i < users.size(); i++) {
 					User u = userDirectoryService.getUser(users.get(i));
 					//added the added date 
-					Time time = u.getCreatedTime();
-					DateTime dt = new DateTime(time.getTime());
+					DateTime dt = new DateTime(u.getCreatedDate());
 					DateTimeFormatter fmt = DateTimeFormat.longDate();
 					String str = fmt.withLocale(locale).print(dt);
 					userText.append(u.getEid() + " (" + str +")\n");
