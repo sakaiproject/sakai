@@ -354,7 +354,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			createToolBar(tofill, currentPage);
 			UIOutput.make(tofill, "edit-title").
 			    decorate(new UIFreeAttributeDecorator("title", 
-				 messageLocator.getMessage("simplepage.editTitle")));
+				 messageLocator.getMessage("simplepage.editTitle-tooltip")));
 			if (pageItem.getPageId() == 0) {// top level page
 			    UIOutput.make(tofill, "remove-page").
 				decorate(new UIFreeAttributeDecorator("title", 
@@ -1146,10 +1146,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 
 		// decided not to use long tooltips. with screen reader they're too verbose. We now have good help
-		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder");
-		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text").setItemId(null);
+		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
+		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, currentPage, "simplepage.resource");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, currentPage, "simplepage.resource.tooltip");
 
 		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
@@ -1159,8 +1159,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia");
-		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia.tooltip");
+		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), messageLocator.getMessage("simplepage.general-instructions"));
 
 	}
