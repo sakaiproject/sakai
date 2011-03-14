@@ -81,6 +81,12 @@ public class SiteHandler extends WorksiteHandler
 
 	private boolean useDHTMLMore = false;
 
+	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
+	// This can be replaced by the users myworkspace.
+	private String mutableSitename ="-";
+	// This can be replaced by the page on which a tool appears.
+	private String mutablePagename ="-";
+
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
@@ -88,6 +94,8 @@ public class SiteHandler extends WorksiteHandler
 				Portal.CONFIG_DEFAULT_TABS, 5);
 		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
 				"portal.use.dhtml.more", false));
+        mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
+        mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
 
 	@Override
@@ -102,7 +110,8 @@ public class SiteHandler extends WorksiteHandler
 			{
 				// recognize an optional page/pageid
 				String pageId = null;
-				if ((parts.length == 5) && (parts[3].equals("page")))
+				// may also have the tool part, so check that length is 5 or greater.
+				if ((parts.length >= 5) && (parts[3].equals("page")))
 				{
 					pageId = parts[4];
 				}
@@ -155,6 +164,16 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
+		// Can get a URL like /portal/site/-/page/-/tool/sakai.rwiki.  
+		// The "mutable" site and page can not be given specific values since the 
+		// final resolution depends on looking up the specific placement of the tool 
+		// with this common id in the my workspace for this user.
+		
+		// check for a mutable site to be resolved here
+		if (mutableSitename.equalsIgnoreCase(siteId) && (session.getUserId() != null)) {
+			siteId = SiteService.getUserSiteId(session.getUserId());
+		}
+
 		// if no page id, see if there was a last page visited for this site
 		// if we are coming back from minimized navigation - go to the default
 		// tool
@@ -201,6 +220,12 @@ public class SiteHandler extends WorksiteHandler
 				portal.doError(req, res, session, Portal.ERROR_SITE);
 			}
 			return;
+		}
+
+		// If the page is the mutable page name then look up the 
+		// real page id from the tool name.
+		if (mutablePagename.equalsIgnoreCase(pageId)) {
+			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
 		}
 
 		// Lookup the page in the site - enforcing access control
@@ -287,6 +312,41 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
+	}
+
+	/*
+	 * If the page id is the mutablePageId then see if can resolve it from the
+	 * the placement of the tool with a supplied tool id.
+	 */
+	private String findPageIdFromToolId(String pageId, String toolContextPath,
+			Site site) {
+
+		// If still can't find page id see if can determine it from a well known
+		// tool id (assumes that such a tool is in the site and the first instance of 
+		// the tool found would be the right one).
+		String toolSegment = "/tool/";
+		String toolId = null;
+
+			try
+			{
+			// does the URL contain a tool id?
+			if (toolContextPath.contains(toolSegment)) {
+				toolId = toolContextPath.substring(toolContextPath.lastIndexOf(toolSegment)+toolSegment.length());
+				ToolConfiguration toolConfig = site.getToolForCommonId(toolId);
+				if (log.isDebugEnabled()) {
+					log.debug("trying to resolve page id from toolId: ["+toolId+"]");
+				}
+				if (toolConfig != null) {
+					pageId = toolConfig.getPageId();
+				}
+			}
+
+			}
+			catch (Exception e) {
+				log.error("exception resolving page id from toolid :["+toolId+"]",e);
+			}
+
+		return pageId;
 	}
 
 	/**
@@ -659,7 +719,7 @@ public class SiteHandler extends WorksiteHandler
 			if (log.isTraceEnabled())
 				log.trace("includePage unable to find site for page " + page.getId());
 		}
-
+		
 		Map singleToolMap = null;
 		ToolConfiguration singleTool = null;
 		List tools = page.getTools(0);
