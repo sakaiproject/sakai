@@ -303,7 +303,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      * Returns formatted string with count of assignments imported (columns - 1 {student name})
      */
     public String getVerifyColumnCount() {
-    	final int intColumnCount = new Integer(columnCount).intValue() - 1;
+    	final int intColumnCount = new Integer(columnCount == null ? "0" : columnCount).intValue() - 1;
         return FacesUtil.getLocalizedString("import_verify_column_count",new String[] {Integer.toString(intColumnCount)});
     }
 
