@@ -27,7 +27,7 @@ body{
 	border-bottom:2px solid #09C
 }
 #headerMax{
-    height:100%;
+    height:35px;
 }
 /*accessibility links wrapper */
 #skipNav{
@@ -52,8 +52,12 @@ body{
     color:#ddd;
 }
 #siteHierarchy + #container{
-    margin-top:83px;
+    margin-top:35px;
 }
+#headerMax + #container{
+    margin-top:15px;
+}
+
 /*style the standard breadcrumbseparator
 can set display:none if needed because the list-style is taking care of it*/
 .breadSeparator{
@@ -76,10 +80,7 @@ a.lastBreadCrumb{
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	width: 100%;
-	clear:both;
-	margin: 0;
     position:relative;
-	margin-top: 53px;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -278,9 +279,6 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 #loginUser{
     color:#ccc    
 }
-#loginUser:after{
-    content:' |'
-    }
 
 /*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
@@ -291,8 +289,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
         background-color:#454A4F;
         color:#000000;
 	width: 100%;
-	float: left;
-	clear: both;
 	font-size: 100%;
 	line-height: normal;
 	z-index: 2000;
@@ -433,13 +429,19 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /* more tab */
-#siteLinkList li.more-tab a span.inner {
-	background-image:  url(images/tab-arrow-down.gif);
+li.more-tab a span {
+	background-image:  url(images/subnav_btn_more.gif);
+    display:block;
+    height:16px;
 	background-repeat: no-repeat;
-	background-position: 100% 36%;
-	padding: 0 20px 0 0;
+	background-position:  3px -10px;
+	padding:0;
 	margin: 0;
 }
+li.more-tab a span:hover {
+	background-position:  3px -43px;
+}
+
 
 #siteLinkList li.more-active a,
 	#siteLinkList li.more-active a:link,
@@ -512,8 +514,11 @@ html>body .dhtml_more_tabs {
 }
 
 .dhtml_more_tabs  li {
-	margin-bottom: 0.4em; 
+	margin: 3px; 
 	line-height: 1.1em;
+    width:22em;
+    float:left;
+    display:block
 }
 
 .dhtml_more_tabs div:first-child {
@@ -1381,6 +1386,15 @@ ul.topnav li span.drop { /*--Drop down trigger styles--*/
 	float: left;
 	background: url(images/subnav_btn.gif) no-repeat center top;
 }
+/*
+remove these hacks after we redo the more sites functionality
+*/
+ul.topnav li span.drop:nth-child(even){
+ display:none;
+}
+.portletTitle .title h2 span.siteTitle:nth-child(even){
+    display:none;
+}
 ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
 ul.topnav li ul.subnav {
 	list-style: none;
@@ -1399,8 +1413,44 @@ ul.topnav li ul.subnav {
 	-webkit-box-shadow: 6px 6px 8px #000;
 	box-shadow: 6px 6px 8px #000;
 }
-    
+#otherSiteTools{
+    list-style: none;
+	position: fixed;
+    top:-2000px;
+    left:-2000px;
+    z-index:3000;
+	background: #aaa;
+    font-size:.9em;
+	margin: 0; padding: 0;
+	width: 200px;
+    padding:1px;
+	border: 1px solid #111;
+    white-space:nowrap;
+	-moz-box-shadow: 6px 6px 8px #000;
+	-webkit-box-shadow: 6px 6px 8px #000;
+	box-shadow: 6px 6px 8px #000;
 }
+#otherSiteTools li{
+    background: url("images/topnav_bg.gif") repeat-x scroll 0 0 #222222;
+    float: left; 
+    padding:0;margin:0
+ }
+#otherSiteTools li a {
+   width: 210px;
+    background-position: 3px center !important;
+    background-repeat: no-repeat !important;
+    outline:none;
+	width: 170px;
+    padding: 10px 5px;
+	padding-left: 25px;
+    color: #FFFFFF;
+    display: block;
+    text-decoration: none;
+}
+
+#otherSiteTools li a:hover, #otherSiteTools li a:focus {
+    color:#9c3;
+    }
 ul.topnav li ul.subnav li{
 	margin: 0; padding: 0;
 	clear: both;
@@ -1419,27 +1469,44 @@ ul.nav-submenu li.submenuitem a:hover, ul.nav-submenu li.submenuitem a:focus { /
 }
 
 ul#otherSiteList{
+/*
+    
     -moz-column-width:15em;
     -webkit-column-width:15em;
 	-moz-column-gap: 5px;
 	-webkit-column-gap: 5px;
 	column-width:15em;
 	column-gap: 5px;
+
+*/
     margin:5px;
     padding:0;
 }
 ul#otherSiteList li{
     background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
+    position:relative;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
+    overflow:hidden;
 }
 ul#otherSiteList li a{
     display:block;
-    padding:10px;
+    padding:7px;
     color:#fff;
     text-decoration:none !important;
 }
+.toolMenus{
+    width: 17px;
+    height:17px;
+    padding:0px;
+    border-left:1px solid #888;
+	background: url(images/subnav_btn.gif) no-repeat 10px -2px;
+    position:absolute;
+   right:0;
+   top:0;
+}
+.toolMenus:hover{background-position: 10px -37px; cursor: pointer;}
 ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active{
    color:#9c3
 }
@@ -1456,4 +1523,8 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 }
 #otherSiteSearch span#noSearchResults{
     color:#fc6
+}
+
+.workspace #presenceToggle{
+    display:none;
 }

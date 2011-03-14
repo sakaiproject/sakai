@@ -1,96 +1,110 @@
 /* Script for pop-up dhtml more tabs implementation 
  * uses jQuery library
  */
-
 /* dhtml_more_tabs
- * displays the More Sites div 
+ * displays the More Sites div
  * note the technique of recasting the function after initalization
  */
-
-var dhtml_more_tabs = function() {
-	// first time through set up the DOM
-	jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
-	jQuery('#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
-	jQuery('#selectNav').width(jQuery('#linkNav').width()*0.75);           // set its width to fix an IE6 bug
-	jQuery('#selectNav').css('z-index',9900);                                 // explicitely set the z-index
-	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
-	
-	// then recast the function to the post initialized state which will run from then on
-	dhtml_more_tabs = function() {
-		if (jQuery('#selectNav').css('display') == 'none' ) {
-			jQuery('div#selectNav').show();
-			// highlight the more tab
-			jQuery('.more-tab').addClass('more-active');
-			// dim the current tab
-			jQuery('.selectedTab').addClass('tab-dim');
-			// mask the rest of the page
-			createDHTMLMask(dhtml_more_tabs) ;
-			// bind this function to the More Tabs tab to close More Tabs on click
-			jQuery('.selectedTab').bind('click',function(){dhtml_more_tabs();return false;});
-		} else {
-			// unhighlight the more tab
-			jQuery('.more-tab').removeClass('more-active');
-			// hide the dropdown
-			jQuery('div#selectNav').hide(); // hide the box
-			//undim the currently selected tab
-			jQuery('.selectedTab').removeClass('tab-dim');
-			removeDHTMLMask()
-			jQuery('.selectedTab').unbind('click');
-		}
-	}
-	// finally run the inner function, first time through
-	dhtml_more_tabs();
+var dhtml_more_tabs = function(){
+    // first time through set up the DOM
+    jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
+    jQuery('#selectNav').css('top', jQuery('#linkNav').height() - 3); // set its top position
+    jQuery('#selectNav').width(jQuery('#linkNav').width() * 0.75); // set its width to fix an IE6 bug
+    jQuery('#selectNav').css('z-index', 9900); // explicitely set the z-index
+    jQuery('.more-tab').css('z-index', 9800); //  " for the More Tabs div element
+    // then recast the function to the post initialized state which will run from then on
+    dhtml_more_tabs = function(){
+        if (jQuery('#selectNav').css('display') == 'none') {
+            jQuery('div#selectNav').show();
+            // highlight the more tab
+            jQuery('.more-tab').addClass('more-active');
+            // dim the current tab
+            jQuery('.selectedTab').addClass('tab-dim');
+            // mask the rest of the page
+            createDHTMLMask(dhtml_more_tabs);
+            // bind this function to the More Tabs tab to close More Tabs on click
+            jQuery('.selectedTab').bind('click', function(e){
+                console.log(e.pageX)
+                dhtml_more_tabs();
+                return false;
+            });
+        }
+        else {
+            // unhighlight the more tab
+            jQuery('.more-tab').removeClass('more-active');
+            // hide the dropdown
+            jQuery('div#selectNav').hide(); // hide the box
+            //undim the currently selected tab
+            jQuery('.selectedTab').removeClass('tab-dim');
+            removeDHTMLMask()
+            jQuery('.selectedTab').unbind('click');
+        }
+    }
+    // finally run the inner function, first time through
+    dhtml_more_tabs();
 }
 
 /* dhtml_view_sites
- * displays the More Sites div 
+ * displays the More Sites div
  * note the technique of recasting the function after initalization
  */
-
-var dhtml_view_sites = function() {
-	// first time through set up the DOM
-	jQuery('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
-	jQuery('#selectSite').css('top','38px');       // set its top position
-        jQuery('#selectSite').css('left','4px');
-        jQuery('#selectSite').css('margin','0 auto');
-        jQuery('#selectSite').css('width','90%');
-	jQuery('#selectSite').css('z-index',9900);                                 // explicitely set the z-index
-//	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
-	
-	// then recast the function to the post initialized state which will run from then on
-	dhtml_view_sites = function() {
-		if (jQuery('#selectSite').css('display') == 'none' ) {
-            jQuery('div#selectSite').slideDown('slow',function(){
+var dhtml_view_sites = function(){
+    // first time through set up the DOM
+    jQuery('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
+    jQuery('.more-tab').position();
+    jQuery('#selectSite').css('top', '38px'); // set its top position
+    jQuery('#selectSite').css('left', '4px');
+    jQuery('#selectSite').css('margin', '0 auto');
+    jQuery('#selectSite').css('width', '70%');
+    jQuery('#selectSite').css('z-index', 9900); // explicitely set the z-index
+    //	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
+    
+    // then recast the function to the post initialized state which will run from then on
+    dhtml_view_sites = function(){
+        if (jQuery('#selectSite').css('display') == 'none') {
+            jQuery('div#selectSite').slideDown('slow', function(){
                 // check if $('#otherSiteList li').length > some number, then show search
                 // otherwise not
                 jQuery('div#selectSite div').show();
                 jQuery('#txtSearch').focus();
             });
-			createDHTMLMask(dhtml_view_sites) ;
-			jQuery('.selectedTab').bind('click',function(){dhtml_view_sites();return false;});
-		} else {
-			// hide the dropdown
+            createDHTMLMask(dhtml_view_sites);
+            jQuery('.selectedTab').bind('click', function(e){
+                console.log(e.pageX)
+                dhtml_view_sites();
+                return false;
+            });
+        }
+        else {
+            // hide the dropdown
             jQuery('div#selectSite div').hide();
-			jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
-			removeDHTMLMask()
-			jQuery('.selectedTab').unbind('click');
-		}
-	}
-	// finally run the inner function, first time through
-	dhtml_view_sites();
+            jQuery('div#selectSite').slideUp('fast').hide(); // hide the box
+            removeDHTMLMask()
+            jQuery('#otherSiteTools').remove();
+            jQuery('.selectedTab').unbind('click');
+        }
+    }
+    // finally run the inner function, first time through
+    dhtml_view_sites();
 }
 
-function createDHTMLMask(callback) {
-	jQuery('body').append('<div id="portalMask">&nbsp;</div>');
-	jQuery('#portalMask').css('height',browserSafeDocHeight()).css('width','100%').css('z-index',1000).bind("click",function(event){
-		callback();
-		return false;
-	});
-	jQuery('#portalMask').bgiframe();
+function createDHTMLMask(callback){
+
+    jQuery('body').append('<div id="portalMask">&nbsp;</div>');
+    jQuery('#portalMask').css('height', browserSafeDocHeight()).css({
+        'width': '100%',
+        'z-index': 1000,
+        'top': 0,
+        'left': 0
+    }).bind("click", function(event){
+        callback();
+        return false;
+    });
+    jQuery('#portalMask').bgiframe();
 }
 
-function removeDHTMLMask() {
-	jQuery('#portalMask').remove();
+function removeDHTMLMask(){
+    jQuery('#portalMask').remove();
 }
 
 /* Copyright (c) 2006 Brandon Aaron (http://brandonaaron.net)
@@ -299,4 +313,81 @@ function f_filterResults(n_win, n_docel, n_body) {
 	if (n_docel && (!n_result || (n_result > n_docel)))
 		n_result = n_docel;
 	return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
+}
+
+jQuery(document).ready(function(){
+    
+    $('.toolMenus').click(function(e){
+        e.preventDefault();
+        $('#otherSiteTools').remove();
+        var subsubmenu = "<ul id=\"otherSiteTools\">";
+        var siteURL = '/direct/site/' + $(this).attr('id') + '/pages.json';
+        scroll(0, 0)
+        var pos = $(this).offset();
+        jQuery.getJSON(siteURL, function(data){
+            $.each(data, function(i, item){
+                if (item.tools.length === 1) {
+                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>"
+                }
+            });
+            subsubmenu = subsubmenu + "</ul>"
+            $('#portalOuterContainer').append(subsubmenu);
+            $('#otherSiteTools').css({
+                'top': pos.top,
+                'left': pos.left + 30
+            });
+            $('#otherSiteTools li:first').attr('tabindex', '-1')
+            $('#otherSiteTools li:first').focus();
+        });
+        
+    });
+    jQuery.expr[':'].Contains = function(a, i, m){
+        return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+    };
+    
+    
+    var siteTitle = ($('.nav-selected span:first').text())
+    if (siteTitle) {
+        $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
+    }
+    
+    jQuery('#imgSearch').hide();
+    jQuery('#imgSearch').click(function(){
+        resetSearch();
+    });
+    
+    jQuery('#txtSearch').keyup(function(event){
+    });
+    
+    jQuery('#txtSearch').keyup(function(event){
+        if (event.keyCode == 27) {
+            resetSearch();
+        }
+        
+        if (jQuery('#txtSearch').val().length > 2) {
+            jQuery('#otherSiteList li').hide();
+            //jQuery('#otherSiteList li:first').show();
+            jQuery('#otherSiteList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show();
+            jQuery('#imgSearch').fadeIn('slow');
+        }
+        if (jQuery('#txtSearch').val().length == 0) {
+            resetSearch();
+        }
+        
+        // Should be <=1 if there is a header line
+        if (jQuery('#otherSiteList li:visible').length < 1) {
+            jQuery('.norecords').remove();
+            jQuery('#otherSiteSearch #noSearchResults').fadeIn('slow');
+        }
+    });
+});
+
+
+
+function resetSearch(){
+    jQuery('#txtSearch').val('');
+    jQuery('#otherSiteList li').show();
+    jQuery('#noSearchResults').fadeOut();
+    jQuery('#imgSearch').fadeOut();
+    jQuery('#txtSearch').focus();
 }
