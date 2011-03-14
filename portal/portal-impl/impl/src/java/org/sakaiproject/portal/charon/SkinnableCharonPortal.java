@@ -1306,8 +1306,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo() + "?sakai.site="
-						+ res.encodeURL(siteId), false);
+				doLogin(req, res, session, req.getPathInfo(), false);
 				return null;
 			}
 			return placementId; // cannot resolve placement
