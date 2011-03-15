@@ -1080,7 +1080,8 @@ below they are contextually defined depending on the column as an example,as you
      vertical-align:middle;
      width:80px;
      border-left:1px solid #fff;
-     color:#fff
+     color:#fff;
+     background:#444;
 }    
 
 /*PART 8 - CONVENIENCE*/
