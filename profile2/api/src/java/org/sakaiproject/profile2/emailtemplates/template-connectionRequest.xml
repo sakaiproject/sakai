@@ -10,7 +10,7 @@ ${connectionLink}
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
 Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
 	</message>
-	<htmlMessage>${senderDisplayName} confirmed your connection request on ${localSakaiName}
+	<htmlMessage>${senderDisplayName} added you as a connection on ${localSakaiName}
 &lt;p&gt;
 To confirm ${senderDisplayName}&apos;s connection request, follow the url below:
 &lt;br /&gt;${connectionLink}
