@@ -1551,7 +1551,7 @@ ul#otherSiteList li a{
 }
 .toolMenus:hover{background-position: 10px -37px; cursor: pointer;}
 ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active{
-   color:#9c3
+   color:#9cf
 }
 #otherSiteSearch{
     margin:5px;
@@ -1565,7 +1565,7 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     padding-right:2em;
 }
 #otherSiteSearch span#noSearchResults{
-    color:#fc6
+    color:#fff
 }
 
 .workspace #presenceToggle{
