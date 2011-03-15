@@ -3248,18 +3248,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getSubmittedSubmissionsCount(String assignmentId)
+	public int getSubmittedSubmissionsCount(String assignmentRef)
 	{
-		return m_submissionStorage.getSubmittedSubmissionsCount(assignmentId);
+		return m_submissionStorage.getSubmittedSubmissionsCount(assignmentRef);
 		
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getUngradedSubmissionsCount(String assignmentId)
+	public int getUngradedSubmissionsCount(String assignmentRef)
 	{
-		return m_submissionStorage.getUngradedSubmissionsCount(assignmentId);
+		return m_submissionStorage.getUngradedSubmissionsCount(assignmentRef);
 		
 	}
 
@@ -3319,26 +3319,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		// double check the submission submitter information:
 		// if current user is not the original submitter and if he doesn't have grading permission, he should have access to other people's submission.
-		String assignmentId = submission.getAssignmentId();
-		try
+		String assignmentRef = assignmentReference(submission.getContext(), submission.getAssignmentId());
+		if (!allowGradeSubmission(assignmentRef))
 		{
-			Assignment a = getAssignment(assignmentId);
-			if (!allowGradeSubmission(a.getReference()))
+			List submitterIds = submission.getSubmitterIds();
+			if (submitterIds != null && !submitterIds.contains(SessionManager.getCurrentSessionUserId()))
 			{
-				List submitterIds = submission.getSubmitterIds();
-				if (submitterIds != null && !submitterIds.contains(SessionManager.getCurrentSessionUserId()))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionId);
-				}
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT_SUBMISSION, submissionId);
 			}
-		}
-		catch (IdUnusedException ee)
-		{
-			throw new IdUnusedException(assignmentId);
-		}
-		catch (PermissionException ee)
-		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT, assignmentId);
 		}
 		// track event
 		// EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getReference(), false));

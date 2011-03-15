@@ -497,8 +497,8 @@ function allowClick(object)
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignment.getReference()))
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
-									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignment.getId()))
-									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignment.getId()))
+									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignment.Reference))
+									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignment.Reference))
 									#set ( $submissionType = $assignment.Content.TypeOfSubmission)
 									#if ($!submissionType == 4)
 										## non-electronic assignment

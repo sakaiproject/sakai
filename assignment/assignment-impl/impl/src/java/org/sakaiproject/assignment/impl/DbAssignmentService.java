@@ -445,14 +445,14 @@ public class DbAssignmentService extends BaseAssignmentService
 		 * @param assignmentId assignment id relating to query
 		 * @return
 		 */
-		private int getSubmissionsCountWhere(String sqlWhere, String assignmentId) {
+		private int getSubmissionsCountWhere(String sqlWhere, String assignmentRef) {
 			int count = 0;
 			Site site = null;
 			
 			Collection asgGroups = null;
 			
 			try {
-				Assignment a = AssignmentService.getAssignment(assignmentId);
+				Assignment a = AssignmentService.getAssignment(assignmentRef);
 				if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
 				{
 					asgGroups = a.getGroups();
@@ -487,7 +487,7 @@ public class DbAssignmentService extends BaseAssignmentService
 								}
 								catch (Exception ee)
 								{
-									M_log.warn(this + " getSubmissionsCountWhere " + ee.getMessage() + " sqlWhere = " + sqlWhere + " assignmentId=" + assignmentId);
+									M_log.warn(this + " getSubmissionsCountWhere " + ee.getMessage() + " sqlWhere = " + sqlWhere + " assignmentRef=" + assignmentRef);
 								}
 							}
 						}
@@ -509,17 +509,17 @@ public class DbAssignmentService extends BaseAssignmentService
 		/**
 		 * {@inheritDoc}
 		 */
-		public int getSubmittedSubmissionsCount(String assignmentId)
+		public int getSubmittedSubmissionsCount(String assignmentRef)
 		{
-			return getSubmissionsCountWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'", assignmentId);
+			return getSubmissionsCountWhere("where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'", assignmentRef);
 		}
 		
 		/**
 		 * {@inheritDoc}
 		 */
-		public int getUngradedSubmissionsCount(String assignmentId)
+		public int getUngradedSubmissionsCount(String assignmentRef)
 		{
-			return getSubmissionsCountWhere("where context='" + assignmentId + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'", assignmentId );
+			return getSubmissionsCountWhere("where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'", assignmentRef );
 		}
 		
 

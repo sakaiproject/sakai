@@ -710,20 +710,20 @@ public interface AssignmentService extends EntityProducer
 	/**
 	 * Get the number of submissions which has been submitted.
 	 * 
-	 * @param assignmentId -
-	 *        the id of Assignment who's submissions you would like.
+	 * @param assignmentRef -
+	 *        the reference of Assignment who's submissions you would like.
 	 * @return List over all the submissions for an Assignment.
 	 */
-	public int getSubmittedSubmissionsCount(String assignmentId);
+	public int getSubmittedSubmissionsCount(String assignmentRef);
 	
 	/**
 	 * Get the number of submissions which has not been submitted and graded.
 	 * 
-	 * @param assignmentId -
-	 *        the id of Assignment who's submissions you would like.
+	 * @param assignmentRef -
+	 *        the reference of Assignment who's submissions you would like.
 	 * @return List over all the submissions for an Assignment.
 	 */
-	public int getUngradedSubmissionsCount(String assignmentId);
+	public int getUngradedSubmissionsCount(String assignmentRef);
 
 	/**
 	 * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
