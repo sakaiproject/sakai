@@ -419,7 +419,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				
 			}
 			else{
-				if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
+				if (selectedLocation==null || selectedLocation.equals(Utilities.rb.getString("select_location"))){
 					validationError = true;
 					Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
 					return;
