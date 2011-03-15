@@ -500,7 +500,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 			return false;
 		}
 		Collection groups = site.getGroups();
-		if (groups == null && groups.isEmpty())
+		if (groups == null || groups.isEmpty())
 			return false;
 
 		for (Iterator iter = groups.iterator(); iter.hasNext();) {

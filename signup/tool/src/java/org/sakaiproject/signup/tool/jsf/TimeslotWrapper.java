@@ -177,7 +177,7 @@ public class TimeslotWrapper implements Comparable{
 		AttendeeWrapper[] displayAttendees;
 
 		List<AttendeeWrapper> attendees = getAttendeeWrappers();
-		if (attendees == null && attendees.isEmpty() || attendees.size() < timeSlot.getMaxNoOfAttendees())// bug
+		if (attendees == null || attendees.size() < timeSlot.getMaxNoOfAttendees())// bug
 			// for Max_Value
 			displayAttendees = new AttendeeWrapper[timeSlot.getMaxNoOfAttendees()];
 		else
