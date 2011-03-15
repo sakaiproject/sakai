@@ -268,7 +268,7 @@ function updatePresence() {
                         var whereul = frag.indexOf('<ul');
                         if ( whereul < 1 ) {
                                 $("#presenceCount").html(' ');
-                                $('#presenceCount').removelass('present').addClass('empty');
+                                $('#presenceCount').removeClass('present').addClass('empty');
                                 location.reload();
                                 return;
                         }
@@ -291,6 +291,8 @@ function updatePresence() {
                                 $('#presenceCount').removeClass('present').addClass('empty');
                         } 
                         $("#presenceIframe").html(frag);
+                        var chatUrl = $('.nav-selected .icon-sakai-chat').attr('href');
+                        $('#presenceIframe .presenceList li.inChat span').wrap('<a href="' + chatUrl + '">')
                         sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
 		},
 		// If we get an error, wait 60 seconds before retry

@@ -90,7 +90,7 @@ a.lastBreadCrumb{
 	color: #000;
 	text-align: right;
 	padding:0 .5em 0 0;
-	border-right:2px solid #9c3
+	border-right:2px solid #09c
 }
 
 #toolMenuWrap:hover{
@@ -127,7 +127,6 @@ site types are a local setting - adjust */
     bottom:0;
     left:0;
     right:0;
-	border-top: 1px solid #9C3;
 	text-align: left;
     height:40px;
     background:#444
@@ -262,7 +261,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*block for login/logout links */
 #loginLinks{
-    color:#fff;
+    color:#aaa;
 	margin: 0;
 	padding:6px 0 0 6px;
 }
@@ -430,7 +429,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /* more tab */
 li.more-tab a span {
-	background-image:  url(images/subnav_btn_more.gif);
+	background-image:  url(images/subnav_btn_more.png);
     display:block;
     height:16px;
 	background-repeat: no-repeat;
@@ -482,7 +481,6 @@ li.more-tab a span:hover {
     -moz-box-shadow: 3px 3px 4px #000;
 	-webkit-box-shadow: 3px 3px 4px #000;
 	box-shadow: 3px 3px 4px #000;
-    border-radius: 0px 0px 10px 10px;
     border-radius: 0px 0px 5px 5px;
     -moz-border-radius: 0px 0px 5px 5px;
     -webkit-border-bottom-right-radius: 5px;
@@ -623,7 +621,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 #toolMenu li a:hover,
 #subSites li a:hover{
 	text-decoration: none;
-	color: #9C3;
+	color: #9cf;
 }
 
 #toolMenu li a.selected,
@@ -662,11 +660,11 @@ a#toggleToolMenu{
 }
 #togglebar #toggleNormal{
     background:url(images/toggleOpen.png) no-repeat;
-    padding:3px;
+    padding:4px;
 }
 #togglebar #toggleToolMax{
     background:url(images/toggleClose.png) no-repeat;
-    padding:3px;
+    padding:4px;
 }
 /*
 
@@ -803,43 +801,84 @@ a#toggleToolMenu{
 	color: white;
 	text-decoration: none;
 }
-
 #footerAppTray span.present {
-        background-color: red;
+    background-color: #b11;
+    padding:0 5px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
+#footerAppTray #presenceCount{
+    font-size:80%;
+    outline:1px solid transparent;
+}
 #footerAppTray span.empty {
+      display:none;
 }
 
 #presenceArea {
-	background-color: #ffffff;
-        border: 1px solid  #aaa;
-        position:fixed;
-        height: 250px;
-        width: 120px;
-        bottom: 50px;
-        right: 10px;
+	background-color: #fff;
+    border: 1px solid  #aaa;
+    position:fixed;
+    height: 250px;
+    width: 175px;
+    bottom: 50px;
+    right: 10px;
+    -moz-box-shadow: 3px 3px 4px #ccc;
+	-webkit-box-shadow: 3px 3px 4px #ccc;
+	box-shadow: 3px 3px 4px #ccc;
 }
 
 /*wrapper for all elements of presence display */
 #presenceWrapper{
 	width: 100%;
-	margin-top: .5em;
 }
 
 /*wrapper for title of iframe ("Users present")*/
 #presenceTitle{
-	font-size: .7em;
-	text-align: right;
-	margin-right: .5em;
+	font-size: .8em;
+    border-bottom:1px solid #ccc;
+	padding:5px 3px;
 }
 
 /*of presence iframe*/
 #presenceIframe{
 	height: 100px;
-	margin: .3em;
 	width: 100%;
 	overflow:auto;
+}
+/*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
+/*
+TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
+*/
+
+.presenceList{
+	font-size: .8em;
+	list-style: none;
+	margin: 3px !important;
+    padding:0;
+}
+/*
+TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
+*/
+.presenceList li {
+	padding: 3px 16px  3px  2px !important;
+}
+.presenceList li a{
+    font-weight:bold;
+    color:#09c;
+    text-decoration:none;
+}    
+/*
+TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
+*/
+/*see presense list when one member is in chat room*/
+.presenceList li.inChat {
+	background: url(images/chatpresicon.png) right center no-repeat !important;
 }
 
 /*PART 7 - PORTLETS - children of #content*/
@@ -868,7 +907,7 @@ a#toggleToolMenu{
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
-	border-bottom: 2px solid #9C3;
+	border-bottom: 2px solid #09c;
 }
 
 #col1 .portletMainWrap{
@@ -877,7 +916,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-	border-bottom: 2px solid #9C3;
+	border-bottom: 2px solid #09c;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
@@ -917,14 +956,16 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .title h2{
 	display: inline;
-	margin: 0 0 0 .2em;
+	margin: 0;
 	padding: 0;
-	color: #555;
+    color:#555;	
 	font-weight: bold;
 	font-family:'Trebuchet MS',Verdana,sans-serif;
 	font-size: 1.2em !important;
 }
-
+.portletTitle .title h2 .siteTitle{
+    color: #333;
+}    
 .portletTitle .title a:hover, .portletTitle .title a:focus{
 	background: url(images/reload_h.gif) center left no-repeat;
 }
@@ -1033,14 +1074,15 @@ below they are contextually defined depending on the column as an example,as you
      position:absolute;
      right:0;
      top:0;
-     padding:10px;
      bottom:0;
+     padding-top:12px;
      text-align:center;
+     vertical-align:middle;
      width:80px;
-     outline:1px solid #ccc;
+     border-left:1px solid #fff;
      color:#fff
 }    
-    
+
 /*PART 8 - CONVENIENCE*/
 /*used to hide various blocks from sighted users that are in the source to help with accessibility*/
 .skip{
@@ -1374,7 +1416,7 @@ ul.topnav li a{
 	float: left;
 }
 ul.topnav li.nav-selected > a{
-    color:#9c3
+    color:#9cf
 }
 li.nav-menu > a:hover{
 	background:  url(images/topnav_hover.gif) no-repeat center top;
@@ -1384,7 +1426,7 @@ ul.topnav li span.drop { /*--Drop down trigger styles--*/
     margin-top:3px;
 	height: 35px;
 	float: left;
-	background: url(images/subnav_btn.gif) no-repeat center top;
+	background: url(images/subnav_btn.png) no-repeat center top;
 }
 /*
 remove these hacks after we redo the more sites functionality
@@ -1449,7 +1491,7 @@ ul.topnav li ul.subnav {
 }
 
 #otherSiteTools li a:hover, #otherSiteTools li a:focus {
-    color:#9c3;
+    color:#9cf;
     }
 ul.topnav li ul.subnav li{
 	margin: 0; padding: 0;
@@ -1465,7 +1507,7 @@ ul.nav-submenu li.submenuitem a {
 }
 
 ul.nav-submenu li.submenuitem a:hover, ul.nav-submenu li.submenuitem a:focus { /*--Hover effect for subnav links--*/
-    color:#9c3;
+    color:#9cf;
 }
 
 ul#otherSiteList{
@@ -1501,7 +1543,7 @@ ul#otherSiteList li a{
     height:17px;
     padding:0px;
     border-left:1px solid #888;
-	background: url(images/subnav_btn.gif) no-repeat 10px -2px;
+	background: url(images/subnav_btn.png) no-repeat 10px -2px;
     position:absolute;
    right:0;
    top:0;

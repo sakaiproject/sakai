@@ -27,7 +27,7 @@
 							<a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><span>${loginUserDispName} (${loginUserDispId})</span></a> &nbsp;| 
 						#end
 						#if (${tabsSites.prefsToolUrl})
-<a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true">Preferences</a>
+							<a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><img src="/library/image/silk/page_white_gear.png" style="vertical-align:middle"/></a> &nbsp;| 
 						#end
 						#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>

@@ -197,7 +197,7 @@
 				<div class="sakaiCopyrightInfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
-				<div id="footerAppTray"><a href="#" id="presenceToggle">Presence</a> <span id="presenceCount">&nbsp;</span></div>
+				<div id="footerAppTray"><a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a> <span id="presenceCount">&nbsp;</span></div>
 
 
 
