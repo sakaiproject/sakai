@@ -116,6 +116,7 @@
 	    <sakai.webservices.version>1.1-SNAPSHOT</sakai.webservices.version>
         <!-- Set the source encoding to avoid maven warnings -->
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+        <sakai.build.directory>target</sakai.build.directory>
     </properties>
     
     <distributionManagement>
@@ -816,10 +817,10 @@
     </reporting>
     
     <build>
-        <directory>target</directory>
-        <outputDirectory>target/classes</outputDirectory>
+        <directory>${sakai.build.directory}</directory>
+        <outputDirectory>${sakai.build.directory}/classes</outputDirectory>
         <finalName>${artifactId}-${version}</finalName>
-        <testOutputDirectory>target/test-classes</testOutputDirectory>
+        <testOutputDirectory>${sakai.build.directory}/test-classes</testOutputDirectory>
         <sourceDirectory>src/java</sourceDirectory>
         <scriptSourceDirectory>src/webapp</scriptSourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
