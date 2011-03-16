@@ -76,11 +76,19 @@ a.lastBreadCrumb{
         font-size:1em;
         text-decoration:none;
 }
+#tabBottom{
+    position:absolute;
+    left:0;
+    right:0;
+    top:38px;
+    background: transparent url(images/container-grad.png) 0 100% repeat-x ;
+    height: 9px;
+    margin: 0;
+}
 
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	width: 100%;
-    position:relative;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -123,17 +131,13 @@ site types are a local setting - adjust */
 * html #content{margin-left:12.3em}
 /*wrapper for footer blocks*/
 #footer{
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-	text-align: left;
-    height:40px;
+    clear:both;
+    position:relative;
+	text-align: center;
     background:#444
 }
 #footerLinks{
     font:.80em bold Helvetica, 'Helvetica Neue', Arial;
-    float:left;
     margin:0;
     padding:0;
 
@@ -823,8 +827,8 @@ a#toggleToolMenu{
     position:fixed;
     height: 250px;
     width: 175px;
-    bottom: 50px;
-    right: 10px;
+    bottom: 25px;
+    right: 5px;
     -moz-box-shadow: 3px 3px 4px #ccc;
 	-webkit-box-shadow: 3px 3px 4px #ccc;
 	box-shadow: 3px 3px 4px #ccc;
@@ -1011,14 +1015,6 @@ below they are contextually defined depending on the column as an example,as you
         background: url(images/page_edit.gif) center right no-repeat;
 }       
 
-/*iframes for portlet title and portlet content*/
-/*gone for 2.3
-.portletTitleIframe{
-	margin: 0;
-	height: 1.8em;
-	width: 100%;
-}
-*/
 .portletMainIframe{
 	text-align: left;
 	margin-bottom: .5em;
@@ -1050,9 +1046,6 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a second wrapper - server info,build,etc*/
 #footerInfo{
-    /*
-        running out of space, so hide
-    */
     display:none
 }
 
@@ -1070,20 +1063,21 @@ below they are contextually defined depending on the column as an example,as you
 	color: #fff;
 }
 #footerAppTray{
-    font:.85em bold Helvetica, 'Helvetica Neue', Arial;
-     position:absolute;
-     right:0;
-     top:0;
+     font:.85em bold Helvetica, 'Helvetica Neue', Arial;
+     position:fixed;
+     right:5px;
      bottom:0;
-     padding-top:12px;
+     height:24px;
      text-align:center;
+     border-color:#aaa;
+     border-style:solid;
+     border-width:1px 1px 0 1px;
      vertical-align:middle;
+    line-height:2em;
      width:80px;
-     border-left:1px solid #fff;
      color:#fff;
-     background:#444;
+     background:#eee url(images/appTrayBack.png) top left repeat-x;
 }    
-
 /*PART 8 - CONVENIENCE*/
 /*used to hide various blocks from sighted users that are in the source to help with accessibility*/
 .skip{
