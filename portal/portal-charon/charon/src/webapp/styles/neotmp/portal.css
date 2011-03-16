@@ -85,7 +85,9 @@ a.lastBreadCrumb{
     height: 9px;
     margin: 0;
 }
-
+#headerMin #tabBottom{
+    display:none;
+    }
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	width: 100%;
