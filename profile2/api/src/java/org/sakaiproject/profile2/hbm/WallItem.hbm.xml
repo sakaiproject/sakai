@@ -15,9 +15,9 @@
 	    </id>
 	   	
 		<property name="creatorUuid" column="CREATOR_UUID" length="99" not-null="true" />
-		<property name="type" column="TYPE" not-null="true" />
-		<property name="text" column="TEXT" type="string" length="4000" not-null="true" />
-		<property name="date" column="DATE" not-null="true" />
+		<property name="type" column="WALL_ITEM_TYPE" not-null="true" />
+		<property name="text" column="WALL_ITEM_TEXT" type="string" length="4000" not-null="true" />
+		<property name="date" column="WALL_ITEM_DATE" not-null="true" />
 	
   	</class>
   		
