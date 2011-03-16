@@ -12,11 +12,11 @@
 			<generator class="assigned" />
 		</id>
 		
-		<property name="facebookUsername" column="FACEBOOK_USERNAME" not-null="false" />
-		<property name="linkedinUsername" column="LINKEDIN_USERNAME" not-null="false" />
-		<property name="myspaceUsername" column="MYSPACE_USERNAME" not-null="false" />
+		<property name="facebookUrl" column="FACEBOOK_URL" not-null="false" />
+		<property name="linkedinUrl" column="LINKEDIN_URL" not-null="false" />
+		<property name="myspaceUrl" column="MYSPACE_URL" not-null="false" />
 		<property name="skypeUsername" column="SKYPE_USERNAME" not-null="false" />
-		<property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
+		<property name="twitterUrl" column="TWITTER_URL" not-null="false" />
 		
 	</class>
 	

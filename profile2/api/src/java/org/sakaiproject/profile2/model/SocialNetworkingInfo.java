@@ -32,11 +32,11 @@ public class SocialNetworkingInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String userUuid;
-	private String facebookUsername;
-	private String linkedinUsername;
-	private String myspaceUsername;
+	private String facebookUrl;
+	private String linkedinUrl;
+	private String myspaceUrl;
 	private String skypeUsername;
-	private String twitterUsername;
+	private String twitterUrl;
 	
 	// additional constructor
 	public SocialNetworkingInfo(String userUuid) {

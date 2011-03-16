@@ -46,21 +46,27 @@
 		<tr wicket:id="facebookContainer">
 			<td class="label" wicket:id="facebookLabel">[facebookLabel]</td>
 			<td class="content"><input type="text"
-				wicket:id="facebookUsername" class="formInputField" /></td>
+				wicket:id="facebookUrl" class="formInputField" />
+				<span wicket:id="facebookToolTip">[facebookToolTip]</span>
+			</td>
 		</tr>
 
 		<!-- linkedin -->
 		<tr wicket:id="linkedinContainer">
 			<td class="label" wicket:id="linkedinLabel">[linkedinLabel]</td>
 			<td class="content"><input type="text"
-				wicket:id="linkedinUsername" class="formInputField" /></td>
+				wicket:id="linkedinUrl" class="formInputField" />
+				<span wicket:id="linkedinToolTip">[linkedinToolTip]</span>
+			</td>
 		</tr>
 
 		<!-- myspace -->
 		<tr wicket:id="myspaceContainer">
 			<td class="label" wicket:id="myspaceLabel">[myspaceLabel]</td>
 			<td class="content"><input type="text"
-				wicket:id="myspaceUsername" class="formInputField" /></td>
+				wicket:id="myspaceUrl" class="formInputField" />
+				<span wicket:id="myspaceToolTip">[myspaceToolTip]</span>
+			</td>
 		</tr>
 
 		<!-- skype -->
@@ -74,7 +80,9 @@
 		<tr wicket:id="twitterContainer">
 			<td class="label" wicket:id="twitterLabel">[twitterLabel]</td>
 			<td class="content"><input type="text"
-				wicket:id="twitterUsername" class="formInputField" /></td>
+				wicket:id="twitterUrl" class="formInputField" />
+				<span wicket:id="twitterToolTip">[twitterToolTip]</span>
+			</td>
 		</tr>
 	</table>
 
@@ -86,6 +94,20 @@
 	</div>
 	</div>
 
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('.sakai-wicket-iconwithtooltip').cluetip({
+			local: true,
+			showTitle: false,
+			attribute: 'rel',
+			cursor: 'pointer',
+			cluetipClass: 'jtip',
+			arrows: true,
+			hoverIntent: true
+		});	
+	});
+	</script> 
+	
 </wicket:panel>
 
 </body>

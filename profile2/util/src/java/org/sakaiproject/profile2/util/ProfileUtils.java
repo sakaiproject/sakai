@@ -441,41 +441,7 @@ public class ProfileUtils {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
     }
-	
-	/**
-	 * Returns the Facebook user profile URL for the specified Facebook
-	 * username.
-	 * 
-	 * @param facebookUsername
-	 * @return the Facebook user profile URL for the specified Facebook
-	 *         username.
-	 */
-	public static String getFacebookURL(String facebookUsername) {
-		return "http://www.facebook.com/" + facebookUsername + "/";
-	}
-	
-	/**
-	 * Returns the LinkedIn user profile URL for the specified LinkedIn
-	 * username.
-	 * 
-	 * @param linkedinUsername
-	 * @return the LinkedIn user profile URL for the specified LinkedIn
-	 *         username.
-	 */
-	public static String getLinkedinURL(String linkedinUsername) {
-		return "http://www.linkedin.com/in/" + linkedinUsername;
-	}
-	
-	/**
-	 * Returns the MySpace user profile URL for the specified MySpace username.
-	 * 
-	 * @param myspaceUsername
-	 * @return the MySpace user profile URL for the specified MySpace username.
-	 */
-	public static String getMyspaceURL(String myspaceUsername) {
-		return "http://www.myspace.com/" + myspaceUsername;
-	}
-	
+			
 	/**
 	 * Returns the SkypeMe URL for the specified Skype username.
 	 * 
@@ -485,17 +451,7 @@ public class ProfileUtils {
 	public static String getSkypeMeURL(String skypeUsername) {
 		return "skype:" + skypeUsername + "?call";
 	}
-	
-	/**
-	 * Returns the Twitter URL for the specified Twitter username.
-	 * 
-	 * @param twitterUsername
-	 * @return the Twitter URL for the specified Twitter username.
-	 */
-	public static String getTwitterURL(String twitterUsername) {
-		return "http://twitter.com/" + twitterUsername;
-	}
-	
+		
 	/**
 	 * Remove duplicates from a list, order is not retained.
 	 * 

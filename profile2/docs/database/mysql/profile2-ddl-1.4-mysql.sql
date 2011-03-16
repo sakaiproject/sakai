@@ -122,11 +122,11 @@
 
     create table PROFILE_SOCIAL_INFO_T (
         USER_UUID varchar(99) not null,
-        FACEBOOK_USERNAME varchar(255),
-        LINKEDIN_USERNAME varchar(255),
-        MYSPACE_USERNAME varchar(255),
+        FACEBOOK_URL varchar(255),
+        LINKEDIN_URL varchar(255),
+        MYSPACE_URL varchar(255),
         SKYPE_USERNAME varchar(255),
-        TWITTER_USERNAME varchar(255),
+        TWITTER_URL varchar(255),
         primary key (USER_UUID)
     );
 

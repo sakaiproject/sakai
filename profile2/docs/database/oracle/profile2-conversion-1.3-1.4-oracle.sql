@@ -59,11 +59,11 @@ create index PROFILE_GI_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 /* add social networking table (PRFL-252, PRFL-224) */
 create table PROFILE_SOCIAL_INFO_T (
 	USER_UUID varchar2(99) not null,
-	FACEBOOK_USERNAME varchar2(255),
-	LINKEDIN_USERNAME varchar2(255),
-	MYSPACE_USERNAME varchar2(255),
+	FACEBOOK_URL varchar2(255),
+	LINKEDIN_URL varchar2(255),
+	MYSPACE_URL varchar2(255),
 	SKYPE_USERNAME varchar2(255),
-	TWITTER_USERNAME varchar2(255),
+	TWITTER_URL varchar2(255),
 	primary key (USER_UUID)
 );
 

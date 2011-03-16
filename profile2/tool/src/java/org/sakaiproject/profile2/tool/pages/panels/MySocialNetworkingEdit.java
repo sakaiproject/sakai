@@ -36,6 +36,7 @@ import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -88,25 +89,29 @@ public class MySocialNetworkingEdit extends Panel {
 		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
-		facebookContainer.add(new TextField("facebookUsername", new PropertyModel(userProfile, "socialInfo.facebookUsername")));
+		facebookContainer.add(new TextField("facebookUrl", new PropertyModel(userProfile, "socialInfo.facebookUrl")));
+		facebookContainer.add(new IconWithClueTip("facebookToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.facebook.tooltip")));
 		form.add(facebookContainer);
 		
 		//linkedin
 		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
 		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin.edit")));
-		linkedinContainer.add(new TextField("linkedinUsername", new PropertyModel(userProfile, "socialInfo.linkedinUsername")));
+		linkedinContainer.add(new TextField("linkedinUrl", new PropertyModel(userProfile, "socialInfo.linkedinUrl")));
+		linkedinContainer.add(new IconWithClueTip("linkedinToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.linkedin.tooltip")));
 		form.add(linkedinContainer);
 		
 		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		myspaceContainer.add(new TextField("myspaceUsername", new PropertyModel(userProfile, "socialInfo.myspaceUsername")));
+		myspaceContainer.add(new TextField("myspaceUrl", new PropertyModel(userProfile, "socialInfo.myspaceUrl")));
+		myspaceContainer.add(new IconWithClueTip("myspaceToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.myspace.tooltip")));
 		form.add(myspaceContainer);
 		
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		twitterContainer.add(new TextField("twitterUsername", new PropertyModel(userProfile, "socialInfo.twitterUsername")));
+		twitterContainer.add(new TextField("twitterUrl", new PropertyModel(userProfile, "socialInfo.twitterUrl")));
+		twitterContainer.add(new IconWithClueTip("twitterToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.twitter.tooltip")));
 		form.add(twitterContainer);
 		
 		//skype
@@ -183,11 +188,11 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		// save social networking information
 		SocialNetworkingInfo socialNetworkingInfo = new SocialNetworkingInfo(userProfile.getUserUuid());
-		socialNetworkingInfo.setFacebookUsername(userProfile.getSocialInfo().getFacebookUsername());
-		socialNetworkingInfo.setLinkedinUsername(userProfile.getSocialInfo().getLinkedinUsername());
-		socialNetworkingInfo.setMyspaceUsername(userProfile.getSocialInfo().getMyspaceUsername());
+		socialNetworkingInfo.setFacebookUrl(userProfile.getSocialInfo().getFacebookUrl());
+		socialNetworkingInfo.setLinkedinUrl(userProfile.getSocialInfo().getLinkedinUrl());
+		socialNetworkingInfo.setMyspaceUrl(userProfile.getSocialInfo().getMyspaceUrl());
 		socialNetworkingInfo.setSkypeUsername(userProfile.getSocialInfo().getSkypeUsername());
-		socialNetworkingInfo.setTwitterUsername(userProfile.getSocialInfo().getTwitterUsername());
+		socialNetworkingInfo.setTwitterUrl(userProfile.getSocialInfo().getTwitterUrl());
 		
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
 		

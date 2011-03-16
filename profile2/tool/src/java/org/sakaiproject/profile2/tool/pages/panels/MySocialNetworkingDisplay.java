@@ -50,20 +50,20 @@ public class MySocialNetworkingDisplay extends Panel {
 		add(new Label("heading", new ResourceModel("heading.social")));
 			
 		// social networking
-		String facebookUsername = userProfile.getSocialInfo().getFacebookUsername();
-		String linkedinUsername = userProfile.getSocialInfo().getLinkedinUsername();
-		String myspaceUsername = userProfile.getSocialInfo().getMyspaceUsername();
+		String facebookUrl = userProfile.getSocialInfo().getFacebookUrl();
+		String linkedinUrl = userProfile.getSocialInfo().getLinkedinUrl();
+		String myspaceUrl = userProfile.getSocialInfo().getMyspaceUrl();
 		String skypeUsername = userProfile.getSocialInfo().getSkypeUsername();
-		String twitterUsername = userProfile.getSocialInfo().getTwitterUsername();
+		String twitterUrl = userProfile.getSocialInfo().getTwitterUrl();
 		
 		int visibleFieldCount = 0;
 		
 		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook")));
-		facebookContainer.add(new ExternalLink("facebookLink", ProfileUtils.getFacebookURL(facebookUsername), ProfileUtils.getFacebookURL(facebookUsername)));
+		facebookContainer.add(new ExternalLink("facebookLink", facebookUrl, facebookUrl));
 		add(facebookContainer);
-		if(StringUtils.isBlank(facebookUsername)) {
+		if(StringUtils.isBlank(facebookUrl)) {
 			facebookContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -72,9 +72,9 @@ public class MySocialNetworkingDisplay extends Panel {
 		//linkedin
 		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
 		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin")));
-		linkedinContainer.add(new ExternalLink("linkedinLink", ProfileUtils.getLinkedinURL(linkedinUsername), ProfileUtils.getLinkedinURL(linkedinUsername)));
+		linkedinContainer.add(new ExternalLink("linkedinLink", linkedinUrl, linkedinUrl));
 		add(linkedinContainer);
-		if(StringUtils.isBlank(linkedinUsername)) {
+		if(StringUtils.isBlank(linkedinUrl)) {
 			linkedinContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -83,9 +83,9 @@ public class MySocialNetworkingDisplay extends Panel {
 		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace")));
-		myspaceContainer.add(new ExternalLink("myspaceLink", ProfileUtils.getMyspaceURL(myspaceUsername), ProfileUtils.getMyspaceURL(myspaceUsername)));
+		myspaceContainer.add(new ExternalLink("myspaceLink", myspaceUrl, myspaceUrl));
 		add(myspaceContainer);
-		if(StringUtils.isBlank(myspaceUsername)) {
+		if(StringUtils.isBlank(myspaceUrl)) {
 			myspaceContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -94,9 +94,9 @@ public class MySocialNetworkingDisplay extends Panel {
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter")));
-		twitterContainer.add(new ExternalLink("twitterLink", ProfileUtils.getTwitterURL(twitterUsername), ProfileUtils.getTwitterURL(twitterUsername)));
+		twitterContainer.add(new ExternalLink("twitterLink", twitterUrl, twitterUrl));
 		add(twitterContainer);
-		if(StringUtils.isBlank(twitterUsername)) {
+		if(StringUtils.isBlank(twitterUrl)) {
 			twitterContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
