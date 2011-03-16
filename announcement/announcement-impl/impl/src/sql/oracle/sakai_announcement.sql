@@ -44,7 +44,8 @@ CREATE INDEX IE_ANNC_MSG_ATTRIB ON ANNOUNCEMENT_MESSAGE
 (
        DRAFT                          ASC,
        PUBVIEW                        ASC,
-       OWNER                          ASC
+       OWNER                          ASC,
+       MESSAGE_ORDER				  ASC
 );
 
 CREATE INDEX IE_ANNC_MSG_DATE ON ANNOUNCEMENT_MESSAGE
