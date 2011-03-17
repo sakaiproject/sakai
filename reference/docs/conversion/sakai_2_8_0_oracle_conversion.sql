@@ -295,6 +295,9 @@ create table SST_PRESENCES (
 	primary key (ID)
 );
 
+-- STAT-286: missing SiteStats sequence
+create sequence SST_PRESENCE_ID;
+
 -- SAK-20076: missing Sitestats indexes
 create index SST_PRESENCE_DATE_IX on SST_PRESENCES (P_DATE);
 create index SST_PRESENCE_USER_ID_IX on SST_PRESENCES (USER_ID);
