@@ -68,9 +68,8 @@ NOTES
     advantage of the enhanced merge tracking. This yields cleaner repository
     history and easier merges.
   * When merging into maintenance branches (step 8), you should specify the
-    revisions of the temporary branch. It almost certainly contains upstream
-    changes that you do not wish to merge. An example is:
+    revision of trunk. It almost certainly contains upstream changes that you
+    do not wish to merge. An example is:
     
-        svn merge -r 89939:89941 \
-            https://source.sakaiproject.org/svn/reference/branches/SAK-20296 .
+        svn merge -c 89942 https://source.sakaiproject.org/svn/reference/trunk .
 
