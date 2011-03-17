@@ -20,6 +20,7 @@ package org.sakaiproject.profile2.tool.pages;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.form.Form;
@@ -44,6 +45,16 @@ public class MyMessages extends BasePage {
 	public MyMessages(final String threadId) {
 		renderMyMessages(threadId);
 	}
+	
+	/**
+	 * This constructor is called if we have a pageParameters object containing the threadId as the 'thread' parameter
+	 * Just redirects to normal MyMessages(String threadId)
+	 * @param parameters
+	 */
+	public MyMessages(PageParameters parameters) {
+		this(parameters.getString("thread"));
+	}
+	
 	
 	private void renderMyMessages(final String threadId) {
 
@@ -105,6 +116,7 @@ public class MyMessages extends BasePage {
 		tabPanel=replacement;
 		
 	}
+	
 	
 }
 

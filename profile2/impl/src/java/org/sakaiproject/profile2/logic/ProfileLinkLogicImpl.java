@@ -60,13 +60,12 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		//link direct to messages page, if we have a threadId, add the appropriate params in
 		String extraParams = null;
 		if(sakaiProxy.isUsingNormalPortal()){
+			Map<String,String> vars = null;
 			if(StringUtils.isNotBlank(threadId)) {
-				Map<String,String> vars = new HashMap<String,String>();
+				vars = new HashMap<String,String>();
 				vars.put(ProfileConstants.WICKET_PARAM_THREAD, threadId);
-				extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGE_VIEW, vars);
-			} else {
-				extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGE_LIST, null);
 			}
+			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_MESSAGES, vars);
 		}
 		
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
