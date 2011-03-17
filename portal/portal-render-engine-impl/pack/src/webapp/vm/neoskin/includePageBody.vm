@@ -213,10 +213,10 @@
 
 
 			#if (${sitePages.pageNavShowPresenceLoggedIn})
-                             <div id="presenceArea" style="display: none">
+                             <div id="presenceArea" style="display: none" class="trayPopup">
 				<h1 class="skip">${rloader.sit_presencehead}</h1>
 				<div id="presenceWrapper">
-					<div id="presenceTitle">${rloader.sit_presencetitle}</div>
+					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" class="trayPopupClose">x</a></div></div>
 #if (${sitePages.pageNavPresenceIframe})
 					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
 						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >

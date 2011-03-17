@@ -826,9 +826,30 @@ a#toggleToolMenu{
 #presenceTitle{
 	font-size: .8em;
     border-bottom:1px solid #ccc;
-	padding:5px 3px;
+	padding:5px;
+    background:#eee;
+    height:15px;
+    vertical-align:middle;
+    border-bottom:1px solid #ddd
 }
-
+#presenceTitle div{
+    position:absolute;
+    top:1px;
+    text-align:center;
+    right:0px;
+    bottom:0;
+    width:15px;    
+    height:16px;
+    font-size:120%;
+    border-left:1px solid #ccc;
+    padding:4px;
+}    
+#presenceTitle div a{
+    color:#888;
+    font-weight:bold;
+    padding:3px;
+    text-decoration:none;
+}    
 /*of presence iframe*/
 #presenceIframe{
 	height: 100px;
