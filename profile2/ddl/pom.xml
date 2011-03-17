@@ -58,8 +58,6 @@
                     </components>
                     <componentProperties>
                         <configurationfile>hibernate.cfg.xml</configurationfile>
-                        <propertyfile>hibernate-hsqldb.properties</propertyfile>
-                        <outputfilename>hsqldb/${project.ddl.name}-${parent.version}-hsqldb.sql</outputfilename>
                         <drop>false</drop>
                         <create>true</create>
                         <export>false</export>
@@ -68,13 +66,6 @@
                     </componentProperties>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>export-hsqldb</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>hbm2ddl</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>export-mysql</id>
                         <phase>process-classes</phase>
