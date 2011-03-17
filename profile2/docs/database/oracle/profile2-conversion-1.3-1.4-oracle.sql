@@ -84,42 +84,42 @@ create table PROFILE_KUDOS_T (
 );
 
 /* add the new email message preference columns, default to 0, (PRFL-152, PRFL-186) */
-alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW number(1,0) not null default 0;
-alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY number(1,0) not null default 0;
+alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_NEW number(1,0) default 0 not null;
+alter table PROFILE_PREFERENCES_T add EMAIL_MESSAGE_REPLY number(1,0) default 0 not null;
 
 /* add social networking privacy column (PRFL-285) */
-alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO number(1,0) not null default 0;
+alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO number(1,0) default 0 not null;
 
 /* add the new gallery column (PRFL-171) */
-alter table PROFILE_PRIVACY_T add MY_PICTURES number(1,0) not null default 0;
+alter table PROFILE_PRIVACY_T add MY_PICTURES number(1,0) default 0 not null;
 
 /* add the new message column (PRFL-194) */
-alter table PROFILE_PRIVACY_T add MESSAGES number(1,0) not null default 0;
+alter table PROFILE_PRIVACY_T add MESSAGES number(1,0) default 0 not null;
 
 /* add the new businessInfo column (PRFL-210) */
-alter table PROFILE_PRIVACY_T add BUSINESS_INFO number(1,0) not null default 0;
+alter table PROFILE_PRIVACY_T add BUSINESS_INFO number(1,0) default 0 not null;
 
 /* add the new staff and student info columns and copy old ACADEMIC_INFO value into them to maintain privacy (PRFL-267) */
-alter table PROFILE_PRIVACY_T add STAFF_INFO number(1,0) not null default 0;
-alter table PROFILE_PRIVACY_T add STUDENT_INFO number(1,0) not null default 0;
+alter table PROFILE_PRIVACY_T add STAFF_INFO number(1,0) default 0 not null;
+alter table PROFILE_PRIVACY_T add STUDENT_INFO number(1,0) default 0 not null;
 update PROFILE_PRIVACY_T set STAFF_INFO = ACADEMIC_INFO;
 update PROFILE_PRIVACY_T set STUDENT_INFO = ACADEMIC_INFO;
 alter table PROFILE_PRIVACY_T drop column ACADEMIC_INFO;
 
 /* add the new useOfficialImage column (PRFL-90) */
-alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE number(1,0) not null default 0;
+alter table PROFILE_PREFERENCES_T add USE_OFFICIAL_IMAGE number(1,0) default 0 not null;
 
 /* remove search privacy setting (PRFL-293) */
 alter table PROFILE_PRIVACY_T drop column SEARCH;
 
 /* add kudos preference (PRFL-336) */
-alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) not null default 1;
+alter table PROFILE_PREFERENCES_T add SHOW_KUDOS number(1,0) default 1 not null;
 
 /* add kudos privacy (PRFL-336) */
-alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) not null default 0;
+alter table PROFILE_PRIVACY_T add MY_KUDOS number(1,0) default 0 not null;
 
 /* add gallery feed preference (PRFL-382) */
-alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) not null default 1;
+alter table PROFILE_PREFERENCES_T add SHOW_GALLERY_FEED number(1,0) default 1 not null;
 
 /* adjust size of the profile images resource uri columns (PRFL-392) */
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000);
