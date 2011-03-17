@@ -59,7 +59,7 @@ create UNIQUE INDEX ASSESSMENTGRADINGID ON SAM_ITEMGRADING_T (ASSESSMENTGRADINGI
 
 -- Gradebook2 support
 -- SAK-19080 / GRBK-736
-alter table GB_GRADE_RECORD_T add USER_ENTERED_GRADE varchar2(255);
+alter table GB_GRADE_RECORD_T add USER_ENTERED_GRADE varchar2(255 CHAR);
 
 
 --MSGCNTR-309
@@ -130,10 +130,10 @@ alter table POLL_POLL add POLL_IS_PUBLIC number(1,0);
 -- add company profile table and index (PRFL-224)
 create table PROFILE_COMPANY_PROFILES_T (
 	ID number(19,0) not null,
-	USER_UUID varchar2(99) not null,
-	COMPANY_NAME varchar2(255),
+	USER_UUID varchar2(99 CHAR) not null,
+	COMPANY_NAME varchar2(255 CHAR),
 	COMPANY_DESCRIPTION varchar2(4000),
-	COMPANY_WEB_ADDRESS varchar2(255),
+	COMPANY_WEB_ADDRESS varchar2(255 CHAR),
 	primary key (ID)
 );
 create sequence COMPANY_PROFILES_S;
@@ -141,26 +141,26 @@ create index PROFILE_CP_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID);
  
 -- add message tables and indexes
 create table PROFILE_MESSAGES_T (
-	ID varchar2(36) not null,
-	FROM_UUID varchar2(99) not null,
+	ID varchar2(36 CHAR) not null,
+	FROM_UUID varchar2(99 CHAR) not null,
 	MESSAGE_BODY varchar2(4000) not null,
-	MESSAGE_THREAD varchar2(36) not null,
+	MESSAGE_THREAD varchar2(36 CHAR) not null,
 	DATE_POSTED timestamp(6) not null,
 	primary key (ID)
 );
 
 create table PROFILE_MESSAGE_PARTICIPANTS_T (
 	ID number(19,0) not null,
-	MESSAGE_ID varchar2(36) not null,
-	PARTICIPANT_UUID varchar2(99) not null,
+	MESSAGE_ID varchar2(36 CHAR) not null,
+	PARTICIPANT_UUID varchar2(99 CHAR) not null,
 	MESSAGE_READ number(1,0) not null,
 	MESSAGE_DELETED number(1,0) not null,
 	primary key (ID)
 );
 
 create table PROFILE_MESSAGE_THREADS_T (
-	ID varchar2(36) not null,
-	SUBJECT varchar2(255) not null,
+	ID varchar2(36 CHAR) not null,
+	SUBJECT varchar2(255 CHAR) not null,
 	primary key (ID)
 );
 
@@ -176,10 +176,10 @@ create index PROFILE_M_P_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ)
 -- add gallery table and indexes (PRFL-134, PRFL-171)
 create table PROFILE_GALLERY_IMAGES_T (
 	ID number(19,0) not null,
-	USER_UUID varchar2(99) not null,
+	USER_UUID varchar2(99 CHAR) not null,
 	RESOURCE_MAIN varchar2(4000) not null,
 	RESOURCE_THUMB varchar2(4000) not null,
-	DISPLAY_NAME varchar2(255) not null,
+	DISPLAY_NAME varchar2(255 CHAR) not null,
 	primary key (ID)
 );
 create sequence GALLERY_IMAGES_S;
@@ -187,25 +187,25 @@ create index PROFILE_GI_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID);
 
 -- add social networking table (PRFL-252, PRFL-224)
 create table PROFILE_SOCIAL_INFO_T (
-	USER_UUID varchar2(99) not null,
-	FACEBOOK_USERNAME varchar2(255),
-	LINKEDIN_USERNAME varchar2(255),
-	MYSPACE_USERNAME varchar2(255),
-	SKYPE_USERNAME varchar2(255),
-	TWITTER_USERNAME varchar2(255),
+	USER_UUID varchar2(99 CHAR) not null,
+	FACEBOOK_USERNAME varchar2(255 CHAR),
+	LINKEDIN_USERNAME varchar2(255 CHAR),
+	MYSPACE_USERNAME varchar2(255 CHAR),
+	SKYPE_USERNAME varchar2(255 CHAR),
+	TWITTER_USERNAME varchar2(255 CHAR),
 	primary key (USER_UUID)
 );
 
 -- add official image table
 create table PROFILE_IMAGES_OFFICIAL_T (
-	USER_UUID varchar2(99) not null,
+	USER_UUID varchar2(99 CHAR) not null,
 	URL varchar2(4000) not null,
 	primary key (USER_UUID)
 );
 
 -- add kudos table
 create table PROFILE_KUDOS_T (
-	USER_UUID varchar2(99) not null,
+	USER_UUID varchar2(99 CHAR) not null,
 	SCORE number(10,0) not null,
 	PERCENTAGE number(19,2) not null,
 	DATE_ADDED timestamp(6) not null,
@@ -262,7 +262,7 @@ alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB varchar2(4000);
 
 create table URL_RANDOMISED_MAPPINGS_T (
 	ID number(19,0) not null,
-	TINY varchar2(255) not null,
+	TINY varchar2(255 CHAR) not null,
 	URL varchar2(4000) not null,
 	primary key (ID)
 );
@@ -318,14 +318,14 @@ create index SMB_SEARCH on sakai_message_bundle (BASENAME , MODULE_NAME , LOCALE
 -- RES-2: table structure for validationaccount_item
 CREATE TABLE VALIDATIONACCOUNT_ITEM (
         ID NUMBER(19) NOT NULL,
-        USER_ID VARCHAR2(255) NOT NULL,
-        VALIDATION_TOKEN VARCHAR2(255) NOT NULL,
+        USER_ID VARCHAR2(255 CHAR) NOT NULL,
+        VALIDATION_TOKEN VARCHAR2(255 CHAR) NOT NULL,
         VALIDATION_SENT TIMESTAMP(6),
         VALIDATION_RECEIVED TIMESTAMP(6),
         VALIDATIONS_SENT NUMBER(10),
         STATUS NUMBER(10),
-        FIRST_NAME VARCHAR2(255) NOT NULL,
-        SURNAME VARCHAR2(255) NOT NULL,
+        FIRST_NAME VARCHAR2(255 CHAR) NOT NULL,
+        SURNAME VARCHAR2(255 CHAR) NOT NULL,
         ACCOUNT_STATUS NUMBER(10),
         PRIMARY KEY (ID)
 );
