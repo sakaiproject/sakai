@@ -105,7 +105,7 @@
 		<property name="cacheName">
 			<value>org.sakaiproject.user.api.AuthenticationManager</value>
 		</property>
-		<property name="maxElementsInMemory" value="10000" />
+		<property name="maxElementsInMemory" value="250" />
 		<property name="diskPersistent" value="false" />
 		<property name="eternal" value="false" />
 		<property name="timeToLive" value="120" />
