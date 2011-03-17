@@ -4147,13 +4147,18 @@ public class AssignmentAction extends PagedResourceActionII
 										// some old unscaled grades, need to scale the number and remove the old property
 										String[] grades = StringUtils.split(previousGrades, " ");
 										String newGrades = "";
+										
+										NumberFormat nbFormat = (DecimalFormat) getNumberFormat();
+										DecimalFormat dcFormat = (DecimalFormat) nbFormat;
+										String decSeparator = dcFormat.getDecimalFormatSymbols().getDecimalSeparator() + "";
+										
 										for (int jj = 0; jj < grades.length; jj++)
 										{
 											String grade = grades[jj];
-											if (grade.indexOf(".") == -1)
+											if (grade.indexOf(decSeparator) == -1)
 											{
 												// show the grade with decimal point
-												grade = grade.concat(".0");
+												grade = grade.concat(decSeparator).concat("0");
 											}
 											newGrades = newGrades.concat(grade + " ");
 										}
@@ -4713,7 +4718,10 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							gradePoints = scalePointGrade(state, gradePoints);
 						}
-						state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+						}
 					}
 				}
 			}
@@ -10229,18 +10237,8 @@ public class AssignmentAction extends PagedResourceActionII
 				addAlert(state, rb.getString("plesuse3"));
 			}
 			else
-			{
-				// get localized number format
-				NumberFormat nbFormat = NumberFormat.getInstance();				
-				try {
-					Locale locale = null;
-					ResourceLoader rb = new ResourceLoader();
-					locale = rb.getLocale();
-					nbFormat = NumberFormat.getNumberInstance(locale);
-				}				
-				catch (Exception e) {
-					M_log.warn("Error while retrieving local number format, using default ", e);
-				}
+			{	
+				NumberFormat nbFormat = (DecimalFormat) getNumberFormat();
 				DecimalFormat dcFormat = (DecimalFormat) nbFormat;
 				String decSeparator = dcFormat.getDecimalFormatSymbols().getDecimalSeparator() + "";
 				
@@ -10253,29 +10251,28 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				
 				// parse grade from localized number format
-				try {
-					Double dblGrade = new Double (nbFormat.parse(grade).doubleValue());
-					grade = dblGrade.toString();
-					
-					int index = grade.indexOf(".");
-					if (index != -1)
+				int index = grade.indexOf(decSeparator);
+				if (index != -1)
+				{
+					// when there is decimal points inside the grade, scale the number by 10
+					// but only one decimal place is supported
+					// for example, change 100.0 to 1000
+					if (!grade.equals(decSeparator))
 					{
-						// when there is decimal points inside the grade, scale the number by 10
-						// but only one decimal place is supported
-						// for example, change 100.0 to 1000
-						if (!grade.equals("."))
+						if (grade.length() > index + 2)
 						{
-							if (grade.length() > index + 2)
+							// if there are more than one decimal point
+							addAlert(state, rb.getString("plesuse2"));
+						}
+						else
+						{
+							// decimal points is the only allowed character inside grade
+							// replace it with '1', and try to parse the new String into int
+							String gradeString = grade.endsWith(decSeparator) ? grade.substring(0, index).concat("0") : grade.substring(0,
+									index).concat(grade.substring(index + 1));
+							try
 							{
-								// if there are more than one decimal point
-								addAlert(state, rb.getString("plesuse2"));
-							}
-							else
-							{
-								// decimal points is the only allowed character inside grade
-								// replace it with '1', and try to parse the new String into int
-								String gradeString = (grade.endsWith(".")) ? grade.substring(0, index).concat("0") : grade.substring(0,
-										index).concat(grade.substring(index + 1));
+								nbFormat.parse(gradeString);
 								try
 								{
 									Integer.parseInt(gradeString);
@@ -10286,17 +10283,26 @@ public class AssignmentAction extends PagedResourceActionII
 									alertInvalidPoint(state, gradeString);
 								}
 							}
-						}
-						else
-						{
-							// grade is "."
-							addAlert(state, rb.getString("plesuse1"));
+							catch (ParseException e)
+							{
+								M_log.warn(this + ":validPointGrade " + e.getMessage());
+								addAlert(state, rb.getString("plesuse1"));
+							}
 						}
 					}
 					else
 					{
-						// There is no decimal point; should be int number
-						String gradeString = grade + "0";
+						// grade is decSeparator
+						addAlert(state, rb.getString("plesuse1"));
+					}
+				}
+				else
+				{
+					// There is no decimal point; should be int number
+					String gradeString = grade + "0";
+					try
+					{
+						nbFormat.parse(gradeString);
 						try
 						{
 							Integer.parseInt(gradeString);
@@ -10307,15 +10313,35 @@ public class AssignmentAction extends PagedResourceActionII
 							alertInvalidPoint(state, gradeString);
 						}
 					}
-				}
-				catch (ParseException e) {
-					// grade does not meet the number format and could not be parsed
-					addAlert(state, rb.getString("plesuse1"));
+					catch (ParseException e)
+					{
+						M_log.warn(this + ":validPointGrade " + e.getMessage());
+						addAlert(state, rb.getString("plesuse1"));
+					}
 				}
 			}
 		}
 		return grade;
 
+	}
+
+	/**
+	 * get the right number format based on local
+	 * @return
+	 */
+	private NumberFormat getNumberFormat() {
+		// get localized number format
+		NumberFormat nbFormat = NumberFormat.getInstance();				
+		try {
+			Locale locale = null;
+			ResourceLoader rb = new ResourceLoader();
+			locale = rb.getLocale();
+			nbFormat = NumberFormat.getNumberInstance(locale);
+		}				
+		catch (Exception e) {
+			M_log.warn("Error while retrieving local number format, using default ", e);
+		}
+		return nbFormat;
 	} // validPointGrade
 	
 	/**
@@ -10345,6 +10371,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private void alertInvalidPoint(SessionState state, String grade)
 	{
+		NumberFormat nbFormat = (DecimalFormat) getNumberFormat();
+		DecimalFormat dcFormat = (DecimalFormat) nbFormat;
+		String decSeparator = dcFormat.getDecimalFormatSymbols().getDecimalSeparator() + "";
+		
 		String VALID_CHARS_FOR_INT = "-01234567890";
 
 		boolean invalid = false;
@@ -10366,7 +10396,7 @@ public class AssignmentAction extends PagedResourceActionII
 			int maxInt = Integer.MAX_VALUE / 10;
 			int maxDec = Integer.MAX_VALUE - maxInt * 10;
 			// case 2: Due to our internal scaling, input String is larger than Integer.MAX_VALUE/10
-			addAlert(state, rb.getFormattedMessage("plesuse4", new Object[]{grade.substring(0, grade.length()-1) + "." + grade.substring(grade.length()-1),  maxInt + "." + maxDec}));
+			addAlert(state, rb.getFormattedMessage("plesuse4", new Object[]{grade.substring(0, grade.length()-1) + decSeparator + grade.substring(grade.length()-1),  maxInt + decSeparator + maxDec}));
 		}
 	}
 
@@ -10379,36 +10409,21 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			if (grade != null && (grade.length() >= 1))
 			{
-				// get localized number format
-				NumberFormat nbFormat = NumberFormat.getInstance();				
-				try {
-					Locale locale = null;
-					ResourceLoader rb = new ResourceLoader();
-		            		locale = rb.getLocale();
-		           		nbFormat = NumberFormat.getNumberInstance(locale);
-				}				
-				catch (Exception e) {
-					M_log.warn("Error while retrieving local number format, using default ", e);
-				}
+				NumberFormat nbFormat = getNumberFormat();
 				nbFormat.setMaximumFractionDigits(1);
 				nbFormat.setMinimumFractionDigits(1);
 				nbFormat.setGroupingUsed(false);
 				
-				// check if grade uses a comma as separator because of number format and change to a point
-				// remove group separator
 				DecimalFormat dcformat = (DecimalFormat) nbFormat;
 				String decSeparator = dcformat.getDecimalFormatSymbols().getDecimalSeparator() + "";
-				if (",".equals(decSeparator) && grade.indexOf(decSeparator) != -1) {
-					grade = grade.replace(",", ".");
-				}
 				
-				if (grade.indexOf(".") != -1)
+				if (grade.indexOf(decSeparator) != -1)
 				{
-					if (grade.startsWith("."))
+					if (grade.startsWith(decSeparator))
 					{
 						grade = "0".concat(grade);
 					}
-					else if (grade.endsWith("."))
+					else if (grade.endsWith(decSeparator))
 					{
 						grade = grade.concat("0");
 					}
@@ -10418,7 +10433,7 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						Integer.parseInt(grade);
-						grade = grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
+						grade = grade.substring(0, grade.length() - 1) + decSeparator + grade.substring(grade.length() - 1);
 					}
 					catch (NumberFormatException e)
 					{
@@ -10452,6 +10467,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private String scalePointGrade(SessionState state, String point)
 	{
+		NumberFormat nbFormat = (DecimalFormat) getNumberFormat();
+		DecimalFormat dcFormat = (DecimalFormat) nbFormat;
+		String decSeparator = dcFormat.getDecimalFormatSymbols().getDecimalSeparator() + "";
+		
 		point = validPointGrade(state, point);
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -10460,7 +10479,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// when there is decimal points inside the grade, scale the number by 10
 				// but only one decimal place is supported
 				// for example, change 100.0 to 1000
-				int index = point.indexOf(".");
+				int index = point.indexOf(decSeparator);
 				if (index != -1)
 				{
 					if (index == 0)
