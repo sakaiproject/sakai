@@ -57,7 +57,8 @@ are samples and should not be used verbatim.
     8. Merge the temporary branch and commit
 
         cd trunk
-        svn merge https://source.sakaiproject.org/svn/reference/branches/SAK-20296 .
+        svn merge --reintegrate \
+            https://source.sakaiproject.org/svn/reference/branches/SAK-20296 .
         svn ci -m 'SAK-20296 - Upgrading CKEditor to 3.5.2'
 
 
