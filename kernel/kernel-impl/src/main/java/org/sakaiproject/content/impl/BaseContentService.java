@@ -5641,6 +5641,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			CharsetMatch match = detector.detect();
 			encoding = match.getName();
+
+			//KNL-682 do not set content as UTF-32LE or UTF-16
+			if (encoding.indexOf("UTF-16") > -1 || encoding.indexOf("UTF-32") > -1) {
+				encoding = "UTF-8";
+			}
+
 			int confidence = match.getConfidence();
 			//KNL-683 we need a relatively good confidence before we change the encoding
 			int threshold = m_serverConfigurationService.getInt("content.encodingDetection.threshold", 70);
