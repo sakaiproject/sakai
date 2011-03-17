@@ -25,7 +25,6 @@
 <wicket:extend>
 	<div id="pageWrapper">
 	<div id="fullWidth">
-	<div wicket:id="feedback"></div>
 
 	<!-- main gallery form -->
 	<div class="mainSectionContentForm">
@@ -48,12 +47,11 @@
 
 	<!-- separate form for adding a new picture -->
 	<h3 wicket:id="addPictureHeading" class="header icon picture-add">[addPictureHeading]</h3>
-	<div wicket:id="fileFeedback">[fileFeedback]</div>
-	<form wicket:id="addPictureForm" class="profileForm">
+	<form wicket:id="form" class="profileForm">
 	<table class="profileContent">
 		<tr>
-			<!-- <td></td>
-			<td></td> -->
+			<td></td>
+			<td><div wicket:id="fileFeedback" class="wicket-feedbackpanel-nolist">[fileFeedback]</div></td>
 
 		</tr>
 		<tr wicket:id="addPictureContainer">
