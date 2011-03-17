@@ -435,7 +435,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 
-		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
+		if (log.isDebugEnabled()) log.debug("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 	}
 	
 	private Comment getInternalComment(String gradebookUid, String assignmentName, String studentUid, Session session) {
