@@ -148,7 +148,7 @@
 	        <a id="imgSearch" href="#"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
      	</div>
-     	<ul id="otherSiteList">
+     	<ul id="otherSiteList" role="navigation">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 								#if (${site.isMyWorkspace})
 								#else 
@@ -159,20 +159,6 @@
 							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;</a></li>
 						#end	
       </ul>
-
-#*
-     	<table id="tblSearch" cellpadding="2" cellspacing="0" border="1" style="width:500px;">
-						#foreach ( $site in $tabsSites.tabsSites ) 
-								#if (${site.isMyWorkspace})
-								#else
-							<tr><td><a href="${site.siteUrl}" title="${site.fullTitle}"><span>${site.fullTitle}</span></a></td></tr>
-								#end
-						#end
-						#foreach( $site in $tabsSites.tabsMoreSites )
-							<tr><td><a href="${site.siteUrl}" title="${site.fullTitle}"><span>${site.fullTitle}</span></a></td></tr>
-						#end	
-      </table>
-*# 
     <script language="javascript" type="text/javascript">
 			
          // case insensitive version of :contains

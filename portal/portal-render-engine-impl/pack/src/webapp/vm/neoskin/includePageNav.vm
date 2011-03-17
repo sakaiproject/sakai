@@ -20,7 +20,7 @@
 				<a id="totoolmenu" class="skip" name="totoolmenu"></a>
 				<h1 class="skip">${rloader.sit_toolshead}</h1>
 				<div id="toolMenu">
-					<ul>
+					<ul role="navigation">
 			#foreach( $page in $sitePages.pageNavTools )
 		  		#if (${page.current})
 						<li class="selectedTool">

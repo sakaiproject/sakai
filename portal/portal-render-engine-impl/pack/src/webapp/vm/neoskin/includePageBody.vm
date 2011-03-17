@@ -5,10 +5,10 @@
 <!-- START from includePageBody.vm -->
 		#if ( $sitePages.pageMaxIfSingle )
 			#if ( $sitePages.pageNavToolsCount > 1 ) 
-			<div id="$pageWrapperClass">
+			<div id="$pageWrapperClass" role="main">
 			#end
 		#else
-			<div id="$pageWrapperClass">
+			<div id="$pageWrapperClass" role="main">
 		#end
 
 
@@ -194,10 +194,18 @@
 			#end
 			<!-- end include Bottom -->
 				</div>
-				<div class="sakaiCopyrightInfo">${bottomNavCopyright} 
+				<div class="sakaiCopyrightInfo" role="contentinfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
-				<div id="footerAppTray"><a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a> <span id="presenceCount">&nbsp;</span></div>
+				<div id="footerAppTray">
+					<div id="footerAppChat">
+						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
+					</div>	
+					<div id="footerAppPresence">
+						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
+						<div id="presenceCount"></div>
+					</div>
+				</div>
 
 
 

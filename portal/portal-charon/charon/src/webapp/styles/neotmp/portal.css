@@ -803,25 +803,6 @@ a#toggleToolMenu{
 	padding: 3px 3px 3px 2em;
 }
 
-#presenceToggle{
-	color: white;
-	text-decoration: none;
-}
-#footerAppTray span.present {
-    background-color: #b11;
-    padding:0 5px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-}
-
-#footerAppTray #presenceCount{
-    font-size:80%;
-    outline:1px solid transparent;
-}
-#footerAppTray span.empty {
-      display:none;
-}
 
 #presenceArea {
 	background-color: #fff;
@@ -1069,16 +1050,62 @@ below they are contextually defined depending on the column as an example,as you
      position:fixed;
      right:5px;
      bottom:0;
-     height:24px;
+     height:23px;
      text-align:center;
      border-color:#aaa;
      border-style:solid;
      border-width:1px 1px 0 1px;
      vertical-align:middle;
-    line-height:2em;
-     width:80px;
+     line-height:1.2em;
+     width:auto;
+     padding:0;
      color:#fff;
      background:#eee url(images/appTrayBack.png) top left repeat-x;
+}
+#footerAppPresence{
+    vertical-align:middle;
+    float:left;
+    padding:0 5px;
+    width:50px;
+}
+#footerAppChat{
+    vertical-align:middle;
+    float:left;
+    padding:0 5px;
+    width:auto;
+    color:#000;
+    border-right:1px solid #bbb;
+    display:none;    
+}
+#presenceToggle{
+	color: white;
+    outline:1px solid transparent;
+	text-decoration: none;
+    dispay:block;
+    position:absolute;
+    top:4px;
+    left:4px;
+}
+#footerAppTray div.present {
+    background-color: #b11;
+    padding:0 5px;
+    outline:1px solid red;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    position:absolute;
+    height:14px;
+    top:5px;
+    left:30px;
+
+}
+
+#footerAppTray #presenceCount{
+    font-size:80%;
+    outline:1px solid transparent;
+}
+#footerAppTray span.empty {
+      visibility:hidden;
 }    
 /*PART 8 - CONVENIENCE*/
 /*used to hide various blocks from sighted users that are in the source to help with accessibility*/
@@ -1408,14 +1435,15 @@ ul.topnav li {
 ul.topnav li a{
 	padding: 10px 5px;
 	color: #fff;
-	display: block;
 	text-decoration: none;
 	float: left;
+     display:block;
 }
 ul.topnav li.nav-selected > a{
     color:#9cf
 }
-li.nav-menu > a:hover{
+li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
+    outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
