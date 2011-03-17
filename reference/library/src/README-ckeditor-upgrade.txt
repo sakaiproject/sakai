@@ -60,3 +60,17 @@ are samples and should not be used verbatim.
         svn merge https://source.sakaiproject.org/svn/reference/branches/SAK-20296 .
         svn ci -m 'SAK-20296 - Upgrading CKEditor to 3.5.2'
 
+
+NOTES
+-----
+
+  * You should use at least Subversion 1.5 (ideally, 1.6 or newer) to take
+    advantage of the enhanced merge tracking. This yields cleaner repository
+    history and easier merges.
+  * When merging into maintenance branches (step 8), you should specify the
+    revisions of the temporary branch. It almost certainly contains upstream
+    changes that you do not wish to merge. An example is:
+    
+        svn merge -r 89939:89941 \
+            https://source.sakaiproject.org/svn/reference/branches/SAK-20296 .
+
