@@ -1805,5 +1805,19 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public void setOccurrences(int occurrences) {
 		this.occurrences = occurrences;
 	}
+	
+	/**
+	 * @return true if sakai property signup.enableAttendance is true, else will return false
+	 */
+	public boolean isAttendanceOn() {
+			
+		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","false"))){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
 			
 }

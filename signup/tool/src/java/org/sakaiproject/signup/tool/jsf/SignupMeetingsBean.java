@@ -863,4 +863,17 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return userLoggedInStatus;
 	}
 
+	
+	/**
+	 * @return true if sakai property signup.enableAttendance is true, else will return false
+	 */
+	public boolean isAttendanceOn() {
+			
+		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","false"))){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 }

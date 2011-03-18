@@ -176,14 +176,14 @@
 									</h:panelGroup>
 							</h:panelGrid>
 
-							<%--//Savitha: this should set whether attendance will be taken (and control the rendering on the list view)
+							<%--//Savitha: this should set whether will be taken (and control the rendering on the list view)
 								- i will but hte strings in the bundle later
 							--%>
 							
-							<h:panelGroup>
+							<h:panelGroup rendered="#{EditMeetingSignupMBean.attendanceOn}">
 								<h:outputText value="Attendance" escape="false" styleClass="titleText"/>
 							  </h:panelGroup>
-              <h:panelGroup>
+              				<h:panelGroup rendered="#{EditMeetingSignupMBean.attendanceOn}">
 								<h:selectBooleanCheckbox id="attendanceSelection" value="#{EditMeetingSignupMBean.signupMeeting.allowAttendance}" />
 								<h:outputLabel value="Attendance will be taken" for="attendanceSelection" styleClass="titleText"/>
 								<h:outputText value=" (you can track attendance to this meeting if selected)" escape="false" styleClass="textPanelFooter"/>

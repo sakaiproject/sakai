@@ -29,7 +29,7 @@
 			</sakai:tool_bar>
 		</h:form>
 		<sakai:view_content>
-			
+
 			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{errorMessageUIBean.error}"/>      			
 				
 			<h:form id="meeting">
@@ -333,6 +333,22 @@
 							   								<h:graphicImage value="/images/delete.png"  alt="delete" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
 							   								<f:param id="deletAttendeeUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"></f:param>
 							   							</h:commandLink>
+														<%--creating mailtos--%>
+															<h:outputText value="&nbsp;" escape="false" />
+						   								<h:outputLink 
+																value="mailto:#{attendeeWrapper.attendeeEmail}?subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
+																title="#{attendeeWrapper.attendeeEmail}"
+																 rendered="#{attendeeWrapper.attendeeEmail !=null}">
+																<h:graphicImage value="/images/email_go.png" width="16" height="16" alt="#{attendeeWrapper.attendeeEmail}" styleClass="openCloseImageIcon"/>
+															</h:outputLink>	
+															<h:graphicImage 
+																value="/images/email_error.png" 
+																width="16" 
+																height="16" 
+																alt="#{msgs.event_attendee_noEmail}" 
+																title="#{msgs.event_attendee_noEmail}"
+																styleClass="openCloseImageIcon"
+																rendered="#{attendeeWrapper.attendeeEmail==null}"/>
 							   							<h:outputText value="&nbsp;" escape="false" />
 						   							</h:panelGroup>
 						   							<h:panelGroup>
@@ -342,7 +358,7 @@
 							   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
 							   								<h:graphicImage title="Click to view comment" value="/images/comment.gif" width="11" height="11" alt="view comment" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
 							   							</h:commandLink>
-							   						</h:panelGroup>
+						   							</h:panelGroup>
 						   						</h:panelGrid>
 						   						
 								   				<h:panelGroup id="editPanel" style="display: none;">
@@ -449,12 +465,30 @@
 										<h:panelGrid columns="1" rendered="#{!timeSlotWrapper.timeSlot.unlimitedAttendee}" styleClass="organizerAction">
 									   			<h:dataTable id="waiterSpots" value="#{timeSlotWrapper.waitingList}" binding="#{OrganizerSignupMBean.waiterWrapperTable}" var="waiterWrapper">
 									   				<h:column>
-									   					<h:panelGrid columns="2" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">
-									   						<h:commandLink id="removeWaitingList" action="#{OrganizerSignupMBean.removeAttendeeFromWList}" title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
+									   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">
+																<h:panelGroup>
+									   						<h:commandLink id="removeWaitingList" action="#{OrganizerSignupMBean.removeAttendeeFromWList}" title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" style="text-decoration:none !important">
 									   							<h:graphicImage value="/images/delete.png"  alt="delete" style="border:none" styleClass="openCloseImageIcon"/>
 									   							<f:param id="waiterUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{waiterWrapper.signupAttendee.attendeeUserId}"/>
 									   							<h:outputText value="&nbsp;" escape="false" />
 									   						</h:commandLink>
+																<h:outputText value="&nbsp;" escape="false"/>
+																<%-- //mailto: for waitlisted --%>
+							   								<h:outputLink 
+																	value="mailto:#{waiterWrapper.attendeeEmail}?subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
+																	title="#{waiterWrapper.attendeeEmail}"
+																  rendered="#{waiterWrapper.attendeeEmail !=null}">
+																	<h:graphicImage value="/images/email_go.png" width="16" height="16" alt="#{waiterWrapper.attendeeEmail}" styleClass="openCloseImageIcon"/>
+																</h:outputLink>	
+																<h:graphicImage 
+																	value="/images/email_error.png" 
+																	width="16" height="16" 
+																	alt="#{msgs.event_attendee_noEmail}"
+																	title="#{msgs.event_attendee_noEmail}" 
+																	styleClass="openCloseImageIcon"
+																	rendered="#{waiterWrapper.attendeeEmail ==null}"/>
+																	<h:outputText value="&nbsp;" escape="false"/>
+															</h:panelGroup>	
 									   						<h:panelGroup>
 									   							<h:outputText value="#{waiterWrapper.displayName}" escape="false"/>
 									   						</h:panelGroup>				   					
