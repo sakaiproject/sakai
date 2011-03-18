@@ -89,28 +89,27 @@ public class MyPrivacy extends BasePage {
 		form.setOutputMarkupId(true);
 		
 		
-		
 		//setup LinkedHashMap of privacy options for strict things
-		final LinkedHashMap<String, String> privacySettingsStrict = new LinkedHashMap<String, String>();
-		privacySettingsStrict.put("0", new StringResourceModel("privacy.option.everyone", this,null).getString());
-		privacySettingsStrict.put("1", new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
-		privacySettingsStrict.put("2", new StringResourceModel("privacy.option.onlyme", this,null).getString());
+		final LinkedHashMap<Integer, String> privacySettingsStrict = new LinkedHashMap<Integer, String>();
+		privacySettingsStrict.put(ProfileConstants.PRIVACY_OPTION_EVERYONE, new StringResourceModel("privacy.option.everyone", this,null).getString());
+		privacySettingsStrict.put(ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		privacySettingsStrict.put(ProfileConstants.PRIVACY_OPTION_ONLYME, new StringResourceModel("privacy.option.onlyme", this,null).getString());
 		
 		//model that wraps our options
 		IModel dropDownModelStrict = new Model() {
-			public ArrayList<String> getObject() {
+			public ArrayList<Integer> getObject() {
 				 return new ArrayList(privacySettingsStrict.keySet());
 			} 
 		};
 		
 		//setup LinkedHashMap of privacy options for more relaxed things
-		final LinkedHashMap<String, String> privacySettingsRelaxed = new LinkedHashMap<String, String>();
-		privacySettingsRelaxed.put("0", new StringResourceModel("privacy.option.everyone", this,null).getString());
-		privacySettingsRelaxed.put("1", new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		final LinkedHashMap<Integer, String> privacySettingsRelaxed = new LinkedHashMap<Integer, String>();
+		privacySettingsRelaxed.put(ProfileConstants.PRIVACY_OPTION_EVERYONE, new StringResourceModel("privacy.option.everyone", this,null).getString());
+		privacySettingsRelaxed.put(ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
 		
 		//model that wraps our options
 		IModel dropDownModelRelaxed = new Model() {
-			public ArrayList<String> getObject() {
+			public ArrayList<Integer> getObject() {
 				 return new ArrayList(privacySettingsRelaxed.keySet());
 			} 
 		};
