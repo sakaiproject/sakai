@@ -88,6 +88,7 @@ public class SignupObjectConverter {
 		se.setSignupSiteItems(null);
 		se.setAllowWaitList(sm.isAllowWaitList());
 		se.setAllowComment(sm.isAllowComment());
+		se.setAllowAttendance(sm.isAllowAttendance());
 		se.setAutoReminder(sm.isAutoReminder());
 		se.setEidInputMode(sm.isEidInputMode());
 		if (isDeepCopy) {

@@ -40,6 +40,9 @@
 		<property name="receiveEmailByOwner" type="boolean" >
 			<column name="receive_email_owner" default="0"/>
 		</property>
+		<property name="allowAttendance"  type="boolean" >
+			<column name="allow_attendance" default="0"/>
+		</property>
 		<property name="recurrenceId"  column="recurrence_id" type="long" not-null="false"/>
 		<property name="repeatType" column="repeat_type" type="string" length="20" not-null="false" />
 		

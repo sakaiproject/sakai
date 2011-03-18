@@ -18,7 +18,7 @@
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_modify_meeting_page_title}"/>
-			 	<sakai:doc_section>
+			 	<sakai:doc_section> 
 					<h:panelGrid columns="1" styleClass="instruction">						
 						<h:panelGroup>
 							<h:outputText value="#{msgs.star_character}" styleClass="reqStarInline" />
@@ -58,25 +58,20 @@
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
 								<h:outputText value="#{msgs.event_location}"  escape="false"/>
 							</h:panelGroup>
-						<h:panelGroup>
-							<!-- Displays all the locations in the dropdown -->
-							<h:selectOneMenu id="selectedLocation"
-								value="#{EditMeetingSignupMBean.selectedLocation}">
-								<f:selectItems value="#{EditMeetingSignupMBean.allLocations}" />
-							</h:selectOneMenu>
-							<h:outputLabel id="customLocationLabel" for="customLocation"
-								value="#{msgs.tab_event_edit_location_custom}" />
-							<h:outputText value="&nbsp;" escape="false" />
-							<h:inputText id="customLocation" size="40"
-								value="#{EditMeetingSignupMBean.signupMeeting.location}"
-								styleClass="editText">
-								<f:validator validatorId="Signup.EmptyStringValidator" />
-								<f:validateLength maximum="255" />
-							</h:inputText>
-							<h:message for="location" errorClass="alertMessageInline" />
-						</h:panelGroup>
-
-						<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
+							<h:panelGroup>
+		                    	  <!-- Displays all the locations in the dropdown -->
+		                        <h:selectOneMenu id="selectedLocation" value="#{EditMeetingSignupMBean.selectedLocation}">
+									<f:selectItems value="#{EditMeetingSignupMBean.allLocations}"/>
+								</h:selectOneMenu>
+								<h:outputLabel id="customLocationLabel" for="customLocation" value="#{msgs.tab_event_edit_location_custom}" /><h:outputText value="&nbsp;" escape="false" />
+		                        <h:inputText id="customLocation" size="40" value="#{EditMeetingSignupMBean.signupMeeting.location}" styleClass="editText">  
+		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+		                            <f:validateLength maximum="255" />
+		                        </h:inputText>
+		                        <h:message for="location" errorClass="alertMessageInline"/>
+		                    </h:panelGroup> 
+							
+							<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 							<sakai:rich_text_area value="#{EditMeetingSignupMBean.signupMeeting.description}" width="720" height="200" rows="5"  columns="80"/>
 							
 							<h:outputText  value="" styleClass="titleText" escape="false" />
@@ -180,7 +175,20 @@
 										<h:message for="signupDeadline" errorClass="alertMessageInline"/>
 									</h:panelGroup>
 							</h:panelGrid>
+
+							<%--//Savitha: this should set whether attendance will be taken (and control the rendering on the list view)
+								- i will but hte strings in the bundle later
+							--%>
 							
+							<h:panelGroup>
+								<h:outputText value="Attendance" escape="false" styleClass="titleText"/>
+							  </h:panelGroup>
+              <h:panelGroup>
+								<h:selectBooleanCheckbox id="attendanceSelection" value="#{EditMeetingSignupMBean.signupMeeting.allowAttendance}" />
+								<h:outputLabel value="Attendance will be taken" for="attendanceSelection" styleClass="titleText"/>
+								<h:outputText value=" (you can track attendance to this meeting if selected)" escape="false" styleClass="textPanelFooter"/>
+							  </h:panelGroup>
+              
 							<%-- handle meeting types --%>
 				           	<h:panelGroup styleClass="titleText">
 				           			<h:outputText value="#{msgs.star_character}"  style="color:#B11;"/>

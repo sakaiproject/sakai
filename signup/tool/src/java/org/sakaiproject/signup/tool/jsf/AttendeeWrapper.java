@@ -39,7 +39,7 @@ public class AttendeeWrapper {
 	private int positionIndex = 0;
 
 	private String timeslotPeriod;
-
+	
 	/**
 	 * Constructor
 	 * 
@@ -120,5 +120,19 @@ public class AttendeeWrapper {
 			return true;
 		
 		return false;
+	}
+	
+	/**
+	 * @return the attended
+	 */
+	public boolean isAttended() {
+		return this.signupAttendee.isAttended();
+	}
+
+	/**
+	 * @param attended 
+	 */
+	public void setAttended(boolean attended) {
+		this.signupAttendee.setAttended(attended);
 	}
 }

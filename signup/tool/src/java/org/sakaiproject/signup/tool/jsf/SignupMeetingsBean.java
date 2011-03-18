@@ -44,6 +44,7 @@ import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.tool.jsf.attendee.AttendeeSignupMBean;
+import org.sakaiproject.signup.tool.jsf.organizer.AttendanceSignupBean;
 import org.sakaiproject.signup.tool.jsf.organizer.OrganizerSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
@@ -74,6 +75,8 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	protected AttendeeSignupMBean attendeeSignupMBean;
 
 	protected OrganizerSignupMBean organizerSignupMBean;
+
+	protected AttendanceSignupBean attendanceSignupBean;
 
 	private NewSignupMeetingBean newSignupMeetingBean;
 
@@ -212,6 +215,28 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
 		return ATTENDEE_MEETING_PAGE_URL;
+	}
+	
+	/**
+	 * This is a JSF action call method by UI to navigate to view the specific
+	 * event/meeting attendance page.
+	 * 
+	 * @return an action outcome string.
+	 */
+	public String processSignupAttendance() {
+		
+		SignupMeetingWrapper meetingWrapper = (SignupMeetingWrapper) meetingTable.getRowData();
+		Permission permission = meetingWrapper.getMeeting().getPermission();
+		try {
+			if (permission.isUpdate()) {
+				attendanceSignupBean.init(meetingWrapper);
+				return ATTENDANCE_PAGE_URL;
+			}
+
+		} catch (Exception e) {
+			return ATTENDANCE_PAGE_URL;
+		}
+		return ATTENDANCE_PAGE_URL;
 	}
 
 	/**
@@ -803,6 +828,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public void setNewSignupMeetingBean(NewSignupMeetingBean newSignupMeetingBean) {
 		this.newSignupMeetingBean = newSignupMeetingBean;
+	}
+	
+	public AttendanceSignupBean getAttendanceSignupBean() {
+		return attendanceSignupBean;
+	}
+
+	public void setAttendanceSignupBean(AttendanceSignupBean attendanceSignupBean) {
+		this.attendanceSignupBean = attendanceSignupBean;
 	}
 
 	/**

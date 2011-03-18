@@ -92,6 +92,8 @@ public class SignupMeeting implements MeetingTypes {
 	private Permission permission;
 	
 	private boolean emailAttendeesOnly;
+	
+	private boolean allowAttendance;
 
 	/**
 	 * check if the meeting/event is cancelled
@@ -110,6 +112,25 @@ public class SignupMeeting implements MeetingTypes {
 	 */
 	public void setCanceled(boolean cancel) {
 		this.canceled = cancel;
+	}
+	
+	/**
+	 * check if the meeting/event can take attendance
+	 * 
+	 * @return true if the meeting/event can take attendance
+	 */
+	public boolean isAllowAttendance() {
+		return allowAttendance;
+	}
+
+	/**
+	 * this is a setter.
+	 * 
+	 * @param allowAttendance
+	 *            a boolean value
+	 */
+	public void setAllowAttendance(boolean allowAttendance) {
+		this.allowAttendance = allowAttendance;
 	}
 
 	/**

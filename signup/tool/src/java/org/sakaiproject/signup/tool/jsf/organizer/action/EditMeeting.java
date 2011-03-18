@@ -245,6 +245,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		newlyModifyMeeting.setAllowComment(modifiedMeeting.isAllowComment());
 		newlyModifyMeeting.setAutoReminder(modifiedMeeting.isAutoReminder());
 		newlyModifyMeeting.setEidInputMode(modifiedMeeting.isEidInputMode());
+		newlyModifyMeeting.setAllowAttendance(modifiedMeeting.isAllowAttendance());
 		
 		/*new attachments changes*/
 		if(this.currentAttachList !=null){

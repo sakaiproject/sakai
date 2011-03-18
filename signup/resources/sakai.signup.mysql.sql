@@ -31,7 +31,8 @@ create table signup_meetings (
 	allow_waitList bit(1) default 1,
   	allow_comment bit(1) default 1,
   	eid_input_mode bit(1) default '\0',
-  	auto_reminder bit(1) default '\0', 
+  	auto_reminder bit(1) default '\0',
+  	allow_attendance bit(1) default '\0',
 	primary key (id)
 ) type=InnoDB;
 
@@ -89,6 +90,7 @@ create table signup_ts_waitinglist (
 	calendar_event_id varchar(255), 
 	calendar_id varchar(255), 
 	list_index integer not null, 
+  	attended bit(1) default '\0',
 	primary key (timeslot_id, list_index)
 ) type=InnoDB;
 

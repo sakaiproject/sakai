@@ -469,7 +469,54 @@
 	}
 			
 
+var sakai = sakai ||
+{};
 
+/*
+ a list with checkboxes, selecting/unselecting checkbox applies/removes class from row,
+ selecting top checkbox selelects/unselects all, top checkbox is hidden if there are no
+ selectable items, onload, rows with selected checkboxes are highlighted with class
+ args: id of table, id of select all checkbox, highlight row class
+ */
+sakai.setupSelectListMultiple = function(list, allcontrol, highlightClass){
+    $('.' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
+    
+    $('.' + allcontrol).click(function(){
+        if (this.checked) {
+            $(this).parents('table.availableSpots').children('tbody').find('input').attr('checked',true);
+            $(this).parents('table.availableSpots').children('tbody').find('tr').addClass(highlightClass);
+        }
+        else {
+            $(this).parents('label').parents('table.availableSpots').children('tbody').find('input').attr('checked',false);
+            $(this).parents('table.availableSpots').children('tbody').find('tr').removeClass(highlightClass);
+        }
+    });
+    
+    $('.' + list + ' :checkbox').click(function(){
+        if (this.checked) {
+            $(this).parent('td').parent('tr').addClass(highlightClass);
+        }
+        else {
+            $(this).parent('td').parent('tr').removeClass(highlightClass);
+        }
+    });
+};
 	
 
-	
+sakai.setupPrintPreview = function(){
+  if (window.name == 'printwindow') {
+    $('.portletBody').addClass('portletBodyPrint');
+    $("h3").append(' (<a href="javascript:window.print()">Print</a>)');
+    /*
+    manipulate checkboxes
+    */
+   $('#attendanceList :checkbox').each(function(){
+       if ($(this).attr('checked') ===true){
+           $(this).before('<span class="printCheckbox">X</span>')
+       }
+       else{
+           $(this).before('<span class="printCheckbox">&nbsp;&nbsp;</span>')
+       }
+   })
+  }
+}	

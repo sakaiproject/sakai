@@ -42,7 +42,10 @@ public class SignupAttendee {
 	private String calendarId;
 	
 	private String displayName;
+	
+	private boolean attended;
 
+	
 	/**
 	 * Constructor
 	 * 
@@ -135,6 +138,25 @@ public class SignupAttendee {
 	 */
 	public void setComments(String comment) {
 		this.comments = comment;
+	}
+	
+	/**
+	 * isAttended
+	 * 
+	 * @return a boolean
+	 */
+	public boolean isAttended() {
+		return attended;
+	}
+
+	/**
+	 * this is a setter.
+	 * 
+	 * @param attended
+	 *            boolean of attendance
+	 */
+	public void setAttended(boolean attended) {
+		this.attended = attended;
 	}
 
 	/**

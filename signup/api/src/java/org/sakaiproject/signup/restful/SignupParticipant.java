@@ -36,6 +36,10 @@ public class SignupParticipant {
 	private String comments;
 
 	private String displayName;
+	
+	private boolean attended;
+
+	
 
 	/**
 	 * Constructor
@@ -118,6 +122,20 @@ public class SignupParticipant {
 	 */
 	public void setComments(String comment) {
 		this.comments = comment;
+	}
+	
+	/**
+	 * @return the attended
+	 */
+	public boolean isAttended() {
+		return attended;
+	}
+
+	/**
+	 * @param attended the attended to set
+	 */
+	public void setAttended(boolean attended) {
+		this.attended = attended;
 	}
 
 }

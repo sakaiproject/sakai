@@ -108,6 +108,8 @@ public interface SignupBeanConstants {
 	public static final String ADD_MEETING_STEP1_PAGE_URL = "addMeetingStep1";
 
 	public static final String ADD_MEETING_STEP2_PAGE_URL = "addMeetingStep2";
+
+	public static final String ATTENDANCE_PAGE_URL = "attendanceView";
 	
 	public static final String CUSTOM_DEFINED_TIMESLOT_PAGE_URL = "userDefinedTsBlocks";
 

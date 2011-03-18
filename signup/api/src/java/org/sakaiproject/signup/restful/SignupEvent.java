@@ -121,6 +121,8 @@ public class SignupEvent implements Entity, MeetingTypes {
 	private String availableStatus = null;
 
 	private String userActionType;
+	
+	private boolean allowAttendance;
 
 	public String getId() {
 		if (entityID == null) {
@@ -404,6 +406,25 @@ public class SignupEvent implements Entity, MeetingTypes {
 
 	public void setMyEndTime(Date myEndTime) {
 		this.myEndTime = myEndTime;
+	}
+	
+	/**
+	 * check if the meeting/event can take attendance
+	 * 
+	 * @return true if the meeting/event can take attendance
+	 */
+	public boolean isallowAttendance() {
+		return allowAttendance;
+	}
+
+	/**
+	 * this is a setter.
+	 * 
+	 * @param allowAttendance
+	 *            a boolean value
+	 */
+	public void setAllowAttendance(boolean allowAttendance) {
+		this.allowAttendance = allowAttendance;
 	}
 
 	/**

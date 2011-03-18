@@ -57,6 +57,10 @@
 			<to-view-id>/signup/signupMeetings.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
+			<from-outcome>attendanceView</from-outcome>
+			<to-view-id>/signup/attendanceView.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>assignStudents</from-outcome>
 			<to-view-id>/signup/newMeeting/assignStudents.jsp</to-view-id>
 		</navigation-case>
@@ -124,6 +128,10 @@
 		<managed-property>
 			<property-name>newSignupMeetingBean</property-name>
 			<value>#{NewSignupMeetingBean}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>attendanceSignupBean</property-name>
+			<value>#{AttendanceSignupBean}</value>
 		</managed-property>
     </managed-bean>
     
@@ -247,6 +255,20 @@
 		<managed-property>
 			<property-name>userDefineTimeslotBean</property-name>
 			<value>#{UserDefineTimeslotBean}</value>
+		</managed-property>
+    </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>AttendanceSignupBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.signup.tool.jsf.organizer.AttendanceSignupBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>signupMeetingService</property-name>
+			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
 		</managed-property>
     </managed-bean>
     

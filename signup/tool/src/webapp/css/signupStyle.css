@@ -1,3 +1,15 @@
+@media print  {
+.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
+    display:none !important;
+}    
+h4{
+    width :100% !important
+}
+.selectedSelected{
+    font-weight:bold !important;    
+    background:#ccc !important
+}
+}    
 table.signupTable {
 	text-align: left;
 }
@@ -494,4 +506,8 @@ table.emailTable td.valueColumn {
 .published_siteGroupTable{
 	margin-top:-8px; 
 	margin-left:-5px;
+}
+
+.subListHeader{
+    background:#eee !important;
 }
