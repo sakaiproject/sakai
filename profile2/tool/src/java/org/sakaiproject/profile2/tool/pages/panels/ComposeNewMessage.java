@@ -114,7 +114,7 @@ public class ComposeNewMessage extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			public Iterator<Person> getChoices(String input) {
-            	return connectionsLogic.getConnectionsSubsetForSearch(connections, input).iterator();
+            	return connectionsLogic.getConnectionsSubsetForSearch(connections, input, true).iterator();
             }
         };
         

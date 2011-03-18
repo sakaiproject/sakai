@@ -101,14 +101,41 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */
 	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search) {
+		return getConnectionsSubsetForSearch( connections, search, false);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search, boolean forMessaging) {
 		
 		List<Person> subList = new ArrayList<Person>();
 		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to get a connection list subset.");
+		}
+		
 		for(Person p : connections){
+			//check for match by name
 			if(StringUtils.startsWithIgnoreCase(p.getDisplayName(), search)) {
+				
+				//if reached max size
 				if(subList.size() == ProfileConstants.MAX_CONNECTIONS_PER_SEARCH) {
 					break;
 				}
+				
+				//if we need to check messaging privacy setting
+				if(forMessaging){
+					boolean friend = isUserXFriendOfUserY(p.getUuid(), currentUserUuid);
+					//if not allowed to be messaged by this user
+					if(!privacyLogic.isUserXAbleToBeMessagedByUserY(p.getUuid(), currentUserUuid, friend)){
+						continue;
+					}
+				} 
+				
+				//all ok, add them to the list
 				subList.add(p);
 			}
 		}

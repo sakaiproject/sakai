@@ -63,6 +63,16 @@ public interface ProfileConnectionsLogic {
 	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search);
 	
 	/**
+	 * Gets a subset of the connection list, based on the search string matching the beginning of the displayName,
+	 * and based on whether that user is allowed to be messaged.
+	 * @param connections	list of connections
+	 * @param search		search string to match on
+	 * @param forMessaging	if this request is for messaging, we also check if the user has indicated they can receive messages
+	 * @return
+	 */
+	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search, boolean forMessaging);
+	
+	/**
 	 * Get the connection status between two users. The user making the query must be userA.
 	 * @param userA		user making the query	
 	 * @param userB		any other user

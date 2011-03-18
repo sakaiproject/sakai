@@ -602,31 +602,6 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean isUserXMessagingEnabledForUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		// current user
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	// friend and friends allowed
-    	if (friend && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	// everyone else
-    	if(profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-	}
-
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	public boolean isUserXStatusVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		//if user is requesting own info, they ARE allowed
@@ -806,6 +781,45 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	*/
     	return profilePrivacy.isShowBirthYear();
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXAbleToBeMessagedByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	if(profilePrivacy == null) {
+    		log.error("ProfilePrivacyLogic.isUserXAbleToBeMessagedByUserY. Couldn't get a ProfilePrivacy record for userX: " + userX);   
+        	return false;
+    	}
+    	
+    	//if nobody allowed
+    	if(profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_NOBODY) {
+    		return false;
+    	}
+
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//uncaught rule, return false
+    	log.error("ProfilePrivacyLogic.isUserXAbleToBeMessagedByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend +", setting: " + profilePrivacy.getMessages());   
+    	return false;
+	}
+
+	
 	
 	/**
 	 * Create a privacy record according to the defaults. 
