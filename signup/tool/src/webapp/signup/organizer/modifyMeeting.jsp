@@ -176,9 +176,6 @@
 									</h:panelGroup>
 							</h:panelGrid>
 
-							<%--//Savitha: this should set whether will be taken (and control the rendering on the list view)
-								- i will but hte strings in the bundle later
-							--%>
 							
 							<h:panelGroup rendered="#{EditMeetingSignupMBean.attendanceOn}">
 								<h:outputText value="Attendance" escape="false" styleClass="titleText"/>

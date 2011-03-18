@@ -33,9 +33,7 @@
 					value="#{msgs.print_friendly}" /></a></span></li>
 		</ul>
 		<sakai:view_content>
-			<%--// Savitha: I copied and edited an existing JSP to create this one. All the string literals are in the bundle and referenced here
-					I will leave comments where things need to be wired --%>
-
+			
 			<%--//TODO: the value and conditions for the generic error messages will need to change--%>
 			<h:outputText
 				value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}"

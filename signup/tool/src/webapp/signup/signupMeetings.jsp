@@ -177,9 +177,8 @@
 								</t:commandSortHeader>
 							</f:facet>
 							<h:outputText value="#{wrapper.availableStatus}" style="#{wrapper.statusStyle}" escape="false"/>
-							<h:panelGroup styleClass="itemAction" style="margin-left:2em" rendered="#{SignupMeetingsBean.attendanceOn}">
-							  <%--//Savitha: this resolves to a link that takes the user to the attendance view for this meeting, note the rendered conditions --%>
-								<h:commandLink id="attendanceView" action="#{SignupMeetingsBean.processSignupAttendance}" value="Attendance"  rendered="#{wrapper.meeting.allowAttendance}"/>  <%--rendered="if ((in progress OR completed) AND attendance is a selected option for meeting) --%>
+							<h:panelGroup styleClass="itemAction" style="margin-left:2em" rendered="#{SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.attendanceOn}">
+							  	<h:commandLink id="attendanceView" action="#{SignupMeetingsBean.processSignupAttendance}" value="Attendance"  rendered="#{wrapper.meeting.allowAttendance}"/>  <%--rendered="if ((in progress OR completed) AND attendance is a selected option for meeting) --%>
 							</h:panelGroup>
 						</t:column>	
 						
