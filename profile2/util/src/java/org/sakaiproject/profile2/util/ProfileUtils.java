@@ -381,57 +381,71 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Trims HTML to the given maximum number of displayed characters and
-	 * preserves formatting.
+	 * Trims text to the given maximum number of displayed characters.
+	 * Supports HTML and preserves formatting. 
 	 * 
-	 * @param s
-	 * @param maxNumOfChars
+	 * @param s				 the string
+	 * @param maxNumOfChars	 num chars to keep. If HTML, it's the number of content chars, ignoring tags.
+	 * @param isHtml		 is the string HTML?
 	 * @return
 	 */
-	public static String trimHtml(String s, int maxNumOfChars) {
+	public static String truncate(String s, int maxNumOfChars, boolean isHtml) {
 		
-		if (null == s) {
+		if (StringUtils.isBlank(s)) {
 			return "";
 		}
 		
-		StringBuilder trimmedHtml = new StringBuilder();
+		//html
+		if(isHtml) {
+			StringBuilder trimmedHtml = new StringBuilder();
+			FormattedText.trimFormattedText(s, maxNumOfChars, trimmedHtml);
+			return trimmedHtml.toString();
+		} 
 		
-		FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
-				
-		return trimmedHtml.toString();
+		//plain text
+		return StringUtils.substring(s, 0, maxNumOfChars);
+		
 	}
 	
 	/**
-	 * Trims and abbreviates HTML to the given maximum number of displayed
-	 * characters (less 3 characters, in case "..." must be appended) and
-	 * preserves formatting.
+	 * Trims and abbreviates text to the given maximum number of displayed
+	 * characters (less 3 characters, in case "..." must be appended).
+	 * Supports HTML and preserves formatting.
 	 * 
-	 * @param s
-	 * @param maxNumOfChars
+	 * @param s				 the string
+	 * @param maxNumOfChars	 num chars to keep. If HTML, it's the number of content chars, ignoring tags.
+	 * @param isHtml		 is the string HTML?
 	 * @return
 	 */
-	public static String trimAndAbbreviateHtml(String s, int maxNumOfChars) {
+	public static String truncateAndAbbreviate(String s, int maxNumOfChars, boolean isHtml) {
 		
-		if (null == s) {
+		if (StringUtils.isBlank(s)) {
 			return "";
 		}
 		
-		StringBuilder trimmedHtml = new StringBuilder();
+		//html
+		if(isHtml) {
+			StringBuilder trimmedHtml = new StringBuilder();
 		
-		boolean trimmed = 
-			FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
+			boolean trimmed = FormattedText.trimFormattedText(s, maxNumOfChars - 3, trimmedHtml);
 		
-		if (trimmed) {
-			int index = trimmedHtml.lastIndexOf("</");
-			if (-1 != index) {
-				trimmedHtml.insert(index, "...");
-			} else {
-				trimmedHtml.append("...");
+			if (trimmed) {
+				int index = trimmedHtml.lastIndexOf("</");
+				if (-1 != index) {
+					trimmedHtml.insert(index, "...");
+				} else {
+					trimmedHtml.append("...");
+				}
 			}
+			return trimmedHtml.toString();
 		}
 		
-		return trimmedHtml.toString();
+		//plain text
+		return StringUtils.abbreviate(s, maxNumOfChars);
+		
 	}
+	
+	
 	
 	/**
 	 * Generate a UUID

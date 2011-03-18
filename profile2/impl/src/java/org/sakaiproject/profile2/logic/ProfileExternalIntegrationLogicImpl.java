@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ExternalIntegrationInfo;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -168,7 +169,7 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 		
 		//PRFL-423 limit to 140 chars
 		//Hardcoded limit because 140 is the Twitter requirement so no need to make configurable
-		message = StringUtils.substring(message, 0, 140); 
+		message = ProfileUtils.truncate(message, 140, false); 
 		
 		//instantiate class to send the data
 		new TwitterUpdater(userUuid, token, secret, message);

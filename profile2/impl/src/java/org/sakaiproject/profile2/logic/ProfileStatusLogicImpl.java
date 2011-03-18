@@ -90,6 +90,10 @@ public class ProfileStatusLogicImpl implements ProfileStatusLogic {
  	 */
 	public boolean setUserStatus(ProfileStatus profileStatus) {
 		
+		//PRFL-588 ensure size limit. Column size is 255.
+		String tMessage = ProfileUtils.truncate(profileStatus.getMessage(), 255, false);
+		profileStatus.setMessage(tMessage);
+		
 		if(dao.setUserStatus(profileStatus)){
 			log.info("Updated status for user: " + profileStatus.getUserUuid()); 
 			return true;
