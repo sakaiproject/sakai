@@ -264,7 +264,9 @@ public class MyInfoEdit extends Panel {
 		//TODO should we set these up as strings and clean them first?
 		
 		//sakaiPerson.setInitials(userProfile.getMiddleName());
-		sakaiPerson.setNickname(userProfile.getNickname());
+		String tNickname = ProfileUtils.truncate(userProfile.getNickname(), 255, false);
+		userProfile.setNickname(tNickname); //update form model
+		sakaiPerson.setNickname(tNickname);
 		
 		if(StringUtils.isNotBlank(userProfile.getBirthday())) {
 			Date convertedDate = ProfileUtils.convertStringToDate(userProfile.getBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
