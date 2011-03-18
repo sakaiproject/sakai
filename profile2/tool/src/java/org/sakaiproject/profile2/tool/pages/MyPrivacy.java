@@ -114,6 +114,18 @@ public class MyPrivacy extends BasePage {
 			} 
 		};
 		
+		//setup LinkedHashMap of privacy options for super duper strict things!
+		final LinkedHashMap<Integer, String> privacySettingsSuperStrict = new LinkedHashMap<Integer, String>();
+		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_EVERYONE, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_NOBODY, new StringResourceModel("privacy.option.nobody", this,null).getString());
+		
+		//model that wraps our options
+		IModel dropDownModelSuperStrict = new Model() {
+			public ArrayList<Integer> getObject() {
+				 return new ArrayList(privacySettingsSuperStrict.keySet());
+			} 
+		};
+		
 		//when using DDC with a compoundPropertyModel we use this constructor: DDC<T>(String,IModel<List<T>>,IChoiceRenderer<T>)
 		//and the ID of the DDC field maps to the field in the CompoundPropertyModel
 		
@@ -321,7 +333,7 @@ public class MyPrivacy extends BasePage {
 		// messages privacy
 		WebMarkupContainer messagesContainer = new WebMarkupContainer("messagesContainer");
 		messagesContainer.add(new Label("messagesLabel", new ResourceModel("privacy.messages")));
-		DropDownChoice messagesChoice = new DropDownChoice("messages", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice messagesChoice = new DropDownChoice("messages", dropDownModelSuperStrict, new HashMapChoiceRenderer(privacySettingsSuperStrict));             
 		messagesChoice.setOutputMarkupId(true);
 		messagesContainer.add(messagesChoice);
 		messagesContainer.add(new IconWithClueTip("messagesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.messages.tooltip")));

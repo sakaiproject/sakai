@@ -171,10 +171,11 @@ public class ProfileConstants {
 	 * PRIVACY
 	 */
 	
-	//setup the profile privacy values (2 is only used in strict mode)
+	//setup the profile privacy values (2 is only used in strict mode, 3 is only used in super strict mode)
 	public static final int PRIVACY_OPTION_EVERYONE = 0; 
 	public static final int PRIVACY_OPTION_ONLYFRIENDS = 1; 
 	public static final int PRIVACY_OPTION_ONLYME = 2; 
+	public static final int PRIVACY_OPTION_NOBODY = 3; 
 	
 	//these values are used when creating a default privacy record for a user
 	public static final int DEFAULT_PRIVACY_OPTION_PROFILEIMAGE = PRIVACY_OPTION_EVERYONE; 
@@ -185,7 +186,7 @@ public class ProfileConstants {
 	public static final int DEFAULT_PRIVACY_OPTION_MYFRIENDS = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYSTATUS = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYPICTURES = PRIVACY_OPTION_EVERYONE;
-	public static final int DEFAULT_PRIVACY_OPTION_MESSAGES = PRIVACY_OPTION_EVERYONE;
+	public static final int DEFAULT_PRIVACY_OPTION_MESSAGES = PRIVACY_OPTION_NOBODY;
 	public static final int DEFAULT_PRIVACY_OPTION_BUSINESSINFO = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_STAFFINFO = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_STUDENTINFO = PRIVACY_OPTION_EVERYONE;
