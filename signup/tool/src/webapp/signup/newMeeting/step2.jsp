@@ -207,6 +207,12 @@
 									<h:outputText value="#{msgs.event_unlimited}" rendered="#{NewSignupMeetingBean.unlimited}" styleClass="longtext"/>					
 								</h:panelGroup>
 								
+								<h:outputText value="#{msgs.attend_view_title}" styleClass="titleText" rendered="#{NewSignupMeetingBean.attendanceOn}" escape="false"/>
+								<h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}" >
+									<h:outputText value="#{msgs.attend_on}" rendered="#{NewSignupMeetingBean.signupMeeting.allowAttendance}" styleClass="longtext"/>
+									<h:outputText value="#{msgs.attend_off}" rendered="#{!NewSignupMeetingBean.signupMeeting.allowAttendance}" styleClass="longtext"/>					
+								</h:panelGroup>
+																
 								<h:outputText value="#{msgs.event_publish_to}" escape="false"  styleClass="titleText"/>
 								<h:dataTable id="userSites" value="#{NewSignupMeetingBean.selectedSignupSites}" var="site"  styleClass="sitegroup">
 									<h:column>

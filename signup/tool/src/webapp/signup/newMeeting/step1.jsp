@@ -176,13 +176,13 @@
 		                        <h:outputText value="#{msgs.before_event_end}" escape="false" style="margin-left:18px"/>
 		                        <h:message for="signupDeadline" errorClass="alertMessageInline" />
 		                    </h:panelGroup>
-	                   <h:panelGroup>
+	                  					 <h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}">
 											<%--//Savitha: this should set whether attendance will be taken (and control the rendering on the list view)
 												- i will but hte strings in the bundle later
 											--%>
-	   										<h:outputText value="Attendance" escape="false" styleClass="titleText"/>
-										  </h:panelGroup>
-	                   <h:panelGroup>
+	   										<h:outputText value="Attendance" escape="false" styleClass="titleText" rendered="#{NewSignupMeetingBean.attendanceOn}"/>
+										  </h:panelGroup >
+	                  						 <h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}">
 												<h:selectBooleanCheckbox id="attendanceSelection" value="#{NewSignupMeetingBean.signupMeeting.allowAttendance}" />
 	   										<h:outputLabel value="Attendance will be taken" for="attendanceSelection" styleClass="titleText"/>
 												<h:outputText value=" (you can track attendance to this meeting if selected)" escape="false" styleClass="textPanelFooter"/>

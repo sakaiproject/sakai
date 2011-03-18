@@ -89,7 +89,6 @@
 						</h:panelGroup>
 						
 						<h:panelGroup rendered="#{!timeSlotWrapper.timeSlot.canceled}">
-						
 							<h:outputText rendered="#{empty timeSlotWrapper.attendeeWrappers}" value="#{msgs.attend_view_list_slot_list_empty_msg}" styleClass="instruction" style="display:block;padding:1em 2em"/>
 							<h:dataTable id="availableSpots"
 								rowClasses="oddRow,evenRow" styleClass="listHier lines nolines centerlines availableSpots"
@@ -114,6 +113,10 @@
 									</h:panelGroup>
 								</h:column>
 							</h:dataTable>
+						</h:panelGroup>
+						
+						<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.canceled}">
+								<h:outputText value="#{msgs.attend_view_list_slot_list_canceled}" styleClass="instruction" style="display:block;padding:1em 2em"/>
 						</h:panelGroup>
 					</h:column>
 

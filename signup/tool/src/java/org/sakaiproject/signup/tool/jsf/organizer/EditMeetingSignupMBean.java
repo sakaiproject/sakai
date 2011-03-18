@@ -937,5 +937,18 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	public void setUserDefinedTS(boolean userDefinedTS) {
 		this.userDefinedTS = userDefinedTS;
 	}
+	
+	/**
+	 * @return true if sakai property signup.enableAttendance is true, else will return false
+	 */
+	public boolean isAttendanceOn() {
+			
+		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","false"))){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 
 }
