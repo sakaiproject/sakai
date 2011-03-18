@@ -28,9 +28,4 @@
     	<![CDATA[from CompanyProfile companyProfile WHERE companyProfile.userUuid = :userUuid]]>
 	</query>
 
-  	<database-object> 
-		<create>create index PROFILE_CP_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID)</create> 
-		<drop></drop> 
-	</database-object>
-	
 </hibernate-mapping>

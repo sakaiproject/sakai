@@ -94,18 +94,5 @@
     		SAKAI_PERSON_T sp
     	]]>
   	</sql-query>
-  	
-		
-  	
-  	<!-- add indexes, bug in Hibernate with MySQL doesn't create them automatically. Will create for all dialects -->
-  	<database-object> 
-		<create>create index SAKAI_PERSON_META_USER_UUID_I on SAKAI_PERSON_META_T (USER_UUID)</create> 
-		<drop></drop> 
-	</database-object>
-	<database-object> 
-		<create>create index SAKAI_PERSON_META_PROPERTY_I on SAKAI_PERSON_META_T (PROPERTY)</create> 
-		<drop></drop> 
-	</database-object> 
-	
 
 </hibernate-mapping>

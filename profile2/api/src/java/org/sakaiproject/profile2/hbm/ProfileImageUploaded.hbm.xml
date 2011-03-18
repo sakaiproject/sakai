@@ -31,13 +31,4 @@
     	<![CDATA[from ProfileImageUploaded image WHERE image.userUuid = :userUuid AND image.current = false]]>
 	</query>
 	
-  	<database-object> 
-		<create>create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID)</create> 
-		<drop></drop> 
-	</database-object>
-	<database-object> 
-		<create>create index PROFILE_IMAGES_IS_CURRENT_I on PROFILE_IMAGES_T (IS_CURRENT)</create> 
-		<drop></drop> 
-	</database-object>
-	
 </hibernate-mapping>

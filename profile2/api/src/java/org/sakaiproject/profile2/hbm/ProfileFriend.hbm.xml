@@ -18,7 +18,7 @@
 	    <property name="friendUuid" column="FRIEND_UUID" length="99" not-null="true" index="PROFILE_FRIENDS_FRIEND_UUID_I" />
 		<property name="relationship" column="RELATIONSHIP" length="1" not-null="true" />
 		<property name="requestedDate" column="REQUESTED_DATE" not-null="true" />
-		<property name="confirmed" column="CONFIRMED" not-null="true"/>
+		<property name="confirmed" column="CONFIRMED" not-null="true" index="PROFILE_FRIENDS_CONFIRMED_I" />
 	    <property name="confirmedDate" column="CONFIRMED_DATE" not-null="false" />
 
   	</class>
@@ -52,14 +52,5 @@
 	<query name="getFriendRequest">
     	<![CDATA[from ProfileFriend friend WHERE friend.userUuid = :userUuid AND friend.friendUuid = :friendUuid AND friend.confirmed = :confirmed]]>
 	</query>
-	
-  	<database-object> 
-		<create>create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID)</create> 
-		<drop></drop>
-	</database-object>
-	<database-object> 
-		<create>create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID)</create> 
-		<drop></drop>
-	</database-object>
 
 </hibernate-mapping>

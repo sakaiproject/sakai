@@ -29,9 +29,4 @@
     	<![CDATA[from Wall wall WHERE wall.userUuid = :userUuid]]>
 	</query>
 
-	<database-object>
-		<create>create index PROFILE_WALLS_I on PROFILE_WALLS_T (USER_UUID)</create>
-		<drop></drop>
-	</database-object>
-
 </hibernate-mapping>

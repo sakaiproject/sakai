@@ -36,9 +36,4 @@
     	<![CDATA[select count(distinct image.id) from GalleryImage image where image.userUuid = :userUuid]]>
 	</query>
 	
-  	<database-object> 
-		<create>create index PROFILE_GI_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID)</create> 
-		<drop></drop> 
-	</database-object>
-	
 </hibernate-mapping>

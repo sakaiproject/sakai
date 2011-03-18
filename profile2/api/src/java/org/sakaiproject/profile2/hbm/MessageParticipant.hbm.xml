@@ -35,21 +35,4 @@
 		]]>
 	</sql-query>
 
-	<database-object> 
-		<create>create index PROFILE_M_P_MESSAGE_ID_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_ID)</create> 
-		<drop></drop>
-	</database-object>	
-	<database-object> 
-		<create>create index PROFILE_M_P_UUID_I on PROFILE_MESSAGE_PARTICIPANTS_T (PARTICIPANT_UUID)</create> 
-		<drop></drop>
-	</database-object>
-	<database-object> 
-		<create>create index PROFILE_M_P_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ)</create> 
-		<drop></drop>
-	</database-object>
-	<database-object> 
-		<create>create index PROFILE_M_P_DELETED_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_DELETED)</create> 
-		<drop></drop>
-	</database-object>
-	
 </hibernate-mapping>

@@ -28,7 +28,7 @@
 	    -->
 
 		<property name="message" column="MESSAGE" length="255" not-null="true" />
-		<property name="dateAdded" column="DATE_ADDED" not-null="true" />
+		<property name="dateAdded" column="DATE_ADDED" not-null="true" index="PROFILE_STATUS_DATE_ADDED_I" />
   	</class>
 
   	<query name="getUserStatus">

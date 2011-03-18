@@ -70,18 +70,4 @@
     	<![CDATA[select count(distinct message.thread) from Message as message, MessageParticipant as participant where participant.uuid = :uuid and participant.messageId=message.id and participant.uuid != message.from]]>
 	</query>
 	
-
-	<database-object> 
-		<create>create index PROFILE_M_FROM_UUID_I on PROFILE_MESSAGES_T (FROM_UUID)</create> 
-		<drop></drop>
-	</database-object>
-	<database-object> 
-		<create>create index PROFILE_M_THREAD_I on PROFILE_MESSAGES_T (MESSAGE_THREAD)</create> 
-		<drop></drop>
-	</database-object>
-	<database-object> 
-		<create>create index PROFILE_M_DATE_POSTED_I on PROFILE_MESSAGES_T (DATE_POSTED)</create> 
-		<drop></drop>
-	</database-object>
-
 </hibernate-mapping>
