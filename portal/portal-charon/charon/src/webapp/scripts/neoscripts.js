@@ -1,3 +1,4 @@
+
 /* Script for pop-up dhtml more tabs implementation 
  * uses jQuery library
  */
@@ -108,7 +109,7 @@ function removeDHTMLMask(){
 }
 
 /* Copyright (c) 2006 Brandon Aaron (http://brandonaaron.net)
- * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) 
+ * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
  *
  * $LastChangedDate$
@@ -116,7 +117,28 @@ function removeDHTMLMask(){
  *
  * Version 2.1.1
  */
-(function($){$.fn.bgIframe=$.fn.bgiframe=function(s){if($.browser.msie&&/6.0/.test(navigator.userAgent)){s=$.extend({top:'auto',left:'auto',width:'auto',height:'auto',opacity:true,src:'javascript:false;'},s||{});var prop=function(n){return n&&n.constructor==Number?n+'px':n;},html='<iframe class="bgiframe"frameborder="0"tabindex="-1"src="'+s.src+'"'+'style="display:block;position:absolute;z-index:-1;'+(s.opacity!==false?'filter:Alpha(Opacity=\'0\');':'')+'top:'+(s.top=='auto'?'expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+\'px\')':prop(s.top))+';'+'left:'+(s.left=='auto'?'expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+\'px\')':prop(s.left))+';'+'width:'+(s.width=='auto'?'expression(this.parentNode.offsetWidth+\'px\')':prop(s.width))+';'+'height:'+(s.height=='auto'?'expression(this.parentNode.offsetHeight+\'px\')':prop(s.height))+';'+'"/>';return this.each(function(){if($('> iframe.bgiframe',this).length==0)this.insertBefore(document.createElement(html),this.firstChild);});}return this;};})(jQuery);
+(function($){
+    $.fn.bgIframe = $.fn.bgiframe = function(s){
+        if ($.browser.msie && /6.0/.test(navigator.userAgent)) {
+            s = $.extend({
+                top: 'auto',
+                left: 'auto',
+                width: 'auto',
+                height: 'auto',
+                opacity: true,
+                src: 'javascript:false;'
+            }, s || {});
+            var prop = function(n){
+                return n && n.constructor == Number ? n + 'px' : n;
+            }, html = '<iframe class="bgiframe"frameborder="0"tabindex="-1"src="' + s.src + '"' + 'style="display:block;position:absolute;z-index:-1;' + (s.opacity !== false ? 'filter:Alpha(Opacity=\'0\');' : '') + 'top:' + (s.top == 'auto' ? 'expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+\'px\')' : prop(s.top)) + ';' + 'left:' + (s.left == 'auto' ? 'expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+\'px\')' : prop(s.left)) + ';' + 'width:' + (s.width == 'auto' ? 'expression(this.parentNode.offsetWidth+\'px\')' : prop(s.width)) + ';' + 'height:' + (s.height == 'auto' ? 'expression(this.parentNode.offsetHeight+\'px\')' : prop(s.height)) + ';' + '"/>';
+            return this.each(function(){
+                if ($('> iframe.bgiframe', this).length == 0) 
+                    this.insertBefore(document.createElement(html), this.firstChild);
+            });
+        }
+        return this;
+    };
+})(jQuery);
 
 //For SAK-13987
 //For SAK-16162
@@ -128,197 +150,215 @@ var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
 var timeoutPortalPath;
 jQuery(document).ready(function(){
-	// note a session exists whether the user is logged in or no
-	if (portal.loggedIn && portal.timeoutDialog ) {
-		setTimeout('setup_timeout_config();', 60000);
-	}
+    // note a session exists whether the user is logged in or no
+    if (portal.loggedIn && portal.timeoutDialog) {
+        setTimeout('setup_timeout_config();', 60000);
+    }
 });
 
-var setup_timeout_config = function() {
-	timeoutDialogEnabled = portal.timeoutDialog.enabled;
-	timeoutDialogWarningTime = portal.timeoutDialog.seconds;
-	timeoutLoggedoutUrl = portal.loggedOutUrl;
-	timeoutPortalPath = portal.portalPath;
-	if (timeoutDialogEnabled == true) {
-		poll_session_data();
-		fetch_timeout_dialog();
-	}
+var setup_timeout_config = function(){
+    timeoutDialogEnabled = portal.timeoutDialog.enabled;
+    timeoutDialogWarningTime = portal.timeoutDialog.seconds;
+    timeoutLoggedoutUrl = portal.loggedOutUrl;
+    timeoutPortalPath = portal.portalPath;
+    if (timeoutDialogEnabled == true) {
+        poll_session_data();
+        fetch_timeout_dialog();
+    }
 }
 
-var poll_session_data = function() {
+var poll_session_data = function(){
     //Need to append Date.getTime as sakai still uses jquery pre 1.2.1 which doesn't support the cache: false parameter.
-	jQuery.ajax({
-		url: "/direct/session/" + sessionId + ".json?auto=true&_=" + (new Date()).getTime(),    //auto=true makes it not refresh the session lastaccessedtime
-		dataType: "json",
-		success: function(data){
-		//get the maxInactiveInterval in the same ms
-		data.maxInactiveInterval = data.maxInactiveInterval * 1000;
-		if(data.active && data.userId != null && data.lastAccessedTime + data.maxInactiveInterval
-				> data.currentTime) {
-			//User is logged in, so now determine how much time is left
-			var remaining = data.lastAccessedTime + data.maxInactiveInterval - data.currentTime;
-			//If time remaining is less than timeoutDialogWarningTime minutes, show/update dialog box
-			if (remaining < timeoutDialogWarningTime * 1000){
-				//we are within 5 min now - show popup
-				min = Math.round(remaining / (1000 * 60));
-				show_timeout_alert(min);
-				clearTimeout(sessionTimeOut);
-				sessionTimeOut = setTimeout("poll_session_data()", 1000 * 60);
-			} else {
-				//more than timeoutDialogWarningTime min away
-				clearTimeout(sessionTimeOut);
-				sessionTimeOut = setTimeout("poll_session_data()", (remaining - timeoutDialogWarningTime*1000));
-			}
-		} else if (data.userId == null) {
-			// if data.userId is null, the session is done; redirect the user to logoutUrl
-			location.href=timeoutLoggedoutUrl;
-		
-		} else {
-			//the timeout length has occurred, but there is a slight delay, do this until there isn't a user.
-			sessionTimeOut = setTimeout("poll_session_data()", 1000 * 10);
-		}
-	},
-	error: function(XMLHttpRequest, status, error){
-		// We used to to 404 handling here but now we should always get good session data.
-	}
-	});
+    jQuery.ajax({
+        url: "/direct/session/" + sessionId + ".json?auto=true&_=" + (new Date()).getTime(), //auto=true makes it not refresh the session lastaccessedtime
+        dataType: "json",
+        success: function(data){
+            //get the maxInactiveInterval in the same ms
+            data.maxInactiveInterval = data.maxInactiveInterval * 1000;
+            if (data.active && data.userId != null &&
+            data.lastAccessedTime + data.maxInactiveInterval >
+            data.currentTime) {
+                //User is logged in, so now determine how much time is left
+                var remaining = data.lastAccessedTime + data.maxInactiveInterval - data.currentTime;
+                //If time remaining is less than timeoutDialogWarningTime minutes, show/update dialog box
+                if (remaining < timeoutDialogWarningTime * 1000) {
+                    //we are within 5 min now - show popup
+                    min = Math.round(remaining / (1000 * 60));
+                    show_timeout_alert(min);
+                    clearTimeout(sessionTimeOut);
+                    sessionTimeOut = setTimeout("poll_session_data()", 1000 * 60);
+                }
+                else {
+                    //more than timeoutDialogWarningTime min away
+                    clearTimeout(sessionTimeOut);
+                    sessionTimeOut = setTimeout("poll_session_data()", (remaining - timeoutDialogWarningTime * 1000));
+                }
+            }
+            else 
+                if (data.userId == null) {
+                    // if data.userId is null, the session is done; redirect the user to logoutUrl
+                    location.href = timeoutLoggedoutUrl;
+                    
+                }
+                else {
+                    //the timeout length has occurred, but there is a slight delay, do this until there isn't a user.
+                    sessionTimeOut = setTimeout("poll_session_data()", 1000 * 10);
+                }
+        },
+        error: function(XMLHttpRequest, status, error){
+            // We used to to 404 handling here but now we should always get good session data.
+        }
+    });
 }
 
 function keep_session_alive(){
-	dismiss_session_alert();
-	jQuery.get(timeoutPortalPath);
+    dismiss_session_alert();
+    jQuery.get(timeoutPortalPath);
 }
 
 var dismiss_session_alert = function(){
-	removeDHTMLMask();
-	jQuery("#timeout_alert_body").remove();
+    removeDHTMLMask();
+    jQuery("#timeout_alert_body").remove();
 }
 
 var timeoutDialogFragment;
-function fetch_timeout_dialog() {
-	jQuery.ajax({
-		url: "/portal/timeout?auto=true",
-		cache: true,
-		dataType: "text",
-		success: function(data) {
-		timeoutDialogFragment = data; 
-	},
-	error: function(XMLHttpRequest, status, error){
-		timeoutDialogEnabled = false;
-	}
-	});
+function fetch_timeout_dialog(){
+    jQuery.ajax({
+        url: "/portal/timeout?auto=true",
+        cache: true,
+        dataType: "text",
+        success: function(data){
+            timeoutDialogFragment = data;
+        },
+        error: function(XMLHttpRequest, status, error){
+            timeoutDialogEnabled = false;
+        }
+    });
 }
 
-function show_timeout_alert(min) {
-	if (!timeoutDialogEnabled) {
-		return;
-	}
-
-	if (!jQuery("#portalMask").get(0)){
-		createDHTMLMask(dismiss_session_alert);
-		jQuery("#portalMask").css("z-index", 10000);
-	}
-	if (jQuery("#timeout_alert_body").get(0)) {
-		//its there, just update the min
-		jQuery("#timeout_alert_body span").html(min);
-		jQuery("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
-	} else {
-		var dialog = timeoutDialogFragment.replace("{0}", min);
-		jQuery("body").append(dialog);
-		jQuery('#timeout_alert_body').css('top', (f_scrollTop() + 100) + "px");
-	}
+function show_timeout_alert(min){
+    if (!timeoutDialogEnabled) {
+        return;
+    }
+    
+    if (!jQuery("#portalMask").get(0)) {
+        createDHTMLMask(dismiss_session_alert);
+        jQuery("#portalMask").css("z-index", 10000);
+    }
+    if (jQuery("#timeout_alert_body").get(0)) {
+        //its there, just update the min
+        jQuery("#timeout_alert_body span").html(min);
+        jQuery("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
+    }
+    else {
+        var dialog = timeoutDialogFragment.replace("{0}", min);
+        jQuery("body").append(dialog);
+        jQuery('#timeout_alert_body').css('top', (f_scrollTop() + 100) + "px");
+    }
 }
 
 // The official way for a tool to request minimized navigation
-function portalMaximizeTool() {
-        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
-        if ( ! portal.toggle.allowauto ) return;
-        sakaiMinimizeNavigation();
+function portalMaximizeTool(){
+    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
+        return;
+    if (!portal.toggle.allowauto) 
+        return;
+    sakaiMinimizeNavigation();
 }
 
-function sakaiMinimizeNavigation() {
-        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
-	if (portal.toggle.sitenav) {
-		$('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
-	}
-	if (portal.toggle.tools){
-		$('#container').addClass('sakaiMinimizePageNavigation');	
-	}
-	$('#toggleToolMax').hide();
-	$('#toggleNormal').css({'display':'block'});
+function sakaiMinimizeNavigation(){
+    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
+        return;
+    if (portal.toggle.sitenav) {
+        $('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
+    }
+    if (portal.toggle.tools) {
+        $('#container').addClass('sakaiMinimizePageNavigation');
+    }
+    $('#toggleToolMax').hide();
+    $('#toggleNormal').css({
+        'display': 'block'
+    });
 }
 
-function sakaiRestoreNavigation() {
-        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
-	if (portal.toggle.sitenav) {
-		$('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
-	}
-	if (portal.toggle.tools){
-		$('#container').removeClass('sakaiMinimizePageNavigation');	
-	}
-	$('#toggleToolMax').show();
-	$('#toggleNormal').css({'display':'none'});
+function sakaiRestoreNavigation(){
+    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
+        return;
+    if (portal.toggle.sitenav) {
+        $('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
+    }
+    if (portal.toggle.tools) {
+        $('#container').removeClass('sakaiMinimizePageNavigation');
+    }
+    $('#toggleToolMax').show();
+    $('#toggleNormal').css({
+        'display': 'none'
+    });
 }
 
-function updatePresence() {
-	jQuery.ajax( {
-		url: sakaiPresenceFragment,
-		cache: false,
-		success: function(frag){
-                        var whereul = frag.indexOf('<ul');
-                        if ( whereul < 1 ) {
-                                $("#presenceCount").html(' ');
-                                $('#presenceCount').removeClass('present').addClass('empty');
-                                location.reload();
-                                return;
-                        }
-                        frag = frag.substr(whereul);
-                        var _s = frag;
-                        var _m = '<li'; // needle 
-                        var _c = 0;
-                        for (var i=0;i<_s.length;i++) {
-                                if (_m == _s.substr(i,_m.length)) _c++;
-                        }
-			// No need to attrct attention you are alone
-                        if ( _c > 1 ) {
-                                $("#presenceCount").html(_c+'');
-                                $('#presenceCount').removeClass('empty').addClass('present');
-                        } else if ( _c == 1 ) {
-                                $("#presenceCount").html(_c+'');
-                                $('#presenceCount').removeClass('present').addClass('empty');
-                        } else {
-                                $("#presenceCount").html(' ');
-                                $('#presenceCount').removeClass('present').addClass('empty');
-                        } 
-                        $("#presenceIframe").html(frag);
-                        var chatUrl = $('.nav-selected .icon-sakai-chat').attr('href');
-                        $('#presenceIframe .presenceList li.inChat span').wrap('<a href="' + chatUrl + '"></a>')
-                        sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
-		},
-		// If we get an error, wait 60 seconds before retry
-		error: function(request, strError){
-			sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 60000);
-		}
-	});
+function updatePresence(){
+    jQuery.ajax({
+        url: sakaiPresenceFragment,
+        cache: false,
+        success: function(frag){
+            var whereul = frag.indexOf('<ul');
+            if (whereul < 1) {
+                $("#presenceCount").html(' ');
+                $('#presenceCount').removeClass('present').addClass('empty');
+                location.reload();
+                return;
+            }
+            frag = frag.substr(whereul);
+            var _s = frag;
+            var _m = '<li'; // needle 
+            var _c = 0;
+            for (var i = 0; i < _s.length; i++) {
+                if (_m == _s.substr(i, _m.length)) 
+                    _c++;
+            }
+            // No need to attrct attention you are alone
+            if (_c > 1) {
+                $("#presenceCount").html(_c + '');
+                $('#presenceCount').removeClass('empty').addClass('present');
+            }
+            else 
+                if (_c == 1) {
+                    $("#presenceCount").html(_c + '');
+                    $('#presenceCount').removeClass('present').addClass('empty');
+                }
+                else {
+                    $("#presenceCount").html(' ');
+                    $('#presenceCount').removeClass('present').addClass('empty');
+                }
+            $("#presenceIframe").html(frag);
+            var chatUrl = $('.nav-selected .icon-sakai-chat').attr('href');
+            $('#presenceIframe .presenceList li.inChat span').wrap('<a href="' + chatUrl + '"></a>')
+            sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
+        },
+        // If we get an error, wait 60 seconds before retry
+        error: function(request, strError){
+            sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 60000);
+        }
+    });
 }
 
-function f_scrollTop() {
-	return f_filterResults (
-		window.pageYOffset ? window.pageYOffset : 0,
-		document.documentElement ? document.documentElement.scrollTop : 0,
-		document.body ? document.body.scrollTop : 0
-	);
+function f_scrollTop(){
+    return f_filterResults(window.pageYOffset ? window.pageYOffset : 0, document.documentElement ? document.documentElement.scrollTop : 0, document.body ? document.body.scrollTop : 0);
 }
 
-function f_filterResults(n_win, n_docel, n_body) {
-	var n_result = n_win ? n_win : 0;
-	if (n_docel && (!n_result || (n_result > n_docel)))
-		n_result = n_docel;
-	return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
+function f_filterResults(n_win, n_docel, n_body){
+    var n_result = n_win ? n_win : 0;
+    if (n_docel && (!n_result || (n_result > n_docel))) 
+        n_result = n_docel;
+    return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
 }
 
 jQuery(document).ready(function(){
+    if ($('#eid').length === 1) {
+        $(this).focus()
+    }
     
+    // open tool menus in "other sites" panel
     $('.toolMenus').click(function(e){
         e.preventDefault();
         $('#otherSiteTools').remove();
@@ -343,29 +383,23 @@ jQuery(document).ready(function(){
         });
         
     });
-    jQuery.expr[':'].Contains = function(a, i, m){
-        return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-    };
     
-    
+    // prepend site title to tool title
+    // here as reminder to work on an actual breadcrumb integrated with neo style tool updates
     var siteTitle = ($('.nav-selected span:first').text())
     if (siteTitle) {
         $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
     }
     
-    jQuery('#imgSearch').hide();
+    // other site search handlers
     jQuery('#imgSearch').click(function(){
         resetSearch();
-    });
-    
-    jQuery('#txtSearch').keyup(function(event){
     });
     
     jQuery('#txtSearch').keyup(function(event){
         if (event.keyCode == 27) {
             resetSearch();
         }
-        
         if (jQuery('#txtSearch').val().length > 2) {
             jQuery('#otherSiteList li').hide();
             //jQuery('#otherSiteList li:first').show();
@@ -375,26 +409,91 @@ jQuery(document).ready(function(){
         if (jQuery('#txtSearch').val().length == 0) {
             resetSearch();
         }
-        
         // Should be <=1 if there is a header line
         if (jQuery('#otherSiteList li:visible').length < 1) {
             jQuery('.norecords').remove();
             jQuery('#otherSiteSearch #noSearchResults').fadeIn('slow');
         }
     });
+    // case insensitive version of :contains
+    jQuery.expr[':'].Contains = function(a, i, m){
+        return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+    };
+    function resetSearch(){
+        jQuery('#txtSearch').val('');
+        jQuery('#otherSiteList li').show();
+        jQuery('#noSearchResults').fadeOut();
+        jQuery('#imgSearch').fadeOut();
+        jQuery('#txtSearch').focus();
+    }
     
+    //toggle presence panel
+    $("#presenceToggle").click(function(e){
+        e.preventDefault();
+        $('#presenceArea').toggle();
+    });
+    //explicitly close presence panel
     $('.trayPopupClose').click(function(e){
         e.preventDefault();
         $(this).closest('.trayPopup').hide();
     })
+    
 });
 
+var setupSiteNav = function(){
+    jQuery("ul.subnav").parent().append('<span class="drop" tabindex="-1"></span>');
+    $("ul.subnav").each(function(){
+        $(this).children('li:last').addClass('lastMenuItem')
+    });
+    $('.lastMenuItem a').blur(function(e){
+        jQuery(this).parents('ul.subnav').slideUp('fast').hide();
+    });
+    $('.topnav a').keydown(function(e){
+        if (e.keyCode == 40) {
+            jQuery('#selectSite').hide();
+            jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+            jQuery(this).parent().find("ul.subnav a:first").focus();
+        }
+        if (e.keyCode == 38) {
+            jQuery(this).parent().find("ul.subnav").slideUp('fast').hide();
+        }
+        
+    });
+    
+    jQuery("ul.topnav li span.drop").click(function(){
+        jQuery('#selectSite').hide();
+        jQuery('#otherSiteTools').remove();
+        
+        jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+        
+        jQuery(this).parent().hover(function(){
+        }, function(){
+            jQuery(this).parent().find("ul.subnav").slideUp('slow');
+        });
+        
+    }).hover(function(){
+        jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
+    }, function(){ //On Hover Out
+        jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
+    });
+    
+}
 
-
-function resetSearch(){
-    jQuery('#txtSearch').val('');
-    jQuery('#otherSiteList li').show();
-    jQuery('#noSearchResults').fadeOut();
-    jQuery('#imgSearch').fadeOut();
-    jQuery('#txtSearch').focus();
+var setupToolToggle = function(toggleClass){
+    $('#toggler').prependTo('#toolMenuWrap');
+    $('#toggler').css({
+        'display': 'inline'
+    });
+    $('#toggler').addClass(toggleClass)
+    
+    $('#toggleToolMenu').click(function(){
+        if ($('#toggleNormal').is(':visible')) {
+            sakaiRestoreNavigation();
+            document.cookie = "sakai_nav_minimized=false; path=/";
+        }
+        else {
+            sakaiMinimizeNavigation();
+            document.cookie = "sakai_nav_minimized=true; path=/";
+        }
+    });
 }

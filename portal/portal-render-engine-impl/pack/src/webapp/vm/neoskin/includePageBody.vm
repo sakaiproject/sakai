@@ -226,29 +226,10 @@
 					&nbsp;
 				</div>
 <script type="text/javascript">
-var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
-var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
-
-$(document).ready(function() {
-## Lets have presence delay a bit in case they are clicking really fast.
-    sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
-
-	$("#presenceToggle").click(function(e) {
-		e.preventDefault();
-		$('#presenceArea').toggle();
-/*
-                $(this).parent().find("#presenceArea").slideUp('fast').show();
-                $(this).parent().find("#presenceArea").slideUp('fast').show();
-
-                $(this).parent().hover(function() {
-                }, function(){
-                        $(this).parent().find("#presenceArea").slideDown('slow');
-                });
-*/
-        });
-
-} );
-
+	//these are global variables...
+	var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
+	var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
+    var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
 </script>
 #end
 				</div>

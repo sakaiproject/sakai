@@ -13,6 +13,7 @@
 #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
 <script type="text/javascript">
     $(document).ready(function() {
+
         var toggleClass=""
         #if (${portal_allow_minimize_tools})
             toggleClass="toggleTools"
@@ -20,19 +21,7 @@
         #if (${portal_allow_minimize_navigation})	
             toggleClass= toggleClass + "toggleNav"
         #end
-        $('#toggler').prependTo('#toolMenuWrap');
-        $('#toggler').css({'display' : 'inline'});
-        $('#toggler').addClass(toggleClass)
-
-        $('#toggleToolMenu').click(function(){
-            if ( $('#toggleNormal').is(':visible') ) {
-                sakaiRestoreNavigation();	
-                document.cookie = "sakai_nav_minimized=false; path=/";
-            } else {
-                sakaiMinimizeNavigation();
-                document.cookie = "sakai_nav_minimized=true; path=/";
-            }
-        });
+				setupToolToggle(toggleClass);
     });
 </script>
 #end
@@ -101,9 +90,6 @@
 							<label for="pw">${loginPwWording}</label>
 							<input name="pw" type="password" id="pw" />
 							<input name="submit" type="submit" id="submit" value="${loginWording}" />
-							<script type="text/javascript" language="JavaScript">
-								document.forms[0].eid.focus();
-							</script>
 						</form>
 					#end
 					</div>

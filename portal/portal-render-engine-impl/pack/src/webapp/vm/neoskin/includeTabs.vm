@@ -49,9 +49,6 @@
 							<label for="pw">${loginPwWording}</label>
 							<input name="pw" type="password" id="pw" />
 							<input name="submit" type="submit" id="submit" value="${loginWording}" />
-							<script type="text/javascript" language="JavaScript">
-								document.forms[0].eid.focus();
-							</script>
 						</form>
 					#end
 					</div>
@@ -145,7 +142,7 @@
 <div id="selectSite" style="display:none">
          <div id="otherSiteSearch">
          	<label for="txtSearch">Search</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-	        <a id="imgSearch" href="#"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
+	        <a id="imgSearch" href="#" style="display:none"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
      	</div>
      	<ul id="otherSiteList" role="navigation">
@@ -160,68 +157,10 @@
 						#end	
       </ul>
     <script language="javascript" type="text/javascript">
-			
-         // case insensitive version of :contains
-  
-
-
-jQuery(document).ready(function() {
-  var toggle = function(direction, display) {
-    return function() {
-      var self = this;
-      var ul = jQuery("ul", this);
-      if( ul.css("display") == display && !self["block" + direction] ) {
-        self["block" + direction] = true;
-        ul["slide" + direction]("slow", function() {
-          self["block" + direction] = false;
-        });
-      }
-    };
-  }
-  // jQuery("li.nav-menu").hover(toggle("Down", "none"), toggle("Up", "block"));
-  // jQuery("li.nav-menu ul").hide();
-});
-
-jQuery(document).ready(function(){
-	jQuery("ul.subnav").parent().append('<span class="drop" tabindex="-1"></span>'); 
-	$("ul.subnav").each(function(){
-		$(this).children('li:last').addClass('lastMenuItem')
-	});
-	$('.lastMenuItem a').blur(function(e){
-		jQuery(this).parents('ul.subnav').slideUp('fast').hide(); 
-	});
-	$('.topnav a').keydown(function(e){
-	    if (e.keyCode == 40) {
-			jQuery('#selectSite').hide();
-			jQuery(this).parent().find("ul.subnav").slideDown('fast').show(); 
-			jQuery(this).parent().find("ul.subnav a:first").focus(); 
-	    }
-	    if (e.keyCode == 38) {
-			jQuery(this).parent().find("ul.subnav").slideUp('fast').hide(); 
-	    }
-
-	});
-
-	jQuery("ul.topnav li span.drop").click(function() { 
-		jQuery('#selectSite').hide();
-		jQuery('#otherSiteTools').remove();
-
-		jQuery(this).parent().find("ul.subnav").slideDown('fast').show(); 
-
-		jQuery(this).parent().hover(function() {
-		}, function(){
-			jQuery(this).parent().find("ul.subnav").slideUp('slow'); 
+		jQuery(document).ready(function() {
+				setupSiteNav();
 		});
-
-		}).hover(function() {
-			jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
-		}, function(){	//On Hover Out
-			jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
-	});
-
-});
-
-</script>
+	</script>
 </div>
 #else
 				#if ($useDHTMLMore)
