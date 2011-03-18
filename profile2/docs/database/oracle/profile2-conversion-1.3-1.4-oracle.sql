@@ -127,3 +127,7 @@ alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000);
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN varchar2(4000);
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB varchar2(4000);
 
+/* add indexes to commonly searched columns (PRFL-540) */
+create index PROFILE_FRIENDS_CONFIRMED_I on PROFILE_FRIENDS_T (CONFIRMED);
+create index PROFILE_STATUS_DATE_ADDED_I on PROFILE_STATUS_T (DATE_ADDED);
+

@@ -125,4 +125,8 @@ alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text;
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN text;
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB text;
 
+/* add indexes to commonly searched columns (PRFL-540) */
+create index PROFILE_FRIENDS_CONFIRMED_I on PROFILE_FRIENDS_T (CONFIRMED);
+create index PROFILE_STATUS_DATE_ADDED_I on PROFILE_STATUS_T (DATE_ADDED);
+
 
