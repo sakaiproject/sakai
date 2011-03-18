@@ -180,8 +180,8 @@ alter table PROFILE_PRIVACY_T add SOCIAL_NETWORKING_INFO int not null default 0;
 -- PRFL-171 add the new gallery column
 alter table PROFILE_PRIVACY_T add MY_PICTURES int not null default 0;
 
--- PRFL-194 add the new messages column
-alter table PROFILE_PRIVACY_T add MESSAGES int not null default 0;
+-- PRFL-194 add the new messages column, default to 1 (PRFL-593)
+alter table PROFILE_PRIVACY_T add MESSAGES int not null default 1;
 
 -- PRFL-210 add the new businessInfo column
 alter table PROFILE_PRIVACY_T add BUSINESS_INFO int not null default 0;
