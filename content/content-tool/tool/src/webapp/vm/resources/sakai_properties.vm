@@ -120,6 +120,9 @@
 				#foreach ($key in $copyrightKeys)		
 					#set( $isSelected = $model.copyrightStatus.toString() )
 					#set( $theKey = $key.toString() )
+					#if($isSelected == $theKey && $USE_THIS_COPYRIGHT == $copyrightTypes.get($key))
+						#set ( $openCustomCopyright = true )
+					#end
 				#if($isSelected == $theKey) <option value="$theKey" selected="selected">$copyrightTypes.get($key)</option>
 				#else <option value="$theKey" >$copyrightTypes.get($key)</option>
 						 #end
@@ -129,7 +132,7 @@
 					(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.fairuse")</a>)
 				#end
 			</p>
-			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) style="display:block;"#else style="display:none;"#end>
+			<div id="copyright_status${DOT}$i"#if( $openCustomCopyright ) style="display:block;"#else style="display:none;"#end>
 				<p class="shorttext">
 					<span class="reqStar">*</span>
 					<label for="newcopyright${DOT}$i">

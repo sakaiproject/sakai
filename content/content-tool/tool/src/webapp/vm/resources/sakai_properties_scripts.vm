@@ -1075,10 +1075,11 @@
 		if(selectElement && selectElement.value)
 		{
 			var selection = selectElement.value;
+			var selectionText = selectElement.options[selection].text;
 			var copyrightDiv = document.getElementById("copyright_status${DOT}" + index );
 			if(copyrightDiv)
 			{
-				if(selection == "${USE_THIS_COPYRIGHT}")
+				if(selectionText == "${USE_THIS_COPYRIGHT}")
 				{
 					copyrightDiv.style.display="block";
 					resizeFrame('grow');

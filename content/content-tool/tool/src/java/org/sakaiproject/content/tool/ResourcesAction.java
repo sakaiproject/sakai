@@ -48,6 +48,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -996,9 +997,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                                copyrightTypes.put(Integer.valueOf(i), (String)copyrightValues.get(i));
 
                 }
+                
+                Vector<Integer> v = new Vector<Integer>(copyrightTypes.keySet());
+                Collections.sort(v);
 
                 context.put("copyrightTypes", copyrightTypes);
-                context.put("copyrightKeys", copyrightTypes.keys());
+                context.put("copyrightKeys", v);
                 context.put("copyrightTypesSize", rrb.getString("copyrighttype.count"));				
 				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
 		}
