@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Reference;
@@ -90,6 +90,13 @@ public class DbAnnouncementService extends BaseAnnouncementService
 	public void setSqlService(SqlService service)
 	{
 		m_sqlService = service;
+	}
+
+	private AuthzGroupService m_authzGroupService;
+	
+	public void setAuthzGroupService(
+			org.sakaiproject.authz.api.AuthzGroupService authzGroupService) {
+		this.m_authzGroupService = authzGroupService;
 	}
 
 	/**
@@ -581,7 +588,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 		// get the realm
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(ref);
+			AuthzGroup realm = m_authzGroupService.getAuthzGroup(ref);
 
 			// if the announcement realm has "pubview" role, then the announcement is publicly viewable
 			Role pubview = realm.getRole("pubview");

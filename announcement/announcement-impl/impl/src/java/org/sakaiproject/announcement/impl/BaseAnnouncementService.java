@@ -21,25 +21,29 @@
 
 package org.sakaiproject.announcement.impl;
 
-import java.io.Writer;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.IOException;
+import java.text.DateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Date;
-import java.text.DateFormat;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementChannelEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -47,18 +51,14 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Summary;
-import org.sakaiproject.entity.api.EntityAccessOverloadException;
-import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -83,36 +83,23 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * <p>
  * BaseAnnouncementService extends the BaseMessageService for the specifics of Announcement.
  * </p>
+ */
+/**
+ * @author dhorwitz
+ *
  */
 public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver,
 		EntityTransferrer
@@ -143,9 +130,46 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		contentHostingService = service;
 	}
 	
+	private FunctionManager functionManager;
+	public void setFunctionManager(FunctionManager functionManager) {
+		this.functionManager = functionManager;
+	}
+	
+	private AliasService aliasService;	
+	public void setAliasService(AliasService aliasService) {
+		this.aliasService = aliasService;
+	}
+
+	private TimeService timeService;
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+		super.setTimeService(timeService);
+	}
+
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+		super.setSessionManager(sessionManager);
+	}
+	
+	private ToolManager toolManager;
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+		
+	}
+
+	private SecurityService securityService;
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+		super.setSecurityService(securityService);
+	}
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	
+
 
 	/** Dependency: NotificationService. */
 	protected NotificationService m_notificationService = null;
@@ -189,17 +213,17 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			edit.setAction(new SiteEmailNotificationAnnc());
 
 			// register functions
-			FunctionManager.registerFunction(eventId(SECURE_READ));
-			FunctionManager.registerFunction(eventId(SECURE_ADD));
-			FunctionManager.registerFunction(eventId(SECURE_REMOVE_ANY));
-			FunctionManager.registerFunction(eventId(SECURE_REMOVE_OWN));
-			FunctionManager.registerFunction(eventId(SECURE_UPDATE_ANY));
-			FunctionManager.registerFunction(eventId(SECURE_UPDATE_OWN));
-			FunctionManager.registerFunction(eventId(SECURE_ALL_GROUPS));
+			functionManager.registerFunction(eventId(SECURE_READ));
+			functionManager.registerFunction(eventId(SECURE_ADD));
+			functionManager.registerFunction(eventId(SECURE_REMOVE_ANY));
+			functionManager.registerFunction(eventId(SECURE_REMOVE_OWN));
+			functionManager.registerFunction(eventId(SECURE_UPDATE_ANY));
+			functionManager.registerFunction(eventId(SECURE_UPDATE_OWN));
+			functionManager.registerFunction(eventId(SECURE_ALL_GROUPS));
 
 			// Sakai v2.4: UI end says hidden, 'under the covers' says draft
 			// Done so import from old sites causes drafts to 'become' hidden in new sites
-			FunctionManager.registerFunction(eventId(SECURE_READ_DRAFT));
+			functionManager.registerFunction(eventId(SECURE_READ_DRAFT));
 
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -599,7 +623,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 				{
 					try
 					{
-						String aliasTarget = AliasService.getTarget(context);
+						String aliasTarget = aliasService.getTarget(context);
 						if (aliasTarget.startsWith(REFERENCE_ROOT)) // only support announcement aliases
 						{
 							parts = StringUtil.split(aliasTarget, Entity.SEPARATOR);
@@ -678,7 +702,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	public String getRssUrl(Reference ref) 
 	{
       String alias = null;
-      List aliasList =  AliasService.getAliases( ref.getReference() );
+      List aliasList =  aliasService.getAliases( ref.getReference() );
 		
       if ( ! aliasList.isEmpty() )
          alias = ((Alias)aliasList.get(0)).getId();
@@ -705,7 +729,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	{
 		final ResourceProperties messageProps = message.getProperties();
 
-		final Time now = TimeService.newTime();
+		final Time now = timeService.newTime();
 		try 
 		{
 			final Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
@@ -1181,9 +1205,9 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 												// add the new resource into attachment collection area
 												ContentResource attachment = contentHostingService.addAttachmentResource(
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)), 
-														//ToolManager.getCurrentPlacement().getContext(), 
-														toContext, 	//don't use ToolManager.getCurrentPlacement()!
-														ToolManager.getTool("sakai.announcements").getTitle(), 
+														//toolManager.getCurrentPlacement().getContext(), 
+														toContext, 	//don't use toolManager.getCurrentPlacement()!
+														toolManager.getTool("sakai.announcements").getTitle(), 
 														oAttachment.getContentType(),
 														oAttachment.getContent(), 
 														oAttachment.getProperties());
@@ -1195,8 +1219,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 												// add the new resource into resource area
 												ContentResource attachment = contentHostingService.addResource(
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-														//ToolManager.getCurrentPlacement().getContext(), 
-														toContext, //don't use ToolManager.getCurrentPlacement()!
+														//toolManager.getCurrentPlacement().getContext(), 
+														toContext, //don't use toolManager.getCurrentPlacement()!
 														1, 
 														oAttachment.getContentType(), 
 														oAttachment.getContent(), 
@@ -1311,11 +1335,11 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
 			// filter out drafts not by this user (unless this user is a super user or has access_draft ability)
-			if ((msg.getAnnouncementHeader()).getDraft() && (!SecurityService.isSuperUser())
-					&& (!msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()))
+			if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
+					&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 					&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
 			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
 			}
 
 			return msg;
@@ -1632,8 +1656,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			{
 				AnnouncementMessage msg = (AnnouncementMessage) o;
 
-				if ((msg.getAnnouncementHeader()).getDraft() && (!SecurityService.isSuperUser())
-						&& (!msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()))
+				if ((msg.getAnnouncementHeader()).getDraft() && (!securityService.isSuperUser())
+						&& (!msg.getHeader().getFrom().getId().equals(sessionManager.getCurrentSessionUserId()))
 						&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
 				{
 					return false;
