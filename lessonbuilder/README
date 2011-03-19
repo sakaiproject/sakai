@@ -38,31 +38,29 @@ MNEME AND JFORUM DEPENDENCIES
 
 LessonBuilder will support quizes from Mneme and topics from JForum. 
 The JForum interface should cause no trouble, even if you don't use it.
-However I've had to comment out the entries for Mneme 
-in tool/src/webapp/WEB-INF/applicationContext.xml,
+However I've had to disable support for Mneme to allow Lesson Builder
+to build on systems without it. 
 
-If you need to use Mneme, look for the two <!-- mneme and remove
-the comments.
+To put back Mneme support, 
 
-If you have trouble building because of the Mneme dependency,
+1.in tool/src/webapp/WEB-INF/applicationContext.xml,
 
-in tool/pom.xml remove the Mneme dependency. 
+look for the two comments tarting witho <!-- mneme and remove them
 
-	<dependency>
-		<groupId>org.etudes.mneme</groupId>
-		<artifactId>etudes-mneme-api</artifactId>
-		<version>1.2</version>
-	        <scope>provided</scope>
-	</dependency>
+2. rename 
+tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java.disabled
+to 
+tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
 
-and remove the files
-
-    tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
+3. in tool/pom.xml uncomment the dependency for etudes-mneme-api
 
 If you don't use JForum, removing support for it could cause a very
 minor speedup. To do so, edit tool/src/webapp/WEB-INF/applicationContext.xml,
-and remove the bean for jForum and the dependency referring to it.
-(It's the equivalent for the commented out mneme dependencies.)
+and remove or comment out the bean declaration for
+org.sakaiproject.lessonbuildertool.service.JForumEntity
+and the nextEntity property in 
+org.sakaiproject.lessonbuildertool.service.ForumEntity
+
 
 SAKAI VERSIONS
 

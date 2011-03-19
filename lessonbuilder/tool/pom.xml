@@ -153,12 +153,14 @@
 		<artifactId>samigo-api</artifactId>
 	</dependency>
 
+<!--
 	<dependency>
 		<groupId>org.etudes.mneme</groupId>
 		<artifactId>etudes-mneme-api</artifactId>
 		<version>1.2</version>
 	        <scope>provided</scope>
 	</dependency>
+-->
 
 	<dependency>
 		<groupId>org.sakaiproject.samigo</groupId>
