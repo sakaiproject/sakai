@@ -448,11 +448,11 @@ public class Xml
 	 *        The DOM elements, the top of which is the containing element of the new "resource" element.
 	 * @return The newly added element.
 	 */
-	public static Element propertiesToXml(Properties propsToSerialize, Document doc, Stack stack)
+	public static Element propertiesToXml(Properties propsToSerialize, Document doc, Stack<Element> stack)
 	{
 		Element properties = doc.createElement("properties");
 		((Element) stack.peek()).appendChild(properties);
-		Enumeration props = propsToSerialize.propertyNames();
+		Enumeration<?> props = propsToSerialize.propertyNames();
 		while (props.hasMoreElements())
 		{
 			String name = (String) props.nextElement();
