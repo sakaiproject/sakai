@@ -353,7 +353,7 @@ public class Xml
 		//KNL-688 avoid a NPE being logged - DH
 		if (value == null)
 		{
-			value = "";
+			return;
 		}
 		
 		// encode the message body base64, and make it an attribute
