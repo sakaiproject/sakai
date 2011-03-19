@@ -20,6 +20,12 @@
       	<property name="name"><value>添加图片</value></property>
       	<property name="location"><value>/sakai_profile2/profile2_addimage_zh_CN.html</value></property>
 	</bean>
+
+  	<bean id="profile2_pictures" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_pictures_zh_CN</value></property>
+      	<property name="name"><value>管理您的照片</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_pictures_zh_CN.html</value></property>
+	</bean>
 	
 	<bean id="profile2_status" class="org.sakaiproject.component.app.help.model.ResourceBean">
       	<property name="docId"><value>profile2_status_zh_CN</value></property>
@@ -45,6 +51,12 @@
       	<property name="location"><value>/sakai_profile2/profile2_view_zh_CN.html</value></property>
 	</bean>
 	
+	<bean id="profile2_messaging" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_messaging_zh_CN</value></property>
+      	<property name="name"><value>发送消息</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_messaging_zh_CN.html</value></property>
+	</bean>
+	
 	<bean id="profile2_privacy" class="org.sakaiproject.component.app.help.model.ResourceBean">
       	<property name="docId"><value>profile2_privacy_zh_CN</value></property>
       	<property name="name"><value>隐私设置</value></property>
@@ -68,10 +80,12 @@
                      		<ref bean="profile2_overview"/>
                      		<ref bean="profile2_myprofile"/>
                      		<ref bean="profile2_addimage"/>
+                     		<ref bean="profile2_pictures"/>
                      		<ref bean="profile2_status"/>
                      		<ref bean="profile2_search"/>
                      		<ref bean="profile2_connections"/>
                      		<ref bean="profile2_view"/>
+                     		<ref bean="profile2_messaging"/>
                      		<ref bean="profile2_privacy"/>
                      		<ref bean="profile2_preferences"/>
                  		</list>
