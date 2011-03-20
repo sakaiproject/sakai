@@ -85,7 +85,7 @@ public interface MessageService extends EntityProducer, EntitySummary
 	 * 
 	 * @return a list of MessageChannel (or extension) objects (may be empty).
 	 */
-	public List getChannels();
+	public List<MessageChannel> getChannels();
 
 	/**
 	 * check permissions for getChannel().
@@ -277,7 +277,7 @@ public interface MessageService extends EntityProducer, EntitySummary
 	 * @exception PermissionException
 	 *            If the current user does not have channel read permission.
 	 */
-	public List getMessages(String channelRef, Time afterDate, int limitedToLatest, boolean ascending, boolean includeDrafts,
+	public List<Message> getMessages(String channelRef, Time afterDate, int limitedToLatest, boolean ascending, boolean includeDrafts,
 			boolean pubViewOnly) throws PermissionException;
 
 	/**
@@ -287,7 +287,7 @@ public interface MessageService extends EntityProducer, EntitySummary
 	 *        The context in which to search
 	 * @return A List (String) of channel id for channels withing the context.
 	 */
-	public List getChannelIds(String context);
+	public List<String> getChannelIds(String context);
 
         /**
          * Get a summary of an Announcement Channel
@@ -297,8 +297,8 @@ public interface MessageService extends EntityProducer, EntitySummary
          * @param items
          *        Maximum number of items to return
          * @param days
-         *        Maximum number of dayes to peer back
-         * @return The Map containnt the Summary
+         *        Maximum number of days to peer back
+         * @return The Map containing the Summary
          * @exception IdUsedException
          *            if the id is not unique.
          * @exception IdInvalidException
