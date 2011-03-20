@@ -51,6 +51,7 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.message.api.Message;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -187,7 +188,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		Time t = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
 		
 		//get the announcements for each channel
-		List<AnnouncementMessage> announcements = new ArrayList<AnnouncementMessage>();
+		List<Message> announcements = new ArrayList<Message>();
 		
 		//for each channel
 		for(String channel: channels) {
@@ -203,9 +204,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//convert raw announcements into decorated announcements
 		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<DecoratedAnnouncement>();
 	
-		for (AnnouncementMessage a : announcements) {
+		for (Message m : announcements) {
 			
 			try {
+				AnnouncementMessage a = (AnnouncementMessage) m;
 				DecoratedAnnouncement da = new DecoratedAnnouncement();
 				da.setId(a.getId());
 				da.setTitle(a.getAnnouncementHeader().getSubject());
@@ -225,7 +227,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 				decoratedAnnouncements.add(da);
 			} catch (Exception e) {
 				//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
-				log.info("Exception caught processing announcement: " + a.getId() + " for user: " + currentUserId + ". Skipping...");
+				log.info("Exception caught processing announcement: " + m.getId() + " for user: " + currentUserId + ". Skipping...");
 			}
 		}
 		
