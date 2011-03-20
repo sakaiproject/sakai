@@ -3461,15 +3461,15 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 *        The function to check
 		 * @return The Collection (Group) of groups defined for the context of this channel that the end user has specified permissions in, empty if none.
 		 */
-		protected Collection getGroupsAllowFunction(String function)
+		protected Collection<Group> getGroupsAllowFunction(String function)
 		{
-			Collection rv = new Vector();
+			Collection<Group> rv = new Vector<Group>();
 
 			try
 			{
 				// get the channel's site's groups
 				Site site = m_siteService.getSite(m_context);
-				Collection groups = site.getGroups();
+				Collection<Group> groups = site.getGroups();
 
 				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), or is super, select all site groups
 				if (m_securityService.isSuperUser() || (m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
@@ -3481,8 +3481,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				// otherwise, check the groups for function
 
 				// get a list of the group refs, which are authzGroup ids
-				Collection groupRefs = new Vector();
-				for (Iterator i = groups.iterator(); i.hasNext();)
+				Collection<String> groupRefs = new Vector<String>();
+				for (Iterator<Group> i = groups.iterator(); i.hasNext();)
 				{
 					Group group = (Group) i.next();
 					groupRefs.add(group.getReference());
@@ -3493,7 +3493,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 						eventId(function), groupRefs);
 
 				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-				for (Iterator i = groups.iterator(); i.hasNext();)
+				for (Iterator<Group> i = groups.iterator(); i.hasNext();)
 				{
 					Group group = (Group) i.next();
 					if (groupRefs.contains(group.getReference()))

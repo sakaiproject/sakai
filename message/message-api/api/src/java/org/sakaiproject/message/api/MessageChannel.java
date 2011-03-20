@@ -32,6 +32,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Group;
 import org.w3c.dom.Element;
 
 /**
@@ -126,7 +127,7 @@ public interface MessageChannel extends Entity
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
 	 */
-	List getMessages(Filter filter, boolean ascending) throws PermissionException;
+	List<Message> getMessages(Filter filter, boolean ascending) throws PermissionException;
 
         /**
 	 * Return a list of all or filtered messages in the channel. The order in which the 
@@ -144,7 +145,7 @@ public interface MessageChannel extends Entity
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
 	 */
-	List getMessages(Filter filter, boolean ascending, PagingPosition pages) throws PermissionException;
+	List<Message> getMessages(Filter filter, boolean ascending, PagingPosition pages) throws PermissionException;
 
 	/**
 	 * Return a list of all public messages in the channel. 
@@ -157,7 +158,7 @@ public interface MessageChannel extends Entity
 	 *        Order of messages, ascending if true, descending if false
 	 * @return a list of channel Message objects or specializations of Message objects (may be empty).
 	 */
-	List getMessagesPublic(Filter filter, boolean ascending);
+	List<Message> getMessagesPublic(Filter filter, boolean ascending);
 
 	/**
 	 * Return a specific channel message, as specified by message name.
@@ -321,14 +322,14 @@ public interface MessageChannel extends Entity
 	 * 
 	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has add message permissions in, empty if none.
 	 */
-	Collection getGroupsAllowAddMessage();
+	Collection<Group> getGroupsAllowAddMessage();
 
 	/**
 	 * Get the collection of Group defined for the context of this channel that the end user has get message permissions in.
 	 * 
 	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has get message permissions in, empty if none.
 	 */
-	Collection getGroupsAllowGetMessage();
+	Collection<Group> getGroupsAllowGetMessage();
 
 	/**
 	 * Get the collection of Group defined for the context of this channel that the end user has remove message permissions in.
@@ -337,5 +338,5 @@ public interface MessageChannel extends Entity
 	 *        true if the message is the user's own, false if it is someone else's.
 	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has get message permissions in, empty if none.
 	 */
-	Collection getGroupsAllowRemoveMessage(boolean own);
+	Collection<Group> getGroupsAllowRemoveMessage(boolean own);
 }

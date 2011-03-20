@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Stack;
 
 import org.sakaiproject.entity.api.AttachmentContainer;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
@@ -113,14 +114,14 @@ public interface MessageHeader extends AttachmentContainer
 	 * 
 	 * @return A Collection (String) of group refs (authorization group ids) defined for this message; empty if none are defined.
 	 */
-	Collection getGroups();
+	Collection<String> getGroups();
 
 	/**
 	 * Access the groups, as Group objects, defined for this message.
 	 * 
 	 * @return A Collection (Group) of group objects defined for this message; empty if none are defined.
 	 */
-	Collection getGroupObjects();
+	Collection<Group> getGroupObjects();
 
 	/**
 	 * Access the access mode for the message - how we compute who has access to the message.
