@@ -38,15 +38,19 @@ import javax.faces.model.*;
 public class DateModel
   implements Serializable
 {
-  private static final Integer[] months;
-  private static final Integer[] days;
-  private static final Integer[] hours12;
-  private static final Integer[] hours24;
-  private static final Integer[] minutes;
-  private static final Integer[] seconds;
-  // workaround for dfs.getAmPmStrings() returning null!
-  private static final String[] ampm =
-    {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3055823270695170660L;
+	private static final Integer[] months;
+	private static final Integer[] days;
+	private static final Integer[] hours12;
+	private static final Integer[] hours24;
+	private static final Integer[] minutes;
+	private static final Integer[] seconds;
+	// workaround for dfs.getAmPmStrings() returning null!
+	private static final String[] ampm =
+	{
     "AM", "PM"};
 
   // calls conventiece method to set up
@@ -67,7 +71,7 @@ public class DateModel
   public DateModel()
   {
     locale = Locale.getDefault();
-    DateFormatSymbols dfs = new DateFormatSymbols(locale);
+    dfs = new DateFormatSymbols(locale);
 
   }
 
@@ -75,7 +79,7 @@ public class DateModel
   public DateModel(Locale locale)
   {
     this.locale = locale;
-    DateFormatSymbols dfs = new DateFormatSymbols(locale);
+    dfs = new DateFormatSymbols(locale);
   }
 
 
@@ -88,7 +92,7 @@ public class DateModel
 
   public Integer[] getYears(int rangeBefore, int rangeAfter)
   {
-    Date now = new Date();
+    
     Calendar cal = Calendar.getInstance(locale);
     int currentYear = cal.get(Calendar.YEAR);
     int startYear = currentYear - rangeBefore;
@@ -97,7 +101,7 @@ public class DateModel
     Integer[] years = new Integer[noOfYears];
     for (int i = startYear, y = 0; i < startYear + noOfYears; i++, y++)
     {
-      years[y] = new Integer(startYear + y);
+      years[y] = Integer.valueOf(startYear + y);
     }
 
     return years;
@@ -235,9 +239,7 @@ public class DateModel
     Integer[] mi = dateModel1.getMinutes();
     Integer[] se = dateModel1.getSeconds();
     String[] ap = dateModel1.getAmPm();
-    System.out.println("ye=" + ye);
-    System.out.println("mo=" + mo);
-    System.out.println("da=" + da);
+    
     for (int i = 0; i < ye.length; i++)
     {
       System.out.println("year: " + ye[i]);
@@ -407,7 +409,7 @@ public class DateModel
     String[] ampm = getAmPm();
     for (int i = 0; i < ampm.length; i++)
     {
-      ampmList.add(new SelectItem(new Integer(i), ampm[i]));
+      ampmList.add(new SelectItem(Integer.valueOf(i), ampm[i]));
     }
     return ampmList;
   }
@@ -469,7 +471,7 @@ public class DateModel
     }
     for (int i = 0; i < entries; i++)
     {
-      mk[i] = new Integer(i + incr);
+      mk[i] = Integer.valueOf(i + incr);
     }
     return mk;
   }
