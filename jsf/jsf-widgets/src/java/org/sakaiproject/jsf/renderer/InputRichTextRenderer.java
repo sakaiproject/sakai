@@ -431,7 +431,7 @@ public class InputRichTextRenderer extends Renderer
                  "lang/en.js\"></script>\n");
 
     String language = locale.getLanguage();
-    if (!Locale.ENGLISH.equals(language))
+    if (!Locale.ENGLISH.getLanguage().equals(language))
     {
       writer.write("<script type=\"text/javascript\" src=\"" + "/" +
         RESOURCE_PATH + "/"     + HTMLAREA_SCRIPT_PATH + "/" +
