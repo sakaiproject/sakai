@@ -47,11 +47,11 @@ import org.sakaiproject.jsf.util.RendererUtil;
 public class InputColorRenderer extends Renderer
 {
   // icon height and width
-  private final String HEIGHT = "13";
-  private final String WIDTH = "15";
+  private static final String HEIGHT = "13";
+  private static final String WIDTH = "15";
 
   // later we may want to support hidden
-  private final String TYPE = "text";
+  private static final String TYPE = "text";
 
   private static final String CURSORSTYLE;
   private static final String CLICKALT;
