@@ -1488,7 +1488,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection<String> getEntStringityAuthzGroups(Reference ref, String userId)
+	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
 
