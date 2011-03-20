@@ -97,10 +97,7 @@ import org.w3c.dom.Element;
  * BaseAnnouncementService extends the BaseMessageService for the specifics of Announcement.
  * </p>
  */
-/**
- * @author dhorwitz
- *
- */
+
 public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver,
 		EntityTransferrer
 {
