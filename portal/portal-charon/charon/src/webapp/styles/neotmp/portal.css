@@ -657,8 +657,8 @@ page estate
 */
 #togglebar{
     float:left;
-    widwth:10px;    
-    height:10px;
+    width:10px;    
+    height:50px;
     padding-top:5em
     
 }
@@ -666,12 +666,16 @@ a#toggleToolMenu{
     text-decoration:none;
 }
 #togglebar #toggleNormal{
-    background:url(images/toggleOpen.png) no-repeat;
+    background:url(images/toggleOpen.png) top left no-repeat;
     padding:4px;
+    display:block;
+    height:50px;
 }
 #togglebar #toggleToolMax{
-    background:url(images/toggleClose.png) no-repeat;
+    background:url(images/toggleClose.png) top left  no-repeat;
     padding:4px;
+    display:block;
+    height:50px;
 }
 /*
 
@@ -1074,30 +1078,30 @@ below they are contextually defined depending on the column as an example,as you
      bottom:0;
      height:23px;
      text-align:center;
-     border-color:#aaa;
-     border-style:solid;
-     border-width:1px 1px 0 1px;
      vertical-align:middle;
      line-height:1.2em;
      width:auto;
      padding:0;
-     color:#fff;
      background:#eee url(images/appTrayBack.png) top left repeat-x;
 }
 #footerAppPresence{
+    border:1px solid #ccc;
+    height:100%;
+    color:#fff;
     vertical-align:middle;
-    float:left;
+    float:right;
     padding:0 5px;
     width:50px;
 }
 #footerAppChat{
+    border:1px solid #ccc;
+    height:100%;
     vertical-align:middle;
-    float:left;
+    float:right;
     padding:0 5px;
-    width:auto;
+    width:50px;
     color:#000;
-    border-right:1px solid #bbb;
-    display:none;    
+    border-left:none;
 }
 #presenceToggle{
 	color: white;
@@ -1119,9 +1123,13 @@ below they are contextually defined depending on the column as an example,as you
     height:14px;
     top:5px;
     left:30px;
-
 }
 
+.workspace #footerAppPresence{
+    display:none;
+    border:none;
+    
+}
 #footerAppTray #presenceCount{
     font-size:80%;
     outline:1px solid transparent;
