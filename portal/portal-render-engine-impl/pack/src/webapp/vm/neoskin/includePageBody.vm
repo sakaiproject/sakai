@@ -198,13 +198,14 @@
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
 				<div id="footerAppTray">
-					<div id="footerAppChat">
-						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
-					</div>	
 					<div id="footerAppPresence">
 						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
 						<div id="presenceCount"></div>
 					</div>
+					<div id="footerAppChat">
+						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
+					</div>	
+					
 				</div>
 
 

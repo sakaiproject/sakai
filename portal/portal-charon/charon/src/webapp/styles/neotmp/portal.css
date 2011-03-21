@@ -1085,23 +1085,26 @@ below they are contextually defined depending on the column as an example,as you
      background:#eee url(images/appTrayBack.png) top left repeat-x;
 }
 #footerAppPresence{
+    background:#eee url(images/appTrayBack.png) top left repeat-x;    
     border:1px solid #ccc;
     height:100%;
     color:#fff;
     vertical-align:middle;
-    float:right;
+    position:absolute;
+    right:0;
+    top:0;   
     padding:0 5px;
     width:50px;
 }
 #footerAppChat{
-    border:1px solid #ccc;
+    background:#eee url(images/appTrayBack.png) top left repeat-x;
     height:100%;
     vertical-align:middle;
-    float:right;
-    padding:0 5px;
-    width:50px;
+    position:absolute;
+    right:60px;
+    top:0;   
     color:#000;
-    border-left:none;
+    width:auto;
 }
 #presenceToggle{
 	color: white;
