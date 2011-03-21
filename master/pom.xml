@@ -819,7 +819,7 @@
     <build>
         <directory>${sakai.build.directory}</directory>
         <outputDirectory>${sakai.build.directory}/classes</outputDirectory>
-        <finalName>${artifactId}-${version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <testOutputDirectory>${sakai.build.directory}/test-classes</testOutputDirectory>
         <sourceDirectory>src/java</sourceDirectory>
         <scriptSourceDirectory>src/webapp</scriptSourceDirectory>
