@@ -97,6 +97,7 @@ public class DbAnnouncementService extends BaseAnnouncementService
 	public void setAuthzGroupService(
 			org.sakaiproject.authz.api.AuthzGroupService authzGroupService) {
 		this.m_authzGroupService = authzGroupService;
+		super.setAuthzGroupService(authzGroupService);
 	}
 
 	/**
