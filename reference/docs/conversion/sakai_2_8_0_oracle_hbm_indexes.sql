@@ -12,6 +12,9 @@
 -- SQL statement
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
+-- KNL-563
+create index SMB_SEARCH on sakai_message_bundle (BASENAME, MODULE_NAME, LOCALE, PROP_NAME);
+
 -- MSGCNTR-360
 CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID, TYPE_UUID, CONTEXT_ID, READ_STATUS);
 

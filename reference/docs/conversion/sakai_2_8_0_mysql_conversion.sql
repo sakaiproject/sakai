@@ -254,7 +254,6 @@ alter table SAM_ASSESSMENTGRADING_T add column LASTVISITEDQUESTION integer defau
 create unique index ASSESSMENTGRADINGID on SAM_ITEMGRADING_T (ASSESSMENTGRADINGID, PUBLISHEDITEMID, PUBLISHEDITEMTEXTID, AGENTID, PUBLISHEDANSWERID);
 
 -- ShortenedUrlService 1.0.0 db creation start
-
 create table URL_RANDOMISED_MAPPINGS_T (
 	ID bigint not null auto_increment,
 	TINY varchar(255) not null,
@@ -264,7 +263,6 @@ create table URL_RANDOMISED_MAPPINGS_T (
 
 create index URL_INDEX on URL_RANDOMISED_MAPPINGS_T (URL);
 create index KEY_INDEX on URL_RANDOMISED_MAPPINGS_T (TINY);
-
 -- ShortenedUrlService 1.0.0 db creation end
 
 -- KNL-563 table structure for sakai_message_bundle
@@ -279,7 +277,7 @@ create table SAKAI_MESSAGE_BUNDLE (
     primary key (ID)
 );
 
-create index SMB_SEARCH on sakai_message_bundle (BASENAME , MODULE_NAME , LOCALE); 
+create index SMB_SEARCH on sakai_message_bundle (BASENAME, MODULE_NAME, LOCALE, PROP_NAME); 
 
 -- STAT-241 table structure for sst_presences
 create table SST_PRESENCES (

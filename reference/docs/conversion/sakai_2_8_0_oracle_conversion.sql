@@ -320,7 +320,7 @@ CREATE TABLE SAKAI_MESSAGE_BUNDLE(
         PRIMARY KEY (ID)
 );
 create sequence SAKAI_MESSAGEBUNDLE_S; 
-create index SMB_SEARCH on sakai_message_bundle (BASENAME , MODULE_NAME , LOCALE ); 
+create index SMB_SEARCH on sakai_message_bundle (BASENAME, MODULE_NAME, LOCALE, PROP_NAME); 
 
 -- RES-2: table structure for validationaccount_item
 CREATE TABLE VALIDATIONACCOUNT_ITEM (
