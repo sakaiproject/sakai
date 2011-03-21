@@ -54,15 +54,11 @@
 		<div id="siteTypeList" 
 			 #* if templates enabled *# class="indnt3" #*end templates enabled *#>
 			#foreach ($type in $siteTypes)
-				#if (($type != "GradToolsStudent" && $type != $courseSiteType) || ($type == $courseSiteType && $canAddCourse) || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
+				#if ($type != $courseSiteType || ($type == $courseSiteType && $canAddCourse))
 					<p class="checkbox indnt1">
 						<input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
 						<label for = "$type">
-							#if ($type == "GradToolsStudent")
-								$tlang.getString("sitetype.gratooweb")
-							#else
-								$type $tlang.getString("sitetype.websit")	
-							#end
+							$tlang.getFormattedMessage("sitetype.websit", $type)
 						</label>	
 					</p>		
 					#if ($type == $courseSiteType && $canAddCourse)
@@ -92,7 +88,7 @@
 							</p>	
 						</div>	
 					#end ## end of #if ($type == $courseSiteType && $canAddCourse)
-				#end ## end of #if (($type != "GradToolsStudent" && $type != $courseSiteType) || ($type == $courseSiteType && $canAddCourse) || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
+				#end ## end of #if ($type != $courseSiteType || ($type == $courseSiteType && $canAddCourse))
 				#*
 				#if ($templateList.size() > 0 && $templateList.containsKey($type))
 					<p class="checkbox indnt3">

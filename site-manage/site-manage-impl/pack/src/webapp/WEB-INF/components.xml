@@ -3,6 +3,13 @@
 
 <beans>
 
+	<!--<bean id="org.sakaiproject.sitemanage.api.SiteTypeProvider"
+			class="org.sakaiproject.sitemanage.impl.SiteTypeProviderImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>-->
+	
 	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
 			class="org.sakaiproject.sitemanage.impl.SectionFieldProviderImpl"
 			init-method="init"
@@ -12,6 +19,13 @@
 	
 	<bean id="org.sakaiproject.sitemanage.api.AffiliatedSectionProvider"
 			class="org.sakaiproject.sitemanage.impl.AffiliatedSectionProviderImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+	
+	<bean id="org.sakaiproject.sitemanage.api.SitTypeProvider"
+			class="org.sakaiproject.sitemanage.impl.SiteTypeProviderImpl"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">

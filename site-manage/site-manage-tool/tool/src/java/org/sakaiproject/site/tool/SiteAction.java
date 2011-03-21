@@ -172,6 +172,9 @@ public class SiteAction extends PagedResourceActionII {
 	private org.sakaiproject.sitemanage.api.AffiliatedSectionProvider affiliatedSectionProvider = (org.sakaiproject.sitemanage.api.AffiliatedSectionProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.AffiliatedSectionProvider.class);
 	
+	private org.sakaiproject.sitemanage.api.SiteTypeProvider siteTypeProvider = (org.sakaiproject.sitemanage.api.SiteTypeProvider) ComponentManager
+	.get(org.sakaiproject.sitemanage.api.SiteTypeProvider.class);
+	
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
 	
@@ -228,7 +231,7 @@ public class SiteAction extends PagedResourceActionII {
 			"",// 39
 			"",// 40
 			"",// 41
-			"-gradtoolsConfirm",// 42
+			"-type-confirm",// 42
 			"-siteInfo-editClass",// 43
 			"-siteInfo-addCourseConfirm",// 44
 			"-siteInfo-importMtrlMaster", // 45 -- htripath for import
@@ -479,15 +482,6 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String STATE_SUBJECT_AFFILIATES = "site.subject.affiliates";
 
 	private final static String STATE_ICONS = "icons";
-
-	// site template used to create a UM Grad Tools student site
-	public static final String SITE_GTS_TEMPLATE = "!gtstudent";
-
-	// the type used to identify a UM Grad Tools student site
-	public static final String SITE_TYPE_GRADTOOLS_STUDENT = "GradToolsStudent";
-
-	// list of UM Grad Tools site types for editing
-	public static final String GRADTOOLS_SITE_TYPES = "gradtools_site_types";
 
 	public static final String SITE_DUPLICATED = "site_duplicated";
 
@@ -923,16 +917,6 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_ICONS) == null) {
 			setupIcons(state);
 		}
-
-		if (state.getAttribute(GRADTOOLS_SITE_TYPES) == null) {
-			List gradToolsSiteTypes = new Vector();
-			if (ServerConfigurationService.getStrings("gradToolsSiteType") != null) {
-				gradToolsSiteTypes = new ArrayList(Arrays
-						.asList(ServerConfigurationService
-								.getStrings("gradToolsSiteType")));
-			}
-			state.setAttribute(GRADTOOLS_SITE_TYPES, gradToolsSiteTypes);
-		}
 		
 		if (ServerConfigurationService.getStrings("titleEditableSiteType") != null) {
 			state.setAttribute(TITLE_EDITABLE_SITE_TYPE, new ArrayList(Arrays
@@ -1217,9 +1201,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		ResourceProperties siteProperties = null;
 
-		String hasGradSites = ServerConfigurationService.getString(
-				"withDissertation", Boolean.FALSE.toString());
-
 		// course site type
 		String courseSiteType = (String) state.getAttribute(STATE_COURSE_SITE_TYPE);
 		context.put("courseSiteType", courseSiteType);
@@ -1246,17 +1227,20 @@ public class SiteAction extends PagedResourceActionII {
 			if (SecurityService.isSuperUser()) {
 				views.put(rb.getString("java.allmy"), rb
 						.getString("java.allmy"));
-				views.put(rb.getString("java.my") + " "
-						+ rb.getString("java.sites"), rb.getString("java.my"));
+				views.put(rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}), rb.getString("java.my"));
 				for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
 					String type = (String) sTypes.get(sTypeIndex);
-					views.put(type + " " + rb.getString("java.sites"), type);
+					views.put(rb.getFormattedMessage("java.sites", new Object[]{type}), type);
 				}
-				if (hasGradSites.equalsIgnoreCase("true")) {
-					views.put(rb.getString("java.gradtools") + " "
-							+ rb.getString("java.sites"), rb
-							.getString("java.gradtools"));
+				List<String> moreTypes = siteTypeProvider.getTypesForSiteList();
+				if (!moreTypes.isEmpty())
+				{
+					for(String mType : moreTypes)
+					{
+						views.put(rb.getFormattedMessage("java.sites", new Object[]{mType}), mType);
+					}
 				}
+				
 				if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
 					state.setAttribute(STATE_VIEW_SELECTED, rb
 							.getString("java.allmy"));
@@ -1266,45 +1250,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("superUser", Boolean.FALSE);
 				views.put(rb.getString("java.allmy"), rb
 						.getString("java.allmy"));
-
-				// if there is a GradToolsStudent choice inside
-				boolean remove = false;
-				if (hasGradSites.equalsIgnoreCase("true")) {
-					try {
-						// the Grad Tools site option is only presented to
-						// GradTools Candidates
-						String userId = StringUtils.trimToEmpty(SessionManager
-								.getCurrentSessionUserId());
-
-						// am I a grad student?
-						if (!isGradToolsCandidate(userId)) {
-							// not a gradstudent
-							remove = true;
-						}
-					} catch (Exception e) {
-						remove = true;
-						M_log.warn(this + "buildContextForTemplate chef_site-list.vm list GradToolsStudent sites", e);
-					}
-				} else {
-					// not support for dissertation sites
-					remove = true;
-				}
-				// do not show this site type in views
-				// sTypes.remove(new String(SITE_TYPE_GRADTOOLS_STUDENT));
-
-				for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
-					String type = (String) sTypes.get(sTypeIndex);
-					if (!type.equals(SITE_TYPE_GRADTOOLS_STUDENT)) {
-						views
-								.put(type + " " + rb.getString("java.sites"),
-										type);
-					}
-				}
-				if (!remove) {
-					views.put(rb.getString("java.gradtools") + " "
-							+ rb.getString("java.sites"), rb
-							.getString("java.gradtools"));
-				}
 
 				// default view
 				if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
@@ -1383,33 +1328,12 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-type.vm
 			 * 
 			 */
-			if (hasGradSites.equalsIgnoreCase("true")) {
-				context.put("withDissertation", Boolean.TRUE);
-				try {
-					// the Grad Tools site option is only presented to UM grad
-					// students
-					String userId = StringUtils.trimToEmpty(SessionManager
-							.getCurrentSessionUserId());
-
-					// am I a UM grad student?
-					Boolean isGradStudent = Boolean.valueOf(
-							isGradToolsCandidate(userId));
-					context.put("isGradStudent", isGradStudent);
-
-					// if I am a UM grad student, do I already have a Grad Tools
-					// site?
-					boolean noGradToolsSite = true;
-					if (hasGradToolsStudentSite(userId))
-						noGradToolsSite = false;
-					context.put("noGradToolsSite", Boolean.valueOf(noGradToolsSite));
-				} catch (Exception e) {
-					M_log.warn(this + "buildContextForTemplate chef_site-type.vm ", e);
-				}
-			} else {
-				context.put("withDissertation", Boolean.FALSE);
-			}
-
 			List types = (List) state.getAttribute(STATE_SITE_TYPES);
+			List<String> mTypes = siteTypeProvider.getTypesForSiteCreation();
+			if (mTypes != null && !mTypes.isEmpty())
+			{
+				types.addAll(mTypes);
+			}
 			context.put("siteTypes", types);
 
 			// put selected/default site type into context
@@ -1808,22 +1732,20 @@ public class SiteAction extends PagedResourceActionII {
 				if (allowUpdateSite) 
 				{
 					if (!isMyWorkspace) {
-						List gradToolsSiteTypes = (List) state
-								.getAttribute(GRADTOOLS_SITE_TYPES);
-						boolean isGradToolSite = false;
+						List<String> providedSiteTypes = siteTypeProvider.getTypes();
+						boolean isProvidedType = false;
 						if (siteType != null
-								&& gradToolsSiteTypes.contains(siteType)) {
-							isGradToolSite = true;
+								&& providedSiteTypes.contains(siteType)) {
+							isProvidedType = true;
 						}
-						if (!isGradToolSite) {
-							// hide site access for GRADTOOLS
+						if (!isProvidedType) {
+							// hide site access for provided site types
 							// type of sites
 							b.add(new MenuEntry(
 									rb.getString("java.siteaccess"),
 									"doMenu_edit_site_access"));
 							
 							// hide site duplicate and import
-							// for GRADTOOLS type of sites
 							if (SiteService.allowAddSite(null))
 							{
 								b.add(new MenuEntry(rb.getString("java.duplicate"),
@@ -2704,7 +2626,7 @@ public class SiteAction extends PagedResourceActionII {
 			return (String) getContext(data).get("template") + TEMPLATE[37];
 		case 42:
 			/*
-			 * buildContextForTemplate chef_site-gradtoolsConfirm.vm
+			 * buildContextForTemplate chef_site-type-confirm.vm
 			 * 
 			 */
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
@@ -3689,15 +3611,6 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
-					} else if (view.equalsIgnoreCase(rb
-							.getString("java.gradtools"))) {
-						// search for gradtools sites
-						size = SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										state
-												.getAttribute(GRADTOOLS_SITE_TYPES),
-										search, null);
 					} else {
 						// search for specific type of sites
 						size = SiteService
@@ -3735,15 +3648,6 @@ public class SiteAction extends PagedResourceActionII {
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 										null, search, null);
-					} else if (view.equalsIgnoreCase(rb
-							.getString("java.gradtools"))) {
-						// search for gradtools sites
-						size += SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-										state
-												.getAttribute(GRADTOOLS_SITE_TYPES),
-										search, null);
 					} else {
 						// search for specific type of sites
 						size += SiteService
@@ -3818,16 +3722,6 @@ public class SiteAction extends PagedResourceActionII {
 						}
 
 						return rv;
-					} else if (view.equalsIgnoreCase(rb
-							.getString("java.gradtools"))) {
-						// search for gradtools sites
-						return SiteService
-								.getSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
-										state
-												.getAttribute(GRADTOOLS_SITE_TYPES),
-										search, null, sortType,
-										new PagingPosition(first, last));
 					} else {
 						// search for a specific site
 						return SiteService
@@ -3868,20 +3762,6 @@ public class SiteAction extends PagedResourceActionII {
 												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 												null, search, null, sortType,
 												new PagingPosition(first, last)));
-					} else if (view.equalsIgnoreCase(rb
-							.getString("java.gradtools"))) {
-						// search for a specific user site for
-						// the particular user id in the
-						// criteria - exact match only
-						rv
-								.addAll(SiteService
-										.getSites(
-												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-												state
-														.getAttribute(GRADTOOLS_SITE_TYPES),
-												search, null, sortType,
-												new PagingPosition(first, last)));
-
 					} else {
 						rv
 								.addAll(SiteService
@@ -4234,6 +4114,7 @@ public class SiteAction extends PagedResourceActionII {
 				.intValue();
 		actionForTemplate("continue", index, params, state, data);
 
+		List<String> pSiteTypes = siteTypeProvider.getTypesForSiteCreation();
 		String type = StringUtils.trimToNull(params.getString("itemType"));
 
 		if (type == null) {
@@ -4246,20 +4127,19 @@ public class SiteAction extends PagedResourceActionII {
 				redirectCourseCreation(params, state, "selectTerm");
 			} else if ("project".equals(type)) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
-			} else if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT)) {
-				// if a GradTools site use pre-defined site info and exclude
+			} else if (pSiteTypes != null && pSiteTypes.contains(type)) {
+				// if of customized type site use pre-defined site info and exclude
 				// from public listing
 				SiteInfo siteInfo = new SiteInfo();
 				if (state.getAttribute(STATE_SITE_INFO) != null) {
 					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 				}
 				User currentUser = UserDirectoryService.getCurrentUser();
-				siteInfo.title = rb.getString("java.grad") + " - "
-						+ currentUser.getId();
-				siteInfo.description = rb.getString("java.gradsite") + " "
-						+ currentUser.getDisplayName();
-				siteInfo.short_description = rb.getString("java.grad") + " - "
-						+ currentUser.getId();
+				List<String> pList = new ArrayList<String>();
+				pList.add(currentUser.getId());
+				siteInfo.title = siteTypeProvider.getSiteTitle(type, pList);
+				siteInfo.description = siteTypeProvider.getSiteDescription(type, pList);
+				siteInfo.short_description = siteTypeProvider.getSiteShortDescription(type, pList);
 				siteInfo.include = false;
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
 
@@ -7567,7 +7447,7 @@ public class SiteAction extends PagedResourceActionII {
 			break;
 		case 42:
 			/*
-			 * actionForTemplate chef_site-gradtoolsConfirm.vm
+			 * actionForTemplate chef_site-type-confirm.vm
 			 * 
 			 */
 			break;
@@ -10532,12 +10412,12 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // SiteInfo
 
-	// dissertation tool related
+	// customized type tool related
 	/**
-	 * doFinish_grad_tools is called when creation of a Grad Tools site is
+	 * doFinish_site_type_tools is called when creation of a customized type site is
 	 * confirmed
 	 */
-	public void doFinish_grad_tools(RunData data) {
+	public void doFinish_site_type_tools(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
@@ -10548,8 +10428,8 @@ public class SiteAction extends PagedResourceActionII {
 				.intValue();
 		actionForTemplate("continue", index, params, state, data);
 
-		// add the pre-configured Grad Tools tools to a new site
-		addGradToolsFeatures(state);
+		// add the pre-configured site type tools to a new site
+		addSiteTypeFeatures(state);
 
 		// TODO: hard coding this frame id is fragile, portal dependent, and
 		// needs to be fixed -ggolden
@@ -10558,71 +10438,79 @@ public class SiteAction extends PagedResourceActionII {
 
 		resetPaging(state);
 
-	}// doFinish_grad_tools
+	}// doFinish_site-type_tools
 
 	/**
-	 * addGradToolsFeatures adds features to a new Grad Tools student site
+	 * addSiteTypeToolsFeatures adds features to a new customized type site
 	 * 
 	 */
-	private void addGradToolsFeatures(SessionState state) {
+	private void addSiteTypeFeatures(SessionState state) {
 		Site edit = null;
 		Site template = null;
-
-		// get a unique id
-		String id = IdManager.createUuid();
-
-		// get the Grad Tools student site template
-		try {
-			template = SiteService.getSite(SITE_GTS_TEMPLATE);
-		} catch (Exception e) {
-			M_log.warn(this + ".addGradToolsFeatures:" + e.getMessage() + SITE_GTS_TEMPLATE, e);
-		}
-		if (template != null) {
-			// create a new site based on the template
+		String type = (String) state.getAttribute(STATE_SITE_TYPE);
+		HashMap<String, String> templates = siteTypeProvider.getTemplateForSiteTypes();
+		// get the template site id for this site type
+		if (templates != null && templates.containsKey(type))
+		{
+			String templateId = templates.get(type);
+			
+			// get a unique id
+			String id = IdManager.createUuid();
+			
+	
+			// get the site template
 			try {
-				edit = SiteService.addSite(id, template);
+				template = SiteService.getSite(templateId);
 			} catch (Exception e) {
-				M_log.warn(this + ".addGradToolsFeatures:" + " add/edit site id=" + id, e);
+				M_log.warn(this + ".addSiteTypeFeatures:" + e.getMessage() + templateId, e);
 			}
-
-			// set the tab, etc.
-			if (edit != null) {
-				SiteInfo siteInfo = (SiteInfo) state
-						.getAttribute(STATE_SITE_INFO);
-				edit.setShortDescription(siteInfo.short_description);
-				edit.setTitle(siteInfo.title);
-				edit.setPublished(true);
-				edit.setPubView(false);
-				edit.setType(SITE_TYPE_GRADTOOLS_STUDENT);
-				// ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+			if (template != null) {
+				// create a new site based on the template
 				try {
-					SiteService.save(edit);
+					edit = SiteService.addSite(id, template);
 				} catch (Exception e) {
-					M_log.warn(this + ".addGradToolsFeatures:" + " commitEdit site id=" + id, e);
+					M_log.warn(this + ".addSiteTypeFeatures:" + " add/edit site id=" + id, e);
 				}
-
-				// now that the site and realm exist, we can set the email alias
-				// set the GradToolsStudent site alias as:
-				// gradtools-uniqname@servername
-				String alias = "gradtools-"
-						+ SessionManager.getCurrentSessionUserId();
-				String channelReference = mailArchiveChannelReference(id);
-				try {
-					AliasService.setAlias(alias, channelReference);
-				} catch (IdUsedException ee) {
-					addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{alias}));
-					M_log.warn(this + ".addGradToolsFeatures:" + rb.getFormattedMessage("java.alias.exists", new Object[]{alias}), ee);
-				} catch (IdInvalidException ee) {
-					addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}));
-					M_log.warn(this + ".addGradToolsFeatures:" + rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}), ee);
-				} catch (PermissionException ee) {
-					addAlert(state, rb.getString("java.addalias"));
-					M_log.warn(this + ".addGradToolsFeatures:" + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
+	
+				// set the tab, etc.
+				if (edit != null) {
+					SiteInfo siteInfo = (SiteInfo) state
+							.getAttribute(STATE_SITE_INFO);
+					edit.setShortDescription(siteInfo.short_description);
+					edit.setTitle(siteInfo.title);
+					edit.setPublished(true);
+					edit.setPubView(false);
+					edit.setType(templateId);
+					// ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
+					try {
+						SiteService.save(edit);
+					} catch (Exception e) {
+						M_log.warn(this + ".addSiteTypeFeatures:" + " commitEdit site id=" + id, e);
+					}
+	
+					// now that the site and realm exist, we can set the email alias
+					// set the site alias as:
+					List<String> pList = new ArrayList<String>();
+					pList.add(SessionManager.getCurrentSessionUserId());
+					String alias = siteTypeProvider.getSiteAlias(type, pList);
+					String channelReference = mailArchiveChannelReference(id);
+					try {
+						AliasService.setAlias(alias, channelReference);
+					} catch (IdUsedException ee) {
+						addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{alias}));
+						M_log.warn(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.exists", new Object[]{alias}), ee);
+					} catch (IdInvalidException ee) {
+						addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}));
+						M_log.warn(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}), ee);
+					} catch (PermissionException ee) {
+						addAlert(state, rb.getString("java.addalias"));
+						M_log.warn(this + ".addSiteTypeFeatures:" + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
+					}
 				}
 			}
 		}
 
-	} // addGradToolsFeatures
+	} // addSiteTypeFeatures
 
 	/**
 	 * handle with add site options
@@ -10653,66 +10541,6 @@ public class SiteAction extends PagedResourceActionII {
 			doContinue(data);
 		}
 	} // doDuplicate_site_option
-
-	/**
-	 * Special check against the Dissertation service, which might not be
-	 * here...
-	 * 
-	 * @return
-	 */
-	protected boolean isGradToolsCandidate(String userId) {
-		// DissertationService.isCandidate(userId) - but the hard way
-
-		Object service = ComponentManager
-				.get("org.sakaiproject.api.app.dissertation.DissertationService");
-		if (service == null)
-			return false;
-
-		// the method signature
-		Class[] signature = new Class[1];
-		signature[0] = String.class;
-
-		// the method name
-		String methodName = "isCandidate";
-
-		// find a method of this class with this name and signature
-		try {
-			Method method = service.getClass().getMethod(methodName, signature);
-
-			// the parameters
-			Object[] args = new Object[1];
-			args[0] = userId;
-
-			// make the call
-			Boolean rv = (Boolean) method.invoke(service, args);
-			return rv.booleanValue();
-		} catch (Throwable t) {
-		}
-
-		return false;
-	}
-
-	/**
-	 * User has a Grad Tools student site
-	 * 
-	 * @return
-	 */
-	protected boolean hasGradToolsStudentSite(String userId) {
-		boolean has = false;
-		int n = 0;
-		try {
-			n = SiteService.countSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
-					SITE_TYPE_GRADTOOLS_STUDENT, null, null);
-			if (n > 0)
-				has = true;
-		} catch (Exception e) {
-			M_log.warn(this + ".addGradToolsStudentSite:" + e.getMessage(), e);
-		}
-
-		return has;
-
-	}// hasGradToolsStudentSite
 
 	/**
 	 * Get the mail archive channel reference for the main container placement
