@@ -713,7 +713,7 @@ public class SelectActionListener
     // must meet 2 conditions: hasFeedback==true && feedback.getShowStudentScore()==true
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
     if (f!=null){
-      boolean showScorecore = (Boolean.TRUE).equals(f.getShowStudentScore()) || f.getFeedbackComponentOption().equals(new Integer(1));
+      boolean showScorecore = (Boolean.TRUE).equals(f.getShowStudentScore()) || Integer.valueOf(1).equals(f.getFeedbackComponentOption());
       if (showScorecore && "show".equals(hasFeedback))
         showScore = "show";
       if (showScorecore && "blank".equals(hasFeedback))
@@ -766,9 +766,13 @@ public class SelectActionListener
   private String getFeedbackComponentOption(Long publishedAssessmentId, HashMap publishedAssessmentHash){
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
 	        get(publishedAssessmentId);
-	    if (p!=null)
-	      return p.getFeedbackComponentOption().toString();
-	    else
+	    if (p!=null) {
+	      Integer option = p.getFeedbackComponentOption();
+	      if (option == null)
+   		    return null;
+	      else
+	    	return option.toString();
+	    } else
 	      return null;
 	  }
   
