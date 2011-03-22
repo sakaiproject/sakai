@@ -76,17 +76,23 @@ assessment to anonymous users, restrict its availability to only
 site members, or restrict its availability to only selected groups.
 
 <p><strong>Note:</strong> If you release an assessment to anonymous
-users, you must distribute its URL to participants; it will not be
-accessible from within your site's Tests &amp; Quizzes tool.
-After publishing the assessment, go to the settings page of the
-version located under "Published Assessments" (not the copy under
-"Pending Assessments"), click to expand the <strong><code>Assessment Released
-To</code></strong> section, and copy the URL shown there.</p>
-</li><li><strong>High Security:</strong> Specify that only certain IP
-addresses can access your assessment, or create a secondary
-username and password to use for accessing the assessment. An asterisk
+users, you must distribute its URL to participants; it will
+not be accessible from within your site's Tests &amp; Quizzes tool. Note
+the URL while publishing the assessment (see <a href="content.hlp?docId=ardc">Publishing an assessment</a>), or if the assessment is already published, go to
+the settings page of the version located under "Published Assessments"
+(not the copy under "Pending Assessments"), click to expand the
+<strong><code>Assessment Released To</code></strong> section, and copy the URL shown there.</p>
+</li><li><strong>High Security:</strong> You can do either or both of the following:
+
+<br /><br />
+
+<ul><li>Create a unique username and password combination (both fields are
+required) that all students use to access each test
+</li><li>Specify that only certain IP
+addresses can access your assessment.  An asterisk
 ( * ) can stand for any single subnet to represent a range
-of addresses, e.g., 171.64.139.* or 171.64.*.* . <br /><br />
+of IP addresses, e.g., 171.64.139.* or 171.64.*.* . 
+</li></ul><br />
 </li><li><strong>Timed Assessment:</strong> You can specify the amount of
 time allowed. This option will cause the assessment to submit
 automatically when the time is up.
@@ -168,7 +174,8 @@ student chose)
 
 </li><li><strong>Feedback on submission</strong> (Best used with the
 "Record the last score" grading option)
-</li><li><strong>No Feedback will be displayed to the student</strong>
+</li><li><strong>No Feedback will be displayed to the student</strong> (Overrides
+other options, and suppresses all feedback and scores)
 </li><li><strong>Feedback will be displayed to the student at a specific
 date</strong> (Click the calendar icon to specify the date)
 </li></ul>
@@ -187,7 +194,11 @@ include in the feedback:</p>
 
 <ul><li>Student response</li><li>Correct response</li><li>Student's assessment score</li><li>Student's question scores</li><li>Question-level feedback</li><li>Selection-level feedback</li><li>Grader's comments</li><li>Statistics and histogram</li></ul>
 
-<br />
+<p>If you choose to release any of the items listed above, the tool will 
+also release questions to students.  To prevent students from seeing the
+questions but allow them to see their scores, choose <strong><code>Only Release Student's Assessment Scores (questions
+not shown)</code></strong>.  You cannot release other feedback if you select this option.</p>
+
 </li><li><strong>Grading:</strong> Specify whether grading is to be
 anonymous, if grades should be sent to the Gradebook or not, and how to
 process the scores if multiple submissions are allowed. If you select
