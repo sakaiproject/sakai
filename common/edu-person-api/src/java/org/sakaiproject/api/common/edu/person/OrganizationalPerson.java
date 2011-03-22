@@ -38,7 +38,7 @@ public interface OrganizationalPerson extends Person
 	/**
 	 * A fax number for the directory entry. Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567."
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setFacsimileTelephoneNumber(String facsimileTelephoneNumber);
 
@@ -58,7 +58,7 @@ public interface OrganizationalPerson extends Person
 	 * X.520(2000) reads: "The Locality Name attribute type specifies a locality. When used as a component of a directory name, it identifies a geographical area or locality in which the named object is physically located or with which it is associated in
 	 * some other important way.
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setLocalityName(String localityName);
 
@@ -88,7 +88,7 @@ public interface OrganizationalPerson extends Person
 	 * <p>
 	 * For states in the United States, U.S. Postal Service set of two-letter state name abbreviations.
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setStateOrProvinceName(String stateOrProvinceName);
 
@@ -102,21 +102,21 @@ public interface OrganizationalPerson extends Person
 	/**
 	 * Follow X.500(2001): "The postal code attribute type specifies the postal code of the named object. If this attribute value is present, it will be part of the object's postal address." Zip code in USA, postal code for other countries.
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setPostalCode(String postalCode);
 
 	/**
 	 * Follow X.500(2001): "The Post Office Box attribute type specifies the Postal Office Box by which the object will receive physical postal delivery. If present, the attribute value is part of the object's postal address."
 	 * 
-	 * @return
+	 * 
 	 */
 	public String getPostOfficeBox();
 
 	/**
 	 * Follow X.500(2001): "The Post Office Box attribute type specifies the Postal Office Box by which the object will receive physical postal delivery. If present, the attribute value is part of the object's postal address."
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setPostOfficeBox(String postOfficeBox);
 
@@ -158,7 +158,7 @@ public interface OrganizationalPerson extends Person
 	 * <p>
 	 * Campus or office address. inetOrgPerson has a homePostalAddress that complements this attribute. X.520(2000) reads: "The Postal Address attribute type specifies the address information required for the physical postal delivery to an object."
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setPostalAddress(String postalAddress);
 
@@ -172,7 +172,7 @@ public interface OrganizationalPerson extends Person
 	/**
 	 * Follow X.520(2001): "The Title attribute type specifies the designated position or function of the object within an organization."
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setTitle(String title);
 
@@ -198,7 +198,7 @@ public interface OrganizationalPerson extends Person
 	 * <p>
 	 * An attribute value for Organizational Unit Name is a string chosen by the organization of which it is a part."
 	 * 
-	 * @return
+	 * 
 	 */
 	public void setOrganizationalUnit(String organizationalUnit);
 }
