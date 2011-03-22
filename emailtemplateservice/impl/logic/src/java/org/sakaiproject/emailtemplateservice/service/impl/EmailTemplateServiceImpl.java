@@ -21,6 +21,7 @@
 
 package org.sakaiproject.emailtemplateservice.service.impl;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,12 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import java.io.InputStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
@@ -45,18 +42,14 @@ import org.sakaiproject.emailtemplateservice.model.EmailTemplateLocaleUsers;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.util.TextTemplateLogicUtils;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
-import org.sakaiproject.i18n.InternationalizedMessages;
-import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Session;
-
 import org.simpleframework.xml.core.Persister;
 
 public class EmailTemplateServiceImpl implements EmailTemplateService {
