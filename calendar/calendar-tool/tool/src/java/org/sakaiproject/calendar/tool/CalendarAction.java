@@ -877,7 +877,7 @@ extends VelocityPortletStateAction
 			}
 		}
 		
-		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,00,00,000);
+		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,59,59,000);
 		
 		return TimeService.newTimeRange(startTime,endTime,true,true);
 		
@@ -924,7 +924,7 @@ extends VelocityPortletStateAction
 		}
 		
 		
-		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,00,00,000);
+		Time endTime = TimeService.newTimeLocal(calendarUtil.getYear(),calendarUtil.getMonthInteger(),calendarUtil.getDayOfMonth(),23,59,59,000);
 		return TimeService.newTimeRange(startTime,endTime,true,true);
 	}
 	
