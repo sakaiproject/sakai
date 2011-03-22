@@ -52,14 +52,14 @@ public interface Person extends Persistable
 	public void setTypeUuid(String typeUuid);
 
 	/**
-	 * Common name. According to RFC 2256, "This is the X.500 commonName attribute, which contains a name of an object. If the object corresponds to a person, it is typically the person's full name.”
+	 * Common name. According to RFC 2256, "This is the X.500 commonName attribute, which contains a name of an object. If the object corresponds to a person, it is typically the person's full name.
 	 * 
 	 * @return
 	 */
 	public String getCommonName();
 
 	/**
-	 * Common name. According to RFC 2256, "This is the X.500 commonName attribute, which contains a name of an object. If the object corresponds to a person, it is typically the person's full name.”
+	 * Common name. According to RFC 2256, "This is the X.500 commonName attribute, which contains a name of an object. If the object corresponds to a person, it is typically the person's full name.
 	 */
 	public void setCommonName(String commonName);
 

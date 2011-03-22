@@ -46,7 +46,7 @@ public interface OrganizationalPerson extends Person
 	 * According to RFC 2256, "This attribute contains the name of a locality, such as a city, county or other geographic region (localityName)."
 	 * <p>
 	 * X.520(2000) reads: "The Locality Name attribute type specifies a locality. When used as a component of a directory name, it identifies a geographical area or locality in which the named object is physically located or with which it is associated in
-	 * some other important way.”
+	 * some other important way.
 	 * 
 	 * @return
 	 */
@@ -56,7 +56,7 @@ public interface OrganizationalPerson extends Person
 	 * According to RFC 2256, "This attribute contains the name of a locality, such as a city, county or other geographic region (localityName)."
 	 * <p>
 	 * X.520(2000) reads: "The Locality Name attribute type specifies a locality. When used as a component of a directory name, it identifies a geographical area or locality in which the named object is physically located or with which it is associated in
-	 * some other important way.”
+	 * some other important way.
 	 * 
 	 * @return
 	 */
@@ -65,7 +65,7 @@ public interface OrganizationalPerson extends Person
 	/**
 	 * Abbreviation for state or province name.
 	 * <p>
-	 * Format: The values should be coordinated on a national level and if well-known shortcuts exist - like the two-letter state abbreviations in the US – these abbreviations are preferred over longer full names.
+	 * Format: The values should be coordinated on a national level and if well-known shortcuts exist - like the two-letter state abbreviations in the US these abbreviations are preferred over longer full names.
 	 * <p>
 	 * According to RFC 2256, "This attribute contains the full name of a state or province (stateOrProvinceName)."
 	 * <p>
@@ -80,7 +80,7 @@ public interface OrganizationalPerson extends Person
 	/**
 	 * Abbreviation for state or province name.
 	 * <p>
-	 * Format: The values should be coordinated on a national level and if well-known shortcuts exist - like the two-letter state abbreviations in the US – these abbreviations are preferred over longer full names.
+	 * Format: The values should be coordinated on a national level and if well-known shortcuts exist - like the two-letter state abbreviations in the US  these abbreviations are preferred over longer full names.
 	 * <p>
 	 * According to RFC 2256, "This attribute contains the full name of a state or province (stateOrProvinceName)."
 	 * <p>

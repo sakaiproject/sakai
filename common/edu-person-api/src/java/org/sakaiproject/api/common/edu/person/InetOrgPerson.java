@@ -72,14 +72,14 @@ public interface InetOrgPerson extends OrganizationalPerson
 	public void setGivenName(String givenName);
 
 	/**
-	 * From RFC 1274 description: "The [homePhone] attribute type specifies a home telephone number associated with a person.” Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567."
+	 * From RFC 1274 description: "The [homePhone] attribute type specifies a home telephone number associated with a person.ï¿½ Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567."
 	 * 
 	 * @return
 	 */
 	public String getHomePhone();
 
 	/**
-	 * From RFC 1274 description: "The [homePhone] attribute type specifies a home telephone number associated with a person.” Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567."
+	 * From RFC 1274 description: "The [homePhone] attribute type specifies a home telephone number associated with a person.ï¿½ Attribute values should follow the agreed format for international telephone numbers: i.e., "+44 71 123 4567."
 	 * 
 	 * @return
 	 */
@@ -214,7 +214,7 @@ public interface InetOrgPerson extends OrganizationalPerson
 	public void setPager(String pager);
 
 	/**
-	 * Follow inetOrgPerson definition of RFC 2798: "preferred written or spoken language for a person.”
+	 * Follow inetOrgPerson definition of RFC 2798: "preferred written or spoken language for a person.
 	 * <p>
 	 * See RFC2068 and ISO 639 for allowable values in this field. Esperanto, for example is EO in ISO 639, and RFC2068 would allow a value of en-US for US English.
 	 * 
@@ -223,7 +223,7 @@ public interface InetOrgPerson extends OrganizationalPerson
 	public String getPreferredLanguage();
 
 	/**
-	 * Follow inetOrgPerson definition of RFC 2798: "preferred written or spoken language for a person.”
+	 * Follow inetOrgPerson definition of RFC 2798: "preferred written or spoken language for a person.ï¿½
 	 * <p>
 	 * See RFC2068 and ISO 639 for allowable values in this field. Esperanto, for example is EO in ISO 639, and RFC2068 would allow a value of en-US for US English.
 	 * 
