@@ -201,16 +201,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	   
 	   //the user has no preference set - get the system default
 	   if (loc == null ) {
-		   String lang = System.getProperty("user.language");
-		   String region = System.getProperty("user.region");
-
-		   if (region != null) {
-			   log.debug("getting system locale for: " + lang + "_" + region);
-			   loc = new Locale(lang,region);
-		   } else { 
-			   log.debug("getting system locale for: " + lang );
-			   loc = new Locale(lang);
-		   }
+		 loc = Locale.getDefault();
 	   }
 
 	   return loc;
