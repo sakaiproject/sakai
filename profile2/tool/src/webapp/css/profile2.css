@@ -440,6 +440,9 @@ h2 {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
 	vertical-align: top;
+	
+	word-break:break-all; 
+	word-wrap:break-word;
 }
 
 .preferencesContent .item  {
