@@ -511,3 +511,8 @@ table.emailTable td.valueColumn {
 .subListHeader{
     background:#eee !important;
 }
+.waitListed th{
+    background:none !important;
+    border:none;
+    border-bottom:2px solid #aaa
+}
