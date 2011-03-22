@@ -53,7 +53,7 @@
                 <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file"required="true" accept="text/csv"/>
            		*/%>
            		<h:inputText id="pickedFileDesc" value="#{spreadsheetUploadBean.pickedFileDesc}" required="true" readonly="true"/>
-                <h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="Choose File" />
+                <h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="#{msgs.upload_view_choose_file_button}" />
                 <f:verbatim>
            			</td>
            			<td>

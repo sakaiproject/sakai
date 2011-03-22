@@ -75,7 +75,7 @@
             			</td>
             			<td>
             		</f:verbatim>
-                	<h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="Choose File">
+                	<h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="#{msgs.upload_view_choose_file_button}">
                 	</h:commandButton>
 					<%/*
             		<h:message for="fileupload" styleClass="validationEmbedded" />
