@@ -23,17 +23,7 @@
 		<rsfutil.version>0.7.4</rsfutil.version>
 	</properties>
     
-	<repositories>
-		<repository>
-			<id>caret-dev</id>
-			<name>Caret Dev Repo</name>
-			<layout>default</layout>
-			<url>http://www2.caret.cam.ac.uk/maven2dev</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+
     
 	<dependencies>
         <dependency>
