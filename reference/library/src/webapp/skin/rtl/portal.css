@@ -930,24 +930,18 @@ below they are contextually defined depending on the column as an example,as you
 
 }
 
-
-/*back to mobile link - displays only to iOS webkit*/
+/*back to mobile link*/
 #mobile-portal-link{
-	display:none;
+	display:block;
+	position:absolute;
+	top:0px;
+	left:30%;
+	background: #0077B5;
+	padding:1px 9px 4px 9px;
+	-webkit-border-radius:0 0 10px 10px;
 }
-@media screen and (max-device-width: 480px){
-  #mobile-portal-link{
-    display:block;
-    position:absolute;
-    top:0px;
-    left:30%;
-    background: #fff;
-    padding:1px 9px 4px 9px;
-    -webkit-border-radius:0 0 10px 10px;
-  }
-  #mobile-portal-link a,#mobile-portal-link a:visited{
-      color:#000;
-      font: normal 120% Verdana, Geneva, Arial, Helvetica, sans-serif;
-      text-decoration:none;
-  }
+#mobile-portal-link a,#mobile-portal-link a:visited{
+	color:#fff;
+	font: normal 120% Verdana, Geneva, Arial, Helvetica, sans-serif;
+	text-decoration:none;
 }
