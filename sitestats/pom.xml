@@ -456,15 +456,15 @@
                     </systemProperties>
                 </configuration>
             </plugin>
+            <!-- Comment out; causes build failures when Jenkins fails to find external template -->
+            <!--
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
                 <version>1.5.0</version>
                 <configuration>
                     <basedir>${basedir}</basedir>
-                    <!-- THIS IS A BRITTLE; IMPLEMENT REMOTE RESOURCE PLUGIN TO GET THIS FILE -->
                     <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
-                    <!-- <header>${user.home}/.m2/license-template.txt</header> -->
                     <quiet>false</quiet>
                     <failIfMissing>true</failIfMissing>
                     <aggregate>false</aggregate>
@@ -488,10 +488,8 @@
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <useDefaultMapping>true</useDefaultMapping>
                     <properties>
-                        <!-- <name>${project.name}</name> -->
                         <year>${project.inceptionYear}-2009</year>
                         <holder>The Sakai Foundation</holder>
-                        <!-- <contact>info@sakaiproject.org</contact> -->
                     </properties>
                     <encoding>UTF-8</encoding>
                 </configuration>
@@ -505,6 +503,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
 
