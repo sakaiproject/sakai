@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.Collator;
 import java.text.DecimalFormat;
@@ -12336,71 +12337,85 @@ public class AssignmentAction extends PagedResourceActionII
 				InputStream fileContentStream = fileitem.getInputStream();
 				String contentType = fileitem.getContentType();
 	
-				if(fileContentStream != null)
-				{
-					// we just want the file name part - strip off any drive and path stuff
-					String name = Validator.getFileName(filename);
-					String resourceId = Validator.escapeResourceName(name);
-	
-					// make a set of properties to add for the new resource
-					ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
-					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-					props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
-	
-					// make an attachment resource for this URL
-					try
+				InputStreamReader reader = new InputStreamReader(fileContentStream);
+				
+				try{
+					
+					//check the InputStreamReader to see if the file is 0kb aka empty
+					if( reader.ready()==false )
 					{
-						String siteId = ToolManager.getCurrentPlacement().getContext();
-						
-						// add attachment
-						enableSecurityAdvisor();
-						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
-						disableSecurityAdvisor();
-						
+						addAlert(state, rb.getFormattedMessage("attempty", new Object[]{filename} ));
+					}
+					else if(fileContentStream != null)
+					{
+						// we just want the file name part - strip off any drive and path stuff
+						String name = Validator.getFileName(filename);
+						String resourceId = Validator.escapeResourceName(name);
+		
+						// make a set of properties to add for the new resource
+						ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+						props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+		
+						// make an attachment resource for this URL
 						try
 						{
-							Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-							attachments.add(ref);
+							String siteId = ToolManager.getCurrentPlacement().getContext();
+							
+							// add attachment
+							enableSecurityAdvisor();
+							ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
+							disableSecurityAdvisor();
+							
+							try
+							{
+								Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+								attachments.add(ref);
+							}
+							catch(Exception ee)
+							{
+								M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+							}
+							state.setAttribute(ATTACHMENTS, attachments);
 						}
-						catch(Exception ee)
+						catch (PermissionException e)
 						{
-							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+							addAlert(state, rb.getString("notpermis4"));
 						}
-						state.setAttribute(ATTACHMENTS, attachments);
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("notpermis4"));
-					}
-					catch(RuntimeException e)
-					{
-						if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+						catch(RuntimeException e)
 						{
-							// couldn't we just truncate the resource-id instead of rejecting the upload?
-							addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
+							if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+							{
+								// couldn't we just truncate the resource-id instead of rejecting the upload?
+								addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
+							}
+							else
+							{
+								M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
+								addAlert(state, rb.getString("failed"));
+							}
 						}
-						else
+						catch (ServerOverloadException e)
 						{
-							M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
+							// disk full or no writing permission to disk
+							M_log.debug(this + ".doAttachupload ***** Disk IO Exception ***** " + e.getMessage());
+							addAlert(state, rb.getString("failed.diskio"));
+						}
+						catch(Exception ignore)
+						{
+							// other exceptions should be caught earlier
+							M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 					}
-					catch (ServerOverloadException e)
+					else
 					{
-						// disk full or no writing permission to disk
-						M_log.debug(this + ".doAttachupload ***** Disk IO Exception ***** " + e.getMessage());
-						addAlert(state, rb.getString("failed.diskio"));
-					}
-					catch(Exception ignore)
-					{
-						// other exceptions should be caught earlier
-						M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
-						addAlert(state, rb.getString("failed"));
+						addAlert(state, rb.getString("choosefile7"));
 					}
 				}
-				else
-				{
-					addAlert(state, rb.getString("choosefile7"));
+				catch( IOException e){
+					M_log.debug(this + ".doAttachupload ***** IOException ***** " + e.getMessage());
+					addAlert(state, rb.getString("failed"));
 				}
 			}
 		}
