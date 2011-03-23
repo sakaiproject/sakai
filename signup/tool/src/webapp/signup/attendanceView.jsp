@@ -10,15 +10,16 @@
 	</jsp:useBean>
 	<sakai:view_container title="#{msgs.attend_view_title} #{AttendanceSignupBean.meetingWrapper.meeting.title}">
 		<style type="text/css">
-@import url("/sakai-signup-tool/css/signupStyle.css");
-</style>
+			@import url("/sakai-signup-tool/css/signupStyle.css");
+		</style>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
 			src="/sakai-signup-tool/js/signupScript.js"></script>
 		<script typr="text/javascript" src="/library/js/jquery.js"></script>
 		<script type="text/javascript">
         $(document).ready(function(){
-            sakai.setupSelectListMultiple('', 'selectAllThese', 'selectedSelected');
+            sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');
             sakai.setupPrintPreview();
+						sakai.setupWaitListed();
             $('a.print-window').click(function(){
 								javascript:window.print();
                 return false;
@@ -33,7 +34,7 @@
 					value="#{msgs.print_friendly}" /></a></span></li>
 		</ul>
 		<sakai:view_content>
-			
+			<div class="toggle specialLink" style="display:none"><a href="#"><h:outputText value="#{msgs.attend_view_toggle}" /></a></div>
 			<%--//TODO: the value and conditions for the generic error messages will need to change--%>
 			<h:outputText
 				value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}"
