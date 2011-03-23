@@ -119,7 +119,7 @@ CREATE INDEX user_type_context_idx ON MFR_PVT_MSG_USR_T ( USER_ID, TYPE_UUID, CO
 
 -- New column for Email Template service
 -- SAK-18532/SAK-19522
-alter table EMAIL_TEMPLATE_ITEM add EMAILFROM varchar2(255);
+alter table EMAIL_TEMPLATE_ITEM add EMAILFROM varchar2(255 CHAR);
 
 -- SAK-18855
 alter table POLL_POLL add POLL_IS_PUBLIC number(1,0);
