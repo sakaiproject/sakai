@@ -22,7 +22,6 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -45,6 +44,7 @@ import java.util.Observable;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -78,6 +78,7 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
@@ -87,12 +88,12 @@ import org.apache.fop.configuration.Configuration;
 import org.apache.fop.messaging.MessageHandler;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -154,7 +155,6 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.StorageUser;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -164,8 +164,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-
-import java.util.TimeZone;
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
@@ -1316,7 +1314,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	{
 		if (reference.startsWith(CalendarService.REFERENCE_ROOT))
 		{
-			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+			String[] parts = reference.split(Entity.SEPARATOR);
 
 			String subType = null;
 			String context = null;
@@ -1791,7 +1789,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 														try
 														{
 															CalendarEdit calEdit = editCalendar(calendarRef);
-															String calFields = StringUtil.trimToNull(calEdit.getEventFields());
+															String calFields = StringUtils.trimToEmpty(calEdit.getEventFields());
 
 															if (calFields != null)
 																pValue = calFields + ADDFIELDS_DELIMITER + pValue;
@@ -1911,8 +1909,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			{
 				List oEvents = oCalendar.getEvents(null, null);
 
-				String oFields = StringUtil.trimToNull(oCalendar.getEventFields());
-				String nFields = StringUtil.trimToNull(nCalendar.getEventFields());
+				String oFields = StringUtils.trimToNull(oCalendar.getEventFields());
+				String nFields = StringUtils.trimToNull(nCalendar.getEventFields());
 				String allFields = "";
 
 				if (oFields != null)
@@ -2857,7 +2855,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))
 			{
-				String[] parts = StringUtil.split(bedit.m_id.substring(1), "!");
+				String[] parts = bedit.m_id.substring(1).split("!");
 				try
 				{
 					timeRange = TimeService.newTimeRange(parts[0]);
@@ -2976,7 +2974,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			int sequence = 0;
 			if (eventId.startsWith("!"))
 			{
-				String[] parts = StringUtil.split(eventId.substring(1), "!");
+				String[] parts = eventId.substring(1).split("!");
 				try
 				{
 					timeRange = TimeService.newTimeRange(parts[0]);
@@ -3068,7 +3066,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))
 			{
-				String[] parts = StringUtil.split(bedit.m_id.substring(1), "!");
+				String[] parts = bedit.m_id.substring(1).split("!");
 				try
 				{
 					timeRange = TimeService.newTimeRange(parts[0]);
@@ -3184,7 +3182,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))
 			{
-				String[] parts = StringUtil.split(bedit.m_id.substring(1), "!");
+				String[] parts = bedit.m_id.substring(1).split( "!");
 				try
 				{
 					timeRange = TimeService.newTimeRange(parts[0]);
@@ -3294,7 +3292,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			int sequence = 0;
 			if (eventId.startsWith("!"))
 			{
-				String[] parts = StringUtil.split(eventId.substring(1), "!");
+				String[] parts = eventId.substring(1).split("!");
 				try
 				{
 					timeRange = TimeService.newTimeRange(parts[0]);
@@ -3757,7 +3755,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 								if (ruleChildElement.getTagName().equals("rule") || ruleChildElement.getTagName().equals("ex-rule"))
 								{
 									// get the rule name - modern style encoding
-									String ruleName = StringUtil.trimToNull(ruleChildElement.getAttribute("name"));
+									String ruleName = StringUtils.trimToNull(ruleChildElement.getAttribute("name"));
 
 									// deal with old data
 									if (ruleName == null)
@@ -4789,7 +4787,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						else if ("rule".equals(qName) || "ex-rule".equals(qName))
 						{
 							// get the rule name - modern style encoding
-							String ruleName = StringUtil.trimToNull(attributes.getValue("name"));
+							String ruleName = StringUtils.trimToNull(attributes.getValue("name"));
 
 							// deal with old data
 							if (ruleName == null)

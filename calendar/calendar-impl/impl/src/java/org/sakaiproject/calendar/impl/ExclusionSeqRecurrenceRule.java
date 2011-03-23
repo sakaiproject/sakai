@@ -33,8 +33,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.util.DefaultEntityHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
