@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,18 +33,18 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
-import java.util.Properties;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -75,8 +74,8 @@ import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -110,7 +109,6 @@ import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 
@@ -1071,7 +1069,7 @@ extends VelocityPortletStateAction
 			if (mergedCalendarList != null && isOnWorkspaceTab())
 			{
 				String channelRef = mergedCalendarList.getDelimitedChannelReferenceString();
-				if (StringUtil.trimToNull(channelRef) == null )
+				if (StringUtils.trimToNull(channelRef) == null )
 					channelRef = state.getPrimaryCalendarReference();
 				placement.getPlacementConfig().setProperty(
 											 PORTLET_CONFIG_PARM_MERGED_CALENDARS, channelRef );
@@ -2275,7 +2273,7 @@ extends VelocityPortletStateAction
 								isOnWorkspaceTab(),
 								false,
 								entryProvider,
-								StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()),
+								StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()),
 								channelArray, 
 								SecurityService.isSuperUser(),
 								ToolManager.getCurrentPlacement().getContext());
@@ -2513,7 +2511,7 @@ extends VelocityPortletStateAction
 		if (calendarReference == null)
 		{
 			
-			calendarReference = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter(CALENDAR_INIT_PARAMETER));
+			calendarReference = StringUtils.trimToNull(portlet.getPortletConfig().getInitParameter(CALENDAR_INIT_PARAMETER));
 			if (calendarReference == null)
 			{
 				// form a reference to the default calendar for this request's site
@@ -5648,8 +5646,8 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
-		String enable = StringUtil.trimToNull(data.getParameters().getString(FORM_ICAL_ENABLE));
-		String alias = StringUtil.trimToNull(data.getParameters().getString(FORM_ALIAS));
+		String enable = StringUtils.trimToNull(data.getParameters().getString(FORM_ICAL_ENABLE));
+		String alias = StringUtils.trimToNull(data.getParameters().getString(FORM_ALIAS));
       
 		// this will verify that no invalid characters are used
 		if ( ! Validator.escapeResourceName(alias).equals(alias) )
