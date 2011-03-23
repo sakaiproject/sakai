@@ -191,14 +191,14 @@ ${responseBody}
         ## This must be a popup - so we treat it as a popup
         <li>
         	<span>
-				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')"  class="${page.menuClass}">
     	        	${page.pageTitle}
         		</a>
         	</span>
         </li>
       #else
         <li>
-          <span><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a></span>
+          <span><a href="${page.toolrefUrl}" title="${page.toolTitle}"  class="${page.menuClass}">${page.toolTitle}</a></span>
         </li>
       #end
     #end
