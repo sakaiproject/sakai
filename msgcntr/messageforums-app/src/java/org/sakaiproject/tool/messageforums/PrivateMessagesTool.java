@@ -908,14 +908,11 @@ public class PrivateMessagesTool
 //    courseMemberMap = membershipManager.getAllCourseMembers(true, true, true);
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
 
-    Set memberIds = new HashSet();
+    Set<String> memberIds = new HashSet<String>();
     
     for (Iterator i = members.iterator(); i.hasNext();){       
         MembershipItem item = (MembershipItem) i.next();
- 
-        String name = item.getName();
-        
-       	memberIds.add(item.getId());
+        memberIds.add(item.getId());
     }
 
     totalComposeToList = members;
