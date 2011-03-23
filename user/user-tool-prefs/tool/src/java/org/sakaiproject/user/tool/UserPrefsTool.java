@@ -1418,7 +1418,7 @@ public class UserPrefsTool
 		for (int i = 0; i < siteList.size(); i++)
 		{
 			Site site = (Site) siteList.get(i);
-			if (site.equals(value))
+			if (site.getId().equals(value))
 			{
 				return i;
 			}
