@@ -189,7 +189,7 @@ ${responseBody}
     #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
       #if ($page.isPage)
         ## This must be a popup - so we treat it as a popup
-        <li>
+        <li class="${page.menuClass}-item">
         	<span>
 				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')"  class="${page.menuClass}">
     	        	${page.pageTitle}
@@ -197,7 +197,7 @@ ${responseBody}
         	</span>
         </li>
       #else
-        <li>
+        <li class="${page.menuClass}-item">
           <span><a href="${page.toolrefUrl}" title="${page.toolTitle}"  class="${page.menuClass}">${page.toolTitle}</a></span>
         </li>
       #end
