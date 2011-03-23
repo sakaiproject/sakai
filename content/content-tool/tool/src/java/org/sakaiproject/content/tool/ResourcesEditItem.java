@@ -984,7 +984,8 @@ public class ResourcesEditItem
 	  */
 	 public Object getValue(String name)
 	 {
-		 String[] names = name.split(ResourcesMetadata.DOT);
+		 //. has a special meaning in regex so needs to be escaped
+		 String[] names = name.split("\\" + ResourcesMetadata.DOT);
 		 Object rv = m_structuredArtifact;
 		 if(rv != null && ((Map) rv).isEmpty())
 		 {
