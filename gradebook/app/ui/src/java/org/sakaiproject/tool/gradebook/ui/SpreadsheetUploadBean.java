@@ -1575,7 +1575,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		AssignmentGradeRecord agr = (AssignmentGradeRecord) it.next();
 
     		if (agr.getStudentId().equals(userid)) {
-    			gbGrades.remove(agr); // for efficiency
+    			it.remove(); // for efficiency
     			return agr;
     		}
     	}
@@ -1597,7 +1597,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     		if (assignment.getName().trim().equalsIgnoreCase(name.trim())) {
     			// remove for performance
-    			assignList.remove(assignment);
+    			assignIter.remove();
     			return assignment;
     		}
     	}
