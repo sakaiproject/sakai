@@ -808,7 +808,5 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-melete { 
     background-image: url(../../image/sakai/sakai.melete.png); 
 }
-.icon-sakai-synoptic-announcement-item,.icon-sakai-summary-calendar-item,.icon-sakai-summary-calendar-item,.icon-sakai-synoptic-messagecenter-item,.icon-sakai-synoptic-chat-item{
-    display:none;
-}
+
 	
