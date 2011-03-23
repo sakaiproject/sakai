@@ -36,6 +36,7 @@ import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.HtmlSortHeaderRenderer;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.site.api.Site;
@@ -46,9 +47,12 @@ import org.sakaiproject.util.ResourceLoader;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -153,6 +157,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 						createWorksheet(smWrapper, serialNum, hasSerialNum);
 						serialNum++;
 					}
+					//Attendance data, in the gradebook import format
+					createAttendanceDataWorksheet(dataWrappers);
 
 				} else {/* one record only */
 					for (SignupMeetingWrapper smWrapper : dataWrappers) {
@@ -160,6 +166,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 					}
 
 					createAttendeeDataWorksheet(dataWrappers);
+					
+					//Attendance data, in the gradebook import format
+					createAttendanceDataWorksheet(dataWrappers);
 				}
 			}
 		}
@@ -1041,6 +1050,113 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		
 		return validSheetName;
 
+	}
+	
+	/**
+	 * Create a data excel worksheet for attendee's informaiton, which is in the gradebook import format
+	 */
+	private Workbook createAttendanceDataWorksheet(List<SignupMeetingWrapper> wrappers) {
+		String eventTitle = rb.getString("sheet_name_Attendance_data", "Attendance");
+		Sheet sheet = wb.createSheet(eventTitle);
+		PrintSetup printSetup = sheet.getPrintSetup();
+		printSetup.setLandscape(true);
+		sheet.setFitToPage(true);
+		sheet.setHorizontallyCenter(true);
+		//Map to store all data
+		Map<String, List<Integer>> m = new HashMap<String, List<Integer>>();
+
+		if (wrappers == null)
+			return wb;
+
+		/* Define column numbers and width here */
+		int numberOfColumn = wrappers.size()+1;
+		sheet.setColumnWidth(0, 25 * 256);// event title
+
+		int rowNum = 0;
+		Cell cell = null;
+		Row titleRow = sheet.createRow(rowNum++);
+		titleRow.setHeightInPoints(rowHigh);
+		for (int i = 0; i <= numberOfColumn; i++) {
+			titleRow.createCell(i).setCellStyle(styles.get("item_leftBold"));
+		}
+
+		int cellNum = 0;
+		titleRow.getCell(cellNum++)
+		.setCellValue(rb.getString("wksheet_attendance_UserID", "UserID"));
+		int index=-1;
+
+		for (SignupMeetingWrapper wrp : wrappers) {
+
+			if (wrp.getMeeting().isAllowAttendance()){
+
+				index++;
+				titleRow.getCell(cellNum++)
+				.setCellValue(wrp.getMeeting().getTitle());
+
+				List<SignupTimeslot> tsItems = wrp.getMeeting().getSignupTimeSlots();
+				if (tsItems != null) {
+					for (SignupTimeslot tsItem : tsItems) {
+						/*strange thing happen for hibernate, tsItem can be null for mySql 4.x*/
+						List<SignupAttendee> attendees = tsItem == null ? null : tsItem.getAttendees();
+						if (attendees != null) {
+							for (SignupAttendee att : attendees) {
+
+								//If attended then score is 1 else 0
+								Integer attended = 0;
+								if (att.isAttended()){
+									attended = 1;
+								}
+
+								User attendee = sakaiFacade.getUser(att.getAttendeeUserId());
+								String attendeeEID= attendee.getEid();
+								if (m.containsKey(attendeeEID)){
+									//Integer value=m.get(attendeeEID).get(index);
+									List<Integer> attendanceList = m.get(attendeeEID);
+									if (attendanceList.get(index)!=null){
+										attendanceList.set(index, attendanceList.get(index)+attended);
+									}
+									else{
+										attendanceList.set(index, attended);
+									}
+								}
+								else{
+									List<Integer> newList= Arrays.asList(new Integer[wrappers.size()]);
+									newList.set(index,attended);
+									m.put(attendeeEID, newList);
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+		//populate the map into workbook
+		Iterator it = m.entrySet().iterator();
+		while (it.hasNext()) {
+
+			//key value pair of Map
+			Map.Entry pairs = (Map.Entry)it.next();
+
+			//create new row
+			Row row = sheet.createRow(rowNum++);
+			for (int i = 0; i <= numberOfColumn; i++) {
+				row.createCell(i).setCellStyle(styles.get("item_left"));
+			}
+			cellNum = 0;
+			row.getCell(cellNum++).setCellValue((String)pairs.getKey());
+			List<Integer> attendanceList= (List)pairs.getValue();			
+			for (int i=0; i < attendanceList.size(); i++) {
+				if (attendanceList.get(i)!=null){
+					row.getCell(cellNum++).setCellValue(attendanceList.get(i));
+				}
+				else{ //empty value if null
+					row.getCell(cellNum++).setCellValue("");
+				}
+			}
+
+		}
+		return wb;
 	}
 
 }
