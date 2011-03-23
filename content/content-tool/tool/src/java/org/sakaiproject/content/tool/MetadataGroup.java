@@ -34,9 +34,12 @@ import java.util.ArrayList;
 		 */
 		public boolean equals(Object obj)
 		{
-			MetadataGroup mg = (MetadataGroup) obj;
-			boolean rv = (obj != null) && (m_name.equals(mg));
-			return rv;
+			if (obj instanceof MetadataGroup) {
+				MetadataGroup mg = (MetadataGroup) obj;
+				boolean rv = (obj != null) && (m_name.equals(mg.getName()));
+				return rv;
+			}
+			return false;
 		}
 
 		/**
