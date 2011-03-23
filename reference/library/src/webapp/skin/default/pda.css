@@ -188,7 +188,12 @@ margin below on the toolbar if there is one to make it flush horiz.
 	display:block;
 	margin:0;
 	width: 100%;
-}	
+}
+#pda-portlet-page-menu a{
+	padding-left:25px;
+	background-position:left center;
+	background-repeat:no-repeat;
+}		
 #presdiv {
 	position:absolute;
 	top:25px;right:5px;
@@ -524,3 +529,286 @@ NOTE: some functionality is removed from the tool by this:
     width:100% !important
 }
 
+/* PART 9 - Tool Icons */
+
+.icon-osp-evaluation {
+	background-image: url(../../image/silk/thumb_up.png);
+}
+
+.icon-osp-glossary {
+	background-image: url(../../image/silk/text_list_bullets.png);
+}
+
+.icon-osp-matrix {
+	background-image: url(../../image/silk/table.png);
+}
+
+.icon-osp-presentation {
+	background-image: url(../../image/silk/briefcase.png);
+}
+
+.icon-osp-presLayout {
+	background-image: url(../../image/silk/layout_content.png);
+}
+
+.icon-osp-presTemplate {
+	background-image: url(../../image/silk/application_view_tile.png);
+}
+
+.icon-osp-style {
+	background-image: url(../../image/silk/style.png);
+}
+
+.icon-osp-wizard {
+	background-image: url(../../image/silk/wand.png);
+}
+
+.icon-sakai-announcements {
+	background-image: url(../../image/silk/flag_blue.png);
+}
+
+.icon-sakai-chat {
+	background-image: url(../../image/silk/user_comment.png);
+}
+
+.icon-sakai-datapoint {
+	background-image: url(../../image/silk/chart_line.png);
+}
+
+.icon-sakai-discussion {
+	background-image: url(../../image/silk/comments.png);
+}
+
+.icon-sakai-dropbox {
+	background-image: url(../../image/silk/folder_page.png);
+}
+
+.icon-sakai-emailtemplateservice {
+	background-image: url(../../image/silk/email_edit.png);
+}
+
+.icon-sakai-gmt {
+	background-image: url(../../image/silk/award_star_gold_3.png);
+}
+
+.icon-sakai-help {
+	background-image: url(../../image/silk/help.png);
+}
+
+.icon-sakai-iframe {
+	background-image: url(../../image/silk/page_world.png);
+}
+
+.icon-sakai-iframe-site {
+	background-image: url(../../image/silk/house.png);
+}
+
+.icon-sakai-mailbox {
+	background-image: url(../../image/silk/email.png);
+}
+
+.icon-sakai-messages {
+	background-image: url(../../image/silk/comment.png );
+}
+
+.icon-sakai-metaobj {
+	background-image: url(../../image/silk/application_form.png);
+}
+
+.icon-sakai-membership {
+	background-image: url(../../image/silk/group.png);
+}
+
+.icon-sakai-news {
+	background-image: url(../../image/silk/rss.png);
+}
+
+.icon-sakai-podcasts{
+	background-image: url(../../image/silk/ipod_cast.png );
+}
+
+.icon-sakai-postem{
+	background-image: url(../../image/silk/database_table.png );
+}
+
+.icon-sakai-preferences{
+	background-image: url(../../image/silk/cog.png );
+}
+
+.icon-sakai-rutgers-linktool{
+	background-image: url(../../image/silk/application.png);
+}
+
+.icon-sakai-sections{
+	background-image: url(../../image/silk/group_gear.png );
+}
+
+.icon-sakai-singleuser{
+	background-image: url(../../image/silk/user.png );
+}
+
+.icon-sakai-syllabus{
+	background-image: url(../../image/silk/script.png );
+}
+
+.icon-blogger, .icon-sakai-clog{
+	background-image: url(../../image/silk/book_edit.png );
+}
+
+.icon-sakai-assignment-grades{
+	background-image: url(../../image/silk/page_edit.png );
+}
+
+.icon-sakai-forums{
+	background-image: url(../../image/silk/comments.png );
+}
+
+.icon-sakai-gradebook-tool{
+	background-image: url(../../image/silk/report.png);
+}
+
+.icon-sakai-mailtool {
+	background-image: url(../../image/silk/email_go.png );
+}
+
+.icon-sakai-poll{
+	background-image: url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats {
+	background-image: url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats-admin {
+        background-image: url(../../image/silk/chart_line.png);
+}
+
+.icon-sakai-presentation {
+	background-image: url(../../image/silk/monitor.png);
+}
+
+.icon-sakai-profile {
+	background-image: url(../../image/silk/vcard_edit.png);
+}
+
+.icon-sakai-reports {
+	background-image: url(../../image/silk/report_magnify.png);
+}
+
+.icon-sakai-resetpass {
+	background-image: url(../../image/silk/key.png);
+}
+
+.icon-sakai-resources {
+	background-image: url(../../image/silk/folder.png);
+}
+
+.icon-sakai-rwiki {
+	background-image: url(../../image/silk/page_white_edit.png);
+}
+
+.icon-sakai-samigo {
+	background-image: url(../../image/silk/pencil.png);
+}
+
+.icon-sakai-schedule {
+	background-image: url(../../image/silk/calendar.png);
+}
+
+.icon-sakai-search {
+	background-image: url(../../image/silk/find.png);
+}
+
+.icon-sakai-siteinfo {
+	background-image: url(../../image/silk/application_lightning.png );
+}
+
+.icon-sakai-sitesetup{
+	background-image: url(../../image/silk/application_lightning.png );
+}
+
+.icon-sakai-site-roster {
+	background-image: url(../../image/silk/vcard.png);
+}
+
+.icon-sakai-synoptic-messagecenter{
+background-image: url(../../image/silk/comment.png);
+}
+
+.icon-sakai-conferencing {
+    background-image : url(../../image/silk/webcam.png);
+}
+
+.icon-sakai-profile2 { 
+	background-image: url(../../image/silk/vcard.png); 
+} 
+
+/*admin tools*/
+.icon-sakai-users{
+	background-image: url(../../image/silk/folder_user.png);
+}
+.icon-sakai-aliases{
+	background-image: url(../../image/silk/tag_blue.png);
+}
+.icon-sakai-sites{
+	background-image: url(../../image/silk/application_cascade.png);
+}
+.icon-sakai-realms{
+	background-image: url(../../image/silk/sitemap_color.png);
+}
+.icon-sakai-online{
+	background-image: url(../../image/silk/report_user.png);
+}
+.icon-sakai-memory{
+	background-image: url(../../image/silk/server_chart.png);
+}
+.icon-sakai-archive{
+	background-image: url(../../image/silk/page_white_compressed.png);
+}
+.icon-sakai-scheduler{
+	background-image: url(../../image/silk/clock.png);
+}
+.icon-sakai-su{
+	background-image: url(../../image/silk/user_go.png);
+}
+.icon-sakai-usermembership{
+	background-image: url(../../image/silk/drive_user.png);
+}
+
+.icon-sakai-motd { 
+	background-image: url(../../image/silk/house.png); 
+} 
+.icon-sakai-sitebrowser { 
+	background-image: url(../../image/silk/world.png); 
+} 
+.icon-sakai-createuser { 
+	background-image: url(../../image/silk/user_add.png); 
+} 
+.icon-sakai-subsite { 
+	background-image: url(../../image/silk/chart_organisation.png); 
+}
+.icon-sakai-iframe-service {
+	background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-iframe-myworkspace {
+	background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-basiclti { 
+	background-image: url(../../image/silk/application_go.png); 
+}
+.icon-sakai-mneme { 
+	background-image: url(../../image/sakai/tool-icons/sakai.mneme.png); 
+} 
+.icon-sakai-mneme-admin { 
+	background-image: url(../../image/sakai/tool-icons/sakai.mneme.admin.png); 
+} 
+.icon-sakai-jforum-tool { 
+    background-image: url(../../image/sakai/sakai.jforum.tool.png); 
+} 
+.icon-sakai-melete { 
+    background-image: url(../../image/sakai/sakai.melete.png); 
+}
+.icon-sakai-synoptic-announcement-item,.icon-sakai-summary-calendar-item,.icon-sakai-summary-calendar-item,.icon-sakai-synoptic-messagecenter-item,.icon-sakai-synoptic-chat-item{
+    display:none;
+}
+	
