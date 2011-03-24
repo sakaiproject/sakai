@@ -1130,6 +1130,35 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 								}
 							}
 						}
+						
+						//Recording attendance for waitlisted user Signup-106
+						List<SignupAttendee> waitingList = tsItem == null ? null : tsItem.getWaitingList();
+						if (waitingList != null) {
+							//For waitlisted user, if added it is scored, if not ignored
+							Integer attended=1;
+							for (SignupAttendee wt : waitingList) {
+
+								if (wt.isAttended()){
+									User attendee = sakaiFacade.getUser(wt.getAttendeeUserId());
+									String attendeeEID= attendee.getEid();
+									if (m.containsKey(attendeeEID)){
+										//Integer value=m.get(attendeeEID).get(index);
+										List<Integer> attendanceList = m.get(attendeeEID);
+										if (attendanceList.get(index)!=null){
+											attendanceList.set(index, attendanceList.get(index)+attended);
+										}
+										else{
+											attendanceList.set(index, attended);
+										}
+									}
+									else{
+										List<Integer> newList= Arrays.asList(new Integer[wrappers.size()]);
+										newList.set(index,attended);
+										m.put(attendeeEID, newList);
+									}
+								}
+							}
+						}
 					}
 
 				}
