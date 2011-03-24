@@ -143,6 +143,11 @@ public class Category implements Serializable
 	
 	public void setName(String name)
 	{
+	    // SAK-20071 - names over 255 chars cause DB insert failure
+	    if (name != null && name.length() > 250) {
+	        // truncate the name to only 250 chars
+	        name = name.substring(0, 249);
+	    }
 		this.name = name;
 	}
 	
