@@ -306,6 +306,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		/* for main meetingpage */
 		Utilities.resetMeetingList();
 		this.eidInputByUser = null;
+		this.selectedLocation=null;
+		this.customLocation=null;
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
@@ -426,10 +428,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				}
 				this.signupMeeting.setLocation(selectedLocation);
 			}
-			//clear the location fields
-			this.customLocation="";
-			this.selectedLocation="";
-
+			
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
 			/*user defined own TS case*/
