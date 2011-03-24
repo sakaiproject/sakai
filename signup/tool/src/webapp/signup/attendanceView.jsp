@@ -114,6 +114,33 @@
 							</h:dataTable>
 						</h:panelGroup>
 						
+						<h:panelGroup rendered="#{!timeSlotWrapper.timeSlot.canceled}">
+							<h:outputText rendered="#{empty timeSlotWrapper.waitingList}" value="#{msgs.attend_view_list_slot_list_empty_msg}" styleClass="instruction" style="display:block;padding:1em 2em"/>
+							<h:dataTable id="waitList"
+								rowClasses="oddRow,evenRow" styleClass="listHier lines nolines centerlines waitListed"
+								style="margin:0 2em;width:90%"
+								value="#{timeSlotWrapper.waitingList}"
+								var="waitingList"
+								headerClass="subListHeader noPrint"
+								summary="#{msgs.attend_view_list_slot_list_summary}"
+								rendered="#{!empty timeSlotWrapper.waitingList}"
+								>	
+								
+								<h:column>
+									<f:facet name="header">
+										<h:outputText escape="false" value="<label><input type='checkbox' class='selectAllThese'/> #{msgs.attend_view_select_all} </label>"/>
+									</f:facet>
+									<h:panelGroup>
+									<h:selectBooleanCheckbox value="#{waitingList.attended}" id="attendee"/>
+										<h:outputLabel value="#{waitingList.displayName}"
+											for="attendee"
+											rendered="#{waitingList.signupAttendee.attendeeUserId !=null}" />
+
+									</h:panelGroup>
+								</h:column>
+							</h:dataTable>
+						</h:panelGroup>
+						
 						<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.canceled}">
 								<h:outputText value="#{msgs.attend_view_list_slot_list_canceled}" styleClass="instruction" style="display:block;padding:1em 2em"/>
 						</h:panelGroup>
