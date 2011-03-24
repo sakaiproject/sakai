@@ -26,7 +26,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_category}"/>
 					</f:facet>
-					<h:inputText id="categoryName" value="#{category.name}" styleClass="catNameInput" />
+					<h:inputText id="categoryName" value="#{category.name}" styleClass="catNameInput" maxlength="250" />
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
 					<f:facet name="header">
