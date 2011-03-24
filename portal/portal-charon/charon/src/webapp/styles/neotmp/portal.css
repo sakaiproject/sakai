@@ -1628,3 +1628,139 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 .workspace #presenceToggle{
     display:none;
 }
+
+/* pc = Portal Chat */
+
+#pc {
+    width: 300px;
+    background-color: white;
+    border: 1px solid #aaa;
+    border-bottom: 0px;
+    position: fixed;
+    bottom: 0px;
+    /* Needs to be to the right of the expanded presence block. See presenceArea. */
+    right: 185px;
+    z-index: 2001;
+    margin: 0px;
+    padding: 0px;
+    display: none;
+}
+
+#pc_chat_window_container {
+    position: fixed;
+    /* The chats container is placed just to the left of the connections menu */
+    right: 486px;
+    bottom: 0px;
+    height: 300px;
+    /* This ridiculous width prevents pc_chat_windows from stacking */
+    width: 10000px;
+}
+
+.pc_chat_window {
+    height: 300px;
+    width: 256px;
+    float: right;
+    border: #aaa solid 1px;
+    border-bottom: 0px;
+}
+
+#pc_title {
+    padding-left: 5px;
+    vertical-align: middle;
+    font:14px bold Helvetica, 'Helvetica Neue', Arial;
+    height: 23px;
+    color: black;
+    background:#eee url(images/appTrayBack.png) top left repeat-x;
+}
+
+#pc_people {
+    display: none;
+}
+
+.pc_users_wrapper {
+    padding: 5px;
+    clear: both;
+    border-top: solid 1px #aaa;
+}
+
+#pc_connections_wrapper {
+    padding: 5px;
+    clear: both;
+}
+
+#pc_site_users {
+    padding: 5px;
+    overflow: auto;
+}
+
+#pc_users {
+    overflow: auto;
+    clear: both;
+    border-top: solid 1px #aaa;
+}
+
+#pc_connections {
+    padding: 5px;
+}
+
+#pc_options {
+    overflow: none;
+}
+
+
+.pc_minimised {
+margin-top: 255px;
+}
+
+.pc_maximised {
+margin-top: 0px;
+}
+
+.pc_connection_chat_title {
+    font:14px bold Helvetica, 'Helvetica Neue', Arial;
+    color: black;
+    background:#eee;
+    overflow: auto;
+    padding: 2px;
+}
+
+.pc_message_panel {
+    padding: 2px;
+    background: white;
+    height: 225px;
+    overflow: auto;
+}
+
+.pc_editor_wrapper {
+    padding: 2px;
+    background:#eee;
+}
+
+.pc_editor {
+    width: 227px;
+}
+
+.pc_displayname {
+    font-weight: bold;
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+.pc_messagedate {
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+.pc_user_link {
+    margin-left: 5px;
+    text-decoration: none !important;
+}
+
+.pc_new_message {
+    background-color: red;
+}
+
+.pc_pinged_popup {
+    display: none;
+    color: green;
+}

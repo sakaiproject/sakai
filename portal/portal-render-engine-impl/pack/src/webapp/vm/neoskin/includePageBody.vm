@@ -212,6 +212,78 @@
 
 			</div>
 
+            <!-- START FLOATING CHAT STUFF -->
+
+            <div id="pc">
+                <div id="pc_title"><img src="/library/image/silk/comment.png" border="0" style="vertical-align: middle;"/><span>Chat</span><span id="pc_online_total"></span></div>
+                <div id="pc_content">
+                    <div id="pc_options">
+                        <div style="float: left;"><input type="checkbox" id="pc_showoffline_connections_checkbox"/>Show offline connections</div>
+                        <div style="float: right; padding-right: 5px;"><input type="checkbox" id="pc_go_offline_checkbox"/>Offline</div>
+                    </div>
+                    <div id="pc_users">
+                        <div id="pc_connections_wrapper">
+                            <div id="pc_connections_label">My Connections:</div>
+                            <div id="pc_connections"></div>
+                        </div>
+                        <div class="pc_users_wrapper">
+                            <div id="pc_site_users_label">Site Users:</div>
+                            <div id="pc_site_users"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pc_audio_embed_wrapper"></div>
+
+            </div>
+
+            <!-- Trimpath template for the profile connections list -->
+            <div id="pc_connections_template" style="display:none;"><!--
+                {for connection in connections}
+                    <div class="pc_connection">
+                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return sakaiChat.setupChatWindow('${connection.uuid}');">
+                            <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image" border="0" width="30"/>
+                            <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img src="/library/image/silk/bullet_green.png" border="0"/>{else}<img src="/library/image/silk/bullet_red.png" border="0"/>{/if}
+                        </a>
+                        {if connection.online == false}
+                            <a href="javascript:;" onclick="sakaiChat.pingConnection('${connection.uuid}');" title="Ping ${connection.displayName} to come and chat"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
+                            <span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">Pinged !</span>
+                        {/if}
+                    </div>
+                {/for}
+            -->
+            </div>
+
+            <!-- Trimpath template for the present users list -->
+            <div id="pc_site_users_template" style="display:none;"><!--
+                {for user in siteUsers}
+                    <div class="pc_site_user">
+                        <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return sakaiChat.setupChatWindow('${user.id}');">
+                            <img class="pc_user_image" src="/direct/profile/${user.id}/image" border="0" width="30"/>
+                            <span class="pc_connection_display_name">${user.displayName}</span><img src="/library/image/silk/bullet_green.png" border="0"/>
+                        </a>
+                    </div>
+                {/for}
+            -->
+            </div>
+
+            <!-- Trimpath template for the chat windows -->
+            <div id="pc_connection_chat_template" style="display:none;"><!--
+                <div class="pc_connection_chat_title" onclick="sakaiChat.toggleChatWindow('${uuid}');">
+                    <img style="float: left;" src="/direct/profile/${uuid}/image" height="40px"/><div style="float: left; margin-left: 5px;">${displayName}</div>
+                    <a href="javascript:;" onclick="return sakaiChat.closeChatWindow('${uuid}');" title="Close this chat"><img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;"/></a>
+                </div>
+                <div id="pc_connection_chat_${uuid}_content">
+                    <div id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></div>
+                    <div class="pc_editor_wrapper"><img src="/library/image/silk/comment.png" width="16px" height="16px" border="0"/><input type="text" id="pc_editor_for_${uuid}" class="pc_editor"/></div>
+                </div>
+            -->
+            </div>
+
+            <!-- Chat windows get prepended to this container -->
+            <div id="pc_chat_window_container"></div>
+
+            <!-- END FLOATING CHAT STUFF -->
 
 			#if (${sitePages.pageNavShowPresenceLoggedIn})
                              <div id="presenceArea" style="display: none" class="trayPopup">

@@ -34,6 +34,8 @@
     <module>portal-tool/tool</module>
     <module>portal-util/util</module>
     <module>portal-shared-deploy</module>
+    <module>portal-chat/impl</module>
+    <module>portal-chat/pack</module>
 <!-- <module>portal-portlet-tool/tool</module> -->
   </modules>
   <dependencyManagement>
