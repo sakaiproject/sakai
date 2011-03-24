@@ -61,6 +61,7 @@ create table signup_ts_attendees (
 	calendar_event_id varchar2(255 char),
 	calendar_id varchar2(255 char),
 	list_index number(10,0) not null,
+	attended  number(1,0)  default '0' NULL,
 	primary key (timeslot_id, list_index));
 	
 create table signup_ts_waitinglist (

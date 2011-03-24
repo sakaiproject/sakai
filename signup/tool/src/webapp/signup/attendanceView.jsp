@@ -10,15 +10,16 @@
 	</jsp:useBean>
 	<sakai:view_container title="#{msgs.attend_view_title} #{AttendanceSignupBean.meetingWrapper.meeting.title}">
 		<style type="text/css">
-@import url("/sakai-signup-tool/css/signupStyle.css");
-</style>
+			@import url("/sakai-signup-tool/css/signupStyle.css");
+		</style>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
 			src="/sakai-signup-tool/js/signupScript.js"></script>
 		<script typr="text/javascript" src="/library/js/jquery.js"></script>
 		<script type="text/javascript">
         $(document).ready(function(){
-            sakai.setupSelectListMultiple('', 'selectAllThese', 'selectedSelected');
+            sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');
             sakai.setupPrintPreview();
+						sakai.setupWaitListed();
             $('a.print-window').click(function(){
 								javascript:window.print();
                 return false;
@@ -33,7 +34,7 @@
 					value="#{msgs.print_friendly}" /></a></span></li>
 		</ul>
 		<sakai:view_content>
-			
+			<div class="toggle specialLink noPrint" style="display:none"><a href="#"><h:outputText value="#{msgs.attend_view_toggle}" /></a></div>
 			<%--//TODO: the value and conditions for the generic error messages will need to change--%>
 			<h:outputText
 				value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}"
@@ -107,6 +108,33 @@
 										<h:outputLabel value="#{attendeeWrapper.displayName}"
 											for="attendee"
 											rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}" />
+
+									</h:panelGroup>
+								</h:column>
+							</h:dataTable>
+						</h:panelGroup>
+						
+						<h:panelGroup rendered="#{!timeSlotWrapper.timeSlot.canceled}">
+							<h:dataTable id="waitList"
+								rowClasses="oddRow,evenRow"
+								styleClass="listHier lines nolines centerlines waitListed"
+								style="margin:0 2em;width:90%"
+								value="#{timeSlotWrapper.waitingList}"
+								var="waitingList"
+								headerClass="subListHeader"
+								summary="#{msgs.attend_view_list_slot_list_summary}"
+								rendered="#{!empty timeSlotWrapper.waitingList}"
+								>	
+								
+								<h:column>
+									<f:facet name="header">
+										<h:outputText escape="true" value=" #{msgs.attend_view_list_slot_list_wait_head}"/>
+									</f:facet>
+									<h:panelGroup>
+									<h:selectBooleanCheckbox value="#{waitingList.attended}" id="attendee"/>
+										<h:outputLabel value="#{waitingList.displayName}"
+											for="attendee"
+											rendered="#{waitingList.signupAttendee.attendeeUserId !=null}" />
 
 									</h:panelGroup>
 								</h:column>

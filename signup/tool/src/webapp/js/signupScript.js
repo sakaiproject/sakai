@@ -520,3 +520,12 @@ sakai.setupPrintPreview = function(){
    })
   }
 }	
+
+sakai.setupWaitListed = function(){
+    if ($('.waitListed').length > 0) {
+        $('.toggle').show();
+    }
+    $('.toggle a').click(function(){
+        $('.waitListed').toggle();
+    })
+}
