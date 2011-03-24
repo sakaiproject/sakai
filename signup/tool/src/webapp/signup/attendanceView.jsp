@@ -34,7 +34,7 @@
 					value="#{msgs.print_friendly}" /></a></span></li>
 		</ul>
 		<sakai:view_content>
-			<div class="toggle specialLink" style="display:none"><a href="#"><h:outputText value="#{msgs.attend_view_toggle}" /></a></div>
+			<div class="toggle specialLink noPrint" style="display:none"><a href="#"><h:outputText value="#{msgs.attend_view_toggle}" /></a></div>
 			<%--//TODO: the value and conditions for the generic error messages will need to change--%>
 			<h:outputText
 				value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}"
@@ -117,18 +117,19 @@
 						<h:panelGroup rendered="#{!timeSlotWrapper.timeSlot.canceled}">
 							<h:outputText rendered="#{empty timeSlotWrapper.waitingList}" value="#{msgs.attend_view_list_slot_list_empty_msg}" styleClass="instruction" style="display:block;padding:1em 2em"/>
 							<h:dataTable id="waitList"
-								rowClasses="oddRow,evenRow" styleClass="listHier lines nolines centerlines waitListed"
+								rowClasses="oddRow,evenRow"
+								styleClass="listHier lines nolines centerlines waitListed"
 								style="margin:0 2em;width:90%"
 								value="#{timeSlotWrapper.waitingList}"
 								var="waitingList"
-								headerClass="subListHeader noPrint"
+								headerClass="subListHeader"
 								summary="#{msgs.attend_view_list_slot_list_summary}"
 								rendered="#{!empty timeSlotWrapper.waitingList}"
 								>	
 								
 								<h:column>
 									<f:facet name="header">
-										<h:outputText escape="false" value="<label><input type='checkbox' class='selectAllThese'/> #{msgs.attend_view_select_all} </label>"/>
+										<h:outputText escape="true" value=" #{msgs.attend_view_list_slot_list_wait_head}"/>
 									</f:facet>
 									<h:panelGroup>
 									<h:selectBooleanCheckbox value="#{waitingList.attended}" id="attendee"/>

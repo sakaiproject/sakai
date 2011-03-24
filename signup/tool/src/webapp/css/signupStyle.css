@@ -511,10 +511,15 @@ table.emailTable td.valueColumn {
 .subListHeader{
     background:#eee !important;
 }
+.waitListed{
+    margin-top:1em;
+}
 .waitListed th{
     background:none !important;
     border:none;
-    border-bottom:2px solid #aaa
+    border-bottom:2px solid #aaa;
+    font-style:italic;
+
 }
 .toggle{
 	position:absolute;
