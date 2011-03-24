@@ -77,6 +77,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 	/* singup deadline before this minutes/hours/days */
 	private int deadlineTime;
+	
+	//Location selected from the dropdown
+	private String selectedLocation;
 
 	private Date repeatUntil;
 
@@ -374,6 +377,19 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			this.signupMeeting.setEndTime(eventEndTime);
 			this.signupMeeting.setMeetingType(CUSTOM_TIMESLOTS);
 		}
+		
+		//Set Location		
+		if (this.signupMeeting.getLocation()==null || this.signupMeeting.getLocation().equals("")){
+			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
+				return;
+			}
+			this.signupMeeting.setLocation(selectedLocation);
+			
+		}
+		//clear the location fields
+		this.selectedLocation="";
 	}
 	
 	/**
@@ -388,6 +404,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	public String doCancelAction(){
 		cleanUpUnusedAttachmentCopies(this.signupMeeting.getSignupAttachments());
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.COPY_MEETING);
+		this.selectedLocation=null; //Reset selected option
 		return ORGANIZER_MEETING_PAGE_URL;
 	}
 
@@ -548,6 +565,19 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		// copySites(meeting);
 
 	}
+	
+	/**
+ 	 * This method is called to get all locations to populate the dropdown
+ 	 * 
+ 	 * @return list of allLocations
+ 	 */
+ 	public List<SelectItem> getAllLocations(){
+ 		
+ 		List<SelectItem> locations= new ArrayList<SelectItem>();
+ 		locations.addAll(Utilities.getSignupMeetingsBean().getAllLocations());
+ 		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
+ 		return locations;
+ 	}
 
 	/**
 	 * check if the attendees in the event/meeting should be copied along with
@@ -663,6 +693,25 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setDeadlineTimeType(String deadlineTimeType) {
 		this.deadlineTimeType = deadlineTimeType;
+	}
+	
+	/**
+	 * This is a getter method to provide selected location.
+	 * 
+	 * @return String
+	 */
+	public String getselectedLocation() {
+		return selectedLocation;
+	}
+
+	/**
+	 * This is a setter.
+	 * 
+	 * @param selectedLoction
+	 *           String that represents the selected location
+	 */
+	public void setselectedLocation(String selectedLocation) {
+		this.selectedLocation = selectedLocation;
 	}
 
 	/**

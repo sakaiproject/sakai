@@ -49,13 +49,19 @@
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
 								<h:outputText value="#{msgs.event_location}"  escape="false"/>
 							</h:panelGroup>
+							
 							<h:panelGroup>
-								<h:inputText id="meetingLocation" value="#{CopyMeetingSignupMBean.signupMeeting.location}" required="true" size="40" styleClass="editText">
-									<f:validator validatorId="Signup.EmptyStringValidator"/>
-									<f:validateLength maximum="255" />
-								</h:inputText>														
-								<h:message for="meetingLocation" errorClass="alertMessageInline"/>
-							</h:panelGroup>
+		                    	  <!-- Displays all the locations in the dropdown -->
+		                        <h:selectOneMenu id="selectedLocation" value="#{CopyMeetingSignupMBean.selectedLocation}">
+									<f:selectItems value="#{CopyMeetingSignupMBean.allLocations}"/>
+								</h:selectOneMenu>
+								<h:outputLabel id="customLocationLabel" for="customLocation" value="#{msgs.tab_event_edit_location_custom}" /><h:outputText value="&nbsp;" escape="false" />
+		                        <h:inputText id="customLocation" size="40" value="#{CopyMeetingSignupMBean.signupMeeting.location}" styleClass="editText">  
+		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+		                            <f:validateLength maximum="255" />
+		                        </h:inputText>
+		                        <h:message for="location" errorClass="alertMessageInline"/>
+		                    </h:panelGroup> 
 							
 							<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 							<sakai:rich_text_area value="#{CopyMeetingSignupMBean.signupMeeting.description}" width="720" height="200" rows="5" columns="80"/>
