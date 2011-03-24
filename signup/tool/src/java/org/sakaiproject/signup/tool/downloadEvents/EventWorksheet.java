@@ -158,7 +158,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 						serialNum++;
 					}
 					//Attendance data, in the gradebook import format
+					if(isAttendanceOn(dataWrappers)){
 					createAttendanceDataWorksheet(dataWrappers);
+					}
 
 				} else {/* one record only */
 					for (SignupMeetingWrapper smWrapper : dataWrappers) {
@@ -168,7 +170,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 					createAttendeeDataWorksheet(dataWrappers);
 					
 					//Attendance data, in the gradebook import format
+					if(isAttendanceOn(dataWrappers)){
 					createAttendanceDataWorksheet(dataWrappers);
+					}
 				}
 			}
 		}
@@ -1157,6 +1161,24 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 		}
 		return wb;
+	}
+	
+	/**
+	 * @return true if sakai property signup.enableAttendance is true and meeting have attendance enabled
+	 */
+	public boolean isAttendanceOn(List<SignupMeetingWrapper> wrappers) {
+			
+		if ("true".equalsIgnoreCase(sakaiFacade.getServerConfigurationService().getString("signup.enableAttendance","false"))){
+			for (SignupMeetingWrapper wrp : wrappers) {
+				if (wrp.getMeeting().isAllowAttendance()){
+					return true;
+				}
+			}
+			return false;
+		}
+		else{
+			return false;
+		}
 	}
 
 }
