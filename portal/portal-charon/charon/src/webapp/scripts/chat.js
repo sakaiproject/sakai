@@ -1,4 +1,4 @@
-function SakaiChat() {
+function PortalChat() {
 
 	this.showOfflineConnections = false;
 	this.currentConnections = {};
@@ -56,23 +56,23 @@ function SakaiChat() {
 				var messagePanel = $("#pc_connection_chat_" + uuid + "_messages");
 
 				if('OFFLINE' === text) {
-					var toDisplayName = sakaiChat.currentConnectionsMap[uuid].displayName;
+					var toDisplayName = portalChat.currentConnectionsMap[uuid].displayName;
 					messagePanel.append("<div><br /></div>");
 					messagePanel.append("<div><span class=\"pc_displayname\">" + toDisplayName + " is offline</span></div>");
 				} else {
 					var date = new Date();
-					sakaiChat.addToMessageStream(uuid,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
-					var dateString = sakaiChat.formatDate(new Date());
+					portalChat.addToMessageStream(uuid,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
+					var dateString = portalChat.formatDate(new Date());
 					messagePanel.append("<div><span class=\"pc_messagedate\">(" + dateString + "</span><span class=\"pc_displayname\">You)</span><span class=\"pc_message\">" + content + "</span></div>");
 				    $('#pc_editor_for_' + uuid).val('');
 				}
 
-				sakaiChat.scrollToBottom(uuid);
+				portalChat.scrollToBottom(uuid);
 			},
 			error : function (xhr,textStatus,error) {
 
 		        if(403 == xhr.status) {
-                    sakaiChat.handleSecurityError();
+                    portalChat.handleSecurityError();
                 }
 
 				alert("Failed to send message. Reason: " + textStatus + ". Error: " + error);
@@ -85,7 +85,7 @@ function SakaiChat() {
      */
     this.handleSecurityError = function () {
 	    alert("Sakai security error. Maybe your Sakai session has timed out?");
-	    sakaiChat.clearGetLatestDataInterval();
+	    portalChat.clearGetLatestDataInterval();
         return;
     }
 
@@ -311,17 +311,17 @@ function SakaiChat() {
 
 		var changed = false;
 
-		if(sakaiChat.currentConnections.length != connections.length) {
+		if(portalChat.currentConnections.length != connections.length) {
 			changed = true;
 		}
 		else {
 			for(var i = 0,j=connections.length;i<j;i++) {
 				var present = false;
 				var statusSame = true;
-				for(var k = 0,m=sakaiChat.currentConnections.length;k<m;k++) {
-					if(sakaiChat.currentConnections[k].uuid === connections[i].uuid) {
+				for(var k = 0,m=portalChat.currentConnections.length;k<m;k++) {
+					if(portalChat.currentConnections[k].uuid === connections[i].uuid) {
 						present = true;
-					 	if(sakaiChat.currentConnections[k].online != connections[i].online) {
+					 	if(portalChat.currentConnections[k].online != connections[i].online) {
 							statusSame = false;
 						}
 						break;
@@ -340,28 +340,28 @@ function SakaiChat() {
 		    sessionStorage.pcCurrentConnections = JSON.stringify(connections);
 		    sessionStorage.pcOnlineConnections = JSON.stringify(onlineConnections);
 
-			sakaiChat.currentConnections = connections;
+			portalChat.currentConnections = connections;
 
-			sakaiChat.currentConnectionsMap = {};
+			portalChat.currentConnectionsMap = {};
 
 			for(var i=0,j=connections.length;i<j;i++) {
-				sakaiChat.currentConnectionsMap[connections[i].uuid] = connections[i];
+				portalChat.currentConnectionsMap[connections[i].uuid] = connections[i];
 			}
 
 			// Bit of a hack really.
-			sakaiChat.currentConnectionsMap[portal.user.id] = {'displayName':'You'};
+			portalChat.currentConnectionsMap[portal.user.id] = {'displayName':'You'};
 
-		    sessionStorage.pcCurrentConnectionsMap = JSON.stringify(sakaiChat.currentConnectionsMap);
+		    sessionStorage.pcCurrentConnectionsMap = JSON.stringify(portalChat.currentConnectionsMap);
 
-			sakaiChat.onlineConnections = onlineConnections;
+			portalChat.onlineConnections = onlineConnections;
 
-			if(sakaiChat.showOfflineConnections == true) {
-				sakaiChat.renderTemplate('pc_connections_template',{'connections':sakaiChat.currentConnections},'pc_connections');
+			if(portalChat.showOfflineConnections == true) {
+				portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
 			} else {
-				sakaiChat.renderTemplate('pc_connections_template',{'connections':sakaiChat.onlineConnections},'pc_connections');
+				portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.onlineConnections},'pc_connections');
 			}
 
-			sakaiChat.sortConnections();
+			portalChat.sortConnections();
         }
 	}
 
@@ -372,14 +372,14 @@ function SakaiChat() {
 
 		var changed = false;
 
-		if(sakaiChat.currentSiteUsers.length != siteUsers.length) {
+		if(portalChat.currentSiteUsers.length != siteUsers.length) {
 			changed = true;
 		}
 		else {
 			for(var i = 0,j=siteUsers.length;i<j;i++) {
 				var inCurrentData = false;
-				for(var k = 0,m=sakaiChat.currentSiteUsers.length;k<m;k++) {
-					if(sakaiChat.currentSiteUsers[k].id === siteUsers[i].id) {
+				for(var k = 0,m=portalChat.currentSiteUsers.length;k<m;k++) {
+					if(portalChat.currentSiteUsers[k].id === siteUsers[i].id) {
 						inCurrentData = true;
 						break;
 					}
@@ -395,22 +395,22 @@ function SakaiChat() {
 		if(changed) {
 		    sessionStorage.pcCurrentSiteUsers = JSON.stringify(siteUsers);
 
-			sakaiChat.currentSiteUsers = siteUsers;
+			portalChat.currentSiteUsers = siteUsers;
 
-            if(sakaiChat.currentSiteUsers.length > 0) {
-			    sakaiChat.renderTemplate('pc_site_users_template',{'siteUsers':sakaiChat.currentSiteUsers},'pc_site_users');
+            if(portalChat.currentSiteUsers.length > 0) {
+			    portalChat.renderTemplate('pc_site_users_template',{'siteUsers':portalChat.currentSiteUsers},'pc_site_users');
             } else {
                 $('#pc_site_users').html('');
             }
 
-			for(var i=0,j=sakaiChat.currentSiteUsers.length;i<j;i++) {
-                sakaiChat.currentSiteUsers[i].uuid = sakaiChat.currentSiteUsers[i].id;
-				sakaiChat.currentConnectionsMap[sakaiChat.currentSiteUsers[i].uuid] = sakaiChat.currentSiteUsers[i];
+			for(var i=0,j=portalChat.currentSiteUsers.length;i<j;i++) {
+                portalChat.currentSiteUsers[i].uuid = portalChat.currentSiteUsers[i].id;
+				portalChat.currentConnectionsMap[portalChat.currentSiteUsers[i].uuid] = portalChat.currentSiteUsers[i];
 			}
 
-		    sessionStorage.pcCurrentConnectionsMap = JSON.stringify(sakaiChat.currentConnectionsMap);
+		    sessionStorage.pcCurrentConnectionsMap = JSON.stringify(portalChat.currentConnectionsMap);
 
-			sakaiChat.sortSiteUsers();
+			portalChat.sortSiteUsers();
         }
 
 	}
@@ -440,8 +440,8 @@ function SakaiChat() {
     this.updateMessages = function (messages) {
 
 		for(var i=0,j=messages.length;i<j;i++) {
-			sakaiChat.appendMessage(messages[i]);
-			sakaiChat.addToMessageStream(messages[i].from,messages[i]);
+			portalChat.appendMessage(messages[i]);
+			portalChat.addToMessageStream(messages[i].from,messages[i]);
 		}
 
 		if(messages.length > 0) {
@@ -449,7 +449,7 @@ function SakaiChat() {
             $('#pc_audio_embed_wrapper').html("<embed id=\"pc_audio_embed\" src=\"/portal/scripts/audio/new_chat_message.mp3\" autostart=\"true\" autoplay=\"true\" width=\"0\" height=\"0\" loop=\"false\"/>");
 
 			var lastMessage = messages[messages.length - 1];
-			var fromDisplayName = sakaiChat.currentConnectionsMap[lastMessage.from].displayName;
+			var fromDisplayName = portalChat.currentConnectionsMap[lastMessage.from].displayName;
 			if(document.hasFocus() == false) {
 				document.title = 'Message from ' + fromDisplayName;
 			}
@@ -465,26 +465,26 @@ function SakaiChat() {
         if(match && match.length == 2) siteId = match[1];
 
 		jQuery.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?siteId=' + siteId + '&online=' + !sakaiChat.offline,
+			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?siteId=' + siteId + '&online=' + !portalChat.offline,
 			dataType : "json",
 			cache: false,
 			success : function (data,status) {
-				sakaiChat.updateMessages(data.data.messages);
-                sakaiChat.updateConnections(data.data.connections,data.data.online);
-                sakaiChat.updateSiteUsers(data.data.presentUsers);
+				portalChat.updateMessages(data.data.messages);
+                portalChat.updateConnections(data.data.connections,data.data.online);
+                portalChat.updateSiteUsers(data.data.presentUsers);
 			},
 			error : function (xhr,textStatus,error) {
 
 				if(403 == xhr.status) {
-                    sakaiChat.handleSecurityError();
+                    portalChat.handleSecurityError();
                 }
 
-				if(sakaiChat.connectionErrors >= 2) {
-					sakaiChat.clearGetLatestDataInterval();
-					sakaiChat.connectionErrors = 0;
+				if(portalChat.connectionErrors >= 2) {
+					portalChat.clearGetLatestDataInterval();
+					portalChat.connectionErrors = 0;
 					alert("getLatestMessages: It looks like the chat server is unavailable. Check your network connection.");
 				} else { 
-					sakaiChat.connectionErrors = sakaiChat.connectionErrors + 1;
+					portalChat.connectionErrors = portalChat.connectionErrors + 1;
 				}
 			}
 		});
@@ -521,15 +521,15 @@ function SakaiChat() {
 			error : function (xmlHttpRequest,textStatus,error) {
 
 				if(403 == xhr.status) {
-                    sakaiChat.handleSecurityError();
+                    portalChat.handleSecurityError();
                 }
 
-				if(sakaiChat.connectionErrors >= 2) {
-					sakaiChat.clearGetLatestDataInterval();
-					sakaiChat.connectionErrors = 0;
+				if(portalChat.connectionErrors >= 2) {
+					portalChat.clearGetLatestDataInterval();
+					portalChat.connectionErrors = 0;
 					alert("pingConnection: It looks like the chat server is unavailable. Check your network connection.");
 				} else { 
-					sakaiChat.connectionErrors = sakaiChat.connectionErrors + 1;
+					portalChat.connectionErrors = portalChat.connectionErrors + 1;
 				}
 			}
 		});
@@ -558,14 +558,14 @@ function SakaiChat() {
 	}
 
     this.setGetLatestDataInterval = function () {
-        if(sakaiChat.getLatestDataInterval === null) {
-		    sakaiChat.getLatestDataInterval = window.setInterval(function () {sakaiChat.getLatestData();},5000);
+        if(portalChat.getLatestDataInterval === null) {
+		    portalChat.getLatestDataInterval = window.setInterval(function () {portalChat.getLatestData();},5000);
         }
     }
 
     this.clearGetLatestDataInterval = function () {
-	    window.clearInterval(sakaiChat.getLatestDataInterval);
-        sakaiChat.getLatestDataInterval = null;
+	    window.clearInterval(portalChat.getLatestDataInterval);
+        portalChat.getLatestDataInterval = null;
     }
 
 	this.init = function () {
@@ -577,38 +577,38 @@ function SakaiChat() {
                 $('#pc').show();
 
                 $('#pc_title').click(function () {
-			        sakaiChat.toggleChat();
+			        portalChat.toggleChat();
                 });
 
 				var myCurrentConnectionsString = sessionStorage.pcCurrentConnections;
 				if(myCurrentConnectionsString) {
-					sakaiChat.currentConnections = JSON.parse(myCurrentConnectionsString);
-				    sakaiChat.currentConnectionsMap = JSON.parse(sessionStorage.pcCurrentConnectionsMap);
-					sakaiChat.onlineConnections = JSON.parse(sessionStorage.pcOnlineConnections);
+					portalChat.currentConnections = JSON.parse(myCurrentConnectionsString);
+				    portalChat.currentConnectionsMap = JSON.parse(sessionStorage.pcCurrentConnectionsMap);
+					portalChat.onlineConnections = JSON.parse(sessionStorage.pcOnlineConnections);
 				}
                       
 				var myCurrentPresentUsersString = sessionStorage.pcCurrentSiteUsers;
                 if(myCurrentPresentUsersString) {
-					sakaiChat.currentSiteUsers = JSON.parse(myCurrentPresentUsersString);
-					//sakaiChat.currentSiteUsersMap = JSON.parse(sessionStorage.pcCurrentSiteUsersMap);
+					portalChat.currentSiteUsers = JSON.parse(myCurrentPresentUsersString);
+					//portalChat.currentSiteUsersMap = JSON.parse(sessionStorage.pcCurrentSiteUsersMap);
 				}
                         
 				if(!myCurrentConnectionsString && !myCurrentPresentUsersString) {
-					sakaiChat.getLatestData();
+					portalChat.getLatestData();
 				}
 
-				if(sakaiChat.getSetting('offline')) {
+				if(portalChat.getSetting('offline')) {
 					$('#pc_go_offline_checkbox').attr('checked','checked');
-                    sakaiChat.offline = true;
+                    portalChat.offline = true;
 				} else {
-                    sakaiChat.offline = false;
+                    portalChat.offline = false;
 				}
 
-				if(sakaiChat.getSetting('showOfflineConnections')) {
-					sakaiChat.showOfflineConnections = true;
+				if(portalChat.getSetting('showOfflineConnections')) {
+					portalChat.showOfflineConnections = true;
 			    }
 
-			    sakaiChat.setGetLatestDataInterval();
+			    portalChat.setGetLatestDataInterval();
             } else {
                 // Not a logged in user. Clear the cached data in sessionStorage.
 		        sessionStorage.removeItem('pcCurrentConnections');
@@ -620,31 +620,31 @@ function SakaiChat() {
 
 			$('#pc_showoffline_connections_checkbox').click(function () {
 				if($(this).attr('checked') == true) {
-					sakaiChat.showOfflineConnections = true;
-					sakaiChat.renderTemplate('pc_connections_template',{'connections':sakaiChat.currentConnections},'pc_connections');
+					portalChat.showOfflineConnections = true;
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
 					var pc_users = $('#pc_users');
-					if(pc_users.height() > sakaiChat.MAX_CONTENT_HEIGHT) pc_users.height(sakaiChat.MAX_CONTENT_HEIGHT);
-					sakaiChat.setSetting('showOfflineConnections',true);
+					if(pc_users.height() > portalChat.MAX_CONTENT_HEIGHT) pc_users.height(portalChat.MAX_CONTENT_HEIGHT);
+					portalChat.setSetting('showOfflineConnections',true);
 				} else {
-					sakaiChat.showOfflineConnections = false;
-					sakaiChat.renderTemplate('pc_connections_template',{'connections':sakaiChat.onlineConnections},'pc_connections');
+					portalChat.showOfflineConnections = false;
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.onlineConnections},'pc_connections');
 					$('#pc_connections').css('height','auto');
-					sakaiChat.setSetting('showOfflineConnections',false);
+					portalChat.setSetting('showOfflineConnections',false);
 				}
 
-				sakaiChat.sortConnections();
+				portalChat.sortConnections();
 			});
 	
 			$('#pc_go_offline_checkbox').click(function () {
 				if($(this).attr('checked') == true) {
-					sakaiChat.setSetting('offline',true);
-					sakaiChat.offline = true;
+					portalChat.setSetting('offline',true);
+					portalChat.offline = true;
 
 				} else {
-					sakaiChat.setSetting('offline',false);
-					sakaiChat.offline = false;
+					portalChat.setSetting('offline',false);
+					portalChat.offline = false;
 
-					sakaiChat.setGetLatestDataInterval();
+					portalChat.setGetLatestDataInterval();
 				}
 			});
 	
@@ -654,64 +654,64 @@ function SakaiChat() {
 				if(e.keyCode == 13) {
 					var editorId = e.target.id;
 					var uuid = editorId.split("pc_editor_for_")[1];
-					sakaiChat.sendMessageToUser(uuid,e.target.value);
+					portalChat.sendMessageToUser(uuid,e.target.value);
 				}
 			});
 	
-			if(sakaiChat.getSetting('expanded') && portal.loggedIn) sakaiChat.toggleChat();
+			if(portalChat.getSetting('expanded') && portal.loggedIn) portalChat.toggleChat();
 	
 			// Clear all of the intervals when the window is closed
 			$(window).bind('unload',function () {
-				sakaiChat.clearGetLatestDataInterval();
+				portalChat.clearGetLatestDataInterval();
 			});
 
 			$(document).bind('focus',function () {
-				document.title = sakaiChat.originalTitle;
+				document.title = portalChat.originalTitle;
 			});
 	
-			if(sakaiChat.currentConnections.length > 0) {
-				if(sakaiChat.showOfflineConnections) {
-					sakaiChat.renderTemplate('pc_connections_template',{'connections':sakaiChat.currentConnections},'pc_connections');
+			if(portalChat.currentConnections.length > 0) {
+				if(portalChat.showOfflineConnections) {
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.currentConnections},'pc_connections');
 					$('#pc_showoffline_connections_checkbox').attr('checked','checked');
 				} else {
-					sakaiChat.renderTemplate('pc_connections_template',{'connections':sakaiChat.onlineConnections},'pc_connections');
+					portalChat.renderTemplate('pc_connections_template',{'connections':portalChat.onlineConnections},'pc_connections');
 					$('#pc_showoffline_connections_checkbox').removeAttr('checked');
 				}
 
 				var pc_users = $('#pc_users');
-				if(pc_users.height() > sakaiChat.MAX_CONTENT_HEIGHT) pc_users.height(sakaiChat.MAX_CONTENT_HEIGHT);
-				sakaiChat.sortConnections();
+				if(pc_users.height() > portalChat.MAX_CONTENT_HEIGHT) pc_users.height(portalChat.MAX_CONTENT_HEIGHT);
+				portalChat.sortConnections();
 			}
 
-			if(sakaiChat.currentSiteUsers.length > 0) {
-				sakaiChat.renderTemplate('pc_site_users_template',{'siteUsers':sakaiChat.currentSiteUsers},'pc_site_users');
-				sakaiChat.sortSiteUsers();
+			if(portalChat.currentSiteUsers.length > 0) {
+				portalChat.renderTemplate('pc_site_users_template',{'siteUsers':portalChat.currentSiteUsers},'pc_site_users');
+				portalChat.sortSiteUsers();
 			}
 	
 			// Check if there are any messages streams active. If there are, setup chat windows for each
-			for(var i=0,j=sakaiChat.currentConnections.length;i<j;i++) {
-				var storedMessageStream = sessionStorage[sakaiChat.currentConnections[i].uuid];
+			for(var i=0,j=portalChat.currentConnections.length;i<j;i++) {
+				var storedMessageStream = sessionStorage[portalChat.currentConnections[i].uuid];
 	
 				if(storedMessageStream) {
 	
 					var sms = JSON.parse(storedMessageStream);
 	
-					sakaiChat.setupChatWindow(sakaiChat.currentConnections[i].uuid,sms.minimised);
+					portalChat.setupChatWindow(portalChat.currentConnections[i].uuid,sms.minimised);
 	
 					// Now we've setup the chat window we can add the messages.
 	
-					var messagePanel = $("#pc_connection_chat_" + sakaiChat.currentConnections[i].uuid + "_messages");
+					var messagePanel = $("#pc_connection_chat_" + portalChat.currentConnections[i].uuid + "_messages");
 	
 					var messages = sms.messages;
 	
 					for(var k=0,m=messages.length;k<m;k++) {
 						var message = messages[k];
-						var dateString = sakaiChat.formatDate(new Date(parseInt(message.timestamp)));
-						var fromDisplayName = sakaiChat.currentConnectionsMap[message.from].displayName;
+						var dateString = portalChat.formatDate(new Date(parseInt(message.timestamp)));
+						var fromDisplayName = portalChat.currentConnectionsMap[message.from].displayName;
 						messagePanel.append("<div><span class=\"pc_messagedate\">(" + dateString + "</span><span class=\"pc_displayname\">" + fromDisplayName + ")</span><span class=\"pc_message\">" + message.content + "</span></div>");
 					}
 
-					sakaiChat.scrollToBottom(sakaiChat.currentConnections[i].uuid);
+					portalChat.scrollToBottom(portalChat.currentConnections[i].uuid);
 				}
 			}
 		});
@@ -722,4 +722,4 @@ function SakaiChat() {
 	this.init();
 }
 
-var sakaiChat = new SakaiChat()
+var portalChat = new PortalChat()
