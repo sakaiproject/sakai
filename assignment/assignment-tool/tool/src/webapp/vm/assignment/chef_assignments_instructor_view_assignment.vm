@@ -37,7 +37,7 @@
 					$tlang.getString("gen.creby")
 				</th>	
 				<td>
-					$!creator
+					$validator.escapeHtml($!creator)
 				</td>
 			</tr>
 			<tr>
