@@ -115,7 +115,6 @@
 						</h:panelGroup>
 						
 						<h:panelGroup rendered="#{!timeSlotWrapper.timeSlot.canceled}">
-							<h:outputText rendered="#{empty timeSlotWrapper.waitingList}" value="#{msgs.attend_view_list_slot_list_empty_msg}" styleClass="instruction" style="display:block;padding:1em 2em"/>
 							<h:dataTable id="waitList"
 								rowClasses="oddRow,evenRow"
 								styleClass="listHier lines nolines centerlines waitListed"
