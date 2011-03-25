@@ -305,7 +305,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 */
 	public boolean getAnnouncementType() {
 		boolean anoun = false;
-		if (ANNOUNCEMENT.equals(meetingWrapper.getMeeting().getMeetingType()))
+		if (meetingWrapper !=null && meetingWrapper.getMeeting() !=null 
+				&& ANNOUNCEMENT.equals(meetingWrapper.getMeeting().getMeetingType()))
 			anoun= true;
 		
 		return anoun;
