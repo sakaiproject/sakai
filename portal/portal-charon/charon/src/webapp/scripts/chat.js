@@ -166,9 +166,13 @@ function PortalChat() {
 
 		if(!this.expanded) {
 
-			var pcc = $('#pc_content');
+			//var pcc = $('#pc_content');
+			var pc = $('#pc');
 
-			pcc.show();
+			//pcc.show();
+			pc.show();
+
+            //$('#presenceArea').toggle(false);
 
 			this.setSetting('expanded',true);
 			this.expanded = true;
@@ -182,12 +186,15 @@ function PortalChat() {
 			$('#pc').css('height','auto');
 		} else {
 
-			$('#pc_content').hide();
+			//$('#pc_content').hide();
+			$('#pc').hide();
 
 			$('#pc').css('height','auto');
 
 			this.setSetting('expanded',false);
 			this.expanded = false;
+
+            //$('#presenceArea').toggle(true);
 		}
 
 		return false;
@@ -472,6 +479,15 @@ function PortalChat() {
 				portalChat.updateMessages(data.data.messages);
                 portalChat.updateConnections(data.data.connections,data.data.online);
                 portalChat.updateSiteUsers(data.data.presentUsers);
+
+                var totalChattable = data.data.online.length + data.data.presentUsers.length;
+                if(totalChattable > 0) {
+                    $('#chattableCount').html(totalChattable + '');
+                    $('#chattableCount').removeClass('empty').addClass('present');
+                } else {
+                    $('#chattableCount').html(' ');
+                    $('#chattableCount').removeClass('present').addClass('empty');
+                }
 			},
 			error : function (xhr,textStatus,error) {
 
@@ -573,11 +589,9 @@ function PortalChat() {
 		$(document).ready(function () {
 			
             if(portal.loggedIn) {
-                // We have a logged in user. Show the chat bar.
-                $('#pc').show();
-
-                $('#pc_title').click(function () {
+                $('#chatToggle').click(function () {
 			        portalChat.toggleChat();
+                    //$('#presenceArea').toggle();
                 });
 
 				var myCurrentConnectionsString = sessionStorage.pcCurrentConnections;
@@ -658,7 +672,9 @@ function PortalChat() {
 				}
 			});
 	
-			if(portalChat.getSetting('expanded') && portal.loggedIn) portalChat.toggleChat();
+			if(portalChat.getSetting('expanded') && portal.loggedIn) {
+                portalChat.toggleChat();
+            }
 	
 			// Clear all of the intervals when the window is closed
 			$(window).bind('unload',function () {
@@ -668,6 +684,12 @@ function PortalChat() {
 			$(document).bind('focus',function () {
 				document.title = portalChat.originalTitle;
 			});
+
+            //explicitly close presence panel
+            $('#pc_chat_close').click(function(e){
+                e.preventDefault();
+                portalChat.toggleChat();
+            })
 	
 			if(portalChat.currentConnections.length > 0) {
 				if(portalChat.showOfflineConnections) {

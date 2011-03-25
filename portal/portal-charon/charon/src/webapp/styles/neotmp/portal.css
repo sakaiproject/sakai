@@ -1077,55 +1077,45 @@ below they are contextually defined depending on the column as an example,as you
      right:5px;
      bottom:0;
      height:23px;
-     text-align:center;
-     vertical-align:middle;
      line-height:1.2em;
      width:auto;
      padding:0;
      background:#eee url(images/appTrayBack.png) top left repeat-x;
+    border:1px solid #ccc;
 }
 #footerAppPresence{
-    background:#eee url(images/appTrayBack.png) top left repeat-x;    
-    border:1px solid #ccc;
     height:100%;
     color:#fff;
     vertical-align:middle;
-    position:absolute;
-    right:0;
-    top:0;   
-    padding:0 5px;
-    width:50px;
+    float:right;
+    padding: 2px;
 }
 #footerAppChat{
-    background:#eee url(images/appTrayBack.png) top left repeat-x;
     height:100%;
     vertical-align:middle;
-    position:absolute;
-    right:60px;
-    top:0;   
-    color:#000;
-    width:auto;
+    color:#fff;
+    float:left;
+    padding: 2px;
 }
 #presenceToggle{
 	color: white;
     outline:1px solid transparent;
 	text-decoration: none;
-    dispay:block;
-    position:absolute;
-    top:4px;
-    left:4px;
 }
-#footerAppTray div.present {
+#chatToggle{
+	color: white;
+    outline:1px solid transparent;
+	text-decoration: none;
+}
+#footerAppTray span.present {
     background-color: #b11;
     padding:0 5px;
     outline:1px solid red;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
-    position:absolute;
     height:14px;
-    top:5px;
-    left:30px;
+    width:14px;
 }
 
 .workspace #footerAppPresence{
@@ -1136,6 +1126,10 @@ below they are contextually defined depending on the column as an example,as you
 #footerAppTray #presenceCount{
     font-size:80%;
     outline:1px solid transparent;
+}
+#footerAppTray #chattableCount{
+    font-size:80%;
+    outline:5px solid transparent;
 }
 #footerAppTray span.empty {
       visibility:hidden;
@@ -1635,11 +1629,12 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     width: 300px;
     background-color: white;
     border: 1px solid #aaa;
-    border-bottom: 0px;
     position: fixed;
     bottom: 0px;
+    bottom: 22px;
     /* Needs to be to the right of the expanded presence block. See presenceArea. */
     right: 185px;
+    right: 5px;
     z-index: 2001;
     margin: 0px;
     padding: 0px;
@@ -1649,11 +1644,12 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 #pc_chat_window_container {
     position: fixed;
     /* The chats container is placed just to the left of the connections menu */
-    right: 486px;
+    right: 306px;
     bottom: 0px;
     height: 300px;
     /* This ridiculous width prevents pc_chat_windows from stacking */
     width: 10000px;
+    pointer-events: none;
 }
 
 .pc_chat_window {
@@ -1662,16 +1658,37 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     float: right;
     border: #aaa solid 1px;
     border-bottom: 0px;
+    pointer-events: auto;
 }
 
 #pc_title {
-    padding-left: 5px;
-    vertical-align: middle;
-    font:14px bold Helvetica, 'Helvetica Neue', Arial;
-    height: 23px;
-    color: black;
-    background:#eee url(images/appTrayBack.png) top left repeat-x;
+	font-size: .8em;
+    border-bottom:1px solid #ccc;
+	padding:5px;
+    background:#eee;
+    height:15px;
+    vertical-align:middle;
+    border-bottom:1px solid #ddd
 }
+
+#pc_title div{
+    position:absolute;
+    top:1px;
+    text-align:center;
+    right:0px;
+    bottom:0;
+    width:15px;    
+    height:16px;
+    font-size:120%;
+    border-left:1px solid #ccc;
+    padding:4px;
+}    
+#pc_title div a{
+    color:#888;
+    font-weight:bold;
+    padding:3px;
+    text-decoration:none;
+}    
 
 #pc_people {
     display: none;

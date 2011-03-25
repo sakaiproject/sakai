@@ -198,13 +198,15 @@
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
 				<div id="footerAppTray">
-					<div id="footerAppPresence">
-						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
-						<div id="presenceCount"></div>
-					</div>
 					<div id="footerAppChat">
+						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/></a>
+						<span id="chattableCount"></span>
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
 					</div>	
+					<div id="footerAppPresence">
+						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
+						<span id="presenceCount"></span>
+					</div>
 					
 				</div>
 
@@ -215,7 +217,7 @@
             <!-- START FLOATING CHAT STUFF -->
 
             <div id="pc">
-                <div id="pc_title"><img src="/library/image/silk/comment.png" border="0" style="vertical-align: middle;"/><span>Chat</span><span id="pc_online_total"></span></div>
+				<div id="pc_title">Chat<div><a href="#" id="pc_chat_close">x</a></div></div>
                 <div id="pc_content">
                     <div id="pc_options">
                         <div style="float: left;"><input type="checkbox" id="pc_showoffline_connections_checkbox"/>Show offline connections</div>
@@ -289,7 +291,7 @@
                              <div id="presenceArea" style="display: none" class="trayPopup">
 				<h1 class="skip">${rloader.sit_presencehead}</h1>
 				<div id="presenceWrapper">
-					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" class="trayPopupClose">x</a></div></div>
+					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" id="presenceClose">x</a></div></div>
 #if (${sitePages.pageNavPresenceIframe})
 					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
 						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >
