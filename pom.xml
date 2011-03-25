@@ -167,7 +167,7 @@
                 <module>gradebook</module>
                 <module>help</module>
                 <module>hybrid</module>
-                <module>lessonbuilder</module>
+                <!-- <module>lessonbuilder</module> -->
                 <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
