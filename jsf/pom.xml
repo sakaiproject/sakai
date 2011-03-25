@@ -172,7 +172,7 @@
             <dependency>
             	<groupId>javax.faces</groupId>
             	<artifactId>jsf-impl</artifactId>
-            	<version>1.1_02-PATCHED</version>
+            	<version>1.1_02</version>
             </dependency>
             <dependency>
             	<groupId>javax.servlet</groupId>
