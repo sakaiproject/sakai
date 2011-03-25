@@ -166,21 +166,24 @@
                 <module>dav</module>
                 <module>gradebook</module>
                 <module>help</module>
+                <module>hybrid</module>
+                <module>lessonbuilder</module>
                 <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
+                <module>mailsender</module>
                 <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
                 <module>osp</module>
                 <module>podcasts</module>
-                <module>portal</module>
+                <module>neo-portal</module>
                 <module>postem</module>
                 <module>presence</module>
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <!-- <module>roster</module> -->
+                <module>roster2</module>
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
