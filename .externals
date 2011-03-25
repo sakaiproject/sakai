@@ -1,3 +1,4 @@
+# Core Sakai capabilities
 access https://source.sakaiproject.org/svn/access/trunk
 alias https://source.sakaiproject.org/svn/alias/trunk
 announcement https://source.sakaiproject.org/svn/announcement/trunk
@@ -44,3 +45,9 @@ velocity https://source.sakaiproject.org/svn/velocity/trunk
 warehouse https://source.sakaiproject.org/svn/warehouse/trunk
 was https://source.sakaiproject.org/svn/was/trunk
 web https://source.sakaiproject.org/svn/web/trunk
+
+# Experimental Sakai capabilities
+hybrid https://source.sakaiproject.org/svn/hybrid/trunk/
+mailsender https://source.sakaiproject.org/contrib/mailsender/trunk/
+neo-portal https://source.sakaiproject.org/svn/portal/branches/SAK-19813/
+roster2 https://source.sakaiproject.org/contrib/roster2/trunk/
