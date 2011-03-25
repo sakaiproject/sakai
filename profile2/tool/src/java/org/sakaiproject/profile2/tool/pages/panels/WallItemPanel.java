@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -28,7 +29,9 @@ import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.tool.pages.windows.RemoveWallItem;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -99,6 +102,10 @@ public class WallItemPanel extends Panel {
 
 		// wall item actions (TODO container?)
 		
+		final ModalWindow removeWallItemWindow = new ModalWindow("removeWallItemWindow");
+		add(removeWallItemWindow);
+		
+		final WallAction wallAction = new WallAction();
 		// delete link
 		final AjaxLink<WallItem> removeItemLink = new AjaxLink<WallItem>(
 				"removeWallItemLink", new Model<WallItem>(wallItem)) {
@@ -108,11 +115,22 @@ public class WallItemPanel extends Panel {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 
-				wallLogic.removeWallItemFromWall(userUuid, this
-						.getModelObject());
+				removeWallItemWindow.setContent(new RemoveWallItem(removeWallItemWindow.getContentId(),
+						removeWallItemWindow, wallAction, userUuid, this.getModelObject()));
 
-				// delete link should only appear when viewing own profile
-				target.appendJavascript("$('#" + WallItemPanel.this.getMarkupId() + "').slideUp();");
+				removeWallItemWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback(){
+
+					@Override
+					public void onClose(AjaxRequestTarget target) {
+						if (wallAction.isItemRemoved()) {
+							// delete link should only appear when viewing own profile
+							target.appendJavascript("$('#" + WallItemPanel.this.getMarkupId() + "').slideUp();");
+						}
+					}
+				});
+				
+				removeWallItemWindow.show(target);
+				target.appendJavascript("fixWindowVertical();"); 
 			}
 		};
 

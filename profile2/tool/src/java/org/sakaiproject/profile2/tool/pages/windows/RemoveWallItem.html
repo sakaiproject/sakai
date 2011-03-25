@@ -20,31 +20,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml"  
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
-      lang="en"> 
-       
+      lang="en">  
+      
 <body>
 
 <wicket:panel>
-	<div wicket:id="wallItemPhotoWrap">
-		<div>
-			<a><img wicket:id="wallItemPhoto" class="wall-item-img" /></a>
+
+    <div class="modalWindowWrapper">
+    	<div class="modalWindowMain">
+    		<div class="modalWindowText" wicket:id="text">[text]</div>
+    		<form wicket:id="form">
+				<div class="modalWindowButtons">
+					<input type="submit" wicket:id="submit" value="Submit" />
+					<input type="button" wicket:id="cancel" value="Cancel"/>
+				</div>
+			</form>
 		</div>
-	</div>
-	
-	<div class="wall-item-text-wrap">
-   		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		
-   		<div wicket:id="wallItemText">[wall item text]</div>
-   		<div class="wall-item-details">
-   			<div class="wall-item-actions-wrap">
-				<a wicket:id="removeWallItemLink"><span wicket:id="removeWallItemLabel"></span></a>
-	    	</div>
-   			<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
-   		</div>
-   	</div>
-   	
-   	<div wicket:id="removeWallItemWindow"></div>
-   	
+    </div>
+
 </wicket:panel>
 
+	
 </body>
 </html>
