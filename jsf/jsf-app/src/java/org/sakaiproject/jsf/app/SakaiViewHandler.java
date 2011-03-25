@@ -29,6 +29,7 @@ import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -132,9 +133,25 @@ public class SakaiViewHandler extends ViewHandler
 		return m_wrapped.getResourceURL(arg0, arg1);
 	}
 
-	public void renderView(FacesContext arg0, UIViewRoot arg1) throws IOException, FacesException
-	{
-		m_wrapped.renderView(arg0, arg1);
+	public void renderView(FacesContext context, UIViewRoot root) throws IOException, FacesException {
+		// SAK-20286 start
+		// Get the request
+		HttpServletRequest req = (HttpServletRequest) context.getExternalContext().getRequest();
+		String requestURI = req.getRequestURI();
+		// Make the attribute name unique to the request 
+		String attrName = "sakai.jsf.tool.URL.loopDetect.viewId-" + requestURI;
+		// Try to fetch the attribute
+		Object attribute = req.getAttribute(attrName);
+		// If the attribute is null, this is the first request for this view
+		if (attribute == null) {
+			req.setAttribute(attrName, "true");
+		} else if ("true".equals(attribute)) { // A looping request is detected.
+			HttpServletResponse res = (HttpServletResponse) context.getExternalContext().getResponse();
+			// Send a 404
+			res.sendError(404, "File not found: " + requestURI);
+		}
+		// SAK-20286 end
+		m_wrapped.renderView(context, root);
 	}
 
 	public UIViewRoot restoreView(FacesContext arg0, String arg1)
