@@ -76,7 +76,7 @@
 	<dependency>
 		<groupId>net.sourceforge.wurfl</groupId>
 		<artifactId>wurfl</artifactId>
-		<version>1.2</version>
+		<version>1.2.2</version>
 	</dependency>
 	<!-- required for unit tests -->
 	<dependency>
