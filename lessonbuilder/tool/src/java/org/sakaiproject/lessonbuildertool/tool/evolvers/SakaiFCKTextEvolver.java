@@ -9,10 +9,12 @@ package org.sakaiproject.lessonbuildertool.tool.evolvers;
 import java.util.Iterator;
 
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import uk.org.ponder.htmlutil.HTMLUtil;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIJointContainer;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIDecorator;
@@ -66,6 +68,8 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 			}
 		}
 
+   	        String editor = ServerConfigurationService.getString("wysiwyg.editor");
+
 		UIContainer parent = toevolve.parent;
 		toevolve.parent.remove(toevolve);
 		UIJointContainer joint = new UIJointContainer(parent, toevolve.ID, COMPONENT_ID);
@@ -74,9 +78,15 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 
 		toevolve.ID = SEED_ID; // must change ID while unattached
 		joint.addComponent(toevolve);
-		String collectionID = context.equals("") ? "" : contentHostingService.getSiteCollection(context);
-		String js = HTMLUtil.emitJavascriptCall("SakaiProject.fckeditor.initializeEditor", new String[] { toevolve.getFullID(), collectionID, height, width });
+		String js = null;
+		if ("ckeditor".equals(editor)) {
+		    js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID() });
+		} else {
+		    String collectionID = context.equals("") ? "" : contentHostingService.getSiteCollection(context);
+		    js = HTMLUtil.emitJavascriptCall("SakaiProject.fckeditor.initializeEditor", new String[] { toevolve.getFullID(), collectionID, height, width });
+		}
 		UIVerbatim.make(joint, "textarea-js", js);
+
 		return joint;
 	}
 

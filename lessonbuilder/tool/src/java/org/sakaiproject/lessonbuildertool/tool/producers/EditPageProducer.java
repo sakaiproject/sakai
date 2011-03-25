@@ -48,6 +48,7 @@ import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
@@ -58,6 +59,10 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.cover.ContentHostingService;
+
 
 /**
  * Uses an FCK editor to edit blocks of text.
@@ -105,8 +110,19 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 		    }
 		}
 
+   	        String editor = ServerConfigurationService.getString("wysiwyg.editor");
+
 		if (simplePageBean.canEditPage()) {
 			simplePageBean.setItemId(itemId);
+
+			if ("ckeditor".equals(editor)) {
+			    String siteid = simplePageBean.getCurrentSiteId();
+			    String collectionID = ContentHostingService.getSiteCollection(siteid);
+			    UIVerbatim.make(tofill, "ckscript1", "var sakai = {}; sakai.editor = {}; sakai.editor.collectionId = '" + collectionID + "'; sakai.editor.enableResourceSearch = false;");
+			    UIOutput.make(tofill, "ckscript2");
+			    UIOutput.make(tofill, "ckscript3");
+			    UIOutput.make(tofill, "ckscript4");
+			}
 
 			UIForm form = UIForm.make(tofill, "page_form");
 

@@ -232,6 +232,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
 
+        	boolean canEditPage = simplePageBean.canEditPage();
+		boolean canReadPage = simplePageBean.canReadPage();
+
+	        if (!canReadPage) {
+		    UIOutput.make(tofill, "error-div");
+		    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.nopermissions"));
+		    return;
+		}
+
 		Locale M_locale = null;
 		String langLoc[] = localegetter.get().toString().split("_");
 		if ( langLoc.length >= 2 ) {
@@ -278,6 +287,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
 		    } catch (Exception e) {
 			log.warn("ShowPage permission exception " + e);
+			UIOutput.make(tofill, "error-div");
 			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 			return;
 		    }
@@ -287,16 +297,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// last page from the previous session
 		SimplePageToolDao.PageData lastPage = simplePageBean.toolWasReset();
 
-        	boolean canEditPage = simplePageBean.canEditPage();
 		// if starting the tool, sendingpage isn't set. the following call
 		// will give us the top page.
 		SimplePage currentPage = simplePageBean.getCurrentPage();
 		// now we need to find our own item, for access checks, etc.
-		SimplePageItem pageItem = simplePageBean.getCurrentPageItem(((GeneralViewParameters) params).getItemId());
+		SimplePageItem pageItem = null;
+		if (currentPage != null)
+		    pageItem = simplePageBean.getCurrentPageItem(((GeneralViewParameters) params).getItemId());
 		// one more security check: make sure the item actually involves this page.
 		// otherwise someone could pass us an item from a different page in another site
-		if (Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId()) {
+		// actually this normally happens if the page doesn't exist and we don't have permission
+		// to create it
+		if (currentPage == null || Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId()) {
 		    log.warn("ShowPage item not in page");
+		    UIOutput.make(tofill, "error-div");
 		    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 		    return;
 		}
@@ -365,7 +379,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 
 			UIOutput.make(tofill, "dialogDiv");
-		} else if (!simplePageBean.canReadPage())
+		} else if (!canReadPage)
 		        return;
 		// at this point we know we can read or edit the page.
 		else {

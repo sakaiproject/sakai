@@ -877,7 +877,10 @@ public class SimplePageBean {
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
 																			// during creation
 				SimplePage page = simplePageToolDao.makePage(toolId, toolManager.getCurrentPlacement().getContext(), title, null, null);
-				simplePageToolDao.saveItem(page);
+				if (!simplePageToolDao.saveItem(page)) {
+				    currentPage = null;
+				    return 0;
+				}
 				try {
 				    updatePageObject(page.getPageId());
 				    l = page.getPageId();
