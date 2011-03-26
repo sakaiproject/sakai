@@ -1674,6 +1674,9 @@ public class SimplePageBean {
 	}
 
 	public String addPages()  {
+	    if (!canEditPage())
+		return "permission-fail";
+
 	    // javascript should have checked all this
 	    if (newPageTitle == null || newPageTitle.equals(""))
 		return "fail";
