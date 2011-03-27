@@ -11,6 +11,9 @@
     <!--<property name="dialect">org.hibernate.dialect.MySQLDialect</property>-->
     <!--<property name="dialect">org.hibernate.dialect.Oracle9Dialect</property>-->
 
+    <mapping resource="org/sakaiproject/siteassociation/impl/AssociationImpl.hbm.xml"/>
+
+
   </session-factory>
 
 </hibernate-configuration>
