@@ -201,7 +201,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return new ArrayList<WallItem>();
 		}
 
-		if (false == StringUtils.equals(userUuid, currentUserUuid)) {
+		if (false == StringUtils.equals(userUuid, currentUserUuid) && false == sakaiProxy.isSuperUser()) {
 			if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid,
 					privacy, currentUserUuid, connectionsLogic
 							.isUserXFriendOfUserY(userUuid, currentUserUuid))) {
@@ -215,7 +215,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		List<WallItem> filteredWallItems = new ArrayList<WallItem>();
 		for (WallItem wallItem : wallItems) {
 			// current user is always allowed to see their wall items
-			if (true == StringUtils.equals(userUuid, currentUserUuid)) {
+			if (true == StringUtils.equals(userUuid, currentUserUuid) || 
+					true == sakaiProxy.isSuperUser()) {
 				filteredWallItems.add(wallItem);
 			// don't allow friend-of-a-friend if not connected
 			} else if (privacyLogic.isUserXWallVisibleByUserY(wallItem.getCreatorUuid(), currentUserUuid,
@@ -261,7 +262,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			return 0;
 		}
 
-		if (false == StringUtils.equals(userUuid, currentUserUuid)) {
+		if (false == StringUtils.equals(userUuid, currentUserUuid) && false == sakaiProxy.isSuperUser()) {
 
 			if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid,
 					privacy, currentUserUuid, connectionsLogic
@@ -276,7 +277,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		List<WallItem> filteredWallItems = new ArrayList<WallItem>();
 		for (WallItem wallItem : wallItems) {
 			// current user is always allowed to see their wall items
-			if (true == StringUtils.equals(userUuid, currentUserUuid)) {
+			if (true == StringUtils.equals(userUuid, currentUserUuid) || 
+					true == sakaiProxy.isSuperUser()) {
 				filteredWallItems.add(wallItem);
 			// don't allow friend-of-a-friend if not connected
 			} else if (privacyLogic.isUserXWallVisibleByUserY(wallItem.getCreatorUuid(), currentUserUuid,

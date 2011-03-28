@@ -159,8 +159,13 @@ public class MyWallPanel extends Panel {
 							new Model<String>("alertMessage")));
 					target.addComponent(formFeedback);
 				} else {
-					MyWallPanel newPanel = new MyWallPanel(MyWallPanel.this
-							.getId());
+					
+					MyWallPanel newPanel;
+					if (true == sakaiProxy.isSuperUser()) {
+						newPanel= new MyWallPanel(MyWallPanel.this.getId(), userUuid);
+					} else {
+						newPanel= new MyWallPanel(MyWallPanel.this.getId());
+					}
 					newPanel.setOutputMarkupId(true);
 					MyWallPanel.this.replaceWith(newPanel);
 					if (null != target) {
