@@ -24,6 +24,7 @@ package org.sakaiproject.user.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
@@ -1225,7 +1227,19 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public List<User> searchUsers(String criteria, int first, int last)
 	{
-		return m_storage.search(criteria, first, last);
+		//KNL-691 split term on whitespace and perform multiple searches, no duplicates will be returned
+		Set<User> users = new TreeSet<User>();
+		List<String> terms = Arrays.asList(StringUtils.split(criteria));
+		for(String term:terms){
+			users.addAll(m_storage.search(term, first, last));
+		}
+		
+		List<User> userList = new ArrayList<User>(users);
+		
+		//sort on sortName, default.
+		Collections.sort(userList);
+		
+		return userList;
 	}
 
 	/**
@@ -1233,7 +1247,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public int countSearchUsers(String criteria)
 	{
-		return m_storage.countSearch(criteria);
+		//KNL-691 because we need to perform multiple searches and aggregate the results, but without duplicates,
+		//we just call the above method, which takes care of this, and then count the results
+		//return m_storage.countSearch(criteria);
+		return searchUsers(criteria, 1, Integer.MAX_VALUE).size();
 	}
 	
 	/**
