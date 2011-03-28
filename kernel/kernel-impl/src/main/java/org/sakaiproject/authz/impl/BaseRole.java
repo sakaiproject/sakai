@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -254,7 +253,7 @@ public class BaseRole implements Role
 	 */
 	public void setDescription(String description)
 	{
-		m_description = StringUtil.trimToNull(description);
+		m_description = StringUtils.trimToNull(description);
 	}
 
 	/**
