@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.Context;
@@ -52,7 +53,6 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.tool.cover.ToolManager;
 
@@ -128,7 +128,7 @@ public class AttachmentAction
 	static public String buildHelperContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		// look for a failed upload, which leaves the /special/upload in the URL %%%
-		if (StringUtil.trimToNull(rundata.getParameters().getString("special")) != null)
+		if (StringUtils.trimToNull(rundata.getParameters().getString("special")) != null)
 		{
 			VelocityPortletPaneledAction.addAlert(state, rb.getFormattedMessage("sizelimitexceeded", 
 			    new Object[] {state.getAttribute(FILE_UPLOAD_MAX_SIZE)}));

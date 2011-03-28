@@ -129,7 +129,6 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Element;
 
@@ -7650,7 +7649,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
 
 		// set the home collection to the parameter, if present, or the default if not
-		String home = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter("home"));
+		String home = StringUtils.trimToNull(portlet.getPortletConfig().getInitParameter("home"));
 		state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, home);
 		if ((home == null) || (home.length() == 0))
 		{
@@ -7738,7 +7737,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				for(int i = 0; i < siteTypes.length; i++)
 				{
-					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
+					if ((StringUtils.trimToNull(siteTypes[i])).equals(siteType))
 					{
 						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
 						break;

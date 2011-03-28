@@ -36,6 +36,7 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.Context;
@@ -74,7 +75,6 @@ import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
@@ -1700,7 +1700,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			{
 				for(int i = 0; i < siteTypes.length; i++)
 				{
-					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
+					if ((StringUtils.trimToNull(siteTypes[i])).equals(siteType))
 					{
 						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
 						break;
