@@ -58,28 +58,21 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 		//set userUuid
 		this.userUuid = userUuid;
 		
-		//get all friends of userX visible by userY
-		List<Person> allFriends = connectionsLogic.getConnectionsForUser(userUuid);
-		
-		//randomise this list
-		Collections.shuffle(allFriends);
-		
-		//make a subset (but make sure the sublist is not too big for the actual list size)
-		int allFriendsSize = allFriends.size();
+		//calculate the number we'll have in the feed, 0 < n < ProfileConstants.MAX_FRIENDS_FEED_ITEMS
+		int count = connectionsLogic.getConnectionsForUserCount(userUuid);
 		subListSize = ProfileConstants.MAX_FRIENDS_FEED_ITEMS;
 		
-		if(allFriendsSize < subListSize) {
-			subListSize = allFriendsSize;
+		if(count < subListSize) {
+			subListSize = count;
 		}
-		
-		//get final list
-		allFriends.subList(0, subListSize);
 	}
 	
 	
 	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<Person> slice = connectionsLogic.getConnectionsForUser(userUuid).subList(first, first + count);
+			List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid).subList(first, first + count);
+			Collections.shuffle(connections);
+			List<Person> slice = connections.subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -97,7 +90,7 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 	}
     
     public void detach() {}
-	
+    
 }
 
 

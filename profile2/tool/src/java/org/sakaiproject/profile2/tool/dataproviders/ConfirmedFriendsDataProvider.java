@@ -64,12 +64,6 @@ public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Seri
 		
 		//set userUuid
 		this.userUuid = userUuid;
-		
-		//get list of friends for user
-		List<Person> friends = connectionsLogic.getConnectionsForUser(userUuid);
-		
-		//sort list based on natural sort of Person model
-		Collections.sort(friends);
 	}
 
 	public Iterator<Person> iterator(int first, int count) {
