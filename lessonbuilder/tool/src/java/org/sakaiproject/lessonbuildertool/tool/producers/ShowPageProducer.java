@@ -70,6 +70,8 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -100,7 +102,6 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import org.springframework.core.io.Resource;
-
 
 /**
  * This produces the primary view of the page. It also handles the editing of the properties of most
@@ -246,6 +247,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (errMessage != null) {
 		    UIOutput.make(tofill, "error-div");
 		    UIOutput.make(tofill, "error", errMessage);
+		}
+
+		UsageSession usageSession = UsageSessionService.getSession();
+		String browserString = usageSession.getUserAgent();
+		int ieIndex = browserString.indexOf(" MSIE ");
+		int ieVersion = 0;
+		if (ieIndex >= 0) {
+		    String ieV = browserString.substring(ieIndex + 6);
+		    int i = 0;
+		    int e = ieV.length();
+		    while (i < e) {
+			if (Character.isDigit(ieV.charAt(i)))
+			    i++;
+			else
+			    break;
+		    }
+		    if (i > 0) {
+			ieV = ieV.substring(0, i);
+			ieVersion = Integer.parseInt(ieV);
+		    }
 		}
 
 		Locale M_locale = null;
@@ -781,9 +802,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						movieUrl = "/sakai-lessonbuildertool-tool/templates/StrobeMediaPlayback.swf";
 					    useFlvPlayer = true;
 					}
-					item2 = UIOutput.make(tableRow, "movieObject").
-					    decorate(new UIFreeAttributeDecorator("data", movieUrl)).
-					    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
+					// for IE before 9, if we're not supplying a player it's safest to use embed
+					// for older IE, the OBJECT tag needs a CLASSID or Quicktime won't work
+					// I prefer OBJECT where possible because of the nesting ability. However if we have trouble
+					// with OBJECT in IE 9, we'll use EMBED for it as well
+					boolean useEmbed = ieVersion > 0 && ieVersion < 9 && !mimeType.equals("application/x-shockwave-flash");
+					if (useEmbed)
+					    item2 = UIOutput.make(tableRow, "movieEmbed").
+						decorate(new UIFreeAttributeDecorator("src", movieUrl)).						
+						decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));						
+					else
+					    item2 = UIOutput.make(tableRow, "movieObject").
+						decorate(new UIFreeAttributeDecorator("data", movieUrl)).
+						decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
 					if (mimeType != null)
 					    item2.decorate(new UIFreeAttributeDecorator("type", mimeType));
 					if (canEditPage)
@@ -794,17 +825,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).
 						decorate(new UIFreeAttributeDecorator("width", width.getOld()));
 
-					if (useFlvPlayer)
-					    UIOutput.make(tableRow, "flashvars").
-						decorate(new UIFreeAttributeDecorator("value", (useJwPlayer ? "file=" : "src=") +
-						      URLEncoder.encode(myUrl() +  i.getURL())));
+					if (!useEmbed) {
+					    if (useFlvPlayer)
+						UIOutput.make(tableRow, "flashvars").
+						    decorate(new UIFreeAttributeDecorator("value", (useJwPlayer ? "file=" : "src=") +
+											  URLEncoder.encode(myUrl() +  i.getURL())));
 
-					UIOutput.make(tableRow, "movieURLInject").
+					    UIOutput.make(tableRow, "movieURLInject").
 						decorate(new UIFreeAttributeDecorator("value", movieUrl));
-					if (!isMp4) {
-					    UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-					    UIOutput.make(tableRow, "noplugin-br");
-					    UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
+					    if (!isMp4) {
+						UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
+						UIOutput.make(tableRow, "noplugin-br");
+						UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
+					    }
 					}
 
 					if (isMp4) {
