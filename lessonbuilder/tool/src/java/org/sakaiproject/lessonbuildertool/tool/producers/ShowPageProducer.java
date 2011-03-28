@@ -768,7 +768,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					String oMimeType = mimeType; // in case we change it for FLV or others
 					boolean useFlvPlayer = false;
 					boolean useJwPlayer = false;
-					boolean isMp4 =  mimeType.equals("video/mp4");
+					// in theory m4v can be DMRed. But Apple's DRM is useless on a web page, so it's got to be an unprotected file.
+					boolean isMp4 =  mimeType.equals("video/mp4") || mimeType.equals("video/x-m4v");
 					// FLV is special. There's no player for flash video in the browser
 					// it shows with a special flash program, which I supply
 					if (mimeType != null && ( mimeType.equals("video/x-flv") || isMp4)) {
