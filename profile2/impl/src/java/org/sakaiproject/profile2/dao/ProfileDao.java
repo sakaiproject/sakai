@@ -524,15 +524,7 @@ public interface ProfileDao {
 	 * @return the wall for the specified user.
 	 */
 	public Wall getWallItemsForUser(final String userUuid);
-	
-	/**
-	 * Returns the number of available wall items for the specified user.
-	 *  
-	 * @param userUuid the user ID.
-	 * @return the number of available wall items for the specified user.
-	 */
-	public int getWallItemsCount(final String userUuid);
-	
+		
 	/**
 	 * Saves a wall.
 	 * 

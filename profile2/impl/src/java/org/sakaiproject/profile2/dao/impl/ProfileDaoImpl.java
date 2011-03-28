@@ -1254,33 +1254,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return (Wall) getHibernateTemplate().execute(hcb);
 	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public int getWallItemsCount(final String userUuid) {
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_WALL);
-	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			
-	  			Wall wall = (Wall) q.uniqueResult();
-	  			
-	  			// create wall if not already created in db
-	  			if (null == wall) {
-	  				wall = new Wall();
-	  				wall.setUserUuid(userUuid);
-	  				saveWallForUser(wall);
-	  			}
-	  			
-	  			return wall.getWallItems().size();
-	  		}
-	  	};
-	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	}
-	
+		
 	/**
  	 * {@inheritDoc}
  	 */
