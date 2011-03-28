@@ -69,7 +69,7 @@ jQuery(document).ready(function () {
 				
 				<sakai:messages />
                 <f:verbatim><ul></f:verbatim>
-		<t:dataList id="dt1" value="#{UserPrefsTool.prefOrderItems}" 
+		<t:dataList id="dt1" value="#{UserPrefsTool.prefAllItems}" 
 			var="item" layout="simple" 
 			rowIndexVar="counter"
 			itemStyleClass="dataListStyle">
@@ -78,17 +78,6 @@ jQuery(document).ready(function () {
                 <f:verbatim>:</f:verbatim>
                         <t:outputText value="#{counter}"></t:outputText>
                 <f:verbatim>:</f:verbatim>
-                        <t:outputText value="#{item.value}"></t:outputText>
-                <f:verbatim>"></f:verbatim>
-                        <t:outputText value="#{item.label}"></t:outputText>
-                <f:verbatim></span></f:verbatim>
-		</t:dataList>
-                <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">&lt;-- TOP TABS -</span></f:verbatim>
-                <f:verbatim><span class="flc-reorderer-movable hiddenlike" id="hidden">- HIDDEN --&gt;</span></f:verbatim>
-		<t:dataList id="dt2" value="#{UserPrefsTool.prefExcludeItems}" 
-			var="item" layout="simple" 
-			itemStyleClass="dataListStyle">
-                <f:verbatim><span class="flc-reorderer-movable buttonlike" id="0:0:</f:verbatim>
                         <t:outputText value="#{item.value}"></t:outputText>
                 <f:verbatim>"></f:verbatim>
                         <t:outputText value="#{item.label}"></t:outputText>

@@ -332,6 +332,51 @@ public class UserPrefsTool
 	}
 
 	/**
+	 * @param prefAllItems
+	 *        The prefAllItems to get.
+	 */
+	public List getPrefAllItems()
+	{
+		String tcs = getTabCount();
+		int tc = DEFAULT_TAB_COUNT;
+		try 
+		{
+			tc = Integer.parseInt(tcs.trim());
+		}
+		catch(Exception e){
+			tc = DEFAULT_TAB_COUNT;
+		}
+System.out.println("TC="+tc);
+                List<SelectItem> l = new ArrayList<SelectItem>();
+		boolean drawer = false;
+                for (int i = 0; i < prefOrderItems.size(); i++)
+                {
+                        SelectItem item = (SelectItem) prefOrderItems.get(i);
+			l.add(item);
+			if ( i == (tc-2) )
+			{
+               			l.add( new SelectItem("//top-tabs", "<-- Top Tabs" ) );
+				drawer = true;
+			}
+                }
+		if ( !drawer ) {
+               		l.add( new SelectItem("//top-tabs", "<-- Top Tabs" ) );
+		}
+                l.add( new SelectItem( "//hidden", "Hidden -->" ) );
+                l.addAll(getPrefExcludeItems());
+		return l;
+	}
+
+	/**
+	 * @param prefAllItems
+	 *        The prefOrderItems to set.
+	 */
+	public void setPrefAllItems(List prefAllItems)
+	{
+System.out.println("SET");
+	}
+
+	/**
 	 ** @return number of worksite tabs to display in standard site navigation bar
 	 **/
 	public String getTabCount()
