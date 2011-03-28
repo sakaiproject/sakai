@@ -35,6 +35,7 @@ import java.util.Vector;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
@@ -46,7 +47,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.StorageUser;
-import org.sakaiproject.util.StringUtil;
 
 
 /**
@@ -417,20 +417,20 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 			else
 			{
-				rv[1] = StringUtil.trimToZero(edit.getEmail());
-				rv[2] = StringUtil.trimToZero(edit.getEmail().toLowerCase());
-				rv[3] = StringUtil.trimToZero(edit.getFirstName());
-				rv[4] = StringUtil.trimToZero(edit.getLastName());
-				rv[5] = StringUtil.trimToZero(edit.getType());
-				rv[6] = StringUtil.trimToZero(((BaseUserEdit) edit).m_pw);
+				rv[1] = StringUtils.trimToEmpty(edit.getEmail());
+				rv[2] = StringUtils.trimToEmpty(edit.getEmail().toLowerCase());
+				rv[3] = StringUtils.trimToEmpty(edit.getFirstName());
+				rv[4] = StringUtils.trimToEmpty(edit.getLastName());
+				rv[5] = StringUtils.trimToEmpty(edit.getType());
+				rv[6] = StringUtils.trimToEmpty(((BaseUserEdit) edit).m_pw);
 
 				// for creator and modified by, if null, make it the id
-				rv[7] = StringUtil.trimToNull(((BaseUserEdit) edit).m_createdUserId);
+				rv[7] = StringUtils.trimToNull(((BaseUserEdit) edit).m_createdUserId);
 				if (rv[7] == null)
 				{
 					rv[7] = rv[0];
 				}
-				rv[8] = StringUtil.trimToNull(((BaseUserEdit) edit).m_lastModifiedUserId);
+				rv[8] = StringUtils.trimToNull(((BaseUserEdit) edit).m_lastModifiedUserId);
 				if (rv[8] == null)
 				{
 					rv[8] = rv[0];
