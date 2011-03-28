@@ -78,7 +78,7 @@
 #set ( $pageCount = 0 )
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
-        #if (${page.isPage} && $pageCount < 100 )
+        #if (${page.isPage} && $pageCount < 15 )
 <li class="submenuitem"><span><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
         #end
     #end
@@ -140,18 +140,23 @@
 
 #if ( $siteTab == 1 )
 <div id="selectSite" style="display:none">
+	#if (${tabsSites.worksiteToolUrl})
+        <div id="allSites" style="float:right">
+<a id="allSitesLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true"><span style="color:white">All Sites</span></a>
+	</div>
+	#end
          <div id="otherSiteSearch">
          	<label for="txtSearch">Search</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
 	        <a id="imgSearch" href="#" style="display:none"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
      	</div>
      	<ul id="otherSiteList" role="navigation">
-						#foreach ( $site in $tabsSites.tabsSites ) 
-								#if (${site.isMyWorkspace})
-								#else 
-							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}" class="toolMenus">&nbsp;</a></li>
-								#end
-						#end
+##						#foreach ( $site in $tabsSites.tabsSites ) 
+##								#if (${site.isMyWorkspace})
+##								#else 
+##							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}" class="toolMenus">&nbsp;</a></li>
+##								#end
+##						#end
 						#foreach( $site in $tabsSites.tabsMoreSites )
 							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;</a></li>
 						#end	

@@ -181,6 +181,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 System.out.println("MY="+mySites.size()+" More="+moreSites.size()+" MWI="+myWorkspaceSiteId);
 		
  		String profileToolUrl = null;
+ 		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
                 if ( myWorkspaceSiteId != null ) for (Iterator iSi = mySites.iterator(); iSi.hasNext();)
                 {
@@ -201,6 +202,9 @@ System.out.println("MY="+mySites.size()+" More="+moreSites.size()+" MWI="+myWork
 					if ( "sakai.preferences".equals(placement.getToolId()) ) {
                 				prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
 					}
+					if ( "sakai.sitesetup".equals(placement.getToolId()) ) {
+                				worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+					}
 				}
 			}
 		}
@@ -210,6 +214,9 @@ System.out.println("MY="+mySites.size()+" More="+moreSites.size()+" MWI="+myWork
 		}
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
+		}
+		if ( worksiteToolUrl != null ) {
+			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
 
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,

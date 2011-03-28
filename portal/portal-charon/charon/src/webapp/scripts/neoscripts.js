@@ -400,7 +400,7 @@ jQuery(document).ready(function(){
         if (event.keyCode == 27) {
             resetSearch();
         }
-        if (jQuery('#txtSearch').val().length > 2) {
+        if (jQuery('#txtSearch').val().length > 0) {
             jQuery('#otherSiteList li').hide();
             //jQuery('#otherSiteList li:first').show();
             jQuery('#otherSiteList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show();

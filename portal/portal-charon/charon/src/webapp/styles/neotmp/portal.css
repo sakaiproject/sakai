@@ -92,16 +92,16 @@ a.lastBreadCrumb{
     }
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-   margin-right:20px;
+   margin-right:30px;
    margin-top:0px;
    padding-top:10px;
    margin-bottom:0px;
-   margin-left:20px;
+   margin-left:30px;
    background: #fff;
-   -moz-border-radius: 10px;
-   -webkit-border-radius: 10px;
-   -khtml-border-radius: 10px;
-   border-radius: 10px;
+   -moz-border-radius: 20px;
+   -webkit-border-radius: 20px;
+   -khtml-border-radius: 20px;
+   border-radius: 20px;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
