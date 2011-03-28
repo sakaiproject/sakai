@@ -94,9 +94,14 @@ a.lastBreadCrumb{
 #container{
    margin-right:20px;
    margin-top:0px;
+   padding-top:10px;
    margin-bottom:0px;
    margin-left:20px;
    background: #fff;
+   -moz-border-radius: 10px;
+   -webkit-border-radius: 10px;
+   -khtml-border-radius: 10px;
+   border-radius: 10px;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
