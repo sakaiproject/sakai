@@ -13,10 +13,17 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.WallAction;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
  * Confirmation dialog for removing wall item.
@@ -30,6 +37,15 @@ public class RemoveWallItem extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
+	private ProfilePreferencesLogic preferencesLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
+	private ProfilePrivacyLogic privacyLogic;
+
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
+	
 	public RemoveWallItem(String id, final ModalWindow window, final WallAction wallAction,
 			final String userUuid, final WallItem wallItem) {
 		
@@ -40,7 +56,19 @@ public class RemoveWallItem extends Panel {
 		window.setInitialWidth(500);
 		window.setResizable(false);
 		
-		final Label text = new Label("text", new StringResourceModel("text.wall.remove", null, new Object[]{ } ));
+		// add profile image of wall post creator
+		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(wallItem.getCreatorUuid());
+		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(wallItem.getCreatorUuid());
+		
+		add(new ProfileImageRenderer("image", wallItem.getCreatorUuid(), prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+		
+		final Label text;
+		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
+			text = new Label("text", new StringResourceModel(
+					"text.wall.remove", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
+		} else {
+			text = new Label("text", new StringResourceModel("text.wall.remove.mine", null, new Object[]{ } ));
+		}
         text.setEscapeModelStrings(false);
         text.setOutputMarkupId(true);
         add(text);
@@ -59,7 +87,16 @@ public class RemoveWallItem extends Panel {
 			}
 		};
 		submitButton.add(new FocusOnLoadBehaviour());
-		submitButton.add(new AttributeModifier("title", true, new StringResourceModel("accessibility.wall.remove", null, new Object[]{ } )));
+		
+		final AttributeModifier accessibilityLabel;
+		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
+			accessibilityLabel = new AttributeModifier(
+					"title", true, new StringResourceModel("accessibility.wall.remove", null, new Object[]{ } ));
+		} else {
+			accessibilityLabel = new AttributeModifier(
+					"title", true, new StringResourceModel("accessibility.wall.remove.mine", null, new Object[]{ } ));
+		}
+		submitButton.add(accessibilityLabel);
 		form.add(submitButton);
 		
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
