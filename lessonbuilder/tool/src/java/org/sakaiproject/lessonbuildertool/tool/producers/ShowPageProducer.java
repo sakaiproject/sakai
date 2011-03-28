@@ -802,15 +802,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						movieUrl = "/sakai-lessonbuildertool-tool/templates/StrobeMediaPlayback.swf";
 					    useFlvPlayer = true;
 					}
-					// for IE before 9, if we're not supplying a player it's safest to use embed
-					// for older IE, the OBJECT tag needs a CLASSID or Quicktime won't work
-					// I prefer OBJECT where possible because of the nesting ability. However if we have trouble
-					// with OBJECT in IE 9, we'll use EMBED for it as well
-					boolean useEmbed = ieVersion > 0 && ieVersion < 9 && !mimeType.equals("application/x-shockwave-flash");
+					// for IE, if we're not supplying a player it's safest to use embed
+					// otherwise Quicktime won't work. Oddly, with IE 9 only it works if you set CLASSID to the MIME type,
+					// but that's so unexpected that I hate to rely on it. EMBED is in HTML 5, so I think we're OK
+					// using it permanently for IE.
+					// I prefer OBJECT where possible because of the nesting ability. 
+					boolean useEmbed = ieVersion > 0 && !mimeType.equals("application/x-shockwave-flash");
+
 					if (useEmbed)
 					    item2 = UIOutput.make(tableRow, "movieEmbed").
 						decorate(new UIFreeAttributeDecorator("src", movieUrl)).						
-						decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));						
+						decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));						
 					else
 					    item2 = UIOutput.make(tableRow, "movieObject").
 						decorate(new UIFreeAttributeDecorator("data", movieUrl)).
