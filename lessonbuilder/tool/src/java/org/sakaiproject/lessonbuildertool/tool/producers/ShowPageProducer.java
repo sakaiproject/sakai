@@ -241,6 +241,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    return;
 		}
 
+		// error from previous operation
+		String errMessage = simplePageBean.errMessage();
+		if (errMessage != null) {
+		    UIOutput.make(tofill, "error-div");
+		    UIOutput.make(tofill, "error", errMessage);
+		}
+
 		Locale M_locale = null;
 		String langLoc[] = localegetter.get().toString().split("_");
 		if ( langLoc.length >= 2 ) {
@@ -761,9 +768,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					String oMimeType = mimeType; // in case we change it for FLV or others
 					boolean useFlvPlayer = false;
 					boolean useJwPlayer = false;
+					boolean isMp4 =  mimeType.equals("video/mp4");
 					// FLV is special. There's no player for flash video in the browser
 					// it shows with a special flash program, which I supply
-					if (mimeType != null && mimeType.equals("video/x-flv")) {
+					if (mimeType != null && ( mimeType.equals("video/x-flv") || isMp4)) {
 					    mimeType = "application/x-shockwave-flash";
 					    useJwPlayer = ServerConfigurationService.getBoolean("lessonbuilder.usejwplayer", false);
 					    if (useJwPlayer)
@@ -792,13 +800,31 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					UIOutput.make(tableRow, "movieURLInject").
 						decorate(new UIFreeAttributeDecorator("value", movieUrl));
-					UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
+					if (!isMp4) {
+					    UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
+					    UIOutput.make(tableRow, "noplugin-br");
+					    UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
+					}
 
-					// item = UIOutput.make(tableRow, "movieSrcURLInject").
-					//    decorate(new UIFreeAttributeDecorator("src", movieUrl));
-					//if (height != null && width != null)
-					//    item.decorate(new UIFreeAttributeDecorator("height", height.getOld())).
-					//	decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+					if (isMp4) {
+					    // do fallback 
+					    item2 = UIOutput.make(tableRow, "mp4-object").
+						decorate(new UIFreeAttributeDecorator("data", i.getURL())).
+						decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
+					    if (oMimeType != null)
+						item2.decorate(new UIFreeAttributeDecorator("type", oMimeType));
+
+					    // some object types seem to need a specification
+					    if (lengthOk(height) && lengthOk(width))
+						item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).
+						    decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+
+					    UIOutput.make(tableRow, "mp4-inject").
+						decorate(new UIFreeAttributeDecorator("value", i.getURL()));
+
+					    UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
+					    UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getURL());
+					}
 
 					if (canEditPage) {
 					    UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));

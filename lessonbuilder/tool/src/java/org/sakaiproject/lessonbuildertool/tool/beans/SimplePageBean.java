@@ -90,6 +90,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.springframework.web.multipart.MultipartFile;
+import uk.org.ponder.messageutil.MessageLocator;
 
 /**
  * Backing bean for Simple pages
@@ -133,6 +134,7 @@ public class SimplePageBean {
 	private SecurityService securityService;
 	private SiteService siteService;
 	private SimplePageToolDao simplePageToolDao;
+	public MessageLocator messageLocator;
 	private String contents = null;
 	private String pageTitle = null;
 	private String newPageTitle = null;
@@ -304,6 +306,19 @@ public class SimplePageBean {
 		itemCache.put(itemId, ret);
 	    return ret;
 	}
+
+       public String errMessage() {
+	   ToolSession toolSession = sessionManager.getCurrentToolSession();
+	   String error = (String)toolSession.getAttribute("lessonbuilder.error");
+	   if (error != null)
+	       toolSession.removeAttribute("lessonbuilder.error");
+	   return error;
+       }
+
+       public void setErrMessage(String s) {
+	   ToolSession toolSession = sessionManager.getCurrentToolSession();
+	   toolSession.setAttribute("lessonbuilder.error", s);
+       }
 
     // a lot of these are setters and getters used for the form process, as 
     // described above
@@ -2558,7 +2573,14 @@ public class SimplePageBean {
 		    contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
 		    sakaiId = res.getId();
 
-		} catch (Exception e) {log.error("addMultimedia error " + e);};
+		} catch (org.sakaiproject.exception.OverQuotaException ignore) {
+		    setErrMessage(messageLocator.getMessage("simplepage.overquota"));
+		    return;
+		} catch (Exception e) {
+		    setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
+		    log.error("addMultimedia error " + e);
+		    return;
+		};
 	    } else if (mmUrl != null && !mmUrl.trim().equals("")) {
 		// user specified a URL, create the item
 		String url = mmUrl.trim();
@@ -2592,8 +2614,14 @@ public class SimplePageBean {
 		    res.setContent(url.getBytes());
 		    contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 		    sakaiId = res.getId();
-		} catch (Exception e) {log.error("addMultimedia error " + e);};
-		
+		} catch (org.sakaiproject.exception.OverQuotaException ignore) {
+		    setErrMessage(messageLocator.getMessage("simplepage.overquota"));
+		    return;
+		} catch (Exception e) {
+		    setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
+		    log.error("addMultimedia error " + e);
+		    return;
+		};
 		// connect to url and get mime type
 		mimeType = getTypeOfUrl(url);
 
@@ -2665,7 +2693,12 @@ public class SimplePageBean {
 			res.setContent(url.getBytes());
 			contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			item.setSakaiId(res.getId());
-		    } catch (Exception e) {log.error("updateYoutube error " + e);};
+		    } catch (org.sakaiproject.exception.OverQuotaException ignore) {
+			setErrMessage(messageLocator.getMessage("simplepage.overquota"));
+		    } catch (Exception e) {
+			setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
+			log.error("addMultimedia error " + e);
+		    };
 		}
 
 		// even if there's some oddity with URLs, we do these updates

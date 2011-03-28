@@ -6,10 +6,6 @@
 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
-<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
-<script type="text/javascript" src="$context/js/show-page.js"></script>
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
 <link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.showpage"></title>
@@ -39,6 +35,10 @@ setMainFrameHeight(window.name);
 </head>
 
 <body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
+<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+<script type="text/javascript" src="$context/js/show-page.js"></script>
 	<div class="portletBody" id="outer" role="application">
 		
 		<div rsf:id="crumbdiv" class="fullwidth" role="navigation"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span><span class="navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="next">next</a> </span></div>
@@ -81,6 +81,17 @@ setMainFrameHeight(window.name);
 			<a href="#" rsf:id="help" target="_blank"></a>
 		</div>
 		
+		<div rsf:id="error-div" class="ui-widget" role="alert">
+			<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
+				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<div rsf:id="error" ></div>
+			</div>
+		</div>
+
+		<ul id="error-list" rsf:id="error-list:">
+		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
+		</ul>
+
 		<div class="itemclass" rsf:id="itemContainer:" role="main">
 			<div style="display:none" rsf:id="current-item-id"></div>
 		
@@ -156,7 +167,12 @@ setMainFrameHeight(window.name);
 					<td rsf:id="movie-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></td>
 
 					<td rsf:id="movieSpan" role="gridcell" class="hideOnDialog"><div>
-					    <object rsf:id="movieObject"><param name="src" rsf:id="movieURLInject" /><param name="FlashVars" rsf:id="flashvars"/><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/><p rsf:id="msg=simplepage.noplugin"></p><br/><a href="#" rsf:id="noplugin" target="_blank"></a></object>
+					    <object rsf:id="movieObject"><param name="src" rsf:id="movieURLInject" /><param name="FlashVars" rsf:id="flashvars"/><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/>
+					      <p rsf:id="noplugin-p"></p><br rsf:id="noplugin-br"/><a href="#" rsf:id="noplugin" target="_blank"></a>
+					      <object rsf:id="mp4-object"><param name="src" rsf:id="mp4-inject" /><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/>
+						<p rsf:id="mp4-noplugin-p"></p><br/><a href="#" rsf:id="mp4-noplugin" target="_blank"></a>
+					      </object>
+					    </object>
 					  </div>
 					  <div style="display:none" rsf:id="movieId" class="movie-id"></div>
 					  <div style="display:none" rsf:id="movieHeight" class="mm-height"></div>
@@ -174,17 +190,7 @@ setMainFrameHeight(window.name);
 
 		</div>
 		
-		<div rsf:id="error-div" class="ui-widget" role="alert">
-			<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
-				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				<div rsf:id="error" ></div>
-			</div>
-		</div>
-
-		<ul id="error-list" rsf:id="error-list:">
-		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
-		</ul>
-		
+	
 		<iframe rsf:id="startupHelp" role="document"
 		   name="SimplePageIFrame"
 		   class="portletMainIframe multimedia"
