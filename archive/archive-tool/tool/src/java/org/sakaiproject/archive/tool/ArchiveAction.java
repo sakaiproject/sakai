@@ -24,6 +24,8 @@ package org.sakaiproject.archive.tool;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.archive.cover.ArchiveService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -38,7 +40,6 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 
 /**
 * <p>ArchiveAction is the Sakai archive tool.</p>
@@ -248,8 +249,8 @@ public class ArchiveAction
 			int count = 1;
 			while (importFileName.hasMoreElements())
 			{
-				String path = StringUtil.trimToNull((String) importFileName.nextElement());
-				String siteCreatorName = StringUtil.trimToNull((String) fTable.get(path));
+				String path = StringUtils.trimToNull((String) importFileName.nextElement());
+				String siteCreatorName = StringUtils.trimToNull((String) fTable.get(path));
 				if (path != null && siteCreatorName != null)
 				{
 					String nSiteId = IdManager.createUuid();
