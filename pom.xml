@@ -166,7 +166,6 @@
                 <module>dav</module>
                 <module>gradebook</module>
                 <module>help</module>
-                <module>hybrid</module>
                 <module>lessonbuilder</module>
                 <module>linktool</module>
                 <module>login</module>
