@@ -840,31 +840,31 @@ a#toggleToolMenu{
 	width: 100%;
 }
 
-/*wrapper for title of iframe ("Users present")*/
-#presenceTitle{
-	font-size: .8em;
+/*wrapper for title of iframe ("Users present") AAAA*/
+#presenceTitle, #pc_title{
+	font-size: 1.1em;
+    color:#555;
+    line-height:1em;
     border-bottom:1px solid #ccc;
 	padding:5px;
     background:#eee;
-    height:15px;
-    vertical-align:middle;
+    vertical-align:bottom;
     border-bottom:1px solid #ddd
 }
-#presenceTitle div{
+#presenceTitle div, #pc_title div{
     position:absolute;
-    top:1px;
+    top:2px;
     text-align:center;
     right:0px;
     bottom:0;
     width:15px;    
-    height:16px;
+    height:13px;
     font-size:120%;
     border-left:1px solid #ccc;
     padding:4px;
 }    
-#presenceTitle div a{
+#presenceTitle div a,#pc_title div a{
     color:#888;
-    font-weight:bold;
     padding:3px;
     text-decoration:none;
 }    
@@ -1104,11 +1104,13 @@ below they are contextually defined depending on the column as an example,as you
     padding: 2px;
 }
 #footerAppChat{
-    height:100%;
-    vertical-align:middle;
-    color:#fff;
+    height:35px;
+    vertical-align:bottom;
+    color:#000;
     float:left;
-    padding: 2px;
+    text-align:left;
+    width:200px;
+    padding: 5px;
 }
 #presenceToggle{
 	color: white;
@@ -1116,14 +1118,14 @@ below they are contextually defined depending on the column as an example,as you
 	text-decoration: none;
 }
 #chatToggle{
-	color: white;
+	color: #888;
     outline:1px solid transparent;
 	text-decoration: none;
 }
 #footerAppTray span.present {
     background-color: #b11;
     padding:0 5px;
-    outline:1px solid red;
+    color:#fff;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -1138,14 +1140,15 @@ below they are contextually defined depending on the column as an example,as you
 }
 #footerAppTray #presenceCount{
     font-size:80%;
-    outline:1px solid transparent;
+    outline:none;
 }
 #footerAppTray #chattableCount{
     font-size:80%;
-    outline:5px solid transparent;
+    margin-left:10px;
+    outline:none;
 }
 #footerAppTray span.empty {
-      visibility:hidden;
+    visibility:hidden;
 }    
 /*PART 8 - CONVENIENCE*/
 /*used to hide various blocks from sighted users that are in the source to help with accessibility*/
@@ -1646,14 +1649,13 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 /* pc = Portal Chat */
 
 #pc {
-    width: 300px;
+    width: 210px;
+    font-family:Helvetica, 'Helvetica Neue', Arial;
     background-color: white;
     border: 1px solid #aaa;
     position: fixed;
-    bottom: 0px;
-    bottom: 22px;
+    bottom: 24px;
     /* Needs to be to the right of the expanded presence block. See presenceArea. */
-    right: 185px;
     right: 5px;
     z-index: 2001;
     margin: 0px;
@@ -1664,7 +1666,7 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 #pc_chat_window_container {
     position: fixed;
     /* The chats container is placed just to the left of the connections menu */
-    right: 306px;
+    right: 216px;
     bottom: 0px;
     height: 300px;
     /* This ridiculous width prevents pc_chat_windows from stacking */
@@ -1682,6 +1684,7 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 }
 
 #pc_title {
+/*
 	font-size: .8em;
     border-bottom:1px solid #ccc;
 	padding:5px;
@@ -1689,9 +1692,11 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     height:15px;
     vertical-align:middle;
     border-bottom:1px solid #ddd
+*/
 }
 
 #pc_title div{
+/*
     position:absolute;
     top:1px;
     text-align:center;
@@ -1702,12 +1707,15 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     font-size:120%;
     border-left:1px solid #ccc;
     padding:4px;
-}    
+
+*/}    
 #pc_title div a{
+/*
     color:#888;
     font-weight:bold;
     padding:3px;
     text-decoration:none;
+*/
 }    
 
 #pc_people {
@@ -1723,11 +1731,21 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 #pc_connections_wrapper {
     padding: 5px;
     clear: both;
+    font-size:95%;
+    height:100%;
+    overflow:hidden;
 }
 
+#pc_connections_label, #pc_site_users_label{
+    padding:2px 0;
+    font-weight:bold;
+    color:#555
+}
 #pc_site_users {
-    padding: 5px;
-    overflow: auto;
+    padding:5px 0;
+    font-size:90%;
+    height:100%;
+    overflow:hidden;
 }
 
 #pc_users {
@@ -1737,13 +1755,49 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 }
 
 #pc_connections {
-    padding: 5px;
+    padding: 5px 0;
 }
+.pc_connection,.pc_site_user{
+    clear: both;
+    height:100%;
+    overflow:hidden;
+    margin:3px 0;
+    position:relative;
+}
+.pc_connection_image, .pc_user_image{
+/*
+    remove width after the image is 
+    scaled server-side - width of connection or site user
+    below might need to be tweaked 
 
+*/    width:15%;
+}
+.pc_connection_display_name, .pc_site_display_name{
+    padding:3px;
+    font-size:90%;
+    display:block;
+    float:left;
+    width:120px
+}
+.pc_site_display_name{
+    width:140px;
+}
+.pc_connection_image, .pc_user_image, .pc_display_status_bullet{
+    vertical-align:middle;
+    display:block;
+    float:left;
+}
 #pc_options {
     overflow: none;
+    font-size:90%;
+    padding:5px;
 }
-
+#pc_show_off_ctrl{
+    
+}
+pc_go_off_ctrl{
+    
+}
 
 .pc_minimised {
 margin-top: 255px;
@@ -1799,5 +1853,14 @@ margin-top: 0px;
 
 .pc_pinged_popup {
     display: none;
-    color: green;
+    color: #fff;
+    padding:2px;
+    position:absolute;
+    right:30px;top:1px;
+    background:green;
+   -moz-border-radius: 3px;
+   -webkit-border-radius: 3px;
+   -khtml-border-radius: 3px;
+   border-radius: 3px;
+    
 }

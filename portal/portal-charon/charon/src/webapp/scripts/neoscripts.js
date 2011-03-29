@@ -355,7 +355,7 @@ function f_filterResults(n_win, n_docel, n_body){
 
 jQuery(document).ready(function(){
     if ($('#eid').length === 1) {
-        $(this).focus()
+        $('#eid').focus()
     }
     
     // open tool menus in "other sites" panel
@@ -437,7 +437,6 @@ jQuery(document).ready(function(){
         e.preventDefault();
         $(this).closest('.trayPopup').hide();
     })
-    
 });
 
 var setupSiteNav = function(){

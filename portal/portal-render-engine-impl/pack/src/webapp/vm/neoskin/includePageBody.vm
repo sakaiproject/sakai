@@ -198,38 +198,37 @@
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
 				<div id="footerAppTray">
+				## TODO: need to wrap these two in a server or server properties
 					<div id="footerAppChat">
-						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/></a>
+						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/> Chat 
 						<span id="chattableCount"></span>
+						</a>
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
 					</div>	
 					<div id="footerAppPresence">
 						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
 						<span id="presenceCount"></span>
 					</div>
-					
 				</div>
-
-
-
 			</div>
 
+		## TODO: need to wrap next div and trimpath templates in a server property check (if portal chat true)
             <!-- START FLOATING CHAT STUFF -->
 
             <div id="pc">
 				<div id="pc_title">Chat<div><a href="#" id="pc_chat_close">x</a></div></div>
                 <div id="pc_content">
                     <div id="pc_options">
-                        <div style="float: left;"><input type="checkbox" id="pc_showoffline_connections_checkbox"/>Show offline connections</div>
-                        <div style="float: right; padding-right: 5px;"><input type="checkbox" id="pc_go_offline_checkbox"/>Offline</div>
+                        <div id="pc_show_off_ctrl"><input type="checkbox" id="pc_showoffline_connections_checkbox"/><label for="pc_showoffline_connections_checkbox">Show offline connections</label></div>
+                        <div id="pc_go_off_ctrl"><input type="checkbox" id="pc_go_offline_checkbox"/><label for="pc_go_offline_checkbox">Show as offline</label></div>
                     </div>
                     <div id="pc_users">
                         <div id="pc_connections_wrapper">
-                            <div id="pc_connections_label">My Connections:</div>
+                            <div id="pc_connections_label">My Connections</div>
                             <div id="pc_connections"></div>
                         </div>
                         <div class="pc_users_wrapper">
-                            <div id="pc_site_users_label">Site Users:</div>
+                            <div id="pc_site_users_label">In this site</div>
                             <div id="pc_site_users"></div>
                         </div>
                     </div>
@@ -243,13 +242,15 @@
             <div id="pc_connections_template" style="display:none;"><!--
                 {for connection in connections}
                     <div class="pc_connection">
+
                         <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${connection.uuid}');">
-                            <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image" border="0" width="30"/>
-                            <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img src="/library/image/silk/bullet_green.png" border="0"/>{else}<img src="/library/image/silk/bullet_red.png" border="0"/>{/if}
+							## TODO: the width and height below should be set to be whatever the server-side caling sets it to be (to avoid jiggle)
+                            <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image"/>
+                            <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>{else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>{/if}
                         </a>
                         {if connection.online == false}
                             <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="Ping ${connection.displayName} to come and chat"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
-                            <span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">Pinged !</span>
+                       		<span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">Pinged !</span>
                         {/if}
                     </div>
                 {/for}
@@ -261,8 +262,9 @@
                 {for user in siteUsers}
                     <div class="pc_site_user">
                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${user.id}');">
-                            <img class="pc_user_image" src="/direct/profile/${user.id}/image" border="0" width="30"/>
-                            <span class="pc_connection_display_name">${user.displayName}</span><img src="/library/image/silk/bullet_green.png" border="0"/>
+							## TODO: the width and height below should be set to be whatever the server-side caling sets it to be (to avoid jiggle)
+                            <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
+                            <span class="pc_site_display_name">${user.displayName}</span><img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                         </a>
                     </div>
                 {/for}
@@ -287,11 +289,12 @@
 
             <!-- END FLOATING CHAT STUFF -->
 
+		## TODO: need to wrap next div in a server property check (if portal chat false or null  && sitePages.pageNavShowPresenceLoggedIn)
 			#if (${sitePages.pageNavShowPresenceLoggedIn})
                              <div id="presenceArea" style="display: none" class="trayPopup">
 				<h1 class="skip">${rloader.sit_presencehead}</h1>
 				<div id="presenceWrapper">
-					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" id="presenceClose">x</a></div></div>
+					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" id="presenceClose" class="trayPopupClose">x</a></div></div>
 #if (${sitePages.pageNavPresenceIframe})
 					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
 						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >

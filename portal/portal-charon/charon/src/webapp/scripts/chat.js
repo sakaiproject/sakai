@@ -134,6 +134,7 @@ function PortalChat() {
 		}
 
 		$('#pc_editor_for_' + uuid).focus();
+        $('#pc').hide();
 
 		sessionStorage.setItem(uuid,JSON.stringify(sms));
 
