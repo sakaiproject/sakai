@@ -4673,7 +4673,13 @@ public class AssignmentAction extends PagedResourceActionII
 		if (params.getString("allowResToggle") != null && params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 		{
 			// read in allowResubmit params 
-			readAllowResubmitParams(params, state, null);
+			Time resubmitCloseTime = readAllowResubmitParams(params, state, null);
+			if (resubmitCloseTime != null) {
+			    // check the date is valid
+			    if (openTime != null && ! resubmitCloseTime.after(openTime)) {
+                    addAlert(state, rb.getString("acesubdea6"));
+			    }
+			}
 		}
 		else
 		{
@@ -8033,9 +8039,11 @@ public class AssignmentAction extends PagedResourceActionII
 	 * read in the resubmit parameters into state variables
 	 * @param params
 	 * @param state
+	 * @return the time set for the resubmit close OR null if it is not set
 	 */
-	protected void readAllowResubmitParams(ParameterParser params, SessionState state, Entity entity)
+	protected Time readAllowResubmitParams(ParameterParser params, SessionState state, Entity entity)
 	{
+	    Time resubmitCloseTime = null;
 		String allowResubmitNumberString = params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 		state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 	
@@ -8061,13 +8069,13 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				closeHour = 0;
 			}
-			Time closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
+			resubmitCloseTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
+			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(resubmitCloseTime.getTime()));
 			// no need to show alert if the resubmission setting has not changed
 			if (entity == null || change_resubmit_option(state, entity))
 			{
 				// validate date
-				if (closeTime.before(TimeService.newTime()) && state.getAttribute(NEW_ASSIGNMENT_PAST_CLOSE_DATE) == null)
+				if (resubmitCloseTime.before(TimeService.newTime()) && state.getAttribute(NEW_ASSIGNMENT_PAST_CLOSE_DATE) == null)
 				{
 					state.setAttribute(NEW_ASSIGNMENT_PAST_CLOSE_DATE, Boolean.TRUE);
 				}
@@ -8091,6 +8099,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// reset the state attributes
 			resetAllowResubmitParams(state);
 		}
+		return resubmitCloseTime;
 	}
 	
 	protected void resetAllowResubmitParams(SessionState state)
