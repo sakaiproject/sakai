@@ -32,6 +32,7 @@ public class MessagesComponent extends HtmlMessages
 		setShowSummary(false);
 		setShowDetail(true);
 		
+		
 	}
 }
 
