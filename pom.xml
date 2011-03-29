@@ -171,7 +171,6 @@
                 <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
-                <module>mailsender</module>
                 <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
@@ -183,7 +182,6 @@
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <module>roster2</module>
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
