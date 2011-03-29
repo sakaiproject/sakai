@@ -262,8 +262,7 @@ create index PROFILE_STATUS_DATE_ADDED_I on PROFILE_STATUS_T (DATE_ADDED);
 
 -- Profile2 1.3-1.4 upgrade end
 
--- ShortenedUrlService 1.0.0 db creation start
-
+-- SHORTURL-26 shortenedurlservice 1.0
 create table URL_RANDOMISED_MAPPINGS_T (
 	ID number(19,0) not null,
 	TINY varchar2(255 CHAR) not null,
@@ -274,8 +273,6 @@ create table URL_RANDOMISED_MAPPINGS_T (
 create index URL_INDEX on URL_RANDOMISED_MAPPINGS_T (URL);
 create index KEY_INDEX on URL_RANDOMISED_MAPPINGS_T (TINY);
 create sequence URL_RANDOMISED_MAPPINGS_S;
-
--- ShortenedUrlService 1.0.0 db creation end
 
 -- SAK-18864/SAK-19951/SAK-19965 added create statement for scheduler_trigger_events
 create table SCHEDULER_TRIGGER_EVENTS (

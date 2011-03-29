@@ -253,7 +253,7 @@ alter table SAM_ASSESSMENTGRADING_T add column LASTVISITEDQUESTION integer defau
 -- If you get an error when running this script, you will need to clean the duplicates first. Please refer to SAM-775.
 create unique index ASSESSMENTGRADINGID on SAM_ITEMGRADING_T (ASSESSMENTGRADINGID, PUBLISHEDITEMID, PUBLISHEDITEMTEXTID, AGENTID, PUBLISHEDANSWERID);
 
--- ShortenedUrlService 1.0.0 db creation start
+-- SHORTURL-26 shortenedurlservice 1.0
 create table URL_RANDOMISED_MAPPINGS_T (
 	ID bigint not null auto_increment,
 	TINY varchar(255) not null,
@@ -261,9 +261,8 @@ create table URL_RANDOMISED_MAPPINGS_T (
 	primary key (ID)
 );
 
-create index URL_INDEX on URL_RANDOMISED_MAPPINGS_T (URL);
+create index URL_INDEX on URL_RANDOMISED_MAPPINGS_T (URL(200));
 create index KEY_INDEX on URL_RANDOMISED_MAPPINGS_T (TINY);
--- ShortenedUrlService 1.0.0 db creation end
 
 -- KNL-563 table structure for sakai_message_bundle
 create table SAKAI_MESSAGE_BUNDLE (
