@@ -958,11 +958,11 @@ public class FormattedText
 		String ret;
 
 		// first check if an HTML-encoded attribute exists, for example "foo-html", and use it if available
-		ret = StringUtil.trimToNull(Xml.decodeAttribute(element, baseAttributeName + "-html"));
+		ret = StringUtils.trimToNull(Xml.decodeAttribute(element, baseAttributeName + "-html"));
 		if (ret != null) return ret;
 
 		// next try the older kind of formatted text like "foo-formatted", and convert it if found
-		ret = StringUtil.trimToNull(Xml.decodeAttribute(element, baseAttributeName + "-formatted"));
+		ret = StringUtils.trimToNull(Xml.decodeAttribute(element, baseAttributeName + "-formatted"));
 		ret = FormattedText.convertOldFormattedText(ret);
 		if (ret != null) return ret;
 
