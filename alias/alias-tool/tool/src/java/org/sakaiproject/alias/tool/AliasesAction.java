@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -47,7 +49,6 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -465,8 +466,8 @@ public class AliasesAction extends PagedResourceActionII
 	private boolean readAliasForm(RunData data, SessionState state)
 	{
 		// read the form
-		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
-		String target = StringUtil.trimToNull(data.getParameters().getString("target"));
+		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
+		String target = StringUtils.trimToNull(data.getParameters().getString("target"));
 		
 		// get the alias
 		AliasEdit alias = (AliasEdit) state.getAttribute("alias");
@@ -515,7 +516,7 @@ public class AliasesAction extends PagedResourceActionII
 	protected List readResourcesPage(SessionState state, int first, int last)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		if (search != null)
 		{
@@ -531,7 +532,7 @@ public class AliasesAction extends PagedResourceActionII
 	protected int sizeResources(SessionState state)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		if (search != null)
 		{
