@@ -182,8 +182,8 @@
 							  </h:panelGroup>
               				<h:panelGroup rendered="#{EditMeetingSignupMBean.attendanceOn}">
 								<h:selectBooleanCheckbox id="attendanceSelection" value="#{EditMeetingSignupMBean.signupMeeting.allowAttendance}" />
-								<h:outputLabel value="Attendance will be taken" for="attendanceSelection" styleClass="titleText"/>
-								<h:outputText value=" (you can track attendance to this meeting if selected)" escape="false" styleClass="textPanelFooter"/>
+								<h:outputLabel value="#{msgs.attend_taken}" for="attendanceSelection" styleClass="titleText"/>
+								<h:outputText value="#{msgs.attend_track_selected}" escape="false" styleClass="textPanelFooter"/>
 							  </h:panelGroup>
               
 							<%-- handle meeting types --%>

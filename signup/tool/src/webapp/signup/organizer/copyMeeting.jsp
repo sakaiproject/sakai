@@ -300,6 +300,15 @@
 				                        <h:outputText value="</div>" escape="false" />
 				                    </h:panelGroup>   				                        
 				          	</h:panelGrid>
+				          	
+				          	<h:panelGroup rendered="#{CopyMeetingSignupMBean.attendanceOn}">
+								<h:outputText value="Attendance" escape="false" styleClass="titleText"/>
+							  </h:panelGroup>
+              				<h:panelGroup rendered="#{CopyMeetingSignupMBean.attendanceOn}">
+								<h:selectBooleanCheckbox id="attendanceSelection" value="#{CopyMeetingSignupMBean.signupMeeting.allowAttendance}" />
+								<h:outputLabel value="#{msgs.attend_taken}" for="attendanceSelection" styleClass="titleText"/>
+								<h:outputText value="#{msgs.attend_track_selected}" escape="false" styleClass="textPanelFooter"/>
+							</h:panelGroup>
 							
 							
 							<%-- handle meeting types --%>
