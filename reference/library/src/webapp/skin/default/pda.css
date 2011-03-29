@@ -187,7 +187,7 @@ margin below on the toolbar if there is one to make it flush horiz.
 	padding:0;
 	display:block;
 	margin:0;
-	width: 100%;
+	width: auto;
 }
 #pda-portlet-page-menu a{
 	padding-left:25px;
@@ -396,7 +396,7 @@ html {
     -webkit-text-size-adjust: none;
 }    
 #pda-portlet-site-menu a, #pda-portlet-page-menu a {
-    width:280px !important;
+    width:auto !important;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -496,7 +496,7 @@ for a landscape orientation of the iPhone/iPod  T
     white-space: nowrap;
 }
 #pda-portlet-site-menu a, #pda-portlet-page-menu a {
-    width:460px !important;
+    width:auto !important;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -809,4 +809,3 @@ background-image: url(../../image/silk/comment.png);
     background-image: url(../../image/sakai/sakai.melete.png); 
 }
 
-	
