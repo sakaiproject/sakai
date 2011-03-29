@@ -563,6 +563,13 @@
 								</h:panelGroup>
 								
 								<h:outputText value="&nbsp;" escape="false"/>
+								<h:panelGroup >							 
+									<h:outputText value="#{msgs.organizer_instruction_click}" escape="false"/>
+									<h:graphicImage value="/images/email_go.png"/>
+									<h:outputText value="#{msgs.organizer_instruction_mailto_image}" escape="false"/>
+								</h:panelGroup>
+								
+								<h:outputText value="&nbsp;" escape="false"/>
 								<h:outputText value="#{msgs.organizer_instruction_max_capacity}" escape="false"/>
 							</h:panelGrid>
 					</sakai:doc_section>	
