@@ -843,23 +843,31 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 
 					if (isMp4) {
-					    // do fallback 
-					    item2 = UIOutput.make(tableRow, "mp4-object").
-						decorate(new UIFreeAttributeDecorator("data", i.getURL())).
-						decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
+					    // do fallback. for ie use EMBED
+					    if (ieVersion > 0) {
+						item2 = UIOutput.make(tableRow, "mp4-embed").
+						    decorate(new UIFreeAttributeDecorator("src", i.getURL())).
+						    decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
+					    } else {
+						item2 = UIOutput.make(tableRow, "mp4-object").
+						    decorate(new UIFreeAttributeDecorator("data", i.getURL())).
+						    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
+					    }
 					    if (oMimeType != null)
 						item2.decorate(new UIFreeAttributeDecorator("type", oMimeType));
-
+					    
 					    // some object types seem to need a specification
 					    if (lengthOk(height) && lengthOk(width))
 						item2.decorate(new UIFreeAttributeDecorator("height", height.getOld())).
 						    decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-
-					    UIOutput.make(tableRow, "mp4-inject").
-						decorate(new UIFreeAttributeDecorator("value", i.getURL()));
-
-					    UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-					    UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getURL());
+						
+					    if (!useEmbed) {
+						UIOutput.make(tableRow, "mp4-inject").
+						    decorate(new UIFreeAttributeDecorator("value", i.getURL()));
+						
+						UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
+						UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getURL());
+					    }
 					}
 
 					if (canEditPage) {
