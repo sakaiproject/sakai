@@ -32,6 +32,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
@@ -148,11 +149,21 @@ public class ViewWallPanel extends Panel {
 		
 		// note: privacy check is handled by the logic component
 		WallItemDataProvider provider = new WallItemDataProvider(userUuid);
-
+				
 		// if no wall items, display a message
 		if (0 == provider.size()) {
-			add(new Label("wallInformationMessage",
-				new ResourceModel("text.view.wall.nothing")));
+			if (privacyLogic.isUserXWallVisibleByUserY(
+					userUuid, privacyLogic.getPrivacyRecordForUser(userUuid),
+					currentUserId, connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserId))) {
+				
+				// this user has no items on their wall
+				add(new Label("wallInformationMessage",
+						new StringResourceModel("text.view.wall.nothing", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } )).setEscapeModelStrings(false));				
+			} else {
+				// wall privacy is set to connections
+				add(new Label("wallInformationMessage",
+						new StringResourceModel("text.view.wall.restricted", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } )).setEscapeModelStrings(false));
+			}
 		} else {
 			// blank label when there are items to display
 			add(new Label("wallInformationMessage"));
