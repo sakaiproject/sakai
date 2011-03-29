@@ -207,6 +207,7 @@
                     components/emailtemplateservice-pack;
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
+                    components/mailsender-pack;
                     components/msgcntr-component;
                     components/polls-pack;
                     components/profile-component;
@@ -272,6 +273,16 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
+                
+                <!-- mailsender evaluation -->
+                <dependency>
+                    <groupId>org.sakaiproject.mailsender</groupId>
+                    <artifactId>mailsender-assembly</artifactId>
+                    <version>1.7.0-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
                     <artifactId>messageforums-assembly</artifactId>
