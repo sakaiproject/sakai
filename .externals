@@ -47,8 +47,5 @@ was https://source.sakaiproject.org/svn/was/trunk
 web https://source.sakaiproject.org/svn/web/trunk
 
 # Experimental Sakai capabilities
-hybrid https://source.sakaiproject.org/svn/hybrid/trunk/
 lessonbuilder https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk/
-mailsender https://source.sakaiproject.org/contrib/mailsender/trunk/
 neo-portal https://source.sakaiproject.org/svn/portal/branches/SAK-19813/
-roster2 https://source.sakaiproject.org/contrib/roster2/trunk/
