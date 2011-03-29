@@ -61,7 +61,7 @@
 				</h3>
 				
 				
-				<sakai:messages />
+				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br/><br/><h:outputText value="#{msgs.tab_inst_2}"/><br/><br/><h:outputText value="#{msgs.tab_inst_3}"/><br /><br /><h:outputText value="#{msgs.tab_inst_save}"/></p>
 				<table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout" border="0">
     			  <tr>

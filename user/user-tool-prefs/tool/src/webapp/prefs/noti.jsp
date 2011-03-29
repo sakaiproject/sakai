@@ -85,7 +85,7 @@
 				</h3>
 
 	
-				<sakai:messages />
+				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				
 
 <%--(gsilver) selectOneRadio renders a table but will not accept a summary attribute. Need mechanism to tell screen readers that the table is a layour table.	 --%>

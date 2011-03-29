@@ -58,7 +58,7 @@
 
 
 				
-				<sakai:messages />
+				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				<h3>
 					<h:outputText value="#{msgs.prefs_timezone_title}" />
 					<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}"   style="margin:0 3em;font-weight:normal">

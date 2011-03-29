@@ -55,7 +55,7 @@
    	  	</sakai:tool_bar>
 				
 	
-				<sakai:messages />
+				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				
 				<h3>
 					<h:outputText value="#{msgs.prefs_lang_title}" />
