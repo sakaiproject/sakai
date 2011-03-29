@@ -76,6 +76,8 @@ import org.w3c.dom.NodeList;
  */
 public abstract class BasePreferencesService implements PreferencesService, StorageUser
 {
+	
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BasePreferencesService.class);
 
@@ -91,6 +93,10 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	/** The session cache variable for indicating whether the current user's preference was null when last looked */
 	protected String ATTR_PREFERENCE_IS_NULL = "attr_preference_is_null";
 	
+	/**
+	 * Key used to store the locale preferences
+	 */
+	private static final String LOCALE_PREFERENCE_KEY = "sakai:resourceloader";
 	
 	/** the cache for Preference objects **/
 	private Cache m_cache;
@@ -506,7 +512,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	{
 		Locale loc = null;
 		Preferences prefs = getPreferences(userId);
-		ResourceProperties locProps = prefs.getProperties(APPLICATION_ID);
+		ResourceProperties locProps = prefs.getProperties(LOCALE_PREFERENCE_KEY);
 		String localeString = locProps.getProperty(Preferences.FIELD_LOCALE);
 		
 		// Parse user locale preference if set
@@ -806,7 +812,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 					else if (key.endsWith("ResourceLoader"))
 					{
 						// matches ResourceLoader.APPLICATION_ID
-						key = "sakai:resourceloader";
+						key = LOCALE_PREFERENCE_KEY;
 					}
 
 					BaseResourcePropertiesEdit props = null;
