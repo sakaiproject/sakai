@@ -331,6 +331,64 @@ public class UserPrefsTool
 		this.prefOrderItems = prefOrderItems;
 	}
 
+	public String getPrefAllString()
+	{
+		return "";
+	}
+
+	public void setPrefAllString(String inp)
+	{
+System.out.println("setPrefAllString:"+inp);
+		inp = inp.trim();
+		if ( inp.length() < 1 ) return;
+		String [] ids = inp.split(":/:");
+		String tabs = "";
+		String excludes = "";
+		int tabcount = -1;
+		int pos = 0;
+		int state = 0;  // 0 = top tabs, 1 = drawer, 2 = excludes
+		String error = "";
+		// Sample: ABC 123 //top def hij //hidden mmm ttt qqq
+		for ( String id : ids ) {
+System.out.println("id="+id);
+			id = id.trim();
+			if ( id.length() < 1 ) continue;
+			if ( "//top-tabs".equals(id) ) {  // The end of the top tabs
+				if ( pos < 3 ) {
+					error = "Too few top tabs";
+					break;
+				}
+				state = 1;
+				tabcount = pos + 1;
+				continue;
+			}
+			if ( "//hidden".equals(id) ) { // The transition to hidden
+				if ( state != 1 ) {
+					error = "Hidden must follow top tabs";
+					break;
+				}
+				state = 2;
+				continue;
+			}
+			if ( state == 0 ) {
+			        pos = pos + 1;
+				if ( tabs.length() > 0 ) tabs += ',';
+				tabs += id;
+			}
+			if ( state == 2 ) {
+				if ( excludes.length() > 0 ) excludes += ',';
+				excludes += id;
+			} 
+		}
+		if ( tabcount < 4 ) {
+			error = "Not enough tabs";
+		}
+System.out.println("Error="+error);
+System.out.println("tabcount="+tabcount);
+System.out.println("tabs="+tabs);
+System.out.println("excludes="+excludes);
+	}
+
 	/**
 	 * @param prefAllItems
 	 *        The prefAllItems to get.
@@ -355,14 +413,14 @@ System.out.println("TC="+tc);
 			l.add(item);
 			if ( i == (tc-2) )
 			{
-               			l.add( new SelectItem("//top-tabs", "<-- Top Tabs" ) );
+               			l.add( new SelectItem("//top-tabs", "-- Top Tabs --" ) );
 				drawer = true;
 			}
                 }
 		if ( !drawer ) {
-               		l.add( new SelectItem("//top-tabs", "<-- Top Tabs" ) );
+               		l.add( new SelectItem("//top-tabs", "-- Top Tabs --" ) );
 		}
-                l.add( new SelectItem( "//hidden", "Hidden -->" ) );
+                l.add( new SelectItem( "//hidden", "-- Hidden --" ) );
                 l.addAll(getPrefExcludeItems());
 		return l;
 	}
@@ -373,7 +431,7 @@ System.out.println("TC="+tc);
 	 */
 	public void setPrefAllItems(List prefAllItems)
 	{
-System.out.println("SET");
+System.out.println("SET "+prefAllItems.size());
 	}
 
 	/**

@@ -21,7 +21,19 @@
 		</script>
 <script type="text/javascript">
 jQuery(document).ready(function () {
-    fluid.reorderGrid("#prefs_form:dt1");
+     var opts = {
+	listeners: {
+       	    afterMove: function (args) {
+    		var ids = '';  
+    		jQuery('#prefsList li').each(function(idx, item) {  
+        		ids += item.id + ':/:' ; 
+    		});
+            	jQuery('input[id$=prefAllString]').val(ids);
+        	},
+	    }
+    };
+
+    fluid.reorderList("#prefs_form:dt1", opts);
 });
 </script>
 				<sakai:stylesheet path="/css/prefs.css"/>
@@ -68,26 +80,24 @@ jQuery(document).ready(function () {
 				
 				
 				<sakai:messages />
-                <f:verbatim><ul></f:verbatim>
+                <f:verbatim><ul id="prefsList" style="list-style-type: none"></f:verbatim>
 		<t:dataList id="dt1" value="#{UserPrefsTool.prefAllItems}" 
 			var="item" layout="simple" 
 			rowIndexVar="counter"
 			itemStyleClass="dataListStyle">
-                <f:verbatim><span class="flc-reorderer-movable buttonlike" id="</f:verbatim>
-                        <t:outputText value="#{UserPrefsTool.tabCount}"></t:outputText>
-                <f:verbatim>:</f:verbatim>
-                        <t:outputText value="#{counter}"></t:outputText>
-                <f:verbatim>:</f:verbatim>
+                <f:verbatim><li class="flc-reorderer-movable" id="</f:verbatim>
                         <t:outputText value="#{item.value}"></t:outputText>
                 <f:verbatim>"></f:verbatim>
                         <t:outputText value="#{item.label}"></t:outputText>
-                <f:verbatim></span></f:verbatim>
+                <f:verbatim></li></f:verbatim>
 		</t:dataList>
+	 	<h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
                 <f:verbatim></ul></f:verbatim>
+		<h:inputHidden id="prefAllString" value="#{UserPrefsTool.prefAllString}" />
 <f:verbatim>
 <p>This is not yet a functional tool - it is just a prototype 
-to stimulate design ideas (i.e.  note
-the lack of a save button.  The Real UI is at the bottom of the page.</p>
+to stimulate design ideas - The save button does not really save.
+The Real UI is at the bottom of the page.</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
