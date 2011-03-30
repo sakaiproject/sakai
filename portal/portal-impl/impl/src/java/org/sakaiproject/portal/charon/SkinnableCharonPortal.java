@@ -1505,6 +1505,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("bottomNav", l);
 			}
 
+                        rcontext.put("neoChat", 
+				ServerConfigurationService.getBoolean("portal.neochat", true));
+                        rcontext.put("neoAvatar", 
+				ServerConfigurationService.getBoolean("portal.neoavatar", true));
+
 			// rcontext.put("bottomNavSitNewWindow",
 			// Web.escapeHtml(rb.getString("site_newwindow")));
 

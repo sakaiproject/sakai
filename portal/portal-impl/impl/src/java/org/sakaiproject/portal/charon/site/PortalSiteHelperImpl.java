@@ -652,7 +652,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// which may be true or false.
 				
 		boolean showPresence;
-		String globalShowPresence = ServerConfigurationService.getString("display.users.present");
+		String globalShowPresence = ServerConfigurationService.getString("display.users.present","true");
 				
 		if ("never".equals(globalShowPresence)) {
 			showPresence = false;

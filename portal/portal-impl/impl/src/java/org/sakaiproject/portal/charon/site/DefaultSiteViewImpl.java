@@ -178,8 +178,10 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		
 		processMySites();
 
-System.out.println("MY="+mySites.size()+" More="+moreSites.size()+" MWI="+myWorkspaceSiteId);
-		
+		String profileToolId = serverConfigurationService.getString("portal.profiletool","sakai.profile2");
+		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
+		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
+
  		String profileToolUrl = null;
  		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
@@ -196,13 +198,13 @@ System.out.println("MY="+mySites.size()+" More="+moreSites.size()+" MWI="+myWork
                         	while (iPt.hasNext())
                         	{
                                 	ToolConfiguration placement = (ToolConfiguration) iPt.next();
-					if ( "sakai.profile2".equals(placement.getToolId()) ) {
+					if ( profileToolId.equals(placement.getToolId()) ) {
                 				profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
 					}
-					if ( "sakai.preferences".equals(placement.getToolId()) ) {
+					if ( preferencesToolId.equals(placement.getToolId()) ) {
                 				prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
 					}
-					if ( "sakai.sitesetup".equals(placement.getToolId()) ) {
+					if ( worksiteToolId.equals(placement.getToolId()) ) {
                 				worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
 					}
 				}

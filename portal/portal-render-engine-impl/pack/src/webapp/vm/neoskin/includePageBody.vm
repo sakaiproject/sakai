@@ -197,26 +197,28 @@
 				<div class="sakaiCopyrightInfo" role="contentinfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
+#if ( ${sitePages.pageNavShowPresenceLoggedIn})
 				<div id="footerAppTray">
-				## TODO: need to wrap these two in a server or server properties
+#if ( $neoChat )
 					<div id="footerAppChat">
 						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/> Chat 
 						<span id="chattableCount"></span>
 						</a>
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
 					</div>	
+#else
 					<div id="footerAppPresence">
 						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
 						<span id="presenceCount"></span>
 					</div>
+#end
 				</div>
 			</div>
+#end
 
-		## TODO: need to wrap next div and trimpath templates in a server property check (if portal chat true)
-            <!-- START FLOATING CHAT STUFF -->
-
+#if ( $neoChat && ${sitePages.pageNavShowPresenceLoggedIn})
             <div id="pc">
-				<div id="pc_title">Chat<div><a href="#" id="pc_chat_close">x</a></div></div>
+		<div id="pc_title">Chat<div><a href="#" id="pc_chat_close">x</a></div></div>
                 <div id="pc_content">
                     <div id="pc_options">
                         <div id="pc_show_off_ctrl"><input type="checkbox" id="pc_showoffline_connections_checkbox"/><label for="pc_showoffline_connections_checkbox">Show offline connections</label></div>
@@ -245,7 +247,9 @@
 
                         <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${connection.uuid}');">
 							## TODO: the width and height below should be set to be whatever the server-side caling sets it to be (to avoid jiggle)
+			#if ( $neoAvatar ) 
                             <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image"/>
+			#end
                             <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>{else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>{/if}
                         </a>
                         {if connection.online == false}
@@ -263,7 +267,9 @@
                     <div class="pc_site_user">
                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${user.id}');">
 							## TODO: the width and height below should be set to be whatever the server-side caling sets it to be (to avoid jiggle)
+			#if ( $neoAvatar ) 
                             <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
+			#end
                             <span class="pc_site_display_name">${user.displayName}</span><img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                         </a>
                     </div>
@@ -274,7 +280,12 @@
             <!-- Trimpath template for the chat windows -->
             <div id="pc_connection_chat_template" style="display:none;"><!--
                 <div class="pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');">
+#if ( $neoAvatar ) 
                     <img style="float: left;" src="/direct/profile/${uuid}/image" height="40px"/><div style="float: left; margin-left: 5px;">${displayName}</div>
+#else
+		    ## TODO: Adjust the height in some other way to avoid the bottom gap
+                    <div style="float: left; margin-left: 5px; vertical-align: middle; height: 40px;">${displayName}</div>
+#end
                     <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="Close this chat"><img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;"/></a>
                 </div>
                 <div id="pc_connection_chat_${uuid}_content">
@@ -289,8 +300,8 @@
 
             <!-- END FLOATING CHAT STUFF -->
 
-		## TODO: need to wrap next div in a server property check (if portal chat false or null  && sitePages.pageNavShowPresenceLoggedIn)
-			#if (${sitePages.pageNavShowPresenceLoggedIn})
+#end
+#if ( ( !$neoChat ) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn})
                              <div id="presenceArea" style="display: none" class="trayPopup">
 				<h1 class="skip">${rloader.sit_presencehead}</h1>
 				<div id="presenceWrapper">
@@ -310,6 +321,7 @@
     var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
 </script>
 #end
+
 				</div>
                            </div>
 			#end
