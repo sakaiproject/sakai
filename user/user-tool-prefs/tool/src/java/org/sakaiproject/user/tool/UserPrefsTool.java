@@ -359,7 +359,7 @@ System.out.println("id="+id);
 					break;
 				}
 				state = 1;
-				tabcount = pos + 1;
+				tabcount = pos;
 				continue;
 			}
 			if ( "//hidden".equals(id) ) { // The transition to hidden
@@ -404,14 +404,13 @@ System.out.println("excludes="+excludes);
 		catch(Exception e){
 			tc = DEFAULT_TAB_COUNT;
 		}
-System.out.println("TC="+tc);
                 List<SelectItem> l = new ArrayList<SelectItem>();
 		boolean drawer = false;
                 for (int i = 0; i < prefOrderItems.size(); i++)
                 {
                         SelectItem item = (SelectItem) prefOrderItems.get(i);
 			l.add(item);
-			if ( i == (tc-2) )
+			if ( i == (tc-1) )
 			{
                			l.add( new SelectItem("//top-tabs", "-- Top Tabs --" ) );
 				drawer = true;
@@ -423,15 +422,6 @@ System.out.println("TC="+tc);
                 l.add( new SelectItem( "//hidden", "-- Hidden --" ) );
                 l.addAll(getPrefExcludeItems());
 		return l;
-	}
-
-	/**
-	 * @param prefAllItems
-	 *        The prefOrderItems to set.
-	 */
-	public void setPrefAllItems(List prefAllItems)
-	{
-System.out.println("SET "+prefAllItems.size());
 	}
 
 	/**

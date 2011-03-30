@@ -95,6 +95,8 @@ jQuery(document).ready(function () {
                 <f:verbatim></ul></f:verbatim>
 		<h:inputHidden id="prefAllString" value="#{UserPrefsTool.prefAllString}" />
 <f:verbatim>
+<p>The tabs in the drawer are not maintained in a particular order within the drawer.
+The top tabs are shown in the order you specify.</p>
 <p>This is not yet a functional tool - it is just a prototype 
 to stimulate design ideas - The save button does not really save.
 The Real UI is at the bottom of the page.</p>
