@@ -139,13 +139,14 @@
 		<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;</a></li>
 #end	
       </ul>
-    <script language="javascript" type="text/javascript">
-		jQuery(document).ready(function() {
-				setupSiteNav();
-		});
-	</script>
 </div>
 #end
+
+<script language="javascript" type="text/javascript">
+    jQuery(document).ready(function() {
+        setupSiteNav();
+    });
+</script>
 			</div>
 			 <!-- /tabsCssClass -->
 
