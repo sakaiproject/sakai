@@ -196,9 +196,9 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 	float: left;
 	margin-left: 0.2em;
 	width: auto;
-    height:100px;
-    width: 180px;
-    background:transparent url(images/logo_inst.png) 30px 0 no-repeat;
+    height:80px;
+    width: 120px;
+    background:transparent url(images/logo_inst.png) 30px 5px no-repeat;
 }
 
 /*the portal outputs an image that can be treated here or hidden with display:none*/
