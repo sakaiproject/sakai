@@ -11,6 +11,9 @@
 <%@ page import="org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI" %>
 <%@ page import="org.sakaiproject.tool.assessment.services.PersistenceService" %>
 <%@ page import="org.sakaiproject.tool.cover.ToolManager" %>
+<%@ page import="org.sakaiproject.site.api.Site" %>
+<%@ page import="org.sakaiproject.site.api.ToolConfiguration" %>
+<%@ page import="org.sakaiproject.site.cover.SiteService" %>
 <%@ page import="javax.faces.context.FacesContext" %>
 
 <%
@@ -24,10 +27,21 @@
                 "assessmentBean", request, response);
          assessmentBean.setAssessmentId(publishedAssessmentId);
 
+
+	Site site = null;
+	try {
+	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	} catch (Exception impossible) {
+	    out.println("Can't find site");
+	    return;
+	}
+
+	 ToolConfiguration tool = site.getToolForCommonId("sakai.samigo");
+
          AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
                                                                          "authorization", request, response);
          if (authzBean.getAuthzMap().size()==0){
-           authzBean.addAllPrivilege("45d48248-ba23-4829-914a-7219c3ced2dd");
+	     authzBean.addAllPrivilege(site.getId());
          }
 
 	 // context for main assessment list, in case they cancel out of the specific action
@@ -38,29 +52,12 @@
          if (ContextUtil.lookupParam("settings") != null) {
             EditPublishedSettingsListener editPublishedSettingsListener = new EditPublishedSettingsListener();
             editPublishedSettingsListener.processAction(null);
-            response.sendRedirect("/portal/tool/319adb61-d321-4665-9dec-8d905ec13cbb/jsf/author/publishedSettings");
+            response.sendRedirect("/portal/tool/" + tool.getId() + "/jsf/author/publishedSettings");
          } else {
             ConfirmEditPublishedAssessmentListener confirmEditPublishedAssessmentListener = new ConfirmEditPublishedAssessmentListener();
             confirmEditPublishedAssessmentListener.processAction(null);
-            response.sendRedirect("/portal/tool/319adb61-d321-4665-9dec-8d905ec13cbb/jsf/author/confirmEditPublishedAssessment");
+            response.sendRedirect("/portal/tool/" + tool.getId() + "/jsf/author/confirmEditPublishedAssessment");
          }
-
-//	 AuthzQueriesFacadeAPI authz = PersistenceService.getInstance()
-//                                .getAuthzQueriesFacade();
-//         out.println(" authz " + authz);
-//         Object authorizations = authz.getAuthorizationByFunctionAndQualifier(
-//                                "TAKE_PUBLISHED_ASSESSMENT", "22");
-//         out.println(" auth " + authorizations);
-
-// https://heidelberg.rutgers.edu/portal/tool/319adb61-d321-4665-9dec-8d905ec13cbb/jsf/index/test?publishedAssessmentId=22
-
-
-// confirmEditPublishedAssessment
-
-// https://heidelberg.rutgers.edu/portal/tool/3f7ffde4-bee1-4dcf-b03d-1f64c1d9700d/assessment_settings/0A/1
-// https://heidelberg.rutgers.edu/portal/tool/3f7ffde4-bee1-4dcf-b03d-1f64c1d9700d/assessment_edit/0A/1
-
-// https://heidelberg.rutgers.edu/portal/tool/83af90fc-f534-426a-b585-27a825bdf9cc?assignmentId=/assignment/a/45d48248-ba23-4829-914a-7219c3ced2dd/88f77778-560f-4b27-83d8-117112c13f4b&panel=Main&sakai_action=doEdit_assignment
 
 %>
 
