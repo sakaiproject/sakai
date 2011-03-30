@@ -15,7 +15,7 @@
 			
 			<sakai:view_title value="#{msgs.room_list_title}"/>  	
 
-			<sakai:messages />
+			<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 
 			<h:dataTable value="#{ChatTool.chatChannels}" var="channel"
 				styleClass="lines listHier" headerClass="exclude">

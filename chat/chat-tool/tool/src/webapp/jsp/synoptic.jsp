@@ -6,7 +6,7 @@
                <h:outputText value="#{msgs.manage_tool}" />
             </h:commandLink>
          </sakai:tool_bar>         
-         <sakai:messages />         
+         <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />         
 		<ul id="_id1:chatSynoptic" class="synopticList">
 		<c:forEach items="${ChatTool.synopticMessages}" var="message">  		
 			<li>

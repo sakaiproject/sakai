@@ -5,7 +5,7 @@
 		<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
 		
 		<h:messages globalOnly="true" styleClass="alertMessage" 
-			showDetail="true" showSummary="false" />
+			showDetail="true" showSummary="false" rendered="#{!empty facesContext.maximumSeverity}" />
 		<h:form id="editRoomForm">
 
 			<h:panelGrid columns="1" styleClass="jsfFormTable" cellpadding="0"

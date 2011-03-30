@@ -1,5 +1,5 @@
 
-	<sakai:messages />
+	<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 
 	<c:set var="deleteUrl" value="${ChatTool.toolContext}/sakai.chat.deleteMessage.helper/deleteMessageConfirm?session.current_message=" />
 

@@ -1,7 +1,7 @@
 <f:view>
 	<sakai:view title="#{msgs.synoptic_options_title}">
 		<h:form>
-			<sakai:messages />
+			<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 
 			<sakai:group_box title="#{msgs.recent_chat_heading}">
 			<sakai:panel_edit>

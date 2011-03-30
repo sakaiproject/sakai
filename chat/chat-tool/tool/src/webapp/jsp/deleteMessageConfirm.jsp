@@ -9,7 +9,7 @@
 		<c:if test="${ empty ChatTool.currentMessage.chatMessage.body}">
 	   		<h:outputText id="deletemessagecancel" value="#{msgs['delete.wrong']}" styleClass="alertMessage" />
 		</c:if> 
-		<sakai:messages />
+		<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 		
 		<h:form styleClass="portletBody">
 		

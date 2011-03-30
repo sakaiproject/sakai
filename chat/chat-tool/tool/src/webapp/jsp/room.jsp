@@ -65,7 +65,7 @@ var chat2_totalMessages = <h:outputText value="#{ChatTool.roomMessagesCount}" />
 var chat2_shownMessages = chat2_totalMessages;
 var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownTotalText}" />"; // replace *SHOWN* and *TOTAL*
 </script>
-				<sakai:messages />
+				<sakai:messages  rendered="#{!empty facesContext.maximumSeverity}" />
 				<div id="Monitor" class="chatListMonitor">
 					<%@include file="roomMonitor.jspf" %>
 				</div>
