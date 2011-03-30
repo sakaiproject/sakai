@@ -214,6 +214,10 @@ public class RequestFilter implements Filter
 
 	/** The name of the Sakai property to disable setting the HttpOnly attribute on the cookie (if false). */
 	protected static final String SAKAI_COOKIE_HTTP_ONLY = "sakai.cookieHttpOnly";
+
+	/** The name of the Sakai property to set the X-UA Compatible header
+	 */
+	protected static final String SAKAI_UA_COMPATIBLE = "sakai.X-UA-Compatible";
 	
 	/** The name of the Sakai property to allow passing a session id in the ATTR_SESSION request parameter */
 	protected static final String SAKAI_SESSION_PARAM_ALLOW = "session.parameter.allow";
@@ -270,6 +274,8 @@ public class RequestFilter implements Filter
 
 	/** Set the HttpOnly attribute on the cookie */
 	protected boolean m_cookieHttpOnly = true;
+
+	protected String m_UACompatible = null;
             
 	
 	/**
@@ -905,6 +911,8 @@ public class RequestFilter implements Filter
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = configService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
 
+		m_UACompatible = configService.getString(SAKAI_UA_COMPATIBLE,null);
+
 	}
 
 	/**
@@ -1364,6 +1372,10 @@ public class RequestFilter implements Filter
 	protected HttpServletResponse preProcessResponse(Session s, HttpServletRequest req, HttpServletResponse res)
 	{
 		res = new WrappedResponse(s, req, res);
+		//Set response headers SAK-20058
+		if (m_UACompatible != null) {
+			res.setHeader("X-UA-Compatible",m_UACompatible);
+		}
 
 		return res;
 	}
