@@ -309,4 +309,3 @@ create table VALIDATIONACCOUNT_ITEM (
     ACCOUNT_STATUS int(11) default null,
     PRIMARY KEY (id)
 );
-
