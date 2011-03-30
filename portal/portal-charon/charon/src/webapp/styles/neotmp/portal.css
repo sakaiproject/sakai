@@ -97,13 +97,13 @@ a.lastBreadCrumb{
    margin-bottom:0px;
    margin-left:30px;
    background: #fff;
-   -moz-border-radius: 25px;
-   -webkit-border-radius: 25px;
-   -khtml-border-radius: 25px;
-   border-radius: 25px;
-   box-shadow:0px 0px 20px #000;
-   -webkit-box-shadow:0px 0px 20px #000;
-   -moz-box-shadow:0px 0px 20px #000000;
+   -moz-border-radius: 10px;
+   -webkit-border-radius: 10px;
+   -khtml-border-radius: 10px;
+   border-radius: 10px;
+   box-shadow:0px 0px 10px #000;
+   -webkit-box-shadow:0px 0px 10px #000;
+   -moz-box-shadow:0px 0px 10px #000000;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -201,7 +201,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 	width: auto;
     height:80px;
     width: 120px;
-    background:transparent url(images/logo_inst.png) 30px 5px no-repeat;
+    background:transparent url(images/logo_inst.png) 30px 3px no-repeat;
 }
 
 /*the portal outputs an image that can be treated here or hidden with display:none*/
