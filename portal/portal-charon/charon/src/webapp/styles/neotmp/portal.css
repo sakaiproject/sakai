@@ -1807,24 +1807,77 @@ margin-top: 255px;
 }
 
 .pc_maximised {
-margin-top: 0px;
+    margin-top: 0px;
+    font-family:Helvetica, 'Helvetica Neue', Arial;
 }
 
-.pc_connection_chat_title {
+
+.pc_connection_chat_title_avt, .pc_connection_chat_title_no_avt {
     font:14px bold Helvetica, 'Helvetica Neue', Arial;
+    cursor:pointer;
     color: black;
     background:#eee;
-    overflow: auto;
+    overflow: hidden;
     padding: 2px;
+    position:relative;
+    height:33px;
+    border-bottom:1px solid #ccc;
 }
-
+.pc_connection_chat_title_no_avt{
+    height:auto
+}
+.pc_connection_chat_title_avt img, .pc_connection_chat_title_no_avt img{
+    position:absolute;
+    right:5px;
+    top:5px;
+    
+}
+.pc_connection_chat_title_avt img.pc_connection_chat_title_avt{
+    vertical-align:text-top;
+    position:relative;   
+    right:0px;
+    top:0px;
+    height:30px;
+    float:left;
+}
+.pc_connection_chat_title_avt div{
+   float:left;
+   margin:3px;
+}
+.pc_connection_chat_title_no_avt div.pc_connection_chat_title{
+    padding:3px 20px 3px 3px;
+}
 .pc_message_panel {
     padding: 2px;
     background: white;
     height: 225px;
     overflow: auto;
+    margin:0;
 }
 
+.pc_message_panel li{
+    margin:2px 0;
+    vertical-align:text-top;
+    position:relative;
+    border-bottom:1px solid #eee;
+    padding:2px 35px 5px 35px;
+    /*TODO: min-height also will depend on server-scaled avatar
+     * height
+     */
+    min-height:30px;
+}
+.pc_message_panel li img{
+   vertical-align:text-top;
+   /*TODO: remove width here when using server-scaled avatar, add
+    * height and width to chat.js to 
+    * avoid jiggle
+    * */
+   width:10%;
+   margin-right:5px;
+   position:absolute;
+   top:2px;
+   left:2px; 
+}
 .pc_editor_wrapper {
     padding: 2px;
     background:#eee;
@@ -1835,14 +1888,35 @@ margin-top: 0px;
 }
 
 .pc_displayname {
+    display:block;
     font-weight: bold;
     font-size: 0.8em;
-    margin-right: 5px;
+    margin-left: -30px;
 }
 
+.pc_message{
+    /*TODO: width of message will also depend on server-scaled avatar
+     * width
+     */
+    width:170px;
+    overflow:hidden;
+    font-size:87%;
+}
+
+/* if avatars are not being displayed, adjust message
+ * positioning
+ */
+.pc_displayname + .pc_message{
+    margin-left: -20px;
+    margin-top:3px;
+} 
+
 .pc_messagedate {
-    font-size: 0.8em;
-    margin-right: 5px;
+    font-size:70%;
+    color:#777;
+    position:absolute;
+    right:3px;
+    top:5px;
 }
 
 .pc_user_link {

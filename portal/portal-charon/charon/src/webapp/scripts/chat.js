@@ -63,7 +63,23 @@ function PortalChat() {
 					var date = new Date();
 					portalChat.addToMessageStream(uuid,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
 					var dateString = portalChat.formatDate(new Date());
-					messagePanel.append("<div><span class=\"pc_messagedate\">(" + dateString + "</span><span class=\"pc_displayname\">You)</span><span class=\"pc_message\">" + content + "</span></div>");
+                    var avatarPermitted;
+                    if($('#avatarPermitted').length===1){
+                        avatarPermitted =true
+                    }
+                    else{
+                        avatarPermitted =false
+                     }
+
+                    var avatarOrName="";
+                    if (avatarPermitted){
+                        avatarOrName = "<img src=\"/direct/profile/" + portal.user.id + "/image\" alt=\"You\" title=\"You\"/>"
+                    }
+                    else{
+                        avatarOrName="<span class=\"pc_displayname\">You</span>"
+                    }
+
+					messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
 				    $('#pc_editor_for_' + uuid).val('');
 				}
 
@@ -293,11 +309,27 @@ function PortalChat() {
 		}
 
 		var fromDisplayName = this.currentConnectionsMap[from].displayName;
-
+        var userId =this.currentConnectionsMap[from].uuid;
 		messagePanel = $("#pc_connection_chat_" + from + "_messages");
 
 		var dateString = this.formatDate(new Date(timestamp));
-		messagePanel.append("<div><span class=\"pc_messagedate\">(" + dateString + "</span><span class=\"pc_displayname\">" + fromDisplayName + ")</span><span class=\"pc_message\">" + content + "</span></div>");
+        var avatarPermitted;
+        
+        if ($('#avatarPermitted').length === 1) {
+            avatarPermitted = true
+        }
+        else {
+            avatarPermitted = false
+        }
+        
+        var avatarOrName = "";
+        if (avatarPermitted) {
+            avatarOrName = "<img src=\"/direct/profile/" + userId + "/image\" alt=\"" + fromDisplayName+ "\" title=\"" + fromDisplayName + "\"/>"
+        }
+        else {
+            avatarOrName = "<span class=\"pc_displayname\">" + fromDisplayName+ "</span>"
+        }
+		messagePanel.append("<li>" + avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
 
 		this.scrollToBottom(from);
 	}
@@ -667,9 +699,13 @@ function PortalChat() {
 			$('.pc_editor').live('keypress',function (e,ui) {
 	
 				if(e.keyCode == 13) {
+                    
 					var editorId = e.target.id;
-					var uuid = editorId.split("pc_editor_for_")[1];
-					portalChat.sendMessageToUser(uuid,e.target.value);
+                    //do nothing if no value
+					if (e.target.value !== '') {
+                        var uuid = editorId.split("pc_editor_for_")[1];
+                        portalChat.sendMessageToUser(uuid, e.target.value);
+                    }
 				}
 			});
 	
@@ -729,9 +765,31 @@ function PortalChat() {
 	
 					for(var k=0,m=messages.length;k<m;k++) {
 						var message = messages[k];
+                        var userId =portalChat.currentConnectionsMap[message.from].uuid;
+                        if (userId == undefined){
+                            userId=portal.user.id
+                        }
 						var dateString = portalChat.formatDate(new Date(parseInt(message.timestamp)));
 						var fromDisplayName = portalChat.currentConnectionsMap[message.from].displayName;
-						messagePanel.append("<div><span class=\"pc_messagedate\">(" + dateString + "</span><span class=\"pc_displayname\">" + fromDisplayName + ")</span><span class=\"pc_message\">" + message.content + "</span></div>");
+                        var avatarPermitted;
+                        if ($('#avatarPermitted').length === 1) {
+                            avatarPermitted = true
+                        }
+                        else {
+                            avatarPermitted = false
+                        }
+                        
+                        var avatarOrName = "";
+                        
+                        if (avatarPermitted) {
+                            avatarOrName = "<img src=\"/direct/profile/" + userId + "/image\" alt=\"" + fromDisplayName + "\" title=\"" + fromDisplayName + "\"/>"
+                        }
+                        else {
+                            avatarOrName = "<span class=\"pc_displayname\">" + fromDisplayName + "</span>"
+                        }
+
+
+						messagePanel.append("<li>" + avatarOrName + "<div class=\"pc_message\">" + message.content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
 					}
 
 					portalChat.scrollToBottom(portalChat.currentConnections[i].uuid);
