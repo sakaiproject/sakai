@@ -21,6 +21,12 @@ import java.util.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * WallItem represents an item posted on a profile wall. Items can be different
+ * types e.g. events, posts, status updates.
+ * 
+ * @author d.b.robinson@lancaster.ac.uk
+ */
 @Data
 @NoArgsConstructor
 public class WallItem implements Serializable, Comparable<WallItem> {
@@ -31,7 +37,6 @@ public class WallItem implements Serializable, Comparable<WallItem> {
 	
 	// the id of the user who created this wall item
 	private String creatorUuid;
-	//private String creatorName;
 	private String text;
 	private Date date;
 	private int type;
