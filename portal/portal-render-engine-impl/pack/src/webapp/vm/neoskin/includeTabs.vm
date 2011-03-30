@@ -14,7 +14,6 @@
     #set ($portalPwd = $site.pwd)
   #end
 #end
-#set ( $siteTab = 0 )
 <!-- START from NEO includeTabs.vm -->
 			<!-- start includeTabs -->
 			<div class="${tabsCssClass}">
@@ -86,27 +85,12 @@
 </li>
 						#end
 
+#if ($tabsSites.tabsMoreSitesShow)
 <li class="more-tab"><a href="#" onclick="return dhtml_view_sites();" title="${rloader.sit_more}"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span></a></li>
-#set ( $siteTab = 1 )
-						#if ($tabsSites.tabsMoreSitesShow && $useDHTMLMore && $siteTab == 0)
-							<li class="more-tab"><a href="#" onclick="return dhtml_more_tabs();" title="${rloader.sit_more}"><span class="outer"><span class="inner">${rloader.sit_more_tab}</span></span></a></li>
-						#end
+#end
 						</ul>
 					</div> <!-- /linkNav -->
 
-					#if ($tabsSites.tabsMoreSitesShow && !$useDHTMLMore && $siteTab == 0)
-					<div id="selectNav">
-						<span class="skip">${rloader.sit_selectmessage}</span>
-<!--
-						<select onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">
-							<option value="" selected="selected">${rloader.sit_more}</option>
-						#foreach( $site in $tabsSites.tabsMoreSites )
-							<option title="${site.siteTitle}" value="${site.siteUrl}">${site.siteTitle}</option> 
-						#end	
-						</select>
--->
-					</div>
-					#end
 					#if ($viewAsStudentLink)
 					<div id="roleSwitch">
 						#if ($roleSwitchState)
@@ -138,7 +122,7 @@
 					#end	
 
 
-#if ( $siteTab == 1 )
+#if ($tabsSites.tabsMoreSitesShow)
 <div id="selectSite" style="display:none">
          <div id="otherSiteSearch">
          	<label for="txtSearch">Search</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
@@ -151,15 +135,9 @@
 			#end
      	</div>
      	<ul id="otherSiteList" role="navigation">
-##						#foreach ( $site in $tabsSites.tabsSites ) 
-##								#if (${site.isMyWorkspace})
-##								#else 
-##							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}" class="toolMenus">&nbsp;</a></li>
-##								#end
-##						#end
-						#foreach( $site in $tabsSites.tabsMoreSites )
-							<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;</a></li>
-						#end	
+#foreach( $site in $tabsSites.tabsMoreSites )
+		<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;</a></li>
+#end	
       </ul>
     <script language="javascript" type="text/javascript">
 		jQuery(document).ready(function() {
@@ -167,38 +145,6 @@
 		});
 	</script>
 </div>
-#else
-				#if ($useDHTMLMore)
-				<div id="selectNav" style="display:none">
-					<div>
-						<span class="skip">${rloader.sit_selectmessage}</span>
-
-					#foreach( $termKey in $tabsSites.tabsMoreSortedTermList)
-						<div class="termContainer">
-   						#if ( !$termKey || $termKey == "" )
-							<h4>${rloader.sit_notermkey}</h4>
-						#else
-							<h4>$termKey</h4>
-						#end
-							<ul>
-						#foreach( $site in $tabsSites.tabsMoreTerms.get($termKey))
-							#if (${site.isMyWorkspace})
-								<li><a href="${site.siteUrl}" title="${rloader.sit_mywor}">
-									<span>${rloader.sit_mywor}</span>
-								</a></li>
-							#else
-								<li><a href="${site.siteUrl}" title="${site.siteTitle}">
-									<span>${site.siteTitle}</span>
-								</a></li>
-							#end
-						#end
-							</ul>
-						</div> <!-- /termContainer -->
-					#end
-						<div id="more_tabs_instr">${rloader.sit_moretab_inst}</div>
-					</div> <!-- /  -->
-				</div> <!-- /selectNav -->
-				#end
 #end
 			</div>
 			 <!-- /tabsCssClass -->

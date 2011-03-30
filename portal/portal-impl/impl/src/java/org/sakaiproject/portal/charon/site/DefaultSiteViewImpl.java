@@ -122,11 +122,9 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 			}
 		}
 
-		// Note that if there are exactly one more site
-		// than tabs allowed - simply put the site on
-		// instead of a dropdown with one site
+		// we allow one site in the drawer - that is OK
 		moreSites = new ArrayList<Site>();
-		if (mySites.size() > (tabsToDisplay + 1))
+		if (mySites.size() > tabsToDisplay)
 		{
 			// Check to see if the selected site is in the first
 			// "tabsToDisplay" tabs
