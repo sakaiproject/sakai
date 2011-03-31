@@ -1254,11 +1254,21 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return (Wall) getHibernateTemplate().execute(hcb);
 	}
-		
+	
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean saveWallForUser(Wall wall) {
+	public boolean updateWallItem(WallItem wallItem) {
+		try {
+			getHibernateTemplate().saveOrUpdate(wallItem);
+			return true;
+		} catch (Exception e) {
+			log.error("updateWallItem failed. "+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
+	private boolean saveWallForUser(Wall wall) {
 		
 		try {
 			getHibernateTemplate().saveOrUpdate(wall);
@@ -1268,6 +1278,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 		return false;
 	}
+	
 	
 	public void init() {
 	      log.debug("init");

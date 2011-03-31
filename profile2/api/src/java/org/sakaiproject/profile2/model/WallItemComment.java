@@ -16,51 +16,30 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * WallItem represents an item posted on a profile wall. Items can be different
- * types e.g. events, posts, status updates, and can have comments attached.
+ * WallItemComment represents a comment on a wall item, such as a post or event.
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
 @Data
 @NoArgsConstructor
-public class WallItem implements Serializable, Comparable<WallItem> {
+public class WallItemComment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	private long id;
 	
-	// the id of the user who created this wall item
+	// the id of the wall item the comment is linked to
+	private long wallItemId;
+	
+	// the id of the user who made the comment
 	private String creatorUuid;
 	private String text;
 	private Date date;
-	private int type;
-	
-	// any comments that may be attached to the wall item
-	private List<WallItemComment> comments = new ArrayList<WallItemComment>();
-	
-	// add comment (have purposefully omitted ability to remove comment)
-	public void addComment(WallItemComment comment) {
-		comments.add(comment);
-	}
-	
-	@Override
-	public int compareTo(WallItem wallItem) {
-		// TODO might instead create Comparators so we can ascend or descend as needed
-		if (date.getTime() > wallItem.getDate().getTime()) {
-			return -1;
-		} else if (date.getTime() < wallItem.getDate().getTime()) {
-			return 1;
-		} else {
-			return 0;
-		}
-	}
-	
+
 }

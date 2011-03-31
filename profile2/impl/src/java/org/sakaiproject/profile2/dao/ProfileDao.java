@@ -524,15 +524,15 @@ public interface ProfileDao {
 	 * @return the wall for the specified user.
 	 */
 	public Wall getWallItemsForUser(final String userUuid);
-		
+			
 	/**
-	 * Saves a wall.
+	 * Saves an updated wall item (e.g. if a comment added, or item edited).
 	 * 
-	 * @param wall the wall to save.
-	 * @return <code>true</code> if the save is successful, <code>false</code>
-	 *         if the save is unsuccessful.
+	 * @param wallItem the updated wall item to save.
+	 * @return <code>true</code> if the update is successful and
+	 *         <code>false</code> if the update fails.
 	 */
-	public boolean saveWallForUser(Wall wall);
+	public boolean updateWallItem(WallItem wallItem);
 	
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
@@ -596,10 +596,14 @@ public interface ProfileDao {
 	//from ExternalIntegrationInfo.hbm.xml
 	final String QUERY_GET_EXTERNAL_INTEGRATION_INFO="getExternalIntegrationInfo";
 	
-	//from
+	//from Wall.hbm.xml
 	final String QUERY_GET_WALL = "getWall";
-	final String QUERY_GET_WALL_ITEMS = "getWallItems";
-	final String QUERY_GET_WALL_ITEMS_COUNT = "getWallItemsCount";
+	
+	// TODO remove these unused strings
+	//from WallItemComment.hbm.xml
+	//final String QUERY_GET_WALL_ITEM_COMMENTS = "getWallItemComments";
+	//final String QUERY_GET_WALL_ITEMS = "getWallItems";
+	//final String QUERY_GET_WALL_ITEMS_COUNT = "getWallItemsCount";
 	
 	// Hibernate object fields
 	final String USER_UUID = "userUuid";

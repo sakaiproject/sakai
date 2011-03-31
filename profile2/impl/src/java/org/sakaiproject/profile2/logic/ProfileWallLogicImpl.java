@@ -290,6 +290,13 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		return filteredWallItems.size();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean updateWallItem(WallItem wallItem) {
+		return dao.updateWallItem(wallItem);
+	}
+	
 	private void sendWallNotificationEmailToConnections(List<String> toUuids, final String fromUuid, final int messageType) {
 		
 		// create the map of replacement values for this email template

@@ -106,5 +106,14 @@ public interface ProfileWallLogic {
 	 * @return the number of available wall items for the specified user.
 	 */
 	public int getWallItemsCount(String userUuid, ProfilePrivacy privacy);
+	
+	/**
+	 * Saves an updated wall item (e.g. if a comment added, or item edited).
+	 * 
+	 * @param wallItem the updated wall item to save.
+	 * @return <code>true</code> if the update is successful and
+	 *         <code>false</code> if the update fails.
+	 */
+	public boolean updateWallItem(WallItem wallItem);
 
 }
