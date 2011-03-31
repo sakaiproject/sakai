@@ -985,25 +985,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
 			
-			List<String>  copyrightValues = new ArrayList<String>(Arrays.asList(rrb.getStrings("copyrighttype")));
+			org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager) ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
+			org.sakaiproject.content.copyright.api.CopyrightInfo copyrightInfo = copyrightManager.getCopyrightInfo(new ResourceLoader().getLocale(),rrb.getStrings("copyrighttype"),ResourcesAction.class.getResource("ResourcesAction.class"));
+			List<org.sakaiproject.content.copyright.api.CopyrightItem> copyrightTypes = copyrightInfo.getItems();
 
-            Hashtable<Integer, String> copyrightTypes = new Hashtable<Integer, String>();
-
-            int len = copyrightValues.size();
-
-                for (int i=0;i<len;i++){
-
-                               copyrightTypes.put(Integer.valueOf(i), (String)copyrightValues.get(i));
-
-                }
-                
-                Vector<Integer> v = new Vector<Integer>(copyrightTypes.keySet());
-                Collections.sort(v);
-
-                context.put("copyrightTypes", copyrightTypes);
-                context.put("copyrightKeys", v);
-                context.put("copyrightTypesSize", rrb.getString("copyrighttype.count"));				
-				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
+            context.put("copyrightTypes", copyrightTypes);
+            context.put("copyrightTypesSize", copyrightTypes.size());				
+			context.put("USE_THIS_COPYRIGHT", copyrightManager.getUseThisCopyright(rrb.getStrings("copyrighttype")));
+			
 		}
 		
 	}	// copyrightChoicesIntoContext

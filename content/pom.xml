@@ -51,6 +51,9 @@
       </activation>
       <modules>
         <module>content-help</module>
+        <module>content-copyright/api</module>
+        <module>content-copyright/impl</module>
+        <module>content-copyright/pack</module>
         <module>content-impl-providers/impl</module>
         <module>content-impl-providers/pack</module>
         <module>content-tool/tool</module>

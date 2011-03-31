@@ -117,22 +117,20 @@
 					$tlang.getString("cright.status")
 				</label>	
 				<select name="copyright${DOT}$i" id ="copyright${DOT}$i">
-				#foreach ($key in $copyrightKeys)		
-					#set( $isSelected = $model.copyrightStatus.toString() )
-					#set( $theKey = $key.toString() )
-					#if($isSelected == $theKey && $USE_THIS_COPYRIGHT == $copyrightTypes.get($key))
-						#set ( $openCustomCopyright = true )
+					#set ($noOneSelected=true)
+					#foreach ($copyright in $copyrightTypes)
+						<option value="$copyright.getType()"#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText()) selected="selected"#end #if ($!copyright.getLicenseUrl()) title="${copyright.getLicenseUrl()}"#end>$copyright.getText()</option>
+						#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText())
+							#set ($noOneSelected=false)
+						#end
 					#end
-				#if($isSelected == $theKey) <option value="$theKey" selected="selected">$copyrightTypes.get($key)</option>
-				#else <option value="$theKey" >$copyrightTypes.get($key)</option>
-						 #end
-				#end					
+					#if ($noOneSelected && $!model.copyrightStatus)
+						<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
+					#end
 				</select>
-				#if ($!fairuseurl)
-					(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.fairuse")</a>)
-				#end
+				(<a href="#" onclick="javascript:openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</p>
-			<div id="copyright_status${DOT}$i"#if( $openCustomCopyright ) style="display:block;"#else style="display:none;"#end>
+			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) style="display:block;"#else style="display:none;"#end>
 				<p class="shorttext">
 					<span class="reqStar">*</span>
 					<label for="newcopyright${DOT}$i">

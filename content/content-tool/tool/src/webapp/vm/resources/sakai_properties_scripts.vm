@@ -23,6 +23,14 @@
 	  window.open("$copyright_alert_url","SampleCopyrightAlert","scrollbars=no,menubar=no,height=400,width=700,resizable=no,toolbar=no,location=no,status=no");
 	  return false;
 	}
+	function openMoreInfoCopyrightWindow(selectId) 
+	{
+	  var selectElement = document.getElementById(selectId);
+	  var url = selectElement.options[selectElement.selectedIndex].title;
+	  if (!url) url = "$fairuseurl"; 
+	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=no,menubar=no,height=400,width=700,resizable=no,toolbar=no,location=no,status=no");
+	  return false;
+	}
 	function hideOptionalProperties(index, metadataGroup)
 	{
 		var shownBar = document.getElementById("metadataShown_" + index + "_" + metadataGroup);
