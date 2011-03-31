@@ -87,6 +87,7 @@ public class EntitySite implements Site {
     private String owner;
     private long lastModified;
     private String[] userRoles;
+    private boolean softlyDeleted;
 
     private transient List<EntityGroup> siteGroupsList;
 
@@ -780,5 +781,24 @@ public class EntitySite implements Site {
         }
         throw new UnsupportedOperationException();
     }
+
+	public Date getSoftlyDeletedDate() {
+		if (site != null) {
+            return site.getSoftlyDeletedDate();
+        }
+        throw new UnsupportedOperationException();
+	}
+
+	public boolean isSoftlyDeleted() {
+		if (site != null) {
+            return site.isSoftlyDeleted();
+        }
+        throw new UnsupportedOperationException();
+	}
+
+	public void setSoftlyDeleted(boolean arg0) {
+		this.softlyDeleted = arg0;
+		
+	}
 
 }

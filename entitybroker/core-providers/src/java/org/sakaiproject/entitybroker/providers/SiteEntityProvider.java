@@ -901,7 +901,10 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
                 siteService.removeSite(site);
             } catch (PermissionException e) {
                 throw new SecurityException("Permission denied: Site cannot be removed: " + ref);
-            }
+            } catch (IdUnusedException e) {
+            	throw new IllegalArgumentException(
+                        "Cannot delete site, No siteId in provided reference: " + ref);
+			}
         }
     }
 
