@@ -1129,6 +1129,8 @@ public class AdminSitesAction extends PagedResourceActionII
 				catch (PermissionException e)
 				{
 					addAlert(state, rb.getFormattedMessage("sitact.youdonot3", new Object[]{site.getId()}));
+				} catch (IdUnusedException e) {
+					addAlert(state, rb.getFormattedMessage("sitact.thesitid2", new Object[]{site.getId()}));
 				}
 			}
 		}
@@ -1181,6 +1183,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getFormattedMessage("sitact.youdonot3", new Object[]{site.getId()}));
+		} catch (IdUnusedException e) {
+			addAlert(state, rb.getFormattedMessage("sitact.thesitid2", new Object[]{site.getId()}));
 		}
 
 		// cleanup
