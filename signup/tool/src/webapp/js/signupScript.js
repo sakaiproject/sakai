@@ -480,7 +480,7 @@ var sakai = sakai ||
  */
 sakai.setupSelectListMultiple = function(list, allcontrol, highlightClass){
     $('.' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
-    
+    $('.waitListed :checked').parent("td").parent("tr").addClass(highlightClass);
     $('.' + allcontrol).click(function(){
         if (this.checked) {
             $(this).parents('table.availableSpots').children('tbody').find('input').attr('checked',true);
@@ -492,7 +492,7 @@ sakai.setupSelectListMultiple = function(list, allcontrol, highlightClass){
         }
     });
     
-    $('.' + list + ' :checkbox').click(function(){
+    $('.' + list + ' :checkbox, .waitListed :checkbox').click(function(){
         if (this.checked) {
             $(this).parent('td').parent('tr').addClass(highlightClass);
         }
