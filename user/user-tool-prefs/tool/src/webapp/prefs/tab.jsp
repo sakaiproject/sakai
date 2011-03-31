@@ -100,7 +100,7 @@ the top navigation.</p>
 			var="item" layout="simple" 
 			rowIndexVar="counter"
 			itemStyleClass="dataListStyle">
-                <f:verbatim><li class="flc-reorderer-movable" id="</f:verbatim>
+                <f:verbatim><li class="flc-reorderer-movable" style="padding: 3px;" id="</f:verbatim>
                         <t:outputText value="#{item.value}"></t:outputText>
                 <f:verbatim>"></f:verbatim>
                         <t:outputText value="#{item.label}"></t:outputText>
