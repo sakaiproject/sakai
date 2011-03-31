@@ -790,10 +790,7 @@ public class EntitySite implements Site {
 	}
 
 	public boolean isSoftlyDeleted() {
-		if (site != null) {
-            return site.isSoftlyDeleted();
-        }
-        throw new UnsupportedOperationException();
+		return softlyDeleted;
 	}
 
 	public void setSoftlyDeleted(boolean arg0) {
