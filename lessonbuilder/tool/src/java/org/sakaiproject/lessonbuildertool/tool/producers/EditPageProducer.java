@@ -115,15 +115,6 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 		if (simplePageBean.canEditPage()) {
 			simplePageBean.setItemId(itemId);
 
-			if ("ckeditor".equals(editor)) {
-			    String siteid = simplePageBean.getCurrentSiteId();
-			    String collectionID = ContentHostingService.getSiteCollection(siteid);
-			    UIVerbatim.make(tofill, "ckscript1", "var sakai = {}; sakai.editor = {}; sakai.editor.collectionId = '" + collectionID + "'; sakai.editor.enableResourceSearch = false;");
-			    UIOutput.make(tofill, "ckscript2");
-			    UIOutput.make(tofill, "ckscript3");
-			    UIOutput.make(tofill, "ckscript4");
-			}
-
 			UIForm form = UIForm.make(tofill, "page_form");
 
 			// Rich Text Input
