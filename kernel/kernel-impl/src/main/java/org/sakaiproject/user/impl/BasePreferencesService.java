@@ -464,13 +464,16 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 				else
 				{
 					//is the preference in the cache?
-					prefs = (BasePreferences) m_cache.get(id);
-					
+					if (m_cache.containsKey(id))
+					{
+						prefs = (BasePreferences) m_cache.get(id);
+					}
+					else
 					//otherwise, get preferences from storage and update caches
-					if (prefs == null)
 					{
 						prefs = (BasePreferences) m_storage.get(id);
 					}
+					//its possible either call above returned null if the user has the default preferences
 					if (prefs != null)
 					{
 						session.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
@@ -487,10 +490,12 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 			}
 			else
 			{
-				//is the preference in the cache?
-				prefs = (BasePreferences) m_cache.get(id);
-				
-				if (prefs == null) 
+				//is the preference in the cache
+				if (m_cache.containsKey(id))
+				{
+					prefs = (BasePreferences) m_cache.get(id);
+				}
+				else
 				{
 					// uf the preference is not for current user, ignore sessioncache completely
 					prefs = (BasePreferences) m_storage.get(id);
