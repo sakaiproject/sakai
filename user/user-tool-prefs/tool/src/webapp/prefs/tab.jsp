@@ -90,6 +90,11 @@ jQuery(document).ready(function () {
 				
 				
 				<sakai:messages />
+<f:verbatim>
+<p>Reorder tabs by dragging and dropping them into the sections and order you prefer.
+When you save your tab preferences, the entire page will automatically refresh to update
+the top navigation.</p>
+</f:verbatim>
                 <f:verbatim><ul id="prefsList" style="list-style-type: none"></f:verbatim>
 		<t:dataList id="dt1" value="#{UserPrefsTool.prefAllItems}" 
 			var="item" layout="simple" 
@@ -107,83 +112,9 @@ jQuery(document).ready(function () {
 		<h:inputHidden id="prefAllString" value="#{UserPrefsTool.prefAllString}" />
 		<h:inputHidden id="reloadTop" value="#{UserPrefsTool.reloadTop}" />
 <f:verbatim>
-<p>Reorder tabs by dragging and dropping them into the sections and order you prefer.
-When you save your tab preferences, the entire page will automatically refresh to update
-the top navigation.</p>
 <p>The tabs in the drawer are not maintained in a particular order within the drawer.
-The top tabs are shown in the order you specify.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+The top tabs will be shown in the order you specify.</p>
 </f:verbatim>
-				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br/><br/><h:outputText value="#{msgs.tab_inst_2}"/><br/><br/><h:outputText value="#{msgs.tab_inst_3}"/><br /><br /><h:outputText value="#{msgs.tab_inst_save}"/></p>
-				<table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout" border="0">
-    			  <tr>
-    			    <td>
-    			      <b><h:outputText value="#{msgs.tab_not_vis_inst}"/></b>
-    			      <br />
-    			  	  <h:selectManyListbox value="#{UserPrefsTool.selectedExcludeItems}" size="10" styleClass="sl">
-				   		<f:selectItems value="#{UserPrefsTool.prefExcludeItems}" />
-				 	  </h:selectManyListbox>
-				 	</td>
-				 	
-				 	<td style="text-align: center;">
-						<div style="margin-bottom:1.5em">
-						  <h:commandLink id="remove" action="#{UserPrefsTool.processActionRemove}" title="#{msgs.tab_move_inst_re}" styleClass="blockable bl"><h:graphicImage value="/prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /></h:commandLink>
-						  <h:commandLink id="add" action="#{UserPrefsTool.processActionAdd}" title="#{msgs.tab_move_inst}" styleClass="blockable br"><h:graphicImage value="/prefs/to-right.png" alt="#{msgs.tab_move_inst}" /></h:commandLink>
-						</div>
-						<div>
-							<h:commandLink id="removeAll" action="#{UserPrefsTool.processActionRemoveAll}" title="#{msgs.tab_move_all_inst_re}" styleClass="blockable bl"><h:graphicImage value="/prefs/all-to-left.png" alt="#{msgs.tab_move_all_inst_re}" /></h:commandLink>
-							<h:commandLink id="addAll" action="#{UserPrefsTool.processActionAddAll}" title="#{msgs.tab_move_all_inst}" styleClass="blockable br"><h:graphicImage value="/prefs/all-to-right.png" alt="#{msgs.tab_move_all_inst}" /></h:commandLink>
-						</div>	
-				 	</td>
-				 	
-				 	<td>
-					  <b><h:outputText value="#{msgs.tab_vis_inst}"/></b>
-    			      <br/>
-				 	  <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10" styleClass="sr">
-				        <f:selectItems value="#{UserPrefsTool.prefOrderItems}" />
-				      </h:selectManyListbox>
-				 	</td>
-				 	<td style="width:27px;">
-				 	  <p style="margin:0"><h:commandLink id="moveTop" action="#{UserPrefsTool.processActionMoveTop}" title="#{msgs.tab_move_top}" styleClass="blockable ud"> <h:graphicImage value="/prefs/to-top.png" alt="#{msgs.tab_move_top}" /> </h:commandLink></p>
-				 	  <p style="margin:5px 0 0  0;"><h:commandLink id="moveUp" action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}" styleClass="blockable ud"> <h:graphicImage value="/prefs/up.png" alt="#{msgs.tab_move_up}" /> </h:commandLink></p>
-					  <div style="margin-top:15px">
-				 	  	<p style="margin:0 0 5px 0;"><h:commandLink id="moveDown" action="#{UserPrefsTool.processActionMoveDown}" title="#{msgs.tab_move_down}" styleClass="blockable ud"> <h:graphicImage value="/prefs/down.png" alt="#{msgs.tab_move_down}" /> </h:commandLink></p>
-						<p style="margin:0;"><h:commandLink id="moveBottom" action="#{UserPrefsTool.processActionMoveBottom}" title="#{msgs.tab_move_bottom}" styleClass="blockable ud"> <h:graphicImage value="/prefs/to-bottom.png" alt="#{msgs.tab_move_bottom}" /> </h:commandLink></p>
-						</div>	
-				 	</td>    			  
-    			  </tr>
-				  <tr>
-				  <td></td><td></td>
-				  	<td>
-						<h:panelGrid cellpadding="0" cellspacing="0">
-						<h:panelGroup>
-							 <h:outputLabel for="numtabs" style="font-weight:bold"  value="#{msgs.tab_count}"/><f:verbatim>&nbsp;&nbsp;</f:verbatim>
-                             <h:selectOneMenu id="numtabs" value="#{UserPrefsTool.tabCount}" styleClass="notsbs">
-                                 <f:selectItems value="#{UserPrefsTool.tabsChoices}" />
-                             </h:selectOneMenu>
-                             <%--<h:inputText size="2" id="numtabs" value="#{UserPrefsTool.tabCount}" />--%>
-					  </h:panelGroup>
-					  </h:panelGrid>
-					</td>
-					<td></td>
-					</tr>
-				</table>
-			    <p class="act" style="margin:0;padding:0">
-				 	<h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
-					 <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
 					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.update_pref}"  style="display:none"/>
 					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.cancel_pref}"  style="display:none"/>
 			    </p>
