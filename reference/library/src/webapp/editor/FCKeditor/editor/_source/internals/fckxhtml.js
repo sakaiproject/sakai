@@ -225,6 +225,8 @@ FCKXHtml._AppendNode = function( xmlNode, htmlNode )
 			{
 				if ( htmlNode.nextSibling )
 					return false ;
+				else if ( xmlNode.ownerDocument.documentElement == xmlNode && htmlNode.parentNode && htmlNode.parentNode.lastChild == htmlNode )
+					return false ;
 				else
 				{
 					htmlNode.removeAttribute( '_moz_editor_bogus_node' ) ;
