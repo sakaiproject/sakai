@@ -24,14 +24,21 @@ sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
 
 sakai.editor.editors.ckeditor = {};
-sakai.editor.editors.ckeditor.launch = function(targetId, config) {
+sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var folder = "";
     if (sakai.editor.collectionId) {
         folder = "&CurrentFolder=" + sakai.editor.collectionId;
     }
+    if (w == null) {
+	w = '';
+    }
+    if (h == null || h == '') {
+	h = 460;
+    }
     CKEDITOR.replace(targetId, {
         skin: 'v2',
-        height: 460,
+        height: h,
+	width: w,
         filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + folder,
         filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + folder,
         filebrowserFlashBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + folder,
