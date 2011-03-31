@@ -29,6 +29,7 @@ import junit.framework.TestSuite;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
@@ -79,7 +80,12 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 				createdSiteAliases.isEmpty());
 		
 		// the "real" code exercise
-		siteService.removeSite(site);
+		try {
+			siteService.removeSite(site);
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		List remainingSiteAliases = aliasService.getAliases(site.getReference());
 		assertEquals("Expected all site aliases to be deleted on site deletion", 0, 

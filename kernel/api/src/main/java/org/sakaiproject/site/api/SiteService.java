@@ -82,6 +82,12 @@ public interface SiteService extends EntityProducer
 
 	/** Name for the event of removing a site. */
 	static final String SECURE_REMOVE_SITE = "site.del";
+	
+	/** Name for the event of removing a site that has already been softly deleted */
+	static final String SECURE_REMOVE_SOFTLY_DELETED_SITE = "site.del.softly.deleted";
+	
+	/** Name for the event of visiting a softly deleted site. */
+	static final String SITE_VISIT_SOFTLY_DELETED = "site.visit.softly.deleted";
 
 	/** Name for the event of updating a site. */
 	static final String SECURE_UPDATE_SITE = "site.upd";
@@ -130,13 +136,17 @@ public interface SiteService extends EntityProducer
 		private final boolean m_ignoreUser;
 
 		private final boolean m_ignoreUnpublished;
+		
+		//always true, we always ignore unpublished sites
+		private final boolean m_ignoreSoftlyDeleted;
 
-		private SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, boolean ignoreUnpublished)
+		private SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, boolean ignoreUnpublished, boolean ignoreSoftlyDeleted)
 		{
 			m_id = id;
 			m_ignoreSpecial = ignoreSpecial;
 			m_ignoreUser = ignoreUser;
 			m_ignoreUnpublished = ignoreUnpublished;
+			m_ignoreSoftlyDeleted =  ignoreSoftlyDeleted;
 		}
 
 		public String toString()
@@ -158,24 +168,29 @@ public interface SiteService extends EntityProducer
 		{
 			return m_ignoreUnpublished;
 		}
+		
+		public boolean isIgnoreSoftlyDeleted()
+		{
+			return m_ignoreSoftlyDeleted;
+		}
 
 		/** Get sites that the current user has read access to (non-myWorkspace, non-special). */
-		public static final SelectionType ACCESS = new SelectionType("access", true, true, false);
+		public static final SelectionType ACCESS = new SelectionType("access", true, true, false, true);
 
 		/** Get sites that the current user has write access to (non-myWorkspace, non-special). */
-		public static final SelectionType UPDATE = new SelectionType("update", true, true, false);
+		public static final SelectionType UPDATE = new SelectionType("update", true, true, false, true);
 
 		/** Get sites that the current user does not have read access to but are joinable (non-myWorkspace, non-special). */
-		public static final SelectionType JOINABLE = new SelectionType("joinable", true, true, true);
+		public static final SelectionType JOINABLE = new SelectionType("joinable", true, true, true, true);
 
 		/** Get sites that are marked for view (non-myWorkspace, non-special). */
-		public static final SelectionType PUBVIEW = new SelectionType("pubView", true, true, true);
+		public static final SelectionType PUBVIEW = new SelectionType("pubView", true, true, true, true);
 
 		/** Get any sites. */
-		public static final SelectionType ANY = new SelectionType("any", false, false, false);
+		public static final SelectionType ANY = new SelectionType("any", false, false, true, true);
 
 		/** Get any non-user sites. */
-		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, false);
+		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, true, true);
 	}
 
 	/**
@@ -255,6 +270,18 @@ public interface SiteService extends EntityProducer
 
 		/** Sort on modified time DESC */
 		public static final SortType MODIFIED_ON_DESC = new SortType("modified on", false);
+		
+		/** Sort on softly deleted ASC */
+		public static final SortType SOFTLY_DELETED_ASC = new SortType("softly deleted", true);
+		
+		/** Sort on softly deleted DESC */
+		public static final SortType SOFTLY_DELETED_DESC = new SortType("softly deleted", false);
+		
+		/** Sort on softly deleted ASC */
+		public static final SortType SOFTLY_DELETED_DATE_ASC = new SortType("softly deleted date", true);
+		
+		/** Sort on softly deleted DESC */
+		public static final SortType SOFTLY_DELETED_DATE_DESC = new SortType("softly deleted date", false);
 	}
 
 	/**
@@ -446,12 +473,19 @@ public interface SiteService extends EntityProducer
 	/**
 	 * Remove this site's information.
 	 * 
+	 * <p>If site.soft.deletion=true, the site will be softly deleted and user access will be removed.
+	 * The site will be hard deleted after either the grace period has expired.
+	 * The site may also be hard deleted by issuing another removeSite request by a user that has permission
+	 * to remove softly deleted sites.
+	 * 
 	 * @param site
 	 *        The site id.
 	 * @exception PermissionException
 	 *            if the current user does not have permission to remove this site.
+	 * @exception IdUnusedException 
+	 * 			  if site does not exist
 	 */
-	void removeSite(Site site) throws PermissionException;
+	void removeSite(Site site) throws PermissionException, IdUnusedException;
 
 	/**
 	 * Access the internal reference which can be used to access the site from within the system.
@@ -658,6 +692,15 @@ public interface SiteService extends EntityProducer
 	 */
 	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page);
 
+	
+	/**
+	 * Get all sites that have been softly deleted
+	 * 
+	 * @return List of Sites or empty list if none.
+	 */
+	List<Site> getSoftlyDeletedSites();
+	
+	
 	/**
 	 * Count the Site objets that meet specified criteria.
 	 * 

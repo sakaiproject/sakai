@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +72,8 @@ public abstract class DbSiteService extends BaseSiteService
 
 	/** All fields for site. */
 	protected String[] m_siteFieldNames = {"SITE_ID", "TITLE", "TYPE", "SHORT_DESC", "DESCRIPTION", "ICON_URL", "INFO_URL", "SKIN", "PUBLISHED",
-			"JOINABLE", "PUBVIEW", "JOIN_ROLE", "IS_SPECIAL", "IS_USER", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON", "CUSTOM_PAGE_ORDERED"};
+			"JOINABLE", "PUBVIEW", "JOIN_ROLE", "IS_SPECIAL", "IS_USER", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON", "CUSTOM_PAGE_ORDERED",
+			"IS_SOFTLY_DELETED", "SOFTLY_DELETED_DATE"};
 
 	/*************************************************************************************************************************************************
 	 * Dependencies
@@ -510,6 +512,10 @@ public abstract class DbSiteService extends BaseSiteService
 			if (type.isIgnoreSpecial()) where.append(siteServiceSql.getSitesWhere3Sql());
 			// reject unpublished sites
 			if (type.isIgnoreUnpublished()) where.append(siteServiceSql.getSitesWhere4Sql());
+			// reject softly deleted sites
+			if (type.isIgnoreSoftlyDeleted()) {
+				where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
+			}
 
 			if (ofType != null)
 			{
@@ -826,6 +832,22 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * {@inheritDoc}
 		 */
+		public List getSoftlyDeletedSites() {
+			
+			List rv = null;
+			String where = siteServiceSql.getSitesWhereSoftlyDeletedOnlySql();
+			Object[] fields = getSitesFields( SelectionType.ANY, null, null, null );
+			String order = getSitesOrder( SortType.SOFTLY_DELETED_DATE_ASC );
+			
+			rv = getSelectedResources(where, order, fields, null);
+
+			return rv;
+			
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
 		public List getSiteTypes()
 		{
 			String statement = siteServiceSql.getTypesSql();
@@ -945,6 +967,9 @@ public abstract class DbSiteService extends BaseSiteService
 			if (type == SelectionType.ACCESS) where.append(siteServiceSql.getSitesWhere11Sql());
 			// joinable requires NOT access permission
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere12Sql());
+			
+			// always reject softly deleted sites
+			where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
 
 			// do we need a join?
 			String join = null;
@@ -2050,11 +2075,11 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		protected Object[] fields(String id, Site edit, boolean idAgain)
 		{
-			Object[] rv = new Object[idAgain ? 20 : 19];
+			Object[] rv = new Object[idAgain ? 22 : 21];
 			rv[0] = caseId(id);
 			if (idAgain)
 			{
-				rv[19] = rv[0];
+				rv[21] = rv[0];
 			}
 
 			if (edit == null)
@@ -2084,6 +2109,8 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[16] = now;
 				rv[17] = now;
 				rv[18] = "0";
+				rv[19] = "0";
+				rv[20] = null;
 			}
 
 			else
@@ -2106,6 +2133,8 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[16] = edit.getCreatedTime();
 				rv[17] = edit.getModifiedTime();
 				rv[18] = edit.isCustomPageOrdered() ? "1" : "0";
+				rv[19] = edit.isSoftlyDeleted() ? "1" : "0";
+				rv[20] = edit.getSoftlyDeletedDate();
 			}
 
 			return rv;
@@ -2151,10 +2180,12 @@ public abstract class DbSiteService extends BaseSiteService
 					modifiedOn = timeService().newTime(ts.getTime());
 				}
 				boolean customPageOrdered = "1".equals(result.getString(19)) ? true : false;
+				boolean isSoftlyDeleted = "1".equals(result.getString(20)) ? true : false;
+				Date softlyDeletedDate = result.getDate(21);
 
 				// create the Resource from these fields
 				return new BaseSite(DbSiteService.this,id, title, type, shortDesc, description, icon, info, skin, published, joinable, pubView, joinRole, isSpecial,
-						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered);
+						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate);
 			}
 			catch (SQLException e)
 			{
@@ -2162,5 +2193,6 @@ public abstract class DbSiteService extends BaseSiteService
 				return null;
 			}
 		}
+		
 	}
 }

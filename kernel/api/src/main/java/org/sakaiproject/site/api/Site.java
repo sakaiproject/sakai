@@ -23,6 +23,7 @@ package org.sakaiproject.site.api;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -371,4 +372,22 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 *        true if the site has a custom page ordering, false if not.
 	 */
 	void setCustomPageOrdered(boolean custom);
+	
+	/**
+	 * Is this site softly deleted and hence queued for a hard delete?
+	 * @return true if it has been softly deleted
+	 */
+	boolean isSoftlyDeleted();
+	
+	/**
+	 * If softly deleted, the date that occurred
+	 * @return date if it has been softly deleted
+	 */
+	Date getSoftlyDeletedDate();
+	
+	/**
+	 * Set params for this site as softly deleted
+	 * @param flag true or false
+	 */
+	void setSoftlyDeleted(boolean flag);
 }

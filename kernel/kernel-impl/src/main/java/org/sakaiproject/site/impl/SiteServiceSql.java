@@ -350,4 +350,17 @@ public interface SiteServiceSql
 	 * returns the sql statement which updates a site into the sakai_site table.
 	 */
 	String getUpdateSiteSql(String table);
+	
+	/**
+	 * returns the sql statement which is part of the where clause to retrieve sites which are softly deleted
+	 * TODO this could take a param which further filters on date-gracetime
+	 */
+	String getSitesWhereSoftlyDeletedOnlySql();
+	
+	/**
+	 * returns the sql statement which is part of the qhere clause to only retrieve sites that are NOT softly deleted
+	 * @return
+	 */
+	String getSitesWhereNotSoftlyDeletedSql();
+	
 }

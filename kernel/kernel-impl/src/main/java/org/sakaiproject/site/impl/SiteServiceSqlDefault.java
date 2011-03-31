@@ -289,7 +289,7 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	{
 		return "SAKAI_SITE.MODIFIEDON DESC";
 	}
-
+	
 	/**
 	 * returns the sql statement which is part of the where clause to retrieve sites.
 	 */
@@ -554,4 +554,22 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	{
 		return "update " + table + " set DESCRIPTION = ?, INFO_URL = ? where SITE_ID = ?";
 	}
+	
+	/**
+	 * returns the sql statement which is part of the where clause to retrieve sites which are softly deleted
+	 */
+	public String getSitesWhereSoftlyDeletedOnlySql()
+	{
+		return "SAKAI_SITE.IS_SOFTLY_DELETED = '1'";
+	}
+	
+	/**
+	 * returns the sql statement which is part of the where clause to only retrieve sites that are NOT softly deleted
+	 * @return
+	 */
+	public String getSitesWhereNotSoftlyDeletedSql()
+	{
+		return "SAKAI_SITE.IS_SOFTLY_DELETED = '0' and ";
+	}
+	
 }

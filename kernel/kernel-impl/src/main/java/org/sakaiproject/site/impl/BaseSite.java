@@ -168,6 +168,11 @@ public class BaseSite implements Site
 
 	private BaseSiteService siteService;
 
+	/** Softly deleted data */
+	protected boolean m_isSoftlyDeleted = false;
+	protected Date m_softlyDeletedDate = null;
+
+	
 	/**
 	 * Construct.
 	 * 
@@ -470,7 +475,8 @@ public class BaseSite implements Site
 			String description, String iconUrl, String infoUrl, String skin,
 			boolean published, boolean joinable, boolean pubView, String joinRole,
 			boolean isSpecial, boolean isUser, String createdBy, Time createdOn,
-			String modifiedBy, Time modifiedOn, boolean customPageOrdered)
+			String modifiedBy, Time modifiedOn, boolean customPageOrdered,
+			boolean isSoftlyDeleted, Date softlyDeletedDate)
 	{
 		this.siteService = siteService;
 
@@ -509,6 +515,11 @@ public class BaseSite implements Site
 
 		m_pagesLazy = true;
 		m_groupsLazy = true;
+		
+		// soft site deletions - new sites get defaults
+		m_isSoftlyDeleted = isSoftlyDeleted;
+		m_softlyDeletedDate = softlyDeletedDate;
+		
 	}
 
 	/**
@@ -540,6 +551,11 @@ public class BaseSite implements Site
 		m_type = other.m_type;
 		m_pubView = other.m_pubView;
 		m_customPageOrdered = other.m_customPageOrdered;
+		
+		//site copies keep soft site deletion flags
+		m_isSoftlyDeleted = other.m_isSoftlyDeleted;
+		m_softlyDeletedDate = other.m_softlyDeletedDate;
+		
 		if (exact)
 		{
 			m_createdUserId = other.m_createdUserId;
@@ -1677,6 +1693,24 @@ public class BaseSite implements Site
 		if (changed) m_azgChanged = true;
 		return changed;
 	}
+
+	public boolean isSoftlyDeleted() {
+		return m_isSoftlyDeleted;
+	}
+	
+	public Date getSoftlyDeletedDate() {
+		return m_softlyDeletedDate;
+	}
+	
+	public void setSoftlyDeleted(boolean flag) {
+		m_isSoftlyDeleted = flag;
+		if(flag) {
+			m_softlyDeletedDate = new Date();
+		} else {
+			m_softlyDeletedDate = null;
+		}
+	}
+
 
 
 }
