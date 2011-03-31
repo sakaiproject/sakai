@@ -503,5 +503,20 @@ public class FakeSite implements Site {
 
 	}
 
+	public Date getSoftlyDeletedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isSoftlyDeleted() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setSoftlyDeleted(boolean arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

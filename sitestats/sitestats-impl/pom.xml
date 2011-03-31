@@ -264,7 +264,7 @@
       <testResource>
         <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
         <includes>
-          <include>hbm-db.xml</include>
+          <!--<include>hbm-db.xml</include>-->
         </includes>
       </testResource>
     </testResources>  
