@@ -21,6 +21,7 @@
 package org.sakaiproject.mock.domain;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -278,6 +279,21 @@ public class Site extends AuthzGroup implements org.sakaiproject.site.api.Site {
 
 	public void setPages(List<Page> pages) {
 		this.pages = pages;
+	}
+
+	public Date getSoftlyDeletedDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isSoftlyDeleted() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setSoftlyDeleted(boolean arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
