@@ -7,6 +7,16 @@
 	<!-- rich text evolver bean def -->
 	<bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
 
+	<bean id="sakaiFCKTextEvolver" class="org.sakaiproject.poll.tool.evolvers.SakaiFCKTextEvolver">
+                <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                <property name="context" ref="sakai-Context" />
+                <!-- sets the default editor size for this context -->
+                <property name="width" value="400" />
+                <property name="height" value="400" />
+        </bean>
+
+
 	<!-- error prograting bean -->
 	<!-- <bean id="allErrorsAllowable"
 		class="org.sakaiproject.poll.tool.beans.ErrorHandler">
