@@ -13,12 +13,13 @@
 		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>			
 		<script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>			
 		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				setupPrefsGen();
-				setupPrefsTabs('sl','sr');				
-			})  
-		</script>
+<script type="text/javascript">
+$(document).ready(function(){
+    setupPrefsGen();
+    setupPrefsTabs('sl','sr');				
+    })  
+</script>
+
 <script type="text/javascript">
 jQuery(document).ready(function () {
      var opts = {
@@ -34,6 +35,15 @@ jQuery(document).ready(function () {
     };
 
     fluid.reorderList("#prefs_form:dt1", opts);
+});
+
+function checkReloadTop() {
+    check = jQuery('input[id$=reloadTop]').val();
+    if (check == 'true' ) parent.location.reload();
+}
+
+jQuery(document).ready(function () {
+    setTimeout('checkReloadTop();', 1500);
 });
 </script>
 				<sakai:stylesheet path="/css/prefs.css"/>
@@ -91,15 +101,17 @@ jQuery(document).ready(function () {
                         <t:outputText value="#{item.label}"></t:outputText>
                 <f:verbatim></li></f:verbatim>
 		</t:dataList>
-	 	<h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
                 <f:verbatim></ul></f:verbatim>
+	 	<h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSaveOrder}"></h:commandButton>
+		 <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
 		<h:inputHidden id="prefAllString" value="#{UserPrefsTool.prefAllString}" />
+		<h:inputHidden id="reloadTop" value="#{UserPrefsTool.reloadTop}" />
 <f:verbatim>
+<p>Reorder tabs by dragging and dropping them into the sections and order you prefer.
+When you save your tab preferences, the entire page will automatically refresh to update
+the top navigation.</p>
 <p>The tabs in the drawer are not maintained in a particular order within the drawer.
 The top tabs are shown in the order you specify.</p>
-<p>This is not yet a functional tool - it is just a prototype 
-to stimulate design ideas - The save button does not really save.
-The Real UI is at the bottom of the page.</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -176,8 +188,6 @@ The Real UI is at the bottom of the page.</p>
 					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.cancel_pref}"  style="display:none"/>
 			    </p>
 		 </h:form>
-		 <%-- gsilver: this next bit renders an empty unbalanced div if there is no value --%>
-		 <sakai:peer_refresh value="#{UserPrefsTool.refreshElement}" />
 
 	</sakai:view_content>                                                                                                                     
 	</sakai:view_container>

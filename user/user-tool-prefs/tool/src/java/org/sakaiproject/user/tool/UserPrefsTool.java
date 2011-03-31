@@ -55,6 +55,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
@@ -229,13 +230,15 @@ public class UserPrefsTool
 	private List prefLocales = new ArrayList();
 
 	private int DEFAULT_TAB_COUNT = 4;
-    private int MAX_TAB_COUNT = 20;
+	private int MAX_TAB_COUNT = 20;
 
 	private String prefTabCount = null;
 
 	private String[] selectedExcludeItems;
 
 	private String[] selectedOrderItems;
+
+	private String prefAllString = null;
 
 	private String[] tablist;
 
@@ -249,7 +252,6 @@ public class UserPrefsTool
 	private String Privacy="prefs_privacy_title";
 	
 	private boolean refreshMode=false;
-
 
 	protected final static String EXCLUDE_SITE_LISTS = "exclude";
 
@@ -338,55 +340,10 @@ public class UserPrefsTool
 
 	public void setPrefAllString(String inp)
 	{
-System.out.println("setPrefAllString:"+inp);
 		inp = inp.trim();
-		if ( inp.length() < 1 ) return;
-		String [] ids = inp.split(":/:");
-		String tabs = "";
-		String excludes = "";
-		int tabcount = -1;
-		int pos = 0;
-		int state = 0;  // 0 = top tabs, 1 = drawer, 2 = excludes
-		String error = "";
-		// Sample: ABC 123 //top def hij //hidden mmm ttt qqq
-		for ( String id : ids ) {
-System.out.println("id="+id);
-			id = id.trim();
-			if ( id.length() < 1 ) continue;
-			if ( "//top-tabs".equals(id) ) {  // The end of the top tabs
-				if ( pos < 3 ) {
-					error = "Too few top tabs";
-					break;
-				}
-				state = 1;
-				tabcount = pos;
-				continue;
-			}
-			if ( "//hidden".equals(id) ) { // The transition to hidden
-				if ( state != 1 ) {
-					error = "Hidden must follow top tabs";
-					break;
-				}
-				state = 2;
-				continue;
-			}
-			if ( state == 0 ) {
-			        pos = pos + 1;
-				if ( tabs.length() > 0 ) tabs += ',';
-				tabs += id;
-			}
-			if ( state == 2 ) {
-				if ( excludes.length() > 0 ) excludes += ',';
-				excludes += id;
-			} 
-		}
-		if ( tabcount < 4 ) {
-			error = "Not enough tabs";
-		}
-System.out.println("Error="+error);
-System.out.println("tabcount="+tabcount);
-System.out.println("tabs="+tabs);
-System.out.println("excludes="+excludes);
+		prefAllString = inp;
+		if ( inp.length() < 1 ) prefAllString = null;
+		return;
 	}
 
 	/**
@@ -410,7 +367,7 @@ System.out.println("excludes="+excludes);
                 {
                         SelectItem item = (SelectItem) prefOrderItems.get(i);
 			l.add(item);
-			if ( i == (tc-1) )
+			if ( i == (tc-2) )
 			{
                			l.add( new SelectItem("//top-tabs", "-- Top Tabs --" ) );
 				drawer = true;
@@ -1133,9 +1090,12 @@ System.out.println("excludes="+excludes);
 		}
 		tabUpdated = false; // Reset display of text message on JSP
 		refreshMode=false;
+
+		setUserEditingOn();
+
+		prefTabCount = null;
 		prefExcludeItems = new ArrayList();
 		prefOrderItems = new ArrayList();
-		setUserEditingOn();
 		List prefExclude = new Vector();
 		List prefOrder = new Vector();
 
@@ -1200,8 +1160,99 @@ System.out.println("excludes="+excludes);
 			SelectItem orderItem = new SelectItem(element.getId(), element.getTitle());
 			prefOrderItems.add(orderItem);
 		}
+
 		// release lock
 		m_preferencesService.cancel(m_edit);
+		return m_TabOutcome;
+	}
+
+
+	/**
+	 * Process the save command from the edit view.
+	 * 
+	 * @return navigation outcome to tab customization page (edit)
+	 */
+	public String processActionSaveOrder()
+	{
+		LOG.debug("processActionSaveOrder()");
+		if ( prefAllString == null || prefAllString.length() < 1 ) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Order Unchanged"));
+			return m_TabOutcome;
+		}
+
+		String [] ids = prefAllString.split(":/:");
+		String tabs = "";
+		String excludes = "";
+		int tabcount = -1;
+		int pos = 0;
+		int state = 0;  // 0 = top tabs, 1 = drawer, 2 = excludes
+		String error = "";
+		// Sample: ABC 123 //top def hij //hidden mmm ttt qqq
+		for ( String id : ids ) {
+			id = id.trim();
+			if ( id.length() < 1 ) continue;
+			if ( "//top-tabs".equals(id) ) {  // The end of the top tabs
+				if ( pos < 3 ) {
+					error = "Too few top tabs";
+					break;
+				}
+				state = 1;
+				tabcount = pos+1;
+				continue;
+			}
+			if ( "//hidden".equals(id) ) { // The transition to hidden
+				if ( state != 1 ) {
+					error = "Hidden must follow top tabs";
+					break;
+				}
+				state = 2;
+				continue;
+			}
+			if ( state == 0 ) {
+			        pos = pos + 1;
+				if ( tabs.length() > 0 ) tabs += ", ";
+				tabs += id;
+			}
+			if ( state == 2 ) {
+				if ( excludes.length() > 0 ) excludes += ", ";
+				excludes += id;
+			} 
+		}
+		if ( error.length() == 0 && tabcount < 4 ) {
+			error = "Not enough tabs";
+		}
+
+		if ( error.length() > 0 ) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
+			return m_TabOutcome;
+		}
+
+		setUserEditingOn();
+		// Remove existing property
+		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
+		props.removeProperty("exclude");
+		props.removeProperty("order");
+		// Commit to remove from database, for next set of value storing
+		m_preferencesService.commit(m_edit);
+
+		m_stuff = new Vector();
+		// add property name and value for saving
+		if ( excludes.length() > 0 ) 
+			m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", excludes, true));
+		if ( tabs.length() > 0 ) 
+			m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", tabs, true));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs",  String.valueOf(tabcount), false));
+
+		// save
+		saveEdit();
+		// release lock and clear session variables
+		cancelEdit();
+		// To stay on the same page - load the page data
+		processActionEdit();
+		tabUpdated = true; // set for display of text message on JSP
+
+		m_reloadTop = Boolean.TRUE;
+
 		return m_TabOutcome;
 	}
 
@@ -1250,9 +1301,7 @@ System.out.println("excludes="+excludes);
 		processActionEdit();
 		tabUpdated = true; // set for display of text message on JSP
 
-		// schedule a "peer" html element refresh, to update the site nav tabs
-		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		setRefreshElement("sitenav");
+		m_reloadTop = Boolean.TRUE;
 
 		return m_TabOutcome;
 	}
@@ -2047,34 +2096,23 @@ System.out.println("excludes="+excludes);
 		return a;
 	} // getIntegerPref
 
-	/** The html "peer" element to refresh on the next rendering. */
-	protected String m_refreshElement = null;
+	/** Should we reload the top window? */
+	protected Boolean m_reloadTop = Boolean.FALSE;
 
 	/**
-	 * Get, and clear, the refresh element
-	 * 
-	 * @return The html "peer" element to refresh on the next rendering, or null if none defined.
+	 * Get, and clear, the reload element
 	 */
-	public String getRefreshElement()
+	public Boolean getReloadTop()
 	{
-		String rv = m_refreshElement;
-		m_refreshElement = null;
+		Boolean rv = m_reloadTop;
+		m_reloadTop = Boolean.FALSE;
 		return rv;
 	}
 
-	/**
-	 * Set the "peer" html element to refresh on the next rendering.
-	 * 
-	 * @param element
-	 */
-	public void setRefreshElement(String element)
-	{
-		m_refreshElement = element;
-	}
+	public void setReloadTop(Boolean val) { }
 
 	/**
 	 * Pull whether privacy status should be enabled from sakai.properties
-	 * 
 	 */
 	public boolean isPrivacyEnabled()
 	{
