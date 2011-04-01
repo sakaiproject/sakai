@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -90,28 +91,61 @@ public class MySocialNetworkingEdit extends Panel {
 		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
-		facebookContainer.add(new TextField("facebookUrl", new PropertyModel(userProfile, "socialInfo.facebookUrl")));
+		TextField<String> facebookUrl = new TextField<String>("facebookUrl", new PropertyModel<String>(userProfile, "socialInfo.facebookUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void convertInput() {
+				validateUrl(this);
+			}
+		};
+		facebookContainer.add(facebookUrl);
 		facebookContainer.add(new IconWithClueTip("facebookToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.facebook.tooltip")));
 		form.add(facebookContainer);
 		
 		//linkedin
 		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
 		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin.edit")));
-		linkedinContainer.add(new TextField("linkedinUrl", new PropertyModel(userProfile, "socialInfo.linkedinUrl")));
+		TextField<String> linkedinUrl = new TextField<String>("linkedinUrl", new PropertyModel<String>(userProfile, "socialInfo.linkedinUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void convertInput() {
+				validateUrl(this);
+			}
+		};
+		linkedinContainer.add(linkedinUrl);
+		
 		linkedinContainer.add(new IconWithClueTip("linkedinToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.linkedin.tooltip")));
 		form.add(linkedinContainer);
 		
 		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		myspaceContainer.add(new TextField("myspaceUrl", new PropertyModel(userProfile, "socialInfo.myspaceUrl")));
+		TextField<String> myspaceUrl = new TextField<String>("myspaceUrl", new PropertyModel<String>(userProfile, "socialInfo.myspaceUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void convertInput() {
+				validateUrl(this);
+			}
+		};
+		myspaceContainer.add(myspaceUrl);
 		myspaceContainer.add(new IconWithClueTip("myspaceToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.myspace.tooltip")));
 		form.add(myspaceContainer);
 		
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		twitterContainer.add(new TextField("twitterUrl", new PropertyModel(userProfile, "socialInfo.twitterUrl")));
+		TextField<String> twitterUrl = new TextField<String>("twitterUrl", new PropertyModel<String>(userProfile, "socialInfo.twitterUrl")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void convertInput() {
+				validateUrl(this);
+			}
+		};
+		twitterContainer.add(twitterUrl);
 		twitterContainer.add(new IconWithClueTip("twitterToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.twitter.tooltip")));
 		form.add(twitterContainer);
 		
@@ -179,7 +213,18 @@ public class MySocialNetworkingEdit extends Panel {
 		add(form);
 	}
 
-	
+	// adds http:// if missing
+	private void validateUrl(TextField<String> urlTextField) {
+		String input = urlTextField.getInput();
+
+		if (StringUtils.isNotBlank(input)
+				&& !(input.startsWith("http://") || input
+						.startsWith("https://"))) {
+			urlTextField.setConvertedInput("http://" + input);
+		} else {
+			urlTextField.setConvertedInput(StringUtils.isBlank(input) ? null : input);
+		}
+	}
 	
 	// called when the form is to be saved
 	private boolean save(Form form) {
