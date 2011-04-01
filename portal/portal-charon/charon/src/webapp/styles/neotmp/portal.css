@@ -7,6 +7,7 @@ body{
 	margin: 0;
 	background-color: #093b52;
         background-image:  url(images/page_bg_water.jpg);
+	background-attachment: fixed;
         background-repeat:repeat-x;
 }
 
