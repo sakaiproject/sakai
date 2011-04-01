@@ -25,28 +25,18 @@
 <body>
 
 <wicket:panel>
+	<!-- photo of user who made this comment -->
 	<div wicket:id="wallItemPhotoWrap">
 		<div>
 			<a><img wicket:id="wallItemPhoto" class="wall-item-img" /></a>
 		</div>
 	</div>
 	
-	<div class="wall-item-text-wrap">
-   		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		
-   		<div wicket:id="wallItemText">[wall item text]</div>
-   		<div class="wall-item-details">
-   			<div class="wall-item-actions-wrap">
-				<a wicket:id="removeWallItemLink"><span wicket:id="removeWallItemLabel"></span></a>
-				<a wicket:id="commentWallItemLink"><span wicket:id="commentWallItemLabel"></span></a>
-	    	</div>
-   			<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
-   			<div wicket:id="wallItemComments">
-   				<div class="wall-item-comment" wicket:id="wallItemCommentPanel"></div>
-   			</div>
-   		</div>
+	<div class="wall-item-comment-text-wrap"><!-- comments might need own class of this -->
+   		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemCommentName" class="wall-item-name">[wall comment creator name]</span></a>   		
+   		<div wicket:id="wallItemCommentText">[wall comment text]</div>
+		<div class="wall-item-date" wicket:id="wallItemCommentDate">[wall comment date]</div>
    	</div>
-   	
-   	<div wicket:id="wallItemActionWindow"></div>
    	
 </wicket:panel>
 

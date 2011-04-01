@@ -1367,6 +1367,16 @@ main-profile-tabpanel .tab-row a:visited.active,
 	overflow: hidden;
 }
 
+.wall-item-comment-text-wrap {
+	width: 385px;
+	margin-left: 50px;
+	overflow: hidden;
+}
+
+.wall-item-comment {
+	margin-top: 5px;
+	background-color: #EFEFED;/*#ECECE9;*/
+}
 .wall-item-details {
 
 }

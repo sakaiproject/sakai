@@ -21,6 +21,8 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -28,9 +30,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.tool.pages.windows.CommentWallItem;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveWallItem;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -99,11 +103,11 @@ public class WallItemPanel extends Panel {
 		// TODO date has scope for internationalization?
 		add(new Label("wallItemDate", ProfileUtils.convertDateToString(wallItem
 				.getDate(), "dd MMMMM, HH:mm")));
-
-		// wall item actions (TODO container?)
 		
-		final ModalWindow removeWallItemWindow = new ModalWindow("removeWallItemWindow");
-		add(removeWallItemWindow);
+		// ACTIONS
+		
+		final ModalWindow wallItemActionWindow = new ModalWindow("wallItemActionWindow");
+		add(wallItemActionWindow);
 		
 		final WallAction wallAction = new WallAction();
 		// delete link
@@ -115,10 +119,12 @@ public class WallItemPanel extends Panel {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 
-				removeWallItemWindow.setContent(new RemoveWallItem(removeWallItemWindow.getContentId(),
-						removeWallItemWindow, wallAction, userUuid, this.getModelObject()));
+				wallItemActionWindow.setContent(new RemoveWallItem(wallItemActionWindow.getContentId(),
+						wallItemActionWindow, wallAction, userUuid, this.getModelObject()));
 
-				removeWallItemWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback(){
+				wallItemActionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback(){
+
+					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void onClose(AjaxRequestTarget target) {
@@ -129,7 +135,7 @@ public class WallItemPanel extends Panel {
 					}
 				});
 				
-				removeWallItemWindow.show(target);
+				wallItemActionWindow.show(target);
 				target.appendJavascript("fixWindowVertical();"); 
 			}
 		};
@@ -143,7 +149,46 @@ public class WallItemPanel extends Panel {
 		}
 		
 		add(removeItemLink);
+		
+		final AjaxLink<WallItem> commentItemLink = new AjaxLink<WallItem>(
+				"commentWallItemLink", new Model<WallItem>(wallItem)) {
 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				CommentWallItem comment = new CommentWallItem(wallItemActionWindow.getContentId(),
+						wallItemActionWindow, wallAction, userUuid, this.getModelObject());
+				
+				wallItemActionWindow.setContent(comment);
+
+				wallItemActionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback(){
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClose(AjaxRequestTarget target) {
+						if (wallAction.isItemCommented()) {
+							
+							// TODO add comment panel to wall item
+							
+							//target.appendJavascript("$('#" + WallItemPanel.this.getMarkupId() + "').slideUp();");
+						}
+					}
+				});
+				
+				wallItemActionWindow.show(target);
+				target.appendJavascript("fixWindowVertical();"); 
+
+			}
+		};
+
+		commentItemLink.add(new Label("commentWallItemLabel", new ResourceModel("link.wall.item.comment")));
+		commentItemLink.add(new AttributeModifier("title", true, new ResourceModel("link.title.wall.comment")));
+		
+		add(commentItemLink);
+		
 		if (ProfileConstants.WALL_ITEM_TYPE_EVENT == wallItem.getType()) {
 			add(new Label("wallItemText", new ResourceModel(wallItem.getText())));
 			
@@ -155,6 +200,25 @@ public class WallItemPanel extends Panel {
 			add(new Label("wallItemText", wallItem.getText()));
 
 		}
+		
+		// COMMENTS
+		
+		ListView<WallItemComment> wallItemCommentsListView = new ListView<WallItemComment>(
+				"wallItemComments", wallItem.getComments()) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void populateItem(ListItem<WallItemComment> item) {
+						
+						WallItemComment comment = (WallItemComment) item.getDefaultModelObject();
+
+						item.add(new WallItemCommentPanel("wallItemCommentPanel", comment));
+					}
+			
+		};
+		wallItemCommentsListView.setOutputMarkupId(true);
+		add(wallItemCommentsListView);
 		
 	}
 

@@ -20,35 +20,29 @@
 <html xmlns="http://www.w3.org/1999/xhtml"  
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
-      lang="en"> 
-       
+      lang="en">  
+      
 <body>
 
 <wicket:panel>
-	<div wicket:id="wallItemPhotoWrap">
-		<div>
-			<a><img wicket:id="wallItemPhoto" class="wall-item-img" /></a>
+
+    <div class="modalWindowWrapper">
+    	<img class="modalWindowImage" wicket:id="image"/>
+    	<div class="modalWindowMain">
+    		<form wicket:id="form">
+    			<div wicket:id="commentContainer" class="modalWindowText">
+    				<textarea wicket:id="comment" class="formInputArea" rows="4" cols="40"></textarea>
+    			</div>
+				<div class="modalWindowButtons">
+					<input type="submit" wicket:id="submit" value="Submit" />
+					<input type="button" wicket:id="cancel" value="Cancel"/>
+				</div>
+			</form>
 		</div>
-	</div>
-	
-	<div class="wall-item-text-wrap">
-   		<a href="#" wicket:id="wallItemProfileLink"><span wicket:id="wallItemName" class="wall-item-name">[wall item creator name]</span></a>   		
-   		<div wicket:id="wallItemText">[wall item text]</div>
-   		<div class="wall-item-details">
-   			<div class="wall-item-actions-wrap">
-				<a wicket:id="removeWallItemLink"><span wicket:id="removeWallItemLabel"></span></a>
-				<a wicket:id="commentWallItemLink"><span wicket:id="commentWallItemLabel"></span></a>
-	    	</div>
-   			<div class="wall-item-date" wicket:id="wallItemDate">[wall item date]</div>
-   			<div wicket:id="wallItemComments">
-   				<div class="wall-item-comment" wicket:id="wallItemCommentPanel"></div>
-   			</div>
-   		</div>
-   	</div>
-   	
-   	<div wicket:id="wallItemActionWindow"></div>
-   	
+    </div>
+
 </wicket:panel>
 
+	
 </body>
 </html>
