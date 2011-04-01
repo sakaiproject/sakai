@@ -38,6 +38,7 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * Panel for editing social networking profile data.
@@ -188,11 +189,18 @@ public class MySocialNetworkingEdit extends Panel {
 		
 		// save social networking information
 		SocialNetworkingInfo socialNetworkingInfo = new SocialNetworkingInfo(userProfile.getUserUuid());
-		socialNetworkingInfo.setFacebookUrl(userProfile.getSocialInfo().getFacebookUrl());
-		socialNetworkingInfo.setLinkedinUrl(userProfile.getSocialInfo().getLinkedinUrl());
-		socialNetworkingInfo.setMyspaceUrl(userProfile.getSocialInfo().getMyspaceUrl());
-		socialNetworkingInfo.setSkypeUsername(userProfile.getSocialInfo().getSkypeUsername());
-		socialNetworkingInfo.setTwitterUrl(userProfile.getSocialInfo().getTwitterUrl());
+		
+		String tFacebook = ProfileUtils.truncate(userProfile.getSocialInfo().getFacebookUrl(), 255, false);
+		String tLinkedin = ProfileUtils.truncate(userProfile.getSocialInfo().getLinkedinUrl(), 255, false);
+		String tMyspace = ProfileUtils.truncate(userProfile.getSocialInfo().getMyspaceUrl(), 255, false);
+		String tSkype = ProfileUtils.truncate(userProfile.getSocialInfo().getSkypeUsername(), 255, false);
+		String tTwitter = ProfileUtils.truncate(userProfile.getSocialInfo().getTwitterUrl(), 255, false);
+
+		socialNetworkingInfo.setFacebookUrl(tFacebook);
+		socialNetworkingInfo.setLinkedinUrl(tLinkedin);
+		socialNetworkingInfo.setMyspaceUrl(tMyspace);
+		socialNetworkingInfo.setSkypeUsername(tSkype);
+		socialNetworkingInfo.setTwitterUrl(tTwitter);
 		
 		return profileLogic.saveSocialNetworkingInfo(socialNetworkingInfo);
 		
