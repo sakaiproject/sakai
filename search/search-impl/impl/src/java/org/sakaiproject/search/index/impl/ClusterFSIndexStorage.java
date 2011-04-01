@@ -668,7 +668,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 							// remove old segments
 							mergeOk = true;
 						}
-						catch (Exception ex)
+						catch (IOException ex)
 						{
 							log.error("Failed to merge search segments "
 									+ ex.getMessage());
