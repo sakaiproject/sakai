@@ -68,7 +68,9 @@ public class RichTextEditArea extends Renderer
 
   //htmlarea script path
   private static final String SCRIPT_PATH = "/jsf/widget/wysiwyg/htmlarea/";
-
+  
+  String editor = ServerConfigurationService.getString("wysiwyg.editor");
+  
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof org.sakaiproject.jsf.component.
@@ -78,8 +80,6 @@ public class RichTextEditArea extends Renderer
   public void encodeBegin(FacesContext context, UIComponent component) throws
     IOException
   {
-    String editor = ServerConfigurationService.getString("wysiwyg.editor");
-
     String clientId = component.getClientId(context);
 
     String contextPath =
@@ -179,7 +179,7 @@ public class RichTextEditArea extends Renderer
 
     String justArea = (String) component.getAttributes().get("justArea");
 
-    if (editor.equals("FCKeditor")) {
+    if (editor.equalsIgnoreCase("FCKeditor") || editor.equalsIgnoreCase("ckeditor")) {	
       encodeFCK(writer, contextPath, (String) value, outCol, 
               outRow, justArea, clientId, valueHasRichText, hasToggle); 
     }
@@ -503,6 +503,7 @@ public class RichTextEditArea extends Renderer
     //writer.write("\toToggleDiv.style.display=\"none\";\n");
     //writer.write("\t}\n");
 
+    if (editor.equalsIgnoreCase("FCKeditor")) {
     writer.write("\n\tvar oFCKeditor = new FCKeditor(textarea_id);\n");
     writer.write("\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
     writer.write("\toFCKeditor.Height = " + outRow + ";");
@@ -563,8 +564,15 @@ public class RichTextEditArea extends Renderer
         }
     }
     writer.write("\n\tdocument.wysiwyg = \"FCKeditor\";");
-    writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n");
-
+    writer.write("\n\n\toFCKeditor.ReplaceTextarea();");
+        // end fckeditor
+    } else {
+    // must be ckeditor
+    	writer.write("\n\tsakai.editor.launch(textarea_id,'','" + outCol + "','" + outRow + "');");
+    }
+    writer.write("\n\t}\n");
+     
+    if (editor.equalsIgnoreCase("FCKeditor")) {
     writer.write("\nfunction collapseMenu(client_id){");
     writer.write("\n\tvar editor = FCKeditorAPI.GetInstance(client_id + '_textinput');");
     writer.write("\n\teditor.ToolbarSet.Collapse();");
@@ -576,6 +584,19 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\teditor.ToolbarSet.Expand();");
     writer.write("\n\tdocument.wysiwyg = \"FCKeditor\";");
     writer.write("\n}\n");
+    } else {
+    	// ckeditor
+    	writer.write("\nfunction collapseMenu(client_id){");
+        writer.write("\n\tvar editor = CKEDITOR.instances[client_id + '_textinput'];");
+        writer.write("\n\teditor.execCommand('toolbarCollapse');");
+        writer.write("\n}\n");
+    	     
+        writer.write("\nfunction expandMenu(client_id){");
+        writer.write("\n\tvar editor = CKEDITOR.instances[client_id + '_textinput'];");
+        writer.write("\n\teditor.execCommand('toolbarCollapse');");
+        writer.write("\n}\n");
+    }
+
     
     writer.write("</script>\n");
     
