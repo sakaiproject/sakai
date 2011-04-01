@@ -23,5 +23,7 @@
 }
 
 .news-items li {
-    display:inline-block;
+    display: block;
+    float: left;
+    width: 100%;
 }
