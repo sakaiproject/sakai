@@ -257,7 +257,7 @@
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.2.1.6</version>
+      <version>10.7.1.1</version>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
