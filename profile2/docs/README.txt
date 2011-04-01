@@ -9,6 +9,8 @@ Creation scripts exist for Profile2 version 1.1 for all supported databases and 
 For releases beyond 1.1 I will endeavour to create upgrade scripts for the other databases, although I cannot vouch 
 for their accuracy as they will be diffs against the Hibernate mappings, and I have no way of testing them, sorry.
 
+test-plans/		- test scripts
+
 NEW INSTALLS:
 ------------
 
