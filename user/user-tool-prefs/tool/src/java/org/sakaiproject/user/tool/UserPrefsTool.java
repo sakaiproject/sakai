@@ -231,6 +231,7 @@ public class UserPrefsTool
 
 	private int DEFAULT_TAB_COUNT = 4;
 	private int MAX_TAB_COUNT = 20;
+	private int MIN_TAB_COUNT = 2;
 
 	private String prefTabCount = null;
 
@@ -1283,8 +1284,9 @@ public class UserPrefsTool
 		String [] ids = prefTabString.split(",");
 		int tabcount = ids.length + 1;
 System.out.println("tabcount="+tabcount);
-		if ( tabcount < 4 ) {
-			error = "Must have at least 4 tabs on top navigation bar";
+		if ( tabcount <  MIN_TAB_COUNT && prefDrawerString == null && prefHiddenString == null ) tabcount = DEFAULT_TAB_COUNT;
+		if ( tabcount <  MIN_TAB_COUNT ) {
+			error = "Must have at least "+MIN_TAB_COUNT+" tabs on top navigation bar";
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
 			return m_TabOutcome;
 		}
