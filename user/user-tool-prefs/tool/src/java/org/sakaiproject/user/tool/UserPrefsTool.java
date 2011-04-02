@@ -239,6 +239,9 @@ public class UserPrefsTool
 	private String[] selectedOrderItems;
 
 	private String prefAllString = null;
+	private String prefTabString = null;
+	private String prefDrawerString = null;
+	private String prefHiddenString = null;
 
 	private String[] tablist;
 
@@ -333,9 +336,89 @@ public class UserPrefsTool
 		this.prefOrderItems = prefOrderItems;
 	}
 
+	/**
+	 * @return Returns the prefTabItems.
+	 */
+	public List getPrefTabItems()
+	{
+		int tc = getTabCountInt();
+
+                List<SelectItem> l = new ArrayList<SelectItem>();
+                for (int i = 0; i < prefOrderItems.size() && i < tc-1; i++)
+                {
+                        SelectItem item = (SelectItem) prefOrderItems.get(i);
+			l.add(item);
+                }
+		return l;
+	}
+
+	/**
+	 * @return Returns the prefDrawerItems.
+	 */
+	public List getPrefDrawerItems()
+	{
+		int tc = getTabCountInt();
+		if ( tc < 1 ) tc = 1;
+
+                List<SelectItem> l = new ArrayList<SelectItem>();
+                for (int i = tc-1; i < prefOrderItems.size(); i++)
+                {
+                        SelectItem item = (SelectItem) prefOrderItems.get(i);
+			l.add(item);
+                }
+		return l;
+	}
+
+	/**
+	 * @return Returns the prefHiddenItems.
+	 */
+	public List getPrefHiddenItems()
+	{	
+		return prefExcludeItems;
+	}
+
 	public String getPrefAllString()
 	{
 		return "";
+	}
+
+	public String getPrefTabString()
+	{
+		return "";
+	}
+
+	public void setPrefTabString(String inp)
+	{
+		inp = inp.trim();
+		prefTabString = inp;
+		if ( inp.length() < 1 ) prefTabString = null;
+		return;
+	}
+
+	public String getPrefDrawerString()
+	{
+		return "";
+	}
+
+	public void setPrefDrawerString(String inp)
+	{
+		inp = inp.trim();
+		prefDrawerString = inp;
+		if ( inp.length() < 1 ) prefDrawerString = null;
+		return;
+	}
+
+	public String getPrefHiddenString()
+	{
+		return "";
+	}
+
+	public void setPrefHiddenString(String inp)
+	{
+		inp = inp.trim();
+		prefHiddenString = inp;
+		if ( inp.length() < 1 ) prefHiddenString = null;
+		return;
 	}
 
 	public void setPrefAllString(String inp)
@@ -352,15 +435,8 @@ public class UserPrefsTool
 	 */
 	public List getPrefAllItems()
 	{
-		String tcs = getTabCount();
-		int tc = DEFAULT_TAB_COUNT;
-		try 
-		{
-			tc = Integer.parseInt(tcs.trim());
-		}
-		catch(Exception e){
-			tc = DEFAULT_TAB_COUNT;
-		}
+		int tc = getTabCountInt();
+
                 List<SelectItem> l = new ArrayList<SelectItem>();
 		boolean drawer = false;
                 for (int i = 0; i < prefOrderItems.size(); i++)
@@ -397,6 +473,23 @@ public class UserPrefsTool
 			prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
 
 		return prefTabCount;
+	}
+
+	/**
+	 ** @return number of worksite tabs to display in standard site navigation bar
+	 **/
+	public int getTabCountInt()
+	{
+                String tcs = getTabCount();
+                int tc = DEFAULT_TAB_COUNT;
+                try
+                {
+                        tc = Integer.parseInt(tcs.trim());
+                }
+                catch(Exception e){
+                        tc = DEFAULT_TAB_COUNT;
+                }
+		return tc;
 	}
 
 	/**
@@ -1175,58 +1268,43 @@ public class UserPrefsTool
 	public String processActionSaveOrder()
 	{
 		LOG.debug("processActionSaveOrder()");
-		if ( prefAllString == null || prefAllString.length() < 1 ) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Order Unchanged"));
+
+		// No tabs, nothing to do 
+		if ( prefTabString == null && prefDrawerString == null && prefHiddenString == null ) {
 			return m_TabOutcome;
 		}
 
-		String [] ids = prefAllString.split(":/:");
-		String tabs = "";
-		String excludes = "";
-		int tabcount = -1;
-		int pos = 0;
-		int state = 0;  // 0 = top tabs, 1 = drawer, 2 = excludes
 		String error = "";
-		// Sample: ABC 123 //top def hij //hidden mmm ttt qqq
-		for ( String id : ids ) {
-			id = id.trim();
-			if ( id.length() < 1 ) continue;
-			if ( "//top-tabs".equals(id) ) {  // The end of the top tabs
-				if ( pos < 3 ) {
-					error = "Too few top tabs";
-					break;
-				}
-				state = 1;
-				tabcount = pos+1;
-				continue;
-			}
-			if ( "//hidden".equals(id) ) { // The transition to hidden
-				if ( state != 1 ) {
-					error = "Hidden must follow top tabs";
-					break;
-				}
-				state = 2;
-				continue;
-			}
-			if ( state == 0 ) {
-			        pos = pos + 1;
-				if ( tabs.length() > 0 ) tabs += ", ";
-				tabs += id;
-			}
-			if ( state == 2 ) {
-				if ( excludes.length() > 0 ) excludes += ", ";
-				excludes += id;
-			} 
+		if ( prefTabString == null ) {
+			error = "Cannot remove all tabs from top navigation";
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
+			return m_TabOutcome;
 		}
-		if ( error.length() == 0 && tabcount < 4 ) {
-			error = "Not enough tabs";
-		}
-
-		if ( error.length() > 0 ) {
+		String [] ids = prefTabString.split(",");
+		int tabcount = ids.length + 1;
+System.out.println("tabcount="+tabcount);
+		if ( tabcount < 4 ) {
+			error = "Must have at least 4 tabs on top navigation bar";
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
 			return m_TabOutcome;
 		}
 
+		String order = prefTabString;
+		if ( prefDrawerString != null ) {
+			order += ", " + prefDrawerString;
+		}
+
+System.out.println("order="+order);
+System.out.println("excludes="+prefHiddenString);
+System.out.println("tabcount="+tabcount);
+
+		updatePrefs(order, prefHiddenString, tabcount);
+
+		return m_TabOutcome;
+	}
+
+	private void updatePrefs(String order, String excludes, int tabcount) 
+	{
 		setUserEditingOn();
 		// Remove existing property
 		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
@@ -1237,10 +1315,10 @@ public class UserPrefsTool
 
 		m_stuff = new Vector();
 		// add property name and value for saving
-		if ( excludes.length() > 0 ) 
+		if ( order != null && order.length() > 0 ) 
+			m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", order, true));
+		if ( excludes != null && excludes.length() > 0 ) 
 			m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", excludes, true));
-		if ( tabs.length() > 0 ) 
-			m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", tabs, true));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs",  String.valueOf(tabcount), false));
 
 		// save
@@ -1252,58 +1330,6 @@ public class UserPrefsTool
 		tabUpdated = true; // set for display of text message on JSP
 
 		m_reloadTop = Boolean.TRUE;
-
-		return m_TabOutcome;
-	}
-
-	/**
-	 * Process the save command from the edit view.
-	 * 
-	 * @return navigation outcome to tab customization page (edit)
-	 */
-	public String processActionSave()
-	{
-		LOG.debug("processActionSave()");
-
-		setUserEditingOn();
-		// Remove existing property
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
-		props.removeProperty("exclude");
-		props.removeProperty("order");
-		// Commit to remove from database, for next set of value storing
-		m_preferencesService.commit(m_edit);
-
-		m_stuff = new Vector();
-		String oparts = "";
-		String eparts = "";
-		for (int i = 0; i < prefExcludeItems.size(); i++)
-		{
-			SelectItem item = (SelectItem) prefExcludeItems.get(i);
-			String evalue = (String) item.getValue();
-			eparts += evalue + ", ";
-		}
-		for (int i = 0; i < prefOrderItems.size(); i++)
-		{
-			SelectItem item = (SelectItem) prefOrderItems.get(i);
-			String value = (String) item.getValue();
-			oparts += value + ", ";
-		}
-		// add property name and value for saving
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", prefTabCount, false));
-
-		// save
-		saveEdit();
-		// release lock and clear session variables
-		cancelEdit();
-		// To stay on the same page - load the page data
-		processActionEdit();
-		tabUpdated = true; // set for display of text message on JSP
-
-		m_reloadTop = Boolean.TRUE;
-
-		return m_TabOutcome;
 	}
 
 	/**
