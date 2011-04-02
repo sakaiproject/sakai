@@ -48,10 +48,10 @@ jQuery(document).ready(function () {
         	        ids += item.id ; 
     		    });
             	    jQuery('input[name$=prefHiddenString]').val(ids);
-       	        },
+       	        }
 	    },
             selectors: {
-                lockedModules: ".colTitle",
+                lockedModules: ".colTitle"
             },
             styles: {
                 defaultStyle: "demo-layoutReorderer-movable-default",
@@ -61,7 +61,7 @@ jQuery(document).ready(function () {
                 dropMarker: "demo-layoutReorderer-dropMarker",
                 avatar: "demo-layoutReorderer-avatar"
             },
-            disableWrap: true,
+            disableWrap: true
         });
     };
 })(jQuery, fluid);
