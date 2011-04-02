@@ -10,7 +10,6 @@
   <groupId>org.sakaiproject</groupId>
   <name>Sakai Site Association Component</name>
   <artifactId>sakai-siteassociation-pack</artifactId>
-  <version>${sakai.version}</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
