@@ -719,6 +719,7 @@
                 <!-- javadocs -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
                 <configuration>
                     <debug>true</debug>
                     <links>
@@ -737,6 +738,7 @@
                 <!-- junit test reports -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
             </plugin>
             <plugin>
                 <!-- unit test coverage reporting -->
@@ -748,6 +750,7 @@
                 <!-- Code analysis report -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
                 <configuration>
                     <targetjdk>1.5</targetjdk>
                     <rulesets>
@@ -771,6 +774,7 @@
                 <!-- Changelog report -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>changelog-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
                 <configuration>
                     <type>range</type>
                     <range>90</range>
@@ -781,6 +785,7 @@
                 <!-- TODO tags report -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>taglist-maven-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <tags>
                         <tag>TODO</tag>
@@ -793,11 +798,13 @@
                 <!-- jdepend code analysis -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jdepend-maven-plugin</artifactId>
+                <version>2.0-beta-2</version>
             </plugin>
             <plugin>
                 <!-- jxr source code cross linking -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jxr-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
                 <configuration>
                     <linkJavadoc>true</linkJavadoc>
                     <javadocDir>apidocs</javadocDir>
@@ -812,6 +819,7 @@
                     <taglib.src.dir>src</taglib.src.dir>
                     <!-- <taglib.src.dir>src/webapp/WEB-INF</taglib.src.dir> -->
                 </configuration>
+                <version>2.4</version>
             </plugin>
         </plugins>
     </reporting>
@@ -843,6 +851,7 @@
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
