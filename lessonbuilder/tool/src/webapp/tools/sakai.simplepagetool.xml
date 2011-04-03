@@ -2,7 +2,7 @@
 <registration>
 	<tool id="sakai.lessonbuildertool"
 		title="Lesson Builder"
-		description="[New Tool: Consult sakai@rutgers.edu before using] Organize content for a week or unit; can be added more than once">
+		description="Create content modules and sequences; can be organized by week or unit" >
 		<category name="course" />
 		<category name="project" />
 		<!-- <category name="myworkspace" /> -->
