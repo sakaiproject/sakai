@@ -173,3 +173,15 @@ a.edit-movie:link,a.edit-movie:visited{
 .afterheader {
    margin-top:1em;
 }
+
+.returnheader {
+   background-color: white;
+   border-top-width: 0px;
+}
+
+.returnheader a:link,.returnheader a:visited { 
+   background-color: #fee;
+}
+.returnheader a:hover,returnheader  a:active{ 
+   background-color: #edd;
+}
