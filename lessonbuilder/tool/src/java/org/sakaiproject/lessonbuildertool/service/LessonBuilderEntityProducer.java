@@ -524,7 +524,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   if (s != null)
 		       item.setFormat(s);
 
-		   simplePageToolDao.saveItem(item);
+		   simplePageToolDao.quickSaveItem(item);
 	       }
 	   }
        }
@@ -563,7 +563,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 oldPageIdString = "0";
 		     Long oldPageId = Long.valueOf(oldPageIdString);
 		     SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
-		     simplePageToolDao.saveItem(page);
+		     simplePageToolDao.quickSaveItem(page);
 		     pageMap.put(oldPageId, page.getPageId());
 		 }
 	     }
@@ -592,7 +592,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     if (oldToolId != null) {
 
 			 String toolTitle = trimToNull(element.getAttribute("name"));
-				  
 			 String rolelist = element.getAttribute("functions.require");
 
 			 if(toolTitle != null) {
@@ -667,11 +666,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			     simplePage.setParent(null);
 			     simplePage.setTopParent(null);
 			     simplePage.setToolId(toolId);
-			     simplePageToolDao.update(simplePage);
+			     simplePageToolDao.quickUpdate(simplePage);
 
 			     // create the vestigial item for this top level page
 			     SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(simplePage.getPageId()), simplePage.getTitle());
-			     simplePageToolDao.saveItem(item);
+			     simplePageToolDao.quickSaveItem(item);
 			 }
 		     }
 		 }

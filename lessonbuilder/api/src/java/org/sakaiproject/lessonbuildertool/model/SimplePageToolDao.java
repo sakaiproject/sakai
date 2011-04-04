@@ -77,11 +77,17 @@ public interface SimplePageToolDao {
     // Also generates events showing the update.
 	public boolean saveItem(Object o);
 
+    // just do the save, no permission checking and no logging
+	public boolean quickSaveItem(Object o);
+
     // see saveItem for details and caveats, same function except delete instead of save
 	public boolean deleteItem(Object o);
 
     // see saveItem for details and caveats, same function except update instead of save
 	public boolean update(Object o);
+
+    // version without permission checking and logging
+	public boolean quickUpdate(Object o);
 
 	public Long getTopLevelPageId(String toolId);
 

@@ -219,6 +219,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 
+    // for use within copytransfer. We don't need to do permissions, and it probably
+    // doesn't make sense to log every item created
+	public boolean quickSaveItem(Object o) {
+		try {
+			Object id = getHibernateTemplate().save(o);
+			return true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			log.warn("Hibernate could not save: " + e.toString());
+			return false;
+		}
+	}
+
 	public boolean deleteItem(Object o) {
 		if (!canEditPage()) {
 			return false;
@@ -255,6 +268,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/page/" + i.getPageId(), true));
 		} 
 
+		try {
+			getHibernateTemplate().update(o);
+			return true;
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+    // ditto for update
+	public boolean quickUpdate(Object o) {
 		try {
 			getHibernateTemplate().update(o);
 			return true;
