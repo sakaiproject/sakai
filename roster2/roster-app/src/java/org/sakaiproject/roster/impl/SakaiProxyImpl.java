@@ -101,7 +101,23 @@ public class SakaiProxyImpl implements SakaiProxy {
 		org.sakaiproject.component.api.ComponentManager componentManager = 
 			org.sakaiproject.component.cover.ComponentManager.getInstance();
 
-		connectionsLogic = (ProfileConnectionsLogic) componentManager.get(ProfileConnectionsLogic.class);
+		boolean connectionsApi;
+		try {
+			// check for Profile2 1.4.x connections API
+			Class.forName("org.sakaiproject.profile2.logic.ProfileConnectionsLogic");
+			
+			connectionsApi = true;
+			
+		} catch (ClassNotFoundException e) {
+			connectionsApi = false;
+		}
+		
+		log.info("Profile2 >=1.4.x connections API found: " + connectionsApi);
+		
+		if (true == connectionsApi) {
+			connectionsLogic = (ProfileConnectionsLogic) componentManager.get(ProfileConnectionsLogic.class);
+		}
+		
 		courseManagementService = (CourseManagementService) componentManager.get(CourseManagementService.class);
 		functionManager = (FunctionManager) componentManager.get(FunctionManager.class);
 		privacyManager = (PrivacyManager) componentManager.get(PrivacyManager.class);
@@ -484,7 +500,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			rosterMember.addGroup(group.getId(), group.getTitle());
 		}
 
-		if (true == includeConnectionStatus) {
+		if (true == includeConnectionStatus && connectionsLogic != null) {
 			rosterMember.setConnectionStatus(connectionsLogic
 					.getConnectionStatus(getCurrentUserId(), userId));
 		}
