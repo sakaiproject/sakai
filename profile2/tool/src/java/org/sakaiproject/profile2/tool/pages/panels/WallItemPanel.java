@@ -63,7 +63,7 @@ public class WallItemPanel extends Panel {
 	 * @param userUuid the id of the user whose wall this item panel is on.
 	 * @param wallItem
 	 */
-	public WallItemPanel(String id, final String userUuid, WallItem wallItem) {
+	public WallItemPanel(String id, final String userUuid, final WallItem wallItem) {
 		super(id);
 
 		setOutputMarkupId(true);
@@ -171,9 +171,15 @@ public class WallItemPanel extends Panel {
 					public void onClose(AjaxRequestTarget target) {
 						if (wallAction.isItemCommented()) {
 							
-							// TODO add comment panel to wall item
-							
-							//target.appendJavascript("$('#" + WallItemPanel.this.getMarkupId() + "').slideUp();");
+							WallItemPanel newPanel = new WallItemPanel(WallItemPanel.this.getId(), userUuid, wallItem);
+
+							newPanel.setOutputMarkupId(true);
+							WallItemPanel.this.replaceWith(newPanel);
+							if (null != target) {
+								target.addComponent(newPanel);
+								target
+										.appendJavascript("setMainFrameHeight(window.name);");
+							}
 						}
 					}
 				});
