@@ -1368,14 +1368,17 @@ main-profile-tabpanel .tab-row a:visited.active,
 }
 
 .wall-item-comment-text-wrap {
-	width: 385px;
+	width: 380px;
 	margin-left: 50px;
 	overflow: hidden;
 }
 
 .wall-item-comment {
 	margin-top: 5px;
-	background-color: #EFEFED;/*#ECECE9;*/
+	padding-left: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	background-color: #F5F4F2;/*#EFEFED;*//*#ECECE9;*/
 }
 .wall-item-details {
 
