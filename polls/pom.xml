@@ -33,9 +33,10 @@
     </modules>
     
     <properties>
-    <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
+         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
         <sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/polls/${project.version}</url.localsite>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
