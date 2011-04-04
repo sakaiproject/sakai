@@ -186,6 +186,11 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 	public boolean pollIsVotable(Poll poll)
 	{
+		//POLL-148 this could be null
+		if (poll == null) {
+			return false;
+		}
+		
 		//poll must have options to be votable
 
 		List<Option> votableOptions = pollListManager.getVisibleOptionsForPoll(poll.getPollId());
