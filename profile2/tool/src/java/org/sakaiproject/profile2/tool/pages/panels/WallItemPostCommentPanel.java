@@ -10,6 +10,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -42,10 +43,14 @@ public class WallItemPostCommentPanel extends Panel {
 		
 		String commentString = "";
 		IModel<String> commentModel = new Model<String>(commentString);
-        // TODO check this works
 		Form<String> form = new Form<String>("form", commentModel);
 		form.setOutputMarkupId(true);
 		add(form);
+		
+		// form submit feedback
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		form.add(formFeedback);
 		
 		WebMarkupContainer commentContainer = new WebMarkupContainer("commentContainer");
 		final TextArea<String> commentTextArea = new TextArea<String>("comment", commentModel);
@@ -61,7 +66,12 @@ public class WallItemPostCommentPanel extends Panel {
 				
 				// don't allow empty posts
 				if (null == form.getModelObject()) {
-					// TODO user warning
+					formFeedback.setVisible(true);
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.wall.comment.empty"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
 					return;
 				}
 				
@@ -69,16 +79,22 @@ public class WallItemPostCommentPanel extends Panel {
 				WallItemComment wallItemComment = new WallItemComment();
 				wallItemComment.setCreatorUuid(userUuid);
 				wallItemComment.setDate(new Date());
-				// TODO sanitize?
 				wallItemComment.setText(form.getModelObject().toString());
 				wallItemComment.setWallItemId(wallItem.getId());
 				wallItem.addComment(wallItemComment);
 				
 				// update wall item
 				if (false == wallLogic.updateWallItem(wallItem)) {
-					// TODO user warning
+					formFeedback.setVisible(true);
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.wall.comment.failed"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
+					return;
 				}
 				
+				// replace wall item panel now comment has been added
 				WallItemPanel newPanel = new WallItemPanel(wallItemPanel.getId(), userUuid, wallItem);
 				newPanel.setOutputMarkupId(true);
 				wallItemPanel.replaceWith(newPanel);
@@ -101,6 +117,7 @@ public class WallItemPostCommentPanel extends Panel {
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				commentTextArea.clearInput();
+				formFeedback.setVisible(false);
 				target.appendJavascript("$('#" + WallItemPostCommentPanel.this.getMarkupId() + "').slideUp();");
             }
         };
