@@ -398,6 +398,17 @@ html {
 .portletMainWrap+#pda-footer{
     margin-top:50px
 }
+/*
+    in this small viewport, show only the last child site title
+    hide all children sites first, then show the last one.
+*/
+.currentSiteChildLink{
+    display:none  !important
+}
+#pda-portlet-menu li.lastChild{
+    display:inline  !important
+}
+
 #pda-footer {
 	padding: .7em 0 .9em 0;
 	height:100%;
