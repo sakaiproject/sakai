@@ -29,7 +29,9 @@ tr.sectionRow td {padding-bottom:0em !important; vertical-align:top !important;}
 tr.paddedSectionRow td {padding-top:0em !important; padding-bottom:1em !important; vertical-align:top !important;}
 tr.paddedSectionRow td  table {padding-top:0 !important; padding-bottom:1em !important; vertical-align:top !important;}
 
-.paddedMeetingRow {padding-top:0 !important; padding-bottom:1em !important; }
+.paddedMeetingRow {padding-top:0 !important; padding-bottom:3px !important; }
+.meetingFirstCol  {padding-top:10px !important; }
+.meetingSecondCol {padding-top:3px !important;}
 
 
 /* Form labels should be bold */

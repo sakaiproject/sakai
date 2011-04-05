@@ -50,6 +50,20 @@
 						<h:dataTable id="meetingsTable" value="#{section.meetings}" var="meeting">					
 							<% // One column per meeting.  Use a div to add a line break in the form controls %>
 							<h:column>
+								<t:div>
+									<h:outputLabel value="#{msgs.student_view_header_day}"/>
+								</t:div>
+								<t:div styleClass="meetingFirstCol">
+									<h:outputLabel value="#{msgs.section_start_time}"/>
+								</t:div>
+								<t:div styleClass="meetingFirstCol">
+									<h:outputLabel value="#{msgs.section_end_time}"/>
+								</t:div>
+								<t:div styleClass="meetingFirstCol">
+									<h:outputLabel value="#{msgs.student_view_header_location}"/>
+								</t:div>
+							</h:column>
+							<h:column>
 								<h:panelGroup>
 									<t:div styleClass="paddedMeetingRow">
 										<h:selectBooleanCheckbox id="monday" value="#{meeting.monday}"/>
@@ -76,10 +90,8 @@
 		
 									<t:div styleClass="indent">
 										<h:message for="startTime" styleClass="validationEmbedded"/>
-										<h:message for="endTime" styleClass="validationEmbedded"/>
-										<h:outputFormat value="#{msgs.section_start_time} "/>
+										<h:message for="endTime" styleClass="validationEmbedded"/>										
 										<h:inputText id="startTime" value="#{meeting.startTimeString}" size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_start_time_default}')" />
-
 										<t:selectOneRadio id="startTimeAm" layout="spread" value="#{meeting.startTimeAmString}">
 											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
 											<f:selectItem itemValue="false" itemLabel="#{confBean.capPM}"/>
@@ -87,8 +99,9 @@
 										<t:radio for="startTimeAm" index="0" />
 										<t:radio for="startTimeAm" index="1" />
 										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
-					
-										<h:outputFormat value=" #{msgs.section_end_time} "/>
+									</t:div>
+										
+									<t:div styleClass="indent meetingSecondCol" >
 										<h:inputText  id="endTime" value="#{meeting.endTimeString}"  size="18" onfocus="clearIfDefaultString(this, '#{msgs.section_end_time_default}')" />
 										<t:selectOneRadio id="endTimeAm" layout="spread" value="#{meeting.endTimeAmString}">
 											<f:selectItem itemValue="true" itemLabel="#{confBean.capAM}"/>
@@ -97,8 +110,9 @@
 										<t:radio for="endTimeAm" index="0" />
 										<t:radio for="endTimeAm" index="1" />
 										<h:outputText value=" &nbsp; &nbsp; " escape="false" />
+									</t:div>
 			
-										<h:outputFormat value=" #{msgs.section_location} "/>
+									<t:div styleClass="indent meetingSecondCol">
 										<h:inputText id="location" value="#{meeting.location}" maxlength="20" />
 									</t:div>
 								</h:panelGroup>
