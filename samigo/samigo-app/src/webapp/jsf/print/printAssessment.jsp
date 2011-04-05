@@ -149,7 +149,7 @@ document.links[newindex].onclick();
 		      <h:panelGrid border="0">
 		        <h:panelGroup>
 		          <h:outputText id="number" value="#{authorMessages.p} #{partBean.number}: " escape="false" styleClass="part_title_text" />
-		          <h:outputText id="title" value="#{partBean.title}" escape="false" styleClass="part_title" />
+		          <h:outputText id="title" value="#{partBean.title}" escape="false" styleClass="part_title" rendered="#{partBean.title ne 'Default' && partBean.title ne 'default'}"/>
 		        </h:panelGroup>
 		        <h:outputText value = "&nbsp;" escape="false"/>
 		        <h:outputText id="description" value="#{partBean.description}" escape="false" styleClass="part_info" />
