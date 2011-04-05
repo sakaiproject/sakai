@@ -908,7 +908,7 @@ return;
 <p class="act">
 
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
-   <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit" >
+   <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit" rendered="#{totalScores.allSubmissions!='4'}">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       <f:actionListener
