@@ -34,7 +34,6 @@ import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
-import org.sakaiproject.profile2.tool.pages.windows.CommentWallItem;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveWallItem;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -150,6 +149,12 @@ public class WallItemPanel extends Panel {
 		
 		add(removeItemLink);
 		
+		// panel for posting a comment that slides up/down
+		final WallItemPostCommentPanel postCommentPanel = new WallItemPostCommentPanel("wallItemPostCommentPanel", userUuid, wallItem, this);
+		postCommentPanel.setOutputMarkupPlaceholderTag(true);
+		postCommentPanel.setVisible(false);
+		add(postCommentPanel);
+		
 		final AjaxLink<WallItem> commentItemLink = new AjaxLink<WallItem>(
 				"commentWallItemLink", new Model<WallItem>(wallItem)) {
 
@@ -157,36 +162,10 @@ public class WallItemPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				
-				CommentWallItem comment = new CommentWallItem(wallItemActionWindow.getContentId(),
-						wallItemActionWindow, wallAction, userUuid, this.getModelObject());
-				
-				wallItemActionWindow.setContent(comment);
-
-				wallItemActionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback(){
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClose(AjaxRequestTarget target) {
-						if (wallAction.isItemCommented()) {
-							
-							WallItemPanel newPanel = new WallItemPanel(WallItemPanel.this.getId(), userUuid, wallItem);
-
-							newPanel.setOutputMarkupId(true);
-							WallItemPanel.this.replaceWith(newPanel);
-							if (null != target) {
-								target.addComponent(newPanel);
-								target
-										.appendJavascript("setMainFrameHeight(window.name);");
-							}
-						}
-					}
-				});
-				
-				wallItemActionWindow.show(target);
-				target.appendJavascript("fixWindowVertical();"); 
-
+		
+				postCommentPanel.setVisible(true);
+				target.addComponent(postCommentPanel);
+				target.appendJavascript("$('#" + postCommentPanel.getMarkupId() + "').slideDown();");
 			}
 		};
 
@@ -206,7 +185,7 @@ public class WallItemPanel extends Panel {
 			add(new Label("wallItemText", wallItem.getText()));
 
 		}
-		
+				
 		// COMMENTS
 		
 		ListView<WallItemComment> wallItemCommentsListView = new ListView<WallItemComment>(

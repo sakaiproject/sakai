@@ -17,32 +17,28 @@
 -->
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
-      xml:lang="en"  
-      lang="en">  
-      
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+	xml:lang="en" lang="en">
+
 <body>
 
 <wicket:panel>
 
-    <div class="modalWindowWrapper">
-    	<img class="modalWindowImage" wicket:id="image"/>
-    	<div class="modalWindowMain">
-    		<form wicket:id="form">
-    			<div wicket:id="commentContainer" class="modalWindowText">
-    				<textarea wicket:id="comment" class="formInputArea" rows="4" cols="40"></textarea>
-    			</div>
-				<div class="modalWindowButtons">
-					<input type="submit" wicket:id="submit" value="Submit" />
-					<input type="button" wicket:id="cancel" value="Cancel"/>
-				</div>
-			</form>
+	<form wicket:id="form">
+	<div class="wall-item-post-comment">
+		<div wicket:id="commentContainer"><textarea
+			wicket:id="comment" class="wall-comment-input-area" rows="3" cols="40"></textarea>
 		</div>
-    </div>
+		<div class="wallButtons">
+			<input type="submit" wicket:id="submit" value="Submit" />
+			<input type="button" wicket:id="cancel" value="Cancel" />
+		</div>
+	</div>
+	</form>
 
 </wicket:panel>
 
-	
+
 </body>
 </html>

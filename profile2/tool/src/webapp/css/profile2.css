@@ -1380,6 +1380,25 @@ main-profile-tabpanel .tab-row a:visited.active,
 	padding-bottom: 5px;
 	background-color: #F5F4F2;/*#EFEFED;*//*#ECECE9;*/
 }
+
+.wall-item-post-comment {
+	width: 435px;
+	height: 100px;
+	padding-left: 5px;
+	padding-top: 5px;
+	background-color: #F5F4F2;
+}
+
+.wall-comment-input-area {
+	width: 415px;
+	margin-bottom: 5px;
+	font-size: 90%;
+}
+
+.wallButtons input[type="submit"] {
+	color: rgb(34, 119, 221);
+}
+
 .wall-item-details {
 
 }

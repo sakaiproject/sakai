@@ -19,6 +19,5 @@ public class WallAction implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean itemCommented;
 	private boolean itemRemoved;
 }
