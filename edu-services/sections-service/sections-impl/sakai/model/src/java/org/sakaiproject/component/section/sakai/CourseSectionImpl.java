@@ -24,8 +24,11 @@ import java.io.Serializable;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -38,11 +41,14 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.TimeService;
 
 public class CourseSectionImpl implements CourseSection, Comparable<CourseSection>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final String TIME_FORMAT_LONG = "h:mm a";
+	private static final String TIME_FORMAT_DATE_TZ = "dd/MM/yyyy HH:mm zzzz";
 	private static final Log log = LogFactory.getLog(CourseSectionImpl.class);
 	public static final String SEP_CHARACTER = ",";
 	public static final String CATEGORY = "sections_category";
@@ -75,6 +81,9 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     
     // Transient holder for the framework group being decorated.
     private transient Group group;
+
+    // To get the time zone from user. 
+    private static final TimeService timeService = (TimeService)ComponentManager.get("org.sakaiproject.time.api.TimeService");
     
     /**
      * Convenience constructor to create a CourseSection with a single meeting.
@@ -203,7 +212,25 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 			}
 			
 			// Now that we've parsed the group, add the meeting to the list
-			meetings.add(new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday));
+			switch (shiftDay(getIndexedStringProperty(i, props.getProperty(START_TIME)))) {
+				case 0:
+					meetings.add(new MeetingImpl(location, startTime, endTime, monday, tuesday, wednesday, thursday, friday, saturday, sunday));
+					break;
+				case 1:
+					meetings.add(new MeetingImpl(location, startTime, endTime, sunday, monday, tuesday, wednesday, thursday, friday, saturday));
+					break;
+				case -1:
+					meetings.add(new MeetingImpl(location, startTime, endTime, tuesday, wednesday, thursday, friday, saturday, sunday, monday));
+					break;
+				case 2:
+					meetings.add(new MeetingImpl(location, startTime, endTime, saturday, sunday, monday, tuesday, wednesday, thursday, friday));
+					break;
+				case -2:
+					meetings.add(new MeetingImpl(location, startTime, endTime, wednesday, thursday, friday, saturday, sunday, monday, tuesday));
+					break;
+				default:
+					log.error("Can not change meeting days with time: "+getIndexedStringProperty(i, props.getProperty(START_TIME)));
+			}
 		}
 		
 	}
@@ -236,8 +263,21 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     	if(time == null) {
     		return null;
     	}
-		SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
-    	return sdf.format(time);
+    	SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_DATE_TZ);
+    	// Time zone from user
+    	TimeZone userTz = timeService.getLocalTimeZone();
+    	sdf.setTimeZone(userTz);
+
+    	// Today at 0.00
+    	Calendar date = new GregorianCalendar(userTz);    	    	
+    	date.set(Calendar.HOUR_OF_DAY, 0);
+    	date.set(Calendar.MINUTE, 0);
+    	
+    	// Add the RawOffset of server, to write REAL TIME in STRING detached from server
+    	date.setTimeInMillis(date.getTimeInMillis()+time.getTime()+TimeZone.getDefault().getRawOffset());
+    	sdf.setCalendar(date);
+    	
+    	return sdf.format(date.getTime());
     }
 
     public static final Time convertStringToTime(String str) {
@@ -248,8 +288,113 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     		SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
         	return new Time(sdf.parse(str).getTime());
     	} catch (Exception e) {
-    		if(log.isDebugEnabled()) log.debug("Unable to parse " + str);
-    		return null;
+    		
+    		// Stored in other format, with date and time zone. 
+    		try {
+    			SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_DATE_TZ);
+    			
+    			Calendar src = new GregorianCalendar();
+    			src.setTime(sdf.parse(str));
+    			src.setTimeInMillis(src.getTimeInMillis());
+    			
+    			TimeZone srcTz = sdf.getTimeZone();
+    			TimeZone userTz = timeService.getLocalTimeZone();
+    			TimeZone serverTz = TimeZone.getDefault();
+    			
+    			Calendar now = new GregorianCalendar(userTz);
+    			
+    			// STORED IN DAYLIGHT SAVING TIME and NOW IS STANDARD
+    			if (srcTz.inDaylightTime(src.getTime()) && !srcTz.inDaylightTime(now.getTime())) 
+    			{
+    				src.setTimeInMillis(src.getTimeInMillis()+srcTz.getDSTSavings());
+    			}
+    			
+    			// STORED IN STANDAR TIME and NOW IS DAYLIGHT SAVING TIME
+    			if (srcTz.inDaylightTime(now.getTime()) && !srcTz.inDaylightTime(src.getTime())) 
+    			{
+    				src.setTimeInMillis(src.getTimeInMillis()-srcTz.getDSTSavings());
+    			}
+    			
+    			// DO THE SAME IN SERVER TIMEZONE
+    			if (serverTz.inDaylightTime(src.getTime()) && !serverTz.inDaylightTime(now.getTime())) 
+    			{
+    				src.setTimeInMillis(src.getTimeInMillis()-serverTz.getDSTSavings());
+    			}
+    			
+    			if (serverTz.inDaylightTime(now.getTime()) && !serverTz.inDaylightTime(src.getTime())) 
+    			{
+    				src.setTimeInMillis(src.getTimeInMillis()+serverTz.getDSTSavings());
+    			}
+    			 
+    			src.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+    			src.set(Calendar.YEAR, now.get(Calendar.YEAR));
+    			src.set(Calendar.MONTH, now.get(Calendar.MONTH));
+
+    			return new Time(src.getTimeInMillis()+userTz.getOffset(now.getTimeInMillis())-serverTz.getOffset(now.getTimeInMillis()));
+    	    	
+    		} catch (Exception ex) {	
+    			if(log.isDebugEnabled()) log.debug("Unable to parse " + str);
+    			return null;
+    		}
+    	}
+    }
+    
+    
+    /**
+     * Check if converted time to the time zone of user is the previous day,
+     * the same day or next day.  
+     * @param startTime denotes the time set by user (in his own TimeZone)
+     * @return if converted from stored time zone to user time zone get the previous day returns -1
+     * 		   if converted from stored time zone to user time zone get the same day returns 0
+     * 		   if converted from stored time zone to user time zone get the next day returns +1
+     */
+    private static final int shiftDay(String str)
+    {    	
+    	if(StringUtils.trimToNull(str) == null) {
+    		return 0;
+    	}
+    	try {
+    		SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_LONG);
+    		sdf.parse(str);
+        	return 0;
+    	} catch (Exception e) {
+    		
+    		// Stored in other format, with date and time zone. 
+    		try {
+    			SimpleDateFormat sdf = new SimpleDateFormat(CourseSectionImpl.TIME_FORMAT_DATE_TZ);
+    			
+    			Calendar src = new GregorianCalendar();
+    			src.setTime(sdf.parse(str));    			
+    			
+    			TimeZone srcTz = sdf.getTimeZone();
+    			TimeZone userTz = timeService.getLocalTimeZone();
+    			
+    			Calendar user = new GregorianCalendar(userTz);
+    			src.set(Calendar.DAY_OF_MONTH, user.get(Calendar.DAY_OF_MONTH));
+    			src.set(Calendar.YEAR, user.get(Calendar.YEAR));
+    			src.set(Calendar.MONTH, user.get(Calendar.MONTH));
+    			    			
+    			user.setTimeInMillis(src.getTimeInMillis());
+    			src.setTimeZone(srcTz);
+    			
+    			int shift = user.get(Calendar.DAY_OF_MONTH) - src.get(Calendar.DAY_OF_MONTH);
+    	    	
+    	    	// Days from two differents months
+    	    	if (shift > 8) {
+    	    		src.add(Calendar.MONTH, -1);
+    	    		shift-=src.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+    	    	}
+    	    	else if (shift < -8) {
+    	    		user.add(Calendar.MONTH, -1);
+    	    		shift+=user.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+    	    	}
+    	    	
+    	    	return shift;
+    	    	
+    		} catch (Exception ex) {	
+    			if(log.isDebugEnabled()) log.debug("Unable to parse " + str);
+    			return 0;
+    		}
     	}
     }
 

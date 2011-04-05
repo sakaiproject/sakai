@@ -33,6 +33,11 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
        
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
     <reports />
