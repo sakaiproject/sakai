@@ -356,7 +356,7 @@ $(document).ready(function() {
 							#set ($itemsOnLine = 0)
 							#foreach($action in $item.pasteActions)
 								#if($itemsOnLine > 0)|#end
-								<a class=" highlightlink" title="$labeler.getLabel($action) here" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+								<a class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
 								#set ($itemsOnLine = $itemsOnLine + 1)
 							#end
 						#end
@@ -615,7 +615,7 @@ $(document).ready(function() {
 									#set ($itemsOnLine = 0)
 									#foreach($action in $item.pasteActions)
 										#if($itemsOnLine > 0)|#end
-										<a class=" highlightlink" title="$labeler.getLabel($action) here" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+										<a class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
 										#set ($itemsOnLine = $itemsOnLine + 1)
 									#end
 								#end
