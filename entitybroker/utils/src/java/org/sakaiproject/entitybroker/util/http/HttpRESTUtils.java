@@ -67,6 +67,7 @@ public class HttpRESTUtils {
     public static final String CONTENT_TYPE_UTF8 = "text/xml; charset=UTF-8";
     public static final String ENCODING_UTF8 = "UTF-8";
     public static enum Method {POST, GET, PUT, DELETE, HEAD, OPTIONS, TRACE};
+    public static final int MAX_RESPONSE_SIZE_CHARS = 1024*1024; // about a million chars max
 
     /**
      * Fire off a request to a URL using the specified method,
@@ -242,7 +243,21 @@ public class HttpRESTUtils {
         try {
             int responseCode = httpClientWrapper.getHttpClient().executeMethod(httpMethod);
             response = new HttpResponse(responseCode);
-            String body = httpMethod.getResponseBodyAsString();
+            
+            // Avoid DOS because of large responses using up all memory in the system - https://jira.sakaiproject.org/browse/SAK-20405
+			InputStream is = httpMethod.getResponseBodyAsStream();
+			StringBuffer out = new StringBuffer();
+		    byte[] b = new byte[4096];
+		    for (int n; (n = is.read(b)) != -1;) {
+		        out.append(new String(b, 0, n));
+		        if (out.length() > MAX_RESPONSE_SIZE_CHARS) {
+		        	// die if the response exceeds the maximum chars allowed
+		        	throw new HttpRequestException("Response size ("+out.length()+" chars) from url ("+URL+") exceeded the maximum allowed batch response size ("+MAX_RESPONSE_SIZE_CHARS+" chars) while processing the response");
+		        }
+		    }
+			String body = out.toString();
+
+            //String body = httpMethod.getResponseBodyAsString();
             //         byte[] responseBody = httpMethod.getResponseBody();
             //         if (responseBody != null) {
             //            body = new String(responseBody, "UTF-8");
@@ -489,8 +504,12 @@ public class HttpRESTUtils {
      * Indicates a general failure
      */
     public static class HttpRequestException extends RuntimeException {
-        public HttpRequestException(String message, Throwable cause) {
+		private static final long serialVersionUID = -5911335085507422663L;
+		public HttpRequestException(String message, Throwable cause) {
             super(message, cause);
+        }
+		public HttpRequestException(String message) {
+            super(message);
         }
     }
 
@@ -498,7 +517,8 @@ public class HttpRESTUtils {
      * Indicates an IO failure
      */
     public static class HttpIOException extends RuntimeException {
-        public HttpIOException(String message, Throwable cause) {
+		private static final long serialVersionUID = 9040247081054206662L;
+		public HttpIOException(String message, Throwable cause) {
             super(message, cause);
         }
     }
