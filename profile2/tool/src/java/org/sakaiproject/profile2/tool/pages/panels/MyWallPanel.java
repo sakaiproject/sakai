@@ -136,7 +136,7 @@ public class MyWallPanel extends Panel {
 		// container for posting to my wall
 		WebMarkupContainer myWallPostContainer = new WebMarkupContainer(
 				"myWallPostContainer");
-		TextArea<String> myWallPost = new TextArea<String>("myWallPost",
+		final TextArea<String> myWallPost = new TextArea<String>("myWallPost",
 				new PropertyModel<String>(wallItem, "text"));
 		myWallPost.add(new TinyMceBehavior(new TextareaTinyMceSettings(
 				TinyMCESettings.Align.left)));
@@ -152,6 +152,15 @@ public class MyWallPanel extends Panel {
 			@SuppressWarnings("unchecked")
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
+				if (myWallPost.getValue().equals("")) {
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.wall.post.empty"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
+					return;
+				}
+				
 				if (false == save(form, userUuid)) {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.post.failed"));
