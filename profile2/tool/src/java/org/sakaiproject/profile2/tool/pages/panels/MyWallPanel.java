@@ -109,6 +109,7 @@ public class MyWallPanel extends Panel {
 		add(wallItemsContainer);
 
 		WallItem wallItem = new WallItem();
+		wallItem.setUserUuid(userUuid);
 		// always post to my wall as current user, to ensure super users cannot
 		// make posts as other users
 		wallItem.setCreatorUuid(sakaiProxy.getCurrentUserId());

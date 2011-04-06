@@ -183,7 +183,7 @@ public class MyInfoEdit extends Panel {
 					
 					//post to wall if enabled
 					if (true == sakaiProxy.isWallEnabledGlobally()) {
-						wallLogic.addEventToWalls(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, sakaiProxy.getCurrentUserId());
+						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					
 					//repaint panel

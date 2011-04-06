@@ -81,7 +81,7 @@ public class RemoveWallItem extends Panel {
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-				wallAction.setItemRemoved(wallLogic.removeWallItemFromWall(userUuid, wallItem));
+				wallAction.setItemRemoved(wallLogic.removeWallItemFromWall(wallItem));
 				
             	window.close(target);
 			}

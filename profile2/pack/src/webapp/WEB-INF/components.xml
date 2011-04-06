@@ -197,7 +197,6 @@
 	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml</value>
-	        <value>org/sakaiproject/profile2/hbm/Wall.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/WallItem.hbm.xml</value>
 	        <value>org/sakaiproject/profile2/hbm/WallItemComment.hbm.xml</value>
 	      </list>

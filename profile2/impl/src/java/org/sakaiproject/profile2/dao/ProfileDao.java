@@ -19,7 +19,6 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.model.Wall;
 import org.sakaiproject.profile2.model.WallItem;
 
 /**
@@ -509,21 +508,20 @@ public interface ProfileDao {
 	public boolean addNewWallItemForUser(final String userUuid, final WallItem item);
 	
 	/**
-	 * Removes a wall item for the specified user.
+	 * Removes a wall item.
 	 * 
-	 * @param userUuid the user ID.
 	 * @param item the wall item to remove.
 	 * @return <code>true</code> on success, <code>false</code> on failure.
 	 */
-	public boolean removeWallItemFromWall(final String userUuid, final WallItem item);
+	public boolean removeWallItemFromWall(final WallItem item);
 	
 	/**
-	 * Retrieves the wall for the specified user.
+	 * Retrieves all wall items for the specified user.
 	 * 
 	 * @param userUuid the user ID.
-	 * @return the wall for the specified user.
+	 * @return the wall items for the specified user.
 	 */
-	public Wall getWallItemsForUser(final String userUuid);
+	public List<WallItem> getWallItemsForUser(final String userUuid);
 			
 	/**
 	 * Saves an updated wall item (e.g. if a comment added, or item edited).
@@ -596,13 +594,13 @@ public interface ProfileDao {
 	//from ExternalIntegrationInfo.hbm.xml
 	final String QUERY_GET_EXTERNAL_INTEGRATION_INFO="getExternalIntegrationInfo";
 	
-	//from Wall.hbm.xml
-	final String QUERY_GET_WALL = "getWall";
+	//from WallItem.hbm.xml
+	final String QUERY_GET_WALL_ITEMS = "getWallItemRecords";
 	
 	// TODO remove these unused strings
 	//from WallItemComment.hbm.xml
 	//final String QUERY_GET_WALL_ITEM_COMMENTS = "getWallItemComments";
-	//final String QUERY_GET_WALL_ITEMS = "getWallItems";
+	
 	//final String QUERY_GET_WALL_ITEMS_COUNT = "getWallItemsCount";
 	
 	// Hibernate object fields

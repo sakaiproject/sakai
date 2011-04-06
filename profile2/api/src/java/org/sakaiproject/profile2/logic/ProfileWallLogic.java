@@ -28,8 +28,7 @@ import org.sakaiproject.profile2.model.WallItem;
 public interface ProfileWallLogic {
 	
 	/**
-	 * Adds the specified event to the walls of the users connected to the
-	 * specified user ID.
+	 * Notifies a user's connections of an event added to the user's wall.
 	 * 
 	 * Note: the wall logic is currently responsible for timestamping the event,
 	 * but we might want to pass the date in this API call instead.
@@ -37,11 +36,10 @@ public interface ProfileWallLogic {
 	 * @param event the event to add.
 	 * @param userUuid the ID of the user that created the event.
 	 */
-	public void addEventToWalls(String event, String userUuid);
+	public void addNewEventToWall(String event, String userUuid);
 	
 	/**
-	 * Adds the specified status to the walls of the users connected to the
-	 * specified user ID.
+	 * Notifies a user's connections of a status update added to the user's wall.
 	 * 
 	 * Note: the wall logic is currently responsible for timestamping the status
 	 * update, but we might want to pass the date in this API call instead.
@@ -49,7 +47,7 @@ public interface ProfileWallLogic {
 	 * @param status the status to add.
 	 * @param userUuid the ID of the user whose status we're posting.
 	 */
-	public void addStatusToWalls(String status, String userUuid);
+	public void addNewStatusToWall(String status, String userUuid);
 	
 	/**
 	 * Posts the specified wall item to the specified user's wall and the
@@ -61,12 +59,11 @@ public interface ProfileWallLogic {
 	public boolean postWallItemToWall(String userUuid, WallItem wallItem);
 	
 	/**
-	 * Removes the specified wall item from the specified user's wall.
+	 * Removes the specified wall item.
 	 * 
-	 * @param userUuid the id of the user whose wall we're removing from.
 	 * @param wallItem the wall item to remove.
 	 */
-	public boolean removeWallItemFromWall(String userUuid, WallItem wallItem);
+	public boolean removeWallItemFromWall(WallItem wallItem);
 	
 	/**
 	 * Returns the wall for the specified user. The privacy record will

@@ -354,7 +354,7 @@ public class MyPictures extends BasePage {
 			
 			// post to walls if wall enabled
 			if (true == sakaiProxy.isWallEnabledGlobally()) {
-				wallLogic.addEventToWalls(ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD, sakaiProxy.getCurrentUserId());
+				wallLogic.addNewEventToWall(ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD, sakaiProxy.getCurrentUserId());
 			}
 			
 			setResponsePage(new MyPictures(gridView.getPageCount()));

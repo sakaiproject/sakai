@@ -30,7 +30,6 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.model.Wall;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -1141,118 +1140,45 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 * {@inheritDoc}
  	 */
 	public boolean addNewWallItemForUser(final String userUuid, final WallItem item) {
-			
-		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
-					public Object doInHibernate(Session session) {
-
-						try {
-
-							Query q = session.getNamedQuery(QUERY_GET_WALL);
-							q.setParameter(USER_UUID, userUuid,
-									Hibernate.STRING);
-
-							Wall wall = (Wall) q.uniqueResult();
-
-							if (null == wall) {
-								wall = new Wall();
-								wall.setUserUuid(userUuid);
-							}
-							
-							// limit number of possible wall items
-							if (ProfileConstants.MAX_WALL_ITEMS_SAVED_PER_USER == wall.getWallItems().size()) {
-								wall.getWallItems().remove(0);
-							}
-
-							wall.getWallItems().add(item);
-
-							getHibernateTemplate().save(wall);
-
-							return true;
-						} catch (Exception e) {
-							log.error("failed to save wall for user id "
-									+ userUuid + e.getClass() + ": "
-									+ e.getMessage());
-							
-							return false;
-						}
-					}
-		});
 		
-		return success.booleanValue();
+		try {
+			getHibernateTemplate().save(item);
+			return true;
+		} catch (Exception e) {
+			log.error("addNewWallItemForUser failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean removeWallItemFromWall(final String userUuid,
-			final WallItem item) {
-		Boolean success = (Boolean) getHibernateTemplate().execute(
-				new HibernateCallback() {
-					public Object doInHibernate(Session session) {
-
-						try {
-
-							Query q = session.getNamedQuery(QUERY_GET_WALL);
-							q.setParameter(USER_UUID, userUuid,
-									Hibernate.STRING);
-
-							Wall wall = (Wall) q.uniqueResult();
-
-							if (null == wall) {
-								log.warn("tried to remove wall item from wall that doesn't exist");
-								return false;
-							}
-
-							wall.getWallItems().remove(item);
-
-							getHibernateTemplate().save(wall);
-
-							return true;
-						} catch (Exception e) {
-							log.error("failed to save wall for user id "
-									+ userUuid + e.getClass() + ": "
-									+ e.getMessage());
-
-							return false;
-						}
-					}
-				});
-
-		return success.booleanValue();
+	public boolean removeWallItemFromWall(final WallItem item) {
+		
+		try {
+			getHibernateTemplate().delete(item);
+			return true;
+		} catch (Exception e) {
+			log.error("removeWallItemFromWall failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public Wall getWallItemsForUser(final String userUuid) {
+	public List<WallItem> getWallItemsForUser(final String userUuid) {
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
-	  			try {	  				
-		  			Query q = session.getNamedQuery(QUERY_GET_WALL);
-		  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-		  			
-		  			q.setMaxResults(1);
-		  			Wall wall = (Wall) q.uniqueResult();
-		  			
-		  			// create wall if not already created in db
-		  			if (null == wall) {
-		  				wall = new Wall();
-		  				wall.setUserUuid(userUuid);
-		  				saveWallForUser(wall);
-		  			}
-		  			
-		  			return wall;
-	  			} catch (Exception e) {
-	  				e.printStackTrace();
-	  			}
-
-	  			return null;
+	  			Query q = session.getNamedQuery(QUERY_GET_WALL_ITEMS);
+	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
+	  			return q.list();
 	  		}
 	  	};
 	  	
-	  	return (Wall) getHibernateTemplate().execute(hcb);
+	  	return (List<WallItem>) getHibernateTemplate().executeFind(hcb);
 	}
 	
 	/**
@@ -1266,19 +1192,7 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 			log.error("updateWallItem failed. "+ e.getClass() + ": " + e.getMessage());
 			return false;
 		}
-	}
-	
-	private boolean saveWallForUser(Wall wall) {
-		
-		try {
-			getHibernateTemplate().saveOrUpdate(wall);
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-	
+	}	
 	
 	public void init() {
 	      log.debug("init");

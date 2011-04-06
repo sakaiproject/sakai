@@ -46,7 +46,21 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		
 	}
 	
-	private void addItemToWalls(int itemType, String itemText, final String userUuid) {
+	private boolean addNewItemToWall(int itemType, String itemText, final String userUuid) {
+		
+		final WallItem wallItem = new WallItem();
+
+		wallItem.setUserUuid(userUuid);
+		wallItem.setCreatorUuid(userUuid);
+		wallItem.setType(itemType);
+		wallItem.setDate(new Date());
+		// this string is mapped to a localized resource string in GUI
+		wallItem.setText(itemText);
+		
+		return dao.addNewWallItemForUser(userUuid, wallItem);
+		
+	}
+	private void notifyConnections(int itemType, String itemText, final String userUuid) {
 		
 		// get the connections of the creator of this content
 		final List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid);
@@ -70,38 +84,24 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				return;
 		}
 		
-		final WallItem wallItem = new WallItem();
-
-		wallItem.setCreatorUuid(userUuid);
-		wallItem.setType(itemType);
-		wallItem.setDate(new Date());
-		// this string is mapped to a localized resource string in GUI
-		wallItem.setText(itemText);
-
 		Thread thread = new Thread() {
 			public void run() {
-				
+
 				List<String> uuidsToEmail = new ArrayList<String>();
-				
+
 				for (Person connection : connections) {
-		
-					// only send email if successful
-					if (dao.addNewWallItemForUser(connection.getUuid(), wallItem)) {
-		
-						// only send email if user has preference set
-						if (true == preferencesLogic.isEmailEnabledForThisMessageType(
-								connection.getUuid(), itemMessageType)) {
-							
-							uuidsToEmail.add(connection.getUuid());
-						}
-						
-					} else {
-						// we don't guarantee delivery
-						log.warn("ProfileDao.addNewWallItemForUser failed for user: " + connection.getUuid());
+
+					// only send email if user has preference set
+					if (true == preferencesLogic
+							.isEmailEnabledForThisMessageType(connection
+									.getUuid(), itemMessageType)) {
+
+						uuidsToEmail.add(connection.getUuid());
 					}
 				}
-				
-				sendWallNotificationEmailToConnections(uuidsToEmail, userUuid, itemMessageType);
+
+				sendWallNotificationEmailToConnections(uuidsToEmail, userUuid,
+						itemMessageType);
 			}
 		};
 		thread.start();
@@ -110,15 +110,19 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void addEventToWalls(String event, final String userUuid) {
-		addItemToWalls(ProfileConstants.WALL_ITEM_TYPE_EVENT, event, userUuid);
+	public void addNewEventToWall(String event, final String userUuid) {
+		if (addNewItemToWall(ProfileConstants.WALL_ITEM_TYPE_EVENT, event, userUuid)) {
+			notifyConnections(ProfileConstants.WALL_ITEM_TYPE_EVENT, event, userUuid);
+		}
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void addStatusToWalls(String status, String userUuid) {
-		addItemToWalls(ProfileConstants.WALL_ITEM_TYPE_STATUS, status, userUuid);
+	public void addNewStatusToWall(String status, String userUuid) {
+		if (addNewItemToWall(ProfileConstants.WALL_ITEM_TYPE_STATUS, status, userUuid)) {
+			notifyConnections(ProfileConstants.WALL_ITEM_TYPE_STATUS, status, userUuid);
+		}
 	}
 	
 	/**
@@ -144,27 +148,24 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 
 				Thread thread = new Thread() {
 					public void run() {
-						
+
 						List<String> uuidsToEmail = new ArrayList<String>();
-						
+
 						for (Person connection : connections) {
-		
-							// only send email if successful
-							if (true == dao.addNewWallItemForUser(connection.getUuid(),
-									wallItem)) {
+
+							// only send email if user has preference set
+							if (true == preferencesLogic
+									.isEmailEnabledForThisMessageType(
+											connection.getUuid(),
+											ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW)) {
 								
-								// only send email if user has preference set
-								if (true == preferencesLogic.isEmailEnabledForThisMessageType(connection.getUuid(),
-										ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW)) {
-									uuidsToEmail.add(connection.getUuid());
-								}
-								
-							} else {
-								log.warn("ProfileDao.addNewWallItemForUser failed for user: " + connection.getUuid());
+								uuidsToEmail.add(connection.getUuid());
 							}
 						}
-						
-						sendWallNotificationEmailToConnections(uuidsToEmail, userUuid,
+
+						sendWallNotificationEmailToConnections(
+								uuidsToEmail,
+								userUuid,
 								ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW);
 					}
 				};
@@ -178,8 +179,8 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean removeWallItemFromWall(String userUuid, WallItem wallItem) {
-		return dao.removeWallItemFromWall(userUuid, wallItem);
+	public boolean removeWallItemFromWall(WallItem wallItem) {
+		return dao.removeWallItemFromWall(wallItem);
 	}
 	
 	/**
@@ -209,7 +210,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			}
 		}
 
-		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid).getWallItems();
+		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid);
 		
 		// filter wall items
 		List<WallItem> filteredWallItems = new ArrayList<WallItem>();
@@ -271,7 +272,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			}
 		}
 				
-		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid).getWallItems();
+		List<WallItem> wallItems = dao.getWallItemsForUser(userUuid);
 		
 		// filter wall items
 		List<WallItem> filteredWallItems = new ArrayList<WallItem>();

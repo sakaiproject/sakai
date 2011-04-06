@@ -135,7 +135,7 @@ public class ChangeProfilePictureUpload extends Panel{
 						sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userUuid, true);
 						
 						if (true == sakaiProxy.isWallEnabledGlobally()) {
-							wallLogic.addEventToWalls(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, sakaiProxy.getCurrentUserId());
+							wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, sakaiProxy.getCurrentUserId());
 						}
 						
 						//refresh image data

@@ -137,23 +137,23 @@
         primary key (USER_UUID)
     );
 
-    create table PROFILE_WALLS_T (
-        USER_UUID varchar(99) not null,
-        primary key (USER_UUID)
-    );
-
-    create table PROFILE_WALL_ITEMS_MAP_T (
-        USER_UUID varchar(99) not null,
-        WALL_ITEM_ID bigint not null
-    );
-
     create table PROFILE_WALL_ITEMS_T (
         WALL_ITEM_ID bigint not null auto_increment,
+        USER_UUID varchar(99) not null,
         CREATOR_UUID varchar(99) not null,
-        TYPE integer not null,
-        TEXT text not null,
-        DATE datetime not null,
+        WALL_ITEM_TYPE integer not null,
+        WALL_ITEM_TEXT text not null,
+        WALL_ITEM_DATE datetime not null,
         primary key (WALL_ITEM_ID)
+    );
+    
+    create table PROFILE_WALL_ITEM_COMMENTS_T (
+        WALL_ITEM_COMMENT_ID bigint not null auto_increment,
+        WALL_ITEM_ID bigint not null,
+        CREATOR_UUID varchar(99) not null,
+        WALL_ITEM_COMMENT_TEXT text not null,
+        WALL_ITEM_COMMENT_DATE datetime not null,
+        primary key (WALL_ITEM_COMMENT_ID)
     );
 
     create table SAKAI_PERSON_META_T (
@@ -190,18 +190,6 @@
 
     create index PROFILE_MESSAGE_PARTICIPANT_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ);
 
-    alter table PROFILE_WALL_ITEMS_MAP_T 
-        add index FK501A69B37BEE209 (WALL_ITEM_ID), 
-        add constraint FK501A69B37BEE209 
-        foreign key (WALL_ITEM_ID) 
-        references PROFILE_WALL_ITEMS_T (WALL_ITEM_ID);
-
-    alter table PROFILE_WALL_ITEMS_MAP_T 
-        add index FK501A69B3D352B433 (USER_UUID), 
-        add constraint FK501A69B3D352B433 
-        foreign key (USER_UUID) 
-        references PROFILE_WALLS_T (USER_UUID);
-
     create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
 
     create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID);
@@ -232,4 +220,10 @@
 
     create index PROFILE_COMPANY_PROFILES_USER_UUID_I on PROFILE_COMPANY_PROFILES_T (USER_UUID);
 
-    create index PROFILE_WALLS_I on PROFILE_WALLS_T (USER_UUID);
+	create index PROFILE_WI_USER_UUID_I on PROFILE_WALL_ITEMS_T (USER_UUID);
+
+    alter table PROFILE_WALL_ITEM_COMMENTS_T 
+        add index FK32185F67BEE209 (WALL_ITEM_ID), 
+        add constraint FK32185F67BEE209 
+        foreign key (WALL_ITEM_ID) 
+        references PROFILE_WALL_ITEMS_T (WALL_ITEM_ID);

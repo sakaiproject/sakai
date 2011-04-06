@@ -14,6 +14,7 @@
 			</generator>
 	    </id>
 	   	
+	   	<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_WI_USER_UUID_I" />
 		<property name="creatorUuid" column="CREATOR_UUID" length="99" not-null="true" />
 		<property name="type" column="WALL_ITEM_TYPE" not-null="true" />
 		<property name="text" column="WALL_ITEM_TEXT" type="string" length="4000" not-null="true" />
@@ -24,5 +25,10 @@
 			<one-to-many class="org.sakaiproject.profile2.model.WallItemComment" />
 		</bag>
   	</class>
-  		
+  	
+  	<!-- get wall item records -->
+	<query name="getWallItemRecords">
+    	<![CDATA[from WallItem item WHERE item.userUuid = :userUuid]]>
+	</query>
+	
 </hibernate-mapping>

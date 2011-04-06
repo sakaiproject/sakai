@@ -293,7 +293,7 @@ public class GalleryImageEdit extends Panel {
 
 					if (true == sakaiProxy.isWallEnabledGlobally()) {
 						wallLogic
-								.addEventToWalls(
+								.addNewEventToWall(
 										ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD,
 										sakaiProxy.getCurrentUserId());
 					}

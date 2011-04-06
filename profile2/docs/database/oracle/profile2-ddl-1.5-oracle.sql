@@ -137,23 +137,23 @@
         primary key (USER_UUID)
     );
 
-    create table PROFILE_WALLS_T (
-        USER_UUID varchar2(99) not null,
-        primary key (USER_UUID)
-    );
-
-    create table PROFILE_WALL_ITEMS_MAP_T (
-        USER_UUID varchar2(99) not null,
-        WALL_ITEM_ID number(19,0) not null
-    );
-
     create table PROFILE_WALL_ITEMS_T (
         WALL_ITEM_ID number(19,0) not null,
+        USER_UUID varchar2(99) not null,
         CREATOR_UUID varchar2(99) not null,
-        TYPE number(10,0) not null,
-        TEXT varchar2(4000) not null,
-        DATE date not null,
+        WALL_ITEM_TYPE number(10,0) not null,
+        WALL_ITEM_TEXT varchar2(4000) not null,
+        WALL_ITEM_DATE date not null,
         primary key (WALL_ITEM_ID)
+    );
+
+    create table PROFILE_WALL_ITEM_COMMENTS_T (
+        WALL_ITEM_COMMENT_ID number(19,0) not null,
+        WALL_ITEM_ID number(19,0) not null,
+        CREATOR_UUID varchar2(99) not null,
+        WALL_ITEM_COMMENT_TEXT varchar2(4000) not null,
+        WALL_ITEM_COMMENT_DATE date not null,
+        primary key (WALL_ITEM_COMMENT_ID)
     );
 
     create table SAKAI_PERSON_META_T (
@@ -190,15 +190,12 @@
 
     create index PROFILE_MESSAGE_PARTICIPANT_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ);
 
-    alter table PROFILE_WALL_ITEMS_MAP_T 
-        add constraint FK501A69B37BEE209 
+    create index PROFILE_WI_USER_UUID_I on PROFILE_WALL_ITEMS_T (USER_UUID);
+
+    alter table PROFILE_WALL_ITEM_COMMENTS_T 
+        add constraint FK32185F67BEE209 
         foreign key (WALL_ITEM_ID) 
         references PROFILE_WALL_ITEMS_T;
-
-    alter table PROFILE_WALL_ITEMS_MAP_T 
-        add constraint FK501A69B3D352B433 
-        foreign key (USER_UUID) 
-        references PROFILE_WALLS_T;
 
     create sequence COMPANY_PROFILES_S;
 
@@ -213,6 +210,8 @@
     create sequence SAKAI_PERSON_META_S;
 
     create sequence WALL_ITEMS_S;
+    
+    create sequence WALL_ITEM_COMMENTS_S;
 
     create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
 

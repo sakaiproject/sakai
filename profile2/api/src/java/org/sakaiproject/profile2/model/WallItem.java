@@ -36,7 +36,8 @@ public class WallItem implements Serializable, Comparable<WallItem> {
 	private static final long serialVersionUID = 1L;
 
 	private long id;
-	
+	// the id of the user whose wall the item is posted on
+	private String userUuid;
 	// the id of the user who created this wall item
 	private String creatorUuid;
 	private String text;

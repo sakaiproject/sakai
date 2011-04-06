@@ -183,7 +183,7 @@ public class MyStatusPanel extends Panel {
 					
 					// post to walls if wall enabled
 					if (true == sakaiProxy.isWallEnabledGlobally()) {
-						wallLogic.addStatusToWalls(statusMessage, sakaiProxy.getCurrentUserId());
+						wallLogic.addNewStatusToWall(statusMessage, sakaiProxy.getCurrentUserId());
 					}
 					
 					//repaint status component
