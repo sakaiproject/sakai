@@ -31,7 +31,7 @@ import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.WallItem;
-import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.model.WallItemComment;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -1184,12 +1184,12 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean updateWallItem(WallItem wallItem) {
+	public boolean addNewCommentToWallItem(WallItemComment wallItemComment) {
 		try {
-			getHibernateTemplate().saveOrUpdate(wallItem);
+			getHibernateTemplate().save(wallItemComment);
 			return true;
 		} catch (Exception e) {
-			log.error("updateWallItem failed. "+ e.getClass() + ": " + e.getMessage());
+			log.error("addNewWallItemComment failed. "+ e.getClass() + ": " + e.getMessage());
 			return false;
 		}
 	}	

@@ -7,12 +7,6 @@ alter table PROFILE_PREFERENCES_T add EMAIL_WALL_ITEM_NEW bit not null DEFAULT t
 /* add the wall privacy setting, default to 0 (PRFL-513) */
 alter table PROFILE_PRIVACY_T add MY_WALL int not null DEFAULT 0;
 
-/* add profile walls table (PRFL-518) */
-create table PROFILE_WALLS_T (
-	USER_UUID varchar(99) not null,
-	primary key (USER_UUID)
-);
-
 /* add profile wall items table (PRFL-518) */
 create table PROFILE_WALL_ITEMS_T (
 	WALL_ITEM_ID bigint not null auto_increment,

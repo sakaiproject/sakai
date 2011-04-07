@@ -20,6 +20,7 @@ import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.model.WallItemComment;
 
 /**
  * Internal DAO Interface for Profile2.
@@ -524,13 +525,13 @@ public interface ProfileDao {
 	public List<WallItem> getWallItemsForUser(final String userUuid);
 			
 	/**
-	 * Saves an updated wall item (e.g. if a comment added, or item edited).
-	 * 
-	 * @param wallItem the updated wall item to save.
-	 * @return <code>true</code> if the update is successful and
-	 *         <code>false</code> if the update fails.
+	 * Adds a new wall item comment.
+	 *  
+	 * @param wallItemComment the wall item comment to add.
+	 * @return <code>true</code> if the add is successful and
+	 *         <code>false</code> if the add fails.
 	 */
-	public boolean updateWallItem(WallItem wallItem);
+	public boolean addNewCommentToWallItem(WallItemComment wallItemComment);
 	
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";

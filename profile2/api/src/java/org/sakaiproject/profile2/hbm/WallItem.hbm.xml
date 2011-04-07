@@ -20,7 +20,8 @@
 		<property name="text" column="WALL_ITEM_TEXT" type="string" length="4000" not-null="true" />
 		<property name="date" column="WALL_ITEM_DATE" not-null="true" />
 	
-		<bag name="comments" table="PROFILE_WALL_ITEM_COMMENTS_T" lazy="false" cascade="all">
+		<!-- inverse="true" means child manages the relationship -->
+		<bag name="comments" table="PROFILE_WALL_ITEM_COMMENTS_T" lazy="false" inverse="true" cascade="all-delete-orphan">
 			<key column="WALL_ITEM_ID" />
 			<one-to-many class="org.sakaiproject.profile2.model.WallItemComment" />
 		</bag>

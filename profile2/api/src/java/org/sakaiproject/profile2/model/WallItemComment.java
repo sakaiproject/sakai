@@ -34,8 +34,8 @@ public class WallItemComment implements Serializable {
 	
 	private long id;
 	
-	// the id of the wall item the comment is linked to
-	private long wallItemId;
+	// the wall item the comment is linked to
+	private WallItem wallItem;
 	
 	// the id of the user who made the comment
 	private String creatorUuid;

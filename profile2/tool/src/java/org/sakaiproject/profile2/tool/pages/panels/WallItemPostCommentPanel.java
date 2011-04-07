@@ -20,10 +20,10 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
-import org.sakaiproject.profile2.tool.models.WallAction;
 
 /**
  * Panel for commenting on a wall item.
@@ -36,6 +36,9 @@ public class WallItemPostCommentPanel extends Panel {
 
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	protected SakaiProxy sakaiProxy;
 	
 	public WallItemPostCommentPanel(String id, final String userUuid, final WallItem wallItem, final WallItemPanel wallItemPanel) {
 		
@@ -77,14 +80,15 @@ public class WallItemPostCommentPanel extends Panel {
 				
 				// create and add comment to wall item
 				WallItemComment wallItemComment = new WallItemComment();
-				wallItemComment.setCreatorUuid(userUuid);
+				// always post as current user
+				wallItemComment.setCreatorUuid(sakaiProxy.getCurrentUserId());
 				wallItemComment.setDate(new Date());
 				wallItemComment.setText(form.getModelObject().toString());
-				wallItemComment.setWallItemId(wallItem.getId());
+				wallItemComment.setWallItem(wallItem);
 				wallItem.addComment(wallItemComment);
 				
 				// update wall item
-				if (false == wallLogic.updateWallItem(wallItem)) {
+				if (false == wallLogic.addNewCommentToWallItem(wallItemComment)) {
 					formFeedback.setVisible(true);
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.wall.comment.failed"));
@@ -93,6 +97,8 @@ public class WallItemPostCommentPanel extends Panel {
 					target.addComponent(formFeedback);
 					return;
 				}
+				
+				System.out.println("wallItemComment.getId(): " + wallItemComment.getId());
 				
 				// replace wall item panel now comment has been added
 				WallItemPanel newPanel = new WallItemPanel(wallItemPanel.getId(), userUuid, wallItem);

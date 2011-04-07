@@ -49,6 +49,7 @@ public class WallItem implements Serializable, Comparable<WallItem> {
 	
 	// add comment (have purposefully omitted ability to remove comment)
 	public void addComment(WallItemComment comment) {
+		comment.setWallItem(this);
 		comments.add(comment);
 	}
 	

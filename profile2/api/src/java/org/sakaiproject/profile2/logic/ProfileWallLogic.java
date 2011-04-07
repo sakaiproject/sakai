@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.model.WallItemComment;
 
 /**
  * Logic interface for the Profile2 wall.
@@ -48,6 +49,15 @@ public interface ProfileWallLogic {
 	 * @param userUuid the ID of the user whose status we're posting.
 	 */
 	public void addNewStatusToWall(String status, String userUuid);
+	
+	/**
+	 * Adds a new wall item comment.
+	 *  
+	 * @param wallItemComment the wall item comment to add.
+	 * @return <code>true</code> if the add is successful and
+	 *         <code>false</code> if the add fails.
+	 */
+	public boolean addNewCommentToWallItem(WallItemComment wallItemComment);
 	
 	/**
 	 * Posts the specified wall item to the specified user's wall and the
@@ -103,14 +113,5 @@ public interface ProfileWallLogic {
 	 * @return the number of available wall items for the specified user.
 	 */
 	public int getWallItemsCount(String userUuid, ProfilePrivacy privacy);
-	
-	/**
-	 * Saves an updated wall item (e.g. if a comment added, or item edited).
-	 * 
-	 * @param wallItem the updated wall item to save.
-	 * @return <code>true</code> if the update is successful and
-	 *         <code>false</code> if the update fails.
-	 */
-	public boolean updateWallItem(WallItem wallItem);
 
 }

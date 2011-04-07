@@ -28,6 +28,7 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
+import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -60,6 +61,14 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		return dao.addNewWallItemForUser(userUuid, wallItem);
 		
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean addNewCommentToWallItem(WallItemComment wallItemComment) {
+		return dao.addNewCommentToWallItem(wallItemComment);
+	}
+	
 	private void notifyConnections(int itemType, String itemText, final String userUuid) {
 		
 		// get the connections of the creator of this content
@@ -289,13 +298,6 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 		
 		return filteredWallItems.size();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean updateWallItem(WallItem wallItem) {
-		return dao.updateWallItem(wallItem);
 	}
 	
 	private void sendWallNotificationEmailToConnections(List<String> toUuids, final String fromUuid, final int messageType) {
