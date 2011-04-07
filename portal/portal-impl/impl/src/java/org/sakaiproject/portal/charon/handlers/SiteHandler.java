@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +40,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -58,6 +60,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author ieb
@@ -141,8 +144,8 @@ public class SiteHandler extends WorksiteHandler
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
 			String siteId, String pageId, String toolContextPath) throws ToolException,
 			IOException
-	{
-
+	{		
+				
 		boolean doFrameTop = "true".equals(req.getParameter("sakai.frame.top"));
 		boolean doFrameSuppress = "true".equals(req.getParameter("sakai.frame.suppress"));
 
@@ -227,7 +230,7 @@ public class SiteHandler extends WorksiteHandler
 		if (mutablePagename.equalsIgnoreCase(pageId)) {
 			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
 		}
-
+		
 		// Lookup the page in the site - enforcing access control
 		// business rules
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
@@ -259,6 +262,10 @@ public class SiteHandler extends WorksiteHandler
 
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
+				
+				
+		setSiteLanguage(site);				
+				
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
@@ -312,6 +319,8 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
+		
+		
 	}
 
 	/*
@@ -459,6 +468,7 @@ public class SiteHandler extends WorksiteHandler
 			{
 				skin = ServerConfigurationService.getString("skin.default");
 			}
+			
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
@@ -786,6 +796,49 @@ public class SiteHandler extends WorksiteHandler
 			if (framesetRequested) rcontext.put("sakaiFrameSetRequested", Boolean.TRUE);
 		}
 		return framesetRequested;
+	}
+	
+	/**
+	 * *
+	 * 
+	 * @return Locale based on its string representation (language_region)
+	 */
+	private Locale getLocaleFromString(String localeString)
+	{
+		String[] locValues = localeString.trim().split("_");
+		if (locValues.length >= 3)
+			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		else if (locValues.length == 2)
+			return new Locale(locValues[0], locValues[1]); // language, country
+		else if (locValues.length == 1)
+			return new Locale(locValues[0]); // language
+		else
+			return Locale.getDefault();
+	}
+	
+		
+	void setSiteLanguage(Site site)
+	{
+		ResourceLoader rl = new ResourceLoader();
+				
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+				
+		String locale_string = props.getProperty("locale_string");
+						
+		Locale loc;
+				
+		// if no language was specified when creating the site, set default language to session
+		if(locale_string == null || locale_string == "")
+		{					
+			loc = rl.setContextLocale(null);
+		}
+		
+		// if you have indicated a language when creating the site, set selected language to session
+		else
+		{				
+			Locale locale = getLocaleFromString(locale_string);			
+			loc = rl.setContextLocale(locale);			
+		}
 	}
 
 }
