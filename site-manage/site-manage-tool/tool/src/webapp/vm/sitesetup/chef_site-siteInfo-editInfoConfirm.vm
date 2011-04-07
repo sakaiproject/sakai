@@ -68,6 +68,26 @@
 					#end
 				</td>
 			</tr>
+			<tr>
+ 				<th>
+ 					$tlang.getString("sitediconf.language")
+ 				</th>
+ 				<td>					
+ 					#if (!$new_locale.equals("") && !$oLocale.equals(""))
+ 						#if (!$new_locale.toString().equals($oLocale.toString()))
+ 							<span class="highlight">$validator.escapeHtml($new_locale.getDisplayName())</span>
+ 						#else
+ 							$validator.escapeHtml($new_locale.getDisplayName())
+ 						#end
+ 					#elseif (!$new_locale.equals(""))
+ 						<span class="highlight">$validator.escapeHtml($new_locale.getDisplayName())</span>
+ 					#elseif ($oLocale.equals(""))
+ 						<span class="instruction">$tlang.getString("newsc.language.none")</span>
+ 					#else
+ 						<span class="highlight">$tlang.getString("newsc.language.none")</span>
+ 					#end
+ 				</td>
+ 			</tr>
 			#if($!description)
 				<tr>
 					<th>

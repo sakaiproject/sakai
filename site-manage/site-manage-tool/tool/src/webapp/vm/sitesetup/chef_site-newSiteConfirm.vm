@@ -235,6 +235,22 @@
 				</td>
 			</tr>
  			<tr>
+			
+			
+			<tr>
+				<th>
+					$tlang.getString("sitediconf.language")
+				</th>
+				<td>					
+					#if ($locale_string_selected == "")
+						<span class="instruction">$tlang.getString("newsc.language.none")</span>
+					#else
+						$validator.escapeHtml($locale_string_selected.getDisplayName())
+					#end						
+				</td>
+			</tr>
+			
+			
 			<tr>
 					<th colspan="2">
 						<h4>

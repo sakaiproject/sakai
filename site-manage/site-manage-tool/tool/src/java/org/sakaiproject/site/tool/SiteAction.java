@@ -138,6 +138,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
+
 /**
  * <p>
  * SiteAction controls the interface for worksite setup.
@@ -275,6 +276,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String STATE_DISABLE_JOINABLE_SITE_TYPE = "disable_joinable_site_types";
 
+	
+	private final static String PROP_SITE_LANGUAGE = "locale_string";
+	
 	/**
 	 * Name of the state attribute holding the site list column list is sorted
 	 * by
@@ -640,6 +644,12 @@ public class SiteAction extends PagedResourceActionII {
 	
 	// the maximum tool title length enforced in UI
 	private final static int MAX_TOOL_TITLE_LENGTH = 20;
+	
+	
+	private List prefLocales = new ArrayList();
+	private String SAKAI_LOCALES = "locales";
+	private String SAKAI_LOCALES_MORE = "locales.more";
+	private LocaleComparator localeComparator = new LocaleComparator();	
 	
 	/**
 	 * what are the tool ids within Home page?
@@ -1533,6 +1543,18 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("short_description", siteInfo.short_description);
 			context.put("siteContactName", siteInfo.site_contact_name);
 			context.put("siteContactEmail", siteInfo.site_contact_email);
+			
+			/// site language information
+ 							
+ 			String locale_string_selected = (String) state.getAttribute("locale_string");
+ 			if(locale_string_selected == ""  || locale_string_selected == null)		
+ 				context.put("locale_string_selected", "");			
+ 			else
+ 			{
+ 				Locale locale_selected = getLocaleFromString(locale_string_selected);
+ 				context.put("locale_string_selected", locale_selected);
+ 			}
+
 			toolRegistrationSelectedList = (List) state
 					.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			context.put(STATE_TOOL_REGISTRATION_SELECTED_LIST,
@@ -1909,6 +1931,11 @@ public class SiteAction extends PagedResourceActionII {
 				// revising a existing site's tool
 				context.put("existingSite", Boolean.TRUE);
 				context.put("continue", "14");
+				
+				ResourcePropertiesEdit props = site.getPropertiesEdit();
+						
+				String locale_string = props.getProperty(PROP_SITE_LANGUAGE);
+				context.put("locale_string",locale_string);
 			} else {
 				// new site
 				context.put("existingSite", Boolean.FALSE);
@@ -2049,6 +2076,15 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("site_aliases_editable", aliasesEditable(state, site == null ? null:site.getReference()));
 			context.put("site_alias_assignable", aliasAssignmentForNewSitesEnabled(state));
 
+			// available languages in sakai.properties
+			List locales = getPrefLocales();
+						
+			// insert blank item in the first position to give the option not to select any language 
+			if(locales.get(0) != "")
+				locales.add(0,"");
+				
+			context.put("locales",locales);			
+						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
 			/*
@@ -2068,7 +2104,29 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("oTitle", site.getTitle());
 			context.put("title", siteInfo.title);
-
+			
+			// get updated language
+			String new_locale_string = (String) state.getAttribute("locale_string");			
+			if(new_locale_string == ""  || new_locale_string == null)							
+				context.put("new_locale", "");			
+			else
+			{
+				Locale new_locale = getLocaleFromString(new_locale_string);
+				context.put("new_locale", new_locale);
+			}
+						
+			// get site language saved
+			ResourcePropertiesEdit props = site.getPropertiesEdit();					
+			String oLocale_string = props.getProperty(PROP_SITE_LANGUAGE);			
+			if(oLocale_string == "" || oLocale_string == null)				
+				context.put("oLocale", "");			
+			else
+			{
+				Locale oLocale = getLocaleFromString(oLocale_string);
+				context.put("oLocale", oLocale);
+			}
+						
+			
 			context.put("description", siteInfo.description);
 			context.put("oDescription", site.getDescription());
 			context.put("short_description", siteInfo.short_description);
@@ -5449,6 +5507,7 @@ public class SiteAction extends PagedResourceActionII {
 							EmailService.send(from, to, message_subject, content,
 									headerTo, replyTo, null);
 							// revert back the local setting to default
+							
 							rb.setContextLocale(Locale.getDefault());
 						}
 						catch (Exception e)
@@ -5461,7 +5520,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			// To Support
 			from = cUser.getEmail();
-			// set locale to system default
+			// set locale to system default			
 			rb.setContextLocale(Locale.getDefault());
 			to = requestEmail;
 			headerTo = requestEmail;
@@ -5535,7 +5594,7 @@ public class SiteAction extends PagedResourceActionII {
 			// To the Instructor
 			from = requestEmail;
 			to = cUser.getEmail();
-			// set the locale to individual receipient's setting
+			// set the locale to individual receipient's setting			
 			rb.setContextLocale(rb.getLocale(cUser.getId()));
 			headerTo = to;
 			replyTo = to;
@@ -5548,13 +5607,13 @@ public class SiteAction extends PagedResourceActionII {
 			content = buf.toString();
 			EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
-			// revert the locale to system default
+			// revert the locale to system default			
 			rb.setContextLocale(Locale.getDefault());
 			state.setAttribute(REQUEST_SENT, Boolean.valueOf(true));
 
 		} // if
 		
-		// reset locale to user default
+		// reset locale to user default		
 		rb.setContextLocale(null);
 
 	} // sendSiteRequest
@@ -5625,7 +5684,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			// To Support
-			//set local to default
+			//set local to default			
 			rb.setContextLocale(Locale.getDefault());
 			from = UserDirectoryService.getCurrentUser().getEmail();
 			to = requestEmail;
@@ -5668,6 +5727,7 @@ public class SiteAction extends PagedResourceActionII {
 		} // if
 
 		// reset locale to user default
+		
 		rb.setContextLocale(null);
 		
 	} // sendSiteNotification
@@ -6369,7 +6429,14 @@ public class SiteAction extends PagedResourceActionII {
 		if ( updateSiteRefAliases ) {
 			setSiteReferenceAliases(state, Site.getId());
 		}
-
+	
+		/// site language information
+				
+		String locale_string = (String) state.getAttribute("locale_string");							
+				
+		siteProperties.removeProperty(PROP_SITE_LANGUAGE);		
+		siteProperties.addProperty(PROP_SITE_LANGUAGE, locale_string);
+				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
 				SiteService.save(Site);
@@ -6948,6 +7015,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "10");
 			}
 		}
+			
 
 	} // doUpdate_site_access
 	
@@ -8181,6 +8249,7 @@ public class SiteAction extends PagedResourceActionII {
 				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[]{SiteConstants.SITE_GROUP_TITLE_LIMIT})); 	 
 			}
         }
+				
 		if (params.getString("description") != null) {
 			StringBuilder alertMsg = new StringBuilder();
 			String description = params.getString("description");
@@ -9235,6 +9304,13 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				ResourcePropertiesEdit rp = site.getPropertiesEdit();
+				
+				/// site language information
+							
+				String locale_string = (String) state.getAttribute("locale_string");							
+								
+				rp.addProperty(PROP_SITE_LANGUAGE, locale_string);
+															
 				site.setShortDescription(siteInfo.short_description);
 				site.setPubView(siteInfo.include);
 				site.setJoinable(siteInfo.joinable);
@@ -10337,6 +10413,7 @@ public class SiteAction extends PagedResourceActionII {
 		public String site_contact_email = NULL_STRING; // site contact email
 		
 		public String term = NULL_STRING; // academic term
+				
 
 		public String getSiteId() {
 			return site_id;
@@ -10408,7 +10485,7 @@ public class SiteAction extends PagedResourceActionII {
 		
 		public void setTerm(String term) {
 			this.term = term;
-		}
+		}		
 
 	} // SiteInfo
 
@@ -12027,7 +12104,11 @@ public class SiteAction extends PagedResourceActionII {
 
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
-
+					
+		String locale_string = params.getString("locales"); 
+										
+		state.setAttribute("locale_string",locale_string);
+			
 		String option = params.getString("option");
 		if ("removeSection".equals(option))
 		{
@@ -12049,6 +12130,70 @@ public class SiteAction extends PagedResourceActionII {
 			// cancel
 			doCancel(data);
 		}
+	}
+		
+	/**
+	 * *
+	 * 
+	 * @return Locale based on its string representation (language_region)
+	 */
+	private Locale getLocaleFromString(String localeString)
+	{
+		String[] locValues = localeString.trim().split("_");
+		if (locValues.length >= 3)
+			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		else if (locValues.length == 2)
+			return new Locale(locValues[0], locValues[1]); // language, country
+		else if (locValues.length == 1)
+			return new Locale(locValues[0]); // language
+		else
+			return Locale.getDefault();
+	}
+	
+	/**
+	 * @return Returns the prefLocales
+	 */
+	 
+	public List getPrefLocales()
+	{
+		// Initialize list of supported locales, if necessary
+		if (prefLocales.size() == 0)
+		{
+			Locale[] localeArray = null;
+			String localeString = ServerConfigurationService.getString(SAKAI_LOCALES);
+			String localeStringMore = ServerConfigurationService.getString(SAKAI_LOCALES_MORE);
+			
+			if ( localeString == null )
+				localeString = "";
+			if ( localeStringMore != null && !localeStringMore.equals("") )
+				localeString += ","+localeStringMore;
+
+			if ( !localeString.equals("") )
+			{
+				String[] sakai_locales = localeString.split(",");
+				localeArray = new Locale[sakai_locales.length + 1];
+				for (int i = 0; i < sakai_locales.length; i++)
+					localeArray[i] = getLocaleFromString(sakai_locales[i]);
+				localeArray[localeArray.length - 1] = Locale.getDefault();
+			}
+			else
+				// if no locales specified, get default list
+			{
+				localeArray = new Locale[] { Locale.getDefault() };
+			}
+
+			// Sort locales and add to prefLocales (removing duplicates)
+			Arrays.sort(localeArray, localeComparator);
+			for (int i = 0; i < localeArray.length; i++)
+			{
+				if (i == 0 || !localeArray[i].equals(localeArray[i - 1]))
+				{					
+					prefLocales.add(localeArray[i]);
+				}
+			}
+		}
+
+		return prefLocales;
 	}
 	
 }
