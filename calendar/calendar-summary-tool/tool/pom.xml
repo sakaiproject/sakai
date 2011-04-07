@@ -21,10 +21,10 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
+<!--    <dependency>
+     <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
@@ -54,13 +54,15 @@
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
       <artifactId>jsf-tool</artifactId>
+      <version>2.9-jsf111-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
       <artifactId>jsf-app</artifactId>
+      <version>2.9-jsf111-SNAPSHOT</version>
       <exclusions>
         <exclusion>
-          <groupId>jsf</groupId>
+          <groupId>javax.faces</groupId>
           <artifactId>jsf-api</artifactId>
         </exclusion>
       </exclusions>
@@ -68,6 +70,7 @@
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
       <artifactId>myfaces-widgets-depend</artifactId>
+      <version>2.9-jsf111-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.myfaces.tomahawk</groupId>
@@ -80,9 +83,8 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.1</version>
     </dependency>
-    <dependency>
+   <dependency>
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
@@ -95,7 +97,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>
