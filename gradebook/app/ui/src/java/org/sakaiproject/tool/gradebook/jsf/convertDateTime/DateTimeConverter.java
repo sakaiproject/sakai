@@ -17,6 +17,17 @@
 package org.sakaiproject.tool.gradebook.jsf.convertDateTime;
 
 import java.util.TimeZone;
+import java.util.Locale;
+ 
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.util.ResourceLoader;
+ 
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 
 /**
@@ -33,7 +44,64 @@ public class DateTimeConverter extends javax.faces.convert.DateTimeConverter {
 
     public DateTimeConverter()
     {
-        setTimeZone(TimeZone.getDefault());
+    	super();
+    	String userId = SessionManager.getCurrentSession().getUserId();
+		Preferences prefs =  PreferencesService.getPreferences(userId);
+		ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
+		String timeZone = props.getProperty(TimeService.TIMEZONE_KEY);
+		TimeZone m_timeZone = null;
+		if (hasValue(timeZone))
+			m_timeZone = TimeZone.getTimeZone(timeZone);
+		else
+			m_timeZone = TimeZone.getDefault();
+    	
+		String prefLocale = props.getProperty(ResourceLoader.LOCALE_KEY);
+		Locale m_locale = null;
+		if (hasValue(prefLocale))
+			m_locale = getLocaleFromString(prefLocale);
+		else
+			m_locale = Locale.getDefault();
+
+		setTimeZone(m_timeZone);
+    	setLocale(m_locale);
+     }
+    public Object getAsObject(FacesContext context, UIComponent component, String value){
+    	return super.getAsObject(context, component, value);
     }
+ 
+    public String getAsString(FacesContext context, UIComponent component, Object value){
+    	return super.getAsString(context, component, value);
+    }
+    
+	// Copied from UserPrefsTool.java
+	/**
+	 * Check String has value, not null
+	 * 
+	 * @return boolean
+	 */
+	protected boolean hasValue(String eval)
+	{
+		if (eval != null && !eval.trim().equals(""))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	private Locale getLocaleFromString(String localeString)
+	{
+		String[] locValues = localeString.trim().split("_");
+		if (locValues.length >= 3)
+			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		else if (locValues.length == 2)
+			return new Locale(locValues[0], locValues[1]); // language, country
+		else if (locValues.length == 1)
+			return new Locale(locValues[0]); // language
+		else
+			return Locale.getDefault();
+	}
+
 
 }
