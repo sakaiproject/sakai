@@ -13,32 +13,32 @@ calendar Portlet
 <table style="margin-right:auto;margin-left:auto;margin-top:1em;width:80%" class="listHier" cellpadding="3" summary="$tlang.getString('gen.eventtype.list.summary')">
 <tr><th colspan="3" style="text-align:center">$tlang.getString('view.legend')</th></tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon1')")" border="0" /> $tlang.getString('legend.key1')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon2')")" border="0" /> $tlang.getString('legend.key2')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon3')")" border="0" /> $tlang.getString('legend.key3')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon1')")" border="0" alt="" /> $tlang.getString('legend.key1')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon2')")" border="0" alt="" /> $tlang.getString('legend.key2')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon3')")" border="0" alt="" /> $tlang.getString('legend.key3')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon4')")" border="0" /> $tlang.getString('legend.key4')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon5')")" border="0" /> $tlang.getString('legend.key5')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon6')")" border="0" /> $tlang.getString('legend.key6')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon4')")" border="0" alt="" /> $tlang.getString('legend.key4')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon5')")" border="0" alt="" /> $tlang.getString('legend.key5')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon6')")" border="0" alt="" /> $tlang.getString('legend.key6')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon7')")" border="0" /> $tlang.getString('legend.key7')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon8')")" border="0" /> $tlang.getString('legend.key8')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon9')")" border="0" /> $tlang.getString('legend.key9')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon7')")" border="0" alt="" /> $tlang.getString('legend.key7')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon8')")" border="0" alt="" /> $tlang.getString('legend.key8')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon9')")" border="0" alt="" /> $tlang.getString('legend.key9')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon10')")" border="0" /> $tlang.getString('legend.key10')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon11')")" border="0" /7> $tlang.getString('legend.key11')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon12')")" border="0" /> $tlang.getString('legend.key12')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon10')")" border="0" alt="" /> $tlang.getString('legend.key10')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon11')")" border="0" alt="" /> $tlang.getString('legend.key11')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon12')")" border="0" alt="" /> $tlang.getString('legend.key12')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon13')")" border="0" /> $tlang.getString('legend.key13')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon14')")" border="0" /> $tlang.getString('legend.key14')</td>
-<td><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" /> $tlang.getString('legend.key15')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon13')")" border="0" alt="" /> $tlang.getString('legend.key13')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon14')")" border="0" alt="" /> $tlang.getString('legend.key14')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" alt="" /> $tlang.getString('legend.key15')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" /> $tlang.getString('legend.key16')</td>        
+<td><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" alt="" /> $tlang.getString('legend.key16')</td>        
 </tr>
 </table>
 
