@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">  
+<body>
+<wicket:extend>
+	
+<h3 wicket:id="page-title" class="insColor insBak insBorder">[heading]</h3>
+
+<div wicket:id="hello-user-name" class="instruction">[hello]</div>
+
+<span wicket:id="navigator">[dataview navigator]</span>
+
+<ul wicket:id="container">
+	<li wicket:id="pageable">
+		<h3>
+			<!-- <span wicket:id="item-title" >[title]</span> -->
+			<a wicket:id="item-entityLink" target="_blank">[entityLink]</a>
+			<a wicket:id="item-delete"><img wicket:id="item-remove-icon" /></a>
+			<a wicket:id="item-edit"><img wicket:id="item-edit-icon" /></a>
+		</h3>
+		<p><span wicket:id="item-description">[description]</span></p>
+		<p>
+			<span wicket:id="item-entityId">[entityId]</span>
+			<span wicket:id="item-entityType">[entityType]</span>
+			<!-- <span wicket:id="item-accessUrl">[accessUrl]</span>  -->
+			<span wicket:id="item-dueDate">[dueDate]</span>
+			<span wicket:id="item-status">[status]</span>
+			<span wicket:id="item-locationId">[locationId]</span>
+			<a wicket:id="item-LocationLink" target="_blank">[Location Link]</a>
+			<!-- <span wicket:id="item-locationName">[locationName]</span>
+			<span wicket:id="item-locationUrl">[locationUrl]</span> -->
+			<span wicket:id="item-creatorName">[createdBy]</span>
+			<span wicket:id="item-creatorId">[creatorId]</span>
+			<span wicket:id="item-createdDate">[createdDate]</span>
+			<span wicket:id="item-id">[id]</span>
+			<span wicket:id="item-itemType">[type]</span>
+		</p>
+	</li>
+</ul>
+
+<a wicket:id="item-add"><span wicket:id="item-add-label">[Add item link]</span></a>
+<div wicket:id="item-addedit-window">[Add/Edit item window]</div>
+
+<p>&nbsp;</p>
+</wicket:extend>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
+    <bean id="dashboardApplication" class="org.sakaiproject.dashboard.tool.DashboardApplication">
+		<!--  inject our own API, for full CRUD app-->
+		<property name="externalLogic" ref="org.sakaiproject.dashboard.logic.ExternalLogic" />
+		<property name="dashboardLogic" ref="org.sakaiproject.dashboard.logic.DashboardLogic" />
+	</bean>
+	   
+       
+</beans>
