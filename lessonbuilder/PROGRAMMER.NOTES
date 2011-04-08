@@ -1,3 +1,9 @@
+SHOWPAGE
+
+The guts of the system are ShowPage.html, ShowPageProducer.java and
+show-page.js.  There is a separate file, which should only be read
+after you've read this one, talking about it.
+
 NAMES INVOLVING SIMPLEPAGE
 
 You'll see some class names starting with SimplePage. Lesson Builder
