@@ -11606,10 +11606,8 @@ public class SiteAction extends PagedResourceActionII {
 							}
 							catch (UserNotDefinedException e) 
 							{
-								addAlert(state, rb.getString("java.validAuthor1") + " " 
-										+ ServerConfigurationService.getString("officialAccountName") + " " + rb.getString("java.validAuthor2"));
-								M_log.warn(this + ".doFind_course:" + rb.getString("java.validAuthor1") + " " 
-										+ ServerConfigurationService.getString("officialAccountName") + " " + rb.getString("java.validAuthor2"));
+								addAlert(state, rb.getFormattedMessage("java.validAuthor", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+								M_log.warn(this + ".doFind_course:" + rb.getFormattedMessage("java.validAuthor", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
 							}
 						}
 						if (state.getAttribute(STATE_MESSAGE) == null) {
