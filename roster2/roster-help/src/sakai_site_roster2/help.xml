@@ -2,11 +2,17 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+   <bean id="roster2About" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aruk2</value></property>
+      <property name="name"><value>Roster2</value></property>
+      <property name="location"><value>/sakai_site_roster2/aruk.html</value></property>
+      <property name="defaultForTool"><value>sakai.site.roster2</value></property>
+   </bean>
+
    <bean id="roster2Overview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aruh2</value></property>
       <property name="name"><value>Roster Overview</value></property>
       <property name="location"><value>/sakai_site_roster2/aruh.html</value></property>
-      <property name="defaultForTool"><value>sakai.site.roster2</value></property>
    </bean>
 
    <bean id="roster2View" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -36,6 +42,7 @@
                <property name="name"><value>Roster2</value></property>
                <property name="resources">
                   <list>
+                     <ref bean="roster2About"/>
                      <ref bean="roster2Overview"/>
                      <ref bean="roster2View"/>
                      <ref bean="roster2Print"/>

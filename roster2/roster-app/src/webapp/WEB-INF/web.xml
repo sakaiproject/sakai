@@ -5,6 +5,8 @@
 
     <display-name>sakai.roster2</display-name>
 
+    <description>sakai.roster2</description>
+    
 	<!--sakai-->
     <filter>
         <filter-name>sakai.request</filter-name>
