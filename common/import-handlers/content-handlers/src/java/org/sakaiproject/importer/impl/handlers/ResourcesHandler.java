@@ -110,7 +110,19 @@ public class ResourcesHandler implements HandlesImportable {
 				//title = ((FileResource)thing).getTitle();
 				description = ((FileResource)thing).getDescription();
 				String fileName = ((FileResource)thing).getFileName();
-				id = contentHostingService.getSiteCollection(siteId) + ((FileResource)thing).getDestinationResourcePath();
+				id = contentHostingService.getSiteCollection(siteId);
+				
+				String contextPath = ((FileResource)thing).getDestinationResourcePath();
+				if (contextPath != null && contextPath.length() > 255) {
+					// leave at least 14 characters at end for uniqueness
+					contextPath = contextPath.substring(0, (255 - 14 - id.length()));
+					// add a timestamp to differentiate it (+14 chars)
+					Format f= new SimpleDateFormat("yyyyMMddHHmmss");
+					contextPath += f.format(new Date());
+					// total new length of 32 chars
+				}
+				
+				id = id + contextPath;
 				contentType = new MimetypesFileTypeMap().getContentType(fileName);
 				contents = ((FileResource)thing).getFileBytes();
 //				if((title == null) || (title.equals(""))) {
