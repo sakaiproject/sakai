@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="roster2Overview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aruh_zh_TW2</value></property>
+      <property name="name"><value>花名冊：概述</value></property>
+      <property name="location"><value>/sakai_site_roster2/aruh_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.site.roster2</value></property>
+   </bean>
+
+   <bean id="roster2View" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arna_zh_TW2</value></property>
+      <property name="name"><value>檢視花名冊</value></property>
+      <property name="location"><value>/sakai_site_roster2/arna_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="roster2Print" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atzt_zh_TW2</value></property>
+      <property name="name"><value>列印花名冊</value></property>
+      <property name="location"><value>/sakai_site_roster2/atzt_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="roster2Export" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atfv_zh_TW2</value></property>
+      <property name="name"><value>我可以匯出花名冊嗎</value></property>
+      <property name="location"><value>/sakai_site_roster2/atfv_zh_TW.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="assignmentCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>花名冊2</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="roster2Overview"/>
+                     <ref bean="roster2View"/>
+                     <ref bean="roster2Print"/>
+                     <ref bean="roster2Export"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
