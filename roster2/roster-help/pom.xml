@@ -11,7 +11,7 @@
 
     <name>Sakai Roster2 help module</name>
     <groupId>org.sakaiproject.roster2</groupId>
-    <artifactId>sakai-roster-help</artifactId>
+    <artifactId>sakai-roster2-help</artifactId>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>

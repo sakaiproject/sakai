@@ -10,7 +10,7 @@
 
     <name>Sakai Roster2 assembly module</name>
     <groupId>org.sakaiproject.roster2</groupId>
-    <artifactId>sakai-roster-assembly</artifactId>
+    <artifactId>sakai-roster2-assembly</artifactId>
    <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -21,14 +21,14 @@
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.roster2</groupId>
-            <artifactId>sakai-roster-tool</artifactId>
+            <artifactId>sakai-roster2-tool</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.roster2</groupId>
-            <artifactId>sakai-roster-help</artifactId>
+            <artifactId>sakai-roster2-help</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
             <scope>compile</scope>

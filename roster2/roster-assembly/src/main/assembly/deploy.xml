@@ -11,7 +11,7 @@
             <useTransitiveDependencies>false
             </useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.roster2:sakai-roster-help:jar:*</include>
+                <include>org.sakaiproject.roster2:sakai-roster2-help:jar:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
@@ -22,7 +22,7 @@
             <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.roster2:sakai-roster-tool:war:*</include>
+                 <include>org.sakaiproject.roster2:sakai-roster2-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

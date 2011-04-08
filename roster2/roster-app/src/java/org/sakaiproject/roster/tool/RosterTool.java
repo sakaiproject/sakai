@@ -72,7 +72,7 @@ public class RosterTool extends HttpServlet {
 		String defaultState = sakaiProxy.getDefaultRosterStateString();
 		
 		// pass siteId, language code and sakai.properties to the JQuery code
-		response.sendRedirect("/sakai-roster-tool/roster.html?state=" + defaultState
+		response.sendRedirect("/sakai-roster2-tool/roster.html?state=" + defaultState
 				+ "&siteId=" + sakaiProxy.getCurrentSiteId() 
 				+ "&skin=" + sakaiProxy.getSakaiSkin()
 				+ "&language="+ (new ResourceLoader(userId)).getLocale().getLanguage()

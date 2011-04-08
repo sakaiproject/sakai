@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-    <display-name>sakai.roster</display-name>
+    <display-name>sakai.roster2</display-name>
 
 	<!--sakai-->
     <filter>
@@ -16,7 +16,7 @@
     </filter>
     
     <servlet>
-        <servlet-name>sakai.site.roster</servlet-name>
+        <servlet-name>sakai.site.roster2</servlet-name>
 	    <servlet-class>org.sakaiproject.roster.tool.RosterTool</servlet-class>
 		<load-on-startup>1</load-on-startup>        
      </servlet>

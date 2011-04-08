@@ -197,7 +197,7 @@ $.tablesorter.addParser({
 	// end of sakai.properties
 	
 	// build root profile URL (the user ID is appended later for each user)
-	rosterProfileUrl = "/sakai-roster-tool/roster.html?state=profile&siteId=" +
+	rosterProfileUrl = "/sakai-roster2-tool/roster.html?state=profile&siteId=" +
 		rosterSiteId + "&language="  + language +
 		"&skin=" + skin +
 		"&defaultSortColumn=" + defaultSortColumn +
