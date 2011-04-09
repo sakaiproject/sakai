@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +40,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -58,6 +60,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author ieb
@@ -81,6 +84,12 @@ public class SiteHandler extends WorksiteHandler
 
 	private boolean useDHTMLMore = false;
 
+	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
+	// This can be replaced by the users myworkspace.
+	private String mutableSitename ="-";
+	// This can be replaced by the page on which a tool appears.
+	private String mutablePagename ="-";
+
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
@@ -88,6 +97,8 @@ public class SiteHandler extends WorksiteHandler
 				Portal.CONFIG_DEFAULT_TABS, 5);
 		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
 				"portal.use.dhtml.more", false));
+        mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
+        mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
 
 	@Override
@@ -102,7 +113,8 @@ public class SiteHandler extends WorksiteHandler
 			{
 				// recognize an optional page/pageid
 				String pageId = null;
-				if ((parts.length == 5) && (parts[3].equals("page")))
+				// may also have the tool part, so check that length is 5 or greater.
+				if ((parts.length >= 5) && (parts[3].equals("page")))
 				{
 					pageId = parts[4];
 				}
@@ -132,8 +144,8 @@ public class SiteHandler extends WorksiteHandler
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
 			String siteId, String pageId, String toolContextPath) throws ToolException,
 			IOException
-	{
-
+	{		
+				
 		boolean doFrameTop = "true".equals(req.getParameter("sakai.frame.top"));
 		boolean doFrameSuppress = "true".equals(req.getParameter("sakai.frame.suppress"));
 
@@ -153,6 +165,16 @@ public class SiteHandler extends WorksiteHandler
 				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
 				siteId = SiteService.getUserSiteId(session.getUserId());
 			}
+		}
+
+		// Can get a URL like /portal/site/-/page/-/tool/sakai.rwiki.  
+		// The "mutable" site and page can not be given specific values since the 
+		// final resolution depends on looking up the specific placement of the tool 
+		// with this common id in the my workspace for this user.
+		
+		// check for a mutable site to be resolved here
+		if (mutableSitename.equalsIgnoreCase(siteId) && (session.getUserId() != null)) {
+			siteId = SiteService.getUserSiteId(session.getUserId());
 		}
 
 		// if no page id, see if there was a last page visited for this site
@@ -203,6 +225,12 @@ public class SiteHandler extends WorksiteHandler
 			return;
 		}
 
+		// If the page is the mutable page name then look up the 
+		// real page id from the tool name.
+		if (mutablePagename.equalsIgnoreCase(pageId)) {
+			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
+		}
+		
 		// Lookup the page in the site - enforcing access control
 		// business rules
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
@@ -238,6 +266,10 @@ public class SiteHandler extends WorksiteHandler
 
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
+				
+				
+		setSiteLanguage(site);				
+				
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
@@ -291,6 +323,43 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
+		
+		
+	}
+
+	/*
+	 * If the page id is the mutablePageId then see if can resolve it from the
+	 * the placement of the tool with a supplied tool id.
+	 */
+	private String findPageIdFromToolId(String pageId, String toolContextPath,
+			Site site) {
+
+		// If still can't find page id see if can determine it from a well known
+		// tool id (assumes that such a tool is in the site and the first instance of 
+		// the tool found would be the right one).
+		String toolSegment = "/tool/";
+		String toolId = null;
+
+			try
+			{
+			// does the URL contain a tool id?
+			if (toolContextPath.contains(toolSegment)) {
+				toolId = toolContextPath.substring(toolContextPath.lastIndexOf(toolSegment)+toolSegment.length());
+				ToolConfiguration toolConfig = site.getToolForCommonId(toolId);
+				if (log.isDebugEnabled()) {
+					log.debug("trying to resolve page id from toolId: ["+toolId+"]");
+				}
+				if (toolConfig != null) {
+					pageId = toolConfig.getPageId();
+				}
+			}
+
+			}
+			catch (Exception e) {
+				log.error("exception resolving page id from toolid :["+toolId+"]",e);
+			}
+
+		return pageId;
 	}
 
 	/**
@@ -403,6 +472,7 @@ public class SiteHandler extends WorksiteHandler
 			{
 				skin = ServerConfigurationService.getString("skin.default");
 			}
+			
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
@@ -663,7 +733,7 @@ public class SiteHandler extends WorksiteHandler
 			if (log.isTraceEnabled())
 				log.trace("includePage unable to find site for page " + page.getId());
 		}
-
+		
 		Map singleToolMap = null;
 		ToolConfiguration singleTool = null;
 		List tools = page.getTools(0);
@@ -730,6 +800,49 @@ public class SiteHandler extends WorksiteHandler
 			if (framesetRequested) rcontext.put("sakaiFrameSetRequested", Boolean.TRUE);
 		}
 		return framesetRequested;
+	}
+	
+	/**
+	 * *
+	 * 
+	 * @return Locale based on its string representation (language_region)
+	 */
+	private Locale getLocaleFromString(String localeString)
+	{
+		String[] locValues = localeString.trim().split("_");
+		if (locValues.length >= 3)
+			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		else if (locValues.length == 2)
+			return new Locale(locValues[0], locValues[1]); // language, country
+		else if (locValues.length == 1)
+			return new Locale(locValues[0]); // language
+		else
+			return Locale.getDefault();
+	}
+	
+		
+	void setSiteLanguage(Site site)
+	{
+		ResourceLoader rl = new ResourceLoader();
+				
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+				
+		String locale_string = props.getProperty("locale_string");
+						
+		Locale loc;
+				
+		// if no language was specified when creating the site, set default language to session
+		if(locale_string == null || locale_string == "")
+		{					
+			loc = rl.setContextLocale(null);
+		}
+		
+		// if you have indicated a language when creating the site, set selected language to session
+		else
+		{				
+			Locale locale = getLocaleFromString(locale_string);			
+			loc = rl.setContextLocale(locale);			
+		}
 	}
 
 }

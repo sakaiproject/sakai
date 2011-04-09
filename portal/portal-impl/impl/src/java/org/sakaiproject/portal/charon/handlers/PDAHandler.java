@@ -23,6 +23,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -75,6 +77,8 @@ public class PDAHandler extends PageHandler
 	private static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain"; //RequestFilter.SAKAI_COOKIE_DOMAIN
 	
 	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
+
+	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jepg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls|\\.xlsx|\\.doc|\\.docx";
 	
 	public PDAHandler()
 	{
@@ -207,6 +211,26 @@ public class PDAHandler extends PageHandler
 						}
 						parts[3]="tool";
 						parts[4]=toolId;
+					}
+				}
+
+				ToolConfiguration siteTool = SiteService.findTool(toolId);
+
+				if ( siteTool != null ) {
+					String uri = req.getRequestURI();
+					String commonToolId = siteTool.getToolId();
+					String pattern = ServerConfigurationService .getString("portal.pda.bypass", DEFAULT_BYPASS_PATTERN);
+					pattern = ServerConfigurationService .getString("portal.pda.bypass."+commonToolId, pattern);
+					// System.out.println("Pat="+pattern);
+					Pattern p = Pattern.compile(pattern);
+					Matcher m = p.matcher(uri.toLowerCase());
+					if ( m.find() && parts.length >= 5 ) {
+						String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5); 
+						String toolPathInfo = Web.makePath(parts, 5, parts.length);
+        					ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
+						portal.forwardTool(tool, req, res, siteTool, 
+							siteTool.getSkin(), toolContextPath, toolPathInfo);
+						return END;
 					}
 				}
 				

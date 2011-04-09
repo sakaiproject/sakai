@@ -220,6 +220,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	};
 
+	// define string that identifies this as the logged in users' my workspace
+	private String myWorkspaceSiteId = "~";
 
 	public String getPortalContext()
 	{
@@ -1143,6 +1145,39 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("portal_allow_minimize_navigation",Boolean.valueOf( "true".equals(minStr) ) ) ;
 		minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
 		rcontext.put("portal_allow_auto_minimize",Boolean.valueOf( "true".equals(minStr) ) ) ;
+		// copy the add link to /mobile to the content
+		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
+		
+		// show the mobile link or not
+		Session session = SessionManager.getCurrentSession();
+		if (session.getAttribute("is_wireless_device") == null)
+		{
+			// when user logs out, all session variables are cleaned, this is to reset the is_wireless_device attribute in portal
+			Device device = null;
+			try {
+				device = wurfl.getDeviceForRequest(request);
+				String deviceName = device.getId();
+
+				// Not a device recognized by WURFL
+				if (StringUtils.isBlank(deviceName) || deviceName.startsWith("generic") ) { 
+				} else {
+					//if this is a mobile device 
+					String isMobile = device.getCapability("is_wireless_device");
+					Boolean isMobileBool = Boolean.valueOf(isMobile);
+					if (isMobileBool.booleanValue()) {
+						session.setAttribute("is_wireless_device", Boolean.TRUE);
+					}
+				}
+			} catch (DeviceNotDefinedException e) {
+				//this will be hit a lot, so its at debug level to reduce log traffic
+				if (M_log.isDebugEnabled())
+				{
+					M_log.debug("Device '" + e.getDeviceId() + "' is not in WURFL");
+				}
+			}
+		}
+		boolean isWirelessDevice = session.getAttribute("is_wireless_device") != null ? ((Boolean) session.getAttribute("is_wireless_device")).booleanValue():false;
+		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) && isWirelessDevice ) ) ;
 		return rcontext;
 	}
 
@@ -1258,6 +1293,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * If we cannot resolve the placement, we simply return the passed in
 	 * placement ID. If we cannot visit the site, we send the user to login
 	 * processing and return null to the caller.
+	 *
+	 * If the reference is to the magical, indexical MyWorkspace site ('~')
+	 * then replace ~ by their My Workspace.  Give them a chance to login
+	 * if necessary.
 	 */
 
 	public String getPlacement(HttpServletRequest req, HttpServletResponse res,
@@ -1266,12 +1305,26 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
 		if (siteId == null) return placementId; // Standard placement
 
+		// Try to resolve the indexical MyWorkspace reference
+		if (myWorkspaceSiteId.equals(siteId)) {
+		    // If not logged in then allow login.  You can't go to your workspace if 
+		    // you aren't known to the system.
+		    if (session.getUserId() == null)
+			{
+			    doLogin(req, res, session, req.getPathInfo(), false);
+			}
+		    // If the login was successful lookup the myworkworkspace site.
+		    if (session.getUserId() != null) {
+			siteId=getUserEidBasedSiteId(session.getUserEid());
+		    }
+		}
+
 		// find the site, for visiting
 		// Sites like the !gateway site allow visits by anonymous
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteHelper().getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1283,8 +1336,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo() + "?sakai.site="
-						+ res.encodeURL(siteId), false);
+				doLogin(req, res, session, req.getPathInfo(), false);
 				return null;
 			}
 			return placementId; // cannot resolve placement
