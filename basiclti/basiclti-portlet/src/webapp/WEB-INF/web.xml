@@ -11,11 +11,6 @@
   </filter>
 
     <filter>
-        <filter-name>sakai.request</filter-name>
-        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>RemoteHostFilter</filter-name>
         <filter-class>
             org.sakaiproject.util.RemoteHostFilter
