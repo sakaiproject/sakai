@@ -113,7 +113,7 @@ public class ResourcesHandler implements HandlesImportable {
 				id = contentHostingService.getSiteCollection(siteId);
 				
 				String contextPath = ((FileResource)thing).getDestinationResourcePath();
-				if (contextPath != null && contextPath.length() > 255) {
+				if (contextPath != null && (contextPath.length() + id.length()) > 255) {
 					// leave at least 14 characters at end for uniqueness
 					contextPath = contextPath.substring(0, (255 - 14 - id.length()));
 					// add a timestamp to differentiate it (+14 chars)
