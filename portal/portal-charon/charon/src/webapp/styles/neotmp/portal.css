@@ -7,7 +7,6 @@ body{
 	margin: 0;
 	background-color: #093b52;
         background-image:  url(images/page_bg_water.jpg);
-	background-attachment: fixed;
         background-repeat:repeat-x;
 }
 
@@ -136,7 +135,7 @@ site types are a local setting - adjust */
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
 #togglebar{
-	
+    padding-bottom:100px
 }
 
 #content{
@@ -675,9 +674,8 @@ page estate
 #togglebar{
     float:left;
     width:10px;    
-    height:50px;
-    padding-top:5em
-    
+    height:30px;
+    padding-top:2em
 }
 a#toggleToolMenu{
     text-decoration:none;
