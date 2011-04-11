@@ -69,9 +69,12 @@
 			#end
 			</div>
 			<div id="togglebar">
-<a id="toggleToolMenu" onmouseup="blur()" href="#" title="${rloader.sit_toggle_nav}">
-<span id="toggleToolMax"#if (${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
-<span id="toggleNormal""#if (! ${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span></a>
+#if ( $loggedIn ) 
+	<a id="toggleToolMenu" onmouseup="blur()" href="#" title="${rloader.sit_toggle_nav}">
+		<span id="toggleToolMax"#if (${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
+		<span id="toggleNormal""#if (! ${sakai_nav_minimized}) style="display:none"#end>&nbsp;</span>
+	</a>
+#end	
 			</div>
 			<a id="tocontent" class="skip" name="tocontent"></a>
 			<h1 class="skip">${rloader.sit_contentshead}</h1>
