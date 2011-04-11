@@ -269,3 +269,14 @@ function setupToggleAreas(toggler, togglee, openInit, speed){
         resizeFrame();
     });
 }
+
+function setupItemNavigator(){
+    $('.itemNav input').click(function(){
+        var what = $(this).attr('class');
+        
+        $('.' + what).attr('disabled','disabled').addClass('disabled');
+        $('.messageProgress').css('visibility','visible');
+        
+    })
+    
+}
