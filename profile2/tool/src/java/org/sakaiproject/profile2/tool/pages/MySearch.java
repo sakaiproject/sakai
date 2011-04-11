@@ -576,9 +576,13 @@ public class MySearch extends BasePage {
 					
 					//get the model and text entered
 					StringModel model = (StringModel) form.getModelObject();
-					String searchText = FormattedText.processFormattedText(model.getString(), new StringBuilder());
+					String searchText = ProfileUtils.stripHtml(model.getString());
 										
 					log.debug("MySearch() search.getSearchName(): " + searchText);
+					
+					if(StringUtils.isBlank(searchText)){
+						return;
+					}
 				
 					// save search terms
 					ProfileSearchTerm searchTerm = new ProfileSearchTerm();
@@ -621,9 +625,13 @@ public class MySearch extends BasePage {
 					
 					//get the model and text entered
 					StringModel model = (StringModel) form.getModelObject();
-					String searchText = FormattedText.processFormattedText(model.getString(), new StringBuilder());
+					String searchText = ProfileUtils.stripHtml(model.getString());
 
 					log.debug("MySearch() search.getSearchInterest(): " + searchText);
+					
+					if(StringUtils.isBlank(searchText)){
+						return;
+					}
 					
 					// save search terms
 					ProfileSearchTerm searchTerm = new ProfileSearchTerm();
