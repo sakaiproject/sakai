@@ -56,7 +56,7 @@
 
 		<div id="headerMin">
 			<div id="siteNavWrapper" class="${logoSiteClass}">
-				<div id="mastHead">
+				<div id="mastHead" role="banner">
 					<div id="mastLogo">
 						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
 					</div>

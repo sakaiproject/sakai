@@ -1,6 +1,6 @@
 <!-- START from includePageNav.vm -->
 		<!-- start includePageNav -->
-			<div class="divColor" id="toolMenuWrap">
+			<div class="divColor" id="toolMenuWrap" role="navigation">
 				<div id="worksiteLogo">
 			#if (!${sitePages.pageNavPublished})
 					<p id="siteStatus">${rloader.sit_unpublished}</p>
