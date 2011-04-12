@@ -11506,6 +11506,13 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (soList == null || soList.isEmpty())
 			return;
+		String s = ServerConfigurationService.getString("officialAccountName");
+		
+		if (uniqueName == null) 
+		{
+			addAlert(state, rb.getFormattedMessage("java.author", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
+			return;
+		} 
 		
 		if (getStateSite(state) == null)
 		{
@@ -11587,11 +11594,7 @@ public class SiteAction extends PagedResourceActionII {
 					// uniqname
 					if (uniqname == null) 
 					{
-						addAlert(state, rb.getString("java.author")
-								+ " "
-								+ ServerConfigurationService
-										.getString("officialAccountName")
-								+ ". ");
+						addAlert(state, rb.getFormattedMessage("java.author", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
 					} 
 					else 
 					{

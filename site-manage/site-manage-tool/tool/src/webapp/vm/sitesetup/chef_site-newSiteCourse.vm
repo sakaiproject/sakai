@@ -297,7 +297,7 @@ function redirectBasedOnSelection(){
 						<label for="uniqname">		
 						   $tlang.getString("man.authoriz")
 						</label>
-						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$authorizers" />
+						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!authorizers" />
 					</div>
 					<p class="labelindnt instruction">
 					   $tlang.getString("man.email")
