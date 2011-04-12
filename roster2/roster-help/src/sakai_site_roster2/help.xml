@@ -33,6 +33,12 @@
       <property name="location"><value>/sakai_site_roster2/atfv.html</value></property>
    </bean>
 
+   <bean id="roster2Permissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atfz2</value></property>
+      <property name="name"><value>Changing roster permissions</value></property>
+      <property name="location"><value>/sakai_site_roster2/atfz.html</value></property>
+   </bean>
+   
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
@@ -47,6 +53,7 @@
                      <ref bean="roster2View"/>
                      <ref bean="roster2Print"/>
                      <ref bean="roster2Export"/>
+                     <ref bean="roster2Permissions"/>
                   </list>
                </property>
             </bean>
