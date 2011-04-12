@@ -187,4 +187,45 @@ causes all access to go through Resources, so Event log entries are
 made, and I have the potential for doing access control in resources
 if I ever want to.
 
+THE PATH
+
+I have a concept called "path". It's really just the breadcrumbs: a
+the path from the top to the page you're on now. It is a dynamic
+concept, since you can get to the same page different ways.
+
+It's displayed as breadcrumbs. It's storted as a toolsession 
+variable, "lessonbuilder.path". It is List<PathEntry>, where
+PathEntry is 
+      public static class PathEntry {
+            public Long pageId;
+            public Long pageItemId;
+            public String title;
+        }
+
+We need all the information to return to previous levels using
+the breadcrumbs.
+
+ShowPageProducer, and to a minor extent ShowItemProducer, calls
+simplePageBean.adjustpath to adjust it. E.g. when going to a subpage,
+the URL include path=push, to indicate that the information for the
+new page should be pushed onto the end of the path. When going to a
+page on the same levell, e.g. when the page is set as a Next page,
+path=next says that information for the new page should replace the
+current top of the stack. path=NNN indicates you should go directly to
+item NNN of the path. This is used when going to something in the
+breadcrums. ShowItemProducer can use path=pop. When you go from a page
+to a normal item on the same level, we have to pop off that page's
+information, and of course when going from a normal item to a subpage
+on the same level, the info for the subpage gets pushed on.
+
+If you reset the tool, or logoff and logon, we will find the most
+recently saved path, and offer to restore the system to that state.
+The path has enough information to get back exactly where we were
+before, except that we'll only go to pages, not to individual items.
+At least for now.
+
+
+
+
+
 

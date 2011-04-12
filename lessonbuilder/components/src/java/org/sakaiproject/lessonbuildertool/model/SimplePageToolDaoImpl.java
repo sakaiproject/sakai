@@ -196,6 +196,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list.get(0);
 	}
 
+	public SimplePageItem findNextItemOnPage(long pageId, int sequence) {
+	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId)).
+		    add(Restrictions.eq("sequence", sequence+1));
+
+		List<SimplePageItem> list = getHibernateTemplate().findByCriteria(d);
+
+		if (list == null || list.size() < 1)
+		    return null;
+			
+		return list.get(0);
+	}
+
 	public boolean saveItem(Object o) {
 		if (!(o instanceof SimplePageLogEntry || canEditPage())) {
 			return false;

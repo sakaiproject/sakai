@@ -47,8 +47,12 @@ public interface SimplePageToolDao {
 
 
     // returns the next item on the page. argument is sequence no. I.e.
-    // finds item with sequence + 1 on specified page.
+    // finds item with sequence + 1 on specified page. just pages
         public SimplePageItem findNextPageItemOnPage(long pageId, int sequence);
+
+    // returns the next item on the page. argument is sequence no. I.e.
+    // finds item with sequence + 1 on specified page. any item type
+        public SimplePageItem findNextItemOnPage(long pageId, int sequence);
 
     // for a specific tool (i.e. instance of lessonbuilder), find the most
     // recently visited page. Used so we can offer to return user to where he was last
