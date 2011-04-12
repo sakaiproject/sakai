@@ -774,6 +774,9 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String FORM_SEARCH = "form_search";
 	
 	private static final String STATE_DOWNLOAD_URL = "state_download_url";
+
+	/** To know if grade_submission go from view_students_assignment view or not **/
+	private static final String FROM_VIEW = "from_view";
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -2484,6 +2487,10 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
 			}
+			else if ("backListStudent".equals(option))
+			{
+				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
+			}
 		}
 
 	} // doPrev_back_next_submission
@@ -2958,6 +2965,9 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_view_students_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
+		// cleaning from view attribute
+		state.removeAttribute(FROM_VIEW);
+
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
 		// get the realm and its member
@@ -3700,7 +3710,13 @@ public class AssignmentAction extends PagedResourceActionII
 		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
 		String assignmentId = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
 		putSubmissionInfoIntoState(state, assignmentId, sId);
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+		String fromView = (String) state.getAttribute(FROM_VIEW);
+		if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(fromView)) {
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
+		}
+		else {
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+		}
 	} // doCancel_grade_submission
 
 	/**
@@ -7220,6 +7236,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.valueOf(false));
 			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+			state.setAttribute(FROM_VIEW, (String)params.getString("option"));
 			// assignment read event
 			m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submissionId, false));
 		}
@@ -7525,6 +7542,7 @@ public class AssignmentAction extends PagedResourceActionII
 		Log.debug("chef", "doAssignment_form(): actualGradeSubmissionId = " + actualGradeSubmissionId);
 		
 		String option = (String) params.getString("option");
+		String fromView = (String) state.getAttribute(FROM_VIEW);
 		if (option != null)
 		{
 			if ("post".equals(option))
@@ -7653,8 +7671,13 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if ("cancelgradesubmission".equals(option))
 			{
-				// back to the list view
-				doPrev_back_next_submission(data, "back");
+				if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(fromView)) {
+					doPrev_back_next_submission(data, "backListStudent");
+				}
+				else {
+					// save and navigate to previous submission
+					doPrev_back_next_submission(data, "back");
+				}
 			}
 			else if ("reorderNavigation".equals(option))
 			{
