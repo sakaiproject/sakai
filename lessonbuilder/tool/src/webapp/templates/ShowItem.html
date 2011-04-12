@@ -35,6 +35,11 @@ setMainFrameHeight(window.name);
 </head>
 
 <body rsf:id="scr=sakai-body">
+<a href="#" rsf:id="redirect-link" id="redirect-link"></a>
+<script type="text/javascript" language="JavaScript" rsf:id="redirect">
+  location.href = document.getElementById("redirect-link").href;
+</script>
+
 	<div class="portletBody" id="outer">
 		
 		<div class="fullwidth"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span> <span class="rightJustify"><form rsf:id="next-form" action="#"><input type="submit" rsf:id="next" /></form></span></div>
@@ -56,7 +61,7 @@ setMainFrameHeight(window.name);
 		<br rsf:id="breakAfterWarnings" />
 
 		<div class="returnheader navIntraTool" role="navigation">
-                <a href="#" rsf:id="return"></a> <span rsf:id="msg=simplepage.return.warning"></span>
+                <a href="#" rsf:id="return"></a> <span rsf:id="msg=simplepage.return.warning"></span><span class="navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="next">next</a> </span>
 		</div>
 
 		<iframe rsf:id="iframe1" role="main"

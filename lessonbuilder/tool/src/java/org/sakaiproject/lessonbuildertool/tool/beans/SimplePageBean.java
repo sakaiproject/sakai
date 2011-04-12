@@ -91,6 +91,11 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.springframework.web.multipart.MultipartFile;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIInternalLink;
+import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
+import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 
 /**
  * Backing bean for Simple pages
@@ -777,6 +782,160 @@ public class SimplePageBean {
 	    return currentSite;
 	}
 
+    // find page to show in next link
+    // If the current page is a LB page, and it has a single "next" link on it, use that
+
+    //  If the current page is a LB page, and it has more than one
+    //  "next" link on it, show no next. If there's more than one
+    //  next, this is probably a page with a branching queston, in
+    //  which case there really isn't a single next.
+
+    // If the current page s a LB page, and it is not finished (i.e.
+    // there are required items not done), there is no next, or next
+    // is grayed out.
+    
+    //  Otherwise look at the page above in the breadcrumbs. If the
+    //  next item on the page is not an inline item, and the item is
+    //  available, next should be the next item on that page. (If
+    //  it's an inline item we need to go back to the page above so
+    //  they can see the inline item next.)
+
+    // If the current page is something like a test, there is an
+    // issue. What if the next item is not available when the page is
+    // displayed, because it requires that you get a passing score on
+    // the current test? For the moment, if the current item is required
+    // but the next is not available, show the link but test it when it's
+    // clicked.
+
+    // TODO: showpage and showitem, implement next. Should not pass a
+    // path argument. That gives next. If there's a pop we do it.
+    //    in showitem, check if it's available, if not, show an error
+    // with a link to the page above.
+
+    // return: new item on same level, null if none, the item arg if need to go up a level
+    //   java really needs to be able to return more than one thing, item == item is being
+    //   used as a flag to return up a level
+        public SimplePageItem findNextPage(SimplePageItem item) {
+	    if (item.getType() == SimplePageItem.PAGE) {
+
+		Long pageId = Long.valueOf(item.getSakaiId());
+		List<SimplePageItem> items = getItemsOnPage(pageId);
+		int nexts = 0;
+		SimplePageItem nextPage = null;
+		for (SimplePageItem i: items) {
+		    if (i.getType() == SimplePageItem.PAGE && i.getNextPage()) {
+			nextPage = i;
+			nexts++;
+		    }
+		}
+		// if next, use it; no next if not ready
+		if (nexts == 1) {
+		    if (isItemAvailable(nextPage, pageId))
+			return nextPage;
+		    return null;
+		}
+		// more than one, presumably you're intended to pick one of them, and
+		// there is no generic next
+		if (nexts > 1)
+		    return null;
+
+		// here for a page with no explicit next. Treat like any other item
+		// except that we need to compute pathop. Page must be complete or we
+		// would have returned null.
+	    }
+
+	    // see if there's an actual next we can go to, otherwise calling page
+	    SimplePageItem nextItem = simplePageToolDao.findNextItemOnPage(item.getPageId(), item.getSequence());
+	    boolean available = false;
+	    if (nextItem != null) {
+		int itemType = nextItem.getType();
+		if (itemType == SimplePageItem.ASSIGNMENT ||
+		    itemType == SimplePageItem.ASSESSMENT ||
+		    itemType == SimplePageItem.FORUM ||
+		    itemType == SimplePageItem.PAGE) {
+		    // it's easy if the next item is available. If it's not, then
+		    // we need to see if everything other than this item is done and
+		    // this one is required. In that case the issue must be that this
+		    // one isn't finished yet. Let's assume the user is going to finish
+		    // this one. We'll verify that when he actually does the next;
+		    if (isItemAvailable(nextItem, item.getPageId()) ||
+			item.isRequired() && wouldItemBeAvailable(item, item.getPageId()))
+			return nextItem;
+		    
+		}
+	    }
+
+	    // otherwise return to calling page
+	    return item; // special flag
+
+	}
+
+    // corresponding code for outputting the link
+    // perhaps I should adjust the definition of path so that normal items show on it and not just pages
+    //   but at the moment path is just the pages. So when we're in a normal item, it doesn't show.
+    //   that means that as we do Next between items and pages, when we go to a page it gets pushed
+    //   on and when we go from a page to an item, the page has to be popped off.
+        public void addNextLink(UIContainer tofill, SimplePageItem item) {
+	    SimplePageItem nextItem = findNextPage(item);
+	    if (nextItem == item) { // that we need to go up a level
+		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
+		int top;
+		if (path == null)
+		    top = -1;
+		else
+		    top = path.size()-1;
+		// if we're on a page, have to pop it off first
+		// for a normal item the end of the path already is the page above
+		if (item.getType() == SimplePageItem.PAGE)
+		    top--;
+		if (top >= 0) {
+		    PathEntry e = path.get(top);
+		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+		    view.setSendingPage(e.pageId);
+		    view.setItemId(e.pageItemId);
+		    view.setPath(Integer.toString(top));
+		    UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+		}
+	    } else  if (nextItem != null) {
+		GeneralViewParameters view = new GeneralViewParameters();
+		int itemType = nextItem.getType();
+		if (itemType == SimplePageItem.PAGE) {
+		    view.setSendingPage(Long.valueOf(nextItem.getSakaiId()));
+		    view.viewID = ShowPageProducer.VIEW_ID;
+		    if (item.getType() == SimplePageItem.PAGE)
+			view.setPath("next");  // page to page, just a next
+		    else
+			view.setPath("push");  // item to page, have to push the page
+		} else {
+		    view.setSendingPage(Long.valueOf(item.getPageId()));
+		    LessonEntity lessonEntity = null;
+		    switch (nextItem.getType()) {
+		    case SimplePageItem.ASSIGNMENT:
+			lessonEntity = assignmentEntity.getEntity(nextItem.getSakaiId()); break;
+		    case SimplePageItem.ASSESSMENT:
+			view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
+			lessonEntity = quizEntity.getEntity(nextItem.getSakaiId()); break;
+		    case SimplePageItem.FORUM:
+			lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
+		    }
+		    // normally we won't send someone to an item that
+		    // isn't available. But if the current item is a test, etc, we can't
+		    // know whether the user will pass it, so we have to ask ShowItem to
+		    // to the check. We need the check to set access control appropriately
+		    // if the user has passed.
+		    if (!isItemAvailable(nextItem, nextItem.getPageId()))
+			view.setRecheck("true");
+		    view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
+		    if (item.getType() == SimplePageItem.PAGE)
+			view.setPath("pop");  // now on a have, have to pop it off
+		    view.viewID = ShowItemProducer.VIEW_ID;
+		}
+		view.setItemId(nextItem.getId());
+		UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+	    }
+	}
+
+
 	public String getCurrentSiteId() {
 		try {
 		    return toolManager.getCurrentPlacement().getContext();
@@ -960,6 +1119,9 @@ public class SimplePageBean {
 		entry.title = title;
 		path = new ArrayList<PathEntry>();
 		path.add(entry);
+	    } else if (path.get(path.size()-1).pageId == pageId) {
+		// nothing. we're already there. this is to prevent 
+		// oddities if we refresh the page
 	    } else if (op == null || op.equals("") || op.equals("next")) {
 		PathEntry entry = path.get(path.size()-1); // overwrite last item
 		entry.pageId = pageId;
@@ -972,6 +1134,9 @@ public class SimplePageBean {
 		entry.pageItemId = pageItemId;
 		entry.title = title;
 		path.add(entry);  // put it on the end
+	    } else if (op.equals("pop")) {
+		// a subpage
+		path.remove(path.size()-1);
 	    } else if (op.startsWith("log")) {
 		// set path to what was saved in the last log entry for this item
 		// this is used for users who go directly to a page from the 
@@ -2210,15 +2375,20 @@ public class SimplePageBean {
 		return needed;
 	    }
 
-	    // user can only get an error here if they're gaming us. The
-	    // system will never send the user to a page they aren't allowed to see
+	    // authorized or maybe user is gaming us, or maybe next page code
+	    // sent them to something that isn't availbale.
+	    // as an optimization chek haslogentry first. That will be true if
+	    // they have been here before. Saves us the trouble of doing full
+	    // access checking. Otherwise do a real check. That should only happen
+	    // for next page in odd situations.
 	    if (item.getPageId() > 0) {
-		if (!hasLogEntry(item.getId())) { // including dummy entry
-		    SimplePage prereqPage = simplePageToolDao.getPage(item.getPageId());
-		    if (prereqPage != null)
-			needed.add(prereqPage.getTitle());
+		if (!hasLogEntry(item.getId()) &&
+		    !isItemAvailable(item, item.getPageId())) {
+		    SimplePage parent = simplePageToolDao.getPage(item.getPageId());
+		    if (parent != null)
+			needed.add(parent.getTitle());
 		    else
-			needed.add("Page not available");
+			needed.add("unknown page");  // not possible, it says
 		}
 		return needed;
 	    }
@@ -2259,6 +2429,21 @@ public class SimplePageBean {
 			}
 		}
 		return true;
+	}
+
+    // weird variant that works even if current item doesn't have prereq.
+	public boolean wouldItemBeAvailable(SimplePageItem item, long pageId) {
+	    List<SimplePageItem> items = getItemsOnPage(pageId);
+
+	    for (SimplePageItem i : items) {
+		if (i.getSequence() >= item.getSequence()) {
+		    break;
+		} else if (i.isRequired()) {
+		    if (!isItemComplete(i))
+			return false;
+		}
+	    }
+	    return true;
 	}
 
         public String getNameOfSakaiItem(SimplePageItem i) {
@@ -2353,7 +2538,6 @@ public class SimplePageBean {
 	 *            again. true for normal calls; false if called inside this code to avoid infinite loop
 	 */
 	private void checkItemPermissions(SimplePageItem item, boolean shouldHaveAccess, boolean canRecurse) {
-
 	        if (SimplePageItem.DUMMY.equals(item.getSakaiId()))
 		    return;
 

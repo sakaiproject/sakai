@@ -127,7 +127,7 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
 			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
 			    view.setSource(createLink.Url);
-			    view.setPath(VIEW_ID);
+			    view.setReturnView(VIEW_ID);
 			    view.setTitle(messageLocator.getMessage("simplepage.return_assignment"));
 			    UIInternalLink.make(link, "assignment-create-link", createLink.label , view);
 			}

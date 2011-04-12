@@ -39,6 +39,12 @@ setMainFrameHeight(window.name);
 <script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
+
+<a href="#" rsf:id="redirect-link" id="redirect-link"></a>
+<script type="text/javascript" language="JavaScript" rsf:id="redirect">
+   $(location).attr('href', $('#redirect-link').attr('href'));
+</script>
+
 	<div class="portletBody" id="outer" role="application">
 		
 		<div rsf:id="crumbdiv" class="fullwidth" role="navigation"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span><span class="navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="next">next</a> </span></div>

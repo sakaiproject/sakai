@@ -94,7 +94,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    //   sendingpage, itemid - these are arguments that we'll use to return to the "add assignment" page
 	    //   source - URL to call
 	    //   clearattr may be used for Samigo hack
-	    //   path - viewID to return to
+	    //   returnview - viewID to return to
 	    //   title - the string for the return button
 
 	    // as far as I can see there are no permissions issues here. It just
@@ -122,12 +122,41 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 	    }
 
-	    List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
+	    String pathOp = ((GeneralViewParameters) params).getPath();
+	    // only pop is valid; we don't have the data for the other options
+	    if (pathOp != null && !pathOp.equals(""))
+		simplePageBean.adjustPath(pathOp, ((GeneralViewParameters) params).getSendingPage(), null, null);
 
+	    List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
+	    SimplePageItem item = simplePageBean.findItem (((GeneralViewParameters) params).getItemId());
+
+	    // this is a "next" page where we couldn't tell if the item is
+	    // available. Need to check here in order to set ACLs. If not available,
+	    // return to calling page
+	    if (item != null && "true".equals(((GeneralViewParameters) params).getRecheck())) {
+		if (simplePageBean.isItemAvailable(item, item.getPageId())) {
+		    if (item.isPrerequisite()) {
+			simplePageBean.checkItemPermissions(item, true); // set acl, etc
+		    }
+		} else {
+		    SimplePageBean.PathEntry containingPage = null;
+		    if (breadcrumbs.size() > 0)  // shouldn't ever fail
+			containingPage = breadcrumbs.get(breadcrumbs.size()-1);  // page we're on
+		    if (containingPage != null) {  // shouldn't fail
+			GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+			view.setSendingPage(containingPage.pageId);
+			view.setItemId(containingPage.pageItemId);
+			view.setPath("next");
+			UIInternalLink.make(tofill, "redirect-link", containingPage.title, view);
+			UIOutput.make(tofill, "redirect");
+		    }
+		    return;
+		}
+	    }
 	    if (sendingPage != -1 && breadcrumbs != null && breadcrumbs.size() > 0) {
 		SimplePageBean.PathEntry entry = breadcrumbs.get(breadcrumbs.size()-1);
 
-		String returnView = ((GeneralViewParameters) params).getPath();
+		String returnView = ((GeneralViewParameters) params).getReturnView();
 		if (returnView == null || returnView.equals("")) {
 		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 		    view.setSendingPage(entry.pageId);
@@ -141,6 +170,12 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    UIInternalLink.make(tofill, "return", ((GeneralViewParameters) params).getTitle() , view);
 		}
 	    }
+
+	    // see if we can add a next button
+	    if (item != null) {
+		simplePageBean.addNextLink(tofill, item);
+	    }
+
 	    UILink.make(tofill, "iframe1", ((GeneralViewParameters) params).getSource());
 	}
 

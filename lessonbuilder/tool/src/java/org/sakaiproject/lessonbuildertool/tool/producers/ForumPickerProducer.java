@@ -125,7 +125,7 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
 			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
 			    view.setSource(createLink.Url);
-			    view.setPath(VIEW_ID);
+			    view.setReturnView(VIEW_ID);
 			    view.setTitle(messageLocator.getMessage("simplepage.return_forum"));
 			    UIInternalLink.make(link, "forum-create-link", createLink.label , view);
 			}

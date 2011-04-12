@@ -336,7 +336,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// otherwise someone could pass us an item from a different page in another site
 		// actually this normally happens if the page doesn't exist and we don't have permission
 		// to create it
-		if (currentPage == null || Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId()) {
+		if (currentPage == null|| pageItem == null|| Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId()) {
 		    log.warn("ShowPage item not in page");
 		    UIOutput.make(tofill, "error-div");
 		    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
@@ -413,8 +413,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		else {
 		    List<String> needed = simplePageBean.pagesNeeded(pageItem);
 		    if (needed.size() > 0) {
-			// this is normal for a top level page, but for one deeper it can only happen if someone
-			// is gaming us. Otherwise the level above will never present a link to get to the page.
+			if (pageItem.getPageId() != 0) {
+			    // not top level. This should only happen from a "next" link.
+			    // at any rate, the best approach is to send the user back to
+			    // the calling page
+			    List<SimplePageBean.PathEntry> path = simplePageBean.getHierarchy();
+			    SimplePageBean.PathEntry containingPage = null;
+			    if (path.size() > 1)  // shouldn't ever fail
+				containingPage = path.get(path.size()-2);  // page above this. this page is on the top
+			    if (containingPage != null) {  // not a top level page, point to containing page
+				GeneralViewParameters view = new GeneralViewParameters(VIEW_ID);
+				view.setSendingPage(containingPage.pageId);
+				view.setItemId(containingPage.pageItemId);
+				view.setPath(Integer.toString(path.size()-2));
+				UIInternalLink.make(tofill, "redirect-link", containingPage.title, view);
+				UIOutput.make(tofill, "redirect");
+			    }
+			    return;
+			}
+
 			UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 			UIOutput.make(tofill, "error-div");
 			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.has_prerequistes"));
@@ -440,7 +457,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
 
 			int index = 0;
-			if (breadcrumbs.size() > 1)
+			if (breadcrumbs.size() > 1) {
 			    UIOutput.make(tofill, "crumbdiv");
 			    for (SimplePageBean.PathEntry e : breadcrumbs) {
 			    // don't show current page. We already have a title. This was too much
@@ -459,22 +476,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				index++;
 			    }
-
-			// see if there's a next item in sequence. Note that if this is a page that
-			// has the nextPage property, we supposedly branched to it rather than calling
-			// it as a subpage. So next doesn't apply.
-			if (!pageItem.getNextPage()) {
-			    SimplePageItem item = simplePageToolDao.findNextPageItemOnPage(pageItem.getPageId(), pageItem.getSequence());
-			    if (item != null && simplePageBean.isItemAvailable(item, pageItem.getPageId())) {
-				GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-				view.setSendingPage(Long.valueOf(item.getSakaiId()));
-				view.setItemId(item.getId());
-				view.setPath("next");
-
-				// must check availability against parent page
-				//	UIForm form = UIForm.make(tofill, "next-form");
-				UIInternalLink.make(tofill, "next", "Next",  view);
-			    }
+			    // see if there's a next item in sequence.
+			    
+			    simplePageBean.addNextLink(tofill, pageItem);
 			}
 
 		}
@@ -1341,7 +1345,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
 		params.setItemId(pageItem.getId());
-		params.setPath(VIEW_ID);
+		params.setReturnView(VIEW_ID);
 		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
 		params.setSource("SRC");
 		params.viewID = ShowItemProducer.VIEW_ID;
@@ -1351,7 +1355,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
 		params.setItemId(pageItem.getId());
-		params.setPath(VIEW_ID);
+		params.setReturnView(VIEW_ID);
 		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
 		params.setSource("SRC");
 		params.viewID = ShowItemProducer.VIEW_ID;
