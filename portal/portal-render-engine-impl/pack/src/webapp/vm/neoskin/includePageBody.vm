@@ -200,7 +200,7 @@
 #if ( ${sitePages.pageNavShowPresenceLoggedIn})
 				<div id="footerAppTray">
 #if ( $neoChat )
-					<div id="footerAppChat">
+					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all">
 						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/> Chat 
 						<span id="chattableCount"></span>
 						</a>
@@ -221,7 +221,7 @@
 	#if ( $neoAvatar ) 
 		<span id="avatarPermitted" class="skip"></span>
 	#end
-            <div id="pc">
+            <div id="pc" tabindex="-1">
 		<div id="pc_title">Chat<div><a href="#" id="pc_chat_close">x</a></div></div>
                 <div id="pc_content">
                     <div id="pc_options">
@@ -231,11 +231,11 @@
                     <div id="pc_users">
                         <div id="pc_connections_wrapper">
                             <div id="pc_connections_label">My Connections</div>
-                            <div id="pc_connections"></div>
+                            <div id="pc_connections" aria-live="assertive" aria-atomic="false" aria-relevant="all"></div>
                         </div>
                         <div class="pc_users_wrapper">
                             <div id="pc_site_users_label">In this site</div>
-                            <div id="pc_site_users"></div>
+                            <div id="pc_site_users" aria-live="assertive" aria-atomic="false" aria-relevant="all"></div>
                         </div>
                     </div>
                 </div>
@@ -283,7 +283,7 @@
             </div>
 
             <!-- Trimpath template for the chat windows -->
-            <div id="pc_connection_chat_template" style="display:none;"><!--
+            <div id="pc_connection_chat_template" style="display:none;" tabindex="-1"><!--
 #if ( $neoAvatar ) 
                <div class="pc_connection_chat_title_avt" onclick="portalChat.toggleChatWindow('${uuid}');">
                  <img src="/direct/profile/${uuid}/image" class="pc_connection_chat_title_avt"/><div>${displayName}</div>
