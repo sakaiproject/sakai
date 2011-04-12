@@ -208,9 +208,9 @@
 					</div>	
 #else
 					<h1 class="skip">${rloader.sit_presencehead}</h1>
-					<div id="footerAppPresence" role="" aria-live="assertive"  aria-atomic="false" aria-relevant="all">
-						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
-						<span id="presenceCount"></span>
+					<div id="footerAppPresence" aria-live="polite"  aria-atomic="false" aria-relevant="all">
+						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/><span class="skip">Toggle users present panel</span></a>
+						<span class="skip">Number of users present:</span> <span id="presenceCount"></span>
 					</div>
 #end
 				</div>
