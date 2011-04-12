@@ -79,10 +79,18 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 
 %>
 <portlet:defineObjects/>
-
-<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
- | 
-<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
+<ul class="navIntraTool actionToolBar" role="menu">
+	<li class="firstToolBarItem" role="menuitem">
+		<span>
+			<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
+		</span>
+	</li>	
+	<li role="menuitem">
+		<span>
+			<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
+		</span>
+	</li>
+</ul>	
 <p/>
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
@@ -96,8 +104,8 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 <form method="post" action="<%=launchURL.toString()%>">
 <!-- If key and secret are final, then either xml or launch final means no launch change by the user -->
 <% if ( ( allow(sp,"launch") && allow(sp,"xml") ) || allow(sp,"key") || allow(sp,"secret") ) { %>
-<fieldset>
-<legend><%=rb.getString("required.information") %></legend>
+
+<h3><%=rb.getString("required.information") %></h2>
 <% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>
 <script type="text/javascript">
 function switchui()
@@ -130,58 +138,56 @@ function switchui()
 </div>
 <% } %>
 <% if ( allow(sp,"launch") ) { %>
-<div id="url.input">
-<p>
-<label for="imsti.launch"><%=rb.getString("tool.url") %></label>
+<p id="url.input" class="shorttext" style="width:50%;clear:none;">
+<span class="reqStar">*</span><label for="imsti.launch"><%=rb.getString("tool.url") %></label>
 <input type="text" size="80" name="imsti.launch" id="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 <%=rb.getString("tool.url.detail") %>
 </p>
-</div>
 <% } %>
 <% if ( allow(sp,"key") ) { %>
-<p>
-<label for="imsti.key"><%=rb.getString("tool.key") %></label>
+<p  class="shorttext" style="clear:none;">
+<span class="reqStar">*</span><label for="imsti.key"><%=rb.getString("tool.key") %></label>
 <input type="text" name="imsti.key" id="imsti.key" value="<%=ov.getProperty("imsti.key","")%>"> 
 <%=rb.getString("tool.key.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
-<p>
-<label for="imsti.secret"><%=rb.getString("tool.secret") %></label>
+<p  class="shorttext" style="clear:none;">
+<span class="reqStar">*</span>	<label for="imsti.secret"><%=rb.getString("tool.secret") %></label>
 <input type="password" name="imsti.secret" id="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
 <%=rb.getString("tool.secret.detail") %>
 </p>
 <% } %>
-</fieldset>
+
 <% } %>
 <script type="text/javascript">
 if ( document.getElementById("UISwitcher") ) switchui();
 </script>
 
 <% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") ) { %>
-<fieldset>
-<legend><%=rb.getString("display.information") %></legend>
+
+<h3><%=rb.getString("display.information") %></h3>
 <% if ( allow(sp,"pagetitle") ) { %>
-<p>
+<p  class="shorttext" style="clear:none;">
 <label for="imsti.pagetitle"><%=rb.getString("page.title") %></label>
 <input type="text" name="imsti.pagetitle" id="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
-<%=rb.getString("page.title.detail") %>
+<span class="textPanelFooter"><%=rb.getString("page.title.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"tooltitle") ) { %>
-<p>
+<p  class="shorttext" style="clear:none;">
 <label for="imsti.tooltitle"><%=rb.getString("tool.title") %></label>
 <input type="text" name="imsti.tooltitle" id="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
-<%=rb.getString("tool.title.detail") %>
+<span class="textPanelFooter"><%=rb.getString("tool.title.detail") %></span>
 </p>
 <% } %>
-</fieldset>
+
 <% } %>
 
 <% if ( allow(sp,"gradable") && assignments != null ) { %>
-<fieldset>
-<legend><%=rb.getString("gradable.information") %></legend>
-<p>
+
+<h3><%=rb.getString("gradable.information") %></h3>
+<p  class="shorttext" style="clear:none;">
 <%=rb.getString("gradable.title") %>
 <select name="imsti.assignment">
   <option value=""><%=rb.getString("gradable.nograde") %></option>
@@ -193,138 +199,135 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <%   }
    } %>
 </select>
-<%=rb.getString("gradable.detail") %>
+<span class="textPanelFooter"><%=rb.getString("gradable.detail") %></span>
 </p>
-</fieldset>
+
 <% } %>
 
 
 <% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") || allow(sp, "maximize") ) { %>
-<fieldset>
-<legend><%=rb.getString("launch.information") %></legend>
+<h3><%=rb.getString("launch.information") %></h3>
 <% if ( allow(sp,"newpage") ) { %>
-<p>
-<label for="imsti.newpage"><%=rb.getString("new.page") %></label>
+<p class="checkbox indnt1">
 <input type="checkbox" size="10" name="imsti.newpage" id="imsti.newpage" 
 <% if ( ov.getProperty("imsti.newpage",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<%=rb.getString("new.page.detail") %>
+<label for="imsti.newpage"><%=rb.getString("new.page") %></label><%=rb.getString("new.page.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"maximize") ) { %>
-<p>
-<label for="imsti.maximize"><%=rb.getString("maximize.page") %></label>
+<p class="checkbox  indnt1">
 <input type="checkbox" size="10" name="imsti.maximize" id="imsti.maximize" 
 <% if ( ov.getProperty("imsti.maximize",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<%=rb.getString("maximize.page.detail") %>
+<label for="imsti.maximize"><%=rb.getString("maximize.page") %></label>
+<span class="textPanelFooter"><%=rb.getString("maximize.page.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>
-<p>
+<p  class="shorttext" style="clear:none;">
 <label for="imsti.frameheight"><%=rb.getString("iframe.height") %></label>
 <input type="text" size="10" name="imsti.frameheight" id="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
-<%=rb.getString("iframe.height.detail") %>
+<span class="textPanelFooter"><%=rb.getString("iframe.height.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"debug") ) { %>
-<p>
-<label for="imsti.debug"><%=rb.getString("debug.launch") %></label>
+<p class="checkbox indnt1">
 <input type="checkbox" size="10" name="imsti.debug" id="imsti.debug" 
 <% if ( ov.getProperty("imsti.debug",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<%=rb.getString("debug.launch.detail") %>
+<label for="imsti.debug"><%=rb.getString("debug.launch") %></label>
+<span class="textPanelFooter"><%=rb.getString("debug.launch.detail") %></span>
 </p>
 <% } %>
-</fieldset>
+
 <% } %>
 
 <% if ( allow(sp,"releasename") || allow(sp, "releaseemail") || 
         ( allow(sp, "allowroster") && allowRoster ) ) { %>
-<fieldset>
-<legend><%=rb.getString("launch.privacy") %></legend>
+<h3><%=rb.getString("launch.privacy") %></h3>
 <% if ( allow(sp,"releasename") ) { %>
-<p>
-<label for="imsti.releasename"><%=rb.getString("privacy.releasename") %></label>
-<input type="checkbox" size="10" name="imsti.releasename" id="imsti.releasename" 
-<% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
-  checked="yes" />
-<% } else { %>
-   />
-<% } %>
+	<p class="checkbox indnt1">
+		<input type="checkbox" size="10" name="imsti.releasename" id="imsti.releasename" 
+		<% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
+  		checked="yes" />
+			<% } else { %>
+   		/>
+		<% } %>
+		<label for="imsti.releasename"><%=rb.getString("privacy.releasename") %></label>
 <% } %>
 <% if ( allow(sp,"releaseemail") ) { %>
-<p>
-<label for="imsti.releaseemail"><%=rb.getString("privacy.releaseemail") %></label>
-<input type="checkbox" size="10" name="imsti.releaseemail" id="imsti.releaseemail" 
-<% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
-  checked="yes" />
-<% } else { %>
-   />
-<% } %>
-<%=rb.getString("launch.privacy.detail") %>
+	<p class="checkbox indnt1">
+		<input type="checkbox" size="10" name="imsti.releaseemail" id="imsti.releaseemail" 
+		<% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
+  		checked="yes" />
+		<% } else { %>
+   		/>
+		<% } %>
+	<label for="imsti.releaseemail"><%=rb.getString("privacy.releaseemail") %></label>	
+	<span class="textPanelFooter"><%=rb.getString("launch.privacy.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"allowroster") && allowRoster ) { %>
 <p>
-<label for="imsti.allowroster"><%=rb.getString("privacy.allowroster") %></label>
+
 <input type="checkbox" size="10" name="imsti.allowroster" id="imsti.allowroster" 
 <% if ( ov.getProperty("imsti.allowroster",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<%=rb.getString("allowroster.detail") %>
+<label for="imsti.allowroster"><%=rb.getString("privacy.allowroster") %></label>
+<span class="textPanelFooter"><%=rb.getString("allowroster.detail") %></span>
 </p>
 <% } %>
-</fieldset>
+
 <% } %>
 
 <% if ( allow(sp,"contentlink") && allowContentLink ) { %>
-<fieldset>
-<legend><%=rb.getString("contentlink.legend") %></legend>
-<p>
+<h3><%=rb.getString("contentlink.legend") %></h3>
+<p class="shorttext" style="clear:none">
 <label for="imsti.contentlink"><%=rb.getString("contentlink.label") %></label><br/>
 <input type="text" name="imsti.contentlink" size="80" id="imsti.contentlink" value="<%=ov.getProperty("imsti.contentlink","")%>"> 
-<%=rb.getString("contentlink.detail") %>
+<span class="textPanelFooter"><%=rb.getString("contentlink.detail") %></span>
 </p>
-</fieldset>
 <% } %>
 
 
 <% if ( allow(sp,"allowsettings") && allowSettings ) { %>
-<fieldset>
-<legend><%=rb.getString("allowsettings.information") %></legend>
-<p>
-<label for="imsti.allowsettings"><%=rb.getString("privacy.allowsettings") %></label>
+<h3><%=rb.getString("allowsettings.information") %></h3>
+<p class="checkbox">
+
 <input type="checkbox" size="10" name="imsti.allowsettings" id="imsti.allowsettings" 
 <% if ( ov.getProperty("imsti.allowsettings",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
+
 <% } %>
-<%=rb.getString("allowsettings.detail") %>
+<label for="imsti.allowsettings"><%=rb.getString("privacy.allowsettings") %></label>
+<span class="textPanelFooter"><%=rb.getString("allowsettings.detail") %></span>
 </p>
-</fieldset>
+
 <% } %>
 
 <% if ( allow(sp,"custom") ) { %>
-<fieldset>
-<legend><%=rb.getString("launch.custom") %></legend>
-<p>
-<textarea rows="10" cols="60"  name="imsti.custom" >
+<h3><%=rb.getString("launch.custom") %></h3>
+<p class="longtext">
+<label for="imsti.custom" class="textPanelFooter" style="float:none;display:block;width:50%"><%=rb.getString("launch.custom.detail") %></label>
+<textarea rows="10" cols="60"  name="imsti.custom" id="imsti.custom" >
 <%=ov.getProperty("imsti.custom","")%>
 </textarea>
-<%=rb.getString("launch.custom.detail") %>
+
 </p>
 </fieldset>
 <% } %>
@@ -335,5 +338,5 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </p>
 </form>
 <% } else { %>
-<p>Configuration has been pre-set and cannot be edited for this placement.</p>
+<p class="instruction">Configuration has been pre-set and cannot be edited for this placement.</p>
 <% } %>

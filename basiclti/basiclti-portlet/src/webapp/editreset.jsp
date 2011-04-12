@@ -39,9 +39,12 @@ noURL.setParameter("sakai.action","edit");
 
 <portlet:defineObjects/>
 
-<%= rb.getString("are.you.sure") %>
-<p>
-<a href="<%= yesURL.toString() %>"><%= rb.getString("edit.clear.yes") %></a>
-|
-<a href="<%= noURL.toString() %>"><%= rb.getString("edit.clear.no") %></a>
+<p class="messageConfirmation" style="clear:none;width:30%"><%= rb.getString("are.you.sure") %></p>
+<p class="act">
+	<input type="button" onclick="window.location='<%= yesURL.toString() %>'" value="<%= rb.getString("edit.clear.yes") %>" />
+	<input type="button" onclick="window.location='<%= noURL.toString() %>'" value="<%= rb.getString("edit.clear.no") %>" />
+	<!--//leaving these here in case 
+	<a href="<%= yesURL.toString() %>"><%= rb.getString("edit.clear.yes") %></a>
+	<a href="<%= noURL.toString() %>"><%= rb.getString("edit.clear.no") %></a>
+	-->
 </p>
