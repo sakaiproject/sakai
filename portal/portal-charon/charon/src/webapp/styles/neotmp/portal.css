@@ -1103,7 +1103,7 @@ below they are contextually defined depending on the column as an example,as you
     color:#fff;
     vertical-align:middle;
     float:right;
-    padding: 2px;
+    padding: 5px 3px;
 }
 #footerAppChat{
     height:35px;
@@ -1116,7 +1116,6 @@ below they are contextually defined depending on the column as an example,as you
 }
 #presenceToggle{
 	color: white;
-    outline:1px solid transparent;
 	text-decoration: none;
 }
 #chatToggle{
@@ -1138,7 +1137,6 @@ below they are contextually defined depending on the column as an example,as you
 .workspace #footerAppPresence{
     display:none;
     border:none;
-    
 }
 #footerAppTray #presenceCount{
     font-size:80%;
