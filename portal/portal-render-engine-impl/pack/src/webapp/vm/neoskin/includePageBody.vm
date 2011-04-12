@@ -197,7 +197,7 @@
 				<div class="sakaiCopyrightInfo" role="contentinfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
-#if ( ${loggedIn})
+#if ( ${sitePages.pageNavShowPresenceLoggedIn})
 				<div id="footerAppTray">
 #if ( $neoChat )
 					<div id="footerAppChat">
@@ -207,7 +207,8 @@
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
 					</div>	
 #else
-					<div id="footerAppPresence">
+					<h1 class="skip">${rloader.sit_presencehead}</h1>
+					<div id="footerAppPresence" role="" aria-live="assertive"  aria-atomic="false" aria-relevant="all">
 						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/></a>
 						<span id="presenceCount"></span>
 					</div>
@@ -216,7 +217,7 @@
 			</div>
 #end
 
-#if ( $neoChat && ${loggedIn})
+#if ( $neoChat && ${sitePages.pageNavShowPresenceLoggedIn})
 	#if ( $neoAvatar ) 
 		<span id="avatarPermitted" class="skip"></span>
 	#end
@@ -306,8 +307,7 @@
 
 #end
 #if ( ( !$neoChat ) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn})
-                             <div id="presenceArea" style="display: none" class="trayPopup">
-				<h1 class="skip">${rloader.sit_presencehead}</h1>
+                             <div id="presenceArea" style="display: none" class="trayPopup" aria-live="assertive"  aria-atomic="false" aria-relevant="all">
 				<div id="presenceWrapper">
 					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" id="presenceClose" class="trayPopupClose">x</a></div></div>
 #if (${sitePages.pageNavPresenceIframe})
