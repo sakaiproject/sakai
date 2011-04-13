@@ -22,6 +22,7 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		if(currentUserUuid == null) {
 			throw new SecurityException("Must be logged in.");
 		}
+		// TODO do we want to set ProfileConstants.WICKET_PARAM_TAB here?
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, null);
 	}
 	
@@ -40,13 +41,34 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		if(sakaiProxy.isUsingNormalPortal()){
 			Map<String,String> vars = new HashMap<String,String>();
 			vars.put(ProfileConstants.WICKET_PARAM_USERID, userUuid);
+			vars.put(ProfileConstants.WICKET_PARAM_TAB, "" + ProfileConstants.TAB_INDEX_PROFILE);
 			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_PROFILE_VIEW, vars);
 		}
 		
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
 	}
 
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInternalDirectUrlToUserWall(String userUuid, String wallItemId) {
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		//link direct to ViewProfile page and add in the user param
+		String extraParams = null;
+		if(sakaiProxy.isUsingNormalPortal()){
+			Map<String,String> vars = new HashMap<String,String>();
+			vars.put(ProfileConstants.WICKET_PARAM_USERID, userUuid);
+			vars.put(ProfileConstants.WICKET_PARAM_WALL_ITEM, wallItemId);
+			vars.put(ProfileConstants.WICKET_PARAM_TAB, "" + ProfileConstants.TAB_INDEX_WALL);
+			extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_PROFILE_VIEW, vars);
+		}
+		
+		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
+	}
 	
 	/**
  	* {@inheritDoc}

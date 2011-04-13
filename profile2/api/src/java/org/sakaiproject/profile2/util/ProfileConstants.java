@@ -385,6 +385,8 @@ public class ProfileConstants {
 	public static final String WICKET_PAGE_PROFILE_VIEW = "org.sakaiproject.profile2.tool.pages.ViewProfile";
 	public static final String WICKET_PARAM_THREAD = "thread";
 	public static final String WICKET_PARAM_USERID = "id";
+	public static final String WICKET_PARAM_WALL_ITEM = "wallItemId";
+	public static final String WICKET_PARAM_TAB = "tab";
 
 	/*
 	 * ONLINE STATUS

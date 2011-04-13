@@ -60,8 +60,8 @@ public class ViewProfile extends BasePage {
 
 	private static final Logger log = Logger.getLogger(ViewProfile.class);
 	
-	public ViewProfile(final String userUuid)   {
-		
+	public ViewProfile(final String userUuid, final String tab)   {
+				
 		log.debug("ViewProfile()");
 
 		//setup model to store the actions in the modal windows
@@ -198,7 +198,9 @@ public class ViewProfile extends BasePage {
 			}
 		}
 		
-		if (null != tabCookie) {
+		if (null != tab) {
+			tabbedPanel.setSelectedTab(Integer.parseInt(tab));
+		} else if (null != tabCookie) {
 			tabbedPanel.setSelectedTab(Integer.parseInt(tabCookie.getValue()));
 		}
 		
@@ -340,8 +342,10 @@ public class ViewProfile extends BasePage {
 	 * @param parameters
 	 */
 	public ViewProfile(PageParameters parameters) {
-		this(parameters.getString("id"));
+		this(parameters.getString(ProfileConstants.WICKET_PARAM_USERID), parameters.getString(ProfileConstants.WICKET_PARAM_TAB));
 	}
 	
-	
+	public ViewProfile(final String userUuid) {
+		this(userUuid, null);
+	}
 }

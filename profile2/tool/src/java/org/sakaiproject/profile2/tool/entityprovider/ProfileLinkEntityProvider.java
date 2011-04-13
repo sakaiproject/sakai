@@ -81,6 +81,17 @@ public class ProfileLinkEntityProvider extends AbstractEntityProvider implements
 		return linkLogic.getInternalDirectUrlToUserConnections();
 	}
 	
+	@EntityURLRedirect("/{prefix}/wall/{userUuid}")
+	public String redirectToMyWall(Map<String, String> vars) {
+		return linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
+				null);
+	}
+	 	
+	@EntityURLRedirect("/{prefix}/wall/{userUuid}/{wallItemId}")
+	public String redirectToMyWallItem(Map<String, String> vars) {
+		return linkLogic.getInternalDirectUrlToUserWall(vars.get("userUuid"),
+				vars.get("wallItemId"));
+	}
 	
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.HTML};

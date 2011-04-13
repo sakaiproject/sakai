@@ -97,6 +97,9 @@ public interface ProfileLinkLogic {
 	 * @return
 	 */
 	public String getEntityLinkToProfileConnections();
+
+	// TODO javadoc
+	public String getInternalDirectUrlToUserWall(String userUuid, String wallItemId);
 	
 	/**
 	 * Generate a tiny URL for the supplied URL
