@@ -1744,6 +1744,7 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 #pc_site_users {
     font-size:90%;
     height:100%;
+    list-style:none;
     overflow:hidden;
     padding:0;
     margin:0;
