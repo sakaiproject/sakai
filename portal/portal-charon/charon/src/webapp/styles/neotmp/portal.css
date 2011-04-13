@@ -1120,7 +1120,6 @@ below they are contextually defined depending on the column as an example,as you
 }
 #chatToggle{
 	color: #888;
-    outline:1px solid transparent;
 	text-decoration: none;
 }
 #footerAppTray span.present {
@@ -1679,7 +1678,8 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     width: 256px;
     float: right;
     border: #aaa solid 1px;
-    border-bottom: 0px;
+    border-bottom: 0;
+    bottom:0;
     pointer-events: auto;
 }
 
@@ -1742,20 +1742,27 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
     color:#555
 }
 #pc_site_users {
-    padding:5px 0;
     font-size:90%;
     height:100%;
     overflow:hidden;
+    padding:0;
+    margin:0;
 }
 
 #pc_users {
     overflow: auto;
+    list-style:none;
     clear: both;
     border-top: solid 1px #aaa;
 }
-
+#pc_users h5{
+    margin:2px 0;
+    padding:0;
+}
 #pc_connections {
-    padding: 5px 0;
+    list-style:none;
+    padding:0;
+    margin:0;
 }
 .pc_connection,.pc_site_user{
     clear: both;
@@ -1800,7 +1807,7 @@ pc_go_off_ctrl{
 }
 
 .pc_minimised {
-margin-top: 255px;
+    margin-top: 262px;
 }
 
 .pc_maximised {
@@ -1823,8 +1830,14 @@ margin-top: 255px;
 .pc_connection_chat_title_no_avt{
     height:auto
 }
+.pc_connection_chat_title_avt a:link, .pc_connection_chat_title_no_avt a:link,
+.pc_connection_chat_title_avt a:visited, .pc_connection_chat_title_no_avt a:visited{
+    color:#000;
+    text-decoration:none;
+}
 .pc_connection_chat_title_avt img, .pc_connection_chat_title_no_avt img{
     position:absolute;
+    border:none;
     right:5px;
     top:5px;
     
@@ -1876,12 +1889,14 @@ margin-top: 255px;
    left:2px; 
 }
 .pc_editor_wrapper {
-    padding: 2px;
+    padding: 4px;
     background:#eee;
+    height:200px;
 }
 
 .pc_editor {
-    width: 227px;
+    width: 240px;
+    outline:1px solid transparent;
 }
 
 .pc_displayname {
@@ -1922,6 +1937,7 @@ margin-top: 255px;
 }
 
 .pc_new_message {
+    outline:1px solid red;
     background-color: red;
 }
 
@@ -1936,5 +1952,4 @@ margin-top: 255px;
    -webkit-border-radius: 3px;
    -khtml-border-radius: 3px;
    border-radius: 3px;
-    
 }

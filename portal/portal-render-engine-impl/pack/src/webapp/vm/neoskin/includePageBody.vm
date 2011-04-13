@@ -230,12 +230,12 @@
                     </div>
                     <div id="pc_users">
                         <div id="pc_connections_wrapper">
-                            <div id="pc_connections_label">My Connections</div>
-                            <div id="pc_connections" aria-live="assertive" aria-atomic="false" aria-relevant="all"></div>
+                            <h5 id="pc_connections_label">My Connections</h5>
+                            <ul id="pc_connections" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
                         </div>
                         <div class="pc_users_wrapper">
-                            <div id="pc_site_users_label">In this site</div>
-                            <div id="pc_site_users" aria-live="assertive" aria-atomic="false" aria-relevant="all"></div>
+                            <h5 id="pc_site_users_label">In this site</h5>
+                            <ul id="pc_site_users" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
                         </div>
                     </div>
                 </div>
@@ -247,7 +247,7 @@
             <!-- Trimpath template for the profile connections list -->
             <div id="pc_connections_template" style="display:none;"><!--
                 {for connection in connections}
-                    <div class="pc_connection">
+                    <li class="pc_connection">
 
                         <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${connection.uuid}');">
 							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
@@ -260,7 +260,7 @@
                             <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="Ping ${connection.displayName} to come and chat"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
                        		<span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">Pinged !</span>
                         {/if}
-                    </div>
+                    </li>
                 {/for}
             -->
             </div>
@@ -269,7 +269,7 @@
             <!-- Trimpath template for the present users list -->
             <div id="pc_site_users_template" style="display:none;"><!--
                 {for user in siteUsers}
-                    <div class="pc_site_user">
+                    <li class="pc_site_user">
                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${user.id}');">
 							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
 			#if ( $neoAvatar ) 
@@ -277,7 +277,7 @@
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span><img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                         </a>
-                    </div>
+                    </li>
                 {/for}
             -->
             </div>
@@ -285,17 +285,21 @@
             <!-- Trimpath template for the chat windows -->
             <div id="pc_connection_chat_template" style="display:none;" tabindex="-1"><!--
 #if ( $neoAvatar ) 
-               <div class="pc_connection_chat_title_avt" onclick="portalChat.toggleChatWindow('${uuid}');">
-                 <img src="/direct/profile/${uuid}/image" class="pc_connection_chat_title_avt"/><div>${displayName}</div>
+               <div class="pc_connection_chat_title_avt pc_connection_chat_title"><a href="#" onclick="portalChat.toggleChatWindow('${uuid}');">
+                 <img src="/direct/profile/${uuid}/image" class="pc_connection_chat_title_avt"/><div>${displayName}</div></a>
 #else
-				<div class="pc_connection_chat_title_no_avt" onclick="portalChat.toggleChatWindow('${uuid}');">
-                    <div class="pc_connection_chat_title">${displayName}</div>
+				<div class="pc_connection_chat_title_no_avt pc_connection_chat_title"> <a href="#" onclick="portalChat.toggleChatWindow('${uuid}');">
+                    <div class="pc_connection_chat_title">${displayName}</div></a>
 #end
-                    <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="Close this chat"><img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;"/></a>
+				
+                    <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="Close this chat">
+						<span class="skip">Close this chat</span>
+						<img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;" alt="Close"/>
+					</a>
                 </div>
-                <div id="pc_connection_chat_${uuid}_content">
+                <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
                     <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></ul>
-                    <div class="pc_editor_wrapper"><img src="/library/image/silk/comment.png" width="16px" height="16px" border="0"/><input type="text" id="pc_editor_for_${uuid}" class="pc_editor"/></div>
+                    <div class="pc_editor_wrapper"><input type="text" id="pc_editor_for_${uuid}" class="pc_editor" alt=""/></div>
                 </div>
             -->
             </div>
