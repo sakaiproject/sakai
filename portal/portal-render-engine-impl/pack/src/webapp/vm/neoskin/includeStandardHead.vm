@@ -76,7 +76,7 @@ ${sakai_html_head_css}
 #end
 
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/neoscripts.js"></script>
-#if ( $neoChat && $loggedIn && ${sitePages.pageNavShowPresenceLoggedIn})
+#if ( $neoChat && $loggedIn )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"></script>
 #end
 #if ( ${styleable} )

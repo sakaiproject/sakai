@@ -197,7 +197,7 @@
 				<div class="sakaiCopyrightInfo" role="contentinfo">${bottomNavCopyright} 
 					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
 				</div>
-#if ( ${sitePages.pageNavShowPresenceLoggedIn})
+#if ( ${loggedIn})
 				<div id="footerAppTray">
 #if ( $neoChat )
 					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all">
@@ -217,7 +217,7 @@
 			</div>
 #end
 
-#if ( $neoChat && ${sitePages.pageNavShowPresenceLoggedIn})
+#if ( $neoChat && ${loggedIn})
 	#if ( $neoAvatar ) 
 		<span id="avatarPermitted" class="skip"></span>
 	#end
