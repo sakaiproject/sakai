@@ -646,6 +646,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String helpUrl = ServerConfigurationService.getHelpUrl(null);
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
+        if(loggedIn)
+        {
+		    theMap.put("pageNavCanAddMoreTools", site.isAllowed(UserDirectoryService.getCurrentUser().getId(),"site.upd"));
+        }
+        else
+        {
+		    theMap.put("pageNavCanAddMoreTools", false);
+        }
+		String addMoreToolsUrl = ServerConfigurationService.getPortalUrl() + "/directtool/sakai.siteinfo?sakai.site=" + site.getId() + "&sakai_action=doMenu_edit_site_tools";
+		theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
 		theMap.put("helpMenuClass", "icon-sakai-help");
 		theMap.put("subsiteClass", "icon-sakai-subsite");
 
