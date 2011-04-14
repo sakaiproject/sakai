@@ -50,9 +50,12 @@
 								</a>
 						 </li>
 			#end
-            #if (${sitePages.pageNavCanAddMoreTools}) 
-                <a class="moreToolsLink" href="${sitePages.pageNavAddMoreToolsUrl}">${rloader.sit_addmoretools}</a>
-            #end	
+#if (${sitePages.pageNavCanAddMoreTools}) 
+			<li class="moreTools">
+            	<a class="moreToolsLink" href="${sitePages.pageNavAddMoreToolsUrl}">
+					<span>${rloader.sit_addmoretools}</span>
+				</a>
+#end	
 					</ul>
 				</div>
 				
