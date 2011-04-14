@@ -289,7 +289,7 @@
                <div class="pc_connection_chat_title_avt pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');"><a href="#">
                  <img src="/direct/profile/${uuid}/image" class="pc_connection_chat_title_avt"/><span>${displayName}</span></a>
 #else
-				<div class="pc_connection_chat_title_no_avt pc_connection_chat_title"> <a href="#" onclick="portalChat.toggleChatWindow('${uuid}');">
+				<div class="pc_connection_chat_title_no_avt pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');"> <a href="#">
                     <div class="pc_connection_chat_title">${displayName}</div></a>
 #end
 				
