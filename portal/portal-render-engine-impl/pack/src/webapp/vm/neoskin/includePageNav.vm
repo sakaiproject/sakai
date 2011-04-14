@@ -1,6 +1,6 @@
 <!-- START from includePageNav.vm -->
 		<!-- start includePageNav -->
-			<div class="divColor" id="toolMenuWrap" role="navigation">
+			<div class="divColor" id="toolMenuWrap">
 				<div id="worksiteLogo">
 			#if (!${sitePages.pageNavPublished})
 					<p id="siteStatus">${rloader.sit_unpublished}</p>
@@ -19,8 +19,8 @@
                         #end
 				<a id="totoolmenu" class="skip" name="totoolmenu"></a>
 				<h1 class="skip">${rloader.sit_toolshead}</h1>
-				<div id="toolMenu">
-					<ul role="navigation">
+				<div id="toolMenu"  role="navigation">
+					<ul>
 			#foreach( $page in $sitePages.pageNavTools )
 		  		#if (${page.current})
 						<li class="selectedTool">
