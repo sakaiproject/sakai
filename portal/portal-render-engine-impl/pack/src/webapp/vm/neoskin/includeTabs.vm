@@ -81,6 +81,9 @@
 <li class="submenuitem"><span><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
         #end
     #end
+#if (${site.sitePages.pageNavCanAddMoreTools}) 
+    <li class="submenuitem"><span><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}">${rloader.sit_addmoretools}</a></span></li>
+#end
 </ul>
 </li>
 						#end
