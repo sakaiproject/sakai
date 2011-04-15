@@ -7907,8 +7907,30 @@ public class SiteAction extends PagedResourceActionII {
 			try {
 				AuthzGroup realmEdit1 = AuthzGroupService
 						.getAuthzGroup(realmId);
-				realmEdit1.setProviderGroupId(NULL_STRING);
-				AuthzGroupService.save(realmEdit1);
+				
+				boolean hasNonProvidedMainroleUser = false;
+				String maintainRoleString = realmEdit1.getMaintainRole();
+				Set<String> maintainRoleUsers = realmEdit1.getUsersHasRole(maintainRoleString);
+				if (!maintainRoleUsers.isEmpty()) 
+				{
+					for(Iterator<String> users = maintainRoleUsers.iterator(); !hasNonProvidedMainroleUser && users.hasNext();)
+					{
+						String userId = users.next();
+						if (!realmEdit1.getMember(userId).isProvided())
+							hasNonProvidedMainroleUser = true;
+					}
+				}
+				if (!hasNonProvidedMainroleUser)
+				{
+					// if after the removal, there is no provider id, and there is no maintain role user anymore, show alert message and don't save the update
+					addAlert(state, rb.getString("sitegen.siteinfolist.nomaintainuser")
+							+ maintainRoleString + ".");
+				}
+				else
+				{
+					realmEdit1.setProviderGroupId(NULL_STRING);
+					AuthzGroupService.save(realmEdit1);
+				}
 			} catch (GroupNotDefinedException e) {
 				M_log.warn(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
 						+ "(" + realmId
