@@ -19,4 +19,5 @@ function computeorder() {
     }
     
 	$("#order").val(order);
+    return true;
 }
