@@ -249,6 +249,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "error", errMessage);
 		}
 
+		// see whether we're runningn IE
 		UsageSession usageSession = UsageSessionService.getSession();
 		String browserString = usageSession.getUserAgent();
 		int ieIndex = browserString.indexOf(" MSIE ");
@@ -269,6 +270,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 		}
 
+		// set up locale
 		Locale M_locale = null;
 		String langLoc[] = localegetter.get().toString().split("_");
 		if ( langLoc.length >= 2 ) {
@@ -280,6 +282,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    M_locale = new Locale(langLoc[0]);
 		}
 
+		// clear session attribute if necessary, after calling Samigo
 		String clearAttr = ((GeneralViewParameters) params).getClearAttr();
 
 		if (clearAttr != null && !clearAttr.equals("")) {
@@ -355,6 +358,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    return;
 		}
 
+		// offer to go to saved page if this is the start of a session, in case user has logged off and
+		//   logged on again.
 		// need to offer to go to previous page? even if a new session, no need if we're already on that page
 		if (lastPage != null && lastPage.pageId != currentPage.getPageId()) {
 		    UIOutput.make(tofill, "refreshAlert");
@@ -369,6 +374,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		// path is the breadcrumbs. Push, pop or reset depending upon path=
+		// programmer documentation. 
 		String newPath = 
 		    simplePageBean.adjustPath(((GeneralViewParameters) params).getPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
 
@@ -387,6 +393,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    return;
 		}
 
+		// put out link to index of pages
 		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		showAll.setSource("summary");
 		UIInternalLink.make(tofill, "show-pages", messageLocator.getMessage("simplepage.showallpages"), showAll);
@@ -410,9 +417,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		} else if (!canReadPage)
 		        return;
 		// at this point we know we can read or edit the page.
+		// the instructor won't get these tests. While I try to be similar to student
+		// view, I have to let them onto the page so they can edit it.
 		else {
+		    // see if there are any unsatisifed prerequisties
 		    List<String> needed = simplePageBean.pagesNeeded(pageItem);
 		    if (needed.size() > 0) {
+			// yes. error and abort
 			if (pageItem.getPageId() != 0) {
 			    // not top level. This should only happen from a "next" link.
 			    // at any rate, the best approach is to send the user back to
@@ -431,7 +442,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    }
 			    return;
 			}
-
+			
+			// top level page where prereqs not satisified. Output list of pages he needs to do first
 			UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 			UIOutput.make(tofill, "error-div");
 			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.has_prerequistes"));
@@ -451,6 +463,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 
+		// breadcrumbs
 		if (pageItem.getPageId() != 0) {
 			// Not top-level, so we have to show breadcrumbs
 
@@ -489,6 +502,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// items to show
 		List<SimplePageItem> itemList = (List<SimplePageItem>) simplePageBean.getItemsOnPage(currentPage.getPageId());
 
+		//
+		//
+		//  MAIN list of items
+		//
 		// produce the main table
 		if (itemList.size() > 0) {
 		    UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
@@ -777,13 +794,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// Otherwise we want to use iframes for HTML and OBJECT for everything else
 					// We need the iframes because IE up through 8 doesn't reliably display
 					// HTML with OBJECT. Experiments show that everything else works with OBJECT
-					// starting with IE 6. Object has the advantage of better error handling.
+					// for most browsers. Unfortunately IE, even IE 9, doesn't reliably call the
+					// right player with OBJECT. EMBED works. But it's not as nice because you can't
+					// nest error recovery code. So we use OBJECT for everything except IE, where we
+					// use EMBED. OBJECT does work with Flash.
 					// application/xhtml+xml is XHTML.
 
 				} else if ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) ||
 					   (mimeType == null && Arrays.binarySearch(multimediaTypes, extension) >= 0)) {
-				    // Traditionally people nested OBJECT and EMBED. My tests with IE6-8, Safari and Firefox
-				    // show that OBJECT works, and does not require any specification of the MIME type.
+
 				    // this code is used for everything that isn't HTML. HTML is done with an IFRAME
 
 				        UIComponent item2;
@@ -925,6 +944,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				}
 
+				// end of multimedia object
 			} else {
 			    // remaining type must be a block of HTML
 				UIOutput.make(tableRow, "itemSpan");
@@ -948,6 +968,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		}
 	     }
+
+		// end of items. This is the end for normal users. Following is special checks and 
+		// putting out the dialogs for the popups, for instructors.
+
 		boolean showBreak = false;
 
 		// I believe refresh is now done automatically in all cases
