@@ -339,8 +339,14 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
 		// OptionViewParameters outgoing = (OptionViewParameters) result.resultingView;
 		// SAK-14726 : Start BugFix
-		LOG.debug("actionReturn is of type " + actionReturn.getClass());
+		if (LOG.isDebugEnabled() && actionReturn != null) {
+			LOG.debug("actionReturn is of type " + actionReturn.getClass());
+		}
 
+		if (actionReturn == null) {
+			return;
+		}
+		
 		Poll poll = null;
 		
 		if(actionReturn instanceof org.sakaiproject.poll.model.Poll) {
