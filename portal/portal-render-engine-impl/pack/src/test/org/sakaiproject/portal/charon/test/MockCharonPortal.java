@@ -38,8 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
-import org.sakaiproject.portal.util.BrowserDetector;
-import org.sakaiproject.util.ResourceLoader;
 import org.w3c.tidy.Tidy;
 
 /**
@@ -179,7 +177,7 @@ public class MockCharonPortal extends HttpServlet
                 rcontext.put("sakai_html_head_js", headJs);
 
 		rcontext.put("sitReset", "sitReset");
-		rcontext.put("browser", new BrowserDetector("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en) AppleWebKit/523.12.2 (KHTML, like Gecko) Version/3.0.4 Safari/523.12.2"));
+		//rcontext.put("browser", new BrowserDetector("Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en) AppleWebKit/523.12.2 (KHTML, like Gecko) Version/3.0.4 Safari/523.12.2"));
 
 		return rcontext;
 	}
