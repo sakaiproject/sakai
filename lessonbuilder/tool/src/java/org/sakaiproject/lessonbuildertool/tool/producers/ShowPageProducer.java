@@ -231,10 +231,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // for startup, none of this will be known, so getCurrentPage will find the top level page and item if
     //    nothing is specified
 
-	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
+	public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker checker) {
 
         	boolean canEditPage = simplePageBean.canEditPage();
 		boolean canReadPage = simplePageBean.canReadPage();
+		GeneralViewParameters params = (GeneralViewParameters)viewParams;
 
 	        if (!canReadPage) {
 		    UIOutput.make(tofill, "error-div");
@@ -283,7 +284,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		// clear session attribute if necessary, after calling Samigo
-		String clearAttr = ((GeneralViewParameters) params).getClearAttr();
+		String clearAttr = params.getClearAttr();
 
 		if (clearAttr != null && !clearAttr.equals("")) {
 		    Session session = SessionManager.getCurrentSession();
@@ -311,11 +312,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//    at that point we can safely use canEditPage. 
 
 		// somewhat misleading. sendingPage specifies the page we're supposed to go to
-		if (((GeneralViewParameters) params).getSendingPage() != -1) {
+		if (params.getSendingPage() != -1) {
 		    // will fail if page not in this site
 		    // security then depends upon making sure that we only deal with this page
 		    try {
-			simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
+			simplePageBean.updatePageObject(params.getSendingPage());
 		    } catch (Exception e) {
 			log.warn("ShowPage permission exception " + e);
 			UIOutput.make(tofill, "error-div");
@@ -334,7 +335,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// now we need to find our own item, for access checks, etc.
 		SimplePageItem pageItem = null;
 		if (currentPage != null)
-		    pageItem = simplePageBean.getCurrentPageItem(((GeneralViewParameters) params).getItemId());
+		    pageItem = simplePageBean.getCurrentPageItem(params.getItemId());
 		// one more security check: make sure the item actually involves this page.
 		// otherwise someone could pass us an item from a different page in another site
 		// actually this normally happens if the page doesn't exist and we don't have permission
@@ -376,7 +377,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// path is the breadcrumbs. Push, pop or reset depending upon path=
 		// programmer documentation. 
 		String newPath = 
-		    simplePageBean.adjustPath(((GeneralViewParameters) params).getPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
+		    simplePageBean.adjustPath(params.getPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
+		simplePageBean.adjustBackPath(params.getBackPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
 
 		// potentially need time zone for setting release date
 	        if (!canEditPage && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
@@ -491,6 +493,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    }
 			    // see if there's a next item in sequence.
 			    
+			    simplePageBean.addPrevLink(tofill, pageItem);
 			    simplePageBean.addNextLink(tofill, pageItem);
 			}
 

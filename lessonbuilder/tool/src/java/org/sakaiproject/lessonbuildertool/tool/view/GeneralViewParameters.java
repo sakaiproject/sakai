@@ -40,6 +40,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
         private String path = "";
         private String returnView = "";
         private String recheck = "";
+	private String backPath = "";
 
 	public GeneralViewParameters() {
 		super();
@@ -97,6 +98,15 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public String getPath() {
 		return path;
 	}
+
+	public void setBackPath(String p) {
+		backPath = p;
+	}
+
+	public String getBackPath() {
+		return backPath;
+	}
+
 
 	public void setReturnView(String p) {
 		returnView = p;

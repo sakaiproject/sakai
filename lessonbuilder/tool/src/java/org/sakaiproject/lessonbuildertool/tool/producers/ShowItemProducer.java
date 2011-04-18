@@ -82,7 +82,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		return VIEW_ID;
 	}
     
-	public void fillComponents(UIContainer tofill, ViewParameters params, ComponentChecker checker) {
+	public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker checker) {
 
 	    // to do assignment/quiz, etc arguments are
 	    //   sendingpage, itemid - reflect the item that the user clicked
@@ -100,12 +100,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    // as far as I can see there are no permissions issues here. It just
 	    // sticks things in an iframe. The stuff it sticks had better check though
 
+	    GeneralViewParameters params = (GeneralViewParameters)viewParams;
+
 	    if (!simplePageBean.canReadPage()) {
 		UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 		return;
 	    }
 
-	    long sendingPage = ((GeneralViewParameters) params).getSendingPage();
+	    long sendingPage = params.getSendingPage();
 
 	    // the following code should check whether it's an assessment. Currently I don't
 	    // bother as I haven't put links in the other tools
@@ -113,7 +115,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    ToolSession toolSession = SessionManager.getCurrentToolSession();
 	    ToolConfiguration toolConfiguration = SiteService.findTool(toolSession.getPlacementId());
 	    SitePage sitePage = toolConfiguration.getContainingPage();
-	    String clearAttr = ((GeneralViewParameters) params).getClearAttr();
+	    String clearAttr = params.getClearAttr();
 	    if (clearAttr != null && !clearAttr.equals("")) {
 		// don't let users clear random attributes
 		if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
@@ -122,18 +124,20 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 	    }
 
-	    String pathOp = ((GeneralViewParameters) params).getPath();
+	    String pathOp = params.getPath();
 	    // only pop is valid; we don't have the data for the other options
 	    if (pathOp != null && !pathOp.equals(""))
-		simplePageBean.adjustPath(pathOp, ((GeneralViewParameters) params).getSendingPage(), null, null);
+		simplePageBean.adjustPath(pathOp, params.getSendingPage(), null, null);
 
 	    List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
-	    SimplePageItem item = simplePageBean.findItem (((GeneralViewParameters) params).getItemId());
+	    SimplePageItem item = simplePageBean.findItem (params.getItemId());
+
+	    simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 
 	    // this is a "next" page where we couldn't tell if the item is
 	    // available. Need to check here in order to set ACLs. If not available,
 	    // return to calling page
-	    if (item != null && "true".equals(((GeneralViewParameters) params).getRecheck())) {
+	    if (item != null && "true".equals(params.getRecheck())) {
 		if (simplePageBean.isItemAvailable(item, item.getPageId())) {
 		    if (item.isPrerequisite()) {
 			simplePageBean.checkItemPermissions(item, true); // set acl, etc
@@ -156,7 +160,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (sendingPage != -1 && breadcrumbs != null && breadcrumbs.size() > 0) {
 		SimplePageBean.PathEntry entry = breadcrumbs.get(breadcrumbs.size()-1);
 
-		String returnView = ((GeneralViewParameters) params).getReturnView();
+		String returnView = params.getReturnView();
 		if (returnView == null || returnView.equals("")) {
 		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 		    view.setSendingPage(entry.pageId);
@@ -173,10 +177,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    // see if we can add a next button
 	    if (item != null) {
+		simplePageBean.addPrevLink(tofill, item);
 		simplePageBean.addNextLink(tofill, item);
 	    }
 
-	    UILink.make(tofill, "iframe1", ((GeneralViewParameters) params).getSource());
+	    UILink.make(tofill, "iframe1", params.getSource());
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {

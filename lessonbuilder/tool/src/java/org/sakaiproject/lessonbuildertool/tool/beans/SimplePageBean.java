@@ -131,6 +131,7 @@ public class SimplePageBean {
         public static final String FILTERHTML = "lessonbuilder.filterhtml";
         public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
+	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
         public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
 
 	private static String PAGE = "simplepage.page";
@@ -836,8 +837,9 @@ public class SimplePageBean {
 		}
 		// more than one, presumably you're intended to pick one of them, and
 		// there is no generic next
-		if (nexts > 1)
+		if (nexts > 1) {
 		    return null;
+		}
 
 		// here for a page with no explicit next. Treat like any other item
 		// except that we need to compute pathop. Page must be complete or we
@@ -931,10 +933,68 @@ public class SimplePageBean {
 		    view.viewID = ShowItemProducer.VIEW_ID;
 		}
 		view.setItemId(nextItem.getId());
+		view.setBackPath("push");
 		UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
 	    }
 	}
 
+    // Because of the existence of chains of "next" pages, there's no static approach that will find
+    // back links. Thus we keep track of the actual path the user has followed. However we have to
+    // prune both path and back path when we return to an item that's already on them to avoid
+    // loops of various kinds.
+
+        public void addPrevLink(UIContainer tofill, SimplePageItem item) {
+	    List<PathEntry> backPath = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_BACKPATH);
+	    List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
+
+	    // current item is last on path, so need one before that
+	    if (backPath == null || backPath.size() < 2)
+		return;
+
+	    PathEntry prevEntry = backPath.get(backPath.size()-2);
+	    SimplePageItem prevItem = findItem(prevEntry.pageItemId);
+
+	    GeneralViewParameters view = new GeneralViewParameters();
+	    int itemType = prevItem.getType();
+	    if (itemType == SimplePageItem.PAGE) {
+		view.setSendingPage(Long.valueOf(prevItem.getSakaiId()));
+		view.viewID = ShowPageProducer.VIEW_ID;
+		// are we returning to a page? If so use existing path entry
+		int lastEntry = -1;
+		int i = 0;
+		long prevItemId = prevEntry.pageItemId;
+		for (PathEntry entry: path) {
+		    if (entry.pageItemId == prevItemId)
+			lastEntry = i;
+		    i++;
+		}
+		if (lastEntry >= 0)
+		    view.setPath(Integer.toString(lastEntry));
+		else if (item.getType() == SimplePageItem.PAGE)
+		    view.setPath("next");  // page to page, just a next
+		else
+		    view.setPath("push");  // item to page, have to push the page
+	    } else {
+		view.setSendingPage(Long.valueOf(item.getPageId()));
+		LessonEntity lessonEntity = null;
+		switch (prevItem.getType()) {
+		case SimplePageItem.ASSIGNMENT:
+		    lessonEntity = assignmentEntity.getEntity(prevItem.getSakaiId()); break;
+		case SimplePageItem.ASSESSMENT:
+		    view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
+		    lessonEntity = quizEntity.getEntity(prevItem.getSakaiId()); break;
+		case SimplePageItem.FORUM:
+		    lessonEntity = forumEntity.getEntity(prevItem.getSakaiId()); break;
+		}
+		view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
+		if (item.getType() == SimplePageItem.PAGE)
+		    view.setPath("pop");  // now on a page, have to pop it off
+		view.viewID = ShowItemProducer.VIEW_ID;
+	    }
+	    view.setItemId(prevItem.getId());
+	    view.setBackPath("pop");
+	    UIInternalLink.make(tofill, "prev", messageLocator.getMessage("simplepage.back"), view);
+	}
 
 	public String getCurrentSiteId() {
 		try {
@@ -1119,7 +1179,7 @@ public class SimplePageBean {
 		entry.title = title;
 		path = new ArrayList<PathEntry>();
 		path.add(entry);
-	    } else if (path.get(path.size()-1).pageId == pageId) {
+	    } else if (path.get(path.size()-1).pageId.equals(pageId)) {
 		// nothing. we're already there. this is to prevent 
 		// oddities if we refresh the page
 	    } else if (op == null || op.equals("") || op.equals("next")) {
@@ -1201,6 +1261,50 @@ public class SimplePageBean {
 	    if (ret == null)
 		ret = "";
 	    return ret;
+	}
+
+	public void adjustBackPath(String op, Long pageId, Long pageItemId, String title) {
+
+	    List<PathEntry> backPath = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_BACKPATH);
+	    if (backPath == null)
+		backPath = new ArrayList<PathEntry>();
+
+	    // default case going directly to something.
+	    // normally we want to push it, but if it's already there,
+	    // we're going back to it, use the old one
+	    if (op == null || op.equals("")) {
+		// is it there already? Some would argue that we should use the first occurrence
+		int lastEntry = -1;
+		int i = 0;
+		long itemId = pageItemId;  // to avoid having to use equals
+		for (PathEntry entry: backPath) {
+		    if (entry.pageItemId == itemId)
+			lastEntry = i;
+		    i++;
+		}
+		if (lastEntry >= 0) {
+		    // yes, back up to that entry
+		    if (lastEntry < (backPath.size()-1))
+			backPath.subList(lastEntry+1, backPath.size()).clear();
+		    return;
+		}
+		// no fall through and push the new item
+	    }
+		
+
+	    if (op.equals("pop")) {
+		if (backPath.size() > 0)
+		    backPath.remove(backPath.size()-1);
+	    } else {  // push or no operation
+		PathEntry entry = new PathEntry();
+		entry.pageId = pageId;
+		entry.pageItemId = pageItemId;
+		entry.title = title;
+		backPath.add(entry);
+	    }
+
+	    // have new path; set it in session variable
+	    sessionManager.getCurrentToolSession().setAttribute(LESSONBUILDER_BACKPATH, backPath);
 	}
 
 	public void setSubpageTitle(String st) {

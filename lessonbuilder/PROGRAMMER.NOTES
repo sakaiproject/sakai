@@ -222,10 +222,46 @@ If you reset the tool, or logoff and logon, we will find the most
 recently saved path, and offer to restore the system to that state.
 The path has enough information to get back exactly where we were
 before, except that we'll only go to pages, not to individual items.
-At least for now.
+At least for now. I may end up treating things like tests the same
+as pages.
 
+THE NEXT BUTTON
 
+Users have asked me to provide a simple path through content, with
+next (and at some point previous). I've done it. But the system is
+flexible enough that it's sometimes hard to know what to do. The code
+to do the next button is in SimplePageBean, so that it's the same
+everywhere.
 
+In general, here's what I do:
 
+* For pages, if the user has declared a next page, I use it, and
+never show anything else. If the next is not yet available, I
+don't show a next button.
 
+* If the user has more than one next button, I assume there's a
+branching qustion, and don't show my own next.
 
+* Otherwise, the next button goes to the next item at the same level,
+as long as it's somethign I can go to. E.g. if the next item is inline
+on the page above, then I have to return to the page above. Also, if
+the next item isn't available, I go back to the page above so the user
+can see all the checkmarks and asterisks and thus see what they need
+to do.
+
+* there's an interesting corner case: if the current item is a test,
+and the next item isn't released until the user passes the best, I
+can't tell whether to generate the next button. So I do, but the
+button calls ShowItem with a special argument "recheck=true." This
+causes ShowItem to check whether the item is avaialble, and call code
+to fix any ACLs. If it isn't we redirect to the page above as usual.
+ShowPage has similar code.
+
+I hope the system hasn't ended up *too* flexible. The problem is that
+I wanted to handle a simple hiearchy of pages, linear structures, and
+arbitrary restrictions on where you can proceed without doing things.
+You can do a strict linear system, but you'll need to set all items as
+both required and depending upon previous items.
+
+I'm still thinking about how to do "back." But I want to test "next"
+carefully first.
