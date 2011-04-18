@@ -148,17 +148,17 @@ public class CheckValidations implements Job {
 
 		for (int i = 0; i < list.size(); i++) {
 			ValidationAccount account = list.get(i);
-			log.info("account " + account.getUserId() + " created on  " + account.getValidationSent());
+			log.debug("account " + account.getUserId() + " created on  " + account.getValidationSent());
 
 			//has the user logged in - check for a authz realm
-			
-				
-				String userSiteId = siteService.getUserSiteId(account.getUserId());
-				if (siteService.siteExists(userSiteId)) {
+
+
+			String userSiteId = siteService.getUserSiteId(account.getUserId());
+			if (siteService.siteExists(userSiteId)) {
 				log.info("looks like this user logged in!");
 				loggedInAccounts++;
 
-				
+
 				if (account.getValidationSent().before(maxAge) && account.getValidationsSent().intValue() <= maxAttempts) {
 					if (serverConfigurationService.getBoolean("accountValidator.resendValidations", true)) {
 						validationLogic.resendValidation(account.getValidationToken());
@@ -174,7 +174,7 @@ public class CheckValidations implements Job {
 
 			} else {
 				//user has never logged in
-				log.info("realm: " + "/site/~" + account.getUserId() + " does not seem to exist");
+				log.debug("realm: " + "/site/~" + account.getUserId() + " does not seem to exist");
 				notLogedIn++;
 				if (account.getValidationSent().before(maxAge)) {
 					oldAccounts.add(account.getUserId());
@@ -204,6 +204,7 @@ public class CheckValidations implements Job {
 				List<String> users = entry.getValue();
 				StringBuilder userText = new StringBuilder();
 				for (int i = 0; i < users.size(); i++) {
+					try {
 					User u = userDirectoryService.getUser(users.get(i));
 					//added the added date 
 					DateTime dt = new DateTime(u.getCreatedDate());
@@ -212,6 +213,12 @@ public class CheckValidations implements Job {
 					userText.append(u.getEid() + " (" + str +")\n");
 					
 					removeCleaUpUser(u.getId());
+					}
+					catch (UserNotDefinedException e) {
+						//this is an orphaned validation token
+						ValidationAccount va = validationLogic.getVaLidationAcountByUserId(users.get(i));
+						validationLogic.deleteValidationAccount(va);
+					}
 				}
 				
 				List<String> userReferences = new ArrayList<String>();
@@ -228,8 +235,8 @@ public class CheckValidations implements Job {
 				
 				
 			} catch (UserNotDefinedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				
 			}
 			
 			
