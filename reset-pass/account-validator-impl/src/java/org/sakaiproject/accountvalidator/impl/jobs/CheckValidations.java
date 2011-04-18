@@ -205,14 +205,14 @@ public class CheckValidations implements Job {
 				StringBuilder userText = new StringBuilder();
 				for (int i = 0; i < users.size(); i++) {
 					try {
-					User u = userDirectoryService.getUser(users.get(i));
-					//added the added date 
-					DateTime dt = new DateTime(u.getCreatedDate());
-					DateTimeFormatter fmt = DateTimeFormat.longDate();
-					String str = fmt.withLocale(locale).print(dt);
-					userText.append(u.getEid() + " (" + str +")\n");
-					
-					removeCleaUpUser(u.getId());
+						User u = userDirectoryService.getUser(users.get(i));
+						//added the added date 
+						DateTime dt = new DateTime(u.getCreatedDate());
+						DateTimeFormatter fmt = DateTimeFormat.longDate();
+						String str = fmt.withLocale(locale).print(dt);
+						userText.append(u.getEid() + " (" + str +")\n");
+
+						removeCleaUpUser(u.getId());
 					}
 					catch (UserNotDefinedException e) {
 						//this is an orphaned validation token
@@ -220,7 +220,7 @@ public class CheckValidations implements Job {
 						validationLogic.deleteValidationAccount(va);
 					}
 				}
-				
+
 				List<String> userReferences = new ArrayList<String>();
 				userReferences.add(creator.getReference());
 				
