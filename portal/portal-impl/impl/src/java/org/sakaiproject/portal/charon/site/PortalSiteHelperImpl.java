@@ -525,6 +525,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		List<Map> l = new ArrayList<Map>();
 
+		String addMoreToolsUrl = null;
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 
@@ -575,6 +576,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						if ( t.getTool() == null ) continue;
 						desc.append(t.getTool().getDescription());
 						tCount++;
+						if ( "sakai.siteinfo".equals(t.getToolId()) ) {
+							addMoreToolsUrl = Web.returnUrl(req, "/site/" + Web.escapeUrl(site.getId()) + "/page/" + Web.escapeUrl(p.getId()) + "?sakai_action=doMenu_edit_site_tools" );
+						}
 					}
 				}
 				
@@ -638,6 +642,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			l = pageFilter.filterPlacements(l, site);
 		}
 
+		if ( addMoreToolsUrl != null ) {
+			theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
+			theMap.put("pageNavCanAddMoreTools", true);
+		} else {
+			theMap.put("pageNavCanAddMoreTools", false);
+		}
+
 		theMap.put("pageNavTools", l);
 		theMap.put("pageMaxIfSingle", ServerConfigurationService.getBoolean(
 				"portal.experimental.maximizesinglepage", false));
@@ -646,16 +657,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String helpUrl = ServerConfigurationService.getHelpUrl(null);
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
-        if(loggedIn)
-        {
-		    theMap.put("pageNavCanAddMoreTools", site.isAllowed(UserDirectoryService.getCurrentUser().getId(),"site.upd"));
-        }
-        else
-        {
-		    theMap.put("pageNavCanAddMoreTools", false);
-        }
-		String addMoreToolsUrl = ServerConfigurationService.getPortalUrl() + "/directtool/sakai.siteinfo?sakai.site=" + site.getId() + "&sakai_action=doMenu_edit_site_tools";
-		theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
 		theMap.put("helpMenuClass", "icon-sakai-help");
 		theMap.put("subsiteClass", "icon-sakai-subsite");
 

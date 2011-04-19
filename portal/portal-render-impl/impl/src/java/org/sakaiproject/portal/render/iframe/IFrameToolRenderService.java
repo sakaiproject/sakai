@@ -104,6 +104,11 @@ public class IFrameToolRenderService implements ToolRenderService
                 //   of an XML "entity" like &lt; &gt;, etc.	
 	        toolUrl = toolUrl.replace("&", "&amp;");	
 		
+		// SAK-20462 - Pass through the sakai_action parameter
+                String sakaiAction = request.getParameter("sakai_action");
+                if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
+
+		// Produce the iframe markup
 		sb.append("<iframe").append("	name=\"").append(
 				Web.escapeJavascript("Main" + configuration.getId())).append("\"\n")
 				.append("	id=\"").append(
@@ -115,8 +120,14 @@ public class IFrameToolRenderService implements ToolRenderService
 						"	width=\"100%\"").append("\n").append("	frameborder=\"0\"")
 				.append("\n").append("	marginwidth=\"0\"").append("\n").append(
 						"	marginheight=\"0\"").append("\n").append("	scrolling=\"auto\"")
-				.append("\n").append("	src=\"").append(toolUrl).append("\">")
-				.append("\n").append("</iframe>");
+				.append("\n").append("	src=\"").append(toolUrl);
+		if ( sakaiAction != null ) 
+		{
+			sb.append( toolUrl.indexOf('?') >=0 ? '&' : '?');
+			sb.append("sakai_action=").append(Web.escapeHtml(sakaiAction));
+		}
+
+		sb.append("\">") .append("\n").append("</iframe>");
 		
 		final String[] buffered = bufferContent(portal,request, response, configuration);
 

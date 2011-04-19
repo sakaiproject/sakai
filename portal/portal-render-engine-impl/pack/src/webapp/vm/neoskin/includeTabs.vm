@@ -22,12 +22,34 @@
 					<div id="mastLogin">
 					#if (!${loginTopLogin})
 						<div id="loginLinks">
-						#if (${tabsSites.profileToolUrl} && ${displayUserloginInfo})
-							<a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><span>${loginUserDispName} (${loginUserDispId})</span></a> &nbsp;| 
+<span class="topnav">
+<span class="nav-menu">
+						#if (${tabsSites.profileToolUrl})
+						#if (${displayUserloginInfo})
+<span id="loginUserWrap"><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true">${loginUserDispName} (${loginUserDispId})</a></span>
+						#else
+<a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><img src="/library/image/silk/cog.png" style="vertical-align:middle"/></a>
+						#end
+#else
+						#if (${displayUserloginInfo})
+<span>${loginUserDispName} (${loginUserDispId})</span>
+						#end
+#end
+
+<ul class="nav-submenu subnav">
+						#if (${tabsSites.profileToolUrl})
+<li class="submenuitem"><span><a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true" class="submenuitem-profile"><span>Profile</span></a></span></li>
 						#end
 						#if (${tabsSites.prefsToolUrl})
-							<a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><img src="/library/image/silk/cog.png" style="vertical-align:middle"/></a> &nbsp;| 
+<li class="submenuitem"><span><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"  class="submenuitem-prefs">Preferences</a></span></li>
 						#end
+			#if (${tabsSites.worksiteToolUrl})
+<li class="submenuitem "><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site" class="submenuitem-new-site">New Site</a></span></li>
+			#end
+</ul>
+</span>
+</span>
+
 						#if (${loginHasImage1}) 
 							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
 						#else

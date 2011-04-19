@@ -475,6 +475,24 @@ var setupSiteNav = function(){
     }, function(){ //On Hover Out
         jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
     });
+
+    // Chuck Hack
+    jQuery("span.topnav span span.drop").click(function(){
+        jQuery('#selectSite').hide();
+        jQuery('#otherSiteTools').remove();
+        
+        jQuery(this).parent().find("ul.subnav").slideDown('fast').show();
+        
+        jQuery(this).parent().hover(function(){
+        }, function(){
+            jQuery(this).parent().find("ul.subnav").slideUp('slow');
+        });
+        
+    }).hover(function(){
+        jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
+    }, function(){ //On Hover Out
+        jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
+    });
     
 }
 

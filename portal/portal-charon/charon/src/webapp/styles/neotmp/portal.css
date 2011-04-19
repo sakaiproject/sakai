@@ -286,22 +286,41 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 #loginLinks{
     color:#aaa;
 	margin: 0;
-	padding:6px 0 0 6px;
+	padding:6px 20px 0 6px;
+    
 }
 
 /*main CAS link*/
 #loginLink1{
     padding:0 5px;
+    text-decoration:none
 }
 
 /*secondary CAS link*/
 #loginLink2{
 
 }
-#loginUser{
-    color:#ccc    
+#loginUserWrap{
+    font-size:70%;
+    border-right:1px solid #ccc;
+    padding-right:5px;
+    margin-right:3px;
+    text-decoration:none
 }
-
+#loginUser{
+    text-decoration:none;
+    font-size:140%;
+    color:#ccc;    
+}
+#loginLink1:hover, #loginUser:hover{
+    text-decoration:underline !important;
+}
+#loginLinks .drop{
+    background:transparent url(/library/image/silk/user_go.png) top left no-repeat;
+    position:absolute;
+    top:3px;
+    right:10px;
+}
 /*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
@@ -1506,6 +1525,10 @@ li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
     outline:none;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
 }
+span.nav-menu > a:hover, span.nav-menu > a:focus,  span.nav-menu > a:active{
+    outline:none;
+	background:  url(images/topnav_hover.gif) no-repeat center top;
+}
 ul.topnav li span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
     margin-top:3px;
@@ -1523,7 +1546,7 @@ ul.topnav li span.drop:nth-child(even){
     display:none;
 }
 ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
-ul.topnav li ul.subnav {
+ul.topnav li ul.subnav, #mastLogin ul.subnav {
 	list-style: none;
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
 	left: 0; top: 35px;
@@ -1540,6 +1563,22 @@ ul.topnav li ul.subnav {
 	-webkit-box-shadow: 6px 6px 8px #000;
 	box-shadow: 6px 6px 8px #000;
 }
+/*
+From Chuck: replicate hacks for span
+*/
+#mastLogin span.drop { /*--Drop down trigger styles--*/
+	width: 17px;
+	margin-top:3px;
+	height: 35px;
+	float: right;
+}
+
+#mastLogin ul.subnav {
+	left: 0; top: 30px;
+}
+*/
+/* End fo Chuck Hacks */
+
 #otherSiteTools{
     list-style: none;
 	position: fixed;
@@ -1578,20 +1617,46 @@ ul.topnav li ul.subnav {
 #otherSiteTools li a:hover, #otherSiteTools li a:focus {
     color:#9cf;
     }
-ul.topnav li ul.subnav li{
+span.topnav li ul.subnav li{
 	margin: 0; padding: 0;
 	clear: both;
 	width: 210px;
 }
-ul.nav-submenu li.submenuitem a {
+ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     background-position: 3px center !important;
     background-repeat: no-repeat !important;
     outline:none;
+    text-decoration:none;
 	width: 170px;
 	padding-left: 25px;
 }
+#mastLogin  li.submenuitem{
+    margin:0;
+    text-align:left;
+}
+#mastLogin  li.submenuitem a{
+    background-position:left center;
+    background-repeat:no-repeat;
+    border-bottom:1px solid #777;
+    padding:10px 25px;
+    width:auto;
+    display:block;
+}
+#mastLogin  li.submenuitem:last-child a{
+    border-bottom:none;
+    }
+#mastLogin  li.submenuitem a.submenuitem-profile{
+    background-image: url(/library/image/silk/vcard_edit.png);    
+}
+#mastLogin  li.submenuitem a.submenuitem-prefs{
+    background-image: url(/library/image/silk/cog.png);    
+}
 
-ul.nav-submenu li.submenuitem a:hover, ul.nav-submenu li.submenuitem a:focus { /*--Hover effect for subnav links--*/
+#mastLogin  li.submenuitem a.submenuitem-new-site{
+        background-image: url(/library/image/silk/application_lightning.png );
+}
+
+#mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
     color:#9cf;
 }
 
