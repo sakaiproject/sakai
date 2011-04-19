@@ -81,6 +81,8 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 
@@ -2936,6 +2938,10 @@ public class DeliveryBean
   }
 
   public String getSelectURL(){
+   	  Session session = SessionManager.getCurrentSession();
+	  String returnUrl = (String)session.getAttribute("LESSONBUILDER_RETURNURL_SAMIGO");
+	  if (returnUrl != null)
+	      return returnUrl;
 	  StringBuilder url = new StringBuilder(ServerConfigurationService.getString("portalPath"));
 	  url.append("/site/");
 	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();

@@ -46,8 +46,6 @@
   <h:commandButton value="#{deliveryMessages.button_continue}" type="button"
      styleClass="active" onclick="javascript:history.go(-1);" onkeypress="javascript:history.go(-1);" />
 
-  <h:commandButton value="#{deliveryMessages.button_quit}" type="button"
-     onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </p>
 </h:form>
 </div>

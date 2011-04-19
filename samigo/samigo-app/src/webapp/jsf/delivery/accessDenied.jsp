@@ -42,15 +42,7 @@
   <h:outputText  value="#{deliveryMessages.access_denied_message}" />
   </div>
  <p class="act">
-  <h:commandButton value="#{deliveryMessages.button_continue}" type="button"
-     styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
-<%--
-  <h:commandButton value="#{deliveryMessages.button_ok}" type="submit"
-     style="act" action="#{delivery.getOutcome}" >
-     <f:actionListener
-       type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />
-  </h:commandButton>
---%>
+
 </h:form>
 </div>
       </body>

@@ -48,9 +48,6 @@
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
 
-
-  <h:commandButton value="#{deliveryMessages.button_continue}" type="button" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-       style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </p>
 </h:form>
 </div>

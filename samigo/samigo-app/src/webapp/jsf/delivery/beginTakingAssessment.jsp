@@ -166,11 +166,6 @@
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
-  <h:commandButton id="cancel2" value="#{commonMessages.cancel_action}" type="button"
-     style="act" onclick="disableCancel2();javascript:window.open('#{delivery.portal}/login','_top')"
-onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
-     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-     disabled="#{delivery.actionString=='previewAssessment'}"/>
 </p>
 
 <!-- DONE BUTTON, FOR PREVIEW ONLY --> 
