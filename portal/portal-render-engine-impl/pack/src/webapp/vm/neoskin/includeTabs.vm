@@ -155,7 +155,7 @@
 			<span id="noSearchResults" style="display:none">No search results found</span>
 			#if (${tabsSites.worksiteToolUrl})
 		        <div id="allSites">
-					<span><a id="allSitesLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true"><span style="color:white">All Sites</span></a></span>
+					<span><a id="allSitesLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span style="color:white">${rloader.sit_allsites}</span></a></span>
 				</div>
 			#end
      	</div>
