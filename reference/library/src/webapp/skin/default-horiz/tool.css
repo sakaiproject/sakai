@@ -1104,7 +1104,7 @@ ul.makeMenu li {
 
 ul.makeMenu li > ul {
   display: none;
-  	width: 14em;
+  	width: auto;
 	background-color:#ffffff;
 	background-image:none;
 	position:absolute;
