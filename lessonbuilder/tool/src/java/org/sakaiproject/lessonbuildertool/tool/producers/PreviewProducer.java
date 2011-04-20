@@ -92,6 +92,7 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 		}
 
 		UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.preview").replace("{}", page.getTitle()));
+		UIOutput.make(tofill, "title2", messageLocator.getMessage("simplepage.preview").replace("{}", page.getTitle()));
 
 		if (simplePageBean.canEditPage()) {
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(currentPageId);
