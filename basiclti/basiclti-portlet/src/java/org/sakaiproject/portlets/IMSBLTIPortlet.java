@@ -180,11 +180,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
             dPrint("Setting sakai:maximized-url="+iframeUrl);
 
             if ( "on".equals(newPage) ) {
+                String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
                 text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-                text.append("window.open('"+iframeUrl+"','BasicLTI');\n");
+                text.append(windowOpen+"\n");
                 text.append("</script>\n");
                 text.append("<p>\n");
                 text.append(rb.getString("new.page.launch"));
+                text.append("<br><a href=\""+iframeUrl+"\" onclick=\""+windowOpen+"\" target=\"BasicLTI\">"+rb.getString("noiframe.press.here")+"</a>");
                 text.append("</p>\n");
             } else {
 		if ( "on".equals(maximize) ) {
