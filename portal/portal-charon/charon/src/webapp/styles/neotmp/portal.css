@@ -293,6 +293,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 /*main CAS link*/
 #loginLink1{
     padding:0 5px;
+    margin-right:5px;
     text-decoration:none
 }
 
@@ -315,11 +316,13 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 #loginLink1:hover, #loginUser:hover{
     text-decoration:underline !important;
 }
+
 #loginLinks .drop{
-    background:transparent url(/library/image/silk/user_go.png) top left no-repeat;
+    background:transparent url(/library/image/silk/user_go.png) 15px 0  no-repeat;
     position:absolute;
     top:3px;
-    right:10px;
+    padding:0 13px;
+    right:5px;
 }
 /*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
 /*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
@@ -1546,7 +1549,7 @@ ul.topnav li span.drop:nth-child(even){
     display:none;
 }
 ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
-ul.topnav li ul.subnav, #mastLogin ul.subnav {
+ul.topnav li ul.subnav{
 	list-style: none;
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
 	left: 0; top: 35px;
@@ -1563,21 +1566,33 @@ ul.topnav li ul.subnav, #mastLogin ul.subnav {
 	-webkit-box-shadow: 6px 6px 8px #000;
 	box-shadow: 6px 6px 8px #000;
 }
-/*
-From Chuck: replicate hacks for span
-*/
 #mastLogin span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
 	margin-top:3px;
 	height: 35px;
-	float: right;
 }
 
 #mastLogin ul.subnav {
-	left: 0; top: 30px;
+	list-style: none;
+	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
+	right: 2px; top: 30px;
+	background: #333;
+    font-size:.9em;
+	margin: 0; padding: 0;
+	display: none;
+	float: left;
+	width: 210px;
+	border: 1px solid #111;
+    white-space:nowrap;
+    z-index:100;
+	-moz-box-shadow: 6px 6px 8px #000;
+	-webkit-box-shadow: 6px 6px 8px #000;
+	box-shadow: 6px 6px 8px #000;
 }
-*/
-/* End fo Chuck Hacks */
+
+ul.subnav span.addTool{
+    text-align:right;
+}
 
 #otherSiteTools{
     list-style: none;
