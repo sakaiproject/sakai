@@ -187,6 +187,8 @@ public class FormattedText
 			Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private static Pattern M_patternHrefTarget = Pattern.compile("\\starget\\s*=\\s*(\".*?\"|'.*?')",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private static Pattern M_patternHrefTitle = Pattern.compile("\\stitle\\s*=\\s*(\".*?\"|'.*?')",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
      * This is maintained for backwards compatibility
@@ -646,6 +648,7 @@ public class FormattedText
         String newAnchor = "";
         String href = null;
         String hrefTarget = null;
+        String hrefTitle = null;
 
         try {
             // get HREF value
@@ -657,6 +660,11 @@ public class FormattedText
             matcher = M_patternHrefTarget.matcher(anchor);
             if (matcher.find()) {
                 hrefTarget = matcher.group();
+            }
+            // get title value
+            matcher = M_patternHrefTitle.matcher(anchor);
+            if (matcher.find()) {
+                hrefTitle = matcher.group();
             }
         } catch (Exception e) {
             M_log.warn("FormattedText.processAnchor ", e);
@@ -674,12 +682,26 @@ public class FormattedText
             hrefTarget = " target=\"_blank\"";
         }
 
+        if (hrefTitle != null) {
+            // use the existing one
+            hrefTitle = hrefTitle.trim();
+            hrefTitle = hrefTitle.replaceAll("\"", ""); // slightly paranoid
+            hrefTitle = hrefTitle.replaceAll(">", ""); // slightly paranoid
+            hrefTitle = hrefTitle.replaceFirst("title=", ""); // slightly paranoid
+            hrefTitle = " title=\"" + hrefTitle + "\"";
+        }
+
         // open in a new window
         if (href != null) {
             href = href.replaceAll("\"", "");
             href = href.replaceAll(">", "");
             href = href.replaceFirst("href=", "href=\"");
-            newAnchor = "<a " + href + "\"" + hrefTarget + ">";
+            newAnchor = "<a " + href + "\"" + hrefTarget;
+            if (hrefTitle != null)
+            {
+                newAnchor += hrefTitle;
+            }
+            newAnchor += ">";
         } else {
             M_log.debug("FormattedText.processAnchor href == null");
             newAnchor = anchor; // default to the original one so we don't lose the anchor
