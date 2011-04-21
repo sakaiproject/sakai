@@ -991,7 +991,7 @@ public class BasicEmailService implements EmailService
 		headerTo.put(RecipientType.BCC, bcc);
 
 		// convert headers to expected format
-		List<String> headers = headerMap2List(msg.getHeaders());
+		List<String> headers = msg.extractHeaders();
 
 		// build the content type
 		String contentType = EmailHeaders.CONTENT_TYPE + ": " + msg.getContentType();
@@ -1015,20 +1015,6 @@ public class BasicEmailService implements EmailService
 		return invalids;
 	}
 
-	protected List<String> headerMap2List(Map<String, String> headers)
-	{
-		List<String> retval = null;
-		if (headers != null && !headers.isEmpty())
-		{
-			retval = new ArrayList<String>();
-			for (Entry<String, String> entry : headers.entrySet())
-			{
-				String value = entry.getValue();
-				retval.add(entry.getKey() + ": " + value);
-			}
-		}
-		return retval;
-	}
 
 	/**
 	 * Converts a {@link java.util.List} of {@link EmailAddress} to
