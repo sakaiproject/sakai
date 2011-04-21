@@ -88,25 +88,28 @@ public class TriggerEventHibernateImpl
         return message;
     }
 
-    public int hashCode ()
-    {
-        return id.hashCode();
-    }
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
-    public boolean equals (Object o)
-    {
-        if (!TriggerEventHibernateImpl.class.isAssignableFrom (o.getClass()))
-            return false;
-
-        final TriggerEventHibernateImpl
-            that = (TriggerEventHibernateImpl)o;
-
-        if (this == that)
-            return true;
-
-        if (that == null)
-            return false;
-
-        return (id.equals(that.id));
-    }
+    @Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof TriggerEventHibernateImpl))
+			return false;
+		TriggerEventHibernateImpl other = (TriggerEventHibernateImpl) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 }
