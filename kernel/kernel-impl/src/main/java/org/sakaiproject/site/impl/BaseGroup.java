@@ -269,34 +269,29 @@ public class BaseGroup implements Group, Identifiable
 		return m_title + " (" + m_id + ")";
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public boolean equals(Object obj)
-	{
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-		if (obj instanceof Group)
-		{
-			return ((Group) obj).getId().equals(getId());
-		} 
-        // NOTE: findbugs considers this bad practice
-		else if (obj instanceof String)
-		{
-			return ((String) obj).equals(getId());
-		}
-
-		return false;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaseGroup other = (BaseGroup) obj;
+		if (m_id == null) {
+			if (other.m_id != null)
+				return false;
+		} else if (!m_id.equals(other.m_id))
+			return false;
+		return true;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public int hashCode()
-	{
-		return getId().hashCode();
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((m_id == null) ? 0 : m_id.hashCode());
+		return result;
 	}
 
 	/**
