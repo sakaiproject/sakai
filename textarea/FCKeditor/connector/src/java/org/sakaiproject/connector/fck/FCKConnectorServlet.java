@@ -397,8 +397,11 @@ public class FCKConnectorServlet extends HttpServlet {
                if (dir.split("/").length == 2) {
                     List<String> collections = new ArrayList<String>();
                     map = contentHostingService.getCollectionMap();
-                    if (map != null && map.keySet() != null) {
-                         collections.addAll(map.keySet());
+                    for (String key : map.keySet()) {
+                    	if (!contentHostingService.isInDropbox((String)key)) {
+                    		collections.add(key);
+                    	}
+
                     }
                     List extras = (List) sessionManager.getCurrentSession()
                          .getAttribute(FCK_EXTRA_COLLECTIONS_BASE + collectionBase);
