@@ -9,13 +9,13 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-lessonbuildertool-tool-base</artifactId>
 	<relativePath>../pom.xml</relativePath>
-	<version>1.0RC2</version>
+	<version>1.2</version>
   </parent>
   
   <name>sakai-lessonbuildertool-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-lessonbuildertool-tool</artifactId>
-  <version>1.0RC2</version>
+  <version>1.2</version>
   
   <description>
     This project creates a WAR containing the Lesson Builder Tool for Sakai.
@@ -131,7 +131,7 @@
 	<dependency>
 	  <groupId>org.sakaiproject</groupId>
 	  <artifactId>sakai-lessonbuildertool-api</artifactId>
-	  <version>1.0</version>
+	  <version>1.2</version>
 	  <scope>provided</scope>
 	</dependency>
 

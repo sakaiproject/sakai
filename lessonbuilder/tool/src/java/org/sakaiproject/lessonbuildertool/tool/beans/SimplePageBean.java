@@ -440,6 +440,56 @@ public class SimplePageBean {
 	    isMultimedia = isMm;
 	}
 
+    // hibernate interposes something between us and saveItem, and that proxy gets an
+    // error after saveItem does. Thus we never see any value that saveItem might 
+    // return. Hence we pass saveItem a list to which it adds the error message. If
+    // there is a mesasge from saveItem take precedence over the message we detect here,
+    // since it's the root cause.
+	boolean saveItem(Object i) {       
+	    String err = null;
+	    List<String>elist = new ArrayList<String>();
+	    try {
+		simplePageToolDao.saveItem(i,  elist, messageLocator.getMessage("simplepage.nowrite"));
+	    } catch (Throwable t) {
+		// this is probably a bogus error, but find its root cause
+		while (t.getCause() != null) {
+		    t = t.getCause();
+		}
+		err = t.toString();
+	    }
+	    // if we got an error from saveItem use it instead
+	    if (elist.size() > 0)
+		err = elist.get(0);
+	    if (err != null) {
+		setErrMessage(messageLocator.getMessage("simplepage.savefailed") + err);
+		return false;
+	    }
+	    return true;
+	}
+
+    // see notes for saveupdate
+	boolean update(Object i) {       
+	    String err = null;
+	    List<String>elist = new ArrayList<String>();
+	    try {
+		simplePageToolDao.update(i,  elist, messageLocator.getMessage("simplepage.nowrite"));
+	    } catch (Throwable t) {
+		// this is probably a bogus error, but find its root cause
+		while (t.getCause() != null) {
+		    t = t.getCause();
+		}
+		err = t.toString();
+	    }
+	    // if we got an error from saveItem use it instead
+	    if (elist.size() > 0)
+		err = elist.get(0);
+	    if (err != null) {
+		setErrMessage(messageLocator.getMessage("simplepage.savefailed") + err);
+		return false;
+	    }
+	    return true;
+	}
+
     // The permissions model assumes that all code operates on the current
     // page. When the current page is set, the set code verifies that the
     // page is in the current site. However when operatig on items, we
@@ -492,7 +542,7 @@ public class SimplePageBean {
 				}
 
 				item.setHtml(html);
-				simplePageToolDao.update(item);
+				update(item);
 			} else {
 				rv = "cancel";
 			}
@@ -636,13 +686,13 @@ public class SimplePageBean {
 			i.setHtml(mimeType);
 		    i.setName(name != null ? name : split[split.length - 1]);
 		    clearImageSize(i);
-		    simplePageToolDao.update(i);
+		    update(i);
 		} else {
 		    SimplePageItem i;
  	            i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
 		    if (type == SimplePageItem.MULTIMEDIA && mimeType != null) {
 			i.setHtml(mimeType);
-			simplePageToolDao.update(i);
+			update(i);
 		    }
 		}
 
@@ -671,7 +721,7 @@ public class SimplePageBean {
 		// image, leave it blank, since browser will then use the native size
 		clearImageSize(i);
 
-		simplePageToolDao.saveItem(i);
+		saveItem(i);
 		return i;
 	}
 
@@ -750,7 +800,7 @@ public class SimplePageBean {
 			for (SimplePageItem item : list) {
 				if (item.getSequence() > seq) {
 					item.setSequence(item.getSequence() - 1);
-					simplePageToolDao.update(item);
+					update(item);
 				}
 			}
 
@@ -1097,7 +1147,7 @@ public class SimplePageBean {
 				if (i == null) {
 				    // and dummy item, the site is the notional top level page
 				    i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), currentPage.getTitle());
-				    simplePageToolDao.saveItem(i);
+				    saveItem(i);
 				}
 				updatePageItem(i.getId());
 			    } catch (PermissionException e) {
@@ -1111,7 +1161,7 @@ public class SimplePageBean {
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
 																			// during creation
 				SimplePage page = simplePageToolDao.makePage(toolId, toolManager.getCurrentPlacement().getContext(), title, null, null);
-				if (!simplePageToolDao.saveItem(page)) {
+				if (!saveItem(page)) {
 				    currentPage = null;
 				    return 0;
 				}
@@ -1121,7 +1171,7 @@ public class SimplePageBean {
 
 				    // and dummy item, the site is the notional top level page
 				    SimplePageItem i = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, l.toString(), title);
-				    simplePageToolDao.saveItem(i);
+				    saveItem(i);
 				    updatePageItem(i.getId());
 				} catch (PermissionException e) {
 				    log.warn("getCurrentPageId Permission failed setting to new page");
@@ -1351,7 +1401,7 @@ public class SimplePageBean {
 		SimplePage subpage = null;
 		if (makeNewPage) {
 		    subpage = simplePageToolDao.makePage(toolId, toolManager.getCurrentPlacement().getContext(), title, parent, topParent);
-		    simplePageToolDao.saveItem(subpage);
+		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());
 		} else {
 		    subpage = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
@@ -1378,7 +1428,7 @@ public class SimplePageBean {
 		    i.setName(subpage.getTitle());
 		}
 
-		simplePageToolDao.update(i);
+		update(i);
 
 		if (makeNewPage) {
 		    // if creating new entry, go to it
@@ -1502,13 +1552,13 @@ public class SimplePageBean {
 				i.setRequirementText(dropDown);
 			}
 
-			simplePageToolDao.update(i);
+			update(i);
 
 			if (i.getType() == SimplePageItem.PAGE) {
 				SimplePage page = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
 				if (page != null) {
 					page.setTitle(name);
-					simplePageToolDao.update(page);
+					update(page);
 				}
 			} else {
 				checkControlGroup(i);
@@ -1538,7 +1588,7 @@ public class SimplePageBean {
 			if (i.isPrerequisite()) {
 				if (group == null) {
 				        String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), "Access: " + getNameOfSakaiItem(i));
-					simplePageToolDao.saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId));
+					saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId));
 					GroupPermissionsService.addControl(i.getSakaiId(), getCurrentPage().getSiteId(), groupId, i.getType());
 				} else {
 					GroupPermissionsService.addControl(i.getSakaiId(), getCurrentPage().getSiteId(), group.getGroupId(), i.getType());
@@ -1573,7 +1623,7 @@ public class SimplePageBean {
 	}
 
 	public void updateCurrentPage() {
-		simplePageToolDao.update(currentPage);
+		update(currentPage);
 	}
 
 	public List<PathEntry> getHierarchy() {
@@ -1638,13 +1688,13 @@ public class SimplePageBean {
 
 				    // reset assignment-specific stuff
 				    i.setDescription("");
-				    simplePageToolDao.update(i);
+				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedEntity, selectedObject.getTitle(), SimplePageItem.FORUM);
 				i.setDescription("");
-				simplePageToolDao.update(i);
+				update(i);
 			    }
 			    return "success";
 			} catch (Exception ex) {
@@ -1698,13 +1748,13 @@ public class SimplePageBean {
 				    }
 				    // reset assignment-specific stuff
 				    i.setDescription("(Due " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()));
-				    simplePageToolDao.update(i);
+				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedAssignment, selectedObject.getTitle(), SimplePageItem.ASSIGNMENT);
 				i.setDescription("(Due " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()));
-				simplePageToolDao.update(i);
+				update(i);
 			    }
 			    return "success";
 			} catch (Exception ex) {
@@ -1757,7 +1807,7 @@ public class SimplePageBean {
 				    }
 				    // reset quiz-specific stuff
 				    i.setDescription("");
-				    simplePageToolDao.update(i);
+				    update(i);
 				}
 			    } else  // no, add new item
 				appendItem(selectedQuiz, selectedObject.getTitle(), SimplePageItem.ASSESSMENT);
@@ -1846,7 +1896,7 @@ public class SimplePageBean {
 			i.setAlt(alt);
 			i.setDescription(description);
 			i.setHtml(mimetype);
-			simplePageToolDao.update(i);
+			update(i);
 			return "success";
 		} else {
 			log.warn("editMultimedia Could not find multimedia object: " + itemId);
@@ -1925,14 +1975,14 @@ public class SimplePageBean {
 					    page.setReleaseDate(releaseDate);
 					else
 					    page.setReleaseDate(null);
-					simplePageToolDao.update(page);
+					update(page);
 					updateCurrentPage();
 					placement.setTitle(pageTitle);
 					placement.save();
 					pageVisibilityHelper(site, page.getToolId(), !hidePage);
 					pageItem.setPrerequisite(prerequisite);
 					pageItem.setRequired(required);
-					simplePageToolDao.update(pageItem);
+					update(pageItem);
 				}
 
 			} catch (Exception e) {
@@ -1942,7 +1992,7 @@ public class SimplePageBean {
 			}
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
-			simplePageToolDao.update(page);
+			update(page);
 		}
 
 		// have to do this after the page itself is updated
@@ -2022,10 +2072,10 @@ public class SimplePageBean {
 	    currentSite = null; // force refetch, since we've changed it
 
 	    SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
-	    simplePageToolDao.saveItem(page);
+	    saveItem(page);
 
 	    SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
-	    simplePageToolDao.saveItem(item);
+	    saveItem(item);
 
 	    if (copyCurrent) {
 		long oldPageId = getCurrentPageId();
@@ -2033,7 +2083,7 @@ public class SimplePageBean {
 		for (SimplePageItem oldItem: simplePageToolDao.findItemsOnPage(oldPageId)) {
 		    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 		    newItem.setPageId(newPageId);
-		    simplePageToolDao.saveItem(newItem);
+		    saveItem(newItem);
 		}
 	    }
 
@@ -2128,7 +2178,7 @@ public class SimplePageBean {
 			items.get(Integer.valueOf(split[i]) - 1).setSequence(i + 1);
 
 			if (old != i + 1) {
-				simplePageToolDao.update(items.get(Integer.valueOf(split[i]) - 1));
+				update(items.get(Integer.valueOf(split[i]) - 1));
 			}
 		}
 
@@ -2200,7 +2250,7 @@ public class SimplePageBean {
 				trackComplete(i, complete);
 			}
 
-			simplePageToolDao.saveItem(entry);
+			saveItem(entry);
 			logCache.put((Long)itemId, entry);
 		} else {
 			if (path != null) {
@@ -2217,7 +2267,7 @@ public class SimplePageBean {
 				    trackComplete(i, complete);
 			}
 
-			simplePageToolDao.update(entry);
+			update(entry);
 		}
 
 		//SimplePageItem i = findItem(itemId);
@@ -2657,7 +2707,7 @@ public class SimplePageBean {
 			    userId = ".anon";
 			SimplePageLogEntry entry = simplePageToolDao.makeLogEntry(userId, itemId);
 			entry.setDummy(true);
-			simplePageToolDao.saveItem(entry);
+			saveItem(entry);
 			logCache.put((Long)itemId, entry);
 		    }
 		    return;
@@ -2669,7 +2719,7 @@ public class SimplePageBean {
 			String groupId;
 			try {
 				groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), "Access: " + getNameOfSakaiItem(item));
-				simplePageToolDao.saveItem(simplePageToolDao.makeGroup(item.getSakaiId(), groupId));
+				saveItem(simplePageToolDao.makeGroup(item.getSakaiId(), groupId));
 				GroupPermissionsService.addControl(item.getSakaiId(), getCurrentPage().getSiteId(), groupId, item.getType());
 			} catch (IOException e) {
 				// If this fails, there's no way for us to check the permissions
@@ -2858,17 +2908,25 @@ public class SimplePageBean {
 							  MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 		    res.setContentType(mimeType);
 		    res.setContent(file.getInputStream());
-		    contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
+		    try {
+			contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
+			// there's a bug in the kernel that can cause
+			// a null pointer if it can't determine the encoding
+			// type. Since we want this code to work on old
+			// systems, work around it.
+		    } catch (java.lang.NullPointerException e) {
+			setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
+		    }
 		    sakaiId = res.getId();
 
-		} catch (org.sakaiproject.exception.OverQuotaException ignore) {
-		    setErrMessage(messageLocator.getMessage("simplepage.overquota"));
-		    return;
-		} catch (Exception e) {
-		    setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
-		    log.error("addMultimedia error " + e);
-		    return;
-		};
+	    } catch (org.sakaiproject.exception.OverQuotaException ignore) {
+		setErrMessage(messageLocator.getMessage("simplepage.overquota"));
+		return;
+	    } catch (Exception e) {
+		setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
+		log.error("addMultimedia error 1 " + e);
+		return;
+	    };
 	    } else if (mmUrl != null && !mmUrl.trim().equals("")) {
 		// user specified a URL, create the item
 		String url = mmUrl.trim();
@@ -2907,7 +2965,7 @@ public class SimplePageBean {
 		    return;
 		} catch (Exception e) {
 		    setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
-		    log.error("addMultimedia error " + e);
+		    log.error("addMultimedia error 2 " + e);
 		    return;
 		};
 		// connect to url and get mime type
@@ -2939,11 +2997,14 @@ public class SimplePageBean {
 		item.setHtml(null);
 	    }
 	    clearImageSize(item);
-	    if (itemId == -1)
-		simplePageToolDao.saveItem(item);
-	    else
-		simplePageToolDao.update(item);
-
+	    try {
+		if (itemId == -1)
+		    saveItem(item);
+		else
+		    update(item);
+	    } catch (Exception e) {
+		// saveItem and update produce the errors
+	    }
 	}
 
 
@@ -2985,7 +3046,7 @@ public class SimplePageBean {
 			setErrMessage(messageLocator.getMessage("simplepage.overquota"));
 		    } catch (Exception e) {
 			setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
-			log.error("addMultimedia error " + e);
+			log.error("addMultimedia error 3 " + e);
 		    };
 		}
 
@@ -2993,7 +3054,7 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
-		simplePageToolDao.update(item);
+		update(item);
 
 	}
 
@@ -3061,6 +3122,6 @@ public class SimplePageBean {
 		item.setWidth(width);
 		item.setDescription(description);
 		item.setHtml(mimetype);
-		simplePageToolDao.update(item);
+		update(item);
 	}
 }

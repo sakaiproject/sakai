@@ -79,7 +79,10 @@ public interface SimplePageToolDao {
     //   better be updating an item or page in the current site, or canEditPage will give
     //   the wrong answer.
     // Also generates events showing the update.
-	public boolean saveItem(Object o);
+    // elist is a list where saveItem will add error messages, nowriteerr is the messge to use if
+    //   the user doesn't have write permission. See saveitem in SimplePageBean for why we need
+    //   to use this convoluted approach to getting back errors
+	public boolean saveItem(Object o, List<String> elist, String nowriteerr);
 
     // just do the save, no permission checking and no logging
 	public boolean quickSaveItem(Object o);
@@ -88,7 +91,7 @@ public interface SimplePageToolDao {
 	public boolean deleteItem(Object o);
 
     // see saveItem for details and caveats, same function except update instead of save
-	public boolean update(Object o);
+	public boolean update(Object o, List<String> elist, String nowriteerr);
 
     // version without permission checking and logging
 	public boolean quickUpdate(Object o);

@@ -208,9 +208,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list.get(0);
 	}
 
-	public boolean saveItem(Object o) {
+	public void getCause(Throwable t, List<String>elist) {
+	    while (t.getCause() != null) {
+		t = t.getCause();
+	    }
+	    log.warn("error saving or updating: " + t.toString());
+	    elist.add(t.getLocalizedMessage());
+	}
+
+	public boolean saveItem(Object o, List<String>elist, String nowriteerr) {
 		if (!(o instanceof SimplePageLogEntry || canEditPage())) {
-			return false;
+		    elist.add(nowriteerr);
+		    return false;
 		}
 
 		if (o instanceof SimplePageItem) {
@@ -222,12 +231,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} 
 
 		try {
-			getHibernateTemplate().save(o);
-			return true;
+		    getHibernateTemplate().save(o);
+		    return true;
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+		    getCause(e, elist);
+		    return false;
+		} catch (org.hibernate.exception.DataException e) {
+		    getCause(e, elist);
+		    return false;
 		} catch (DataAccessException e) {
-			e.printStackTrace();
-			log.warn("Hibernate could not save: " + e.toString());
-			return false;
+		    getCause(e, elist);
+		    return false;
 		}
 	}
 
@@ -267,11 +281,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 
-	public boolean update(Object o) {
+	public boolean update(Object o, List<String>elist, String nowriteerr) {
 		if (!(o instanceof SimplePageLogEntry || canEditPage())) {
-			return false;
+		    elist.add(nowriteerr);
+		    return false;
 		}
-
 		if (o instanceof SimplePageItem) {
 		    SimplePageItem i = (SimplePageItem)o;
 		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/item/" + i.getId(), true));
@@ -281,11 +295,17 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} 
 
 		try {
-			getHibernateTemplate().update(o);
-			return true;
+		    getHibernateTemplate().update(o);
+		    return true;
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+		    getCause(e, elist);
+		    return false;
+		} catch (org.hibernate.exception.DataException e) {
+		    getCause(e, elist);
+		    return false;
 		} catch (DataAccessException e) {
-			e.printStackTrace();
-			return false;
+		    getCause(e, elist);
+		    return false;
 		}
 	}
 

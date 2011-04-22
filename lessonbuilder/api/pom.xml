@@ -6,13 +6,13 @@
 	  <groupId>org.sakaiproject</groupId>
 	  <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
 	  <relativePath>../pom.xml</relativePath>
-	  <version>1.0RC2</version>
+	  <version>1.2</version>
 	</parent>
 
 	<name>sakai-lessonbuildertool-api</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-lessonbuildertool-api</artifactId>
-	<version>1.0</version>
+	<version>1.2</version>
   	
   	<packaging>jar</packaging>
   	<properties>

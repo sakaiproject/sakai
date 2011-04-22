@@ -40,6 +40,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public static final int MULTIMEDIA = 7;
 	public static final int FORUM = 8;
 
+    // must agree with definition in hbm file
+	public static final int MAXNAME = 100;
+
     // sakaiId used for an item copied from another site with no real content
         public static final String DUMMY = "/dummy";
 
@@ -73,7 +76,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.sequence = sequence;
 		this.type = type;
 		this.sakaiId = sakaiId;
-		this.name = name;
+		this.name = maxlength(name, MAXNAME);
 		height = "300px";
 		width = "100%";
 		description = "";
@@ -90,7 +93,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.sequence = sequence;
 		this.type = type;
 		this.sakaiId = sakaiId;
-		this.name = name;
+		this.name = maxlength(name, MAXNAME);
 		height = "300px";
 		width = "100%";
 		description = "";
@@ -101,6 +104,35 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		required = false;
 		requirementText = "";
 	}
+
+	private String maxlength(String s, int maxlen) {
+	    int len = s.length();
+	    if (s == null || len <= maxlen)
+		return s;
+	    int toremove = len - maxlen;
+	    int i = s.lastIndexOf(".");
+
+	    // 6 is sort of arbitrary. need a few characters before the .
+	    // to do useful abbreviation. The issue here is that in theory
+	    // so much of the name might be after the dot that we have to
+	    // the abbreviation there.
+	
+	    if (i > 0 && toremove < (i - 6)) {
+		String prefix = s.substring(0, i);
+		String suffix = s.substring(i+1);
+		int startcut = (i / 2) - (toremove / 2);
+		int endcut = startcut + toremove;
+		prefix = prefix.substring(0, startcut) + prefix.substring(endcut);
+		return prefix + "." + suffix;
+	    }
+
+	    // not enough space to cut from prefix, or no prefix. 
+	    // for now, just cut the whole string.
+	    int startcut = (len / 2) - (toremove / 2);
+	    int endcut = startcut + toremove;
+	    return s.substring(0, startcut) + s.substring(endcut);
+	}
+
 
 	public long getId() {
 		return id;
@@ -163,7 +195,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setName(String s) {
-		name = s;
+	    name = maxlength(s, MAXNAME);
 	}
 
 	public void setHtml(String html) {
