@@ -2383,26 +2383,30 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			{
 				if (m_provider != null && m_provider instanceof DisplaySortAdvisorUPD)
 				{
-					m_sortName = ((DisplaySortAdvisorUPD) m_provider).getSortName(this); 
-				} 
-				else
-				{
-					// Cache this locally in the object as otherwise when sorting users we generate lots of objects.
-					StringBuilder buf = new StringBuilder(128);
-					if (m_lastName != null) buf.append(m_lastName);
-					if (m_firstName != null)
+					String rv = ((DisplaySortAdvisorUPD) m_provider).getSortName(this); 
+					if (rv != null)
 					{
-						//KNL-524 no comma if the last name is null
-						if (m_lastName != null)
-						{
-							buf.append(", ");
-						}
-						buf.append(m_firstName);
+						m_sortName = rv;
+						return rv;
 					}
+				} 
 
-					m_sortName = (buf.length() == 0)?getEid():buf.toString();
+				// Cache this locally in the object as otherwise when sorting users we generate lots of objects.
+				StringBuilder buf = new StringBuilder(128);
+				if (m_lastName != null) buf.append(m_lastName);
+				if (m_firstName != null)
+				{
+					//KNL-524 no comma if the last name is null
+					if (m_lastName != null)
+					{
+						buf.append(", ");
+					}
+					buf.append(m_firstName);
 				}
+
+				m_sortName = (buf.length() == 0)?getEid():buf.toString();
 			}
+
 			return m_sortName;
 		}
 
