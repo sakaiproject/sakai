@@ -386,14 +386,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * @param quota
 	 *        The site quota (as a string).
 	 */
-	public void setSiteQuota(String quota)
+	public void setSiteQuota(Long quota)
 	{
-		try
+		if (quota != null)
 		{
-			m_siteQuota = Long.parseLong(quota);
-		}
-		catch (Exception t)
-		{
+			m_siteQuota = quota;
 		}
 	}
 	
