@@ -6607,14 +6607,19 @@ public class DiscussionForumTool
     Set membershipItems = null;
     if(uiPermissionsManager != null){
     	if (PERMISSION_MODE_TEMPLATE.equals(getPermissionMode())){
-    		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
     		membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     	}
     	else if (PERMISSION_MODE_FORUM.equals(getPermissionMode())){    	
     		if (selectedForum != null && selectedForum.getForum() != null)
     		{
     			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
-    			if (membershipItems == null || membershipItems.size() == 0)
+    			
+    			// if there are no membershipItems at this point, either an existing forum
+    			// doesn't have any permissions associated with it or it is a new forum.
+    			// if the forum is new, we retrieve the area's perms.
+    			// otherwise, we'll use the ootb defaults that will be picked up 
+    			// via getAreaDBMember at the end of this method
+    			if ((membershipItems == null || membershipItems.size() == 0) && selectedForum.getForum().getId() == null)
     			{
     				membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     			}
@@ -6628,13 +6633,21 @@ public class DiscussionForumTool
     		if (selectedTopic != null && selectedTopic.getTopic() != null)
     		{
     			membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
+    			
+    			// if there are no membershipItems at this point, either an existing
+    			// topic doesn't have any permissions associated with it or it is a new topic.
+    			// if the topic is new, we will use the forum's perms. otherwise,
+    			// there are no perms associated with an existing topic so we
+    			// use the defaults
+    			if ((membershipItems == null || membershipItems.size() == 0)
+                        && selectedTopic.getTopic().getId() == null 
+                        && (selectedForum != null && selectedForum.getForum() != null)
+                        && uiPermissionsManager != null)
+                {
+                    membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
+                }
     		}
-    		if ((membershipItems == null || membershipItems.size() == 0)
-    				&& (selectedForum != null && selectedForum.getForum() != null)
-    				&& uiPermissionsManager != null)
-    		{
-    			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
-    		}
+    		
     	} 
     }
     	            
