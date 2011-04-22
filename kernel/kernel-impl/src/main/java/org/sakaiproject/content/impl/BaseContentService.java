@@ -5634,14 +5634,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if (content.markSupported()) 
 			{			
 				detector.setText(content);
-				encoding = detector.detect().getName();
 			} else {
 				 content.read(contentBytes);
 				 detector.setText(contentBytes);
 			}
 			CharsetMatch match = detector.detect();
-			encoding = match.getName();
-
+			//KNL-714 match can be null -DH
+			if (match != null)
+			{
+				encoding = match.getName();
+			}
+			else
+			{
+				return;
+			}
 			//KNL-682 do not set content as UTF-32LE or UTF-16
 			if (encoding.indexOf("UTF-16") > -1 || encoding.indexOf("UTF-32") > -1) {
 				encoding = "UTF-8";
