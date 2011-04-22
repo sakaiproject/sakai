@@ -66,6 +66,7 @@ import org.sakaiproject.user.api.AuthenticatedUserProvider;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
+import org.sakaiproject.user.api.DisplaySortAdvisorUPD;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
@@ -2380,20 +2381,27 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			if (m_sortName == null)
 			{
-				// Cache this locally in the object as otherwise when sorting users we generate lots of objects.
-				StringBuilder buf = new StringBuilder(128);
-				if (m_lastName != null) buf.append(m_lastName);
-				if (m_firstName != null)
+				if (m_provider != null && m_provider instanceof DisplaySortAdvisorUPD)
 				{
-					//KNL-524 no comma if the last name is null
-					if (m_lastName != null)
+					m_sortName = ((DisplaySortAdvisorUPD) m_provider).getSortName(this); 
+				} 
+				else
+				{
+					// Cache this locally in the object as otherwise when sorting users we generate lots of objects.
+					StringBuilder buf = new StringBuilder(128);
+					if (m_lastName != null) buf.append(m_lastName);
+					if (m_firstName != null)
 					{
-						buf.append(", ");
+						//KNL-524 no comma if the last name is null
+						if (m_lastName != null)
+						{
+							buf.append(", ");
+						}
+						buf.append(m_firstName);
 					}
-					buf.append(m_firstName);
-				}
 
-				m_sortName = (buf.length() == 0)?getEid():buf.toString();
+					m_sortName = (buf.length() == 0)?getEid():buf.toString();
+				}
 			}
 			return m_sortName;
 		}
