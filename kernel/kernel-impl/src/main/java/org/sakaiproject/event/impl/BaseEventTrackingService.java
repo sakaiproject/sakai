@@ -678,6 +678,14 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			this(event, resource, context, modify, priority);
 			m_seq = seq;
 		}
+		
+		
+		public BaseEvent(long seq, String event, String resource, String context, boolean modify, int priority, Date eventDate)
+		{
+			this(event, resource, context, modify, priority);
+			m_seq = seq;
+			m_time = timeService().newTime(eventDate.getTime());
+		}
 
 		/**
 		 * Set the event id.

@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,6 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.StringUtil;
 
 /**
@@ -78,7 +78,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
     protected long m_totalSessionsCount = 0;
 
 	/** Queue of events to write if we are batching. */
-	protected Collection m_eventQueue = null;
+	protected Collection<Event> m_eventQueue = null;
 
 	/*************************************************************************************************************************************************
 	 * Dependencies
@@ -212,7 +212,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 			if (m_batchWrite)
 			{
-				m_eventQueue = new Vector();
+				m_eventQueue = new Vector<Event>();
 			}
 
 			// startup the event checking
@@ -571,7 +571,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			try
 			{
 				// write any batched events
-				Collection myEvents = new Vector();
+				Collection<Event> myEvents = new Vector<Event>();
 				if (m_batchWrite)
 				{
 					synchronized (m_eventQueue)
@@ -614,7 +614,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 						{
 							// read the Event
 							long id = result.getLong(1);
-							Time date = timeService().newTime(result.getTimestamp(2, sqlService().getCal()).getTime());
+							Date date = new Date(result.getTimestamp(2, sqlService().getCal()).getTime());
 							String function = result.getString(3);
 							String ref = result.getString(4);
 							String session = result.getString(5);
@@ -655,7 +655,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 							// Note: events from outside the server don't need notification info, since notification is processed only on internal
 							// events -ggolden
-							BaseEvent event = new BaseEvent(id, function, ref, context, "m".equals(code), NotificationService.NOTI_NONE);
+							BaseEvent event = new BaseEvent(id, function, ref, context, "m".equals(code), NotificationService.NOTI_NONE, date);
 							if (nonSessionEvent)
 							{
 								event.setUserId(userId);
