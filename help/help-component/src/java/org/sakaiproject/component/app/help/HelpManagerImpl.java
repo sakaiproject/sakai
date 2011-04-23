@@ -397,9 +397,9 @@ public List getActiveContexts(Map session)
    * @param query
    * @return Set of matching results.
    */
-  protected Set searchResources(Query query)
+  protected Set<Resource> searchResources(Query query)
   {
-    Set results = new HashSet();
+    Set<Resource> results = new HashSet<Resource>();
     
     String locale = getSelectedLocale().toString();
     if (!toc.containsKey(locale)) {
@@ -407,10 +407,13 @@ public List getActiveContexts(Map session)
     }
     
     String luceneFolder = LUCENE_INDEX_PATH + File.separator + locale;
+    
+    Searcher searcher = null;
+    FSDirectory dir = null;
     try
     {
-    	FSDirectory dir = FSDirectory.open(new File(luceneFolder));
-    	Searcher searcher = new IndexSearcher(dir, false);
+    	dir = FSDirectory.open(new File(luceneFolder));
+    	searcher = new IndexSearcher(dir, false);
     	LOG.debug("Searching for: " + query.toString());
 
       //Hits hits = searcher.search(query);
@@ -426,12 +429,24 @@ public List getActiveContexts(Map session)
         resource.setScore(scoreDoc.score * 100);
         results.add(resource);
       }
-      searcher.close();
-      dir.close();
+      
     }
     catch (Exception e)
     {
       LOG.error(e);
+    }
+    finally 
+    {
+    	if (searcher != null) {
+    		try {
+				searcher.close();
+			} catch (IOException e) {
+				//nothing to do
+			}
+    	}
+    	if (dir != null) {
+    		dir.close();
+    	}
     }
     return results;
   }
@@ -444,7 +459,7 @@ public List getActiveContexts(Map session)
    * @return
    * @throws ParseException
    */
-  protected Set searchResources(String queryStr, String defaultField)
+  protected Set<Resource> searchResources(String queryStr, String defaultField)
       throws ParseException
   {
     Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_29);
