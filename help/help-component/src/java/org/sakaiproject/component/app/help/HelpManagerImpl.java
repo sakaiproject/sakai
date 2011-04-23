@@ -557,11 +557,13 @@ public List getActiveContexts(Map session)
       }
 
       if (resource.getLocation() != null){
-          doc.add(Field.Keyword("location", resource.getLocation()));
+         // doc.add(Field.Keyword("location", resource.getLocation()));
+    	  doc.add(new Field("location", resource.getLocation(), Field.Store.YES, Field.Index.UN_TOKENIZED));
       }
 
-      //doc.add(Field.Keyword("name", resource.getName()));
-      doc.add(Field.Keyword("id", resource.getId().toString()));
+      
+      //doc.add(Field.Keyword("id", resource.getId().toString()));
+      doc.add(new Field("id", resource.getId().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
 
       if (getRestConfiguration().getOrganization().equals("sakai"))
       {
@@ -577,8 +579,9 @@ public List getActiveContexts(Map session)
               reader.close();
           }
       }
-      doc.add(Field.Text("content", sb.toString()));
-
+      //doc.add(Field.Text("content", sb.toString()));
+      doc.add(new Field("content", sb.toString(), Field.Store.YES, Field.Index.TOKENIZED));
+      
       return doc;
   }
 
