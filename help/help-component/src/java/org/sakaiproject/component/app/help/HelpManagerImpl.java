@@ -496,7 +496,8 @@ public List getActiveContexts(Map session)
       {
           for (Iterator<String> i = resource.getContexts().iterator(); i.hasNext();)
           {
-              doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
+              //doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
+        	  doc.add(new Field("context", "\"" + ((String) i.next()) + "\"", Field.Store.YES, Field.Index.UN_TOKENIZED));
           }
       }
 
