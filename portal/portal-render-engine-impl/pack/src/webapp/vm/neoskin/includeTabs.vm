@@ -38,13 +38,13 @@
 
 <ul class="nav-submenu subnav">
 						#if (${tabsSites.profileToolUrl})
-<li class="submenuitem"><span><a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true" class="submenuitem-profile"><span>Profile</span></a></span></li>
+<li class="submenuitem"><span><a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true" class="submenuitem-profile"><span>${rloader.sit_profile}</span></a></span></li>
 						#end
 						#if (${tabsSites.prefsToolUrl})
-<li class="submenuitem"><span><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"  class="submenuitem-prefs">Preferences</a></span></li>
+<li class="submenuitem"><span><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"  class="submenuitem-prefs">${rloader.sit_preferences}</a></span></li>
 						#end
 			#if (${tabsSites.worksiteToolUrl})
-<li class="submenuitem "><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site" class="submenuitem-new-site">New Site</a></span></li>
+<li class="submenuitem "><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true" class="submenuitem-new-site">${rloader.sit_newsite}</a></span></li>
 			#end
 </ul>
 </span>
@@ -156,6 +156,7 @@
 			#if (${tabsSites.worksiteToolUrl})
 		        <div id="allSites">
 					<span><a id="allSitesLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span style="color:white">${rloader.sit_allsites}</span></a></span>
+					<span><a id="addNewSiteLink2" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true"><span style="color:white">${rloader.sit_newsite}</span></a></span>
 				</div>
 			#end
      	</div>
