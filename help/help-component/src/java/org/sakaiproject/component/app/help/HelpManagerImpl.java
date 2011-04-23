@@ -220,7 +220,7 @@ public List getActiveContexts(Map session)
    * @param contextId
    * @return
    */
-  public Set getResources(Long contextId)
+  public Set<Resource> getResources(Long contextId)
   {
     return searchResources(new TermQuery(new Term("context", "\"" + contextId
         + "\"")));
@@ -726,15 +726,15 @@ public List getActiveContexts(Map session)
    * Index Categories and Resources
    * @param categories
    */
-  private void indexRecursive(IndexWriter indexWriter, Set categories)
+  private void indexRecursive(IndexWriter indexWriter, Set<Category> categories)
   {
-    Iterator i = categories.iterator();
+    Iterator<Category> i = categories.iterator();
     while (i.hasNext())
     {
       Category category = (Category) i.next();
-      Set resourcesList = category.getResources();
+      Set<ResourceBean> resourcesList = category.getResources();
 
-      for (Iterator resourceIterator = resourcesList.iterator(); resourceIterator
+      for (Iterator<ResourceBean> resourceIterator = resourcesList.iterator(); resourceIterator
           .hasNext();)
       {
         ResourceBean resource = (ResourceBean) resourceIterator.next();
@@ -770,15 +770,15 @@ public List getActiveContexts(Map session)
    */
   private void storeRecursive(Set categories)
   {
-    Iterator i = categories.iterator();
+    Iterator<Category> i = categories.iterator();
     while (i.hasNext())
     {
       Category category = (Category) i.next();
 
-      Set resourcesList = category.getResources();
+      Set<Resource> resourcesList = category.getResources();
       category.setResources(null);
 
-      for (Iterator resourceIterator = resourcesList.iterator(); resourceIterator
+      for (Iterator<Resource> resourceIterator = resourcesList.iterator(); resourceIterator
           .hasNext();)
       {
         Resource resource = (Resource) resourceIterator.next();
@@ -899,7 +899,7 @@ public List getActiveContexts(Map session)
           }
 
           // Get all supported locales
-          locales = new ArrayList();
+          locales = new ArrayList<String>();
           StringTokenizer st =
           	new StringTokenizer(
           			getServerConfigurationService().getString("locales"), ",");
@@ -1000,7 +1000,7 @@ public List getActiveContexts(Map session)
     }
 
     // Create lucene indexes for each toc (which key is either a locale or 'default')
-	for (Iterator j = toc.keySet().iterator(); j.hasNext();)
+	for (Iterator<String> j = toc.keySet().iterator(); j.hasNext();)
 	{
 		String key = (String) j.next();
 		String luceneIndexPath = LUCENE_INDEX_PATH + File.separator + key;
@@ -1185,7 +1185,7 @@ public List getActiveContexts(Map session)
         	  new ClassPathResource(classpathUrl);  
           BeanFactory beanFactory = new XmlBeanFactory(resource);
           TableOfContents tocTemp = (TableOfContents) beanFactory.getBean(TOC_API);
-          Set categories = tocTemp.getCategories();
+          Set<Category> categories = tocTemp.getCategories();
           storeRecursive(categories);
 
           // Get localized toc

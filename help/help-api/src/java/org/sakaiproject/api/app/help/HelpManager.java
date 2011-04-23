@@ -86,7 +86,7 @@ public interface HelpManager
    * @param context
    * @return set of resources associated with the supplied context
    */
-  public Set getResources(Long context);
+  public Set<Resource> getResources(Long context);
 
   /**
    * get a resource by id
