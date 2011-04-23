@@ -439,7 +439,8 @@ public List getActiveContexts(Map session)
       throws ParseException
   {
     Analyzer analyzer = new StandardAnalyzer();
-    Query query = QueryParser.parse(queryStr, defaultField, analyzer);
+    QueryParser parser = new QueryParser(defaultField, analyzer);
+    Query query = parser.parse(queryStr);
     return searchResources(query);
   }
 
@@ -493,7 +494,7 @@ public List getActiveContexts(Map session)
       Document doc = new Document();
       if (resource.getContexts() != null)
       {
-          for (Iterator i = resource.getContexts().iterator(); i.hasNext();)
+          for (Iterator<String> i = resource.getContexts().iterator(); i.hasNext();)
           {
               doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
           }
