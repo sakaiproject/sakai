@@ -64,7 +64,7 @@ public interface HelpManager
    * @param mappedView
    * @return - list of contexts (String)
    */
-  public List getContexts(String mappedView);
+  public List<String> getContexts(String mappedView);
 
   /**
    * returns a list of all active contexts.  Active contexts

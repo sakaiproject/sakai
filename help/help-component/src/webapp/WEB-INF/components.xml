@@ -54,6 +54,8 @@
 				<property name="txManager">
 					<ref bean="helpTransactionManager" />
 				</property>
+				<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+				<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
 			</bean>
 		</property>
 		<property name="transactionAttributes">

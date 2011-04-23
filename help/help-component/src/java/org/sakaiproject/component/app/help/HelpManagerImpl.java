@@ -4,7 +4,7 @@
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
- *
+ *locales
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -106,8 +106,8 @@ import org.xml.sax.SAXException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.user.cover.PreferencesService;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 
 /**
@@ -138,7 +138,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   private static String HELP_BASENAME = "help";
   private static String DEFAULT_LOCALE = "default";
 
-  private Map helpContextConfig = new HashMap();
+  private Map<String, List> helpContextConfig = new HashMap<String, List>();
   private int contextSize;
 
   private RestConfiguration restConfiguration;
@@ -148,7 +148,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   private Map<String, TableOfContentsBean> toc;
 
   // All supported locales
-  private List locales;
+  private List<String> locales;
 
   private Boolean initialized = Boolean.FALSE;
   private Object initializedLock = new Object();
@@ -176,8 +176,19 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   {
     serverConfigurationService = s;
   }
+  
+  
+  private PreferencesService  preferencesService;
+  public void setPreferencesService(PreferencesService preferencesService) {
+	  this.preferencesService = preferencesService;
+  }
+  
+  private UserDirectoryService userDirectoryService;
+  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	  this.userDirectoryService = userDirectoryService;
+  }
 
-  public List getContexts(String mappedView)
+public List getContexts(String mappedView)
   {
     return (List) helpContextConfig.get(mappedView);
   }
@@ -946,8 +957,8 @@ public List getActiveContexts(Map session)
 	  String language = "";
 	  String country = "";
 
-	  Preferences prefs = (PreferencesEdit) PreferencesService
-              .getPreferences(UserDirectoryService.getCurrentUser().getId());
+	  Preferences prefs = (PreferencesEdit) preferencesService
+              .getPreferences(userDirectoryService.getCurrentUser().getId());
       ResourceProperties props = prefs
               .getProperties(ResourceLoader.APPLICATION_ID);
       String prefLocale = props.getProperty(ResourceLoader.LOCALE_KEY);
@@ -1196,18 +1207,6 @@ public List getActiveContexts(Map session)
      }
   }
 
-  /**
-   * Gets file url
-   * @param path
-   * @param file
-   * @return file url
-   */
-  private URL getFileUrl(String path, String locale)
-  {
-	  String file = HELP_BASENAME + "_" + locale + ".xml";
-	  String classpathUrl = path + "/" + file;
-	  return getClass().getResource(classpathUrl);
-  }
 
   /**
    * register local content
@@ -1215,12 +1214,12 @@ public List getActiveContexts(Map session)
   public void registerStaticContent()
   {
     //  register static content
-    Set toolSet = toolManager.findTools(null, null);
+    Set<Tool> toolSet = toolManager.findTools(null, null);
 
     // find out what we want to ignore
     List hideHelp = Arrays.asList(StringUtil.split(serverConfigurationService.getString("help.hide"), ","));
             
-    for (Iterator i = toolSet.iterator(); i.hasNext();)
+    for (Iterator<Tool> i = toolSet.iterator(); i.hasNext();)
     {
       Tool tool = (Tool) i.next();
       if (tool != null && tool.getId() != null && !hideHelp.contains(tool.getId()))
@@ -1232,7 +1231,7 @@ public List getActiveContexts(Map session)
     		extraCollections = StringUtil.split(toolHelpCollections, ",");
 
   		// Loop throughout the locales list
-    	for (Iterator j = locales.iterator(); j.hasNext();)
+    	for (Iterator<String> j = locales.iterator(); j.hasNext();)
     	{
     		String locale = (String) j.next();
 
@@ -1249,7 +1248,7 @@ public List getActiveContexts(Map session)
     }
 
 	// Sort the help topics for each locale
-	for (Iterator j = locales.iterator(); j.hasNext();)
+	for (Iterator<String> j = locales.iterator(); j.hasNext();)
 	{
 		String locale = (String) j.next();
 
@@ -1374,7 +1373,7 @@ public List getActiveContexts(Map session)
     if (doc == null)
       return;
 
-    List arrayCorpus = new ArrayList();
+    List<String> arrayCorpus = new ArrayList<String>();
 
     NodeList nodeList = doc.getElementsByTagName("id");
     int nodeListLength = nodeList.getLength();
