@@ -67,6 +67,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.util.Version;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.api.app.help.Category;
@@ -559,12 +560,12 @@ public List getActiveContexts(Map session)
 
       if (resource.getLocation() != null){
          // doc.add(Field.Keyword("location", resource.getLocation()));
-    	  doc.add(new Field("location", resource.getLocation(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+    	  doc.add(new Field("location", resource.getLocation(), Field.Store.YES, Field.Index.NOT_ANALYZED));
       }
 
       
       //doc.add(Field.Keyword("id", resource.getId().toString()));
-      doc.add(new Field("id", resource.getId().toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+      doc.add(new Field("id", resource.getId().toString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
 
       if (getRestConfiguration().getOrganization().equals("sakai"))
       {
@@ -581,7 +582,7 @@ public List getActiveContexts(Map session)
           }
       }
       //doc.add(Field.Text("content", sb.toString()));
-      doc.add(new Field("content", sb.toString(), Field.Store.YES, Field.Index.TOKENIZED));
+      doc.add(new Field("content", sb.toString(), Field.Store.YES, Field.Index.ANALYZED));
       
       return doc;
   }
@@ -750,7 +751,7 @@ public List getActiveContexts(Map session)
 	      {
 	    	indexWriter.addDocument(doc);
 	        LOG.debug("added resource '" + resource.getName() + "', doc count="
-	              + indexWriter.docCount());
+	              + indexWriter.maxDoc());
 	      }
 	      else
 	      {
@@ -1016,7 +1017,7 @@ public List getActiveContexts(Map session)
 	    Date start = new Date();
 	    try
 	    {
-	      writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(), true);
+	      writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(Version.LUCENE_29), true);
 	    }
 	    catch (IOException e)
 	    {
