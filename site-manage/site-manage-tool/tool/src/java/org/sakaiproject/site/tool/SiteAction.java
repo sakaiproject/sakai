@@ -390,6 +390,9 @@ public class SiteAction extends PagedResourceActionII {
 	/** The name of the Attribute for display template index */
 	private static final String STATE_TEMPLATE_INDEX = "site.templateIndex";
 
+	/** The name of the Attribute for display template index */
+	private static final String STATE_OVERRIDE_TEMPLATE_INDEX = "site.overrideTemplateIndex";
+
 	/** State attribute for state initialization. */
 	private static final String STATE_INITIALIZED = "site.initialized";
 
@@ -1086,6 +1089,11 @@ public class SiteAction extends PagedResourceActionII {
 		// updatePortlet(state, portlet, data);
 		if (state.getAttribute(STATE_INITIALIZED) == null) {
 			init(portlet, data, state);
+			String overRideTemplate = (String) state.getAttribute(STATE_OVERRIDE_TEMPLATE_INDEX);
+			if ( overRideTemplate != null ) {
+				state.removeAttribute(STATE_OVERRIDE_TEMPLATE_INDEX);
+				state.setAttribute(STATE_TEMPLATE_INDEX, overRideTemplate);
+			}
 		}
 		
 		String indexString = (String) state.getAttribute(STATE_TEMPLATE_INDEX);
@@ -3940,10 +3948,14 @@ public class SiteAction extends PagedResourceActionII {
 		// start clean
 		cleanState(state);
 
-		List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
-		if (siteTypes != null) 
-		{
-			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+		if (state.getAttribute(STATE_INITIALIZED) == null) {
+			state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "1");
+		} else {
+			List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
+			if (siteTypes != null) 
+			{
+				state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+			} 
 		}
 
 	} // doNew_site
@@ -4023,6 +4035,18 @@ public class SiteAction extends PagedResourceActionII {
 	 *         could be found
 	 */
 	protected Site getStateSite(SessionState state) {
+		return getStateSite(state, false);
+
+	} // getStateSite
+
+	/**
+	 * get the Site object based on SessionState attribute values
+	 * 
+	 * @param autoContext - If true, we fall back to a context if it exists
+	 * @return Site object related to current state; null if no such Site object
+	 *         could be found
+	 */
+	protected Site getStateSite(SessionState state, boolean autoContext) {
 		Site site = null;
 
 		if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null) {
@@ -4032,8 +4056,15 @@ public class SiteAction extends PagedResourceActionII {
 			} catch (Exception ignore) {
 			}
 		}
+		if ( site == null && autoContext ) {
+                        String siteId = ToolManager.getCurrentPlacement().getContext();
+			try {
+				site = SiteService.getSite(siteId);
+				state.setAttribute(STATE_SITE_INSTANCE_ID, siteId);
+			} catch (Exception ignore) {
+			}
+		}
 		return site;
-
 	} // getStateSite
 
 	/**
@@ -6310,6 +6341,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "3");
+			if (state.getAttribute(STATE_INITIALIZED) == null) {
+				state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "3");
+			}
 		}
 
 	} // doMenu_edit_site_tools
@@ -6649,6 +6683,7 @@ public class SiteAction extends PagedResourceActionII {
 			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 25);
 			state.setAttribute(STATE_SITE_TITLE_MAX, siteTitleMaxLength);
 		}
+
 	} // init
 
 	public void doNavigate_to_site(RunData data) {
@@ -9643,7 +9678,7 @@ public class SiteAction extends PagedResourceActionII {
 		String wSetupTool = NULL_STRING;
 		String wSetupToolId = NULL_STRING;
 		List wSetupPageList = new Vector();
-		Site site = getStateSite(state);
+		Site site = getStateSite(state, true);
 		List pageList = site.getPages();
 
 		// Put up tool lists filtered by category
