@@ -62,11 +62,13 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -85,8 +87,13 @@ import org.sakaiproject.component.app.help.model.ContextBean;
 import org.sakaiproject.component.app.help.model.ResourceBean;
 import org.sakaiproject.component.app.help.model.SourceBean;
 import org.sakaiproject.component.app.help.model.TableOfContentsBean;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.BeanFactory;
@@ -104,11 +111,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.api.UserDirectoryService;
 
 
 /**
@@ -407,19 +409,25 @@ public List getActiveContexts(Map session)
     String luceneFolder = LUCENE_INDEX_PATH + File.separator + locale;
     try
     {
-      Searcher searcher = new IndexSearcher(luceneFolder);
-      LOG.debug("Searching for: " + query.toString());
+    	FSDirectory dir = FSDirectory.open(new File(luceneFolder));
+    	Searcher searcher = new IndexSearcher(dir, false);
+    	LOG.debug("Searching for: " + query.toString());
 
-      Hits hits = searcher.search(query);
-      LOG.debug(hits.length() + " total matching documents");
+      //Hits hits = searcher.search(query);
+      TopDocs topDocs = searcher.search(query, 1000);
+      ScoreDoc[] hits = topDocs.scoreDocs;
+      LOG.debug(hits.length + " total matching documents");
 
-      for (int i = 0; i < hits.length(); i++)
+      for (int i = 0; i < hits.length; i++)
       {
-        ResourceBean resource = getResourceFromDocument(hits.doc(i));
-        resource.setScore(hits.score(i) * 100);
+    	ScoreDoc scoreDoc = hits[i];
+    	Document doc = searcher.doc(scoreDoc.doc);
+        ResourceBean resource = getResourceFromDocument(doc);
+        resource.setScore(scoreDoc.score * 100);
         results.add(resource);
       }
       searcher.close();
+      dir.close();
     }
     catch (Exception e)
     {
@@ -439,8 +447,8 @@ public List getActiveContexts(Map session)
   protected Set searchResources(String queryStr, String defaultField)
       throws ParseException
   {
-    Analyzer analyzer = new StandardAnalyzer();
-    QueryParser parser = new QueryParser(defaultField, analyzer);
+    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_29);
+    QueryParser parser = new QueryParser(Version.LUCENE_29, defaultField, analyzer);
     Query query = parser.parse(queryStr);
     return searchResources(query);
   }
@@ -498,7 +506,7 @@ public List getActiveContexts(Map session)
           for (Iterator<String> i = resource.getContexts().iterator(); i.hasNext();)
           {
               //doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
-        	  doc.add(new Field("context", "\"" + ((String) i.next()) + "\"", Field.Store.YES, Field.Index.UN_TOKENIZED));
+        	  doc.add(new Field("context", "\"" + ((String) i.next()) + "\"", Field.Store.YES, Field.Index.NOT_ANALYZED));
           }
       }
 
@@ -1017,7 +1025,9 @@ public List getActiveContexts(Map session)
 	    Date start = new Date();
 	    try
 	    {
-	      writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(Version.LUCENE_29), true);
+	      //writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(Version.LUCENE_29), true);
+	    	FSDirectory directory = FSDirectory.open(new File(luceneIndexPath));
+	      writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_29), true, IndexWriter.MaxFieldLength.UNLIMITED);
 	    }
 	    catch (IOException e)
 	    {
@@ -1031,6 +1041,7 @@ public List getActiveContexts(Map session)
 	    try
 	    {
 	      writer.optimize();
+	      writer.commit();
 	      writer.close();
 	    }
 	    catch (IOException e)
