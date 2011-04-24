@@ -440,7 +440,6 @@ jQuery(document).ready(function(){
 });
 
 var setupSiteNav = function(){
-    jQuery("ul.subnav").parent().append('<span class="drop" tabindex="-1"></span>');
     $("ul.subnav").each(function(){
         $(this).children('li:last').addClass('lastMenuItem')
     });

@@ -47,6 +47,7 @@
 <li class="submenuitem "><span><a id="addNewSiteLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true" class="submenuitem-new-site">${rloader.sit_newsite}</a></span></li>
 			#end
 </ul>
+<span class="drop" tabindex="-1"></span>
 </span>
 </span>
 
@@ -107,6 +108,7 @@
     <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool"> ${rloader.sit_addmoretools}</a></span></li>
 #end
 </ul>
+<span class="drop" tabindex="-1"></span>
 </li>
 						#end
 
