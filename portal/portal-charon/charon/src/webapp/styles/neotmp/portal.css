@@ -474,20 +474,22 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /* more tab */
-li.more-tab a span {
+li.more-tab {
+    margin-left:30px !important;
+
+}
+li.more-tab a {
 	background-image:  url(images/subnav_btn_more.png);
     display:block;
     height:16px;
 	background-repeat: no-repeat;
-	background-position:  3px -10px;
+	background-position:  right top;
 	padding:0;
 	margin: 0;
 }
-li.more-tab a span:hover {
-	background-position:  3px -43px;
+li.more-tab a span{
+    padding-right:15px;
 }
-
-
 #siteLinkList li.more-active a,
 	#siteLinkList li.more-active a:link,
 	#siteLinkList li.more-active a:visited {
