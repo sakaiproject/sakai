@@ -142,6 +142,7 @@ site types are a local setting - adjust */
 	padding: 0;
 	margin-top: .5em;
 	padding-left: 13.3em;
+
 }
 /*margin tweak for IE to avoid float drop*/
 * html #content{margin-left:12.3em}
@@ -713,24 +714,28 @@ page estate
 */
 #togglebar{
     float:left;
-    width:10px;    
+    width:13px;
     height:30px;
-    padding-top:2em
+    padding-top:2em;
+    
 }
 a#toggleToolMenu{
     text-decoration:none;
 }
 #togglebar #toggleNormal{
-    background:url(images/toggleOpen.png) top left no-repeat;
+    background:url(images/toggleOpen.png) -2px 0 no-repeat;
     padding:4px;
     display:block;
     height:50px;
 }
 #togglebar #toggleToolMax{
-    background:url(images/toggleClose.png) top left  no-repeat;
+    background:url(images/toggleClose.png) -2px 0  no-repeat;
     padding:4px;
     display:block;
     height:50px;
+}
+#togglebar .toggleToolMenuHover{
+    background-position: 0 0 !important;
 }
 /*
 
@@ -794,7 +799,7 @@ a#toggleToolMenu{
 	margin-left:0;
 }
 .sakaiMinimizePageNavigation #content{
-	padding-left:1em;
+	padding-left:1.2em;
 	margin-left:0;
 }
 .sakaiMinimizeSiteNavigation #siteNavWrapper{

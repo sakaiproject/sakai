@@ -502,6 +502,13 @@ var setupToolToggle = function(toggleClass){
     });
     $('#toggler').addClass(toggleClass)
     
+	$('#toggleToolMenu').hover(function () {
+         $(this).find('span').addClass('toggleToolMenuHover')
+	}, 
+      function () {
+         $(this).find('span').removeClass('toggleToolMenuHover')
+      }
+  );
     $('#toggleToolMenu').click(function(){
         if ($('#toggleNormal').is(':visible')) {
             sakaiRestoreNavigation();
