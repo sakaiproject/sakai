@@ -346,7 +346,7 @@ public class CalendarBean {
 		
 		TimeZone timeZone = getCurrentUserTimezone();
 		DateTime start = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(0, 0, 0, 0);
-		LOG.info("looking for events for: " + start);
+		LOG.debug("looking for events for: " + start);
 		Time sod = M_ts.newTime(start.getMillis());
 		DateTime endOfDay = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(23, 59, 59, 0);
 		Time eod = M_ts.newTime(endOfDay.getMillis());
@@ -357,7 +357,7 @@ public class CalendarBean {
 			CalendarEvent ce = (CalendarEvent) i.next();
 			TimeRange tr = ce.getRange();
 			if(range.contains(tr.firstTime()) || range.contains(tr.lastTime())){
-				LOG.info("found event: " + ce.getDisplayName());
+				LOG.debug("found event: " + ce.getDisplayName());
 				cev.add(ce);
 			}
 		}
