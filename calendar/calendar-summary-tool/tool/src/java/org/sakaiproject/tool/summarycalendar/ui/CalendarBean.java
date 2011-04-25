@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -40,6 +41,8 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventVector;
@@ -55,7 +58,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -115,7 +118,7 @@ public class CalendarBean {
 	private String[]								months					= { "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun", "month.jul", "month.aug", "month.sep", "month.oct",
 			"month.nov", "month.dec"											};
 
-	private Map										eventImageMap			= new HashMap();
+	private Map	<String, String>									eventImageMap			= new HashMap<String, String>();
 	
 	private long									lastModifiedPrefs		= 0l;
 	private Map										priorityColorsMap		= null;
@@ -341,32 +344,36 @@ public class CalendarBean {
 	private CalendarEventVector getScheduleEventsForDay(Calendar c) {
 		CalendarEventVector cev = new CalendarEventVector();
 		
-		// find start and end of day
-		Calendar startOfDay = (Calendar) c.clone();
-		startOfDay.set(Calendar.HOUR_OF_DAY, 0);
-		startOfDay.set(Calendar.MINUTE, 0);
-		startOfDay.set(Calendar.SECOND, 0);
-		startOfDay.set(Calendar.MILLISECOND, 0);
-		Time sod = M_ts.newTime(startOfDay.getTimeInMillis());
-		Calendar endOfDay = (Calendar) c.clone();
-		endOfDay.set(Calendar.HOUR_OF_DAY, 23);
-		endOfDay.set(Calendar.MINUTE, 59);
-		endOfDay.set(Calendar.SECOND, 59);
-		endOfDay.set(Calendar.MILLISECOND, 999);
-		Time eod = M_ts.newTime(endOfDay.getTimeInMillis());
+		TimeZone timeZone = getCurrentUserTimezone();
+		DateTime start = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(0, 0, 0, 0);
+		LOG.info("looking for events for: " + start);
+		Time sod = M_ts.newTime(start.getMillis());
+		DateTime endOfDay = new DateTime(c).withZone(DateTimeZone.forTimeZone(timeZone)).withTime(23, 59, 59, 0);
+		Time eod = M_ts.newTime(endOfDay.getMillis());
 		TimeRange range = M_ts.newTimeRange(sod, eod);
 		
-		Iterator i = getEventsFromSchedule().iterator();
+		Iterator<CalendarEvent> i = getEventsFromSchedule().iterator();
 		while(i.hasNext()){
 			CalendarEvent ce = (CalendarEvent) i.next();
 			TimeRange tr = ce.getRange();
 			if(range.contains(tr.firstTime()) || range.contains(tr.lastTime())){
+				LOG.info("found event: " + ce.getDisplayName());
 				cev.add(ce);
 			}
 		}
 		return cev;
 	}
 
+	/**
+	 * Get the TimeZone for the current user
+	 * @return
+	 */
+	private TimeZone getCurrentUserTimezone() {
+		
+		TimeZone tz = TimeService.getLocalTimeZone();
+		LOG.debug("got tz " + tz.getDisplayName());
+		return tz;
+	}
 //	}
 	
 	private List getDayEvents(CalendarEventVector dayEventVector) {
@@ -807,9 +814,9 @@ public class CalendarBean {
 	}
 
 	// tbd: this needs to used gif files defined in calendar-tool/tool/src/config/.../calendar.config
-	public synchronized Map getEventImageMap() {
+	public synchronized Map<String, String> getEventImageMap() {
 		if(eventImageMap == null || eventImageMap.size() == 0){
-			eventImageMap = new HashMap();
+			eventImageMap = new HashMap<String, String>();
 			eventImageMap.put("Academic Calendar", imgLocation + "academic_calendar.gif");
 			eventImageMap.put("Activity", imgLocation + "activity.gif");
 			eventImageMap.put("Cancellation", imgLocation + "cancelled.gif");
