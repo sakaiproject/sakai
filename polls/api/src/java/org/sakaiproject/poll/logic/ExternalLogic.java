@@ -202,4 +202,10 @@ public interface ExternalLogic {
 	 */
 	public boolean isResultsChartEnabled();
 	
+	/**
+	 * Is the current user using a mobile browser?
+	 * @return
+	 */
+	public boolean isMobileBrowser();
+	
 }

@@ -24,6 +24,9 @@ package org.sakaiproject.poll.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.poll.logic.ExternalLogic;
@@ -233,11 +236,20 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		//the form fields
 		UIInput.make(newPoll, "new-poll-text", "#{poll.text}",poll.getText());
 		
-
+		
+		if (!externalLogic.isMobileBrowser())
+		{
+			// show WYSIWYG editor
 		UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{poll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
-		//itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(4, 4));
 		richTextEvolver.evolveTextInput(itemDescr);
 		UILabelTargetDecorator.targetLabel(pollDescr, itemDescr);
+		}
+		else
+		{
+			// do not show WYSIWYG editor in the mobile view
+			UIInput itemDescr = UIInput.make(newPoll, "newpolldescr_mobile", "#{poll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
+			UILabelTargetDecorator.targetLabel(pollDescr, itemDescr);
+		}
 
 		UIInput voteOpen = UIInput.make(newPoll, "openDate:", "poll.voteOpen");
 		UIInput voteClose = UIInput.make(newPoll, "closeDate:", "poll.voteClose");

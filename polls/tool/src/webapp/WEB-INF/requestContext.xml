@@ -83,6 +83,7 @@
 		<property name="targettedMessageList"
 			ref="targettedMessageList" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="pollOptionDeleteProducer"

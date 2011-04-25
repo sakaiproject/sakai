@@ -26,12 +26,15 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -96,6 +99,10 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		this.richTextEvolver = richTextEvolver;
 	}
 
+	private ExternalLogic externalLogic;
+	public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
+	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
@@ -158,9 +165,18 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		if (option.getOptionText() == null)
 			option.setOptionText("");
 
+		
+		if (!externalLogic.isMobileBrowser())
+		{
+			// show WYSIWYG editor
 		UIInput optText = UIInput.make(form,"optText:","#{option.optionText}",option.getOptionText());
-		//optText.decorators = new DecoratorList(new UITextDimensionsDecorator(4, 4));
 		richTextEvolver.evolveTextInput(optText);
+		}
+		else
+		{
+			// do not show WYSIWYG editor in the mobile view
+			UIInput optText = UIInput.make(form,"optText_mobile","#{option.optionText}",option.getOptionText());
+		}
 
 		form.parameters.add(new UIELBinding("#{option.pollId}",
 				poll.getPollId()));
