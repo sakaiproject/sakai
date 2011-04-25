@@ -418,6 +418,13 @@
 		  <classifier>tomcat-overlay</classifier>
                   <type>zip</type>
 		</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.reset-pass</groupId>
+                    <artifactId>reset-pass-assembly</artifactId>
+                    <version>${sakai.resetpass.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
