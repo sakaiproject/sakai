@@ -151,10 +151,18 @@
 
 #if ($tabsSites.tabsMoreSitesShow)
 <div id="selectSite" style="display:none">
-         <div id="otherSiteSearch"> ## $tabsSites.tabsMoreSites.size()
-         	<label for="txtSearch">Search</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+		<div id="otherSiteMenuWrap">
+
+         <div id="otherSiteSearch"> 
+		#if($tabsSites.tabsMoreSites.size() > 10) ## TODO: this max should come from serv conf service
+         	<label for="txtSearch">Search sites in this drawer</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
 	        <a id="imgSearch" href="#" style="display:none"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
+		##end
+		#else
+		<h4>Sites in drawer</h4>
+		#end
+		</div>	
 			#if (${tabsSites.worksiteToolUrl})
 		        <ul id="otherSitesMenu">
 					<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>

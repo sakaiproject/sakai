@@ -563,7 +563,7 @@ html>body .dhtml_more_tabs {
 .dhtml_more_tabs  li {
 	margin: 3px; 
 	line-height: 1.1em;
-    width:22em;
+    width:18em;
     float:left;
     display:block
 }
@@ -1688,9 +1688,9 @@ ul#otherSiteList{
     padding:0;
 }
 ul#otherSitesMenu{
-    margin:-5px;
-    padding:0;
     float:right;
+    margin:0;
+    padding:0
 }
 ul#otherSiteList li,ul#otherSitesMenu li{
     background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
@@ -1709,26 +1709,46 @@ ul#otherSiteList li a, #otherSitesMenu li a{
     color:#fff;
     text-decoration:none !important;
 }
+ul#otherSiteList li a{
+    white-space:nowrap;
+}
+ul#otherSiteList li a span{
+    width:14em;
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    }
 .toolMenus{
     width: 17px;
     height:17px;
     padding:0px;
     border-left:1px solid #888;
-	background: url(images/subnav_btn.png) no-repeat 10px -2px;
+	background: #292929 url(images/subnav_btn.png) no-repeat 10px -4px;
     position:absolute;
-   right:0;
-   top:0;
+   right:1px;
+   top:2px;
+   height:11px;
 }
-.toolMenus:hover{background-position: 10px -37px; cursor: pointer;}
-ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active{
+.toolMenus:hover{background-position: 10px -38px; cursor: pointer;}
+ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active     {
    color:#9cf
 }
-#otherSiteSearch{
+#otherSiteMenuWrap{
     margin:5px;
     padding:5px;
+    width:auto;
+    height:30px;
 }
-#otherSiteSearch *{
+#otherSiteMenuWrap h4{
+    color:#fff;
+}
+#otherSiteMenuWrap *{
     vertical-align:middle;
+}
+#otherSiteSearch{
+    padding:5px;
+    width:70%;
+    float:left;
 }
 #otherSiteSearch label{
     color:#fff;
