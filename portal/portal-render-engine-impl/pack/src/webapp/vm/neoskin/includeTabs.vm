@@ -172,7 +172,7 @@
      	</div>
      	<ul id="otherSiteList" role="navigation">
 #foreach( $site in $tabsSites.tabsMoreSites )
-		<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;</a></li>
+		<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a></li>
 #end	
       </ul>
 </div>
