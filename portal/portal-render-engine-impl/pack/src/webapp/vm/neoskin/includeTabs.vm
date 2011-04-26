@@ -105,7 +105,7 @@
         #end
     #end
 #if (${site.sitePages.pageNavCanAddMoreTools}) 
-    <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool"> ${rloader.sit_addmoretoolstools}</a></span></li>
+    <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool"> ${rloader.sit_addmoretools}</a></span></li>
 #end
 </ul>
 <span class="drop" tabindex="-1"></span>
