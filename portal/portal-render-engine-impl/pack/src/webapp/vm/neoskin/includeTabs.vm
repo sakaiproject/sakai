@@ -156,9 +156,9 @@
 	        <a id="imgSearch" href="#" style="display:none"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
 			#if (${tabsSites.worksiteToolUrl})
-		        <ul id="allSites">
-					<li><a id="allSitesLink" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span style="color:white">${rloader.sit_allsites}</span></a></li>
-					<li><a id="addNewSiteLink2" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true"><span style="color:white">${rloader.sit_newsite}</span></a></li>
+		        <ul id="otherSitesMenu">
+					<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
+					<li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
 				</ul>
 			#end
      	</div>

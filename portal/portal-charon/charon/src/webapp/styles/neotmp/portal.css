@@ -1687,12 +1687,12 @@ ul#otherSiteList{
     margin:5px;
     padding:0;
 }
-ul#allSites{
+ul#otherSitesMenu{
     margin:-5px;
     padding:0;
     float:right;
 }
-ul#otherSiteList li,ul#allSites li{
+ul#otherSiteList li,ul#otherSitesMenu li{
     background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
     position:relative;
     border-radius: 5px;
@@ -1700,10 +1700,10 @@ ul#otherSiteList li,ul#allSites li{
     -webkit-border-radius: 5px;
     overflow:hidden;
 }
-ul#allSites li{
+ul#otherSitesMenu li{
     width:auto
     }
-ul#otherSiteList li a, #allSites li a{
+ul#otherSiteList li a, #otherSitesMenu li a{
     display:block;
     padding:7px;
     color:#fff;
