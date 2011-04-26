@@ -475,7 +475,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /* more tab */
 li.more-tab {
-    margin-left:30px !important;
+    
 
 }
 li.more-tab a {
@@ -486,6 +486,7 @@ li.more-tab a {
 	background-position:  right top;
 	padding:0;
 	margin: 0;
+
 }
 li.more-tab a span{
     padding-right:15px;
@@ -1683,20 +1684,15 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
 }
 
 ul#otherSiteList{
-/*
-    
-    -moz-column-width:15em;
-    -webkit-column-width:15em;
-	-moz-column-gap: 5px;
-	-webkit-column-gap: 5px;
-	column-width:15em;
-	column-gap: 5px;
-
-*/
     margin:5px;
     padding:0;
 }
-ul#otherSiteList li,#allSites{
+ul#allSites{
+    margin:-5px;
+    padding:0;
+    float:right;
+}
+ul#otherSiteList li,ul#allSites li{
     background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
     position:relative;
     border-radius: 5px;
@@ -1704,7 +1700,10 @@ ul#otherSiteList li,#allSites{
     -webkit-border-radius: 5px;
     overflow:hidden;
 }
-ul#otherSiteList li a, #allSites a{
+ul#allSites li{
+    width:auto
+    }
+ul#otherSiteList li a, #allSites li a{
     display:block;
     padding:7px;
     color:#fff;
@@ -1737,14 +1736,6 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 }
 #otherSiteSearch span#noSearchResults{
     color:#fff
-}
-
-#allSites{
-    padding:0;
-    float:right;
-}
-#allSites a{
-    padding:3px 10px
 }
 .workspace #presenceToggle{
     display:none;
