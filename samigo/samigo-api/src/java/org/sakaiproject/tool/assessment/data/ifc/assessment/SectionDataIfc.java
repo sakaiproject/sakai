@@ -43,6 +43,7 @@ public interface SectionDataIfc
   public static String POOLID_FOR_RANDOM_DRAW = "POOLID_FOR_RANDOM_DRAW";
   public static String POOLNAME_FOR_RANDOM_DRAW = "POOLNAME_FOR_RANDOM_DRAW";
   public static String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";
+  public static String QUESTIONS_RANDOM_DRAW_DATE = "QUESTIONS_RANDOM_DRAW_DATE";
   
   public static String RANDOMIZATION_TYPE = "RANDOMIZATION_TYPE";
   public static String PER_SUBMISSION = "1";
