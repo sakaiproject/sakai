@@ -17,7 +17,7 @@
 		<!-- xlogin.vm -->
 		<hr/>
 		Blah!
-		<table class="login" cellpadding="0" cellspacing="0" border="0" summary="layout">
+		<table class="login" cellpadding="0" cellspacing="0" border="0">
 		<tr>
 			<th colspan="2">${loginRequired}</th>
 		</tr>
@@ -28,7 +28,7 @@
 				#if (${notify})
 					<div class="alertMessage">${notify}</div>
 				#end
-					<table border="0" class="loginform" summary="layout">
+					<table border="0" class="loginform">
 					<tr>
 						<td><label for="eid">${loginEidWording}</label></td>
 						<td><input name="eid" id="eid" value="${eid}" type="text"/></td>
