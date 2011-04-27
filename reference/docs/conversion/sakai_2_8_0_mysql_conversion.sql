@@ -276,7 +276,7 @@ create table SAKAI_MESSAGE_BUNDLE (
     primary key (ID)
 );
 
-create index SMB_SEARCH on sakai_message_bundle (BASENAME, MODULE_NAME, LOCALE, PROP_NAME); 
+create index SMB_SEARCH on SAKAI_MESSAGE_BUNDLE (BASENAME, MODULE_NAME, LOCALE, PROP_NAME); 
 
 -- STAT-241 table structure for sst_presences
 create table SST_PRESENCES (
