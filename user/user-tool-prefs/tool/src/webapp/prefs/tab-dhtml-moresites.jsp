@@ -62,7 +62,7 @@
         </div>
     </div>              
 
-    <table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout">
+    <table cellspacing="0" cellpadding="5%" class="sidebyside">
         <tr>
             <td id="sites-active-button" class='buttoncell'>
   		 	   	<p style="margin:5px 0 0  0;"><h:commandLink id="moveUp" action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}" styleClass="blockable ud"> <h:graphicImage value="prefs/up.png" alt="#{msgs.tab_move_up}" /> </h:commandLink></p>
