@@ -197,7 +197,7 @@
         <profile>
             <id>experimental</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
                 <clean.targets>
