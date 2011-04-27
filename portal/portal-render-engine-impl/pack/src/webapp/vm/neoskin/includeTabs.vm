@@ -154,7 +154,7 @@
 		<div id="otherSiteMenuWrap">
 
          <div id="otherSiteSearch"> 
-		#if($tabsSites.tabsMoreSites.size() > 10) ## TODO: this max should come from serv conf service
+		#if($tabsSites.tabsMoreSites.size() > 2) ## TODO: low now for demos, this max should come from serv conf service and be set to something more serious later
          	<label for="txtSearch">Search sites in this drawer</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
 	        <a id="imgSearch" href="#" style="display:none"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
