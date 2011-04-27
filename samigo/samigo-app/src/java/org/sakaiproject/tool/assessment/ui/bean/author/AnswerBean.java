@@ -57,6 +57,9 @@ public class AnswerBean implements Serializable{
   }
 
   public String getText() {
+	  if (text == null) {
+		  return text;
+	  }
 	  String status;
 	  if (text.equalsIgnoreCase("Agree"))
 		  status = "st_agree";
