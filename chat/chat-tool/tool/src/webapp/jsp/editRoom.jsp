@@ -8,8 +8,7 @@
 			showDetail="true" showSummary="false" rendered="#{!empty facesContext.maximumSeverity}" />
 		<h:form id="editRoomForm">
 
-			<h:panelGrid columns="1" styleClass="jsfFormTable" cellpadding="0"
-				summary="layout">
+			<h:panelGrid columns="1" styleClass="jsfFormTable" cellpadding="0">
 				<h:panelGroup styleClass="shorttext">
 					<h:outputText value="*" styleClass="reqStar" />
 					<h:outputLabel id="titleLabel" for="title"
@@ -44,9 +43,7 @@
 
 				<sakai:group_box title="#{msgs.recent_chat_heading}">
 
-					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1" cellpadding="0"
-						summary="layout">
-
+					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1" cellpadding="0">
 						<h:panelGroup>
 							<t:radio for="filterType" index="3" />
 							<h:inputHidden id="filterParam_none" 
