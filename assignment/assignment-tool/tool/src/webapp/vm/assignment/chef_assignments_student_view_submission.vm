@@ -516,7 +516,7 @@ var notifyDeleteControl = function(){
 								#end
 							#end
 							</p>
-							<table border="0" summary="layout">
+							<table border="0">
 								<tr>
 									<td>
 										<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
