@@ -40,8 +40,11 @@ should be included in file importing DeliveryMessages
         rendered="#{matching.isCorrect}"
         alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
+      <h:graphicImage id="ximage"
+        rendered="#{matching.isCorrect != null && !matching.isCorrect}"
+        alt="#{deliveryMessages.alt_correct}" url="/images/crossmark.gif" >
+      </h:graphicImage>
       <h:graphicImage id="image2"
-        rendered="#{matching.isCorrect}"
         width="16" height="16"
         alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
       </h:graphicImage>

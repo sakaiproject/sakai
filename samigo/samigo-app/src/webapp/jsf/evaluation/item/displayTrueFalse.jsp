@@ -32,7 +32,7 @@ include file for displaying true false questions
         alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image11" rendered="#{!answer.isCorrect}"
-        alt=" " url="/images/delivery/spacer.gif" >
+        alt=" " url="/images/crossmark.gif" >
        </h:graphicImage>
     </h:column>
     <h:column><%-- radio button, select answer --%>

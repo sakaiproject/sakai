@@ -1248,7 +1248,7 @@ public class DeliveryActionListener
         else
         {
           // Set the label and key
-          if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
+          if ((!item.getPartialCreditFlag() && item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)) ||
               item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
               item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
               item.getTypeId().equals(TypeIfc.MATCHING))
@@ -1272,6 +1272,26 @@ public class DeliveryActionListener
               }
             }
           }
+          
+          //multiple choice partial credit:
+          if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
+        	  Float pc =  Float.valueOf(answer.getPartialCredit());
+        	  if (pc == null) {
+        		  pc = Float.valueOf(0f);
+        	  }
+        	  if(pc > 0){
+        		  if (rb == null) { 	 
+        			  rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+        		  }
+        		  String correct = rb.getString("alt_correct");
+        		  if(("").equals(key)){
+        			  key = answer.getLabel() + "&nbsp;<span style='color: green'>(" + pc + "%&nbsp;" + correct + ")</span>";
+        		  }else{
+        			  key += ",&nbsp;" + answer.getLabel() + "&nbsp;<span style='color: green'>(" + pc + "%&nbsp;" + correct + ")</span>";
+        		  }
+        	  }
+          }
+
           if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) &&
               answer.getIsCorrect() != null &&
               answer.getIsCorrect().booleanValue())

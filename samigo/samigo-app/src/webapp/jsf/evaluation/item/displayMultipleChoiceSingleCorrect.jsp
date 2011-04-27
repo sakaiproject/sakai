@@ -28,9 +28,9 @@ include file for displaying multiple choice single correct survey questions
    <h:column>
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
     <h:column rendered="#{answer.text!=null && answer.text!=''}">
-      <h:graphicImage id="image8" rendered="#{answer.isCorrect}"
-        alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
-       </h:graphicImage>
+      <h:graphicImage id="image8" rendered="#{answer.isCorrect || answer.partialCredit gt 0}"
+         alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
+      </h:graphicImage>
       <h:graphicImage id="image9" rendered="#{!answer.isCorrect}"
         alt=" " url="/images/delivery/spacer.gif" >
        </h:graphicImage>
@@ -52,4 +52,11 @@ include file for displaying multiple choice single correct survey questions
    </h:dataTable>
    </h:column>
   </h:dataTable>
-
+  
+  <h:panelGroup rendered="#{question.partialCreditFlag}">
+    <f:verbatim><b></f:verbatim>
+    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
+    <f:verbatim></b></f:verbatim>
+    <h:outputText id="answerKeyMC"
+       value="#{question.answerKey}" escape="false" />
+  </h:panelGroup>

@@ -33,7 +33,7 @@ include file for displaying matching questions
         url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image5" rendered="#{!answer.isCorrect}"
-        alt=" " url="/images/delivery/spacer.gif" >
+        alt=" " url="/images/crossmark.gif" >
        </h:graphicImage>
      </h:column>
      <h:column>

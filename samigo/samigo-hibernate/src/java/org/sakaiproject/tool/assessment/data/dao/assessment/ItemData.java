@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.log4j.Category;
@@ -25,6 +26,7 @@ public class ItemData
     implements java.io.Serializable,
     ItemDataIfc, Comparable {
   static Category errorLogger = Category.getInstance("errorLogger");
+  static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private static final long serialVersionUID = 7526471155622776147L;
   public static final Long ADMIN = Long.valueOf(34);
@@ -644,45 +646,58 @@ public class ItemData
    HashMap h = new HashMap();
 
    for (int i=0; i<itemTextArray.size();i++){
-     ItemTextIfc text = (ItemTextIfc)itemTextArray.get(i);
-     ArrayList answers = text.getAnswerArraySorted();
-     for (int j=0; j<answers.size();j++){
-       AnswerIfc a = (AnswerIfc)answers.get(j);
-       if ((Boolean.TRUE).equals(a.getIsCorrect())){
-         String pair = (String)h.get(a.getLabel());
-           if(!this.getTypeId().equals(TypeD.MATCHING))
-	       {
-                   if(this.getTypeId().equals(TypeD.TRUE_FALSE))
-		       {
-			   answerKey=a.getText();
-		       }
-                   else
-		       {
-			   if(("").equals(answerKey))
-			       {
-				   answerKey=a.getLabel();
-			       }
-			   else
-			       {
-				   answerKey+=","+a.getLabel();
-			       }
-		       }
-	       }
-
-           else{
-
-	       if (pair==null)
-		   {
-		       String s = a.getLabel() + ":" + text.getSequence();
-		       h.put(a.getLabel(), s);
+	   ItemTextIfc text = (ItemTextIfc)itemTextArray.get(i);
+	   ArrayList answers = text.getAnswerArraySorted();
+	   for (int j=0; j<answers.size();j++){
+		   AnswerIfc a = (AnswerIfc)answers.get(j);
+		   if (!this.getPartialCreditFlag() && (Boolean.TRUE).equals(a.getIsCorrect())){
+			   String pair = (String)h.get(a.getLabel());
+			   if(!this.getTypeId().equals(TypeD.MATCHING))
+			   {
+				   if(this.getTypeId().equals(TypeD.TRUE_FALSE))
+				   {
+					   answerKey=a.getText();
+				   }
+				   else
+				   {
+					   if(("").equals(answerKey))
+					   {
+						   answerKey=a.getLabel();
+					   }
+					   else
+					   {
+						   answerKey+=","+a.getLabel();
+					   }
+				   }
+			   }
+			   else{
+				   if (pair==null)
+				   {
+					   String s = a.getLabel() + ":" + text.getSequence();
+					   h.put(a.getLabel(), s);
+				   }
+				   else
+				   {
+					   h.put(a.getLabel(), pair+" "+text.getSequence());
+				   }
+			   }
 		   }
-	       else
-		   {
-		       h.put(a.getLabel(), pair+" "+text.getSequence());
+		   //multiple choice partial credit:
+		   if (this.getTypeId().equals(TypeD.MULTIPLE_CHOICE) && this.getPartialCreditFlag()){
+			   Float pc =  Float.valueOf(a.getPartialCredit());
+			   if (pc == null) {
+				   pc = Float.valueOf(0f);
+			   }
+			   if(pc > 0){
+				   String correct = rb.getString("correct");
+				   if(("").equals(answerKey)){
+					   answerKey = a.getLabel() + "&nbsp;<span style='color: green'>(" + pc + "%&nbsp;" + correct + ")</span>";
+				   }else{
+					   answerKey += ",&nbsp;" + a.getLabel() + "&nbsp;<span style='color: green'>(" + pc + "%&nbsp;" + correct + ")</span>";
+				   }
+			   }
 		   }
 	   }
-       }
-     }
    }
 
    if (this.getTypeId().equals(TypeD.MATCHING))
@@ -691,7 +706,7 @@ public class ItemData
 	       {
 		   AnswerIfc a = (AnswerIfc)answerArray.get(k);
 		   String pair = (String)h.get(a.getLabel());
-     //if answer is not a match to any text, just print answer label
+		   //if answer is not a match to any text, just print answer label
 		   if (pair == null)
 		       pair = a.getLabel()+": ";
 

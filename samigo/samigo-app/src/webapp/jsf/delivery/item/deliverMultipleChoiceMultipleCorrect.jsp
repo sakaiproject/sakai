@@ -35,9 +35,9 @@ should be included in file importing DeliveryMessages
         alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
       <h:graphicImage id="image2"
-        rendered="#{selection.answer.isCorrect ne 'true' && selection.response}"
+        rendered="#{selection.answer.isCorrect != null && !selection.answer.isCorrect && selection.response}"
         width="16" height="16"
-        alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
+        alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
       </h:graphicImage>
     </h:column>
     <h:column>

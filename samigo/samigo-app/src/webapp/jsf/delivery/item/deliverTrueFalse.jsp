@@ -36,10 +36,8 @@ should be included in file importing DeliveryMessages
           <h:graphicImage id="image" rendered="#{answer.description eq 'true' && question.responseId eq answer.value}"
             alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
           </h:graphicImage>
-          <h:graphicImage id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}
-"
-            width="16" height="16"
-            alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
+          <h:graphicImage id="image2" rendered="#{answer.description ne 'true' && question.responseId eq answer.value}"
+            alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
           </h:graphicImage>
        </h:column>
      </h:dataTable>

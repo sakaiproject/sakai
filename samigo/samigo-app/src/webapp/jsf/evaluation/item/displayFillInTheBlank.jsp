@@ -32,7 +32,7 @@ include file for displaying fill in the blank questions
       alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
      </h:graphicImage>
     <h:graphicImage id="image3" rendered="#{!answer.isCorrect}"
-      alt="" url="/images/delivery/spacer.gif" >
+      alt="" url="/images/crossmark.gif" >
      </h:graphicImage>
   </h:column>
   <h:column>

@@ -233,7 +233,7 @@ $Id$
        </h:graphicImage>
 
 <h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
-        alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
+        alt="#{evaluationMessages.alt_incorrect}" url="/images/crossmark.gif" >
        </h:graphicImage>
 
                 <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
