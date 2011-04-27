@@ -397,6 +397,74 @@ function handleEnterKeyPress(ev)
 						</ul>
 					#end
 				#end
+				#*					<!-- Grade types
+						GRADE_TYPE_NOT_SET: -1; 
+						UNGRADED_GRADE_TYPE: 1; 
+						LETTER_GRADE_TYPE: 2; 
+						SCORE_GRADE_TYPE = 3; 
+						PASS_FAIL_GRADE_TYPE = 4;
+						CHECK_GRADE_TYPE = 5;
+					-->
+*#
+						#if ($withGrade)
+							<div class="highlightPanel" style="width:80%">
+							#if ($allowToGrade)
+								#set ($gradeType = $assignment.getContent().TypeOfGrade)
+								#if ($gradeType == 1)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<input type="hidden" name="$name_grade" value="gen.nograd" />
+										<span class="highlight"> $tlang.getString("gen.nograd")</span>
+									</p>	
+								#elseif ($gradeType == 2)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<select name="$name_grade" id="grade">
+											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+											#foreach ($i in $letterGradeOptions)
+												<option  value="$i" #if ($!value_grade.equals($i))selected="selected"#end>$i</option>
+											#end
+										</select>
+									</p>	
+								#elseif ($gradeType == 3)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())</span>
+									</p>	
+								#elseif ($gradeType == 4)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<select name="$name_grade" id="grade" >
+											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
+											#foreach ($i in ["Pass", "Fail"])
+													<option  value="$i" #if ($!value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+											#end
+										</select>
+									</p>	
+								#elseif ($gradeType == 5)
+									<p class="checkbox">
+											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
+									</p>	
+								#end
+							#else
+								## if not allowed to grade, show the current grade instead
+								<input name="$name_grade" type="hidden" value="$!value_grade" />
+								<div class="alertMessage">$!notAllowedToGradeWarning</div>
+								<label for="grade">$tlang.getString("gen.gra2")</label>
+								$!value_grade
+							#end
+							</div>	
+							## the previous grades
+								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
+								#if ($!previousGrades && $!previousGrades.length() != 0 )
+									<h4 id="toggleGrade" class="toggleAnchor">
+										$tlang.getString("gradingsub.pregra")
+									</h4>
+									<div class="gradecoms  toggledContent">										
+										$previousGrades
+									</div>
+								#end
+					#end
 						<h4>
 							$tlang.getString("gen.instrcomment")
 						</h4>
@@ -491,74 +559,6 @@ function handleEnterKeyPress(ev)
 							#end
 						</div>		
 						#end
-#*					<!-- Grade types
-						GRADE_TYPE_NOT_SET: -1; 
-						UNGRADED_GRADE_TYPE: 1; 
-						LETTER_GRADE_TYPE: 2; 
-						SCORE_GRADE_TYPE = 3; 
-						PASS_FAIL_GRADE_TYPE = 4;
-						CHECK_GRADE_TYPE = 5;
-					-->
-*#
-						#if ($withGrade)
-							<div class="highlightPanel" style="width:80%">
-							#if ($allowToGrade)
-								#set ($gradeType = $assignment.getContent().TypeOfGrade)
-								#if ($gradeType == 1)
-									<p class="shorttext">
-										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<input type="hidden" name="$name_grade" value="gen.nograd" />
-										<span class="highlight"> $tlang.getString("gen.nograd")</span>
-									</p>	
-								#elseif ($gradeType == 2)
-									<p class="shorttext">
-										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<select name="$name_grade" id="grade">
-											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
-											#foreach ($i in $letterGradeOptions)
-												<option  value="$i" #if ($!value_grade.equals($i))selected="selected"#end>$i</option>
-											#end
-										</select>
-									</p>	
-								#elseif ($gradeType == 3)
-									<p class="shorttext">
-										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())</span>
-									</p>	
-								#elseif ($gradeType == 4)
-									<p class="shorttext">
-										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<select name="$name_grade" id="grade" >
-											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
-											#foreach ($i in ["Pass", "Fail"])
-													<option  value="$i" #if ($!value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-											#end
-										</select>
-									</p>	
-								#elseif ($gradeType == 5)
-									<p class="checkbox">
-											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
-									</p>	
-								#end
-							#else
-								## if not allowed to grade, show the current grade instead
-								<input name="$name_grade" type="hidden" value="$!value_grade" />
-								<div class="alertMessage">$!notAllowedToGradeWarning</div>
-								<label for="grade">$tlang.getString("gen.gra2")</label>
-								$!value_grade
-							#end
-							</div>	
-							## the previous grades
-								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
-								#if ($!previousGrades.length() != 0 )
-									<h4 id="toggleGrade" class="toggleAnchor">
-										$tlang.getString("gradingsub.pregra")
-									</h4>
-									<div class="gradecoms  toggledContent">										
-										$previousGrades
-									</div>
-								#end
-					#end
 					#if ($nonElectronic)
 						## hidden value for non-electronic submission
 						<input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0" />
