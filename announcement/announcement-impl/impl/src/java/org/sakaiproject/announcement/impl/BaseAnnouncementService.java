@@ -1139,7 +1139,6 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 					boolean toBeImported = true;
 					if (resourceIds != null && resourceIds.size() > 0)
 					{
-						// if there is a list for import assignments, only import those assignments and relative submissions
 						toBeImported = false;
 						for (int m = 0; m < resourceIds.size() && !toBeImported; m++)
 						{
@@ -1148,6 +1147,13 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 								toBeImported = true;
 							}
 						}
+					}
+					
+					// not to import any assignment-generated announcement
+					String assignmentReference = StringUtil.trimToNull(oMessage.getProperties().getProperty(AnnouncementService.ASSIGNMENT_REFERENCE));
+					if (toBeImported && assignmentReference != null)
+					{
+						toBeImported = false;
 					}
 
 					if (toBeImported)
