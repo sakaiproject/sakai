@@ -7806,16 +7806,8 @@ public class AssignmentAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode))
 		{
-			// retrieve the submission text (as formatted text)
-			boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
-			String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT),
-					checkForFormattingErrors);
-
-			state.setAttribute(VIEW_SUBMISSION_TEXT, text);
-			if (params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES) != null)
-			{
-				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
-			}
+			// save the current input before leaving the page
+			saveSubmitInputs(state, params);
 			
 			// Restrict file picker configuration if using content-review (Turnitin):
 			String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
@@ -7863,6 +7855,25 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// use the real attachment list
 			state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
+		}
+	}
+
+	/**
+	 * saves the current input before navigating off to other pages
+	 * @param state
+	 * @param params
+	 */
+	private void saveSubmitInputs(SessionState state,
+			ParameterParser params) {
+		// retrieve the submission text (as formatted text)
+		boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
+		String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT),
+				checkForFormattingErrors);
+
+		state.setAttribute(VIEW_SUBMISSION_TEXT, text);
+		if (params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES) != null)
+		{
+			state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
 		}
 	}
 
@@ -10747,16 +10758,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 				if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode))
 				{
-					// retrieve the submission text (as formatted text)
-					boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
-					String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT),
-							checkForFormattingErrors);
-
-					state.setAttribute(VIEW_SUBMISSION_TEXT, text);
-					if (params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES) != null)
-					{
-						state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
-					}
+					// save submit inputs
+					saveSubmitInputs(state, params);
 					state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("gen.addatt"));
 
 					// TODO: file picker to save in dropbox? -ggolden
@@ -10832,6 +10835,10 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
 		ParameterParser params = data.getParameters();
+		
+		// save submit inputs before refresh the page
+		saveSubmitInputs(state, params);
+		
 		String removeAttachmentId = params.getString("currentAttachment");
 		List attachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
 		if (attachments != null)
