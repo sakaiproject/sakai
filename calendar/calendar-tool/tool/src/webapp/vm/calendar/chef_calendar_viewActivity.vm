@@ -42,7 +42,7 @@
 		</div>	
 	</form>
 	<h3>$validator.escapeHtml($event.getDisplayName())</h3>
-	<table class="itemSummary" cellspacing="0" border="0" summary="layout">
+	<table class="itemSummary" cellspacing="0" border="0">
 		<tr>
 			<th>$tlang.getString("gen.date")</th> 
 			<td>$event.getRange().firstTime().toStringLocalDate()</td>

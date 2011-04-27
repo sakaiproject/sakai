@@ -19,7 +19,7 @@
 	#end
 	<div class="alertMessage">$tlang.getString("del.sure")</div><div style="display:block;clear:both"/>
 	<form name="deleteTemplateForm" action="#toolForm("$action")" method="post">
-		<table class="itemSummary" cellspacing="0" summary="layout">
+		<table class="itemSummary" cellspacing="0">
 			<tr>
 				<th>$tlang.getString("gen.title")</th>
 				<td>$validator.escapeHtml($event.getDisplayName())</td>
