@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -78,73 +81,77 @@ public class DownloadCPServlet extends HttpServlet {
 	 * @throws IOException
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
-			throws ServletException, IOException {
+	throws ServletException, IOException {
 		String assessmentId = req.getParameter("assessmentId");
-		String agentIdString = getAgentString(req, res);
+
+		//update random question pools (if any) before exporting
 		AssessmentService assessmentService = new AssessmentService();
-		String currentSiteId = assessmentService
-				.getAssessmentSiteId(assessmentId);
-		String assessmentCreatedBy = assessmentService
-				.getAssessmentCreatedBy(assessmentId);
-		boolean accessDenied = true;
-		if (canExport(req, res, agentIdString, currentSiteId,
-				assessmentCreatedBy)) {
-			accessDenied = false;
-		}
+		int success = assessmentService.updateAllRandomPoolQuestions(assessmentService.getAssessment(assessmentId));
+		if(success == AssessmentService.UPDATE_SUCCESS){
+			String agentIdString = getAgentString(req, res);
+			String currentSiteId = assessmentService
+			.getAssessmentSiteId(assessmentId);
+			String assessmentCreatedBy = assessmentService
+			.getAssessmentCreatedBy(assessmentId);
+			boolean accessDenied = true;
+			if (canExport(req, res, agentIdString, currentSiteId,
+					assessmentCreatedBy)) {
+				accessDenied = false;
+			}
 
-		if (accessDenied) {
-			String path = "/jsf/qti/exportDenied.faces";
-			RequestDispatcher dispatcher = req.getRequestDispatcher(path);
-			dispatcher.forward(req, res);
-		} else {
-			res.setContentType("application/x-zip-compressed");
-			String zipFilename = "exportAssessment.zip";
-			res.setHeader("Content-Disposition", "attachment;filename=\""
-					+ zipFilename + "\";");
+			if (accessDenied) {
+				String path = "/jsf/qti/exportDenied.faces";
+				RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+				dispatcher.forward(req, res);
+			} else {
+				res.setContentType("application/x-zip-compressed");
+				String zipFilename = "exportAssessment.zip";
+				res.setHeader("Content-Disposition", "attachment;filename=\""
+						+ zipFilename + "\";");
 
-			ServletOutputStream outputStream = null;
-			//BufferedInputStream bufInputStream = null;
-			ZipOutputStream zos = null;
-			ZipEntry ze = null;
+				ServletOutputStream outputStream = null;
+				//BufferedInputStream bufInputStream = null;
+				ZipOutputStream zos = null;
+				ZipEntry ze = null;
 
-			try {
-				byte[] b = null;
-				outputStream = res.getOutputStream();
-				zos = new ZipOutputStream(outputStream);
+				try {
+					byte[] b = null;
+					outputStream = res.getOutputStream();
+					zos = new ZipOutputStream(outputStream);
 
-				// QTI file
-				ze = new ZipEntry("exportAssessment.xml");
-				zos.putNextEntry(ze);
-				XMLController xmlController = (XMLController) ContextUtil
-						.lookupBeanFromExternalServlet("xmlController", req,
-								res);
-				xmlController.setId(assessmentId);
-				xmlController.setQtiVersion(1);
-				xmlController.displayAssessmentXml();
-				String qtiString = xmlController.getXmlBean().getXml();
-				log.debug("qtiString = " + qtiString);
-				b = qtiString.getBytes();
-				zos.write(b, 0, b.length);
-				zos.closeEntry();
+					// QTI file
+					ze = new ZipEntry("exportAssessment.xml");
+					zos.putNextEntry(ze);
+					XMLController xmlController = (XMLController) ContextUtil
+					.lookupBeanFromExternalServlet("xmlController", req,
+							res);
+					xmlController.setId(assessmentId);
+					xmlController.setQtiVersion(1);
+					xmlController.displayAssessmentXml();
+					String qtiString = xmlController.getXmlBean().getXml();
+					log.debug("qtiString = " + qtiString);
+					b = qtiString.getBytes();
+					zos.write(b, 0, b.length);
+					zos.closeEntry();
 
-				// imsmanifest.xml
-				ze = new ZipEntry("imsmanifest.xml");
-				zos.putNextEntry(ze);
-				ManifestGenerator manifestGenerator = new ManifestGenerator(
-						assessmentId);
-				String manString = manifestGenerator.getManifest();
-				log.debug("manString = " + manString);
-				b = manString.getBytes();
-				zos.write(b, 0, b.length);
-				zos.closeEntry();
+					// imsmanifest.xml
+					ze = new ZipEntry("imsmanifest.xml");
+					zos.putNextEntry(ze);
+					ManifestGenerator manifestGenerator = new ManifestGenerator(
+							assessmentId);
+					String manString = manifestGenerator.getManifest();
+					log.debug("manString = " + manString);
+					b = manString.getBytes();
+					zos.write(b, 0, b.length);
+					zos.closeEntry();
 
-				// Attachments
-				HashMap contentMap = manifestGenerator.getContentMap();
-				
-				String filename = null;
-				for (Iterator it = contentMap.entrySet().iterator(); it.hasNext();) {
-					   Map.Entry entry = (Map.Entry) it.next();
-					   filename = (String)  entry.getKey();
+					// Attachments
+					HashMap contentMap = manifestGenerator.getContentMap();
+
+					String filename = null;
+					for (Iterator it = contentMap.entrySet().iterator(); it.hasNext();) {
+						Map.Entry entry = (Map.Entry) it.next();
+						filename = (String)  entry.getKey();
 						ze = new ZipEntry(filename.substring(1));
 						zos.putNextEntry(ze);
 						b = (byte[]) entry.getValue();
@@ -152,24 +159,37 @@ public class DownloadCPServlet extends HttpServlet {
 						zos.closeEntry();
 					}
 
-			} catch (IOException e) {
-				log.error(e.getMessage());
-				throw e;
-			} finally {
-				if (zos != null) {
-					try {
-						zos.closeEntry();
-					} catch (IOException e) {
-						log.error(e.getMessage());
+				} catch (IOException e) {
+					log.error(e.getMessage());
+					throw e;
+				} finally {
+					if (zos != null) {
+						try {
+							zos.closeEntry();
+						} catch (IOException e) {
+							log.error(e.getMessage());
+						}
+						try {
+							zos.close();
+						} catch (IOException e) {
+							log.error(e.getMessage());
+						}
+
 					}
-					try {
-						zos.close();
-					} catch (IOException e) {
-						log.error(e.getMessage());
-					}
-	
 				}
 			}
+		}else{
+			if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
+				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
+				req.setAttribute("error", err);
+			}else{
+				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
+				req.setAttribute("error", err);
+			}
+
+			String path = "/jsf/qti/poolUpdateError.faces";
+			RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+			dispatcher.forward(req, res);
 		}
 	}
 

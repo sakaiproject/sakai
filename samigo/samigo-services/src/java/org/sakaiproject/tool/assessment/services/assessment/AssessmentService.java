@@ -22,15 +22,16 @@
 package org.sakaiproject.tool.assessment.services.assessment;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -43,21 +44,26 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -68,6 +74,9 @@ import org.sakaiproject.tool.cover.ToolManager;
  */
 public class AssessmentService {
 	private static Log log = LogFactory.getLog(AssessmentService.class);
+	public static final int UPDATE_SUCCESS = 0;
+	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
+
 
 	/**
 	 * Creates a new QuestionPoolService object.
@@ -356,6 +365,161 @@ public class AssessmentService {
 	public void removeAllItems(String sourceSectionId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.removeAllItems(new Long(sourceSectionId));
+	}
+
+	public boolean verifyItemsDrawSize(SectionFacade section){
+		if ((section != null)
+				&& (section
+						.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
+						&& (section
+								.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)
+								.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
+										.toString()))) {
+			QuestionPoolService qpService = new QuestionPoolService();
+			ArrayList itemlist = qpService
+			.getAllItems(Long.valueOf(section
+					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+			return verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+		}else{
+			return true;
+		}
+	}
+
+	private boolean verifyItemsDrawSize(int itemcount, String numberDrawn){
+		try{
+			int numberDrawnInt = Integer.parseInt(numberDrawn);
+			if(numberDrawnInt <=0 || numberDrawnInt>itemcount){
+				return false;
+			}
+		} catch(NumberFormatException e){
+			return false;
+		}
+
+		return true;
+	}
+
+	public int updateRandomPoolQuestions(SectionFacade section){
+		if ((section != null)
+				&& (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
+				&& (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).
+				equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+
+			QuestionPoolService qpService = new QuestionPoolService();
+			ArrayList itemlist = qpService.getAllItems(Long.valueOf(section
+					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
+
+			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
+				// random section:
+				removeAllItems(section.getSectionId().toString());
+
+				ItemService itemService = new ItemService();
+				String agentId = AgentFacade.getAgentString();
+
+				Iterator itemIter = section.getItemSet().iterator();
+				while (itemIter.hasNext()) {
+					ItemDataIfc item = (ItemDataIfc) itemIter.next();
+					List poolIds = qpService.getPoolIdsByItem(item.getItemId()
+							.toString());
+					if (poolIds.size() == 0) {
+						// System.out.println("not in pool " + item.getItemId());
+						itemService.deleteItem(item.getItemId(), agentId);
+						itemIter.remove();
+					} // else System.out.println("in pool " + item.getItemId());
+				}
+				// need to reload
+				section = getSection(section.getSectionId().toString());
+
+				// ItemService itemservice = new ItemService();
+				boolean hasRandomPartScore = false;
+				Float score = null;
+				String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
+						                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
+						                 
+				if (requestedScore != null && !requestedScore.equals("")) {
+					hasRandomPartScore = true;
+					score = new Float(requestedScore);
+				}
+				boolean hasRandomPartDiscount = false;
+				Float discount = null;
+				String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
+											section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
+
+				if (requestedDiscount != null && !requestedDiscount.equals("")) {
+					hasRandomPartDiscount = true;
+					discount = new Float(requestedDiscount);
+				}
+
+				int i = 0;
+				Iterator iter = itemlist.iterator();
+				while (iter.hasNext()) {
+					ItemFacade item = (ItemFacade) iter.next();
+					// copy item so we can have it in more than one assessment
+					item = qpService.copyItemFacade2(item);
+					item.setSection(section);
+					item.setSequence(Integer.valueOf(i + 1));
+					if (hasRandomPartScore || hasRandomPartDiscount) {
+						if (hasRandomPartScore)
+							item.setScore(score);
+						long itemTypeId = item.getTypeId().longValue();
+						if (hasRandomPartDiscount
+								&& (itemTypeId == TypeFacade.MULTIPLE_CHOICE
+										.longValue() || itemTypeId == TypeFacade.TRUE_FALSE
+										.longValue()))
+							item.setDiscount(discount);
+
+						ItemDataIfc data = item.getData();
+						Set itemTextSet = data.getItemTextSet();
+						if (itemTextSet != null) {
+							Iterator iterITS = itemTextSet.iterator();
+							while (iterITS.hasNext()) {
+								ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+								Set answerSet = itemText.getAnswerSet();
+								if (answerSet != null) {
+									Iterator iterAS = answerSet.iterator();
+									while (iterAS.hasNext()) {
+										AnswerIfc answer = (AnswerIfc) iterAS
+										.next();
+										if (hasRandomPartScore)
+											answer.setScore(score);
+										if (hasRandomPartDiscount && 
+											(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+											itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
+											answer.setDiscount(discount);
+									}
+								}
+							}
+						}
+					}
+					section.addItem(item);
+					i = i + 1;
+				}
+
+				//update meta data for date:
+				section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, new Date().toString());
+
+				saveOrUpdateSection(section);
+			}else{
+				return UPDATE_ERROR_DRAW_SIZE_TOO_LARGE;
+			}
+		}
+
+		return UPDATE_SUCCESS;		
+	}
+
+	public int updateAllRandomPoolQuestions(AssessmentFacade assessment){		
+		//verify that we can update the sections first:
+		for(SectionFacade section : (List<SectionFacade>) assessment.getSectionArray()){			
+			if(!verifyItemsDrawSize(section)){
+				return UPDATE_ERROR_DRAW_SIZE_TOO_LARGE;
+			}
+		}
+
+		//passed all tests, so update pool questions:
+		for(SectionFacade section : (List<SectionFacade>) assessment.getSectionArray()){
+			updateRandomPoolQuestions(section);
+		}
+
+		return UPDATE_SUCCESS;
 	}
 
 	public ArrayList getBasicInfoOfAllActiveAssessmentTemplates(String orderBy) {

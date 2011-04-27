@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
@@ -181,6 +182,23 @@ public class AssessmentBean  implements Serializable {
     else {
 	setHasRandomDrawPart(false);
     }
+  }
+
+  public int updateRandomPoolQuestions(String sectionId){
+	  for(int i=0;i<this.sections.size();i++){
+		  SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
+		  if(sectionBean.getSectionId().equals(sectionId)){
+			  AssessmentService assessmentService = new AssessmentService();
+			  int success = assessmentService.updateRandomPoolQuestions(assessmentService.getSection(sectionId));
+			  if(success == AssessmentService.UPDATE_SUCCESS){
+				  //need to update section since it has changed
+				  sections.set(i, new SectionContentsBean(assessmentService.getSection(sectionBean.getSectionId())));
+			  }else{
+				  return success;
+			  }
+		  }
+	  }
+	  return AssessmentService.UPDATE_SUCCESS;
   }
 
   public float getTotalScore() {

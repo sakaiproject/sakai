@@ -24,8 +24,10 @@
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -69,6 +71,8 @@ private String text;
   private Integer numberToBeDrawn;
   private Long poolIdToBeDrawn;
   private String poolNameToBeDrawn;
+  private String randomQuestionsDrawDate = "";
+  private String randomQuestionsDrawTime = "";
   private List attachmentList;
   private boolean noQuestions;
 
@@ -414,6 +418,17 @@ private String text;
           String poolname = section.getSectionMetaDataByLabel(
             SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
           setPoolNameToBeDrawn(poolname);
+
+          String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
+          if(randomDrawDate != null && !"".equals(randomDrawDate)){
+        	  try{          
+        		  Date drawDate = new Date(randomDrawDate);
+        		  setRandomQuestionsDrawDate(DateFormat.getDateInstance().format(drawDate));
+        		  setRandomQuestionsDrawTime(DateFormat.getTimeInstance().format(drawDate));
+        	  }catch(Exception e){
+        		  e.printStackTrace();
+        	  }         
+          }
         }
       }
 
@@ -633,4 +648,20 @@ private String text;
   {
 	  this.noQuestions = noQuestions;
   }
+  public String getRandomQuestionsDrawDate() {
+	  return randomQuestionsDrawDate;
+  }
+
+  public void setRandomQuestionsDrawDate(String randomQuestionsDrawDate) {
+	  this.randomQuestionsDrawDate = randomQuestionsDrawDate;
+  }
+
+  public String getRandomQuestionsDrawTime() {
+	  return randomQuestionsDrawTime;
+  }
+
+  public void setRandomQuestionsDrawTime(String randomQuestionsDrawTime) {
+	  this.randomQuestionsDrawTime = randomQuestionsDrawTime;
+  }
 }
+

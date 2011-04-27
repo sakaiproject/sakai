@@ -137,30 +137,7 @@ public class SavePartListener
       addItemsFromPool = true;
 
       if (validateItemsDrawn(sectionBean)) {
-        // if the author type was random draw type,  and the new type is random draw , then we need to disassociate sectionid with each items. Cannot delete items, 'cuz these items are linked in the pool
-    	  section = getOrAddSection(assessmentService, assessmentId, sectionId);
-    	  
-    	  if( (section !=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
-
-          assessmentService.removeAllItems(sectionId);
-          
-          QuestionPoolService qpService = new QuestionPoolService();
-          ItemService itemService = new ItemService();
-          String agentId = AgentFacade.getAgentString();
-          
-          Set itemSet = section.getItemSet();
-          Iterator itemIter = itemSet.iterator();
-          while (itemIter.hasNext()) {
-        	  ItemDataIfc item = (ItemDataIfc) itemIter.next();
-              List poolIds = qpService.getPoolIdsByItem(item.getItemId().toString());
-              if (poolIds.size() == 0) {
-            	  //  System.out.println("not in pool " + item.getItemId());
-            	  itemService.deleteItem(item.getItemId(), agentId);
-              } // else System.out.println("in pool " + item.getItemId());
-          }		  
-        // need to reload
-          section = assessmentService.getSection(sectionId);
-        }
+          section = getOrAddSection(assessmentService, assessmentId, sectionId);
       }
       else {
         sectionBean.setOutcome("editPart");
@@ -223,12 +200,8 @@ public class SavePartListener
     			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
     		}
     	}
-
-
-    	if (addItemsFromPool)
-    	{
-    		QuestionPoolService qpservice = new QuestionPoolService();
-    		//ItemService itemservice = new ItemService();
+    	
+    	if(addItemsFromPool){
     		boolean hasRandomPartScore = false;
     		Float score = null;
     		String requestedScore = sectionBean.getRandomPartScore();
@@ -242,47 +215,8 @@ public class SavePartListener
     		if (requestedDiscount != null && !requestedDiscount.equals("")) {
     			hasRandomPartDiscount = true;
     			discount = new Float(requestedDiscount);
-    		}      
-    		ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
-    		int i = 0;
-    		Iterator iter = itemlist.iterator();
-    		while(iter.hasNext())
-    		{
-    			ItemFacade item= (ItemFacade) iter.next();
-    			//copy item so we can have it in more than one assessment
-    			item = qpservice.copyItemFacade2(item);
-    			item.setSection(section);
-    			item.setSequence(Integer.valueOf(i+1));
-    			if (hasRandomPartScore || hasRandomPartDiscount) {
-    				if (hasRandomPartScore) item.setScore(score);
-    				long itemTypeId = item.getTypeId().longValue();
-    				if (hasRandomPartDiscount &&
-    						(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
-    					item.setDiscount(discount);
-
-    				ItemDataIfc data = item.getData();
-    				Set itemTextSet = data.getItemTextSet();
-    				if (itemTextSet != null) {
-    					Iterator iterITS = itemTextSet.iterator();
-    					while (iterITS.hasNext()) {
-    						ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
-    						Set answerSet = itemText.getAnswerSet();
-    						if (answerSet != null) {
-    							Iterator iterAS = answerSet.iterator();
-    							while (iterAS.hasNext()) {
-    								AnswerIfc answer = (AnswerIfc)iterAS.next();
-    								if (hasRandomPartScore) answer.setScore(score);
-    								if (hasRandomPartDiscount &&
-    										(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
-    									answer.setDiscount(discount);
-    							}
-    						}
-    					}
-    				}
-    			}
-    			section.addItem(item);
-    			i= i+1;
     		}
+    		
     		if (hasRandomPartScore && score != null) {
     			section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, score.toString());
     		}
@@ -300,6 +234,18 @@ public class SavePartListener
     }
 
     assessmentService.saveOrUpdateSection(section);
+
+    if (addItemsFromPool){
+    	//update random questions from question pool
+    	int success = assessmentService.updateRandomPoolQuestions(assessmentService.getSection(section.getSectionId().toString()));
+    	if(success != AssessmentService.UPDATE_SUCCESS){
+    		if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){
+    			//shouldn't get here since there is a check, but might as well verify
+    			String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
+    			context.addMessage(null,new FacesMessage(err+ " " + section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN)));
+    		}
+    	}
+    }
 
     // added by daisyf, 10/10/06
     updateAttachment(section.getSectionAttachmentList(), sectionBean.getAttachmentList(), section.getData());

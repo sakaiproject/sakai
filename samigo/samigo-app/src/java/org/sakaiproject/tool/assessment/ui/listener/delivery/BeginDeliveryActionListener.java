@@ -25,6 +25,9 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.List;
 import java.util.Date;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -40,15 +43,18 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.cms.CourseManagementBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -91,6 +97,10 @@ public class BeginDeliveryActionListener implements ActionListener
     
     int action = delivery.getActionMode();
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
+    if(pub == null){
+    	delivery.setOutcome("poolUpdateError");
+    	throw new AbortProcessingException("pub is null");
+    }
     
     if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
     	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
@@ -326,29 +336,44 @@ public class BeginDeliveryActionListener implements ActionListener
     case 2: // delivery.PREVIEW_ASSESSMENT
     	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     	if (author.getIsEditPendingAssessmentFlow()) {
-    	// we would publish to create the publishedAssessment which we would use to populate
-        // properties in delivery. However, for previewing, we do not need to keep this 
-        // publishedAssessment record in DB at all, so we would delete it from DB right away.
-        AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
-        try {
-          PublishedAssessmentFacade tempPub = publishedAssessmentService.publishPreviewAssessment(
-            assessment);
-          publishedId = tempPub.getPublishedAssessmentId().toString();
-          // clone pub from tempPub, clone is not in anyway bound to the DB session
-          pub = tempPub.clonePublishedAssessment();
-          //get list of resources attached to the published Assessment
-          List resourceIdList = assessmentService.getAssessmentResourceIdList(pub);
-	  PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
-	  personBean.setResourceIdListInPreview(resourceIdList);
-          //log.info("****publishedId="+publishedId);
-          //log.info("****clone publishedId="+pub.getPublishedAssessmentId());
-          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
-          thread.start();
-        } 
-        catch (Exception e) {
-          log.error(e);
-          e.printStackTrace();
-        }
+    		// we would publish to create the publishedAssessment which we would use to populate
+    		// properties in delivery. However, for previewing, we do not need to keep this 
+    		// publishedAssessment record in DB at all, so we would delete it from DB right away.
+
+    		int success = updateQuestionPoolQuestions(assessmentId, assessmentService);
+    		if(success == AssessmentService.UPDATE_SUCCESS){
+    			AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+    			try {
+    				PublishedAssessmentFacade tempPub = publishedAssessmentService.publishPreviewAssessment(
+    						assessment);
+    				publishedId = tempPub.getPublishedAssessmentId().toString();
+    				// clone pub from tempPub, clone is not in anyway bound to the DB session
+    				pub = tempPub.clonePublishedAssessment();
+    				//get list of resources attached to the published Assessment
+    				List resourceIdList = assessmentService.getAssessmentResourceIdList(pub);
+    				PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
+    				personBean.setResourceIdListInPreview(resourceIdList);
+    				//log.info("****publishedId="+publishedId);
+    				//log.info("****clone publishedId="+pub.getPublishedAssessmentId());
+    				RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
+    				thread.start();
+    			} 
+    			catch (Exception e) {
+    				log.error(e);
+    				e.printStackTrace();
+    			}
+    		}else{
+    			FacesContext context = FacesContext.getCurrentInstance();
+    			if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
+    				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
+    				context.addMessage(null,new FacesMessage(err));
+    			}else{
+    				String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
+    				context.addMessage(null,new FacesMessage(err));
+    			}
+    			return null;
+    		}
+
     	}
     	else {
     		pub = publishedAssessmentService.getPublishedAssessment(assessmentId);
@@ -374,6 +399,29 @@ public class BeginDeliveryActionListener implements ActionListener
         break;
     }   
     return pub;
+  }
+
+  private int updateQuestionPoolQuestions(String assessmentId, AssessmentService assessmentService){
+	  int success = assessmentService.updateAllRandomPoolQuestions(assessmentService.getAssessment(assessmentId));
+	  if(success == AssessmentService.UPDATE_SUCCESS){
+		  String fromEditStr = ContextUtil.lookupParam("fromEdit");
+		  if(fromEditStr != null && "true".equals(fromEditStr)){
+			  //since this is coming from the edit page, we need to update the bean information so it doesn't have stale data
+			  AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+			  if(assessmentBean != null && assessmentBean.getSections() != null){
+				  for(int i = 0; i < assessmentBean.getSections().size(); i++){
+					  SectionContentsBean sectionBean = (SectionContentsBean) assessmentBean.getSections().get(i);
+					  if((sectionBean.getSectionAuthorTypeString() != null)
+							  && (sectionBean.getSectionAuthorTypeString().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
+									  .toString()))){
+						  //this has been updated so we need to reset it
+						  assessmentBean.getSections().set(i, new SectionContentsBean(assessmentService.getSection(sectionBean.getSectionId().toString())));						
+					  }
+				  }
+			  }
+		  }
+	  }
+	  return success;
   }
 
 }

@@ -688,6 +688,10 @@
       <from-outcome>sortCore</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
     </navigation-case>
+	<navigation-case>
+      <from-outcome>poolUpdateError</from-outcome>
+      <to-view-id>/jsf/delivery/poolUpdateError.jsp</to-view-id>
+    </navigation-case>
 
   <!-- DELIVERY -->
     <navigation-case>

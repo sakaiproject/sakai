@@ -119,6 +119,7 @@ document.links[newindex].onclick();
         <h:outputText value="#{authorMessages.t_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:param name="actionString" value="previewAssessment" />
+        <f:param name="fromEdit" value="true" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
 
@@ -233,6 +234,11 @@ document.links[newindex].onclick();
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}" escape="false"/>
 
+		<h:commandButton value="#{authorMessages.random_update_questions}" type="submit" id="randomQuestions" action="editAssessment" rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2' && author.isEditPendingAssessmentFlow)}"
+			onclick="document.getElementById('assesssmentForm:randomQuestionsSectionId').value='#{partBean.sectionId}'" style="margin-left: 2em">
+		  	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateRandomPoolQuestionsListener" />
+		</h:commandButton>
+
 	  </h:panelGroup>
       </h:panelGroup>
 
@@ -271,9 +277,14 @@ document.links[newindex].onclick();
         <%@ include file="/jsf/author/part_attachment.jsp" %>
 <f:verbatim><div class="tier2"></f:verbatim>
 
-        <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{authorMessages.random_draw_msg}" />
-
-<!-- this insert should only show up when there are no questions in this part -->
+		<h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && (empty partBean.randomQuestionsDrawDate || !author.isEditPendingAssessmentFlow)}" value="#{authorMessages.random_draw_msg_no_date}"/>
+        <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">
+        	<f:param value="#{partBean.poolNameToBeDrawn}"/>
+        	<f:param value="#{partBean.randomQuestionsDrawDate}"/>
+        	<f:param value="#{partBean.randomQuestionsDrawTime}"/>
+        </h:outputFormat>
+        
+        <!-- this insert should only show up when there are no questions in this part -->
 <h:panelGroup rendered="#{partBean.itemContentsSize eq '0' && author.isEditPendingAssessmentFlow}">
     <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
 
@@ -455,7 +466,8 @@ document.links[newindex].onclick();
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_22}" rendered="#{!assessmentBean.hasGradingData}"/>
     </h:panelGrid>
   </h:panelGroup>
-
+  
+  <h:inputHidden id="randomQuestionsSectionId" value=""/>
 </h:form>
 <!-- end content -->
 </div>

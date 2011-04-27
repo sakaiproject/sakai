@@ -124,37 +124,58 @@ public class PublishAssessmentListener
   			//Map requestParams = context.getExternalContext().getRequestParameterMap();
   			AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
   			"author");
-  			
+
   			AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
-  			
+
   			AssessmentService assessmentService = new AssessmentService();
-  			
+
   			AssessmentFacade assessment = assessmentService.getAssessment(
   					assessmentSettings.getAssessmentId().toString());
-  			
+
   			// 0. sorry need double checking assesmentTitle and everything
   			boolean error = checkTitle(assessment);
   			if (error){
   				return;
   			}
-  			
+
   			// Tell AuthorBean that we just published an assessment
   			// This will allow us to jump directly to published assessments tab
   			author.setJustPublishedAnAssessment(true);
 
-  			publish(assessment, assessmentSettings);
+  			//update any random draw questions from pool since they could have changed
+  			int success = assessmentService.updateAllRandomPoolQuestions(assessment);
+  			if(success == assessmentService.UPDATE_SUCCESS){
 
-  			GradingService gradingService = new GradingService();
-  			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-  			AuthorActionListener authorActionListener = new AuthorActionListener();
-  			authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
-  			
-  			repeatedPublish = true;
+  				//grab new updated assessment
+  				assessment = assessmentService.getAssessment(assessment.getAssessmentId().toString());	
+
+  				publish(assessment, assessmentSettings);
+
+  				GradingService gradingService = new GradingService();
+  				PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+  				AuthorActionListener authorActionListener = new AuthorActionListener();
+  				authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
+
+  				repeatedPublish = true;
+  			}else{
+  				repeatedPublish = false;
+
+  				FacesContext context = FacesContext.getCurrentInstance();
+  				if(success == AssessmentService.UPDATE_ERROR_DRAW_SIZE_TOO_LARGE){  		    		
+  					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_size_too_large");
+  					context.addMessage(null,new FacesMessage(err));
+  				}else{
+  					String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","update_pool_error_unknown");
+  					context.addMessage(null,new FacesMessage(err));
+  				}
+
+  				return;
+  			}
   		}
-		} finally{
-			repeatedPublishLock.unlock();
+	  } finally{
+		  repeatedPublishLock.unlock();
 
-		}
+	  }
   }
 
   private void publish(AssessmentFacade assessment,
