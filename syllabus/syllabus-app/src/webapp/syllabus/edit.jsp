@@ -21,7 +21,7 @@
  				<h:outputText value="#{msgs.newSyllabusForm2}"/>
  			</sakai:doc_section>
  
- 			<h:panelGrid columns="2" styleClass="jsfFormTable" summary="layout">
+ 			<h:panelGrid columns="2" styleClass="jsfFormTable">
  				<h:panelGroup styleClass="shorttext required">
  					<h:outputText value="*" styleClass="reqStar"/>
  					
@@ -111,7 +111,7 @@
 					  </h:column>
 					</syllabus:syllabus_table>
 					
-				<h:panelGrid columns="1" styleClass="jsfFormTable" summary="layout">
+				<h:panelGrid columns="1" styleClass="jsfFormTable">
 					<h:panelGroup styleClass="shorttext">
 						<h:outputLabel for="list1">
 							<h:outputText value="#{msgs.email_notify}"/>

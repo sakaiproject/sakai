@@ -47,7 +47,7 @@
 							<f:verbatim><div class="textPanel"></f:verbatim>
 							<syllabus:syllabus_htmlShowArea value="#{eachEntry.entry.asset}" />
 							<f:verbatim></div></f:verbatim>
-							<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1" summary="layout">
+							<h:dataTable value="#{eachEntry.attachmentList}" var="eachAttach" styleClass="indnt1">
 							  <h:column>
 									<f:facet name="header">
 										<h:outputText value="" />
