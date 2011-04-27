@@ -42,7 +42,7 @@
       <jsp:attribute name="onload">
 	<jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression>parent.updCourier(doubleDeep, ignoreCourier); callAllLoaders();
       </jsp:attribute>
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="toolTitle" summary="layout">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="toolTitle">
 	<tr>
 	  <td class="title">
 	    <c:out value="${rlb.jsp_rwiki_tool}"/>	
