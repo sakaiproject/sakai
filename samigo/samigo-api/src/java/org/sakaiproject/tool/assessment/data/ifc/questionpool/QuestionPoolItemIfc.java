@@ -26,11 +26,10 @@ package org.sakaiproject.tool.assessment.data.ifc.questionpool;
 /**
  * Simple interface for question pool items.
  */
-public interface QuestionPoolItemIfc extends Cloneable
+public interface QuestionPoolItemIfc
 {
   public String getItemId();
   public void setItemId(String itemId);
   public Long getQuestionPoolId();
   public void setQuestionPoolId(Long questionPoolId);
-  public Object clone();
 }
