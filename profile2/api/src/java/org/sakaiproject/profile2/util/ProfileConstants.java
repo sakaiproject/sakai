@@ -144,9 +144,12 @@ public class ProfileConstants {
 	public static final int EMAIL_NOTIFICATION_CONFIRM = 2;
 	public static final int EMAIL_NOTIFICATION_MESSAGE_NEW = 3;
 	public static final int EMAIL_NOTIFICATION_MESSAGE_REPLY = 4;
+	// TODO no preference for this yet (may remove instead)
 	public static final int EMAIL_NOTIFICATION_WALL_EVENT_NEW = 5;
-	public static final int EMAIL_NOTIFICATION_WALL_POST_MY_NEW = 6;
+	public static final int EMAIL_NOTIFICATION_WALL_POST_MY_NEW = 6; // this has a preference (PROFILE_PREFERENCES_T.EMAIL_WALL_ITEM_NEW)
+	// TODO no preference for this yet (may remove instead)
 	public static final int EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW = 7;
+	// TODO no preference for this yet (may remove instead)
 	public static final int EMAIL_NOTIFICATION_WALL_STATUS_NEW = 8;
 	
 	//these values are used when creating a default preferences record for a user
@@ -377,6 +380,7 @@ public class ProfileConstants {
 	public static final String LINK_ENTITY_PROFILE = "/profile";
 	public static final String LINK_ENTITY_MESSAGES = "/messages";
 	public static final String LINK_ENTITY_CONNECTIONS = "/connections";
+	public static final String LINK_ENTITY_WALL = "/wall";
 
 	//full class names for Wicket pages used when we translate a shortened URL back into the full one
 	//and need to go directly to a page

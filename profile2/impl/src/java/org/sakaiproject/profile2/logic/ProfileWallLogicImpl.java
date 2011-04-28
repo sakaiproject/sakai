@@ -305,7 +305,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		// create the map of replacement values for this email template
 		Map<String, String> replacementValues = new HashMap<String, String>();
 		replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
-		replacementValues.put("senderProfileLink", linkLogic.getEntityLinkToProfileHome(fromUuid));
+		replacementValues.put("senderWallLink", linkLogic.getEntityLinkToProfileWall(fromUuid));
 		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 		replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
@@ -325,7 +325,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			for (String toUuid : toUuids) {
 				// this just keeps overwriting profileLink with current toUuid
 				replacementValues.put("displayName", sakaiProxy.getUserDisplayName(toUuid));
-				replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
+				replacementValues.put("wallLink", linkLogic.getEntityLinkToProfileWall(toUuid));
 				sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
 			}
 		} else {
@@ -355,7 +355,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
 			replacementValues.put("displayName", sakaiProxy.getUserDisplayName(toUuid));
-			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(toUuid));
+			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileWall(toUuid));
 		}
 		
 		if (null != emailTemplateKey) {

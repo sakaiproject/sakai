@@ -152,6 +152,20 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	public String getEntityLinkToProfileWall(String userUuid) {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_WALL);
+		if(StringUtils.isNotBlank(userUuid)) {
+			url.append("/");
+			url.append(userUuid);
+		}
+		return url.toString();
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
 	/*
 	public String generateTinyUrl(final String url) {
 		return tinyUrlService.generateTinyUrl(url);

@@ -63,6 +63,19 @@ public interface ProfileLinkLogic {
 	public String getInternalDirectUrlToUserConnections();
 	
 	/**
+	 * Creates a full URL to the wall page of the currently logged in user's
+	 * profile page on their My Workspace.
+	 * 
+	 * <p>
+	 * This should only be used internally by Profile2 as the URL is long and ugly.
+	 * If you need to generate a URL to a user's profile, see {@link generateUrlToUserProfile}
+	 * </p>
+	 * 
+	 * @return the url or null if they don't have the tool installed.
+	 */
+	public String getInternalDirectUrlToUserWall(String userUuid, String wallItemId);
+	
+	/**
 	 * Creates a RESTful link to the Profile2 home page for either the currently logged in user (if null param) or the given user.
 	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
 	 * 
@@ -98,8 +111,18 @@ public interface ProfileLinkLogic {
 	 */
 	public String getEntityLinkToProfileConnections();
 
-	// TODO javadoc
-	public String getInternalDirectUrlToUserWall(String userUuid, String wallItemId);
+	/**
+	 * Creates a RESTful link to the Profile2 wall page for either the currently logged in user (if null param) or the given user.
+	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
+	 * 
+	 * <p>This is used for url shortening and also to avoid generating the personalised link for each user for when sending out multiple emails.</p>
+	 * 	
+	 * <p>The URL is of the form: http://server.com/direct/my/profile/{userUuid}</p>
+	 *
+	 * @param userUuid	optional if you want to link to the wall of another person
+	 * @return
+	 */
+	public String getEntityLinkToProfileWall(String userUuid);
 	
 	/**
 	 * Generate a tiny URL for the supplied URL

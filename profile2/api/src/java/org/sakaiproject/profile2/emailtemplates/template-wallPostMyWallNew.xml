@@ -5,8 +5,8 @@
 	
 ${senderDisplayName} has just posted to your profile wall on ${localSakaiName}
 
-To view your profile, follow the link below:
-${profileLink}
+To view your wall, follow the link below:
+${wallLink}
 
 ---
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
@@ -16,8 +16,8 @@ Control what email notifications you receive from connections at My Workspace > 
 &lt;p&gt;
 ${senderDisplayName} has just posted to your profile wall on ${localSakaiName}
 &lt;p&gt;
-To view your profile, follow the link below:
-&lt;br /&gt;${profileLink}
+To view your wall, follow the link below:
+&lt;br /&gt;${wallLink}
 &lt;/p&gt;
 &lt;p&gt;
 ---
