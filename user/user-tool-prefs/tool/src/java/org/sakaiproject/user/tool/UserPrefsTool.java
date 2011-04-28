@@ -1283,7 +1283,6 @@ public class UserPrefsTool
 		}
 		String [] ids = prefTabString.split(",");
 		int tabcount = ids.length + 1;
-System.out.println("tabcount="+tabcount);
 		if ( tabcount <  MIN_TAB_COUNT && prefDrawerString == null && prefHiddenString == null ) tabcount = DEFAULT_TAB_COUNT;
 		if ( tabcount <  MIN_TAB_COUNT ) {
 			error = "Must have at least "+MIN_TAB_COUNT+" tabs on top navigation bar";
@@ -1295,10 +1294,6 @@ System.out.println("tabcount="+tabcount);
 		if ( prefDrawerString != null ) {
 			order += ", " + prefDrawerString;
 		}
-
-System.out.println("order="+order);
-System.out.println("excludes="+prefHiddenString);
-System.out.println("tabcount="+tabcount);
 
 		updatePrefs(order, prefHiddenString, tabcount);
 
