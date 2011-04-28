@@ -15,8 +15,10 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
@@ -38,12 +40,29 @@ public class CreateWorksitePanel extends Panel {
 	public CreateWorksitePanel(String id) {
 		super(id);
 
+		Form<?> form = new Form("form") {
+
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void onSubmit() {
+				// TODO create worksite and take user there if requested
+			}
+		};
+		form.setOutputMarkupId(true);
+		add(form);
+		
 		WebMarkupContainer connectionsContainer = new WebMarkupContainer("connectionsContainer");
-		add(connectionsContainer);
+		form.add(connectionsContainer);
 
 		connectionsContainer.add(new Label("connectionsLabel",
 				new ResourceModel("heading.worksite.connections")));
+		connectionsContainer.add(new Label("membersLabel",
+				new ResourceModel("heading.worksite.members")));
 		
-		
+		Select connectionsSelect = new Select("connectionsSelect");
+		connectionsContainer.add(connectionsSelect);
+		Select membersSelect = new Select("membersSelect");
+		connectionsContainer.add(membersSelect);		
 	}
 }

@@ -26,11 +26,21 @@
 
 <wicket:panel>
 
-	<div class="create-worksite-panel">
-		<div wicket:id="connectionsContainer">
-			<span wicket:id="connectionsLabel"></span>
+	<form wicket:id="form" class="profileForm">
+		<div class="create-worksite-panel">
+			<table wicket:id="connectionsContainer">
+				<tr>
+					<td><span wicket:id="connectionsLabel"></span></td>
+					<td><span wicket:id="membersLabel"></span></td>
+				</tr>
+				
+				<tr>
+					<td><select wicket:id="connectionsSelect" class="sl" multiple="multiple" size="10"></select></td>
+					<td><select wicket:id="membersSelect" class="sl" multiple="multiple" size="10"></select></td>
+				</tr>
+			</table>
 		</div>
-	</div>
+	</form>
 </wicket:panel>
 
 </body>
