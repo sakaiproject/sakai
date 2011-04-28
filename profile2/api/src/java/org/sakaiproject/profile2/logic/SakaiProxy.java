@@ -720,4 +720,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isGravatarImageEnabledGlobally();
+
+	/**
+	 * Does user have site.add permission?
+	 * 
+	 * @return <code>true</code> if user allowed to create worksites, else <code>false</code>.
+	 */
+	public boolean isUserAllowedAddSite(String userUuid);
 }

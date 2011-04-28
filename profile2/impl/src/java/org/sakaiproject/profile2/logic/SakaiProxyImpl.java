@@ -1340,7 +1340,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean("profile2.gravatar.image.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED);
 	}
 
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isUserAllowedAddSite(String userUuid) {
+		return siteService.allowAddSite(userUuid);
+	}
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

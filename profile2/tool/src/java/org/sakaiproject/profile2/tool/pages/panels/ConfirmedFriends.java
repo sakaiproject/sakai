@@ -25,7 +25,6 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.link.PopupSettings;
@@ -118,6 +117,24 @@ public class ConfirmedFriends extends Panel {
 		confirmedFriendsHeading.add(new Label("confirmedFriendsNumber", numConfirmedFriendsModel));
 		confirmedFriendsHeading.setOutputMarkupId(true);
 		add(confirmedFriendsHeading);
+		
+		//create worksite link
+		WebMarkupContainer createWorksite = new WebMarkupContainer("createWorksite");
+		final AjaxLink createWorksiteLink = new AjaxLink("createWorksiteLink") {
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				// TODO drop-down worksite creation panel
+
+			}
+
+		};
+		createWorksiteLink.add(new Label("createWorksiteLabel", new ResourceModel("link.worksite.create")));
+		createWorksiteLink.add(new AttributeModifier("title", true, new ResourceModel("link.title.worksite.create")));
+		createWorksite.add(createWorksiteLink);
+		
+		createWorksite.setVisible(sakaiProxy.isUserAllowedAddSite(userUuid));
+		add(createWorksite);
 		
 		//search for connections
 		WebMarkupContainer searchConnections = new WebMarkupContainer("searchConnections");
