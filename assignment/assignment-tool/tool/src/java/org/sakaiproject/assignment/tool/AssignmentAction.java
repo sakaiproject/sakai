@@ -7950,7 +7950,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (withGrade)
 				{
 					// any change in grade. Do not check for ungraded assignment type
-					hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), scalePointGrade(state, submission.getGrade())):valueDiffFromStateAttribute(state, g, submission.getGrade())):hasChange;
+					hasChange = (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), submission.getGrade()):valueDiffFromStateAttribute(state, g, submission.getGrade())):hasChange;
 					if (g != null)
 					{
 						state.setAttribute(GRADE_SUBMISSION_GRADE, g);
