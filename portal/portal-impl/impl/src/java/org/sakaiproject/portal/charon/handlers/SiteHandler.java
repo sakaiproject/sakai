@@ -199,6 +199,10 @@ public class SiteHandler extends WorksiteHandler
 			}
 			// This should understand aliases as well as IDs
 			site = portal.getSiteHelper().getSiteVisit(siteId);
+			
+			// SAK-20509 remap the siteId from the Site object we now have, since it may have originally been an alias, but has since been translated.
+			siteId = site.getId();
+			
 		}
 		catch (IdUnusedException e)
 		{
