@@ -215,6 +215,19 @@ return;
 			<f:verbatim> </f:verbatim>
 			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
+	  <h:panelGroup>
+	  	<h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+	  		<h:panelGroup>
+	  			<h:outputText value="#{evaluationMessages.applyGradesDesc}"/>
+	  		</h:panelGroup>
+	  		<h:panelGroup>
+	  			<h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}" size="5"/>
+	  			<h:commandButton value="#{evaluationMessages.applyGrades}" id="applyScoreButton" styleClass="active" type="submit">
+	  				<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+	  			</h:commandButton>
+	  		</h:panelGroup>
+	  	</h:panelGrid>
+	  </h:panelGroup>
     </h:panelGrid>
   </h:panelGroup>
    

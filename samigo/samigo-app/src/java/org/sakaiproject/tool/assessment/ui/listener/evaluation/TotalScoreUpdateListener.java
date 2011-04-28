@@ -114,6 +114,20 @@ public class TotalScoreUpdateListener
   	  String err = "";
   	  boolean isAnonymousGrading = false;
 
+  	  String applyToUngraded = bean.getApplyToUngraded().trim();
+  	  boolean applyUngradedBoolean = false;
+  	  if(applyToUngraded != null && !"".equals(applyToUngraded)){
+  		  try{
+  			  Float.valueOf(applyToUngraded).floatValue();
+  			  applyUngradedBoolean = true;
+  		  }catch (Exception e) {
+  			  FacesContext context = FacesContext.getCurrentInstance();
+  			  String err2 = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_user_id_apply");
+  			  context.addMessage(null,  new FacesMessage(err2));
+  			  return true;
+  		  }
+  	  }
+
   	  if (bean.getPublishedAssessment() != null 
   			  && bean.getPublishedAssessment().getEvaluationModel() != null
   			  && bean.getPublishedAssessment().getEvaluationModel().getAnonymousGrading() != null
@@ -237,8 +251,67 @@ public class TotalScoreUpdateListener
     	  // scores are saved in Samigo, still return true, but display error to user.
     	  return true;
       }
+      
+      if(applyUngradedBoolean){
+    	  grading = new ArrayList();
 
-    return true;
+    	  ArrayList allAgents = bean.getAllAgentsDirect();
+    	  Iterator allAgentsItr = allAgents.iterator();
+    	  while(allAgentsItr.hasNext()){
+    		  AgentResults agentResults = (AgentResults) allAgentsItr.next();
+    		  String overrideScore = agentResults.getTotalOverrideScore();
+    		  if (agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) && (overrideScore == null || "".equals(overrideScore) || "-".equals(overrideScore))) {
+    			  // these are students who have not submitted for grades and instructor made adjustment to their scores
+    			  // Add up new score
+    			  AssessmentGradingData data = new AssessmentGradingData();
+
+    			  try {
+    				  agentResults.setFinalScore(applyToUngraded+"");
+    				  agentResults.setTotalOverrideScore(applyToUngraded+"");
+    				  BeanUtils.copyProperties(data, agentResults);
+
+    				  data.setAgentId(agentResults.getIdString());
+    				  data.setForGrade(Boolean.FALSE);
+    				  data.setStatus(AssessmentGradingIfc.NO_SUBMISSION);
+    				  data.setIsLate(Boolean.FALSE);
+    				  data.setItemGradingSet(new HashSet());
+    				  data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
+    				  // tell hibernate this is a new record
+    				  data.setAssessmentGradingId(Long.valueOf(0));
+    				  data.setSubmittedDate(null);
+    				  data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+    				  data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
+    				  data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
+    				  data.setComments(agentResults.getComments());
+    				  data.setGradedBy(AgentFacade.getAgentString());
+    				  data.setGradedDate(new Date());
+    				  grading.add(data);
+    			  } catch (IllegalAccessException e) {
+    				  // TODO Auto-generated catch block
+    				  e.printStackTrace();
+    			  } catch (InvocationTargetException e) {
+    				  // TODO Auto-generated catch block
+    				  e.printStackTrace();
+    			  }
+    		  }   		  
+    	  }
+    	  //reset value in bean
+    	  bean.setApplyToUngraded("");
+    	  try {
+    		  delegate.saveTotalScores(grading, bean.getPublishedAssessment());
+    		  log.debug("Saved total scores applied to unsubmitted.");
+    	  } catch (GradebookServiceException ge) {
+    		  FacesContext context = FacesContext.getCurrentInstance();
+    		  String error=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+    		  context.addMessage(null, new FacesMessage(error));
+    		  // scores are saved in Samigo, still return true, but display error to user.
+    	  }
+    	  if(grading != null && !grading.isEmpty()){
+    		  //need to reset the bean
+    	  }
+      }
+
+      return true;
   }
 
   private boolean needUpdate(AgentResults agentResults, HashMap map, StringBuilder newScoreString) throws NumberFormatException{

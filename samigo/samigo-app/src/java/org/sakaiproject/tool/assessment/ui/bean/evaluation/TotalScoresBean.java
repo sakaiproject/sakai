@@ -133,6 +133,7 @@ public class TotalScoresBean
   // Searching
   private String searchString;
   private String defaultSearchString;
+  private String applyToUngraded = "";
   
   private boolean multipleSubmissionsAllowed = false;
   private boolean isTimedAssessment = false;
@@ -1023,6 +1024,10 @@ public class TotalScoresBean
 	  return allAgents;
   }
 
+  public ArrayList getAllAgentsDirect(){
+  	  return allAgents;
+  }
+
   public String getGraderName() {
 	  return Validator.check(graderName, "");
   }
@@ -1063,6 +1068,7 @@ public class TotalScoresBean
   public void clear(ActionEvent event) {
       log.debug("clear");
       setSearchString(null);
+      setApplyToUngraded("");
   }
   
 	private boolean isFilteredSearch() {
@@ -1145,5 +1151,13 @@ public class TotalScoresBean
 
 	public void setIsAutoScored(boolean isAutoScored) {		
 		this.isAutoScored = isAutoScored;
+	}	
+	
+	public String getApplyToUngraded() {
+		return applyToUngraded;
+	}
+
+	public void setApplyToUngraded(String applyToUngraded) {
+		this.applyToUngraded = applyToUngraded;
 	}	
 }
