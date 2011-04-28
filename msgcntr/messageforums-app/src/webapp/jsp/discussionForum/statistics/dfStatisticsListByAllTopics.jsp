@@ -32,7 +32,7 @@
   	
 
   		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.allTopicStatistics}" var="stat" rendered="true"
-   	 		columnClasses="specialLink,specialLink,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
+   	 		columnClasses="specialLink,specialLink,bogus,bogus,bogus" cellpadding="0" cellspacing="0" summary="#{msgs.statistics_table_topic}">
   			<h:column>
   				<f:facet name="header">
   					<h:commandLink action="#{mfStatisticsBean.toggleAllTopicsForumTitleSort}" title="#{msgs.stat_forum_title}">

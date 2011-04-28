@@ -227,7 +227,7 @@
 	  	
 	  	
   		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.topicStatistics}" var="stat" rendered="true"
-   	 		columnClasses="specialLink,bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
+   	 		columnClasses="specialLink,bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0" summary="#{msgs.statistics_table_topic_user} '#{!empty mfStatisticsBean.selectedAllTopicsTopicId ? mfStatisticsBean.selectedAllTopicsTopicTitle: mfStatisticsBean.selectedAllTopicsForumTitle}'">
   			<h:column>
   				<f:facet name="header">
   					<h:commandLink action="#{mfStatisticsBean.toggleTopicNameSort}" title="#{msgs.stat_name}">
