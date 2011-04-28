@@ -1434,6 +1434,13 @@ main-profile-tabpanel .tab-row a:visited.active,
 	margin-top: 5px;
 }
 
+/* create worksite panel */
+.create-worksite-panel {
+	width: 500px;
+	height: 200px;
+	/*font-size: 90%;*/
+}
+
 /* close button */
 .closebutton {
 	float: right;

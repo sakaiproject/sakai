@@ -118,14 +118,25 @@ public class ConfirmedFriends extends Panel {
 		confirmedFriendsHeading.setOutputMarkupId(true);
 		add(confirmedFriendsHeading);
 		
+		//create worksite panel
+		final CreateWorksitePanel createWorksitePanel = new CreateWorksitePanel("createWorksitePanel");
+		//create placeholder and set invisible initially
+		createWorksitePanel.setOutputMarkupPlaceholderTag(true);
+		createWorksitePanel.setVisible(false);
+		
+		
 		//create worksite link
 		WebMarkupContainer createWorksite = new WebMarkupContainer("createWorksite");
+		
+		createWorksite.add(createWorksitePanel);
+		
 		final AjaxLink createWorksiteLink = new AjaxLink("createWorksiteLink") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				// TODO drop-down worksite creation panel
-
+				createWorksitePanel.setVisible(true);
+				target.addComponent(createWorksitePanel);
+				target.appendJavascript("fixWindowVertical();");
 			}
 
 		};
