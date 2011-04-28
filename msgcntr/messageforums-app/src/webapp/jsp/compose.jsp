@@ -83,8 +83,7 @@
 		  
 		  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
 			  <h:panelGroup styleClass="shorttext required">
-				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
-					<h:outputLabel for="list1"><h:outputText value="#{msgs.pvt_to}"/></h:outputLabel>
+					 <h:outputLabel for="list1"><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_to}"/></h:outputLabel>
 			  </h:panelGroup>
 			  <h:panelGroup styleClass="shorttext">
 					<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 20em;">
@@ -179,8 +178,7 @@
         </h:selectOneListbox>
 				
 				<h:panelGroup styleClass="shorttext required">
-				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
-					<h:outputLabel for="subject"><h:outputText value="#{msgs.pvt_subject}" /></h:outputLabel>
+				 <h:outputLabel for="subject"><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_subject}" /></h:outputLabel>
 				</h:panelGroup>
 				<h:panelGroup styleClass="shorttext">
 					<h:inputText value="#{PrivateMessagesTool.composeSubject}" id="subject" size="45">

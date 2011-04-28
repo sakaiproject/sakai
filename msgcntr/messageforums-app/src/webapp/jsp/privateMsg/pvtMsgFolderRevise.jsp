@@ -22,8 +22,10 @@
 	
 		  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
 			  <h:panelGroup styleClass="shorttext required">
+				  <h:outputLabel for="revised_title">
 				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
-				  <h:outputLabel for="revised_title"><h:outputText value="#{msgs.pvt_folder_title} #{msgs.pvt_colon}"/></h:outputLabel>
+				  <h:outputText value="#{msgs.pvt_folder_title} #{msgs.pvt_colon}"/>
+				  </h:outputLabel>
 			  </h:panelGroup>
 			  <h:panelGroup styleClass="shorttext">	
 			  <h:inputText value="#{PrivateMessagesTool.selectedNewTopicTitle}" id="revised_title" />

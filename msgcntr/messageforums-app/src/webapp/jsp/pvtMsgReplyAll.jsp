@@ -200,8 +200,9 @@
 				</h:panelGroup>
 				
 				<h:panelGroup styleClass="shorttext required">
+  					<h:outputLabel for="subject" >
   					<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
-  					<h:outputLabel for="subject" ><h:outputText value="#{msgs.pvt_subject}"  /></h:outputLabel>
+  					<h:outputText value="#{msgs.pvt_subject}"  /></h:outputLabel>
   			</h:panelGroup>
   			<h:panelGroup styleClass="shorttext">
 					<h:inputText value="#{PrivateMessagesTool.forwardSubject}" id="subject" size="45">

@@ -22,8 +22,10 @@
 			 
  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
 			  <h:panelGroup styleClass="shorttext required">
+			      <h:outputLabel for="title">
 				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
-				  <h:outputLabel for="title" value="#{msgs.pvt_folder_title}"/>
+				  <h:outputText  value="#{msgs.pvt_folder_title}"/>
+				  </h:outputLabel>
 			  </h:panelGroup>
 				<h:panelGroup styleClass="shorttext ">
 				<h:inputText id="title" value="#{PrivateMessagesTool.addFolder}" />
