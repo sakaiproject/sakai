@@ -1986,10 +1986,12 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("new", "true");
 			context.put("tempSubject", state.getTempSubject());
 			context.put("tempBody", state.getTempBody());
-
-			// default pubview
+			
 			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
-
+			Placement placement = ToolManager.getCurrentPlacement();
+			//SAK-19516, default motd to pubview so it shows up in rss
+			context.put("motd",(placement!= null && ("MOTD".equals(placement.getTitle()) && placement.getId().contains("admin"))) ? Boolean.TRUE : Boolean.FALSE);
+			
 			// output the sstate saved public view options
 			final boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
 			if (pubview)
@@ -2751,6 +2753,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		// announce to public?
 		final String announceTo = state.getTempAnnounceTo();
+//		Placement placement = ToolManager.getCurrentPlacement();
+//		if(placement!= null && ("MOTD".equals(placement.getTitle()) && placement.getId().contains("admin")))
+//			annouceTo="pubview";
 
 		// there is any error message caused by empty subject or body
 		if (sstate.getAttribute(STATE_MESSAGE) != null)
@@ -2882,7 +2887,15 @@ public class AnnouncementAction extends PagedResourceActionII
 					}
 				}
 				
-				// announce to?
+				//announceTo
+				Placement placement = ToolManager.getCurrentPlacement();
+				//SAK-19516, default motd to pubview so it shows up in rss, motd will fail below try block
+				if(placement!= null && ("MOTD".equals(placement.getTitle()) && placement.getId().contains("admin")))
+				{
+					msg.getPropertiesEdit().addProperty(ResourceProperties.PROP_PUBVIEW, Boolean.TRUE.toString());
+					header.clearGroupAccess();
+				}
+				
 				try
 				{
 					Site site = SiteService.getSite(channel.getContext());

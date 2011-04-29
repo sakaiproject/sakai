@@ -218,7 +218,10 @@ function resizeFrame(){
 			</div>
 			<div><h4>$tlang.getString("displayto.access")</h4></div>
 		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
-		#if (($!publicDisable && ($show_group =="false")) || $pubviewset)
+		#if ( $motd )
+			## no show this selection, but set default to public
+			<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" />
+		#elseif (($!publicDisable && ($show_group =="false")) || $pubviewset)
 			## no show this selection, but set default to site
 			<input type="hidden" name="announceTo" id="site" value="site" checked="checked" />
 		#else
