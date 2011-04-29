@@ -40,7 +40,7 @@
 
 		<!-- For running as a Quartz job -->
 		<dependency>
-			<groupId>quartz</groupId>
+			<groupId>org.opensymphony.quartz</groupId>
 			<artifactId>quartz</artifactId>
 		</dependency>
 	</dependencies>
