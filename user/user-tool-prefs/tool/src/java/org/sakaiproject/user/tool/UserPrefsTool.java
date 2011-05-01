@@ -1235,7 +1235,7 @@ public class UserPrefsTool
 
 		String error = "";
 		if ( prefTabString == null ) {
-			error = "Cannot remove all tabs from top navigation";
+			error = msgs.getString("remove_all");
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
 			return m_TabOutcome;
 		}
@@ -1243,7 +1243,8 @@ public class UserPrefsTool
 		int tabcount = ids.length + 1;
 		if ( tabcount <  MIN_TAB_COUNT && prefDrawerString == null && prefHiddenString == null ) tabcount = DEFAULT_TAB_COUNT;
 		if ( tabcount <  MIN_TAB_COUNT ) {
-			error = "Must have at least "+MIN_TAB_COUNT+" tabs on top navigation bar";
+			error = msgs.getString("min_tabs");
+			error = error.format(error,MIN_TAB_COUNT);
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
 			return m_TabOutcome;
 		}
