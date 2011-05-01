@@ -1218,6 +1218,55 @@ public class UserPrefsTool
 		return m_TabOutcome;
 	}
 
+	/**
+	 * Process the save command from the edit view.
+	 * 
+	 * @return navigation outcome to tab customization page (edit)
+	 */
+	public String processActionSave()
+	{
+		LOG.debug("processActionSave()");
+
+		setUserEditingOn();
+		// Remove existing property
+		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
+		props.removeProperty("exclude");
+		props.removeProperty("order");
+		// Commit to remove from database, for next set of value storing
+		m_preferencesService.commit(m_edit);
+
+		m_stuff = new Vector();
+		String oparts = "";
+		String eparts = "";
+		for (int i = 0; i < prefExcludeItems.size(); i++)
+		{
+			SelectItem item = (SelectItem) prefExcludeItems.get(i);
+			String evalue = (String) item.getValue();
+			eparts += evalue + ", ";
+		}
+		for (int i = 0; i < prefOrderItems.size(); i++)
+		{
+			SelectItem item = (SelectItem) prefOrderItems.get(i);
+			String value = (String) item.getValue();
+			oparts += value + ", ";
+		}
+		// add property name and value for saving
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", prefTabCount, false));
+
+		// save
+		saveEdit();
+		// release lock and clear session variables
+		cancelEdit();
+		// To stay on the same page - load the page data
+		processActionEdit();
+		tabUpdated = true; // set for display of text message on JSP
+
+		m_reloadTop = Boolean.TRUE;
+
+		return m_TabOutcome;
+	}
 
 	/**
 	 * Process the save command from the edit view.

@@ -18,7 +18,17 @@
 				setupPrefsGen();
 				setupPrefsTabs('sl','sr');				
 			})  
-		</script>
+
+                        function checkReloadTop() {
+                            var name_element = document.getElementById('prefs_form:reloadTop');
+                            check = name_element.value;
+                            if (check == 'true' ) parent.location.reload();
+                        }
+
+			jQuery(document).ready(function () {
+			    setTimeout('checkReloadTop();', 1500);
+			});
+</script>
 		
               <sakai:tool_bar>
               <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmEdit}" value="Refresh" /--%>
@@ -53,7 +63,7 @@
                     </h:panelGroup>
 				</h3>
                 
-                <sakai:messages />
+		    <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
     <div id="tab-dhtml-more-sites">
     <div id="top-text">
         <h:outputText value="#{msgs.tab_inst_1_alt}"/> 
@@ -120,9 +130,9 @@
 
                 </p>
 
+                <h:inputHidden id="reloadTop" value="#{UserPrefsTool.reloadTop}" />
         </div>
         </h:form>
-        <sakai:peer_refresh value="#{UserPrefsTool.refreshElement}" />
     
     </sakai:view_content>
     </sakai:view_container>
