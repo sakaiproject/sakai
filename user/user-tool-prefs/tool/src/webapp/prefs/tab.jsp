@@ -4,20 +4,28 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%-- Sakai JSF tag library --%>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <f:view>
+<head>
+  <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>
+  <script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
+  <script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">//</script>
+<script type="text/javascript">
+function checkReloadTop() {
+    check = jQuery('input[id$=reloadTop]').val();
+    if (check == 'true' ) parent.location.reload();
+}
+
+jQuery(document).ready(function () {
+    setTimeout('checkReloadTop();', 1500);
+});
+
+</script>
+</head>
 	<sakai:view_container title="#{msgs.prefs_title}">
 	<sakai:view_content>
 		<h:form id="prefs_form">
-		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>			
-		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				setupPrefsGen();
-				setupPrefsTabs('sl','sr');				
-			})  
-		</script>
-
-				
 				<sakai:stylesheet path="/css/prefs.css"/>
 				<sakai:tool_bar>
 			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmEdit}" value="Refresh" /--%>
@@ -61,71 +69,109 @@
 				</h3>
 				
 				
-				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
-				<p class="instruction"><h:outputText value="#{msgs.tab_inst_1}"/><br/><br/><h:outputText value="#{msgs.tab_inst_2}"/><br/><br/><h:outputText value="#{msgs.tab_inst_3}"/><br /><br /><h:outputText value="#{msgs.tab_inst_save}"/></p>
-				<table cellspacing="0" cellpadding="5%" class="sidebyside" border="0">
-    			  <tr>
-    			    <td>
-    			      <b><h:outputText value="#{msgs.tab_not_vis_inst}"/></b>
-    			      <br />
-    			  	  <h:selectManyListbox value="#{UserPrefsTool.selectedExcludeItems}" size="10" styleClass="sl">
-				   		<f:selectItems value="#{UserPrefsTool.prefExcludeItems}" />
-				 	  </h:selectManyListbox>
-				 	</td>
-				 	
-				 	<td style="text-align: center;">
-						<div style="margin-bottom:1.5em">
-						  <h:commandLink id="remove" action="#{UserPrefsTool.processActionRemove}" title="#{msgs.tab_move_inst_re}" styleClass="blockable bl"><h:graphicImage value="/prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /></h:commandLink>
-						  <h:commandLink id="add" action="#{UserPrefsTool.processActionAdd}" title="#{msgs.tab_move_inst}" styleClass="blockable br"><h:graphicImage value="/prefs/to-right.png" alt="#{msgs.tab_move_inst}" /></h:commandLink>
-						</div>
-						<div>
-							<h:commandLink id="removeAll" action="#{UserPrefsTool.processActionRemoveAll}" title="#{msgs.tab_move_all_inst_re}" styleClass="blockable bl"><h:graphicImage value="/prefs/all-to-left.png" alt="#{msgs.tab_move_all_inst_re}" /></h:commandLink>
-							<h:commandLink id="addAll" action="#{UserPrefsTool.processActionAddAll}" title="#{msgs.tab_move_all_inst}" styleClass="blockable br"><h:graphicImage value="/prefs/all-to-right.png" alt="#{msgs.tab_move_all_inst}" /></h:commandLink>
-						</div>	
-				 	</td>
-				 	
-				 	<td>
-					  <b><h:outputText value="#{msgs.tab_vis_inst}"/></b>
-    			      <br/>
-				 	  <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10" styleClass="sr">
-				        <f:selectItems value="#{UserPrefsTool.prefOrderItems}" />
-				      </h:selectManyListbox>
-				 	</td>
-				 	<td style="width:27px;">
-				 	  <p style="margin:0"><h:commandLink id="moveTop" action="#{UserPrefsTool.processActionMoveTop}" title="#{msgs.tab_move_top}" styleClass="blockable ud"> <h:graphicImage value="/prefs/to-top.png" alt="#{msgs.tab_move_top}" /> </h:commandLink></p>
-				 	  <p style="margin:5px 0 0  0;"><h:commandLink id="moveUp" action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}" styleClass="blockable ud"> <h:graphicImage value="/prefs/up.png" alt="#{msgs.tab_move_up}" /> </h:commandLink></p>
-					  <div style="margin-top:15px">
-				 	  	<p style="margin:0 0 5px 0;"><h:commandLink id="moveDown" action="#{UserPrefsTool.processActionMoveDown}" title="#{msgs.tab_move_down}" styleClass="blockable ud"> <h:graphicImage value="/prefs/down.png" alt="#{msgs.tab_move_down}" /> </h:commandLink></p>
-						<p style="margin:0;"><h:commandLink id="moveBottom" action="#{UserPrefsTool.processActionMoveBottom}" title="#{msgs.tab_move_bottom}" styleClass="blockable ud"> <h:graphicImage value="/prefs/to-bottom.png" alt="#{msgs.tab_move_bottom}" /> </h:commandLink></p>
-						</div>	
-				 	</td>    			  
-    			  </tr>
-				  <tr>
-				  <td></td><td></td>
-				  	<td>
-						<h:panelGrid cellpadding="0" cellspacing="0">
-						<h:panelGroup>
-							 <h:outputLabel for="numtabs" style="font-weight:bold"  value="#{msgs.tab_count}"/><f:verbatim>&nbsp;&nbsp;</f:verbatim>
-                             <h:selectOneMenu id="numtabs" value="#{UserPrefsTool.tabCount}" styleClass="notsbs">
-                                 <f:selectItems value="#{UserPrefsTool.tabsChoices}" />
-                             </h:selectOneMenu>
-                             <%--<h:inputText size="2" id="numtabs" value="#{UserPrefsTool.tabCount}" />--%>
-					  </h:panelGroup>
-					  </h:panelGrid>
-					</td>
-					<td></td>
-					</tr>
-				</table>
-			    <p class="act" style="margin:0;padding:0">
-				 	<h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
-					 <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
-					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.update_pref}"  style="display:none"/>
-					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.cancel_pref}"  style="display:none"/>
-			    </p>
-		 </h:form>
-		 <%-- gsilver: this next bit renders an empty unbalanced div if there is no value --%>
-		 <sakai:peer_refresh value="#{UserPrefsTool.refreshElement}" />
+                          <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
+<f:verbatim>
+<div class="layoutReorderer-container fl-container-flex" id="layoutReorderer" style="margin:.5em 0">
+<p>
+<h:outputText value="#{msgs.prefs_mouse_instructions}" escape="false"/>
+</p>
+<p>
+<h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>
+</p>
+<div class="columnSetup3 fluid-vertical-order">
+<!-- invalid drag n drop message template -->
+<p class="flc-reorderer-dropWarning layoutReorderer-dropWarning">
+<h:outputText value="#{msgs.prefs_element_locked}" />
+</p>
+</f:verbatim>
+                <f:verbatim>
+			<!-- Column #1 -->
+                        <div class="flc-reorderer-column col1">
+                            <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_fav_sites}" /></h4></div>
 
-	</sakai:view_content>                                                                                                                     
-	</sakai:view_container>
+<div class="flc-reorderer-module layoutReorderer-module layoutReorderer-locked">
+<div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar"><h:outputText value="#{msgs.prefs_my_workspace}" /></div></div>
+
+		</f:verbatim>
+		<t:dataList id="dt1" value="#{UserPrefsTool.prefTabItems}" 
+			var="item" layout="simple" 
+			rowIndexVar="counter"
+			itemStyleClass="dataListStyle">
+                <f:verbatim>
+                   <div class="flc-reorderer-module layoutReorderer-module last-login"
+			id="</f:verbatim>
+                  <t:outputText value="#{item.value}"></t:outputText>
+                 <f:verbatim>">
+                      <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
+		</f:verbatim>
+                <t:outputText value="#{item.label}"></t:outputText>
+                <f:verbatim></div></div></f:verbatim>
+		</t:dataList>
+                <f:verbatim></div></f:verbatim>
+
+                <f:verbatim>
+			<!-- Column #2 -->
+                        <div class="flc-reorderer-column col2">
+                            <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_active_sites}" /></h4></div>
+		</f:verbatim>
+		<t:dataList id="dt2" value="#{UserPrefsTool.prefDrawerItems}" 
+			var="item" layout="simple" 
+			rowIndexVar="counter"
+			itemStyleClass="dataListStyle">
+                <f:verbatim>
+                   <div class="flc-reorderer-module layoutReorderer-module last-login"
+			id="</f:verbatim>
+                  <t:outputText value="#{item.value}"></t:outputText>
+                 <f:verbatim>">
+                      <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
+		</f:verbatim>
+                <t:outputText value="#{item.label}"></t:outputText>
+                <f:verbatim></div></div></f:verbatim>
+		</t:dataList>
+                <f:verbatim></div></f:verbatim>
+
+                <f:verbatim>
+			<!-- Column #3 -->
+                        <div class="flc-reorderer-column fl-container-flex25 fl-force-left col3">
+                            <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_archive_sites}" /></h4></div>
+		</f:verbatim>
+		<t:dataList id="dt3" value="#{UserPrefsTool.prefHiddenItems}" 
+			var="item" layout="simple" 
+			rowIndexVar="counter"
+			itemStyleClass="dataListStyle">
+                <f:verbatim>
+                   <div class="flc-reorderer-module layoutReorderer-module last-login"
+			id="</f:verbatim>
+                  <t:outputText value="#{item.value}"></t:outputText>
+                 <f:verbatim>">
+                      <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
+		</f:verbatim>
+                <t:outputText value="#{item.label}"></t:outputText>
+                <f:verbatim></div></div></f:verbatim>
+		</t:dataList>
+                <f:verbatim></div></f:verbatim>
+                <f:verbatim></div></div>
+<div style="float:none;clear:both;margin:2em 0">
+</f:verbatim>
+
+	 	<h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSaveOrder}"></h:commandButton>
+		 <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
+		<h:inputHidden id="prefTabString" value="#{UserPrefsTool.prefTabString}" />
+		<h:inputHidden id="prefDrawerString" value="#{UserPrefsTool.prefDrawerString}" />
+		<h:inputHidden id="prefHiddenString" value="#{UserPrefsTool.prefHiddenString}" />
+		<h:inputHidden id="reloadTop" value="#{UserPrefsTool.reloadTop}" />
+<f:verbatim>
+<p>
+<h:outputText value="#{msgs.prefs_auto_refresh}" />
+</p>
+</div>
+<script type="text/javascript">
+   initlayoutReorderer();
+</script>
+</f:verbatim>
+</h:form>
+
+</sakai:view_content>                                                                                                                     
+</sakai:view_container>
+
 </f:view>

@@ -55,6 +55,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
@@ -229,13 +230,18 @@ public class UserPrefsTool
 	private List prefLocales = new ArrayList();
 
 	private int DEFAULT_TAB_COUNT = 4;
-    private int MAX_TAB_COUNT = 20;
+	private int MAX_TAB_COUNT = 20;
+	private int MIN_TAB_COUNT = 2;
 
 	private String prefTabCount = null;
 
 	private String[] selectedExcludeItems;
 
 	private String[] selectedOrderItems;
+
+	private String prefTabString = null;
+	private String prefDrawerString = null;
+	private String prefHiddenString = null;
 
 	private String[] tablist;
 
@@ -249,7 +255,6 @@ public class UserPrefsTool
 	private String Privacy="prefs_privacy_title";
 	
 	private boolean refreshMode=false;
-
 
 	protected final static String EXCLUDE_SITE_LISTS = "exclude";
 
@@ -332,6 +337,86 @@ public class UserPrefsTool
 	}
 
 	/**
+	 * @return Returns the prefTabItems.
+	 */
+	public List getPrefTabItems()
+	{
+		int tc = getTabCountInt();
+
+                List<SelectItem> l = new ArrayList<SelectItem>();
+                for (int i = 0; i < prefOrderItems.size() && i < tc-1; i++)
+                {
+                        SelectItem item = (SelectItem) prefOrderItems.get(i);
+			l.add(item);
+                }
+		return l;
+	}
+
+	/**
+	 * @return Returns the prefDrawerItems.
+	 */
+	public List getPrefDrawerItems()
+	{
+		int tc = getTabCountInt();
+		if ( tc < 1 ) tc = 1;
+
+                List<SelectItem> l = new ArrayList<SelectItem>();
+                for (int i = tc-1; i < prefOrderItems.size(); i++)
+                {
+                        SelectItem item = (SelectItem) prefOrderItems.get(i);
+			l.add(item);
+                }
+		return l;
+	}
+
+	/**
+	 * @return Returns the prefHiddenItems.
+	 */
+	public List getPrefHiddenItems()
+	{	
+		return prefExcludeItems;
+	}
+
+	public String getPrefTabString()
+	{
+		return "";
+	}
+
+	public void setPrefTabString(String inp)
+	{
+		inp = inp.trim();
+		prefTabString = inp;
+		if ( inp.length() < 1 ) prefTabString = null;
+		return;
+	}
+
+	public String getPrefDrawerString()
+	{
+		return "";
+	}
+
+	public void setPrefDrawerString(String inp)
+	{
+		inp = inp.trim();
+		prefDrawerString = inp;
+		if ( inp.length() < 1 ) prefDrawerString = null;
+		return;
+	}
+
+	public String getPrefHiddenString()
+	{
+		return "";
+	}
+
+	public void setPrefHiddenString(String inp)
+	{
+		inp = inp.trim();
+		prefHiddenString = inp;
+		if ( inp.length() < 1 ) prefHiddenString = null;
+		return;
+	}
+
+	/**
 	 ** @return number of worksite tabs to display in standard site navigation bar
 	 **/
 	public String getTabCount()
@@ -347,6 +432,23 @@ public class UserPrefsTool
 			prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
 
 		return prefTabCount;
+	}
+
+	/**
+	 ** @return number of worksite tabs to display in standard site navigation bar
+	 **/
+	public int getTabCountInt()
+	{
+                String tcs = getTabCount();
+                int tc = DEFAULT_TAB_COUNT;
+                try
+                {
+                        tc = Integer.parseInt(tcs.trim());
+                }
+                catch(Exception e){
+                        tc = DEFAULT_TAB_COUNT;
+                }
+		return tc;
 	}
 
 	/**
@@ -1040,9 +1142,12 @@ public class UserPrefsTool
 		}
 		tabUpdated = false; // Reset display of text message on JSP
 		refreshMode=false;
+
+		setUserEditingOn();
+
+		prefTabCount = null;
 		prefExcludeItems = new ArrayList();
 		prefOrderItems = new ArrayList();
-		setUserEditingOn();
 		List prefExclude = new Vector();
 		List prefOrder = new Vector();
 
@@ -1107,20 +1212,54 @@ public class UserPrefsTool
 			SelectItem orderItem = new SelectItem(element.getId(), element.getTitle());
 			prefOrderItems.add(orderItem);
 		}
+
 		// release lock
 		m_preferencesService.cancel(m_edit);
 		return m_TabOutcome;
 	}
+
 
 	/**
 	 * Process the save command from the edit view.
 	 * 
 	 * @return navigation outcome to tab customization page (edit)
 	 */
-	public String processActionSave()
+	public String processActionSaveOrder()
 	{
-		LOG.debug("processActionSave()");
+		LOG.debug("processActionSaveOrder()");
 
+		// No tabs, nothing to do 
+		if ( prefTabString == null && prefDrawerString == null && prefHiddenString == null ) {
+			return m_TabOutcome;
+		}
+
+		String error = "";
+		if ( prefTabString == null ) {
+			error = "Cannot remove all tabs from top navigation";
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
+			return m_TabOutcome;
+		}
+		String [] ids = prefTabString.split(",");
+		int tabcount = ids.length + 1;
+		if ( tabcount <  MIN_TAB_COUNT && prefDrawerString == null && prefHiddenString == null ) tabcount = DEFAULT_TAB_COUNT;
+		if ( tabcount <  MIN_TAB_COUNT ) {
+			error = "Must have at least "+MIN_TAB_COUNT+" tabs on top navigation bar";
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
+			return m_TabOutcome;
+		}
+
+		String order = prefTabString;
+		if ( prefDrawerString != null ) {
+			order += ", " + prefDrawerString;
+		}
+
+		updatePrefs(order, prefHiddenString, tabcount);
+
+		return m_TabOutcome;
+	}
+
+	private void updatePrefs(String order, String excludes, int tabcount) 
+	{
 		setUserEditingOn();
 		// Remove existing property
 		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
@@ -1130,24 +1269,12 @@ public class UserPrefsTool
 		m_preferencesService.commit(m_edit);
 
 		m_stuff = new Vector();
-		String oparts = "";
-		String eparts = "";
-		for (int i = 0; i < prefExcludeItems.size(); i++)
-		{
-			SelectItem item = (SelectItem) prefExcludeItems.get(i);
-			String evalue = (String) item.getValue();
-			eparts += evalue + ", ";
-		}
-		for (int i = 0; i < prefOrderItems.size(); i++)
-		{
-			SelectItem item = (SelectItem) prefOrderItems.get(i);
-			String value = (String) item.getValue();
-			oparts += value + ", ";
-		}
 		// add property name and value for saving
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", prefTabCount, false));
+		if ( order != null && order.length() > 0 ) 
+			m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", order, true));
+		if ( excludes != null && excludes.length() > 0 ) 
+			m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", excludes, true));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs",  String.valueOf(tabcount), false));
 
 		// save
 		saveEdit();
@@ -1157,11 +1284,7 @@ public class UserPrefsTool
 		processActionEdit();
 		tabUpdated = true; // set for display of text message on JSP
 
-		// schedule a "peer" html element refresh, to update the site nav tabs
-		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
-		setRefreshElement("sitenav");
-
-		return m_TabOutcome;
+		m_reloadTop = Boolean.TRUE;
 	}
 
 	/**
@@ -1954,34 +2077,23 @@ public class UserPrefsTool
 		return a;
 	} // getIntegerPref
 
-	/** The html "peer" element to refresh on the next rendering. */
-	protected String m_refreshElement = null;
+	/** Should we reload the top window? */
+	protected Boolean m_reloadTop = Boolean.FALSE;
 
 	/**
-	 * Get, and clear, the refresh element
-	 * 
-	 * @return The html "peer" element to refresh on the next rendering, or null if none defined.
+	 * Get, and clear, the reload element
 	 */
-	public String getRefreshElement()
+	public Boolean getReloadTop()
 	{
-		String rv = m_refreshElement;
-		m_refreshElement = null;
+		Boolean rv = m_reloadTop;
+		m_reloadTop = Boolean.FALSE;
 		return rv;
 	}
 
-	/**
-	 * Set the "peer" html element to refresh on the next rendering.
-	 * 
-	 * @param element
-	 */
-	public void setRefreshElement(String element)
-	{
-		m_refreshElement = element;
-	}
+	public void setReloadTop(Boolean val) { }
 
 	/**
 	 * Pull whether privacy status should be enabled from sakai.properties
-	 * 
 	 */
 	public boolean isPrivacyEnabled()
 	{

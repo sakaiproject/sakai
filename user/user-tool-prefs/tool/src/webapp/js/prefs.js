@@ -168,3 +168,51 @@ resizeFrame = function (updown) {
 		throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
 	  }
 	};
+
+    
+
+
+//var demo = demo || {};
+(function ($, fluid) {
+    //fluid.setLogging(true);
+    initlayoutReorderer = function () {
+        fluid.reorderLayout("#layoutReorderer", {
+            listeners: {
+       	    	afterMove: function (args) {
+    		    var ids = '';  
+		    jQuery('.col1 .last-login').each(function(idx, item) {  
+			// alert(item.id);
+                        if ( ids.length > 1 ) ids += ', ' ;
+        	        ids += item.id ; 
+    		    });
+            	    jQuery('input[name$=prefTabString]').val(ids);
+    		    var ids = '';  
+		    jQuery('.col2 .last-login').each(function(idx, item) {  
+                        if ( ids.length > 1 ) ids += ', ' ;
+        	        ids += item.id ; 
+    		    });
+            	    jQuery('input[name$=prefDrawerString]').val(ids);
+    		    var ids = '';  
+		    jQuery('.col3 .last-login').each(function(idx, item) {  
+                        if ( ids.length > 1 ) ids += ', ' ;
+        	        ids += item.id ; 
+    		    });
+            	    jQuery('input[name$=prefHiddenString]').val(ids);
+       	        }
+	    },
+            selectors: {
+                lockedModules: ".layoutReorderer-locked"
+            },
+            styles: {
+                defaultStyle: "layoutReorderer-movable-default",
+                selected: "layoutReorderer-movable-selected",
+                dragging: "layoutReorderer-movable-dragging",
+                mouseDrag: "layoutReorderer-movable-mousedrag",
+                dropMarker: "layoutReorderer-dropMarker",
+                avatar: "layoutReorderer-avatar"
+            },
+            disableWrap: true
+        });
+    };
+})(jQuery, fluid);
+    
