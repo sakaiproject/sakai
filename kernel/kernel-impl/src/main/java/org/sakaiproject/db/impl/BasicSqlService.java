@@ -1140,10 +1140,12 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	protected boolean dbWrite(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
 	{
-		// check for a transaction conncetion
+		boolean commitDbWrite = false;
+		// check for a transaction connection
 		if (callerConnection == null)
 		{
 			callerConnection = (Connection) threadLocalManager().get(TRANSACTION_CONNECTION);
+			commitDbWrite = true;
 		}
 
 		if (LOG.isDebugEnabled())
@@ -1225,7 +1227,7 @@ public abstract class BasicSqlService implements SqlService
 			int result = pstmt.executeUpdate();
 
 			// commit unless we are in a transaction (provided with a connection)
-			if (callerConnection == null)
+			if (commitDbWrite)
 			{
 				conn.commit();
 			}
