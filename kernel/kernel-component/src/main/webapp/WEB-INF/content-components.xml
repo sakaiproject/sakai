@@ -68,6 +68,11 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.content.impl.ContentServiceSqlOracle" /></entry>
            </map>
         </property>
+        <property name="outputFilters">
+          <list>
+            <ref bean="org.sakaiproject.content.impl.HtmlPageFilter"/>
+          </list>
+        </property>
   	</bean>
 
 	<bean id="org.sakaiproject.content.api.ContentHostingHandlerResolver"
@@ -221,5 +226,12 @@
 		<property name="useDynamicLogger"><value>true</value></property>
 	</bean>
 	-->
+	
+	
+            <bean id="org.sakaiproject.content.impl.HtmlPageFilter"
+                  class="org.sakaiproject.content.impl.HtmlPageFilter">
+              <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+              <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+            </bean>
 
 </beans>

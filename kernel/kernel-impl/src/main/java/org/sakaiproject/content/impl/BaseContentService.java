@@ -33,6 +33,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,6 +73,7 @@ import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentFilter;
 import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -224,6 +226,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 	/** Optional set of folders just within the m_bodyPath to distribute files among. */
 	protected String[] m_bodyVolumes = null;
+	
+	protected List<ContentFilter> m_outputFilters = Collections.emptyList();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -712,9 +716,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
 	}
 
+	public void setOutputFilters(List<ContentFilter> outputFilters)
+	{
+		this.m_outputFilters = outputFilters;
+	}
 
-
-
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -6463,6 +6470,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						{
 							throw new IdUnusedException(ref.getReference());
 						}
+						for (ContentFilter filter: m_outputFilters)
+						{
+							if (filter.isFiltered(resource))
+							{
+								res = filter.wrap(res, resource);
+							}
+						}
 	
 						res.setContentType(contentType);
 						res.addHeader("Content-Disposition", disposition);
@@ -6558,6 +6572,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							if (content == null)
 							{
 								throw new IdUnusedException(ref.getReference());
+							}
+							for (ContentFilter filter: m_outputFilters)
+							{
+								if (filter.isFiltered(resource))
+								{
+									res = filter.wrap(res, resource);
+								}
 							}
 				
 							// set the buffer of the response to match what we are reading from the request
