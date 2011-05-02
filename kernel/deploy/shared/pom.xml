@@ -138,11 +138,6 @@
             <artifactId>jaxen</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.opensymphony.quartz</groupId>
-            <artifactId>quartz</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <!-- needed by Ehcache -->
         <dependency>
             <groupId>org.slf4j</groupId>

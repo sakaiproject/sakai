@@ -111,25 +111,11 @@
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-api</artifactId>
 	</dependency>
-
-	<!--
-		this should not be here as it means the kernel requires scheduler to
-		run
-	-->
-	<dependency>
-		<groupId>org.opensymphony.quartz</groupId>
-		<artifactId>quartz</artifactId>
-		<version>1.6.6</version>
-		<scope>provided</scope>
-	</dependency>
-
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
     </dependency>
-
-
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
@@ -155,7 +141,6 @@
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-commons</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -180,7 +165,6 @@
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
@@ -216,5 +200,3 @@
     </dependency>
   </dependencies>
 </project>
-
-
