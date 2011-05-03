@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+<!-- this caises problems for layout nneds investihating -->
+    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
+
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+#if (! $currentPlacement && $isPDA )
+    <meta name="viewport" content="width=320, user-scalable=no" />
+#end
+#if ( ${bufferedResponse} && ${responseHead} ) 
+<!-- Head material from Tool (will include title and headscripts) -->
+${responseHead}
+<!-- End of Head material from Tool -->
+	#if (  $pageColumn0Tools )
+		#foreach ( $tool in $pageColumn0Tools ) 
+			#if ( $tool ) 
+				#if ( $tool.toolRenderResult ) 
+${tool.toolRenderResult.getTitle()}
+				#end
+			#end
+		#end
+	#end
+	#if ($pageTwoColumn)
+		#if (  $pageColumn1Tools )
+			#foreach ( $tool in $pageColumn1Tools ) 
+				#if ( $tool ) 
+					#if ( $tool.toolRenderResult ) 
+${tool.toolRenderResult.getTitle()}
+					#end
+				#end
+			#end
+		#end
+	#end
+#else 
+    <title>${pageTitle}</title>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+#end
+<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+
+#if ( ${styleable} )
+<script type="text/javascript" 
+    	language="JavaScript" 
+    	src="/sakai-preferable-tool/js/styleable.js" >
+    </script>
+    
+    <script type="text/javascript" 
+            language="JavaScript">
+    window.onload = insertStyleAbleStyles;
+    </script>
+    #if ( ${styleableStyleSheet} )
+	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+    #end
+    #if ( ${styleableJS} )
+	<script type="text/javascript" language="JavaScript">
+	${styleableJS} 
+	</script>
+    #end
+#end
+</head>
+<body class="portalBody">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+<!-- login.vm -->
+#if (!${loginTopLogin})
+	<div id="loginLinks">
+	#if (${displayUserloginInfo})
+		<span id="loginUser">${loginUserDispName} (${loginUserDispId}) | </span>
+	#end						
+	#if (${loginHasImage1}) 
+		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+	#else
+		<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+	#end
+	#if (${loginHasLogInOutUrl2})
+		#if (${loginHasImage2}) 
+			<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+		#else
+			<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+		#end
+	#end
+	</div>
+#else
+	<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+		<label for="eid">${loginEidWording}</label>
+		<input name="eid" id="eid" type="text" />
+		<label for="pw">${loginPwWording}</label>
+		<input name="pw" type="password" id="pw" />
+		<input name="submit" type="submit" id="submit" value="${loginWording}" />
+		<script type="text/javascript" language="JavaScript">
+			document.forms[0].eid.focus();
+		</script>
+	</form>
+#end
+<!-- end login.vm -->
+	</body>
+</html>

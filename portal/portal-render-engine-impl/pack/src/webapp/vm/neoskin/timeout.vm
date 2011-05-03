@@ -1,0 +1,9 @@
+<div id="timeout_alert_body" title="Timeout Alert" class="portletMainWrap">
+<br/>
+<p>
+${rloader.timeout_dialog_warning_message}
+</p>
+<p>
+  <input type="button" value="${rloader.timeout_dialog_keepalive}" onclick="keep_session_alive()" />
+</p>
+</div>

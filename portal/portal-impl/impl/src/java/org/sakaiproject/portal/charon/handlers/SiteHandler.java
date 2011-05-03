@@ -83,6 +83,8 @@ public class SiteHandler extends WorksiteHandler
 	private int configuredTabsToDisplay = 5;
 
 	private boolean useDHTMLMore = false;
+	
+	private int showSearchWhen = 2; 
 
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
 	// This can be replaced by the users myworkspace.
@@ -97,8 +99,10 @@ public class SiteHandler extends WorksiteHandler
 				Portal.CONFIG_DEFAULT_TABS, 5);
 		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
 				"portal.use.dhtml.more", false));
-        mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
-        mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
+		showSearchWhen = Integer.valueOf(ServerConfigurationService.getInt(
+				"portal.show.search.when", 2));
+		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
+		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
 
 	@Override
@@ -257,9 +261,13 @@ public class SiteHandler extends WorksiteHandler
 				.getSkin(), req);
 		
 		// Have we been requested to display minimized and are we logged in?
-		if (session.getUserId() != null) {
+		if (session.getUserId() != null ) {
 			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
+                        String reqParm = req.getParameter(portal.SAKAI_NAV_MINIMIZED);
+                	String minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
                 	if ( c != null && "true".equals(c.getValue()) ) {
+				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
+			} else if ( reqParm != null &&  "true".equals(reqParm) && ! "false".equals(minStr) ) {
 				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
 			}
 		}
@@ -647,6 +655,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("useDHTMLMore", useDHTMLMore);
+			rcontext.put("showSearchWhen", showSearchWhen);
 			if (useDHTMLMore)
 			{
 				SiteView siteView = portal.getSiteHelper().getSitesView(

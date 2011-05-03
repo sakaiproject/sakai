@@ -1,0 +1,350 @@
+##
+## the Page part of the standard view, with no page navigation
+##
+##
+<!-- START from includePageBody.vm -->
+		#if ( $sitePages.pageMaxIfSingle )
+			#if ( $sitePages.pageNavToolsCount > 1 ) 
+			<div id="$pageWrapperClass" role="main">
+			#end
+		#else
+			<div id="$pageWrapperClass" role="main">
+		#end
+
+
+				<div id="$pageColumnLayout">
+			#foreach ( $tool in $pageColumn0Tools ) 
+				#if ( $tool ) 
+					<!-- start Tool -->
+                                            #if ( ${tool.suppressTitle} ) 
+					       <!-- Tool has requested the title be suppressed -->
+                                            #else
+						#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+										<h2>${tool.toolRenderResult.getTitle()}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+					    #end
+					#end
+					<!-- end Tool -->
+					<!-- start Tool Body -->						
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="475"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end
+					<!-- end Tool Body -->												
+				#end
+			#end
+				</div>
+			#if ($pageTwoColumn)
+				<div id="col2of2">
+				#foreach ( $tool in $pageColumn1Tools ) 
+					#if ( $tool ) 
+					<!-- start include tool -->
+					<!-- start Tool Col2 -->
+						#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+										<h2>${tool.toolRenderResult.getTitle()}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"  border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)"  border="0" /></a>
+						#end
+									</div>
+								</div>
+							</div>
+						#end
+					<!-- end Tool Col2 -->
+					<!-- start Tool Body -->
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="475"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end											
+					<!-- end Tool Body -->												
+					<!-- end include tool -->
+					#end
+				#end
+				</div>
+			#end
+			</div>
+
+			<div>
+			<!-- include bottom -->
+			#if ( !$pagepopup)
+			<div id="footer" role="contentinfo">
+				<div class="footerExtNav">
+					<ul id="footerLinks">#foreach ( $bn in $bottomNav )<li><span>${bn}</span></li>#end</ul>
+				</div>
+				<div id="footerInfo">
+			#foreach ( $pb in $bottomNavPoweredBy )	
+					<a href="${pb.poweredByUrl}" target="_blank">
+					 <img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" />
+					 <span class="skip"> (${rloader.site_newwindow})</span>
+					</a>
+			#end
+			<!-- end include Bottom -->
+				</div>
+				<div class="sakaiCopyrightInfo">${bottomNavCopyright} 
+					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
+				</div>
+
+#if ( ${loggedIn})
+				<div id="footerAppTray">
+#if ( $neoChat )
+					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all">
+						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/> Chat 
+						<span id="chattableCount"></span>
+						</a>
+						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
+					</div>	
+#else
+					<h1 class="skip">${rloader.sit_presencehead}</h1>
+					<div id="footerAppPresence" aria-live="polite"  aria-atomic="false" aria-relevant="all">
+						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/><span class="skip">Toggle users present panel</span></a>
+						<span class="skip">Number of users present:</span> <span id="presenceCount"></span>
+					</div>
+#end
+				</div>
+			</div>
+#end
+
+#if ( $neoChat && ${loggedIn})
+	#if ( $neoAvatar ) 
+		<span id="avatarPermitted" class="skip"></span>
+	#end
+            <div id="pc" tabindex="-1">
+		<div id="pc_title">Chat<div><a href="#" id="pc_chat_close">x</a></div></div>
+                <div id="pc_content">
+                    <div id="pc_options">
+                        <div id="pc_show_off_ctrl"><input type="checkbox" id="pc_showoffline_connections_checkbox"/><label for="pc_showoffline_connections_checkbox">Show offline connections</label></div>
+                        <div id="pc_go_off_ctrl"><input type="checkbox" id="pc_go_offline_checkbox"/><label for="pc_go_offline_checkbox">Show as offline</label></div>
+                    </div>
+                    <div id="pc_users">
+                        <div id="pc_connections_wrapper">
+                            <h5 id="pc_connections_label">My Connections</h5>
+                            <ul id="pc_connections" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
+                        </div>
+                        <div class="pc_users_wrapper">
+                            <h5 id="pc_site_users_label">In this site</h5>
+                            <ul id="pc_site_users" aria-live="assertive" aria-atomic="false" aria-relevant="all"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pc_audio_embed_wrapper"></div>
+
+            </div>
+
+            <!-- Trimpath template for the profile connections list -->
+            <div id="pc_connections_template" style="display:none;"><!--
+                {for connection in connections}
+                    <li class="pc_connection">
+
+                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${connection.uuid}');">
+							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
+			#if ( $neoAvatar ) 
+                            <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image"/>
+			#end
+                            <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>{else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>{/if}
+                        </a>
+                        {if connection.online == false}
+                            <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="Ping ${connection.displayName} to come and chat"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
+                       		<span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">Pinged !</span>
+                        {/if}
+                    </li>
+                {/for}
+            -->
+            </div>
+
+			
+            <!-- Trimpath template for the present users list -->
+            <div id="pc_site_users_template" style="display:none;"><!--
+                {for user in siteUsers}
+                    <li class="pc_site_user">
+                        <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${user.id}');">
+							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
+			#if ( $neoAvatar ) 
+                            <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
+			#end
+                            <span class="pc_site_display_name">${user.displayName}</span><img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
+                        </a>
+                    </li>
+                {/for}
+            -->
+            </div>
+
+            <!-- Trimpath template for the chat windows -->
+            <div id="pc_connection_chat_template" style="display:none;" tabindex="-1"><!--
+#if ( $neoAvatar ) 
+               <div class="pc_connection_chat_title_avt pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');"><a href="#">
+                 <img src="/direct/profile/${uuid}/image" class="pc_connection_chat_title_avt"/><span>${displayName}</span></a>
+#else
+				<div class="pc_connection_chat_title_no_avt pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');"> <a href="#">
+                    <div class="pc_connection_chat_title">${displayName}</div></a>
+#end
+				
+                    <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="Close this chat">
+						<span class="skip">Close this chat</span>
+						<img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;" alt="Close"/>
+					</a>
+                </div>
+                <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
+                    <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></ul>
+                    <div class="pc_editor_wrapper"><input type="text" id="pc_editor_for_${uuid}" class="pc_editor" alt=""/></div>
+                </div>
+            -->
+            </div>
+
+            <!-- Chat windows get prepended to this container -->
+            <div id="pc_chat_window_container"></div>
+
+            <!-- END FLOATING CHAT STUFF -->
+
+#end
+#if ( ( !$neoChat ) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn})
+                             <div id="presenceArea" style="display: none" class="trayPopup" aria-live="assertive"  aria-atomic="false" aria-relevant="all">
+				<div id="presenceWrapper">
+					<div id="presenceTitle">${rloader.sit_presencetitle}<div><a href="#" id="presenceClose" class="trayPopupClose">x</a></div></div>
+#if (${sitePages.pageNavPresenceIframe})
+					<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
+						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >
+					</iframe>
+#else
+				<div id="presenceIframe">
+					&nbsp;
+				</div>
+<script type="text/javascript">
+	//these are global variables...
+	var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
+	var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
+    var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
+</script>
+#end
+
+				</div>
+                           </div>
+			#end
+
+
+#else
+<!-- dont compact -->
+#end
+			#if ( $sitePages.pageMaxIfSingle )
+				#if ( $sitePages.pageNavToolsCount > 1 ) 
+		</div>
+				#end
+			#else
+		</div>
+			#end
+		<!-- end includePageBody -->
+<!-- END from includePageBody.vm -->

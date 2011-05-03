@@ -7,14 +7,14 @@
     <version>2.9-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>Sakai</name>
+  <name>Sakai neo portal</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>portal-base</artifactId>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/portal/trunk</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/portal/branches/SAK-19813</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/portal/branches/SAK-19813</developerConnection>
+    <url>https://source.sakaiproject.org/svn/portal/branches/SAK-19813</url>
   </scm>
   <modules>
     <module>editor-tool/tool</module>
@@ -34,6 +34,8 @@
     <module>portal-tool/tool</module>
     <module>portal-util/util</module>
     <module>portal-shared-deploy</module>
+    <module>portal-chat/impl</module>
+    <module>portal-chat/pack</module>
 <!-- <module>portal-portlet-tool/tool</module> -->
   </modules>
   <dependencyManagement>

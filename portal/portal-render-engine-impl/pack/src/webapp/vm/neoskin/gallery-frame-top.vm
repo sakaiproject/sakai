@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+#parse("/vm/neoskin/includeStandardHead.vm")
+<body class="portalBody frameTop">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+
+<!-- site.vm -->
+<!-- start includeSiteNav -->
+<div id="portalOuterContainer">
+	<div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
+		<div id="skipNav">
+		#if ($siteNavHasAccessibilityURL)
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rloader.sit_accessibility}
+			</a>
+		#end
+		</div>
+		#if (${tabsSites})
+		<div id="headerMax">
+#parse("/vm/neoskin/includeTabsSiteFrame.vm")
+		</div>
+		#end
+	</div>
+</div>
+<!-- end includeSiteNav -->
+<!-- end site.vm -->
+	</body>
+</html>

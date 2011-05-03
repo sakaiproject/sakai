@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+#parse("/vm/neoskin/includeStandardHead.vm")
+<body class="portalBody frameTop">
+#if ( $pageTop )
+	<script type="text/javascript" language="JavaScript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+
+<!-- site.vm -->
+<!-- start includeSiteNav -->
+<div id="portalOuterContainer">
+        <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
+		<div id="skipNav">
+		#if ($siteNavHasAccessibilityURL)
+			<a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+				${rloader.sit_accessibility}
+			</a>
+		#end
+		</div>
+		#if (${tabsSites})
+		<div id="headerMax">
+			<div id="siteNavWrapper" class="${logoSiteClass}">
+				<div id="mastHead">
+					<div id="mastLogo">
+						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+					</div>
+					<div id="mastBanner">
+						<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+					</div>
+					<!-- login component -->
+					<div id="mastLogin">
+					#if (!${loginTopLogin})
+						<div id="loginLinks">
+						#if (${displayUserloginInfo})
+							<span id="loginUser">${loginUserDispName} (${loginUserDispId}) | </span>
+						#end
+						#if (${loginHasImage1}) 
+							<a href="${loginLogInOutUrl}" target="_top" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+						#else
+							<a href="${loginLogInOutUrl}" target="_top" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+						#end
+						#if (${loginHasLogInOutUrl2})
+							#if (${loginHasImage2}) 
+							<a href="${loginLogInOutUrl2}" target="_top" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+							#else
+							<a href="${loginLogInOutUrl2}" target="_top" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+							#end
+						#end
+						</div>
+					#else
+						<form id="loginForm" target="_top" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+							<label for="eid">${loginEidWording}</label>
+							<input name="eid" id="eid" type="text" />
+							<label for="pw">${loginPwWording}</label>
+							<input name="pw" type="password" id="pw" />
+							<input name="submit" type="submit" id="submit" value="${loginWording}" />
+							<script type="text/javascript" language="JavaScript">
+								document.forms[0].eid.focus();
+							</script>
+						</form>
+					#end
+					</div>
+					<!-- end login component -->
+					
+				</div>
+			</div>
+
+#parse("/vm/neoskin/includeTabsSiteFrame.vm")
+
+		</div>
+		#else
+		
+## NOTE: The following block of markup looks almost identical to the block 
+## above, are they the same ? If so, we can reduce duplication
+ 		
+		<div id="headerMin">
+			<div id="siteNavWrapper" class="${logoSiteClass}">
+				<div id="mastHead">
+					<div id="mastLogo">
+						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+					</div>
+					<div id="mastBanner">
+						<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+					</div>
+					<!-- login component -->
+					<div id="mastLogin">
+					#if (!${loginTopLogin})
+						<div id="loginLinks">
+					#if (${displayUserloginInfo})
+							<span id="loginUser">${loginUserDispName} (${loginUserDispId}) | </span>
+					#end						
+					#if (${loginHasImage1}) 
+							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
+					#else
+							<a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+					#end
+					#if (${loginHasLogInOutUrl2})
+					#if (${loginHasImage2}) 
+							<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
+					#else
+							<a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+					#end
+					#end
+						</div>
+					#else
+						<form id="loginForm" target="_top" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+							<label for="eid">${loginEidWording}</label>
+							<input name="eid" id="eid" type="text" />
+							<label for="pw">${loginPwWording}</label>
+							<input name="pw" type="password" id="pw" />
+							<input name="submit" type="submit" id="submit" value="${loginWording}" />
+							<script type="text/javascript" language="JavaScript">
+								document.forms[0].eid.focus();
+							</script>
+						</form>
+					#end
+					</div>
+					<!-- end login component -->
+				</div>
+			</div>
+			<div class="divColor" id="tabBottom">
+				<br />
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+<!-- end includeSiteNav -->
+<!-- end site.vm -->
+	</body>
+</html>
