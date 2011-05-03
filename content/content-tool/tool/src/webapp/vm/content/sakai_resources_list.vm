@@ -55,11 +55,51 @@ $(document).ready(function() {
 			$('#menu-' + targetId).show();
 			}}
 	});
+	$('.toggleDescription').click(function(e){
+	    e.preventDefault();
+	    $('.descPanel').css({
+	        'top': '-1000px',
+	        'left': '-1000px',
+	        'display': 'none'
+	    }).attr({
+	        'aria-hidden': 'true',
+	        'tabindex': '-1'
+	    });
+	    $(this).next('div').css({
+	        'top': e.pageY + 10,
+	        'left': e.pageX + 10,
+	        'cursor': 'pointer',
+	        'display': 'block'
+	    }).attr({
+	        'aria-hidden': 'false',
+	        'tabindex': '0'
+	    });
+	});
+	$('.descPanel').blur(function(){
+	    $(this).css({
+	        'top': '-1000px',
+	        'left': '-1000px',
+	        'display': 'none'
+	    }).attr({
+	        'aria-hidden': 'true',
+	        'tabindex': '-1'
+	    });
+	});
+	$('.descPanel').click(function(){
+	    $(this).css({
+	        'top': '-1000px',
+	        'left': '-1000px',
+	        'display': 'none'
+	    }).attr({
+	        'aria-hidden': 'true',
+	        'tabindex': '-1'
+	    });
+	});
 	});
 </script>
 #**#
 #set($num = 0)
-<div class="portletBody specialLink">
+<div class="portletBody specialLink" role="application">
 	#set($itemsOnLine = 0)
 	#if ($atHome && $atHome == $TRUE)
 			<ul class="navIntraTool actionToolBar">
@@ -349,6 +389,7 @@ $(document).ready(function() {
 									&#169;
 								#end
 							#end
+							#if ($item.description !="" && $item.description) <a class="toggleDescription" href="#" title="$tlang.getString("list.description.link")"> <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/></a><div role="alertdialog" aria-hidden="true" class="descPanel" style="display:none;border:2px solid #ccc;height:auto;background:#fff;padding:3px;position:absolute;top:-1000px;left:-1000px;z-index:100000;width:25%"><div class="descriptionClose" style="text-align:right;padding:2px;">x</div>$validator.escapeHtml($item.description)</div>#end
 						</h$headerDepth>	
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
@@ -608,6 +649,7 @@ $(document).ready(function() {
 											&#169;
 										#end
 									#end
+									#if ($item.description !="" && $item.description) <a class="toggleDescription" href="#" title="$tlang.getString("list.description.link")"> <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/></a><div role="alertdialog" aria-hidden="true" class="descPanel" style="display:none;border:2px solid #ccc;height:auto;background:#fff;padding:3px;position:absolute;top:-1000px;left:-1000px;z-index:100000;width:25%"><div class="descriptionClose" style="text-align:right;padding:2px;">x</div>$validator.escapeHtml($item.description)</div>#end
 								</h$headerDepth>	
 							</td>
 							<td headers="actions1"  class="attach" style="white-space:nowrap;vertical-align:middle">
