@@ -83,6 +83,12 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                  <groupId>net.sf.ehcache</groupId>
+                  <artifactId>ehcache</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>jdbc</groupId>
