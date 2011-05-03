@@ -999,3 +999,74 @@ background-image: url(../../image/silk/comment.png);
 	font: normal 120% Verdana, Geneva, Arial, Helvetica, sans-serif;
 	text-decoration:none;
 }
+
+/* portal messages and alerts styles - not needed
+ * if not using tool from
+ * https://source.sakaiproject.org/contrib/umich/global-alert/
+ */
+#portalMessageContainer1_2{
+    z-index:3000;
+    height:auto;
+    position:fixed;
+    top:0;
+    left:30%;
+    right:30%;
+}
+#portalMessageContainer3{
+    z-index:3000;
+    height:auto;
+    position:fixed;
+    bottom:0;
+    left:30%;
+    right:30%;
+}
+.portalMessage{
+    padding:10px;
+    color:#fff;
+    margin-top:1px;
+    position:relative;
+    font-weight:bold;
+	-moz-box-shadow: 3px 3px 4px #000;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	box-shadow: 3px 3px 4px #000;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+}
+.firstPortalMessage{
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.lastPortalMessage{
+    -webkit-border-bottom-right-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+
+}    
+.portalMessagePriority1{
+    background:#c00;
+}
+.portalMessagePriority2{
+    background:#888;
+    padding:10px 25px 10px 10px;
+}
+.portalMessagePriority3{
+    background:green;
+    padding:10px 25px 10px 10px;
+}
+.portalMessage .dismissLink{
+    display:block;
+    padding:0 4px;
+    position:absolute;
+    top:3px;
+    right:3px;
+    cursor:pointer;
+    font-size:130%;
+    color:#fff;
+}
