@@ -21,10 +21,10 @@
 
 package org.sakaiproject.jsf.component;
 
-import javax.faces.component.html.HtmlCommandLink;
+import javax.faces.component.html.HtmlCommandButton;
 
 
-public class ToolBarItemComponent extends HtmlCommandLink
+public class ToolBarItemComponent extends HtmlCommandButton
 {
   public ToolBarItemComponent()
   {
