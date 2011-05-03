@@ -175,7 +175,7 @@
                 <module>metaobj</module>
                 <module>osp</module>
                 <module>podcasts</module>
-                <module>neo-portal</module>
+                <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
                 <module>providers</module>
