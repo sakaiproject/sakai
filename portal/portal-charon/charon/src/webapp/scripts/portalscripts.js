@@ -241,3 +241,157 @@ function f_filterResults(n_win, n_docel, n_body) {
 		n_result = n_docel;
 	return n_body && (!n_result || (n_result > n_body)) ? n_body : n_result;
 }
+
+
+/*
+Post messages to the portal
+ - this parses an update to the portal produced by:
+	https://source.sakaiproject.org/contrib/umich/global-alert 
+	and courier
+	and creates alerts and info messages displayed on the portal
+	it depends on tool above, trunk courier, and changes to the skin
+*/
+
+function postGlobalAlert(data){
+    var messageArray = "";
+    var dismissLink = "";
+    if (data.messages.length > 0) {
+        if ($("#portalMessageContainer1_2").length === 0) {
+            $("#portalOuterContainer").append('<div id=\"portalMessageContainer1_2\" role=\"application\" aria-live\"assertive\" aria-relevant=\"additions\"></div>');
+        }
+        if ($("#portalMessageContainer3").length === 0) {
+            $("#portalOuterContainer").append('<div id=\"portalMessageContainer3\" role=\"application\" aria-live\"assertive\" aria-relevant=\"additions\"></div>');
+        }
+        $.each(data.messages, function(i, item){
+            dismissLink = '';
+            // create a safe ID
+            var itemId = encodeURIComponent(item.id).replace(/\%/g, '-');
+            // need to check if displayed already - is it in the DOM?
+            // TODO: need to check if "was" in the DOM and has been dismissed
+            if ($('#' + itemId).length > 0) {
+                //elem there already, compare timestamps
+                if ($('#' + itemId).attr('ts') !== item.timestamp) {
+                    // message has changed, update it, animate it (and update the ts attribute)
+                    flashMessage($('#' + itemId), 'Update: ' + item.message);
+                    $('#' + itemId).attr('ts', item.timestamp);
+                }
+            }
+            else {
+                if (item.priority > 1) {
+                    dismissLink = '<div class=\"dismissLink\"><span onclick=\"dismissMessage(\'' + itemId + '\',\'' + item.timestamp + '\')\">x</span></div>';
+                }
+                
+                // test for cookie with this safe id as value
+                if (!utils_readCookie('messageId' + itemId)) {
+                    //no cookie - so new message, add to DOM
+                    if (item.priority === "3") {
+                        $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>' + item.message + '</span>' + dismissLink + '</div>');
+                    }
+                    else {
+                        $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>' + item.message + '</span>' + dismissLink + '</div>');
+                    }
+                }
+                else {
+                    //message has been dismissed, but has been updated - so re-add to DOM
+                     //  console.log(utils_readCookie('messageId' + itemId) +  "="  + item.timestamp);
+                    if (utils_readCookie('messageId' + itemId) !== item.timestamp) {
+                        if (item.priority === "3") {
+                            $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>Update:&nbsp;&nbsp;' + item.message + '</span>' + dismissLink + '</div>');
+                        }
+                        else {
+                            $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>Update:&nbsp;&nbsp;' + item.message + '</span>' + dismissLink + '</div>');
+                        }
+                    }
+                }
+            }
+            // add meessage ID to a string, this should be an actual array instead of a string
+            // should also be added only if it is not there (not needed as start from scratch each parse?)
+            messageArray = messageArray + '_' + itemId;
+        });
+    }
+    else {
+        $("#portalMessageContainer1_2").remove();
+        $("#portalMessageContainer3").remove();
+    }
+    
+    $(".portalMessage").each(function(i){
+        //if the id of this elem is not in the message bundle just processed, remove it from the DOM 
+        if (messageArray.indexOf($(this).attr('id')) === -1) {
+            $(this).fadeOut(2000, function(){
+                $(this).remove();
+            });
+        }
+    });
+    $(".portalMessage").removeClass('lastPortalMessage').removeClass('firstPortalMessage');
+    $("#portalMessageContainer1_2 .portalMessage:last").addClass('lastPortalMessage');
+    $("#portalMessageContainer3 .portalMessage:first").addClass('firstPortalMessage');
+    
+    function flashMessage(elem, message){
+        $(elem).removeClass('portalMessageShadow');
+        $(elem).fadeOut(2000, function(){
+            $(this).children('span').text(message);
+            $(this).fadeIn(2000, function(){
+                $(this).addClass('portalMessageShadow');
+            });
+        });
+    }
+}
+
+function dismissMessage(target, timestamp){
+    utils_createCookie('messageId' + target, timestamp);
+    $('#' + target).fadeOut('slow');
+    $('#' + target).remove();
+    $(".portalMessage").removeClass('lastPortalMessage').removeClass('firstPortalMessage');
+    $("#portalMessageContainer1_2 .portalMessage:last").addClass('lastPortalMessage');
+    $("#portalMessageContainer3 .portalMessage:first").addClass('firstPortalMessage');
+}
+
+/**
+ * cookie create
+ * @param {Object} name
+ * @param {Object} value
+ * @param {Object} days
+ */
+utils_createCookie = function(name, value, days){
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    }
+    else {
+        expires = "";
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+};
+
+/**
+ * cookie read
+ * @param {Object} name
+ */
+utils_readCookie = function(name){
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+            return c.substring(nameEQ.length, c.length);
+        }
+    }
+    return null;
+};
+
+/**
+ * cookie delete
+ * @param {Object} name
+ */
+utils_eraseCookie = function(name){
+    createCookie(name, "", -1);
+};
+
+utils_trim = function(stringToTrim){
+    return stringToTrim.replace(/^\s+|\s+$/g, "");
+};
