@@ -41,7 +41,7 @@ function PortalChat() {
    		return render;
 	}
 
-	this.sendMessageToUser = function (uuid,content) {
+	this.sendMessageToUser = function (to,content) {
 
 		jQuery.ajax({
 			url : "/direct/portal-chat/new",
@@ -49,19 +49,19 @@ function PortalChat() {
 			cache: false,
 			type: 'POST',
 			data: {
-				'uuid':uuid,
+				'to':to,
 				'message':content
 			},
 			success : function (text,status) {
-				var messagePanel = $("#pc_connection_chat_" + uuid + "_messages");
+				var messagePanel = $("#pc_connection_chat_" + to + "_messages");
 
 				if('OFFLINE' === text) {
-					var toDisplayName = portalChat.currentConnectionsMap[uuid].displayName;
+					var toDisplayName = portalChat.currentConnectionsMap[to].displayName;
 					messagePanel.append("<div><br /></div>");
 					messagePanel.append("<div><span class=\"pc_displayname\">" + toDisplayName + " is offline</span></div>");
 				} else {
 					var date = new Date();
-					portalChat.addToMessageStream(uuid,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
+					portalChat.addToMessageStream(to,{'from':portal.user.id,'content':content,'timestamp':date.getTime()});
 					var dateString = portalChat.formatDate(new Date());
                     var avatarPermitted;
                     if($('#avatarPermitted').length===1){
@@ -80,10 +80,10 @@ function PortalChat() {
                     }
 
 					messagePanel.append("<li>"+ avatarOrName + "<div class=\"pc_message\">" + content + "</div><span class=\"pc_messagedate\">" + dateString + "</span></li>");
-				    $('#pc_editor_for_' + uuid).val('');
+				    $('#pc_editor_for_' + to).val('');
 				}
 
-				portalChat.scrollToBottom(uuid);
+				portalChat.scrollToBottom(to);
 			},
 			error : function (xhr,textStatus,error) {
 
@@ -150,7 +150,6 @@ function PortalChat() {
 		}
 
 		$('#pc_editor_for_' + uuid).focus();
-        $('#pc').hide();
 
 		sessionStorage.setItem(uuid,JSON.stringify(sms));
 

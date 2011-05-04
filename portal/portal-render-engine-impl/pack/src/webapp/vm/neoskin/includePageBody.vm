@@ -241,9 +241,9 @@
                     </div>
                 </div>
 
-                <div id="pc_audio_embed_wrapper"></div>
-
             </div>
+
+            <div id="pc_audio_embed_wrapper"></div>
 
             <!-- Trimpath template for the profile connections list -->
             <div id="pc_connections_template" style="display:none;"><!--

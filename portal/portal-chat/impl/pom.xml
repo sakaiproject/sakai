@@ -16,6 +16,21 @@
         <version>2.9-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+
+    <repositories>
+        <repository>
+            <id>jboss</id>
+            <name>JBoss Maven Repo</name>
+            <layout>default</layout>
+            <url>http://repository.jboss.org/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
   
 	<dependencies>
 		<dependency>
@@ -52,6 +67,12 @@
             <artifactId>profile2-api</artifactId>
             <version>1.5-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jgroups</groupId>
+            <artifactId>jgroups</artifactId>
+            <version>2.10.0.Beta2</version>
         </dependency>
 		
 	</dependencies>
