@@ -93,7 +93,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         try {
             clusterChannel = new JChannel();
             clusterChannel.setReceiver(this);
-            clusterChannel.connect(serverConfigurationService.getString("portalchat.cluster.channel", "xyz"));
+            clusterChannel.connect(serverConfigurationService.getString("portalchat.cluster.channel", "SAKAI-PORTALCHAT-CLUSTER-CHANNEL"));
             // We don't want a copy of JGroups messages sent
             clusterChannel.setOpt(Channel.LOCAL,false);
         } catch (Exception e) {
