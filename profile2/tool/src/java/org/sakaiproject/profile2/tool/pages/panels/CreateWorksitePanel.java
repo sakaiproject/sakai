@@ -18,6 +18,8 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -34,6 +36,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.profile2.logic.ProfileWorksiteLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
@@ -43,33 +48,31 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * Panel for creating a worksite from a group of people.
  * 
  * @author d.b.robinson@lancaster.ac.uk
- *
  */
 public class CreateWorksitePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWorksiteLogic")
+	private ProfileWorksiteLogic worksiteLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
+	private SakaiProxy sakaiProxy;
+	
 	/**
 	 * Creates an instance of <code>CreateWorksitePanel</code>.
 	 * 
 	 * @param id the wicket id.
-	 * @param persons list of users e.g. from connections or search results.
+	 * @param persons list of users e.g. from connections (and possibly search
+	 *            results in the future).
 	 */
-	public CreateWorksitePanel(String id, List<Person> persons) {
+	public CreateWorksitePanel(final String id, final List<Person> persons) {
 		super(id);
-
-		Form<?> form = new Form("form") {
-
-			private static final long serialVersionUID = 1L;
 			
-			@Override
-			protected void onSubmit() {
-				// TODO create worksite and take user there if requested
-			}
-		};
+		Form<?> form = new Form("form");
 		form.setOutputMarkupId(true);
 		add(form);
-		
+
 		// form submit feedback
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
@@ -85,26 +88,27 @@ public class CreateWorksitePanel extends Panel {
 				
 		IChoiceRenderer<Person> renderer = new ChoiceRenderer<Person>("displayName", "uuid");
 		
-		Palette<Person> palette = new Palette<Person>("palette", new ListModel<Person>(
+		final Palette<Person> palette = new Palette<Person>("palette", new ListModel<Person>(
 				new ArrayList<Person>()), new CollectionModel<Person>(persons), renderer, 10, true);
-
+		palette.setOutputMarkupId(true);
+		
 		form.add(palette);
 		
 		Label siteNameLabel = new Label("siteNameLabel", new ResourceModel("worksite.name"));
 		form.add(siteNameLabel);
 		
-		//siteNameField.getValue() to get value
-		TextField<String> siteNameField = new TextField<String>("siteNameField", new Model<String>());
+		final TextField<String> siteNameField = new TextField<String>("siteNameField", new Model<String>());
+		siteNameField.setOutputMarkupId(true);
 		form.add(siteNameField);
-		
+
 		AjaxButton cancelButton = new AjaxButton("cancelButton") {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				target.appendJavascript("$('#" + CreateWorksitePanel.this.getMarkupId() + "').slideUp();");
-				target.appendJavascript("fixWindowVertical();");
+				
+				resetPanel(target, siteNameField, palette, formFeedback);
+				
 			}
-			
 		};
 		cancelButton.setModel(new ResourceModel("button.worksite.cancel"));
 		form.add(cancelButton);
@@ -113,8 +117,30 @@ public class CreateWorksitePanel extends Panel {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				// TODO create worksite from 'Selected' palette list
-				
+
+				if (StringUtils.isBlank(siteNameField.getValue())) {
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.worksite.no.title"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
+					return;
+				}
+
+				if (true == worksiteLogic.createWorksite(siteNameField
+						.getValue(), sakaiProxy.getCurrentUserId(), palette
+						.getModelCollection(), true)) {
+					
+					resetPanel(target, siteNameField, palette, formFeedback);
+					
+				} else {
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.worksite.create.failed"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model<String>("alertMessage")));
+					target.addComponent(formFeedback);
+					return;
+				}
 			}
 			
 		};
@@ -122,5 +148,27 @@ public class CreateWorksitePanel extends Panel {
 		form.add(createButton);
 		
 		form.add(new IconWithClueTip("createWorksiteToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.worksite.create")));
+	}
+	
+	// clears site name field and palette, and slides up
+	private void resetPanel(AjaxRequestTarget target,
+			final TextField<String> siteNameField,
+			final Palette<Person> palette, Label formFeedback) {
+
+		siteNameField.setModelObject("");
+
+		// there is quite possibly a better way of doing this
+		List<Person> remove = new ArrayList<Person>();
+		for (Person person : palette.getModelCollection()) {
+			remove.add(person);
+		}
+		palette.getModelCollection().removeAll(remove);
+
+		formFeedback.setVisible(false);
+		
+		target.addComponent(siteNameField);
+		target.appendJavascript("$('#" + CreateWorksitePanel.this.getMarkupId()
+				+ "').slideUp();");
+		target.appendJavascript("fixWindowVertical();");
 	}
 }

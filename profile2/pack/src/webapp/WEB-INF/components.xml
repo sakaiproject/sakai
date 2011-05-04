@@ -148,7 +148,7 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     </bean>
     
-    <!-- ProfileWallLogicImpl -->
+    <!-- ProfileWallLogic -->
     <bean id="org.sakaiproject.profile2.logic.ProfileWallLogic"
     	class="org.sakaiproject.profile2.logic.ProfileWallLogicImpl">
     		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
@@ -159,7 +159,7 @@
         	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
     </bean>
     
-    <!-- ProfileSearchLogicImpl -->
+    <!-- ProfileSearchLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
 		class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl"
 		init-method="init" singleton="true" depends-on="org.sakaiproject.profile2.cache.search">
@@ -169,6 +169,15 @@
 		<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
 	</bean>
 	
+	    <!-- ProfileWorksiteLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileWorksiteLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileWorksiteLogicImpl">
+    	    <property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+    
     <!-- CacheManager -->
     <bean id="org.sakaiproject.profile2.cache.CacheManager"
     	class="org.sakaiproject.profile2.cache.CacheManagerImpl">
