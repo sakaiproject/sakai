@@ -94,6 +94,8 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
             clusterChannel = new JChannel();
             clusterChannel.setReceiver(this);
             clusterChannel.connect(serverConfigurationService.getString("portalchat.cluster.channel", "xyz"));
+            // We don't want a copy of JGroups messages sent
+            clusterChannel.setOpt(Channel.LOCAL,false);
         } catch (Exception e) {
             logger.error("Error creating JGroups channel. Chat messages will now NOT BE KEPT IN SYNC", e);
         }
@@ -310,12 +312,6 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
                 Address address = clusterChannel.getAddress();
                 String[] parts = message.split(":");
                 String from = parts[1];
-        
-                // We don't want to add our own messages again
-                if(msg.getSrc().equals(clusterChannel.getAddress())) {
-                    return;
-                }
-        
                 String to = parts[2];
                 String m = parts[3];
                 addMessageToMap(new UserMessage(from, to, m));
