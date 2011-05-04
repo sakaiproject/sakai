@@ -69,9 +69,9 @@ public class ReEncryptPasswords {
 			total++;
 			String currentPw = usersRs.getString("PW");
 			String newPw = null;
-			if (currentPw.length() == 20) {
+			if (currentPw != null && currentPw.length() == 20) {
 				newPw = PasswordService.MD5TRUNC_SALT_SHA256+ pwdService.encrypt(currentPw);
-			} else if (currentPw.length() == 24) {
+			} else if (currentPw != null && currentPw.length() == 24) {
 				newPw = PasswordService.MD5_SALT_SHA256+ pwdService.encrypt(currentPw);
 			}
 			if (newPw != null) {
