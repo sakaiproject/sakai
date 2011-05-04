@@ -24,17 +24,13 @@
 						<div id="loginLinks">
 <span class="topnav">
 <span class="nav-menu">
+					#if (${displayUserloginInfo})
 						#if (${tabsSites.profileToolUrl})
-						#if (${displayUserloginInfo})
-<span id="loginUserWrap"><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true">${loginUserDispName} (${loginUserDispId})</a></span>
-						#else
-<a href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><img src="/library/image/silk/cog.png" style="vertical-align:middle"/></a>
-						#end
-#else
-						#if (${displayUserloginInfo})
+<span id="loginUserWrap"><a id="loginUser" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true">${loginUserDispName} (${loginUserDispId})</a></span>
+					#else
 <span>${loginUserDispName} (${loginUserDispId})</span>
 						#end
-#end
+					#end
 
 <ul class="nav-submenu subnav">
 						#if (${tabsSites.profileToolUrl})
