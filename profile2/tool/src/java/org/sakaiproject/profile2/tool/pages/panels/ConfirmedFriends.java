@@ -119,7 +119,8 @@ public class ConfirmedFriends extends Panel {
 		add(confirmedFriendsHeading);
 		
 		//create worksite panel
-		final CreateWorksitePanel createWorksitePanel = new CreateWorksitePanel("createWorksitePanel");
+		final CreateWorksitePanel createWorksitePanel = 
+			new CreateWorksitePanel("createWorksitePanel", connectionsLogic.getConnectionsForUser(userUuid));
 		//create placeholder and set invisible initially
 		createWorksitePanel.setOutputMarkupPlaceholderTag(true);
 		createWorksitePanel.setVisible(false);

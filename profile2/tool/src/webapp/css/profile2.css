@@ -1437,7 +1437,8 @@ main-profile-tabpanel .tab-row a:visited.active,
 /* create worksite panel */
 .create-worksite-panel {
 	width: 500px;
-	height: 200px;
+	height: 300px;
+	padding: 5px;
 	/*font-size: 90%;*/
 }
 

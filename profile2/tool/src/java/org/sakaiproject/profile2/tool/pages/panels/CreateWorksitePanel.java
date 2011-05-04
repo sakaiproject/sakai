@@ -15,12 +15,20 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.apache.wicket.extensions.markup.html.form.select.Select;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.CollectionModel;
+import org.apache.wicket.model.util.ListModel;
+import org.sakaiproject.profile2.model.Person;
 
 /**
  * Panel for creating a worksite from a group of people.
@@ -36,8 +44,9 @@ public class CreateWorksitePanel extends Panel {
 	 * Creates an instance of <code>CreateWorksitePanel</code>.
 	 * 
 	 * @param id the wicket id.
+	 * @param persons list of users e.g. from connections or search results.
 	 */
-	public CreateWorksitePanel(String id) {
+	public CreateWorksitePanel(String id, List<Person> persons) {
 		super(id);
 
 		Form<?> form = new Form("form") {
@@ -51,18 +60,12 @@ public class CreateWorksitePanel extends Panel {
 		};
 		form.setOutputMarkupId(true);
 		add(form);
+				
+		IChoiceRenderer<Person> renderer = new ChoiceRenderer<Person>("displayName", "uuid");
 		
-		WebMarkupContainer connectionsContainer = new WebMarkupContainer("connectionsContainer");
-		form.add(connectionsContainer);
+		Palette<Person> palette = new Palette<Person>("palette", new ListModel<Person>(
+				new ArrayList<Person>()), new CollectionModel<Person>(persons), renderer, 10, true);
 
-		connectionsContainer.add(new Label("connectionsLabel",
-				new ResourceModel("heading.worksite.connections")));
-		connectionsContainer.add(new Label("membersLabel",
-				new ResourceModel("heading.worksite.members")));
-		
-		Select connectionsSelect = new Select("connectionsSelect");
-		connectionsContainer.add(connectionsSelect);
-		Select membersSelect = new Select("membersSelect");
-		connectionsContainer.add(membersSelect);		
+		form.add(palette);
 	}
 }
