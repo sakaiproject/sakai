@@ -18,17 +18,26 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
  * Panel for creating a worksite from a group of people.
@@ -60,6 +69,19 @@ public class CreateWorksitePanel extends Panel {
 		};
 		form.setOutputMarkupId(true);
 		add(form);
+		
+		// form submit feedback
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		form.add(formFeedback);
+		
+		final FeedbackPanel feedback = new FeedbackPanel("feedback");
+		feedback.setOutputMarkupId(true);
+		form.add(feedback);
+
+		int[] filteredErrorLevels = new int[] { FeedbackMessage.ERROR };
+		feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(
+				filteredErrorLevels));
 				
 		IChoiceRenderer<Person> renderer = new ChoiceRenderer<Person>("displayName", "uuid");
 		
@@ -67,5 +89,38 @@ public class CreateWorksitePanel extends Panel {
 				new ArrayList<Person>()), new CollectionModel<Person>(persons), renderer, 10, true);
 
 		form.add(palette);
+		
+		Label siteNameLabel = new Label("siteNameLabel", new ResourceModel("worksite.name"));
+		form.add(siteNameLabel);
+		
+		//siteNameField.getValue() to get value
+		TextField<String> siteNameField = new TextField<String>("siteNameField", new Model<String>());
+		form.add(siteNameField);
+		
+		AjaxButton cancelButton = new AjaxButton("cancelButton") {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				target.appendJavascript("$('#" + CreateWorksitePanel.this.getMarkupId() + "').slideUp();");
+				target.appendJavascript("fixWindowVertical();");
+			}
+			
+		};
+		cancelButton.setModel(new ResourceModel("button.worksite.cancel"));
+		form.add(cancelButton);
+		
+		IndicatingAjaxButton createButton = new IndicatingAjaxButton("createButton", form) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				// TODO create worksite from 'Selected' palette list
+				
+			}
+			
+		};
+		createButton.setModel(new ResourceModel("button.worksite.create"));
+		form.add(createButton);
+		
+		form.add(new IconWithClueTip("createWorksiteToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.worksite.create")));
 	}
 }
