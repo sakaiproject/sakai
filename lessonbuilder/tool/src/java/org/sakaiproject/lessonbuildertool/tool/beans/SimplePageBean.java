@@ -868,7 +868,6 @@ public class SimplePageBean {
     //   used as a flag to return up a level
         public SimplePageItem findNextPage(SimplePageItem item) {
 	    if (item.getType() == SimplePageItem.PAGE) {
-
 		Long pageId = Long.valueOf(item.getSakaiId());
 		List<SimplePageItem> items = getItemsOnPage(pageId);
 		int nexts = 0;

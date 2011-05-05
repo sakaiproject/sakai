@@ -26,6 +26,13 @@ package org.sakaiproject.lessonbuildertool;
 /**
  * This is a single item on a simple page.
  * 
+ * WARNING: this code should execute under oracle and mysql. Oracle treats "" as null, 
+ * and apparently stores null as "". To produce predictable results for the rest of the
+ * code, we normalize some of the fields to "" if they are null. The problem is if we
+ * write "", Oracle will read it as null, but our code expects it to come back as "".
+ * Note that this code is called both to construct new items in our code and by hibernate
+ * to build an object when reading from the database.
+ *
  * @author jeney
  * 
  */
@@ -71,6 +78,10 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public SimplePageItemImpl(long id, long pageId, int sequence, int type, String sakaiId, String name) {
+	        if (sakaiId == null)
+		    sakaiId = "";
+		if (name == null)
+		    name = "";
 		this.id = id;
 		this.pageId = pageId;
 		this.sequence = sequence;
@@ -89,6 +100,10 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public SimplePageItemImpl(long pageId, int sequence, int type, String sakaiId, String name) {
+	        if (sakaiId == null)
+		    sakaiId = "";
+		if (name == null)
+		    name = "";
 		this.pageId = pageId;
 		this.sequence = sequence;
 		this.type = type;
@@ -106,6 +121,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	private String maxlength(String s, int maxlen) {
+	    if (s == null)
+		s = "";  // oracle turns "" into null
 	    int len = s.length();
 	    if (s == null || len <= maxlen)
 		return s;
@@ -191,11 +208,15 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setSakaiId(String s) {
+	        if (s == null)
+		    s = "";
 		sakaiId = s;
 	}
 
 	public void setName(String s) {
-	    name = maxlength(s, MAXNAME);
+	        if (s == null)
+		    s = "";
+		name = maxlength(s, MAXNAME);
 	}
 
 	public void setHtml(String html) {
@@ -203,6 +224,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setDescription(String desc) {
+		if (desc == null)
+		    desc = "";
 		description = desc;
 	}
 
@@ -223,6 +246,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setAlt(String alt) {
+		if (alt == null)
+		    alt = "";
 		this.alt = alt;
 	}
 

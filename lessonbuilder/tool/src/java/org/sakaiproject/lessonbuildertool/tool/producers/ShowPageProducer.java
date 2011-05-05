@@ -491,13 +491,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				index++;
 			    }
-			    // see if there's a next item in sequence.
-			    
-			    simplePageBean.addPrevLink(tofill, pageItem);
-			    simplePageBean.addNextLink(tofill, pageItem);
 			}
-
 		}
+
+		// see if there's a next item in sequence.
+		simplePageBean.addPrevLink(tofill, pageItem);
+		simplePageBean.addNextLink(tofill, pageItem);
 
 		// swfObject is not currently used
 		boolean shownSwfObject = false;

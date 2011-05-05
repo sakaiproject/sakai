@@ -20,13 +20,13 @@
 	<property name="pageId" type="long" not-null="true" />
 	<property name="sequence" type="integer" not-null="true" />
 	<property name="type" type="integer" not-null="true" />
-	<property name="sakaiId" type="string" length="250" not-null="true" />
-	<property name="name" type="string" length="100" not-null="true" />
+	<property name="sakaiId" type="string" length="250" />
+	<property name="name" type="string" length="100" />
 	<property name="html" type="text" />
-	<property name="description" type="string" length="500" not-null="true" />
+	<property name="description" type="string" length="500" />
 	<property name="height" type="string" length="8" />
 	<property name="width" type="string" length="8" />
-	<property name="alt" type="string" length = "500" not-null="true" />
+	<property name="alt" type="string" length = "500" />
 	<property name="nextPage" type="boolean" />
 	<property name="format" type="string" />
 	<property name="required" type="boolean" />
