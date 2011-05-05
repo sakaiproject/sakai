@@ -129,7 +129,7 @@
 
 					<!-- GET ISSN/ISBN -->
 					<xsl:for-each
-						select="datafield[@tag='022' and @ind1=' ' and @ind2=' ']/subfield[@code='a']">
+						select="datafield[(@tag='022' or @tag='020') and @ind1=' ' and @ind2=' ']/subfield[@code='a']">
 						<isnIdentifier>
 							<xsl:value-of select="text()" />
 						</isnIdentifier>
