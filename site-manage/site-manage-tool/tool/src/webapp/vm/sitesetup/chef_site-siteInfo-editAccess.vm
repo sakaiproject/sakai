@@ -82,13 +82,13 @@
 			$tlang.getString("ediacc.pubyousit")
 		</p>
 		<p class="checkbox indnt1">
-			<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onchange="checkPublish(this.checked);" />
+			<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onclick="checkPublish(this.checked);" />
 			<label for="publish">
 				$tlang.getString("ediacc.pubsit")
 			</label>
 		</p>
 		<p class="checkbox indnt1">
-			<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onchange="checkUnpublish(this.checked);" />
+			<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onclick="checkUnpublish(this.checked);" />
 			<label for="unpublish">
 				$tlang.getString("ediacc.unpubsit")
 			</label>
@@ -167,7 +167,7 @@
 			## set site joinable and joiner role
 			<p class="radio indnt1">
 				<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
-				onchange="this.checked ? document.getElementById('joinerrole').style.visibility='hidden':  document.getElementById('joinerrole').style.visibility='visible'"
+				onclick="this.checked ? document.getElementById('joinerrole').style.visibility='hidden':  document.getElementById('joinerrole').style.visibility='visible'"
 				/>
 				<label for="unjoinable">
 					$tlang.getString("ediacc.cannotbejoi")
@@ -175,7 +175,7 @@
 			</p>
 			<p class="radio indnt1">
 				<input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
-				onchange="this.checked ? document.getElementById('joinerrole').style.visibility='visible':  document.getElementById('joinerrole').style.visibility='hidden'"
+				onclick="this.checked ? document.getElementById('joinerrole').style.visibility='visible':  document.getElementById('joinerrole').style.visibility='hidden'"
 				/>
 				<label for="joinable">
 					$tlang.getString("ediacc.canbejoi")
