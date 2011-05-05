@@ -6,3 +6,5 @@ alter table SAKAI_REALM modify PROVIDER_ID varchar(4000);
 alter table SAKAI_SITE add IS_SOFTLY_DELETED char(1) not null DEFAULT 0;
 alter table SAKAI_SITE add SOFTLY_DELETED_DATE datetime;
 
+-- KNL-725 use a column type that stores the timezone
+alter table SAKAI_CLUSTER change UPDATE_TIME UPDATE_TIME TIMESTAMP;
