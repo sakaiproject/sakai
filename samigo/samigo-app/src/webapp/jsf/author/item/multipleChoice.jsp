@@ -81,7 +81,7 @@
 
      <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}"required="true" size="6"  onchange="toPoint(this.id);">
-<f:validateDoubleRange /></h:inputText>
+<f:validateDoubleRange minimum="0.00"/></h:inputText>
 
 <h:message for="answerptr" styleClass="validate"/>
 </div>
@@ -138,7 +138,7 @@
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);">
-    <f:validateDoubleRange />
+    <f:validateDoubleRange/>
   </h:inputText>
   <f:verbatim> <script type="text/javascript" defer='defer'>
         var discDiv=document.getElementById('discountDiv');

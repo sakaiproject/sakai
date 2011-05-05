@@ -78,7 +78,7 @@
 <div class="shorttext">
     <h:outputLabel value="#{authorMessages.answer_point_value}"/>
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" onchange="toPoint(this.id);">
-<f:validateDoubleRange />
+<f:validateDoubleRange minimum="0.00"/>
 </h:inputText>
  <h:message for="answerptr" styleClass="validate"/>
   </div><br/>
@@ -93,7 +93,7 @@
   <h:panelGrid border="0">
     <h:panelGroup>
     <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);" >
-  	  <f:validateDoubleRange />
+  	  <f:validateDoubleRange/>
     </h:inputText>
     <h:message for="answerdsc" styleClass="validate"/>
     </h:panelGroup>

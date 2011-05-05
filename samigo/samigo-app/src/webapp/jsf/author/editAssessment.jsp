@@ -335,7 +335,7 @@ document.links[newindex].onclick();
 
      <h:outputText value=" #{authorMessages.dash} " />
      <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" size="6" onkeydown="inIt()" onchange="toPoint(this.id);" rendered="#{question.itemData.typeId!= 3}">
-	<f:validateDoubleRange /></h:inputText>
+	<f:validateDoubleRange minimum="0.00"/></h:inputText>
     <h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
 
 		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
