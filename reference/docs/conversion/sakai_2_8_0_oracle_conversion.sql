@@ -11,7 +11,7 @@
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- SAK-8005
-alter table ANNOUNCEMENT_MESSAGE add MESSAGE_ORDER INT;
+alter table ANNOUNCEMENT_MESSAGE add MESSAGE_ORDER INT default '1';
 
 drop index IE_ANNC_MSG_ATTRIB;
 create index IE_ANNC_MSG_ATTRIB on ANNOUNCEMENT_MESSAGE (DRAFT, PUBVIEW, OWNER, MESSAGE_ORDER);
