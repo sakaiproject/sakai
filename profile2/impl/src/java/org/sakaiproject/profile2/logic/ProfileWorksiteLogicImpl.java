@@ -4,8 +4,10 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -16,6 +18,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -27,10 +31,14 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
-	public static final String SITE_TYPE = "project";
+	public static final String SITE_TYPE_PROJECT = "project";
 	
 	public static final String ROLE_ACCESS = "access";
 	public static final String ROLE_MAINTAIN = "maintain";
+	
+	public static final String TOOL_ID_HOME = "home";
+	// the tool to place on the home page
+	public static final String HOME_TOOL = "sakai.iframe.site";
 	
 	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
 	
@@ -53,7 +61,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		}
 
 		try {
-			Site site = siteService.addSite(siteId, SITE_TYPE);
+			Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
 			
 			// TODO false == provided.
 			// Where can this be obtained? User and UserDirectoryService don't expose this info.
@@ -93,26 +101,28 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			// tools to the site etc.
 			site.setDescription("");
 						
-			// tools (TODO these could be passed in, or site could be created
-			// from a template site)
-			// add home page for the site first, then the tools
-			SitePage homePage = site.addPage();
-			// this is the tool column title
-			homePage.setTitle("Home");// TODO localization from bundles
-			homePage.setTitleCustom(true);
+			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
+			for (String toolId : toolIds) {
+				
+				SitePage toolPage = site.addPage();
+				
+				// Home is a special case, with no tool registration file
+				if (toolId.equals(TOOL_ID_HOME)) {
+					toolPage.getPropertiesEdit().addProperty(
+							SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
+					
+					Tool tool = toolManager.getTool(HOME_TOOL);
+					
+					ToolConfiguration homeTool = toolPage.addTool();
+					homeTool.setTool(toolId, tool);
+					homeTool.setTitle(tool.getTitle());
+				} else {
+					toolPage.addTool(toolId);
+				}
+			}
 			
-			// essentially a blank page which can hold the site title/description
-			ToolConfiguration homeTool = homePage
-					.addTool("sakai.synoptic.messagecenter");
-			homeTool.setTitle(siteTitle);
+			// TODO programmatically put Home page at top
 			
-			SitePage siteInfoPage = site.addPage();
-			siteInfoPage.addTool("sakai.siteinfo");
-			
-			// membership page so users can leave site
-			SitePage siteMembershipPage = site.addPage();
-			siteMembershipPage.addTool("sakai.membership");
-						
 			site.setPublished(true);
 			siteService.save(site);
 			
@@ -148,8 +158,18 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		this.siteService = siteService;
 	}
 	
+	private ToolManager toolManager;
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+	
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
+	}
+	
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 }
