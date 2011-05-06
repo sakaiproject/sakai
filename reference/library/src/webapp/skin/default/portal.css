@@ -631,7 +631,19 @@ page estate
 
 #toggleToolMax, #toggleNormal{
 	height:16px;
-	border:1px solid #fff;
+}
+#toggleToolMax{
+    position:absolute;
+    top:0;
+    right:0;
+    display:block;
+}
+#toggleNormal{
+    position:absolute;
+    top:0;
+    right:-18px;
+    display:block;
+
 }
 .toggleToolstoggleNav img#toggleToolMax{
     background:#fff url(images/toggler-back.png) 0 0 no-repeat
@@ -690,14 +702,11 @@ page estate
 
 #toolMenuWrap #toggler {
 	display:block;
-	float:right;
+    position:relative;
+    width:100%;
+    height:17px;
+    text-align:right;
 }
-.sakaiMinimizePageNavigation #toggler {
-	display:block;
-	float:none !important;
-}
-
-
 /** Portal Timeout **/
 #timeout_alert_body {
     position: absolute;
