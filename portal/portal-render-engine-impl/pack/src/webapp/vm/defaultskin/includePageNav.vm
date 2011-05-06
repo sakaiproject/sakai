@@ -1,6 +1,12 @@
 <!-- START from includePageNav.vm -->
 		<!-- start includePageNav -->
 			<div class="divColor" id="toolMenuWrap">
+			#if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 			
+				<div id="toggler">
+					<a id="toggleToolMenu" onmouseup="blur()" href="#" title="${rloader.sit_toggle_nav}"><img id="toggleToolMax" src="/portal/styles/images/transMin.png" alt=
+					"${rloader.sit_toggle_nav}"#if (${sakai_nav_minimized}) style="display:none"#end/><img id="toggleNormal" src="/portal/styles/images/transMin.png" alt="${rloader.sit_toggle_nav}"#if (! ${sakai_nav_minimized}) style="display:none"#end/></a>
+				</div>
+			#end
 				<div id="worksiteLogo">
 			#if (!${sitePages.pageNavPublished})
 					<p id="siteStatus">${rloader.sit_unpublished}</p>
