@@ -63,10 +63,10 @@ import org.sakaiproject.antivirus.api.VirusScanner;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
@@ -78,6 +78,7 @@ import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.ResourceType;
@@ -86,7 +87,6 @@ import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
-import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -110,9 +110,9 @@ import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
 import org.sakaiproject.entity.api.serialize.EntitySerializer;
 import org.sakaiproject.entity.api.serialize.SerializableEntity;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.CopyrightException;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -141,8 +141,8 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
@@ -162,7 +162,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import com.ibm.icu.impl.duration.impl.DataRecord.ECountVariant;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
@@ -2432,34 +2431,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			collection = new BaseCollectionEdit(collection);
 		}
 
-		//		// if not caching
-		//		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
-		//		{
-		//			// TODO: current service caching
-		//			collection = m_storage.getCollection(id);
-		//		}
-		//		else
-		//		{
-		//			// if we have it cached, use it (hit or miss)
-		//			String key = getReference(id);
-		//			if (m_cache.containsKey(key))
-		//			{
-		//				Object o = m_cache.get(key);
-		//				if ((o != null) && (!(o instanceof ContentCollection))) throw new TypeException(id);
-		//
-		//				collection = (ContentCollection) o;
-		//			}
-		//
-		//			// if not in the cache, see if we have it in our info store
-		//			else
-		//			{
-		//				collection = m_storage.getCollection(id);
-		//
-		//				// cache it (hit or miss)
-		//				m_cache.put(key, collection);
-		//			}
-		//		}
-
 		return collection;
 
 	} // findCollection
@@ -4276,34 +4247,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			resource = new BaseResourceEdit(resource);
 		}
 
-		//		// if not caching
-		//		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
-		//		{
-		//			// TODO: current service caching
-		//			resource = m_storage.getResource(id);
-		//		}
-		//
-		//		else
-		//		{
-		//			// if we have it cached, use it (hit or miss)
-		//			String key = getReference(id);
-		//			if (m_cache.containsKey(key))
-		//			{
-		//				Object o = m_cache.get(key);
-		//				if ((o != null) && (!(o instanceof ContentResource))) throw new TypeException(id);
-		//
-		//				resource = (ContentResource) o;
-		//			}
-		//
-		//			// if not in the cache, see if we have it in our info store
-		//			else
-		//			{
-		//				resource = m_storage.getResource(id);
-		//
-		//				// cache it (hit or miss)
-		//				m_cache.put(key, resource);
-		//			}
-		//		}
+		
 
 
 		return resource;
