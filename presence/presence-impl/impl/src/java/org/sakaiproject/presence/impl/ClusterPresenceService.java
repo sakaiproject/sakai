@@ -201,7 +201,6 @@ public class ClusterPresenceService extends BasePresenceService
 		/**
 		 * {@inheritDoc}
 		 */
-		@SuppressWarnings("unchecked")
 		public List<String> getLocations()
 		{
 			// form the SQL query
