@@ -22,7 +22,6 @@
 	left: 5px;
 	top: 5px;
 	min-height: 500px; /*iframe will be tiny if there is no content in their profile */
-	margin-bottom: 100px;
 }
 
 #leftPanel {
