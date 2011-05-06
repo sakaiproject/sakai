@@ -213,7 +213,10 @@ public class InputRichTextRenderer extends Renderer
        writer.write((String) value);
     writer.write("</textarea>");
     
+    if (!"true".equals(textareaOnly))
+    {
     writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText');</script>");
+    }
 
     /*
     if(editor != null && !editor.equalsIgnoreCase("FCKeditor"))
