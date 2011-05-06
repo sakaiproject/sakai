@@ -4,6 +4,9 @@ alter table PROFILE_PREFERENCES_T add USE_GRAVATAR bit not null DEFAULT false;
 /* add the wall email notification column, default to 1, (PRFL-528) */
 alter table PROFILE_PREFERENCES_T add EMAIL_WALL_ITEM_NEW bit not null DEFAULT true;
 
+/* add the worksite email notification column, default to 1, (PRFL-388) */
+alter table PROFILE_PREFERENCES_T add EMAIL_WORKSITE_NEW bit not null DEFAULT true;
+
 /* add the wall privacy setting, default to 0 (PRFL-513) */
 alter table PROFILE_PRIVACY_T add MY_WALL int not null DEFAULT 0;
 

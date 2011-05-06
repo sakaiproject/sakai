@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} has created the new '${worksiteTitle}' worksite</subject>
+	<message>${displayName},
+	
+${senderDisplayName} has created the new '${worksiteTitle}' worksite for you to collaborate on ${localSakaiName}
+
+To access the worksite, follow the link below:
+${worksiteLink}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
+	</message>
+	<htmlMessage>${displayName},
+&lt;p&gt;
+${senderDisplayName} has created the new '${worksiteTitle}' worksite for you to collaborate on ${localSakaiName}
+&lt;p&gt;
+To access the worksite, follow the link below:
+&lt;br /&gt;${worksiteLink}
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;Control what email notifications you receive from connections at My Workspace &gt; ${toolName} &gt; Preferences
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>en</locale>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.worksiteNew</key>
+</emailTemplate>

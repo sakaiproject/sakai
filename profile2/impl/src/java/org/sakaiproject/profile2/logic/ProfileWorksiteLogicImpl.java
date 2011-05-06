@@ -4,7 +4,9 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -14,6 +16,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -45,8 +48,8 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean createWorksite(String siteTitle, String ownerId,
-			Collection<Person> members, boolean notifyByEmail) {
+	public boolean createWorksite(final String siteTitle, final String ownerId,
+			final Collection<Person> members, boolean notifyByEmail) {
 
 		// double-check
 		if (false == sakaiProxy.isUserAllowedAddSite(ownerId)) {
@@ -61,7 +64,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		}
 
 		try {
-			Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
+			final Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
 			
 			// TODO false == provided.
 			// Where can this be obtained? User and UserDirectoryService don't expose this info.
@@ -121,10 +124,21 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				}
 			}
 			
-			// TODO programmatically put Home page at top
+			// TODO programmatically put Home page at top?
 			
 			site.setPublished(true);
 			siteService.save(site);
+			
+			if (true == notifyByEmail) {
+				
+				Thread thread = new Thread() {
+					public void run() {
+						emailSiteMembers(siteTitle, site.getUrl(), ownerId, members);		
+					}
+				};
+				thread.start();
+				
+			}
 			
 			return true;
 			
@@ -140,6 +154,32 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		
 		// if we get here then site creation failed.
 		return false;
+	}
+
+	private void emailSiteMembers(String siteTitle, String siteUrl, String ownerId,
+			Collection<Person> members) {
+		
+		for (Person member : members) {
+			if (true == member.getPreferences().isWorksiteNewEmailEnabled()) {
+				emailSiteMember(siteTitle, siteUrl, ownerId, member);
+			}
+		}
+	}
+
+	private void emailSiteMember(String siteTitle, String siteUrl, String ownerId, Person member) {
+		
+		// create the map of replacement values for this email template
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(ownerId));
+		replacementValues.put("worksiteTitle", siteTitle);
+		replacementValues.put("worksiteLink", siteUrl);
+		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+		replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+		replacementValues.put("displayName", member.getDisplayName());
+		
+		sakaiProxy.sendEmail(member.getUuid(),
+				ProfileConstants.EMAIL_TEMPLATE_KEY_WORKSITE_NEW, replacementValues);
 	}
 
 	// API injections

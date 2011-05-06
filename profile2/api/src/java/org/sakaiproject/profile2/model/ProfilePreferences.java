@@ -43,5 +43,6 @@ public class ProfilePreferences implements Serializable {
 	private boolean showGalleryFeed;
 	private boolean useGravatar;
 	private boolean wallItemNewEmailEnabled;
+	private boolean worksiteNewEmailEnabled;
 
 }

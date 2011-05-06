@@ -128,11 +128,12 @@ public class CreateWorksitePanel extends Panel {
 				}
 
 				if (true == worksiteLogic.createWorksite(siteNameField
-						.getValue(), sakaiProxy.getCurrentUserId(), palette
-						.getModelCollection(), true)) {
-					
+						.getValue(), sakaiProxy.getCurrentUserId(),
+						new ArrayList<Person>(palette.getModelCollection()),
+						true)) {
+
 					resetPanel(target, siteNameField, palette, formFeedback);
-					
+
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel(
 							"error.worksite.create.failed"));

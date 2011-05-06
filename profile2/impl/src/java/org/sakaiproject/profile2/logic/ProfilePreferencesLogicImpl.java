@@ -130,6 +130,10 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
     		return true;
     	}
     	
+    	if (messageType == ProfileConstants.EMAIL_NOTIFICATION_WORKSITE_NEW && profilePreferences.isWorksiteNewEmailEnabled()) {
+    		return true;
+    	}
+    	
     	//add more cases here as need progresses
     	
     	//no notification for this message type, return false 	

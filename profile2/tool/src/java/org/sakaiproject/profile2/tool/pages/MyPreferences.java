@@ -168,14 +168,29 @@ public class MyPreferences extends BasePage{
         });
 		
 		// new wall item notification emails
-		final RadioGroup<Boolean> wallItemNewMessage = new RadioGroup<Boolean>("wallItemNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "wallItemNewEmailEnabled"));
-		wallItemNewMessage.add(new Radio<Boolean>("wallItemNewOn", new Model<Boolean>(Boolean.valueOf(true))));
-		wallItemNewMessage.add(new Radio<Boolean>("wallItemNewOff", new Model<Boolean>(Boolean.valueOf(false))));
-		wallItemNewMessage.add(new Label("wallItemNewLabel", new ResourceModel("preferences.email.wall.new")));
-		form.add(wallItemNewMessage);
+		final RadioGroup<Boolean> wallItemNew = new RadioGroup<Boolean>("wallItemNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "wallItemNewEmailEnabled"));
+		wallItemNew.add(new Radio<Boolean>("wallItemNewOn", new Model<Boolean>(Boolean.valueOf(true))));
+		wallItemNew.add(new Radio<Boolean>("wallItemNewOff", new Model<Boolean>(Boolean.valueOf(false))));
+		wallItemNew.add(new Label("wallItemNewLabel", new ResourceModel("preferences.email.wall.new")));
+		form.add(wallItemNew);
 		
 		//updater
-		wallItemNewMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+		wallItemNew.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		// added to new worksite emails
+		final RadioGroup<Boolean> worksiteNew = new RadioGroup<Boolean>("worksiteNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "worksiteNewEmailEnabled"));
+		worksiteNew.add(new Radio<Boolean>("worksiteNewOn", new Model<Boolean>(Boolean.valueOf(true))));
+		worksiteNew.add(new Radio<Boolean>("worksiteNewOff", new Model<Boolean>(Boolean.valueOf(false))));
+		worksiteNew.add(new Label("worksiteNewLabel", new ResourceModel("preferences.email.worksite.new")));
+		form.add(worksiteNew);
+		
+		//updater
+		worksiteNew.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");

@@ -4,6 +4,9 @@ alter table PROFILE_PREFERENCES_T add USE_GRAVATAR number(1,0) default 0;
 /* add the wall email notification column, default to 1, (PRFL-528) */
 alter table PROFILE_PREFERENCES_T add EMAIL_WALL_ITEM_NEW number(1,0) default 1;
 
+/* add the worksite email notification column, default to 1, (PRFL-388) */
+alter table PROFILE_PREFERENCES_T add EMAIL_WORKSITE_NEW number(1,0) default 1;
+
 /* add the wall privacy setting, default to 0 (PRFL-513) */
 alter table PROFILE_PRIVACY_T add MY_WALL number(1,0) default 0;
 

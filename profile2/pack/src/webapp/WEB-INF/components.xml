@@ -243,6 +243,7 @@
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostMyWallNew.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostConnectionWallNew.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallStatusNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-worksiteNew.xml</value>
       		</list>      
     	</constructor-arg>
   	</bean>

@@ -151,6 +151,7 @@ public class ProfileConstants {
 	public static final int EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW = 7;
 	// TODO no preference for this yet (may remove instead)
 	public static final int EMAIL_NOTIFICATION_WALL_STATUS_NEW = 8;
+	public static final int EMAIL_NOTIFICATION_WORKSITE_NEW = 9;
 	
 	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_EMAIL_REQUEST_SETTING = true;
@@ -370,6 +371,7 @@ public class ProfileConstants {
 	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW = "profile2.wallPostMyWallNew";
 	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW = "profile2.wallPostConnectionWallNew";
 	public static final String EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW = "profile2.wallStatusNew";
+	public static final String EMAIL_TEMPLATE_KEY_WORKSITE_NEW = "profile2.worksiteNew";
 	
 	/*
 	 * DIRECT LINKS
