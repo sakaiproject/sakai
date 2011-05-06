@@ -838,7 +838,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		if ((m_caching) && (m_cache != null))
 		{
 			m_cache.destroy();
-			m_cache = null;
 		}
 
 		M_log.info("destroy()");
@@ -2996,7 +2995,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 	}
 
-	protected void cacheEntities(List entities)
+	protected void cacheEntities(List<ContentEntity> entities)
 	{
 		if(entities == null)
 		{
@@ -10639,62 +10638,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				mbrs = new ArrayList();
 
-				// if not caching
-				if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
-				{
-					// TODO: current service caching
-					mbrs.addAll(m_storage.getCollections(this));
-					mbrs.addAll(m_storage.getResources(this));
-				}
-
-				else
-				{
-					// if the cache is complete for this collection, use it
-					if (m_cache.isComplete(getReference()))
-					{
-						// get just this collection's members
-						mbrs.addAll(m_cache.getAll(getReference()));
-					}
-
-					// otherwise get all the members from storage
-					else
-					{
-						// Note: while we are getting from storage, storage might change. These can be processed
-						// after we get the storage entries, and put them in the cache, and mark the cache complete.
-						// -ggolden
-						synchronized (m_cache)
-						{
-							// if we were waiting and it's now complete...
-							if (m_cache.isComplete(getReference()))
-							{
-								// get just this collection's members
-								mbrs.addAll(m_cache.getAll(getReference()));
-							}
-							else
-							{
-								// save up any events to the cache until we get past this load
-								m_cache.holdEvents();
-
-								// read from storage - resources and collections, but just those
-								// whose path is this's path (i.e. just mine!)
-								mbrs.addAll(m_storage.getCollections(this));
-								mbrs.addAll(m_storage.getResources(this));
-
-								// update the cache, and mark it complete
-								for (int i = 0; i < mbrs.size(); i++)
-								{
-									Entity mbr = (Entity) mbrs.get(i);
-									m_cache.put(mbr.getReference(), mbr);
-								}
-
-								m_cache.setComplete(getReference());
-
-								// now we are complete, process any cached events
-								m_cache.processEvents();
-							}
-						}
-					}
-				}
+				// TODO: current service caching
+				mbrs.addAll(m_storage.getCollections(this));
+				mbrs.addAll(m_storage.getResources(this));
 
 				threadLocalManager.set("members@" + this.m_id, mbrs);
 			}
