@@ -112,11 +112,11 @@ public class SavePartListener
     AssessmentService assessmentService = null;
     SectionFacade section = null;
     if (isEditPendingAssessmentFlow) {
-    	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "sectionId=" + sectionId, true));
+    	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
     	assessmentService = new AssessmentService();
     }
     else {
-    	EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "sectionId=" + sectionId, true));
+    	EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
     	assessmentService = new PublishedAssessmentService();
     }
     
@@ -256,7 +256,7 @@ public class SavePartListener
     assessmentBean.setAssessment(assessment);
     assessmentService.updateAssessmentLastModifiedInfo(assessment);
     
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "sectionId=" + section.getSectionId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + section.getSectionId(), true));
   }
 
   public SectionFacade addPart(String assessmentId){

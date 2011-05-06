@@ -1161,7 +1161,7 @@ public class ItemContentsBean implements Serializable {
                                      "new value " + score);
                   answer.setScore(score);
               }
-              EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "itemId=" + itemData.getItemId(), true));
+              EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", itemId=" + itemData.getItemId(), true));
           }
           itemService.saveItem(item);
           itemData.setScore(score);

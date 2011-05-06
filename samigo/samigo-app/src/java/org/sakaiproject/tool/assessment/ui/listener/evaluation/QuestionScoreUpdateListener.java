@@ -177,7 +177,7 @@ public class QuestionScoreUpdateListener
           if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
-            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", logString.toString(), true));
+            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString(), true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
           }
           
@@ -222,7 +222,7 @@ public class QuestionScoreUpdateListener
 	  if (attachmentList.size() > 0) {
 			gradingService.saveOrUpdateAttachments(attachmentList);
 			EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
-					"Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
+					"siteId=" + AgentFacade.getCurrentSiteId() + ", Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
 					true));
 		}
 
@@ -233,7 +233,7 @@ public class QuestionScoreUpdateListener
 		  Long attachmentId = (Long)iter.next();
 		  gradingService.removeItemGradingAttachment(attachmentId.toString());
 		  EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
-					"Removing attachmentId = " + attachmentId, true));
+				  "siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
 	  }
 	  bean.setIsAnyItemGradingAttachmentListModified(true);
   }

@@ -6,6 +6,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
@@ -37,7 +38,7 @@ public class AssessmentListener implements ActionListener {
 		
 		samLiteBean.createAssessment(assessment);
 		samLiteBean.setData("");
-		EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "assessmentId=" + assessment.getAssessmentId(), true));
+		EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId(), true));
 	}
 	
 	public AssessmentFacade createImportedAssessment(Document document, int qti, String templateId) {

@@ -476,11 +476,11 @@ public class ItemAddListener
       isPendingOrPool = isEditPendingAssessmentFlow || isFromQuestionPool;
       ItemService delegate;
       if (isPendingOrPool) {
-    	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "itemId=" + itemauthor.getItemId(), true));
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", itemId=" + itemauthor.getItemId(), true));
       	  delegate = new ItemService();
       }
       else {
-    	  EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "itemId=" + itemauthor.getItemId(), true));
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", itemId=" + itemauthor.getItemId(), true));
       	  delegate = new PublishedItemService();
       }
       // update not working yet, delete, then add

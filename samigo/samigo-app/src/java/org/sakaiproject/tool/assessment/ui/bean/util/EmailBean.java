@@ -45,6 +45,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.SamigoEmailService;
@@ -311,13 +312,13 @@ public class EmailBean implements Serializable {
 		if ("send".equals(result)) {
 			String msgSent = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_confirmation");
 			FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(msgSent));
-			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "Email sent ok: toName=" + toName + ", toEmail=" + toEmailAddress, true));       
+			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "siteId=" + AgentFacade.getCurrentSiteId() + ", Email sent ok: toName=" + toName + ", toEmail=" + toEmailAddress, true));       
 			return "confirmEmailSent";
 		}
 		else {
 			String msgError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_error");
 			FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(msgError));
-			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "Email sent error: toName=" + toName + ", toEmail=" + toEmailAddress, true));			
+			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "siteId=" + AgentFacade.getCurrentSiteId() + ", Email sent error: toName=" + toName + ", toEmail=" + toEmailAddress, true));			
 			return "emailError";
 		}
 	}

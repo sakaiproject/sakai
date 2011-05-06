@@ -1359,10 +1359,10 @@ public class DeliveryBean
 			  returnValue="anonymousThankYou";
 			  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 			  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(adata.getPublishedAssessmentId());
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.via_url", "submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));      
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.via_url", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit", "submissionId=" + adata.getAssessmentGradingId(), true));
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), true));
 		  }
 	  }
 	  else {
@@ -1371,10 +1371,10 @@ public class DeliveryBean
 			  returnValue="anonymousThankYou";
 			  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 			  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(adata.getPublishedAssessmentId());
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit.url", "submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));      
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit.url", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));      
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit", "submissionId=" + adata.getAssessmentGradingId(), true));
+			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), true));
 		  }
 	  }
 	  forGrade = false;
@@ -3042,7 +3042,7 @@ public class DeliveryBean
 		log.debug("actualNumberRetake =" + actualNumberRetake);
   	    if (!("previewAssessment").equals(actionString) && 
   	    	(this.dueDate != null && !acceptLateSubmission && actualNumberRetake >= numberRetake)) {
-			int timeBeforeDue  = Math.round((float)(this.dueDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
+  	    	int timeBeforeDue  = Math.round((float)(this.dueDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
 			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				return String.valueOf(timeBeforeDue);
 			}

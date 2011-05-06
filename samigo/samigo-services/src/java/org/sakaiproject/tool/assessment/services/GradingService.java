@@ -212,7 +212,8 @@ public class GradingService
         AssessmentGradingData ag = (AssessmentGradingData)gdataList.get(i);
         saveOrUpdateAssessmentGrading(ag);
         EventTrackingService.post(EventTrackingService.newEvent("sam.total.score.update", 
-        		"gradedBy=" + AgentFacade.getAgentString() + 
+        		"siteId=" + AgentFacade.getCurrentSiteId() +
+        		", gradedBy=" + AgentFacade.getAgentString() + 
         		", assessmentGradingId=" + ag.getAssessmentGradingId() + 
           		", totalAutoScore=" + ag.getTotalAutoScore() + 
           		", totalOverrideScore=" + ag.getTotalOverrideScore() + 

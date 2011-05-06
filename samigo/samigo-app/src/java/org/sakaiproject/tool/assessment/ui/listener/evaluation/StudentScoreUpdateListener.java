@@ -196,7 +196,7 @@ public class StudentScoreUpdateListener
               updateFlag = true;	
               data.setGradedBy(AgentFacade.getAgentString());
               data.setGradedDate(new Date());
-              EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", logString.toString(), true));
+              EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString(), true));
               log.debug("****4 itemGradingId="+data.getItemGradingId());
               log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
             }
@@ -309,7 +309,7 @@ public class StudentScoreUpdateListener
     				if (attachmentList.size() > 0) {
     					gradingService.saveOrUpdateAttachments(attachmentList);
     					EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
-    							"Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
+    							"siteId=" + AgentFacade.getCurrentSiteId() + ", Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
     							true));
     				}
     				
@@ -320,7 +320,7 @@ public class StudentScoreUpdateListener
     					Long attachmentId = (Long)iter4.next();
     					gradingService.removeItemGradingAttachment(attachmentId.toString());
     					EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
-    							"Removing attachmentId = " + attachmentId, true));
+    							"siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
     				}
     			}
     		}

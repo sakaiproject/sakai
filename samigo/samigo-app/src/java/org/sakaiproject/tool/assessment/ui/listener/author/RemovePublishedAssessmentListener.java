@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -73,7 +74,7 @@ public class RemovePublishedAssessmentListener
       PublishedAssessmentService assessmentService = new PublishedAssessmentService();
       assessmentService.removeAssessment(assessmentId, "remove");
       removeFromGradebook(assessmentId);
-      EventTrackingService.post(EventTrackingService.newEvent("sam.pubAssessment.remove", "publisedAssessmentId=" + assessmentId, true));
+      EventTrackingService.post(EventTrackingService.newEvent("sam.pubAssessment.remove", "siteId=" + AgentFacade.getCurrentSiteId() + ", publisedAssessmentId=" + assessmentId, true));
           
       
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
