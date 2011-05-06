@@ -95,6 +95,10 @@
 					#end
 				</table>
 			#end
+			<p class="instruction">$tlang.getString("sitedi.addeditprops")</p>
+			<div class="act">
+				<input type="submit" name="eventSubmit_doPageProperties" value="$tlang.getString("sitedi.props")" />
+			</div>
 			<h4>	
 				$tlang.getString("sitedipag.conedi")
 			</h4>	

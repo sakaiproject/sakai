@@ -79,6 +79,36 @@
 						#end
 
 			#end
+			#if ($tool)
+				<h4>
+					$tlang.getString("sitedi.pro")
+				</h4>
+				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+					<tr><td></td><td></td></tr>
+					#set ($toolParams = $tool.PlacementConfig)
+					#set ($paramNames = $toolParams.propertyNames())
+					
+					#foreach ($paramName in $paramNames)
+						#set ($paramValue = $toolParams.getProperty($paramName))
+						<tr>
+							<th>
+								<label for="param_$paramName">
+									$paramName:
+								</label>
+							</th>
+							<td>
+								<input type="text"  disabled name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+							</td>
+						</tr>
+					#end
+					
+				</table>
+			#end	
+			<p class="instruction">$tlang.getString("sitedi.addeditprops")</p>
+			<div class="act">
+				<input type="submit" name="eventSubmit_doToolProperties" value="$tlang.getString("sitedi.props")" />
+			</div>
+		
 				<h4>
 					$tlang.getString("siteditoo.conedi")
 				</h4>	

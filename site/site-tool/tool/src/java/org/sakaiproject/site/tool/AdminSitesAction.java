@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -394,6 +395,16 @@ public class AdminSitesAction extends PagedResourceActionII
 		{
 			template = buildPropertiesContext(state, context);
 		}
+		
+		else if (mode.equals("pageProperties"))
+		{
+			template = buildPagePropertiesContext(state, context);
+		}
+		
+		else if (mode.equals("toolProperties"))
+		{
+			template = buildToolPropertiesContext(state, context);
+		}
 
 		else if (mode.equals("groups"))
 		{
@@ -697,6 +708,38 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		return "_properties";
 	}
+	
+	/**
+	 * Build the context for the properties edit in edit mode.
+	 */
+	private String buildPagePropertiesContext(SessionState state, Context context)
+	{
+		context.put("tlang", rb);
+
+		SitePage page = (SitePage) state.getAttribute("page");
+		if(page != null) {
+			// read the form - if rejected, leave things as they are
+			context.put("page", page);
+		}
+		
+		return "_page_properties";
+	}
+	
+	/**
+	 * Build the context for the properties edit in edit mode.
+	 */
+	private String buildToolPropertiesContext(SessionState state, Context context)
+	{
+		context.put("tlang", rb);
+		
+				ToolConfiguration tool = (ToolConfiguration) state.getAttribute("tool");
+		if(tool != null) {
+			// read the form - if rejected, leave things as they are
+			context.put("tool", tool);
+		}
+		
+		return "_tool_properties";
+	}
 
 	/**
 	 * Build the context for the groups display in edit mode.
@@ -971,7 +1014,33 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		doSave_edit(data, context);
 	}
+	
+	/**
+	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
+	 */
+	public void doSave_page_props_edit(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// read the properties form
+		readPagePropertiesForm(data, state);
 
+		doSave_edit(data, context);
+	}
+	
+	/**
+	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
+	 */
+	public void doSave_tool_props_edit(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// read the properties form
+		readToolPropertiesForm(data, state);
+
+		doSave_edit(data, context);
+	}
+	
 	/**
 	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
 	 */
@@ -1361,10 +1430,40 @@ public class AdminSitesAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		// read the form - if rejected, leave things as they are
+		Site site = (Site) state.getAttribute("site");
+			// read the form - if rejected, leave things as they are
 		if (!readSiteForm(data, state)) return;
-
 		state.setAttribute("mode", "properties");
+	
+	}
+	
+	/**
+	 * Switch to property edit mode within a tool edit.
+	 */
+	public void doToolProperties(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		ToolConfiguration tool = (ToolConfiguration) state.getAttribute("tool");
+		// read the form - if rejected, leave things as they are
+		if (!readToolForm(data, state)) return;
+		state.setAttribute("mode", "toolProperties");
+
+	
+	}
+	
+	/**
+	 * Switch to property edit mode within a page edit.
+	 */
+	public void doPageProperties(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		SitePage page = (SitePage) state.getAttribute("page");
+		// read the form - if rejected, leave things as they are
+		if (!readPageForm(data, state)) return;
+		state.setAttribute("mode", "pageProperties");
+
 	}
 
 	/**
@@ -1512,6 +1611,28 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.setAttribute("mode", "pages");
 
 	} // doCancel_page
+
+	/**
+	 * cancel a page edit, return to the pages list
+	 */
+	public void doCancel_page_props(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		state.setAttribute("mode", "editPage");
+
+	} // doCancel_page_prop
+
+	/**
+	 * cancel a page edit, return to the pages list
+	 */
+	public void doCancel_tool_props(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		state.setAttribute("mode", "editTool");
+
+	} // doCancel_tool_prop
 
 	/**
 	 * Handle a request to remove the page being edited.
@@ -1687,8 +1808,41 @@ public class AdminSitesAction extends PagedResourceActionII
 		// read the properties form
 		readPropertiesForm(data, state);
 
-		state.setAttribute("mode", "edit");
+		if(state.getAttribute("mode").equals("properties")) {
+			state.setAttribute("mode", "edit");
+		}
 	}
+	
+	/**
+	 * Switch back to edit main info mode properties edit mode
+	 */
+	public void doEdit_props_to_page(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the properties form
+		readPropertiesForm(data, state);
+
+		if(state.getAttribute("mode").equals("pageProperties")) {
+			state.setAttribute("mode", "editPage");
+		}
+	}
+	
+	/**
+	 * Switch back to edit main info mode properties edit mode
+	 */
+	public void doEdit_props_to_tool(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the properties form
+		readPropertiesForm(data, state);
+
+		if(state.getAttribute("mode").equals("toolProperties")) {
+			state.setAttribute("mode", "editTool");
+		}
+	}
+
 
 	/**
 	 * Read the page form and update the site in state.
@@ -1740,6 +1894,29 @@ public class AdminSitesAction extends PagedResourceActionII
 	 */
 	private boolean readPropertiesForm(RunData data, SessionState state)
 	{
+		if(state.getAttribute("tool")!= null) {
+			
+			return readToolPropertiesForm(data, state);
+		}
+		
+		if(state.getAttribute("page")!= null) {
+			
+			return readPagePropertiesForm(data, state);
+		}
+		
+		if(state.getAttribute("site")!= null) {
+		
+			return readSitePropertiesForm(data, state);
+		}
+		return true;
+	}
+
+	/**
+	 * Read the properties form and update the site in state.
+	 * 
+	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
+	 */
+	private boolean readSitePropertiesForm(RunData data, SessionState state) {
 		// get the site
 		Site site = (Site) state.getAttribute("site");
 
@@ -1772,6 +1949,93 @@ public class AdminSitesAction extends PagedResourceActionII
 				props.addProperty(formName, formValue);
 			}
 		}
+
+		return true;
+	}
+
+	/**
+	 * Read the properties form and update the page in state.
+	 * 
+	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
+	 */
+	private boolean readPagePropertiesForm(RunData data, SessionState state) {
+		// get the site
+		SitePage page = (SitePage) state.getAttribute("page");
+
+		ResourcePropertiesEdit props = page.getPropertiesEdit();
+		
+		// check each property for possible update
+		for (Iterator i = props.getPropertyNames(); i.hasNext();)
+		{
+			String name = (String) i.next();
+			String formValue = StringUtil.trimToNull(data.getParameters().getString("param_" + name));
+			
+			// update the properties or remove
+			if (formValue != null)
+			{
+				props.addProperty(name, formValue);
+			}
+			else
+			{
+				props.removeProperty(name);
+			}
+		}
+		
+		// see if there's a new one
+		String formName = StringUtil.trimToNull(data.getParameters().getString("new_name"));
+		if (formName != null)
+		{
+			String formValue = StringUtil.trimToNull(data.getParameters().getString("new_value"));
+			if (formValue != null)
+			{
+				props.addProperty(formName, formValue);
+			}
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Read the properties form and update the page in state.
+	 * 
+	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
+	 */
+	private boolean readToolPropertiesForm(RunData data, SessionState state) {
+		// get the site
+		ToolConfiguration tool = (ToolConfiguration) state.getAttribute("tool");
+
+		Tool t = tool.getTool();
+		//update properties
+		if (t != null)
+		{
+			// read in any params
+			for (Enumeration iParams = tool.getPlacementConfig().propertyNames(); iParams.hasMoreElements();)
+			{
+				String paramName = (String) iParams.nextElement();
+				String formValue = StringUtil.trimToNull(data.getParameters().getString("param_" + paramName));
+				
+				// update the properties or remove
+				if (formValue != null)
+				{
+					tool.getPlacementConfig().setProperty(paramName, formValue);
+				}
+				else
+				{
+					tool.getPlacementConfig().remove(paramName);
+				}
+			}
+		}
+		// see if there's a new one
+		String formName = StringUtil.trimToNull(data.getParameters().getString("new_name"));
+		if (formName != null)
+		{
+			String formValue = StringUtil.trimToNull(data.getParameters().getString("new_value"));
+			if (formValue != null)
+			{
+				tool.getPlacementConfig().setProperty(formName, formValue);
+			}
+		}
+
 
 		return true;
 	}
