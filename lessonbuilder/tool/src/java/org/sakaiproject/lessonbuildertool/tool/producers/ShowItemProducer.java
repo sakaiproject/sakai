@@ -132,7 +132,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
 	    SimplePageItem item = simplePageBean.findItem (params.getItemId());
 
-	    simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
+	    if (item != null)
+		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 
 	    // this is a "next" page where we couldn't tell if the item is
 	    // available. Need to check here in order to set ACLs. If not available,
