@@ -154,7 +154,7 @@ public class GroupPermissionsService {
 		return true;
 	}
 
-	public static boolean removeUser(String siteId, String groupId) throws IOException {
+	public static boolean removeUser(String siteId, String userId, String groupId) throws IOException {
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
 		try {
@@ -167,8 +167,26 @@ public class GroupPermissionsService {
 			AuthzGroupService.unjoinGroup(groupId);
 
 		} catch (Exception e) {
-			// Typically means group couldn't be found.
+		    // we've got a problem. unjoingroup can fail for maintain users
+		    // we don't want to return false, or the caller will recreate the group. 
+
+		    try {
+			AuthzGroup group = AuthzGroupService.getAuthzGroup(groupId);
+			if (group == null)
+			    return false;
+			if (group.getMember(userId) == null) {
+			    // Already not in group
+			    return true;
+			}
+
+			group.removeMember(userId);
+			
+			AuthzGroupService.save(group);
+			return true;
+		    } catch (Exception ee) {
 			return false;
+		    }
+
 		} finally {
 			SecurityService.popAdvisor();
 		}

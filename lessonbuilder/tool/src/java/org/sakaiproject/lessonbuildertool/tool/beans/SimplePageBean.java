@@ -2743,7 +2743,7 @@ public class SimplePageBean {
 			if (shouldHaveAccess) {
 			    success = GroupPermissionsService.addCurrentUser(getCurrentPage().getSiteId(), getCurrentUserId(), groupId);
 			} else {
-			    success = GroupPermissionsService.removeUser(getCurrentPage().getSiteId(), groupId);
+			    success = GroupPermissionsService.removeUser(getCurrentPage().getSiteId(), getCurrentUserId(), groupId);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
