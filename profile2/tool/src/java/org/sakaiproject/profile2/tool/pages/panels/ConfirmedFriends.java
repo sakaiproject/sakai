@@ -21,10 +21,12 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.link.PopupSettings;
@@ -118,50 +120,47 @@ public class ConfirmedFriends extends Panel {
 		confirmedFriendsHeading.setOutputMarkupId(true);
 		add(confirmedFriendsHeading);
 		
+		// actions
+		Form<Void> confirmedFriendsButtonForm = new Form<Void>("confirmedFriendsButtonForm");
+		add(confirmedFriendsButtonForm);
+		
 		//create worksite panel
 		final CreateWorksitePanel createWorksitePanel = 
 			new CreateWorksitePanel("createWorksitePanel", connectionsLogic.getConnectionsForUser(userUuid));
 		//create placeholder and set invisible initially
 		createWorksitePanel.setOutputMarkupPlaceholderTag(true);
 		createWorksitePanel.setVisible(false);
+				
+		confirmedFriendsButtonForm.add(createWorksitePanel);
 		
-		
-		//create worksite link
-		WebMarkupContainer createWorksite = new WebMarkupContainer("createWorksite");
-		
-		createWorksite.add(createWorksitePanel);
-		
-		final AjaxLink createWorksiteLink = new AjaxLink("createWorksiteLink") {
+		final AjaxButton createWorksiteButton = new AjaxButton("createWorksiteButton", confirmedFriendsButtonForm) {
+
+			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick(AjaxRequestTarget target) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				createWorksitePanel.setVisible(true);
 				target.addComponent(createWorksitePanel);
 				target.appendJavascript("fixWindowVertical();");
 			}
 
 		};
-		createWorksiteLink.add(new Label("createWorksiteLabel", new ResourceModel("link.worksite.create")));
-		createWorksiteLink.add(new AttributeModifier("title", true, new ResourceModel("link.title.worksite.create")));
-		createWorksite.add(createWorksiteLink);
-		
-		createWorksite.setVisible(sakaiProxy.isUserAllowedAddSite(userUuid));
-		add(createWorksite);
+		createWorksiteButton.setModel(new ResourceModel("link.worksite.create"));
+		createWorksiteButton.add(new AttributeModifier("title", true, new ResourceModel("link.title.worksite.create")));
+		createWorksiteButton.setVisible(sakaiProxy.isUserAllowedAddSite(userUuid));
+		confirmedFriendsButtonForm.add(createWorksiteButton);
 		
 		//search for connections
-		WebMarkupContainer searchConnections = new WebMarkupContainer("searchConnections");
-    	Link<String> searchConnectionsLink = new Link<String>("searchConnectionsLink") {
+		AjaxButton searchConnectionsButton = new AjaxButton("searchConnectionsButton", confirmedFriendsButtonForm) {
 			private static final long serialVersionUID = 1L;
 
-			public void onClick() {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				setResponsePage(new MySearch());
 			}
     	};
-		Label searchConnectionsLabel = new Label("searchConnectionsLabel", new ResourceModel("link.my.friends.search"));
-		searchConnectionsLink.add(searchConnectionsLabel);
-		searchConnections.add(searchConnectionsLink);
-    	add(searchConnections);
-    	
+		searchConnectionsButton.setModel(new ResourceModel("link.my.friends.search"));    	
+		confirmedFriendsButtonForm.add(searchConnectionsButton);
 		
 		//container which wraps list
 		final WebMarkupContainer confirmedFriendsContainer = new WebMarkupContainer("confirmedFriendsContainer");

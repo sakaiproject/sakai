@@ -1433,6 +1433,11 @@ main-profile-tabpanel .tab-row a:visited.active,
 	margin-top: 5px;
 }
 
+/* confirmed friends button form */
+.confirmed-friends-button-form {
+	margin-bottom: 5px;
+}
+
 /* create worksite panel */
 .create-worksite-panel {
 	width: 500px;

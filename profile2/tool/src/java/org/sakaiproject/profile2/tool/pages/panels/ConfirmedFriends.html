@@ -31,20 +31,13 @@
 		<span wicket:id="confirmedFriendsNumber">[36]</span>
 	</h3>
 
-	<!-- create worksite -->
-	<div class="create-worksite" wicket:id="createWorksite">
-		<a href="#" wicket:id="createWorksiteLink">
-			<span wicket:id="createWorksiteLabel">[create worksite]</span>
-		</a>
-		<div wicket:id="createWorksitePanel"></div>
-	</div>
-
-	<!-- search friends -->
-	<div class="search-connections" wicket:id="searchConnections">
-		<a href="#" wicket:id="searchConnectionsLink">
-			<span wicket:id="searchConnectionsLabel">[search friends]</span>
-		</a>
-	</div>
+	<form class="confirmed-friends-button-form" wicket:id="confirmedFriendsButtonForm">
+		<div>
+			<span><input type="submit" wicket:id="createWorksiteButton" value="Create worksite" /></span>
+			<span><input type="submit" wicket:id="searchConnectionsButton" value="Search friends" /></span>
+		</div>
+		<div class="create-worksite" wicket:id="createWorksitePanel"></div>
+	</form>
 
 	<span wicket:id="navigator">[dataview navigator]</span>
 	<div class="connections-wrap" wicket:id="confirmedFriendsContainer">
