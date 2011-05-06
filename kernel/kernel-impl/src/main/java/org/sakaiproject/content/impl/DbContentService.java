@@ -374,8 +374,10 @@ public class DbContentService extends BaseContentService
 
             if (!filesizeColumnExists)
             {
-                addNewColumns();
-                filesizeColumnExists = filesizeColumnExists();
+            	//See KNL-487 - DH
+                //if the columns don't exist we need to exit - updat needs to be run
+            	M_log.error("The filesize column doesn't exit. Please make sure you ran the 2.4-2.5 DB Conversion");
+            	throw new Error("The filesize column doesn't exit. Please make sure you ran the 2.4-2.5 DB Conversion");
             }
 
             if (filesizeColumnExists && !readyToUseFilesizeColumn())
@@ -3054,35 +3056,6 @@ public class DbContentService extends BaseContentService
             return null;
         }
 
-    }
-
-    public boolean addNewColumns()
-    {
-        String sql1 = contentServiceSql.getAddFilesizeColumnSql(m_resourceTableName);
-        boolean ok1 = m_sqlService.dbWrite(sql1);
-        String sql2 = contentServiceSql.getAddContextColumnSql(m_resourceTableName);
-        boolean ok2 = m_sqlService.dbWrite(sql2);
-        String sql3 = contentServiceSql.getAddContextIndexSql(m_resourceTableName);
-        boolean ok3 = m_sqlService.dbWrite(sql3);
-        String sql4 = contentServiceSql.getAddFilesizeColumnSql(m_resourceDeleteTableName);
-        boolean ok4 = m_sqlService.dbWrite(sql4);
-        String sql5 = contentServiceSql.getAddContextColumnSql(m_resourceDeleteTableName);
-        boolean ok5 = m_sqlService.dbWrite(sql5);
-        String sql6 = contentServiceSql.getAddContextIndexSql(m_resourceDeleteTableName);
-        boolean ok6 = m_sqlService.dbWrite(sql6);
-        String sql7 = contentServiceSql.getAddResourceTypeColumnSql(m_resourceTableName);
-        boolean ok7 = m_sqlService.dbWrite(sql7);
-        String sql8 = contentServiceSql.getAddResourceTypeColumnSql(m_resourceDeleteTableName);
-        boolean ok8 = m_sqlService.dbWrite(sql8);
-        String sql9 = contentServiceSql.getAddResourceTypeIndexSql(m_resourceTableName);
-        boolean ok9 = m_sqlService.dbWrite(sql9);
-        String sql10 = contentServiceSql.getAddResourceTypeIndexSql(m_resourceDeleteTableName);
-        boolean ok10 = m_sqlService.dbWrite(sql10);
-
-
-        addNewColumnsCompleted = (ok1 && ok2 && ok3 && ok4 && ok5 && ok6 && ok7);
-
-        return addNewColumnsCompleted;
     }
 
     public void populateNewColumns()
