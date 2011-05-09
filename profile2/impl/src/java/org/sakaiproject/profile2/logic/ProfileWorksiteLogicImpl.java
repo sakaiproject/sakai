@@ -58,6 +58,8 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	private static final String HOME_TOOL = "sakai.iframe.site";
 	// the tool used to modify the worksite after creation
 	private static final String SITEINFO_TOOL = "sakai.siteinfo";
+	// the tool used to unjoin worksites
+	private static final String MEMBERSHIP_TOOL = "sakai.membership";
 	
 	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
 	
@@ -117,7 +119,11 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			site.setTitle(siteTitle);
 			// add description for editing the worksite
 			site.setDescription(Messages.getString("worksite.help",
-					new Object[] { toolManager.getTool(SITEINFO_TOOL).getTitle() }));
+					new Object[] { toolManager.getTool(SITEINFO_TOOL).getTitle(),
+					toolManager.getTool(MEMBERSHIP_TOOL).getTitle(),
+					sakaiProxy.getUserDisplayName(ownerId),
+					sakaiProxy.getUserEmail(ownerId),
+					siteTitle}));
 						
 			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
 			for (String toolId : toolIds) {
