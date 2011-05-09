@@ -16,6 +16,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -34,14 +35,29 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
+	/**
+	 * Profile2 creates <code>project</code> type worksites.
+	 */
 	public static final String SITE_TYPE_PROJECT = "project";
 	
+	/**
+	 * Connections invited to worksites are initially given the
+	 * <code>access</code> role.
+	 */
 	public static final String ROLE_ACCESS = "access";
+	
+	/**
+	 * Users who create worksites are initially given the <code>maintain</code>
+	 * role.
+	 */
 	public static final String ROLE_MAINTAIN = "maintain";
 	
-	public static final String TOOL_ID_HOME = "home";
+	// the id of the worksite home page
+	private static final String TOOL_ID_HOME = "home";
 	// the tool to place on the home page
-	public static final String HOME_TOOL = "sakai.iframe.site";
+	private static final String HOME_TOOL = "sakai.iframe.site";
+	// the tool used to modify the worksite after creation
+	private static final String SITEINFO_TOOL = "sakai.siteinfo";
 	
 	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
 	
@@ -66,8 +82,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		try {
 			final Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
 			
-			// TODO false == provided.
-			// Where can this be obtained? User and UserDirectoryService don't expose this info.
+			// TODO false == provided (not if sure this matters)
 			try {
 				User user = userDirectoryService.getUser(ownerId);
 				if (null != user) {
@@ -88,7 +103,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 							
 							// TODO privacy/preference check if/when added?
 							
-							// TODO false == provided
+							// TODO false == provided (not if sure this matters)
 							site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
 						}
 					} catch (UserNotDefinedException e) {
@@ -100,9 +115,9 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
 			// finishing setting up site
 			site.setTitle(siteTitle);
-			// TODO this description could contain instructions for adding
-			// tools to the site etc.
-			site.setDescription("");
+			// add description for editing the worksite
+			site.setDescription(Messages.getString("worksite.help",
+					new Object[] { toolManager.getTool(SITEINFO_TOOL).getTitle() }));
 						
 			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
 			for (String toolId : toolIds) {
@@ -124,7 +139,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				}
 			}
 			
-			// TODO programmatically put Home page at top?
+			// TODO necessary to programmatically put Home page at top?
 			
 			site.setPublished(true);
 			siteService.save(site);
