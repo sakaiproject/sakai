@@ -37,6 +37,7 @@ import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -470,6 +471,8 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       attach.setLastModifiedBy(modifier.getDisplayName());
       attach.setType(cr.getContentType());
       String tempString = cr.getUrl();
+      String surl = ServerConfigurationService.getServerUrl();
+      tempString = tempString.indexOf(surl) > 0 ? tempString : tempString.substring(surl.length());
       String newString = new String();
       char[] oneChar = new char[1];
       for(int i=0; i<tempString.length(); i++)
