@@ -27,7 +27,7 @@
             </activation>
             <modules>
                 <module>scheduler-api</module>
-                <module>scheduler-assembly</module>
+                <module>scheduler-deploy</module>
                 <module>scheduler-component</module>
                 <module>scheduler-component-shared</module>
                 <module>scheduler-events-model</module>
@@ -43,7 +43,7 @@
             </activation>
             <modules>
                 <module>scheduler-api</module>
-                <module>scheduler-assembly</module>
+                <module>scheduler-deploy</module>
                 <module>scheduler-component</module>
                 <module>scheduler-component-shared</module>
                 <module>scheduler-test-component</module>
