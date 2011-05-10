@@ -70,6 +70,7 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService"
             ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
 
     <bean id="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

@@ -44,7 +44,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -115,11 +115,12 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
     private SiteService siteService;
     private ToolManager toolManager;
     private UserDirectoryService userDirectoryService;
+    private ThreadLocalManager threadLocalManager;
 
 
     // ENTITY
 
-    @Override
+  	@Override
     public Object fetchEntity(String reference) {
         Object entity = super.fetchEntity(reference);
         if (entity == null 
@@ -310,7 +311,6 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#getToolData(java.lang.String, java.lang.String)
      */
-    @SuppressWarnings("unchecked")
     public SakaiToolData getToolData(String toolRegistrationId, String locationReference) {
         SakaiToolData toolData = new SakaiToolData();
         if (locationReference == null) {
@@ -341,10 +341,10 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
                 if (tool != null 
                         && tool.getId().equals(toolRegistrationId)) {
                     // hardcoding to make this backwards compatible with 2.3 - ServerConfigurationService.CURRENT_PORTAL_PATH, PORTAL_BASE);
-                    String portalBase = (String) ThreadLocalManager.get("sakai:request.portal.path");
+                    String portalBase = (String) threadLocalManager.get("sakai:request.portal.path");
                     if (portalBase == null || "".equals(portalBase)) {
                         // this has to be here because the tc will expect it when the portal urls are generated and fail if it is missing -AZ
-                        ThreadLocalManager.set("sakai:request.portal.path", PORTAL_BASE);
+                        threadLocalManager.set("sakai:request.portal.path", PORTAL_BASE);
                     }
                     // back to normal stuff again
                     toolData.setToolURL(page.getUrl());
@@ -472,7 +472,7 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
         return allowed;
     }
 
-    @SuppressWarnings("unchecked")
+    
     public Set<String> getEntityReferencesForUserAndPermission(String userReference, String permission) {
         if (permission == null) {
             throw new IllegalArgumentException("permission must both be set");
@@ -493,7 +493,7 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
         return s;
     }
 
-    @SuppressWarnings("unchecked")
+    
     public Set<String> getUserReferencesForEntityReference(String reference, String permission) {
         if (reference == null || permission == null) {
             throw new IllegalArgumentException("reference and permission must both be set");
@@ -545,5 +545,9 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
     }
+
+    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
+	}
 
 }
