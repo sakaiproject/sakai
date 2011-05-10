@@ -16,6 +16,7 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -68,8 +69,11 @@ public class CreateWorksitePanel extends Panel {
 	 */
 	public CreateWorksitePanel(final String id, final List<Person> persons) {
 		super(id);
-			
-		Form<?> form = new Form("form");
+		
+		// sort persons
+		Collections.sort(persons);
+		
+		Form<Void> form = new Form<Void>("form");
 		form.setOutputMarkupId(true);
 		add(form);
 
