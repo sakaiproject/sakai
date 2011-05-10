@@ -25,8 +25,8 @@
 	<modules>
 		<module>samigo-api</module>
 		<module>samigo-app</module>
-        <module>samigo-assembly</module>
 		<module>samigo-audio</module>
+        <module>samigo-deploy</module>
 		<module>samigo-help</module>
 		<module>samigo-hibernate</module>
 		<module>samigo-pack</module>
