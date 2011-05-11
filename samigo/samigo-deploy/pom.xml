@@ -25,4 +25,15 @@
         <module>assembly</module>
         <module>shared</module>
     </modules>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>OKI</groupId>
+                <artifactId>OkiOSID</artifactId>
+                <version>2.0</version>
+                <scope>compile</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
