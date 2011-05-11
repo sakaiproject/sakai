@@ -142,3 +142,76 @@ alter table MFR_PVT_MSG_USR_T add (BCC NUMBER(1,0));
 update MFR_PVT_MSG_USR_T set BCC=0 where BCC is NULL;
 alter table MFR_PVT_MSG_USR_T modify (BCC NUMBER(1,0) not null); 
 alter table MFR_MESSAGE_T add column RECIPIENTS_AS_TEXT_BCC VARCHAR2(4000);
+
+-- MSGCNTR-503 - Internationalization of message priority
+-- Default locale
+update table mfr_message_t set label='pvt_priority_high' where label='High';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normal';
+update table mfr_message_t set label='pvt_priority_low' where label='Low';
+
+-- Locale ar
+update table mfr_message_t set label='pvt_priority_high' where label='\u0645\u0631\u062A\u0641\u0639';
+update table mfr_message_t set label='pvt_priority_normal' where label='\u0639\u0627\u062F\u064A';
+update table mfr_message_t set label='pvt_priority_low' where label='\u0645\u0646\u062E\u0641\u0636';
+
+-- Locale ca
+update table mfr_message_t set label='pvt_priority_high' where label='Alta';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normal';
+update table mfr_message_t set label='pvt_priority_low' where label='Baixa';
+
+-- Locale es
+update table mfr_message_t set label='pvt_priority_high' where label='Alta';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normal';
+update table mfr_message_t set label='pvt_priority_low' where label='Baja';
+
+-- Locale eu
+update table mfr_message_t set label='pvt_priority_high' where label='Gutxikoa';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normala';
+update table mfr_message_t set label='pvt_priority_low' where label='Handikoa';
+
+-- Locale fr_CA
+update table mfr_message_t set label='pvt_priority_high' where label='\u00C9lev\u00E9e';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normale';
+update table mfr_message_t set label='pvt_priority_low' where label='Basse';
+
+-- Locale fr_FR
+update table mfr_message_t set label='pvt_priority_high' where label='Elev\u00E9e';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normale';
+update table mfr_message_t set label='pvt_priority_low' where label='Basse';
+
+-- Locale ja
+update table mfr_message_t set label='pvt_priority_high' where label='\u9ad8\u3044';
+update table mfr_message_t set label='pvt_priority_normal' where label='\u666e\u901a';
+update table mfr_message_t set label='pvt_priority_low' where label='\u4f4e\u3044';
+
+-- Locale nl
+update table mfr_message_t set label='pvt_priority_high' where label='Hoog';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normaal';
+update table mfr_message_t set label='pvt_priority_low' where label='Laag';
+
+-- Locale pt_BR
+update table mfr_message_t set label='pvt_priority_high' where label='Alta';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normal';
+update table mfr_message_t set label='pvt_priority_low' where label='Baixa';
+
+-- Locale pt_PT
+update table mfr_message_t set label='pvt_priority_high' where label='Alta';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normal';
+update table mfr_message_t set label='pvt_priority_low' where label='Baixa';
+
+-- Locale ru
+update table mfr_message_t set label='pvt_priority_high' where label='\u0412\u044b\u0441\u043e\u043a\u0438\u0439';
+update table mfr_message_t set label='pvt_priority_normal' where label='\u041e\u0431\u044b\u0447\u043d\u044b\u0439';
+update table mfr_message_t set label='pvt_priority_low' where label='\u041d\u0438\u0437\u043a\u0438\u0439';
+
+-- Locale sv
+update table mfr_message_t set label='pvt_priority_high' where label='H\u00F6g';
+update table mfr_message_t set label='pvt_priority_normal' where label='Normal';
+update table mfr_message_t set label='pvt_priority_low' where label='L\u00E5g';
+
+-- Locale zh_TW
+update table mfr_message_t set label='pvt_priority_high' where label='\u9ad8';
+update table mfr_message_t set label='pvt_priority_normal' where label='\u666e\u901a';
+update table mfr_message_t set label='pvt_priority_low' where label='\u4f4e';
+
+-- end MSGCNTR-503 --
