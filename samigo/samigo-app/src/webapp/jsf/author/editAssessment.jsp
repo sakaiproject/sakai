@@ -158,10 +158,10 @@ document.links[newindex].onclick();
   	<h:commandLink title="#{commonMessages.publish_action}" id="editAssessmentSettings_editAssessment2" action="#{assessmentSettings.getOutcomePublish}" immediate="true" rendered="#{author.isEditPendingAssessmentFlow && assessmentBean.questionSize > 0}">
       <h:outputText value="#{commonMessages.publish_action}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
-      </h:commandLink>
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SetFromPageAsEditAssessmentListener" />
+    </h:commandLink>
     </p>
 
 <h:panelGrid columns="2" width="100%" columnClasses="shortText,navList" border="0">

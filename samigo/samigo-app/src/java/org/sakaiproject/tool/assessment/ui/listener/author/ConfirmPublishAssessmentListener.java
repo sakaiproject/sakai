@@ -160,8 +160,7 @@ public class ConfirmPublishAssessmentListener
     	error=true;
     }
     
-    // Not from author page and not from edit assessment page
-    if (!isFromActionSelect && !"editAssessment".equals(author.getFromPage())) {
+    if (!isFromActionSelect) {
     	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
     		String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
     		if (groupsAuthorized == null || groupsAuthorized.length == 0) {
