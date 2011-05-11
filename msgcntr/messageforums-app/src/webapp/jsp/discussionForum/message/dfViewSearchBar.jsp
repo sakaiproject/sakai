@@ -65,7 +65,7 @@
     <f:verbatim><br /></f:verbatim>
   </h:panelGroup>
   --%>
-<h:panelGrid columns="2" styleClass="navPanel" width="100%" summary="layout">
+<h:panelGrid columns="2" styleClass="navPanel" width="100%">
   <%--
   <h:panelGroup styleClass="specialLink"  style="float:none;text-align:center">  
 		  <h:commandLink action="#{ForumTool.processActionMarkCheckedAsRead}" id="markAsread"  value="#{msgs.cdfm_mark_check_as_read}"

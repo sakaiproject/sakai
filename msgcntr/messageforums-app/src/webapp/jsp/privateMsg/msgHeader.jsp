@@ -7,7 +7,7 @@
 <sakai:script contextBase="/jsf-resource" path="/inputDate/calendar2.js"/>			
 
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\privateMsg\msgHeader.jsp-->
-<h:panelGrid columns="2"  style="width: 100%" summary="layout" styleClass="navPanel ">
+<h:panelGrid columns="2"  style="width: 100%" styleClass="navPanel ">
   <h:panelGroup>
   	<f:verbatim><div class="viewNav"></f:verbatim>
     <h:outputLabel for="viewlist"><h:outputText value="#{msgs.msg_view}" /></h:outputLabel>
@@ -38,7 +38,7 @@
 	<h:panelGroup>
 		<f:verbatim><div id='adv_input' style="display: none;" ></f:verbatim>
 		
-		<h:panelGrid styleClass="msgAdvSearch" columns="5" summary="layout" style="padding-right: 0.8em;">
+		<h:panelGrid styleClass="msgAdvSearch" columns="5" style="padding-right: 0.8em;">
 		  <h:outputText value=" " />
 			<h:outputText value=" " />
 			<h:outputText value=" " />

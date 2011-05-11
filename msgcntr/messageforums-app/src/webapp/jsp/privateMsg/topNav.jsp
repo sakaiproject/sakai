@@ -1,6 +1,6 @@
 <%-- For breadcrumb, displays either Messages & Forums / Messages / or just Messages /
 	 also displays the Previous/Next folder links --%>
- <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">	 		
+ <h:panelGrid columns="2" width="100%" styleClass="navPanel">	 		
 	<h:panelGroup>
 		<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >

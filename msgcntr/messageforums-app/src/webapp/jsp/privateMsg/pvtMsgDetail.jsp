@@ -16,7 +16,7 @@
 <%--			<sakai:tool_bar_message value="#{msgs.pvt_detmsgreply}" /> --%> 
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/> 
 
-<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
+<h:panelGrid columns="2" width="100%" styleClass="navPanel specialLink">
 	<h:panelGroup>
           	<f:verbatim><div class="breadCrumb"><h3></f:verbatim>
 <%--   			  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />

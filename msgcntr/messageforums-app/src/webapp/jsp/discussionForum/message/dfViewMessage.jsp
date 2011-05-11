@@ -42,7 +42,7 @@
 
 
 			<%--breadcrumb and thread nav grid--%>
-			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
+			<h:panelGrid columns="2" width="100%" styleClass="navPanel">
 				<h:panelGroup>
 					<f:verbatim><h3></f:verbatim>
 						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -131,7 +131,6 @@
 			</f:subview>
 			<h:panelGrid columns="2" 
 					width="100%" 
-					summary="layout" 
 					columnClasses="specialLink, specialLink otherOtherActions"
 					cellpadding="0" cellspacing="0"
 					rendered="#{!ForumTool.deleteMsg && !ForumTool.selectedMessage.message.deleted}" 
@@ -241,7 +240,7 @@
 					<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" id="messageBody" 
 							rendered="#{!ForumTool.selectedMessage.message.deleted}" />
 				<f:verbatim></div></f:verbatim>
-				<h:dataTable value="#{ForumTool.selectedMessage.attachList}" var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" summary="layout"  style="font-size:.9em;width:auto;margin-left:1em" border="0">
+				<h:dataTable value="#{ForumTool.selectedMessage.attachList}" var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
 					<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
 						  <sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
   						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />

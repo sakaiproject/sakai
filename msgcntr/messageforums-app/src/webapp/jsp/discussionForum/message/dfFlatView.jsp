@@ -68,7 +68,7 @@
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
  		</sakai:tool_bar>
-			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
+			<h:panelGrid columns="2" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"

@@ -82,7 +82,7 @@
 		  
 		  <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 		  
-		   <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
+		   <h:panelGrid styleClass="jsfFormTable" columns="2">
 		   
 		   
 		   

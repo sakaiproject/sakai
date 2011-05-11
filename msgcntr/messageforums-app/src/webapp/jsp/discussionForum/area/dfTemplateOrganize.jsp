@@ -129,7 +129,7 @@
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_organize_instruction}"/>
 				</div>
-			<h:dataTable id="forums" binding="#{ForumTool.forumTable}" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout" styleClass="listHier">
+			<h:dataTable id="forums" binding="#{ForumTool.forumTable}" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="listHier">
     <h:column rendered="#{! forum.nonePermission}">
 					<h:panelGroup style="display:block;width:90%;padding:.5em" styleClass="forumHeader">
 					<h:selectOneMenu id="forumIndex" value="#{forum.forum.sortIndex}" onchange="updateForums(this);" style="margin-right:1em">
@@ -138,7 +138,7 @@
 					<h:outputText id="forumTitle" value="#{forum.forum.title}" style="font-weight:bold;font-size:1.3em;"/>
 					</h:panelGroup>
 						<%--//designNote: need a rendered atttrib for the folowing predicated on the existence of topics in this forum--%>
-					<h:dataTable id="topics" rendered="#{!empty forum.forum.topics}" value="#{forum.forum.topics}" var="topic" width="100%" cellspacing="0" cellpadding="0" summary="layout">
+					<h:dataTable id="topics" rendered="#{!empty forum.forum.topics}" value="#{forum.forum.topics}" var="topic" width="100%" cellspacing="0" cellpadding="0">
 		   <h:column>
 							<h:panelGroup style="display:block;width:90%;padding:.2em;margin:.2em 0 .2em .5em" styleClass="topicBloc">
 								<h:selectOneMenu id="topicIndex" value="#{topic.sortIndex}" onchange="updateTopics(#{ForumTool.forumTable.rowIndex}, this);" style="margin-left:.3em;margin-right:1em">

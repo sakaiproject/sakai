@@ -69,7 +69,7 @@
 			<div  id="replytomessage">	
 					<mf:htmlShowArea value="#{ForumTool.selectedMessage.message.body}" hideBorder="true" />
 	
-				<h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}" columnClasses="attach,bogus" styleClass="attachList"   summary="layout"  
+				<h:dataTable value="#{ForumTool.selectedMessage.message.attachments}" var="eachAttach"  rendered="#{!empty ForumTool.selectedMessage.message.attachments}" columnClasses="attach,bogus" styleClass="attachList"  
 						style="font-size:.9em;width:auto;margin-left:1em" border="0">
 						<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
 						<sakai:contentTypeMap fileType="#{eachAttach.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>

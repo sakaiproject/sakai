@@ -174,7 +174,7 @@
 	  	</f:verbatim>
 	  	<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
 		
-  		<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
+  		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -337,7 +337,7 @@
   				<h:outputText value="#{msgs.stat_forum_na}" rendered="#{!stat.gradebookAssignment.allowedToGrade}"/>
   			</h:column>
   		</h:dataTable>
-		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
+		<h:panelGrid columns="1" width="100%" styleClass="navPanel  specialLink">
 		  <h:panelGroup styleClass="itemNav" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">
 		  	<h:commandButton onclick="warn = false;" action="#{mfStatisticsBean.proccessActionSubmitGrades}" value="#{msgs.stat_forum_submit_grades}" accesskey="s"/>
 		  	<h:commandButton onclick="warn = false;" action="" value="#{msgs.stat_forum_submit_grades_cancel}" accesskey="c"/>

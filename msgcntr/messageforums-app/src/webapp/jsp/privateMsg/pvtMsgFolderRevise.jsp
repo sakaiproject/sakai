@@ -20,7 +20,7 @@
 	    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
 	</div>
 	
-		  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
+		  <h:panelGrid styleClass="jsfFormTable" columns="2">
 			  <h:panelGroup styleClass="shorttext required">
 				  <h:outputLabel for="revised_title">
 				  <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>

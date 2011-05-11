@@ -1,8 +1,8 @@
 <!--jsp/discussionForum/area/dfAreaInclude.jsp-->
 <h:outputText styleClass="instruction"  value="#{msgs.cdfm_forum_noforums}"  rendered="#{empty ForumTool.forums}"/>
-<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout" styleClass="specialLink">
+<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="specialLink">
     <h:column rendered="#{! forum.nonePermission}">
-		<h:panelGrid columns="1" summary="layout" styleClass="forumHeader">
+		<h:panelGrid columns="1" styleClass="forumHeader">
   	    <h:panelGroup>
 				<%-- link to forum and decorations --%>
 				<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
@@ -75,7 +75,7 @@
 				<f:verbatim><div class="toggle" style="display:none;padding-left:1em"></f:verbatim>
 					<mf:htmlShowArea value="#{forum.forum.extendedDescription}"  hideBorder="true" />
 					<%-- attachs --%>
-					<h:dataTable  value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus"  summary="layout" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
+					<h:dataTable  value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
 			<h:column>
 			<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 			<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />				
@@ -96,9 +96,9 @@
   </h:panelGrid>
 	  <%-- the topic list  --%>
 		<%--//designNote: need a rendered atttrib for the folowing predicated on the existence of topics in this forum--%>
-		<h:dataTable id="topics" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic"  width="100%"   cellspacing="0" cellpadding="0" summary="layout">
+		<h:dataTable id="topics" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic"  width="100%"   cellspacing="0" cellpadding="0">
 		   <h:column rendered="#{! topic.nonePermission}">
-					<h:panelGrid columns="1" summary="layout" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
+					<h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
 		      	<h:panelGroup>
 							
 							<h:graphicImage url="/images/folder.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages == 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
@@ -186,7 +186,7 @@
 							<f:verbatim><div class="toggle" style="display:none;padding-left:1em"></f:verbatim>
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 								<%--//desNote:attach list --%>
-								<h:dataTable  value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" summary="layout"  style="font-size:.9em;width:auto;margin-left:1em" border="0">
+								<h:dataTable  value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
 					  <h:column>
 										<h:graphicImage url="/images/attachment.gif"/>
 <%--						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">

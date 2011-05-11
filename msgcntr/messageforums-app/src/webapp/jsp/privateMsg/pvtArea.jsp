@@ -13,7 +13,7 @@
   <h:dataTable value="#{PrivateMessagesTool.decoratedForum}" var="forum" rendered="#{PrivateMessagesTool.pvtAreaEnabled}" width="100%" cellpadding="0" cellspacing="0">
     <h:column>
     	
-    	  <h:panelGrid columns="2"  summary="layout" styleClass="hierItemBlock" columnClasses="bogus,itemAction">
+    	  <h:panelGrid columns="2"  styleClass="hierItemBlock" columnClasses="bogus,itemAction">
     	    <h:panelGroup >
 			<f:verbatim><h4></f:verbatim>		
     	      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" immediate="true" title=" #{PrivateMessagesTool.decoratedForum.forum.title}">
@@ -35,7 +35,7 @@
 		  <h:dataTable id="privateForums" value="#{forum.topics}" var="topic" width="100%" cellpadding="0" cellspacing="0" style="margin:0;">
 		    <h:column>
           
-          <h:panelGrid columns="2" summary="layout" width="100%"  cellpadding="0" cellspacing="0"  styleClass="listHier" style="margin:0">
+          <h:panelGrid columns="2" width="100%"  cellpadding="0" cellspacing="0"  styleClass="listHier" style="margin:0">
     	        <h:panelGroup   rendered="#{!topic.topic.mutable}">
    			       <h:graphicImage url="/images/dir_closed.gif" alt="" />
 					<h:commandLink action="#{PrivateMessagesTool.processPvtMsgTopic}" immediate="true" title=" #{msgs[topic.topic.title]}"> 

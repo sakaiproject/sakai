@@ -15,7 +15,7 @@
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="false" >
 	<%--role picker pane--%>
-	<h:panelGrid  columns="2" summary="layout" style="margin:.5em 0;" styleClass="jsfFormTable">
+	<h:panelGrid  columns="2" style="margin:.5em 0;" styleClass="jsfFormTable">
 	  <h:panelGroup styleClass="shorttext">
 			<h:outputLabel for="role" >
 				<h:outputText value="#{msgs.perm_role_label}" />
@@ -39,7 +39,7 @@
 
 	<h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" cellpadding="0" cellspacing="0" styleClass="jsfFormTable">
     <h:column>
-			<h:panelGrid id="permissionSet"  columns="2" summary="layout"  styleClass="permissionPanel jsfFormTable lines nolines" cellpadding="0" cellspacing="0" rowClasses="blank exclude, header, colored,colored,colored,colored,colored,colored  last " columnClasses="first, second" >   
+			<h:panelGrid id="permissionSet"  columns="2" styleClass="permissionPanel jsfFormTable lines nolines" cellpadding="0" cellspacing="0" rowClasses="blank exclude, header, colored,colored,colored,colored,colored,colored  last " columnClasses="first, second" >   
 				<%--permission level picker pane--%>
         <h:panelGroup styleClass="shorttext">
           <h:outputLabel for="level"><h:outputText value="#{msgs.perm_level}" /></h:outputLabel>
@@ -122,7 +122,7 @@
   </h:dataTable>
   	<%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
 	<%--designNote:  How is this a "permission" item? --%>  
-	<h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist &&  ForumTool.permissionMode == 'forum'}" style="margin-top:.5em;clear:both">
+	<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist &&  ForumTool.permissionMode == 'forum'}" style="margin-top:.5em;clear:both">
     <h:panelGroup styleClass="shorttext">
 			<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
       </h:panelGroup>
@@ -132,7 +132,7 @@
       </h:selectOneMenu>
     </h:panelGroup>
   </h:panelGrid>
-	<h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist &&  ForumTool.permissionMode == 'topic' && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both">
+	<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist &&  ForumTool.permissionMode == 'topic' && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both">
     <h:panelGroup>  	
 			<h:outputLabel for="topic_assignments"  value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
   	</h:panelGroup>		

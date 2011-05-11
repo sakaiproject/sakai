@@ -80,7 +80,7 @@
 		  
 		  <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 		  
-		   <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout">
+		   <h:panelGrid styleClass="jsfFormTable" columns="2">
 			  <h:panelGroup styleClass="shorttext required">
 					<h:outputLabel for="list1">
 					 <h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>

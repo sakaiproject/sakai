@@ -21,7 +21,7 @@
 			<sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" />
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
-			  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" 
+			  <h:panelGrid styleClass="jsfFormTable" columns="2"  
 			  				rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">
 			    <h:panelGroup styleClass="shorttext">
 					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_actpvtmsg1}"/></h:outputLabel>
@@ -34,7 +34,7 @@
 						</h:selectOneRadio>
 				  </h:panelGroup>
 			  </h:panelGrid>
-			   <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" 
+			   <h:panelGrid styleClass="jsfFormTable" columns="2"  
 			  				rendered="#{PrivateMessagesTool.emailPermit}">
 			    <h:panelGroup styleClass="shorttext">
 					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_sendemailout}"/></h:outputLabel>
@@ -48,7 +48,7 @@
 				  </h:panelGroup>
 			  </h:panelGrid>
 
-	      <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" >
+	      <h:panelGrid styleClass="jsfFormTable" columns="2" >
 			    <h:panelGroup styleClass="shorttext">
 					  <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
 					</h:panelGroup>

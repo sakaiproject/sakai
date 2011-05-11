@@ -24,7 +24,7 @@
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			      <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 		</h3>
-		<h:panelGrid columns="1" summary="layout" styleClass="forumHeader specialLink">
+		<h:panelGrid columns="1" styleClass="forumHeader specialLink">
 			<h:panelGroup>
 				<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedForum.forum.draft == 'true'}"/>
 				<h:outputText id="draft_space" value=" -  " rendered="#{ForumTool.selectedForum.forum.draft == 'true'}" styleClass="title"/>
@@ -93,7 +93,7 @@
 		  
 		<h:dataTable id="topics"  rendered="#{!empty ForumTool.selectedForum.topics}" value="#{ForumTool.selectedForum.topics}" var="topic" width="100%"  cellspacing="0" cellpadding="0">
 			<h:column rendered="#{! topic.nonePermission}">
-				<h:panelGrid columns="1" summary="layout" width="100%"  styleClass="topicBloc specialLink"  cellspacing="0" cellpadding="0">
+				<h:panelGrid columns="1" width="100%"  styleClass="topicBloc specialLink"  cellspacing="0" cellpadding="0">
           <h:panelGroup>
 
 						<h:graphicImage url="/images/folder.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages == 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
@@ -175,7 +175,7 @@
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 		 			<%--  <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/> --%>
 				
-							<h:dataTable styleClass="listHier" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" summary="layout">
+							<h:dataTable styleClass="listHier" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 					  <h:column>
 									<h:graphicImage url="/images/attachment.gif" />
 						</h:column>

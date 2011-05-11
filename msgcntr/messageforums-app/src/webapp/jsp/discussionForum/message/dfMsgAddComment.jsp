@@ -25,7 +25,7 @@
 			<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title"/>
 			<h:outputText	value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} #{ForumTool.selectedMessage.message.created} #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
 					<%-- Attachments --%>
-			<h:dataTable value="#{ForumTool.selectedMessage.attachList}"	var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" summary="layout"  style="font-size:.9em;width:auto;margin-left:1em" border="0"  rendered="#{!empty ForumTool.selectedMessage.attachList}">
+			<h:dataTable value="#{ForumTool.selectedMessage.attachList}"	var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0"  rendered="#{!empty ForumTool.selectedMessage.attachList}">
 						<h:column	rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />				

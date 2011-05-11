@@ -108,7 +108,7 @@ public class HideDivisionRenderer extends Renderer
     boolean foldDiv = tmpFoldStr != null && "true".equals(tmpFoldStr);
     String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
     writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
-    writer.write("<table style=\"width: 100%;\" class=\"discTria\" cellpadding=\"0\" cellspacing=\"0\" summary=\"layout\">");
+    writer.write("<table style=\"width: 100%;\" class=\"discTria\" cellpadding=\"0\" cellspacing=\"0\" >");
     writer.write("<tr><td  class=\"discTria\" onclick=\"javascript:showHideDivBlock('" + id +
         "', '" +  RESOURCE_PATH + "');\">" );
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +

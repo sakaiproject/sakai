@@ -121,7 +121,7 @@
 		       <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
 		    </div>
 		</f:verbatim>
-  		<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
+  		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -178,7 +178,7 @@
 	  	<f:verbatim>
 	  		</div>
 	  	</f:verbatim>
-	  	<h:panelGrid columns="2" summary="layout" width="100%" style="margin:0">
+	  	<h:panelGrid columns="2" width="100%" style="margin:0">
    			<h:panelGroup>
     			<f:verbatim><h4 style="margin:0;padding:0"></f:verbatim>
 		   		<h:outputText value="#{msgs.stat_forum_authored}" />

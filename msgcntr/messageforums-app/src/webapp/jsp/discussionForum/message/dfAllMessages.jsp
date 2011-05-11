@@ -68,7 +68,7 @@
 				</h:outputLink>
  		</sakai:tool_bar>
  		<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
-			<h:panelGrid columns="2" summary="layout" 	width="100%" styleClass="specialLink">
+			<h:panelGrid columns="2" width="100%" styleClass="specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="specialLink"><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -106,7 +106,7 @@
 				 </h:panelGroup>
 			  </h:panelGrid>
 		
-			<h:panelGrid columns="1" summary="layout" width="100%"  styleClass="topicBloc topicBlocLone specialLink"  cellspacing="0" cellpadding="0">
+			<h:panelGrid columns="1" width="100%"  styleClass="topicBloc topicBlocLone specialLink"  cellspacing="0" cellpadding="0">
 				<h:panelGroup>
 					<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}"/>
 					<h:outputText id="draft_space" value="  - " rendered="#{ForumTool.selectedTopic.topic.draft == 'true'}" styleClass="title"/>
@@ -175,7 +175,7 @@
 					
 					<f:verbatim><div class="toggle" style="display:none;padding-left:1em"></f:verbatim>
 						<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}"/> 
-						<h:dataTable styleClass="listHier" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" summary="layout" style="font-size:.9em;width:auto;margin-left:1em">
+						<h:dataTable styleClass="listHier" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em">
 					  <h:column>
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />						
