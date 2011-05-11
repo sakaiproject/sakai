@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
-
+import org.sakaiproject.util.ResourceLoader;
 
 public class PrivateMessageDecoratedBean 
 {
@@ -186,7 +186,10 @@ public class PrivateMessageDecoratedBean
   public String getAuthor() {
 	  return msg.getAuthor();
   }
-  
+	public String getLabel(){
+		ResourceLoader rl = new ResourceLoader("org.sakaiproject.api.app.messagecenter.bundle.Messages");
+		return rl.getString(msg.getLabel());
+	}
   public boolean getIsPreview() {
 	  return isPreview;
   }

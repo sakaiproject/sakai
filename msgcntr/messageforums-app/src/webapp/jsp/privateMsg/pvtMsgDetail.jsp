@@ -158,7 +158,7 @@
               <h:outputText value="#{msgs.pvt_label} "/>
             </th>
             <td>
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.label}" />  
             </td>
           </tr> 
           <tr>

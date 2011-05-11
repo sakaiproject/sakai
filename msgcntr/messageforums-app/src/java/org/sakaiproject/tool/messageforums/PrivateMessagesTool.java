@@ -239,7 +239,7 @@ public class PrivateMessagesTool
   private boolean booleanEmailOut= Boolean.parseBoolean(ServerConfigurationService.getString("mc.messages.ccEmailDefault", "false"));
   private String composeSubject ;
   private String composeBody;
-  private String selectedLabel="Normal" ;   //defautl set
+  private String selectedLabel="pvt_priority_normal" ;   //defautl set
   private List totalComposeToList;
   private List totalComposeToListRecipients;
   
@@ -1854,7 +1854,7 @@ private   int   getNum(char letter,   String   a)
     this.getAttachments().clear();
     this.getAllAttachments().clear();
     //reset label
-    this.setSelectedLabel("Normal");
+    this.setSelectedLabel("pvt_priority_normal");
   }
   
   public String processPvtMsgPreview(){

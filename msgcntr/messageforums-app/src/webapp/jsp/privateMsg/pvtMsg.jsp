@@ -168,7 +168,7 @@
     	         <f:param name="sortColumn" value="label"/>
     	       </h:commandLink>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.label}"/>
+		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</h:dataTable>
 		

@@ -179,9 +179,9 @@
 			  </h:panelGroup>
 			  <h:panelGroup>
 					<h:selectOneListbox size="1" id="viewlist" value="#{PrivateMessagesTool.selectedLabel}">
-            	  <f:selectItem itemValue="#{msgs.pvt_priority_normal}" itemLabel="#{msgs.pvt_priority_normal}"/>
-            	  <f:selectItem itemValue="#{msgs.pvt_priority_low}" itemLabel="#{msgs.pvt_priority_low}"/>
-            	  <f:selectItem itemValue="#{msgs.pvt_priority_high}" itemLabel="#{msgs.pvt_priority_high}"/>
+            	  <f:selectItem itemValue="pvt_priority_normal" itemLabel="#{msgs.pvt_priority_normal}"/>
+            	  <f:selectItem itemValue="pvt_priority_low" itemLabel="#{msgs.pvt_priority_low}"/>
+            	  <f:selectItem itemValue="pvt_priority_high" itemLabel="#{msgs.pvt_priority_high}"/>
           	  </h:selectOneListbox> 
 				</h:panelGroup>
 				
