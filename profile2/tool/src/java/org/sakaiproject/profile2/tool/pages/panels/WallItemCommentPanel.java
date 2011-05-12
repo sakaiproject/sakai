@@ -13,6 +13,7 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
@@ -70,8 +71,7 @@ public class WallItemCommentPanel extends Panel {
 		// TODO if we get TinyMCE control working
 		//add(new Label("wallItemCommentText", ProfileUtils.processHtml(comment.getText())).setEscapeModelStrings(false));
 		
-		// TODO date has scope for internationalization?
 		add(new Label("wallItemCommentDate", ProfileUtils.convertDateToString(comment
-				.getDate(), "dd MMMMM, HH:mm")));
+				.getDate(), ProfileConstants.WALL_DISPLAY_DATE_FORMAT)));
 	}
 }

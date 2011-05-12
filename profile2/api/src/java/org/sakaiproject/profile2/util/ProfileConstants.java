@@ -290,6 +290,9 @@ public class ProfileConstants {
 	public static final int WALL_ITEM_TYPE_STATUS = 1;
 	public static final int WALL_ITEM_TYPE_POST = 2;
 	
+	//date format display for wall items and wall comments
+	public static final String WALL_DISPLAY_DATE_FORMAT = "dd MMMMM, HH:mm";
+	
 	// TODO possible candidates for sakai.properties
 	public static final int MAX_WALL_ITEMS_SAVED_PER_USER = 20;
 	public static final int MAX_WALL_ITEMS_WITH_CONNECTION_STATUSES = MAX_WALL_ITEMS_SAVED_PER_USER + 10;

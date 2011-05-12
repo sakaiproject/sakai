@@ -99,9 +99,8 @@ public class WallItemPanel extends Panel {
 				.getUserDisplayName(wallItem.getCreatorUuid())));
 		add(wallItemProfileLink);
 
-		// TODO date has scope for internationalization?
 		add(new Label("wallItemDate", ProfileUtils.convertDateToString(wallItem
-				.getDate(), "dd MMMMM, HH:mm")));
+				.getDate(), ProfileConstants.WALL_DISPLAY_DATE_FORMAT)));
 		
 		// ACTIONS
 		
