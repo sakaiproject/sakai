@@ -118,6 +118,7 @@
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jms</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.jcr</groupId>

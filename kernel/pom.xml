@@ -659,6 +659,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>geronimo-spec</groupId>
+                <artifactId>geronimo-spec-jms</artifactId>
+                <version>1.1-rc4</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
                 <version>1.7.2</version>
@@ -748,11 +754,6 @@
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-jcr-tests</artifactId>
                 <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>geronimo-spec</groupId>
-                <artifactId>geronimo-spec-jms</artifactId>
-                <version>1.1-rc4</version>
             </dependency>
             <dependency>
                 <groupId>dumbster</groupId>
