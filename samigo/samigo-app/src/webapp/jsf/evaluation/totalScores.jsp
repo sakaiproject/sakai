@@ -40,7 +40,7 @@
 			}
 		</style> 
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
+      <body onload="disableIt();<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
 
  <!-- JAVASCRIPT -->
@@ -81,6 +81,26 @@ now = new Date();
 if (now.getTime() > exitTime)
 return;
 }
+}
+
+function inIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("applyScoreButton") >=0) {
+      inputs[i].disabled=false;
+    }
+  }
+}
+
+function disableIt()
+{
+  var inputs= document.getElementsByTagName("INPUT");
+  for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("applyScoreButton") >=0) {
+      inputs[i].disabled=true;
+    }
+  }
 }
 
 </script>
@@ -168,6 +188,16 @@ return;
         <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
       </h:panelGroup>
 	  
+	  <h:panelGroup rendered="#{totalScores.allSubmissions!='4'}">
+	    <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
+	  				<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+	  	</h:commandButton>
+	  	<h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/>
+		<h:outputText value=" #{evaluationMessages.applyGradesDesc}"/>
+	  </h:panelGroup>
+	  
+	  <h:outputText value="&nbsp;" escape="false"/>
+	  
 	  <h:panelGroup>
         <!-- SECTION AWARE -->
         <h:outputText value="#{evaluationMessages.view}"/>
@@ -214,19 +244,6 @@ return;
 			<h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
 			<f:verbatim> </f:verbatim>
 			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
-	  </h:panelGroup>
-	  <h:panelGroup>
-	  	<h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
-	  		<h:panelGroup>
-	  			<h:outputText value="#{evaluationMessages.applyGradesDesc}"/>
-	  		</h:panelGroup>
-	  		<h:panelGroup>
-	  			<h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}" size="5"/>
-	  			<h:commandButton value="#{evaluationMessages.applyGrades}" id="applyScoreButton" styleClass="active" type="submit">
-	  				<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-	  			</h:commandButton>
-	  		</h:panelGroup>
-	  	</h:panelGrid>
 	  </h:panelGroup>
     </h:panelGrid>
   </h:panelGroup>
