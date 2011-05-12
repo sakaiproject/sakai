@@ -50,7 +50,7 @@ import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-import org.apache.wicket.util.string.Strings;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * This is the entity provider for a user's profile.
@@ -358,7 +358,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		String displayName = userProfile.getDisplayName();
 		if(StringUtils.isNotBlank(displayName)) {
 			sb.append("<div class=\"profile2-profile-displayName\">");
-			sb.append(Strings.escapeMarkup(displayName,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(displayName));
 			sb.append("</div>");
 		}
 		
@@ -367,7 +367,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			String message = userProfile.getStatus().getMessage();
 			if(StringUtils.isNotBlank(message)) {
 				sb.append("<div class=\"profile2-profile-statusMessage\">");
-				sb.append(Strings.escapeMarkup(message,false,true));
+				sb.append(StringEscapeUtils.escapeHtml(message));
 				sb.append("</div>");
 			}
 			
@@ -418,7 +418,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.nickname"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(nickname,false,true).toString());
+			sb.append(StringEscapeUtils.escapeHtml(nickname).toString());
 			sb.append("</div>");
 		}
 		if(StringUtils.isNotBlank(userProfile.getPersonalSummary())) {
@@ -499,7 +499,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.position"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(position,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(position));
 			sb.append("</div>");
 		}
 		
@@ -509,7 +509,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.department"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(department,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(department));
 			sb.append("</div>");
 		}
 		
@@ -519,7 +519,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.school"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(school,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(school));
 			sb.append("</div>");
 		}
 		
@@ -529,7 +529,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.room"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(room,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(room));
 			sb.append("</div>");
 		}
 		
@@ -539,7 +539,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.course"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(course,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(course));
 			sb.append("</div>");
 		}
 		
@@ -549,7 +549,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.subjects"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(subjects,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(subjects));
 			sb.append("</div>");
 		}
 		
@@ -561,7 +561,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteBooks"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(favouriteBooks,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(favouriteBooks));
 			sb.append("</div>");
 		}
 		
@@ -571,7 +571,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteTvShows"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(favouriteTvShows,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(favouriteTvShows));
 			sb.append("</div>");
 		}
 		
@@ -581,7 +581,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteMovies"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(favouriteMovies,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(favouriteMovies));
 			sb.append("</div>");
 		}
 		
@@ -591,7 +591,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("<span class=\"profile2-profile-label\">");
 			sb.append(Messages.getString("Label.favouriteQuotes"));
 			sb.append("</span>");
-			sb.append(Strings.escapeMarkup(favouriteQuotes,false,true));
+			sb.append(StringEscapeUtils.escapeHtml(favouriteQuotes));
 			sb.append("</div>");
 		}
 		
