@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>org.sakaiproject.scheduler</groupId>
-        <artifactId>scheduler</artifactId>
+        <artifactId>scheduler-deploy</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
 
@@ -47,12 +47,9 @@
             <type>war</type>
             <scope>compile</scope>
         </dependency>
-        <!-- Substitute for now redundant scheduler-shared-deploy pom that put quartz in shared. arwhyte 9 Dec. 2009  -->
         <dependency>
             <groupId>org.opensymphony.quartz</groupId>
             <artifactId>quartz</artifactId>
-            <scope>compile</scope>
-            <type>jar</type>
         </dependency>
     </dependencies>
 

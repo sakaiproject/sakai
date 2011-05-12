@@ -15,8 +15,9 @@
     <packaging>pom</packaging>
 
     <properties>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url.localsite>
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
+        <sakai.quartz.version>1.6.6</sakai.quartz.version>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url.localsite>
     </properties>
 
     <profiles>
@@ -137,11 +138,11 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <!-- scheduler-assembly deploys quartz to shared. -->
+            <!-- Job Scheduler deploys quartz to shared. -->
             <dependency>
                 <groupId>org.opensymphony.quartz</groupId>
                 <artifactId>quartz</artifactId>
-                <version>1.6.6</version>
+                <version>${sakai.quartz.version}</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
