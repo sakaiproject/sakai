@@ -65,7 +65,7 @@ public class WallItemPostCommentPanel extends Panel {
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", new ResourceModel("button.wall.comment"), form) {
 			private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
 				// don't allow empty posts
 				if (null == form.getModelObject()) {
@@ -121,7 +121,7 @@ public class WallItemPostCommentPanel extends Panel {
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
             private static final long serialVersionUID = 1L;
 
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				commentTextArea.clearInput();
 				formFeedback.setVisible(false);
 				target.appendJavascript("$('#" + WallItemPostCommentPanel.this.getMarkupId() + "').slideUp();");
