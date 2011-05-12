@@ -97,9 +97,7 @@ public class WallItemPostCommentPanel extends Panel {
 					target.addComponent(formFeedback);
 					return;
 				}
-				
-				System.out.println("wallItemComment.getId(): " + wallItemComment.getId());
-				
+								
 				// replace wall item panel now comment has been added
 				WallItemPanel newPanel = new WallItemPanel(wallItemPanel.getId(), userUuid, wallItem);
 				newPanel.setOutputMarkupId(true);
