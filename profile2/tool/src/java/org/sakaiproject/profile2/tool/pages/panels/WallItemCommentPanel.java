@@ -67,10 +67,7 @@ public class WallItemCommentPanel extends Panel {
 		
 		// content of the comment
 		add(new Label("wallItemCommentText", new ResourceModel(comment.getText())));
-		
-		// TODO if we get TinyMCE control working
-		//add(new Label("wallItemCommentText", ProfileUtils.processHtml(comment.getText())).setEscapeModelStrings(false));
-		
+				
 		add(new Label("wallItemCommentDate", ProfileUtils.convertDateToString(comment
 				.getDate(), ProfileConstants.WALL_DISPLAY_DATE_FORMAT)));
 	}
