@@ -7,8 +7,8 @@
     <version>2.9-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
-  <name>sakai-famework-shared-deploy</name>
-  <groupId>org.sakaiproject.famework</groupId>
+  <name>sakai-framework-shared-deploy</name>
+  <groupId>org.sakaiproject.framework</groupId>
   <artifactId>framework-shared-deploy</artifactId>
   <organization>
     <name>Sakai Project</name>
