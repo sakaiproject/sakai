@@ -121,6 +121,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         	String userEId = userRoleEntry.userEId;
         	// default to userEid
         	String userName = userEId;
+            String displayId = userEId;
         	// if there is last name or first name specified, use it
         	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
         			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
@@ -130,13 +131,14 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
         		userName = u.getSortName();
+                displayId = u.getDisplayId();
         	}
         	catch (Exception e)
         	{
         		M_log.info(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             UIBranchContainer userRow = UIBranchContainer.make(sameRoleForm, "user-row:", userEId);
-            UIOutput.make(userRow, "user-label", userEId + "(" + userName + ")");
+            UIOutput.make(userRow, "user-label", displayId + "(" + userName + ")");
         }
     	
     	UICommand.make(sameRoleForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processSameRoleContinue}");

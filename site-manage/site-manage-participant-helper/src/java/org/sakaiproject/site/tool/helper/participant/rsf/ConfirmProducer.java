@@ -111,11 +111,12 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         
     	UIForm confirmForm = UIForm.make(content, "confirm", "");
     	List<UserRoleEntry> userTable = handler.userRoleEntries;
-    	// list of users
+    	// list of users        
         for (UserRoleEntry userRoleEntry:userTable) {
         	String userEId = userRoleEntry.userEId;
         	// default to userEid
         	String userName = userEId;
+            String displayId = userEId;
         	// if there is last name or first name specified, use it
         	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
         			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
@@ -125,6 +126,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
         		userName = u.getSortName();
+                displayId = u.getDisplayId();
         	}
         	catch (Exception e)
         	{
@@ -132,7 +134,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	}
             UIBranchContainer userRow = UIBranchContainer.make(confirmForm, "user-row:", userEId);
             UIOutput.make(userRow, "user-name", userName);
-            UIOutput.make(userRow, "user-eid", userEId);
+            UIOutput.make(userRow, "user-eid", displayId);
             UIOutput.make(userRow, "user-role", userRoleEntry.role);
             UIOutput.make(userRow, "user-status", handler.statusChoice.equals("active") ? messageLocator.getMessage("sitegen.siteinfolist.active") : messageLocator.getMessage("sitegen.siteinfolist.inactive"));
         }
