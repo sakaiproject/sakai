@@ -27,7 +27,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
@@ -51,10 +50,7 @@ public class WallItemPanel extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
-	
-	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
-	private ProfileWallLogic wallLogic;
-	
+		
 	/**
 	 * Creates a new instance of <code>WallItemPanel</code>.
 	 * 
