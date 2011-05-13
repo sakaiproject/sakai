@@ -220,6 +220,15 @@ public class QuestionPoolBean implements Serializable
 	  public int compare(Object o1, Object o2) {
 		  QuestionPoolFacade i1 = (QuestionPoolFacade)o1;
 		  QuestionPoolFacade i2 = (QuestionPoolFacade)o2;
+		  if (i1 == null && i2 != null) {
+			  return 1;
+		  }
+		  if (i2 == null && i1 != null) {
+			  return -1;
+		  }
+		  if (i2 == null && i1 == null) {
+			  return 0;
+		  }		  
 		  return i1.getTitle().compareToIgnoreCase(i2.getTitle());
 	  }
   }
