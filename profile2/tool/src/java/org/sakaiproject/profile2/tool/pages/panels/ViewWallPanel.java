@@ -19,6 +19,7 @@ import java.util.Date;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -179,8 +180,6 @@ public class ViewWallPanel extends Panel {
 			add(new Label("wallInformationMessage"));
 		}
 
-		// TODO haven't decided whether to add a navigator yet
-
 		DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
 				"wallItems", provider) {
 
@@ -206,7 +205,14 @@ public class ViewWallPanel extends Panel {
 		};
 
 		wallItemsDataView.setOutputMarkupId(true);
-		// wallItemsDataView.setItemsPerPage(10);
+
+		if (provider.size() <= ProfileConstants.MAX_WALL_ITEMS_PER_PAGE) {
+			wallItemsContainer.add(new AjaxPagingNavigator("navigator", wallItemsDataView).setVisible(false));
+		} else {
+			wallItemsContainer.add(new AjaxPagingNavigator("navigator", wallItemsDataView));
+		}
+		
+		wallItemsDataView.setItemsPerPage(ProfileConstants.MAX_WALL_ITEMS_PER_PAGE);
 
 		wallItemsContainer.add(wallItemsDataView);
 	}

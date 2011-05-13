@@ -50,7 +50,7 @@ public class WallItemPanel extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
-		
+	
 	/**
 	 * Creates a new instance of <code>WallItemPanel</code>.
 	 * 
@@ -59,6 +59,18 @@ public class WallItemPanel extends Panel {
 	 * @param wallItem
 	 */
 	public WallItemPanel(String id, final String userUuid, final WallItem wallItem) {
+		this (id, userUuid, wallItem, null);
+	}
+	
+	/**
+	 * Creates a new instance of <code>WallItemPanel</code>.
+	 * 
+	 * @param id
+	 * @param userUuid the id of the user whose wall this item panel is on.
+	 * @param wallItem
+	 * @param myWallPanel a reference to my wall panel for repainting.
+	 */
+	public WallItemPanel(String id, final String userUuid, final WallItem wallItem, final MyWallPanel myWallPanel) {
 		super(id);
 
 		setOutputMarkupId(true);
@@ -123,8 +135,10 @@ public class WallItemPanel extends Panel {
 					@Override
 					public void onClose(AjaxRequestTarget target) {
 						if (wallAction.isItemRemoved()) {
-							// delete link should only appear when viewing own profile
-							target.appendJavascript("$('#" + WallItemPanel.this.getMarkupId() + "').slideUp();");
+							
+							if (null != myWallPanel) {
+								myWallPanel.replaceSelf(target, userUuid);
+							}
 						}
 					}
 				});

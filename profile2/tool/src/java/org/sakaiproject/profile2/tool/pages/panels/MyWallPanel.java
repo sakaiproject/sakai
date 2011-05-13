@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -170,19 +171,7 @@ public class MyWallPanel extends Panel {
 					target.addComponent(formFeedback);
 				} else {
 					
-					MyWallPanel newPanel;
-					if (true == sakaiProxy.isSuperUser()) {
-						newPanel= new MyWallPanel(MyWallPanel.this.getId(), userUuid);
-					} else {
-						newPanel= new MyWallPanel(MyWallPanel.this.getId());
-					}
-					newPanel.setOutputMarkupId(true);
-					MyWallPanel.this.replaceWith(newPanel);
-					if (null != target) {
-						target.addComponent(newPanel);
-						target
-								.appendJavascript("setMainFrameHeight(window.name);");
-					}
+					replaceSelf(target, userUuid);
 				}
 			}
 		};
@@ -201,9 +190,7 @@ public class MyWallPanel extends Panel {
 			add(new Label("wallInformationMessage"));
 		}
 
-		// TODO haven't decided whether to add a navigator yet
-
-		DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
+		final DataView<WallItem> wallItemsDataView = new DataView<WallItem>(
 				"wallItems", provider) {
 
 			private static final long serialVersionUID = 1L;
@@ -213,14 +200,22 @@ public class MyWallPanel extends Panel {
 
 				WallItem wallItem = (WallItem) item.getDefaultModelObject();
 
+				// pass reference to MyWallPanel for updating when posts are removed
 				item
 						.add(new WallItemPanel("wallItemPanel", userUuid,
-								wallItem));
+								wallItem, MyWallPanel.this));
 			}
 		};
 
 		wallItemsDataView.setOutputMarkupId(true);
-		// wallItemsDataView.setItemsPerPage(10);
+	
+		if (provider.size() <= ProfileConstants.MAX_WALL_ITEMS_PER_PAGE) {
+			wallItemsContainer.add(new AjaxPagingNavigator("navigator", wallItemsDataView).setVisible(false));
+		} else {
+			wallItemsContainer.add(new AjaxPagingNavigator("navigator", wallItemsDataView));
+		}
+		
+		wallItemsDataView.setItemsPerPage(ProfileConstants.MAX_WALL_ITEMS_PER_PAGE);
 
 		wallItemsContainer.add(wallItemsDataView);
 	}
@@ -234,4 +229,22 @@ public class MyWallPanel extends Panel {
 		
 		return wallLogic.postWallItemToWall(userUuid, wallItem);
 	}
+
+	// this is used to replace the panel so the paging is updated
+	protected void replaceSelf(AjaxRequestTarget target, String userUuid) {
+		MyWallPanel newPanel;
+		if (true == sakaiProxy.isSuperUser()) {
+			newPanel= new MyWallPanel(MyWallPanel.this.getId(), userUuid);
+		} else {
+			newPanel= new MyWallPanel(MyWallPanel.this.getId());
+		}
+		newPanel.setOutputMarkupId(true);
+		MyWallPanel.this.replaceWith(newPanel);
+		if (null != target) {
+			target.addComponent(newPanel);
+			target.appendJavascript("setMainFrameHeight(window.name);");
+		}
+		
+	}
+	
 }
