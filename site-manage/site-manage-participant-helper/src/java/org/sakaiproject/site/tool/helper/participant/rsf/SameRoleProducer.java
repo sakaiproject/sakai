@@ -121,7 +121,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         	String userEId = userRoleEntry.userEId;
         	// default to userEid
         	String userName = userEId;
-            String displayId = userEId;
+        	String displayId = userEId;
         	// if there is last name or first name specified, use it
         	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
         			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
@@ -131,7 +131,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
         		userName = u.getSortName();
-                displayId = u.getDisplayId();
+        		displayId = u.getDisplayId();
         	}
         	catch (Exception e)
         	{

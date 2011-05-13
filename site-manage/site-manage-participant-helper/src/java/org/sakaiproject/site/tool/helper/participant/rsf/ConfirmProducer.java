@@ -116,7 +116,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	String userEId = userRoleEntry.userEId;
         	// default to userEid
         	String userName = userEId;
-            String displayId = userEId;
+        	String displayId = userEId;
         	// if there is last name or first name specified, use it
         	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
         			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
@@ -126,7 +126,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
         		userName = u.getSortName();
-                displayId = u.getDisplayId();
+        		displayId = u.getDisplayId();
         	}
         	catch (Exception e)
         	{
