@@ -77,6 +77,9 @@ public interface SiteService extends EntityProducer
 	/** Name for the event of adding a course site */ 
 	static final String SECURE_ADD_COURSE_SITE = "site.add.course";
 	
+	/** Name for the event of adding a portfolio site */ 
+	static final String SECURE_ADD_PORTFOLIO_SITE = "site.add.portfolio";
+	
 	/** Name for the event of adding a user's My Workspace site. */
 	static final String SECURE_ADD_USER_SITE = "site.add.usersite";
 
@@ -426,6 +429,12 @@ public interface SiteService extends EntityProducer
 	 * @return
 	 */
 	boolean allowAddCourseSite();
+
+	/**
+	 *  Can the user add sites of type Portfolio as defined by portfolioSiteType in sakai.properties
+	 * @return
+	 */
+	boolean allowAddPortfolioSite();
 
 	/**
 	 * Add a new site. The site will exist with just an id once done, so remove() it if you don't want to keep it.

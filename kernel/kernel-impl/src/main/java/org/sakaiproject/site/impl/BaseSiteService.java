@@ -468,6 +468,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			functionManager().registerFunction(SITE_VISIT_UNPUBLISHED);
 			functionManager().registerFunction(SECURE_ADD_SITE);
 			functionManager().registerFunction(SECURE_ADD_USER_SITE);
+			functionManager().registerFunction(SECURE_ADD_PORTFOLIO_SITE);
 			functionManager().registerFunction(SECURE_REMOVE_SITE);
 			functionManager().registerFunction(SECURE_UPDATE_SITE);
 			functionManager().registerFunction(SECURE_VIEW_ROSTER);
@@ -1055,6 +1056,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		else if (id != null && isCourseSite(id)) {
 			return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(id));
 		}
+		else if (id != null && isPortfolioSite(id)) {
+			return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
+		}
 		else
 		{
 			return unlockCheck(SECURE_ADD_SITE, siteReference(id));
@@ -1074,9 +1078,27 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		
 		return rv;
 	}
+
+	private boolean isPortfolioSite(String siteId) {
+		boolean rv = false;
+		try {
+			Site s = getSite(siteId);
+			if (serverConfigurationService().getString("portfolioSiteType", "portfolio").equals(s.getType())) 
+				return true;
+				
+		} catch (IdUnusedException e) {
+			M_log.warn("isPortfolioSite(): no site with id: " + siteId);
+		}
+		
+		return rv;
+	}
 	
 	public boolean allowAddCourseSite() {
 		return unlockCheck(SECURE_ADD_COURSE_SITE, siteReference(null));
+	}
+
+	public boolean allowAddPortfolioSite() {
+		return unlockCheck(SECURE_ADD_PORTFOLIO_SITE, siteReference(null));
 	}
 	
 	/**
@@ -1103,6 +1125,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// SAK-12631
 		if (serverConfigurationService().getString("courseSiteType", "course").equals(type)) {
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));
+		}
+
+		// KNL-703
+		if (serverConfigurationService().getString("portfolioSiteType", "portfolio").equals(type)) {
+			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
@@ -1150,6 +1177,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// SAK=12631
 		if ( isCourseSite(other.getId()) ) {
 			unlock(SECURE_ADD_COURSE_SITE, siteReference(id));			
+		}
+
+		// KNL-703
+		if ( isPortfolioSite(other.getId()) ) {
+			unlock(SECURE_ADD_PORTFOLIO_SITE, siteReference(id));			
 		}
 
 		// reserve a site with this id from the info store - if it's in use, this will return null
