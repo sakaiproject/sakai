@@ -51,6 +51,9 @@ document.links[newindex].onclick();
 </script>
 
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+      
+      <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
+	  <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
 
  <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
 <!--div class="portletBody"-->

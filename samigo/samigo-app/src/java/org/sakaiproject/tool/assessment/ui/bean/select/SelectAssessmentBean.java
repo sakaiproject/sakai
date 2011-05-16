@@ -52,6 +52,7 @@ implements Serializable
 	private boolean hasAnyAssessmentRetractForEdit = false;  // this is used to display the message on the bottom if there is any assessment retracted for edit.
 	private String displayAllAssessments = "2"; // display all
 	private boolean hasAverageMultipleSubmissions=false;
+	private String secureDeliveryHTMLFragments;
 	
 	/**
 	 * ArrayLists should be lists of DeliveryBean objects
@@ -292,4 +293,12 @@ implements Serializable
 	public void setHasAverageMultipleSubmissions(boolean hasAverageMultipleSubmissions) {
 		this.hasAverageMultipleSubmissions = hasAverageMultipleSubmissions;
 	}       
+	
+	public String getSecureDeliveryHTMLFragments() {
+		return secureDeliveryHTMLFragments;
+	}
+		  
+	public void setSecureDeliveryHTMLFragments(String secureDeliveryHTMLFragments) {
+		this.secureDeliveryHTMLFragments = secureDeliveryHTMLFragments;
+	}
 }

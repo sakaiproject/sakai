@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -68,11 +69,13 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Title: Samigo</p>2
@@ -153,6 +156,26 @@ implements ActionListener
 	      }
 	    }
 	    assessment.setSecuredIPAddressSet(ipSet);
+	    
+	    // k. secure delivery settings
+	    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
+	    String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessmentSettings.getSecureDeliveryModuleExitPassword() );
+	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, encryptedPassword ));
+	    
+	    // kk. remove the existing title decoration (if any) and then add the new one (if any)	    
+	    String titleDecoration = assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.TITLE_DECORATION );
+	    String newTitle;
+	    if ( titleDecoration != null )
+	    	newTitle = assessment.getTitle().replace( titleDecoration, "");
+	    else
+	    	newTitle = assessment.getTitle();
+	    // getTitleDecoration() returns "" if null or NONE module is passed
+	    titleDecoration = secureDeliveryService.getTitleDecoration( assessmentSettings.getSecureDeliveryModule(), new ResourceLoader().getLocale() );
+	    newTitle = newTitle + " " + titleDecoration;
+	    assessment.setTitle( newTitle );
+	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, titleDecoration );
+	    
 	    // l. FINALLY: save the assessment
 	    assessmentService.saveAssessment(assessment);
 	    
@@ -302,6 +325,30 @@ implements ActionListener
 				context.addMessage(null,new FacesMessage(feedbackDateErr));
 				error=true;
 			}
+		}
+		
+		// check secure delivery exit password
+		SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+		if ( secureDeliveryService.isSecureDeliveryAvaliable() ) {
+			
+			String moduleId = assessmentSettings.getSecureDeliveryModule();
+			if ( ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+			
+				String exitPassword = assessmentSettings.getSecureDeliveryModuleExitPassword(); 
+				if ( exitPassword != null && exitPassword.length() > 0 ) {
+					
+					for ( int i = 0; i < exitPassword.length(); i++ ) {
+						
+						char c = exitPassword.charAt(i);
+						if ( ! (( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' )) ) {
+							error = true;
+							String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","exit_password_error");
+							context.addMessage(null,new FacesMessage(submission_err));
+							break;
+						}
+					}					
+				}
+			}			
 		}
 
 		return error;

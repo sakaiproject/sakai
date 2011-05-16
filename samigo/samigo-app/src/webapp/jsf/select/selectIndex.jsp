@@ -33,6 +33,9 @@
       <title><h:outputText value="#{selectIndexMessages.page_title}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+      
+      <!-- IF A SECURE DELIVERY MODULES ARE AVAILABLE, INJECT THEIR INITIAL HTML FRAGMENTS HERE -->
+	  <h:outputText  value="#{select.secureDeliveryHTMLFragments}" escape="false" />
 
 <!--JAVASCRIPT -->
 <script language="javascript" type="text/JavaScript">

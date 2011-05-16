@@ -56,6 +56,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -64,6 +65,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -75,6 +77,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -151,6 +154,10 @@ public class AssessmentSettingsBean
   private String password;
   private String finalPageUrl;
   private String ipAddresses;
+  private boolean secureDeliveryAvailable;
+  private SelectItem[] secureDeliveryModuleSelections;
+  private String secureDeliveryModule;
+  private String secureDeliveryModuleExitPassword;
 
   // properties of AssesmentFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
@@ -443,6 +450,23 @@ public class AssessmentSettingsBean
       }
       // attachment
       this.attachmentList = assessment.getAssessmentAttachmentList();
+      
+      // secure delivery
+      SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
+      this.secureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable();
+      this.secureDeliveryModuleSelections = getSecureDeliverModuleSelections();
+      this.secureDeliveryModule = (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+      this.secureDeliveryModuleExitPassword = secureDeliveryService.decryptPassword( this.secureDeliveryModule, 
+    		  (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) );
+      
+      if ( secureDeliveryModule == null ) {
+    	  this.secureDeliveryModule = SecureDeliveryServiceAPI.NONE_ID;
+      }
+      else if ( ! secureDeliveryService.isSecureDeliveryModuleAvailable( secureDeliveryModule ) ) {
+    	  log.warn( "Assessment " + this.assessmentId + " requires secure delivery module " + this.secureDeliveryModule + 
+    	  			" but the module is no longer available. Secure delivery module will revert to NONE" );
+    	  secureDeliveryModule = SecureDeliveryServiceAPI.NONE_ID;
+      }
     }
     catch (RuntimeException ex) {
     	ex.printStackTrace();
@@ -916,6 +940,38 @@ public class AssessmentSettingsBean
        returnValue = Boolean.TRUE;
     return returnValue;
   }
+  
+  public String getSecureDeliveryModule() {
+	return secureDeliveryModule;
+  }
+	    
+  public void setSecureDeliveryModule(String secureDeliveryModule) {
+	this.secureDeliveryModule = secureDeliveryModule;
+  }
+
+  public String getSecureDeliveryModuleExitPassword() {
+	return secureDeliveryModuleExitPassword;
+  }
+
+  public void setSecureDeliveryModuleExitPassword(String secureDeliveryModuleExitPassword) {
+	this.secureDeliveryModuleExitPassword = secureDeliveryModuleExitPassword;
+  }
+  
+  public void setSecureDeliveryModuleSelections(SelectItem[] secureDeliveryModuleSelections) {
+	this.secureDeliveryModuleSelections = secureDeliveryModuleSelections;
+  }
+  
+  public SelectItem[] getSecureDeliveryModuleSelections() {
+	return secureDeliveryModuleSelections;
+  }
+
+  public boolean isSecureDeliveryAvailable() {
+	return secureDeliveryAvailable;
+  }
+
+  public void setSecureDeliveryAvailable(boolean secureDeliveryAvailable) {
+    this.secureDeliveryAvailable = secureDeliveryAvailable;
+  }
 
   // newMap contains both the regular metadata such as "objectives" as well as
   // "can edit" element. However, we only want to have "can edit" elements inside
@@ -933,7 +989,9 @@ public class AssessmentSettingsBean
 				  ("ASSESSMENT_OBJECTIVES".equals(key)) ||
 				  ("ASSESSMENT_RUBRICS".equals(key)) ||
 				  ("ASSESSMENT_BGCOLOR".equals(key)) ||
-				  ("ASSESSMENT_BGIMAGE".equals(key)));
+				  ("ASSESSMENT_BGIMAGE".equals(key)) || 
+				  (SecureDeliveryServiceAPI.MODULE_KEY.equals(key)) ||
+				  (SecureDeliveryServiceAPI.EXITPWD_KEY.equals(key)));
 		  else{
 			  h.put(key, o);
 		  }
@@ -1699,5 +1757,21 @@ public class AssessmentSettingsBean
   
   public String getBlockDivs() {
 	  return blockDivs;
+  }
+  
+  public SelectItem[] getSecureDeliverModuleSelections() {
+	  
+	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
+	  Set<RegisteredSecureDeliveryModuleIfc> modules = secureDeliveryService.getSecureDeliveryModules( new ResourceLoader().getLocale() );
+ 
+	  SelectItem[] selections = new SelectItem[ modules.size() ];
+	  int index = 0;
+	  for ( RegisteredSecureDeliveryModuleIfc module : modules ) {
+		  
+		  selections[index] = new SelectItem( module.getId(), module.getName() );
+		  ++index;
+	  }
+	  
+	  return selections;
   }
 }

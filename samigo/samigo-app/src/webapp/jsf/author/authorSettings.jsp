@@ -488,6 +488,20 @@ function setBlockDivs()
         <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText id="password" size="20" value="#{assessmentSettings.password}"/>
       </h:panelGrid>
+      <h:outputText value="#{assessmentSettingsMessages.require_secure_delivery}"
+		rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}"/>
+	  <h:panelGrid border="0" columns="1"  columnClasses="longtext"
+		rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
+	  	<h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();">
+			<f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
+	  	</h:selectOneRadio>
+	  	<h:panelGrid border="0" columns="2"  columnClasses="longtext"
+			rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">	
+			<h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
+			<h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}"
+				disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>      	
+	  	</h:panelGrid>
+	  </h:panelGrid>
     </h:panelGrid>
  <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>

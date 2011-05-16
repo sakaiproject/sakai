@@ -33,6 +33,9 @@
     <property name="sectionServiceAPI" >
       <ref bean="SectionServiceAPI"/>
     </property>
+    <property name="secureDeliveryServiceAPI" >
+      <ref bean="SecureDeliveryServiceAPI"/>
+    </property>
     <property name="typeServiceAPI" >
       <ref bean="TypeServiceAPI"/>
     </property>
@@ -68,7 +71,10 @@
   <bean id="QuestionPoolServiceAPI"
     class="org.sakaiproject.tool.assessment.shared.impl.questionpool.QuestionPoolServiceImpl">
   </bean>
-
+  <bean id="SecureDeliveryServiceAPI"
+    class="org.sakaiproject.tool.assessment.shared.impl.assessment.SecureDeliveryServiceImpl"
+    init-method="init">
+  </bean>
 </beans>
 
 

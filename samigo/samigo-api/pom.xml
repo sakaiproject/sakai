@@ -28,6 +28,10 @@
 			<artifactId>entitybroker-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
 	</dependencies>
     
 	<build>

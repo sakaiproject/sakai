@@ -191,6 +191,8 @@ String.prototype.endsWith = function(txt)
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
+<!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
+<h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
 
 <!-- HEADING -->
 <f:subview id="assessmentDeliveryHeading">

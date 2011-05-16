@@ -42,6 +42,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +53,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
@@ -68,6 +70,9 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
@@ -83,6 +88,7 @@ import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 
@@ -244,6 +250,16 @@ public class DeliveryBean
   private boolean fromTableOfContents;
   private float fileUploadSizeMax;
   private boolean studentRichText;
+  
+  // If set to true, delivery of the assessment is blocked.
+  // This attribute is set to true if a secure delivery module is selected for the assessment and the security
+  // check fails. If a module is selected, but is no longer installed or is disabled then the check is bypassed
+  // and this attribute remains false.
+  private boolean blockDelivery = false; 
+  
+  // HTML fragment injected by the secure delivery module selected. Nothing is injected if no module has
+  // been selected or if the selected module is no longer installed or disabled.
+  private String secureDeliveryHTMLFragment; 
   
   /**
    * Creates a new DeliveryBean object.
@@ -1384,6 +1400,23 @@ public class DeliveryBean
 
 	  // finish within time limit, clean timedAssessment from queue
 	  removeTimedAssessmentFromQueue();
+	  
+	  // finsih secure delivery
+	  setSecureDeliveryHTMLFragment( "" );
+	  setBlockDelivery( false );
+	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+	  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+
+		  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+		  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+			  
+			  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+			  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_FINISH, publishedAssessment, request );
+			  	setSecureDeliveryHTMLFragment( 
+			  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_FINISH, status, new ResourceLoader().getLocale() ) );    		 
+		  }
+	  }
+	  
 	  return returnValue;
   }
   
@@ -1738,6 +1771,27 @@ public class DeliveryBean
       }
       else{ // password error
       }
+      
+      // #2.5. secure delivery START phase
+      setSecureDeliveryHTMLFragment( "" );
+      setBlockDelivery( false );
+      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+      if ( ("takeAssessment".equals(results) || "".equals(results)) && secureDelivery.isSecureDeliveryAvaliable() ) {
+   
+    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+    	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+   		  
+    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+    		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+    		  setSecureDeliveryHTMLFragment( 
+    		  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale() ) );
+    		  setBlockDelivery( PhaseStatus.FAILURE == status );
+    		  if ( PhaseStatus.SUCCESS == status )
+    			  results = "takeAssessment";
+    		  else
+    			  results = "secureDeliveryError";
+    	  }    	  
+      } 
 
       // #3. results="" => no security checking required
       if ("".equals(results))
@@ -3232,6 +3286,17 @@ public class DeliveryBean
 		  return "";
 	  }
 
-
+	  public String getSecureDeliveryHTMLFragment() {
+		  return this.secureDeliveryHTMLFragment;
+	  }
+	  public void setSecureDeliveryHTMLFragment(String secureDeliveryHTMLFragment) {
+		  this.secureDeliveryHTMLFragment = secureDeliveryHTMLFragment;
+	  }
+	  public boolean isBlockDelivery() {
+		  return blockDelivery;
+	  }
+	  public void setBlockDelivery(boolean blockDelivery) {
+		  this.blockDelivery = blockDelivery;
+	  }
 }
 

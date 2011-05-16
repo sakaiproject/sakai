@@ -21,10 +21,12 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -35,6 +37,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramBarBean;
@@ -293,6 +298,26 @@ public class HistogramListener
 				   }
 				   else {
 						   delivery.setOutcome("histogramScores");
+						   delivery.setSecureDeliveryHTMLFragment( "" );
+						   delivery.setBlockDelivery( false );
+						   SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+						   if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+				            	  				            	 
+							   String moduleId = pub.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+							   if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+				              		  
+								   HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+								   PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_REVIEW, pub, request );
+								   delivery.setSecureDeliveryHTMLFragment( 
+										   secureDelivery.getHTMLFragment(moduleId, pub, request, Phase.ASSESSMENT_REVIEW, status, new ResourceLoader().getLocale() ) );             		 
+								   if ( PhaseStatus.FAILURE == status )  {           			 
+									   delivery.setOutcome( "secureDeliveryError" );
+									   delivery.setActionString(actionString);
+									   delivery.setBlockDelivery( true );
+									   return true;
+								   }
+							   }                 	  
+						   }
 				   }
 			}
 

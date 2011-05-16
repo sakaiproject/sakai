@@ -31,6 +31,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceA
 import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
@@ -96,4 +97,5 @@ public abstract class SamigoApiFactory
 
   public abstract QuestionPoolServiceAPI getQuestionPoolServiceAPI();
 
+  public abstract SecureDeliveryServiceAPI getSecureDeliveryServiceAPI();
 }

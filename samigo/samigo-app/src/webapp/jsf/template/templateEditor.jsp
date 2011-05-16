@@ -194,6 +194,10 @@
         value="#{template.valueMap.passwordRequired_isInstructorEditable}"/>
       <h:outputLabel for="secondary_id_pw" value="#{templateMessages.secondary_id_pw}"/>
 
+      <h:selectBooleanCheckbox id="locked_browser"
+        value="#{template.valueMap.locked_browser_isInstructorEditable}"/>
+      <h:outputLabel for="locked_browser" value="#{templateMessages.locked_browser}"/>
+
     </h:panelGrid>
      </div></div>
   </samigo:hideDivision>

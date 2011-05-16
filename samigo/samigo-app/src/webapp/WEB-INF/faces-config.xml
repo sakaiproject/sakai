@@ -719,6 +719,10 @@
       <to-view-id>/jsf/delivery/ipAccessError.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+     <from-outcome>secureDeliveryError</from-outcome>
+	 <to-view-id>/jsf/delivery/secureDeliveryError.jsp</to-view-id>
+	</navigation-case>
+    <navigation-case>
       <from-outcome>passwordAccessError</from-outcome>
       <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
     </navigation-case>

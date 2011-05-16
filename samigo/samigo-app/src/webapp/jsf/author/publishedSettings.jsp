@@ -400,6 +400,20 @@ function uncheckOther(field){
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText size="20" value="#{publishedSettings.password}"/>
       </h:panelGrid>
+	  <h:outputText value="#{assessmentSettingsMessages.require_secure_delivery}"
+		rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}"/>
+	  <h:panelGrid border="0" columns="1"  columnClasses="longtext"
+		rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">
+	    <h:selectOneRadio id="secureDeliveryModule" value="#{publishedSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();">
+			<f:selectItems value="#{publishedSettings.secureDeliveryModuleSelections}" />
+		</h:selectOneRadio>
+		<h:panelGrid border="0" columns="2"  columnClasses="longtext"
+		   rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">	
+		   <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
+		   <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{publishedSettings.secureDeliveryModuleExitPassword}"
+				disabled="#{publishedSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14" />      	
+		</h:panelGrid>
+	  </h:panelGrid>
     </h:panelGrid>
 <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>

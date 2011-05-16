@@ -37,6 +37,10 @@ $Id$
 -->
 <!-- content... -->
  <div class="portletBody">
+ 
+<!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
+<h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
+ 
 <h:form id="histogram">
 
   <h:inputHidden id="publishedId" value="#{histogramScores.publishedId}" />

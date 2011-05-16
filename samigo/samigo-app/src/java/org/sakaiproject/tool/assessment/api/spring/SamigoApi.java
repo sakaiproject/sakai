@@ -27,6 +27,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceA
 import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
@@ -57,6 +58,7 @@ public class SamigoApi extends SamigoApiFactory
   private QTIServiceAPI qtiServiceAPI;
   private QuestionPoolServiceAPI questionPoolServiceAPI;
   private SectionServiceAPI sectionServiceAPI;
+  private SecureDeliveryServiceAPI secureDeliveryServiceAPI;
   private TypeServiceAPI typeServiceAPI;
 
   public void setAssessmentServiceAPI(AssessmentServiceAPI assessmentServiceAPI)
@@ -104,6 +106,10 @@ public class SamigoApi extends SamigoApiFactory
     log.debug("Setting Samigo (Test and Quizzes) API, injecting: sectionServiceAPI="+ sectionServiceAPI);
     this.sectionServiceAPI = sectionServiceAPI;
   }
+  public void setSecureDeliveryServiceAPI(SecureDeliveryServiceAPI secureDeliveryServiceAPI) {
+	log.debug("Setting Samigo (Test and Quizzes) API, injecting: secureDeliveryServiceAPI="+ secureDeliveryServiceAPI);
+	this.secureDeliveryServiceAPI = secureDeliveryServiceAPI;
+  }
   public void setTypeServiceAPI(TypeServiceAPI typeServiceAPI)
   {
     log.debug("Setting Samigo (Test and Quizzes) API, injecting: typeServiceAPI="+ typeServiceAPI);
@@ -140,6 +146,10 @@ public class SamigoApi extends SamigoApiFactory
   public SectionServiceAPI getSectionServiceAPI()
   {
     return sectionServiceAPI;
+  }
+  public SecureDeliveryServiceAPI getSecureDeliveryServiceAPI()
+  {
+    return secureDeliveryServiceAPI;
   }
   public TypeServiceAPI getTypeServiceAPI()
   {

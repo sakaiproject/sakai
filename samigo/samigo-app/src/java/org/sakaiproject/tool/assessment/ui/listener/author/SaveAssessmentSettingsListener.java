@@ -35,11 +35,13 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -212,6 +214,31 @@ public class SaveAssessmentSettingsListener
         	error=true;
         }
     }
+    
+    // check secure delivery exit password
+    SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    if ( secureDeliveryService.isSecureDeliveryAvaliable() ) {
+    	
+    	String moduleId = assessmentSettings.getSecureDeliveryModule();
+    	if ( ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+		
+    		String exitPassword = assessmentSettings.getSecureDeliveryModuleExitPassword(); 
+    		if ( exitPassword != null && exitPassword.length() > 0 ) {
+   				
+    			for ( int i = 0; i < exitPassword.length(); i++ ) {
+					
+    				char c = exitPassword.charAt(i);
+    				if ( ! (( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= '0' && c <= '9' )) ) {
+    					error = true;
+    					String  submission_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","exit_password_error");
+    					context.addMessage(null,new FacesMessage(submission_err));
+    					break;
+    				}
+    			}					
+    		}
+    	}			
+    }
+
 
     if (error){
       String blockDivs = ContextUtil.lookupParam("assessmentSettingsAction:blockDivs");
