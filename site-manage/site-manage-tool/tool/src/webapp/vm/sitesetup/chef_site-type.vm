@@ -158,6 +158,24 @@
 					<label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
 				</div>
 			</div> ## end of div#templateSettings
+
+
+<STYLE type="text/css">
+<!-- 
+table.templates p{margin:0 !important;  padding:0}
+ -->
+</STYLE>
+			<p>
+			<div id="siteTypeList2" style="background-color:#edd">
+				$tlang.getString("sitetype.template.notice")
+			<div class="indnt2">
+			<table class="templates">
+			#foreach($templateSite in $templateSites)
+			<tr><td>$templateSite.title</td><td style="padding-left:0.5em">$templateSite.description</td></tr>
+			#end				
+			</table>
+			</div>
+			</div>
 		#end
 		## end templates enabled
 		<input type="hidden" name="back" value="$!backIndex" />

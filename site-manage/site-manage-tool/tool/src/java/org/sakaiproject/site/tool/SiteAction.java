@@ -12082,7 +12082,8 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.title = StringUtils.trimToNull(params.getString("siteTitleField"));
 			siteInfo.term = StringUtils.trimToNull(params.getString("selectTermTemplate"));
 			siteInfo.iconUrl = templateSite.getIconUrl();
-			siteInfo.description = templateSite.getDescription();
+			// description is site-specific. Shouldn't come from template
+			// siteInfo.description = templateSite.getDescription();
 			siteInfo.short_description = templateSite.getShortDescription();
 			siteInfo.joinable = templateSite.isJoinable();
 			siteInfo.joinerRole = templateSite.getJoinerRole();

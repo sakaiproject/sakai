@@ -160,6 +160,7 @@ sakai.siteTypeSetup = function(){
         $('#submitFromTemplate').show();
         $('#submitBuildOwn').hide();
         $('#submitBuildOwn').attr('disabled', 'disabled');
+	$('#copyContent').attr('checked','checked');
     });
     
     $('#buildOwn').click(function(e){
