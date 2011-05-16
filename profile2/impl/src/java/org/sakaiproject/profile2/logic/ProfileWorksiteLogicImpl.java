@@ -54,6 +54,8 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	
 	// the id of the worksite home page
 	private static final String TOOL_ID_HOME = "home";
+	// the id of synoptic tools
+	private static final String TOOL_ID_SYNOPTIC = "sakai.synoptic.";
 	// the tool to place on the home page
 	private static final String HOME_TOOL = "sakai.iframe.site";
 	// the tool used to modify the worksite after creation
@@ -125,27 +127,37 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 					sakaiProxy.getUserEmail(ownerId),
 					siteTitle}));
 						
+			// we will always have a home page
+			SitePage homePage = site.addPage();
+			homePage.getPropertiesEdit().addProperty(
+					SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
+			
+			Tool homeTool = toolManager.getTool(HOME_TOOL);
+			
+			ToolConfiguration homeToolConfig = homePage.addTool();
+			homeToolConfig.setTool(TOOL_ID_HOME, homeTool);
+			homeToolConfig.setTitle(homeTool.getTitle());
+			
+			// for synoptic tools
+			homePage.setLayout(SitePage.LAYOUT_DOUBLE_COL);
+			
 			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
+			
+			int synopticToolIndex = 0;
 			for (String toolId : toolIds) {
-				
-				SitePage toolPage = site.addPage();
-				
-				// Home is a special case, with no tool registration file
-				if (toolId.equals(TOOL_ID_HOME)) {
-					toolPage.getPropertiesEdit().addProperty(
-							SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
+								
+				if (toolId.contains(TOOL_ID_SYNOPTIC)) {
 					
-					Tool tool = toolManager.getTool(HOME_TOOL);
+					ToolConfiguration toolConfig = homePage.addTool(toolId);
+					toolConfig.setLayoutHints(synopticToolIndex + ",1");
 					
-					ToolConfiguration homeTool = toolPage.addTool();
-					homeTool.setTool(toolId, tool);
-					homeTool.setTitle(tool.getTitle());
+					synopticToolIndex++;
+					
 				} else {
+					SitePage toolPage = site.addPage();
 					toolPage.addTool(toolId);
 				}
 			}
-			
-			// TODO necessary to programmatically put Home page at top?
 			
 			site.setPublished(true);
 			siteService.save(site);
