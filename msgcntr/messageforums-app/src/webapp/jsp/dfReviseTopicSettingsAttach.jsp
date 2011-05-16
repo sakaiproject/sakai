@@ -374,6 +374,32 @@
 					container: ".charsRemaining",
 					format: charRemFormat
 				 });
+				
+				var hideMessages = new Object();
+				hideMessages ['topic_locked'] = '<h:outputText value= " for: #{msgs.cdfm_lock_topic}" />';
+				hideMessages ['moderated'] = '<h:outputText value=" for: #{msgs.cdfm_moderate_topic}" />';  
+				hideMessages ['postFirst'] = '<h:outputText value=" for: #{msgs.cdfm_postFirst}" />';  
+				hideMessages ['autoMarkThreadsRead'] = '<h:outputText value=" for: #{msgs.cdfm_auto_mark_threads_read}" />';  
+				hideMessages ['revisePostings'] = '<h:outputText value=" for: #{msgs.perm_revise_postings}" />';         
+				hideMessages ['deletePostings'] = '<h:outputText value=" for: #{msgs.perm_delete_postings}" />'; 
+				                              
+				var input = $("input:radio").each(function (){
+				  var idrand  = "id" + Math.random();
+				  $(this).attr('id',idrand);
+				  var name = $(this).attr('name');
+				  var splitedName = name.split(":");
+				  var lastParamName = splitedName[splitedName.length-1];
+				                                                               
+				  var inputParent = $(this).parent().parent();
+				  $(inputParent).prepend(this);
+				
+				  var label = $(inputParent).find("label:first");
+			      $(label).attr('for',idrand);
+				  if (hideMessages[lastParamName]!= null){
+				           $(label).append ("<span style='display:none'>"+hideMessages[lastParamName]+"</span>");
+				   }                                  
+			    });
+				
 			 });				 
         </script>
 		
