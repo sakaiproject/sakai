@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.util.Xml;
 
@@ -151,7 +151,7 @@ public class JamesServlet extends HttpServlet
 
 	protected static String getLogDirectory()
 	{
-		String logDir = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.logdir"));
+		String logDir = StringUtils.trimToNull(ServerConfigurationService.getString("smtp.logdir"));
 
 		if(logDir == null) {
 			M_log.info("init(): smtp.logdir not set, defaulting to {sakai.home}/logs/");
@@ -193,9 +193,9 @@ public class JamesServlet extends HttpServlet
 		// get config info
 		String logDir = JamesServlet.getLogDirectory();
 		String host = ServerConfigurationService.getServerName();
-		String dns1 = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.dns.1"));
-		String dns2 = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.dns.2"));
-		String smtpPort = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.port"));
+		String dns1 = StringUtils.trimToNull(ServerConfigurationService.getString("smtp.dns.1"));
+		String dns2 = StringUtils.trimToNull(ServerConfigurationService.getString("smtp.dns.2"));
+		String smtpPort = StringUtils.trimToNull(ServerConfigurationService.getString("smtp.port"));
 		boolean enabled = ServerConfigurationService.getBoolean("smtp.enabled", false);
 
 		// check for missing values

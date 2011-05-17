@@ -65,6 +65,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Validator;
 
 /**
@@ -247,7 +248,7 @@ public class MailboxAction extends PagedResourceActionII
 			state.setAttribute(STATE_MODE, "list");
 
 			// read the channel from configuration, or, if not specified, use the default for the request
-			String channel = StringUtil.trimToNull(config.getInitParameter(PARAM_CHANNEL));
+			String channel = StringUtils.trimToNull(config.getInitParameter(PARAM_CHANNEL));
 			if (channel == null)
 			{
 				channel = MailArchiveService.channelReference(ToolManager.getCurrentPlacement().getContext(),
@@ -872,7 +873,7 @@ public class MailboxAction extends PagedResourceActionII
 		state.setAttribute(STATE_OPTION_REPLY, replyToList);
 		String sendToList = data.getParameters().getString(FORM_SENDTO);
 		state.setAttribute(STATE_OPTION_SENDTO, sendToList);
-		String alias = StringUtil.trimToNull(data.getParameters().getString(FORM_ALIAS));
+		String alias = StringUtils.trimToNull(data.getParameters().getString(FORM_ALIAS));
 		state.setAttribute(STATE_OPTION_ALIAS, alias);
 
 		MailArchiveChannel channel = null;
@@ -1132,9 +1133,9 @@ public class MailboxAction extends PagedResourceActionII
 			if ( searchStr != null ) 
 			{
 				MailArchiveMessage msg = (MailArchiveMessage) o;
-				if (StringUtil.containsIgnoreCase(msg.getMailArchiveHeader().getSubject(), searchStr)
-					|| StringUtil.containsIgnoreCase(msg.getMailArchiveHeader().getFromAddress(), searchStr)
-					|| StringUtil.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), searchStr))
+				if (StringUtils.containsIgnoreCase(msg.getMailArchiveHeader().getSubject(), searchStr)
+					|| StringUtils.containsIgnoreCase(msg.getMailArchiveHeader().getFromAddress(), searchStr)
+					|| StringUtils.containsIgnoreCase(FormattedText.convertFormattedTextToPlaintext(msg.getBody()), searchStr))
 
 				{
 					return false;

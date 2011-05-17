@@ -38,7 +38,7 @@ import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.StorageUser;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 import org.w3c.dom.Document;
@@ -257,9 +257,9 @@ public class DbMailArchiveService extends BaseMailArchiveService
 				return 0;
 			}
 
-			if (StringUtil.containsIgnoreCase(subject, search)
-					|| StringUtil.containsIgnoreCase(from, search)
-					|| StringUtil.containsIgnoreCase(body, search)) 
+			if (StringUtils.containsIgnoreCase(subject, search)
+					|| StringUtils.containsIgnoreCase(from, search)
+					|| StringUtils.containsIgnoreCase(body, search)) 
 			{
 				return 1;
 			}

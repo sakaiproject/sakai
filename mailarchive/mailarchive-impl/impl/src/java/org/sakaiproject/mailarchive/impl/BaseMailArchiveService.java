@@ -63,7 +63,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.Web;
 import org.w3c.dom.Document;
@@ -452,7 +452,7 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 	{
 		if (reference.startsWith(REFERENCE_ROOT))
 		{
-			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+			String[] parts = StringUtils.split(reference, Entity.SEPARATOR);
 
 			String id = null;
 			String subType = null;
