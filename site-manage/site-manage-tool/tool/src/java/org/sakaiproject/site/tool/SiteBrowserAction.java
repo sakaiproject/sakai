@@ -64,8 +64,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -132,7 +132,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	protected List readResourcesPage(SessionState state, int first, int last)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		// See what sort of search.
 		org.sakaiproject.site.api.SiteService.SelectionType type =
@@ -152,7 +152,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	 */
 	protected int sizeResources(SessionState state)
 	{
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		org.sakaiproject.site.api.SiteService.SelectionType type =
 			(org.sakaiproject.site.api.SiteService.SelectionType)state.getAttribute(SiteHelper.SITE_PICKER_PERMISSION);
@@ -181,7 +181,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			state.setAttribute(SEARCH_TERM_PROP, termSearchProperty);
 		}
 
-		String noSearchSiteType = StringUtil.trimToNull(ServerConfigurationService.getString("sitesearch.noshow.sitetype"));
+		String noSearchSiteType = StringUtils.trimToNull(ServerConfigurationService.getString("sitesearch.noshow.sitetype"));
 		if (noSearchSiteType != null)
 		{
 			state.setAttribute(NO_SHOW_SEARCH_TYPE, noSearchSiteType);
@@ -496,7 +496,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	public void doNavigate_to_site(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		String siteId = StringUtil.trimToNull(data.getParameters().getString("newSiteId"));
+		String siteId = StringUtils.trimToNull(data.getParameters().getString("newSiteId"));
 		if (siteId != null)
 		{
 			state.setAttribute("siteId", siteId);
@@ -586,7 +586,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		state.removeAttribute(STATE_TERM_SELECTION);
 		
 		// read the search form field into the state object
-		String siteType = StringUtil.trimToNull(data.getParameters().getString("siteType"));
+		String siteType = StringUtils.trimToNull(data.getParameters().getString("siteType"));
 		if (siteType != null)
 		{
 			if (siteType.equalsIgnoreCase("Any"))
@@ -601,7 +601,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 					if (siteType.equals(termSearchSiteType))
 					{
 						// search parameter - term; term.eid from UI
-						String term = StringUtil.trimToNull(data.getParameters().getString("selectTerm"));
+						String term = StringUtils.trimToNull(data.getParameters().getString("selectTerm"));
 						if (term != null)
 						{
 							state.setAttribute(STATE_TERM_SELECTION, term);

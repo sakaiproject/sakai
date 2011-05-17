@@ -21,22 +21,21 @@
 
 package org.sakaiproject.site.tool;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import java.util.List;
-import java.util.Collection;
-import java.util.Iterator;
-
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -44,42 +43,28 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
 import org.apache.fop.messaging.MessageHandler;
 
-import org.sakaiproject.util.BasicAuth;
-
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.site.util.SiteConstants;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-
-import org.sakaiproject.site.util.SiteParticipantHelper;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.util.Participant;
+import org.sakaiproject.site.util.SiteParticipantHelper;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.BasicAuth;
+import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * this is the servlet to return the status of site copy thread based on the SessionState variable 
@@ -334,28 +319,28 @@ public class SiteInfoToolServlet extends HttpServlet
 				{
 					participantName +="( " +  participant.getDisplayId() + " )";
 				}
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_NAME_NODE_NAME, StringUtil.trimToZero(participantName));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_NAME_NODE_NAME, StringUtils.trimToEmpty(participantName));
 
 				// sections
 				Element sectionsNode = doc.createElement(PARTICIPANT_SECTIONS_NODE_NAME);
 				for ( Iterator iSections = participant.getSectionEidList().iterator(); iSections.hasNext();)
 				{
 					String section = (String) iSections.next();
-					writeStringNodeToDom(doc, sectionsNode, PARTICIPANT_SECTION_NODE_NAME, StringUtil.trimToZero(section));
+					writeStringNodeToDom(doc, sectionsNode, PARTICIPANT_SECTION_NODE_NAME, StringUtils.trimToEmpty(section));
 				}
 				participantNode.appendChild(sectionsNode);
 
 				// registration id
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ID_NODE_NAME, StringUtil.trimToZero(participant.getRegId()));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ID_NODE_NAME, StringUtils.trimToEmpty(participant.getRegId()));
 				
 				// credit
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, StringUtil.trimToZero(participant.getCredits()));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, StringUtils.trimToEmpty(participant.getCredits()));
 
 				// role id
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ROLE_NODE_NAME, StringUtil.trimToZero(participant.getRole()));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ROLE_NODE_NAME, StringUtils.trimToEmpty(participant.getRole()));
 				
 				// status
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_STATUS_NODE_NAME, StringUtil.trimToZero(participant.active?rb.getString("sitegen.siteinfolist.active"):rb.getString("sitegen.siteinfolist.inactive")));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_STATUS_NODE_NAME, StringUtils.trimToEmpty(participant.active?rb.getString("sitegen.siteinfolist.active"):rb.getString("sitegen.siteinfolist.inactive")));
 			
 				// add participant node to participants node
 				root.appendChild(participantNode);

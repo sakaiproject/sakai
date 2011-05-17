@@ -12,17 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
-
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
@@ -32,7 +24,10 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class SiteParticipantHelper {
 	/** Our log (commons). */

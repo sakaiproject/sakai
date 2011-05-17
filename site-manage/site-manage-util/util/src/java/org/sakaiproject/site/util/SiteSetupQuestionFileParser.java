@@ -40,13 +40,14 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.util.StringUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -121,7 +122,7 @@ public class SiteSetupQuestionFileParser
 	public static String getConfigFolderReference()
 	{
 		String configFolderRef = null;
-		if(StringUtil.trimToNull(m_adminSiteName) != null && StringUtil.trimToNull(m_configFolder) != null)
+		if(StringUtils.trimToNull(m_adminSiteName) != null && StringUtils.trimToNull(m_configFolder) != null)
 		{
 			configFolderRef = "/content/group/" + m_adminSiteName + "/" + m_configFolder + "/";
 		}
@@ -135,7 +136,7 @@ public class SiteSetupQuestionFileParser
 	public static String getConfigBackupFolderReference()
 	{
 		String configBackupFolderRef = null;
-		if(StringUtil.trimToNull(m_adminSiteName) != null && StringUtil.trimToNull(m_configBackupFolder) != null)
+		if(StringUtils.trimToNull(m_adminSiteName) != null && StringUtils.trimToNull(m_configBackupFolder) != null)
 		{
 			configBackupFolderRef = "/content/group/" + m_adminSiteName + "/" + m_configBackupFolder + "/";
 		}
@@ -175,7 +176,7 @@ public class SiteSetupQuestionFileParser
 	    String configFolderRef  = getConfigFolderReference();
 
 
-     	if (StringUtil.trimToNull(configFolderRef) != null && StringUtil.trimToNull(resourceName)!=null)
+     	if (StringUtils.trimToNull(configFolderRef) != null && StringUtils.trimToNull(resourceName)!=null)
     	{
      		String referenceName = configFolderRef + resourceName;
 

@@ -6,13 +6,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -37,7 +38,6 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.util.StringUtil;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -751,8 +751,8 @@ public class SiteAddParticipantHandler {
 		String nonOfficialAccounts = "";
 
 		// check that there is something with which to work
-		officialAccounts = StringUtil.trimToNull(officialAccountParticipant);
-		nonOfficialAccounts = StringUtil.trimToNull(nonOfficialAccountParticipant);
+		officialAccounts = StringUtils.trimToNull(officialAccountParticipant);
+		nonOfficialAccounts = StringUtils.trimToNull(nonOfficialAccountParticipant);
 		String updatedOfficialAccountParticipant = "";
 		String updatedNonOfficialAccountParticipant = "";
 
@@ -770,7 +770,7 @@ public class SiteAddParticipantHandler {
 
 			for (i = 0; i < officialAccountArray.length; i++) {
 				String currentOfficialAccount = officialAccountArray[i];
-				String officialAccount = StringUtil.trimToNull(currentOfficialAccount.replaceAll("[\t\r\n]", ""));
+				String officialAccount = StringUtils.trimToNull(currentOfficialAccount.replaceAll("[\t\r\n]", ""));
 				// if there is some text, try to use it
 				if (officialAccount != null) {
 					// automatically add nonOfficialAccount account
@@ -887,7 +887,7 @@ public class SiteAddParticipantHandler {
 			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
 			for (i = 0; i < nonOfficialAccountArray.length; i++) {
 				String currentNonOfficialAccount = nonOfficialAccountArray[i];
-				String nonOfficialAccountAll = StringUtil.trimToNull(currentNonOfficialAccount.replaceAll("[\t\r\n]", ""));
+				String nonOfficialAccountAll = StringUtils.trimToNull(currentNonOfficialAccount.replaceAll("[\t\r\n]", ""));
 				// the format of per user entry is: email address,first name,last name
 				// comma separated
 				String[] nonOfficialAccountParts  = nonOfficialAccountAll.split(",");

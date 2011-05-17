@@ -1,7 +1,8 @@
 package org.sakaiproject.site.util;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 public class SiteTextEditUtil {
@@ -15,7 +16,7 @@ public class SiteTextEditUtil {
 	 */
 	public String doPlainTextAndLimit(String formattedText, int maxNumOfChars, String ellipse)
 	{
-		formattedText = StringUtil.trimToNull(formattedText);
+		formattedText = StringUtils.trimToNull(formattedText);
 		if(formattedText == null || formattedText.equalsIgnoreCase("<br/>") || formattedText.equalsIgnoreCase("<br>")||
 				formattedText.equals("&nbsp;") || FormattedText.escapeHtml(formattedText,false).equals("&lt;br type=&quot;_moz&quot; /&gt;")){
 			
