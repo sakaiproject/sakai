@@ -112,6 +112,7 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Validator;
 
 /**
