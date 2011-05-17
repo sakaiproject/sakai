@@ -4928,7 +4928,7 @@ public class SiteAction extends PagedResourceActionII {
 				try {
 				    site = SiteService.getSite(site.getId());
 				} catch (Exception ee) {
-				    M_log.error(this + "doFinish: unable to reload site after copying tools");
+				    M_log.error(this + "doFinish: unable to reload site " + site.getId() + " after copying tools");
 				}
 			}
 			else
@@ -4941,7 +4941,7 @@ public class SiteAction extends PagedResourceActionII {
 					try {
 					    site = SiteService.getSite(site.getId());
 					} catch (Exception ee) {
-					    M_log.error(this + "doFinish: unable to reload site after copying tools");
+					    M_log.error(this + "doFinish: unable to reload site " + site.getId() + " after importing tools");
 					}
 				}
 				// copy members
@@ -4977,10 +4977,36 @@ public class SiteAction extends PagedResourceActionII {
 						AuthzGroup newGroup = authzGroupService.getAuthzGroup(site.getReference());
 						newGroup.setProviderGroupId(null);
 						authzGroupService.save(newGroup);
+						
+						// make sure current user stays in the site
+						newGroup = authzGroupService.getAuthzGroup(site.getReference());
+						String currentUserId = UserDirectoryService.getCurrentUser().getId();
+						if (newGroup.getUserRole(currentUserId) == null)
+						{
+							// add advisor
+							SecurityService.pushAdvisor(new SecurityAdvisor()
+							{
+								public SecurityAdvice isAllowed(String userId, String function, String reference)
+								{
+									return SecurityAdvice.ALLOWED;
+								}
+							});
+							newGroup.addMember(currentUserId, newGroup.getMaintainRole(), true, false);
+							authzGroupService.save(newGroup);
+							
+							// remove advisor
+							SecurityService.popAdvisor();
+						}
 					}
 					catch (Exception removeProviderException)
 					{
 						M_log.warn(this + "doFinish: remove provider id " + " new site =" + site.getReference() + " " + removeProviderException.getMessage());
+					}
+					
+					try {
+					    site = SiteService.getSite(site.getId());
+					} catch (Exception ee) {
+					    M_log.error(this + "doFinish: unable to reload site " + site.getId() + " after updating roster.");
 					}
 				}
 				// We don't want the new site to automatically be a template
