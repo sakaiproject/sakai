@@ -52,7 +52,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -169,7 +169,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			}
 
 			// read the channel from configuration, or, if not specified, use the default for the page
-			String channel = StringUtil.trimToNull(config.getInitParameter(PARAM_CHANNEL));
+			String channel = StringUtils.trimToNull(config.getInitParameter(PARAM_CHANNEL));
 			if (channel == null)
 			{
 				channel = service.channelReference(ToolManager.getCurrentPlacement().getContext(), SiteService.MAIN_CONTAINER);
