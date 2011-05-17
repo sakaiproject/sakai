@@ -98,7 +98,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -5446,7 +5446,7 @@ public abstract class BaseCitationService implements CitationService
 		if (reference.startsWith(CitationService.REFERENCE_ROOT))
 		{
 			citationEntity = true;
-			String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+			String[] parts = StringUtils.split(reference, Entity.SEPARATOR);
 
 			String subType = null;
 			String context = null;
