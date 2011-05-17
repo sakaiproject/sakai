@@ -27,8 +27,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -49,6 +47,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.ResourceLoader;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -57,7 +56,9 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class AliasesAction extends PagedResourceActionII
 {
-	/**
+    private static final long serialVersionUID = -5477742481219305334L;
+
+    /**
 	 * maximum chars allowed for alias setup 
 	 */
 	private static final int MAX_ALIAS_ID_LENGTH = 99;
@@ -80,6 +81,7 @@ public class AliasesAction extends PagedResourceActionII
 	 * 
 	 * @param peid
 	 *        The portlet id.
+	 * @deprecated this is unused
 	 */
 	private void updateObservationOfChannel(SessionState state, String peid)
 	{
