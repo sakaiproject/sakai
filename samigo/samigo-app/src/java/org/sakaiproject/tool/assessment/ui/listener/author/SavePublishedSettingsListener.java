@@ -621,10 +621,15 @@ implements ActionListener
 							AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
 							log.debug("ag.scores " + ag.getTotalAutoScore());
 							// Send the average score if average was selected for multiple submissions
-							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-								Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-								getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
-								ag.setFinalScore(averageScore);
+							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
+								// status = 5: there is no submission but grader update something in the score page
+								if(ag.getStatus() ==5) {
+									ag.setFinalScore(ag.getFinalScore());
+								} else {
+									Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+									getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+									ag.setFinalScore(averageScore);
+								}
 							}
 							gbsHelper.updateExternalAssessmentScore(ag, g);
 						}

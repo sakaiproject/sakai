@@ -1095,9 +1095,14 @@ public class GradingService
     		// Send the average score if average was selected for multiple submissions
     		Integer scoringType = pub.getEvaluationModel().getScoringType();
     		if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {
-    			Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-    			getAverageSubmittedAssessmentGrading(Long.valueOf(pub.getPublishedAssessmentId()), data.getAgentId());
-    			data.setFinalScore(averageScore);
+    			// status = 5: there is no submission but grader update something in the score page
+    			if(data.getStatus() ==5) {
+    				data.setFinalScore(data.getFinalScore());
+    			} else {
+    				Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+    				getAverageSubmittedAssessmentGrading(Long.valueOf(pub.getPublishedAssessmentId()), data.getAgentId());
+    				data.setFinalScore(averageScore);
+    			}
     		}
     		gbsHelper.updateExternalAssessmentScore(data, g);
     		retryCount = 0;
