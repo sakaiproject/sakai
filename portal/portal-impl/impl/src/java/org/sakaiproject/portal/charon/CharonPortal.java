@@ -68,7 +68,7 @@ import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -1944,17 +1944,17 @@ public class CharonPortal extends HttpServlet
 						+ "/login";
 
 				// let the login url be overridden by configuration
-				String overrideLoginUrl = StringUtil
+				String overrideLoginUrl = StringUtils
 						.trimToNull(ServerConfigurationService.getString("login.url"));
 				if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
 
 				// check for a login text override
-				message = StringUtil.trimToNull(ServerConfigurationService
+				message = StringUtils.trimToNull(ServerConfigurationService
 						.getString("login.text"));
 				if (message == null) message = rb.getString("log.login");
 
 				// check for an image for the login
-				image1 = StringUtil.trimToNull(ServerConfigurationService
+				image1 = StringUtils.trimToNull(ServerConfigurationService
 						.getString("login.icon"));
 
 				// check for a possible second, xlogin link
@@ -1962,9 +1962,9 @@ public class CharonPortal extends HttpServlet
 						ServerConfigurationService.getString("xlogin.enabled")))
 				{
 					// get the text and image as configured
-					message2 = StringUtil.trimToNull(ServerConfigurationService
+					message2 = StringUtils.trimToNull(ServerConfigurationService
 							.getString("xlogin.text"));
-					image2 = StringUtil.trimToNull(ServerConfigurationService
+					image2 = StringUtils.trimToNull(ServerConfigurationService
 							.getString("xlogin.icon"));
 					logInOutUrl2 = ServerConfigurationService.getString("portalPath")
 							+ "/xlogin";
@@ -1978,12 +1978,12 @@ public class CharonPortal extends HttpServlet
 			logInOutUrl += ServerConfigurationService.getString("portalPath") + "/logout";
 
 			// check for a logout text override
-			message = StringUtil.trimToNull(ServerConfigurationService
+			message = StringUtils.trimToNull(ServerConfigurationService
 					.getString("logout.text"));
 			if (message == null) message = rb.getString("sit_log");
 
 			// check for an image for the logout
-			image1 = StringUtil.trimToNull(ServerConfigurationService
+			image1 = StringUtils.trimToNull(ServerConfigurationService
 					.getString("logout.icon"));
 
 			// since we are doing logout, cancel top.login
@@ -2016,8 +2016,8 @@ public class CharonPortal extends HttpServlet
 		{
 			String eidWording = null;
 			String pwWording = null;
-			eidWording = StringUtil.trimToNull(rb.getString("log.userid"));
-			pwWording = StringUtil.trimToNull(rb.getString("log.pass"));
+			eidWording = StringUtils.trimToNull(rb.getString("log.userid"));
+			pwWording = StringUtils.trimToNull(rb.getString("log.pass"));
 
 			if (eidWording == null) eidWording = "eid";
 			if (pwWording == null) pwWording = "pw";
