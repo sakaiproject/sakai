@@ -156,6 +156,8 @@
 					<label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
 					<input type="checkbox" name="copyContent" id="copyContent" value="true"/>	
 					<label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
+					<input type="checkbox" name="publishSite" id="publishSite" value="true"/>	
+					<label for="publishSite">$tlang.getString("sitetype.publishSite")</label>
 				</div>
 			</div> ## end of div#templateSettings
 

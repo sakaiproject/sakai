@@ -400,6 +400,7 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_TEMPLATE_SITE = "site.templateSite";
 	private static final String STATE_TEMPLATE_SITE_COPY_USERS = "site.templateSiteCopyUsers";
 	private static final String STATE_TEMPLATE_SITE_COPY_CONTENT = "site.templateSiteCopyContent";
+	private static final String STATE_TEMPLATE_PUBLISH = "site.templateSitePublish";
 
 	/** The action for menu */
 	private static final String STATE_ACTION = "site.action";
@@ -5012,8 +5013,8 @@ public class SiteAction extends PagedResourceActionII {
 				// We don't want the new site to automatically be a template
 				site.getPropertiesEdit().removeProperty("template");
 				
-				// new site is set to be unpublished
-				site.setPublished(false);
+				// publish the site or not based on the template choice
+				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
 				
 				sendTemplateUseNotification(site, UserDirectoryService.getCurrentUser(), templateSite);	
 			}
@@ -12118,7 +12119,7 @@ public class SiteAction extends PagedResourceActionII {
 			// whether to copy users or site content over?
 			if (params.getBoolean("copyUsers")) state.setAttribute(STATE_TEMPLATE_SITE_COPY_USERS, Boolean.TRUE); else state.removeAttribute(STATE_TEMPLATE_SITE_COPY_USERS);
 			if (params.getBoolean("copyContent")) state.setAttribute(STATE_TEMPLATE_SITE_COPY_CONTENT, Boolean.TRUE); else state.removeAttribute(STATE_TEMPLATE_SITE_COPY_CONTENT);
-			
+			if (params.getBoolean("publishSite")) state.setAttribute(STATE_TEMPLATE_PUBLISH, Boolean.TRUE); else state.removeAttribute(STATE_TEMPLATE_PUBLISH);
 		}
 		catch(Exception e){
 			M_log.warn(this + "readCreateSiteTemplateInformation: problem of getting template site: " + templateSiteId);
