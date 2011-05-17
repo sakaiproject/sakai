@@ -154,8 +154,10 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 					synopticToolIndex++;
 					
 				} else {
-					SitePage toolPage = site.addPage();
-					toolPage.addTool(toolId);
+					if (null != toolManager.getTool(toolId)) {
+						SitePage toolPage = site.addPage();
+						toolPage.addTool(toolId);
+					}
 				}
 			}
 			
