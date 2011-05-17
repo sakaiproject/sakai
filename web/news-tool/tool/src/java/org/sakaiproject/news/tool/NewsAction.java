@@ -51,7 +51,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -108,7 +108,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 		{
 			state.setAttribute(STATE_CHANNEL_TITLE, config.getTitle());
 
-			String channelUrl = StringUtil.trimToNull(config.getInitParameter(PARAM_CHANNEL_URL));
+			String channelUrl = StringUtils.trimToNull(config.getInitParameter(PARAM_CHANNEL_URL));
 			if (channelUrl == null)
 			{
 				channelUrl = "";
@@ -288,7 +288,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 		String newChannelTitle = data.getParameters().getString(FORM_CHANNEL_TITLE);
 
-		if (StringUtil.trimToNull(newChannelTitle) == null) 
+		if (StringUtils.trimToNull(newChannelTitle) == null) 
 		{
 			//TODO: add more verbose message; requires language pack addition
 			addAlert(state, rb.getString("cus.franam"));
@@ -312,7 +312,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 			// if the news tool is the only tool on the page, then we can edit the page title
 			if (pEdit.getTools() != null && pEdit.getTools().size() == 1)
 			{
-				if (StringUtil.trimToNull(newPageTitle) == null)
+				if (StringUtils.trimToNull(newPageTitle) == null)
 				{
 					//TODO: add more verbose message; requires language pack addition
 					addAlert(state, rb.getString("cus.pagnam"));
