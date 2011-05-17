@@ -150,6 +150,10 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 					
 					ToolConfiguration toolConfig = homePage.addTool(toolId);
 					toolConfig.setLayoutHints(synopticToolIndex + ",1");
+
+					for (int i = 0; i < synopticToolIndex; i++) {
+						toolConfig.moveUp();
+					}
 					
 					synopticToolIndex++;
 					
