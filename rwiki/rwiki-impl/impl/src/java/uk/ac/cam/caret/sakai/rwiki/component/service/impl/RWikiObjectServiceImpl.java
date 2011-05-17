@@ -61,7 +61,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.hibernate.HibernateException;
 import org.w3c.dom.Document;
@@ -1334,7 +1334,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		if (!reference.startsWith(REFERENCE_ROOT)) return false;
-		String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
+		String[] parts = StringUtils.split(reference, Entity.SEPARATOR);
 		String context = null;
 		
 		// the first part will be null, then next the service, and the fourth will be the (worksite) context

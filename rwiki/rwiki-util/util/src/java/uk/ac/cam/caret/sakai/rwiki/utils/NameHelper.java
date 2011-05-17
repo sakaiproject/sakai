@@ -30,7 +30,7 @@ import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 
 public class NameHelper
@@ -320,7 +320,7 @@ public class NameHelper
 	{
 		String localAliasSpace = localSpace;
 		
-		String parts[] = StringUtil.split (localSpace, Entity.SEPARATOR);
+		String parts[] = StringUtils.split (localSpace, Entity.SEPARATOR);
 		
 		String siteId = parts[2];
 		// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use

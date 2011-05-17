@@ -74,6 +74,10 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
+    <dependency>
+    	<groupId>commons-lang</groupId>
+    	<artifactId>commons-lang</artifactId>
+    </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
 <!--org.sakaiprojectsakai-util${sakai.version}jar-->
   </dependencies>
