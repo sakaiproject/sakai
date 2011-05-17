@@ -162,6 +162,19 @@ $(document).ready(function() {
 				#end
 			</h3>
 		</div>	
+		#if($showDropboxGroupFilter)
+		<div>	
+		    <span class="instruction">
+                $tlang.getString("grp.view"): 
+            </span> 
+            <select name="dropboxGroupFilter_groupId" id="dropboxGroupFilter_groupId" onchange="javascript:document.getElementById('sakai_action').value='doSetDropboxGroupIdFilter';document.getElementById('showForm').submit();">
+                <option value=""#if($!dropboxGroupFilter_groupId || $dropboxGroupFilter_groupId.equals("")) selected="selected"#end>$tlang.getString("grp.all")</option>
+                #foreach($group in $dropboxGroupFilter_groups)
+                    <option value="$group.getId()"#if($group.getId().equals($dropboxGroupFilter_groupId)) selected="selected"#end>$group.getTitle()</option>
+                #end
+            </select>
+        </div>
+        #end		
 		#if($listActions || $showHotDropboxWidget)
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav">
@@ -291,7 +304,9 @@ $(document).ready(function() {
 			#foreach($item in $site)
 				#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 				#set($dqid=$item.id.replaceAll("\"", "&quot;"))
+				#if(!$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) )
 				#set($itemcount = $itemcount + 1)
+				
 					#set ($addCount=($addCount - 1))
 					#set ($actionCount=($actionCount - 1))
 				  
@@ -487,6 +502,7 @@ $(document).ready(function() {
 						</td>
 					#end
 				</tr>
+				#end ## if !$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) 
 			#end ## foreach $item in $this_site
 		
 			############################################# Begin "Other sites" section

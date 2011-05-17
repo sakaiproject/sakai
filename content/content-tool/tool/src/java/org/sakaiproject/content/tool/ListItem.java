@@ -4075,5 +4075,23 @@ public class ListItem
 	public void setAllowHtmlInline(boolean allowHtmlInline) {
 		this.allowHtmlInline = allowHtmlInline;
 	}
+	/**
+	 * Get dropbox owner
+	 * @param id
+	 * @return
+	 */
+	public String getDropboxOwner() 
+	{
+		String rv = null;
+		if(id != null && isDropbox)
+		{
+			String parts[] = id.split("/");
+			if(parts.length >= 4)
+			{
+			rv = parts[3];
+			}
+		}
+		return rv;
+	}
 }
 

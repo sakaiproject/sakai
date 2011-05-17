@@ -4114,6 +4114,42 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// notshow the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
+			// allow filtering of dropboxes by group (SAK-14625)
+			String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+			String containingCollectionId = ContentHostingService.getContainingCollectionId(homeCollectionId);
+			//Boolean showDropboxGroupFilter = Boolean.valueOf(homeCollectionId.equals(collectionId));			
+			Boolean showDropboxGroupFilter = Boolean.valueOf(true);	
+			if(showDropboxGroupFilter)
+			{
+				List<Group> site_groups = new ArrayList<Group>();
+				try
+				{
+					Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+					site_groups.addAll(site.getGroups());
+					if(site_groups.size() > 0)
+					{
+						Collections.sort(site_groups, new Comparator<Group>()
+						{
+							public int compare(Group g0, Group g1) {
+								return g0.getTitle().compareToIgnoreCase(g1.getTitle());						
+							}
+						});
+						context.put("dropboxGroupFilter_groups", site_groups);
+						context.put("showDropboxGroupFilter", showDropboxGroupFilter.toString());
+						String dropboxGroupFilter_groupId = (String) state.getAttribute("dropboxGroupFilter_groupId");
+						if(dropboxGroupFilter_groupId != null && !dropboxGroupFilter_groupId.equals("")) {
+							context.put("dropboxGroupFiltered", Boolean.TRUE);
+							context.put("dropboxGroupFilter_groupId", dropboxGroupFilter_groupId);
+							context.put("dropboxGroupFilter_groupUsers", (Set) state.getAttribute("dropboxGroupFilter_groupUsers"));
+						}
+				}
+				}
+				catch(IdUnusedException e)
+				{
+					// something failed, group filter will be hidden
+				}
+			}
 		}
 		else
 		{
@@ -6088,6 +6124,36 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		int dropboxHighlight = params.getInt("dropboxHighlight", 1);
 		
 		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, Integer.valueOf(dropboxHighlight));
+	}
+	public void doSetDropboxGroupIdFilter(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+ 
+		String dropboxGroupFilter_groupId = params.getString("dropboxGroupFilter_groupId");
+		
+		if(dropboxGroupFilter_groupId != null)
+		{
+			state.setAttribute("dropboxGroupFilter_groupId", dropboxGroupFilter_groupId);
+			Set groupUsers = null;
+			try
+			{
+				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				if(!dropboxGroupFilter_groupId.equals(""))
+				{
+					groupUsers = site.getGroup(dropboxGroupFilter_groupId).getUsers();
+				}
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				// something failed, hide group filter
+				groupUsers = null;
+			}
+			state.setAttribute("dropboxGroupFilter_groupUsers", groupUsers);
+		}
 	}
 
 	/**
