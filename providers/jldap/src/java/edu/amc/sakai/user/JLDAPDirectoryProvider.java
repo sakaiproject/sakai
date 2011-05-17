@@ -38,7 +38,7 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPEntry;
@@ -496,7 +496,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			if ( !(useStdFilter) ) {
 				try {
 					String eid = 
-						StringUtil.trimToNull(((EidDerivedEmailAddressHandler)ldapAttributeMapper).unpackEidFromAddress(email));
+						StringUtils.trimToNull(((EidDerivedEmailAddressHandler)ldapAttributeMapper).unpackEidFromAddress(email));
 					if ( eid == null ) { // shouldn't happen (see unpackEidFromEmail() javadoc)
 						throw new InvalidEmailAddressException("Attempting to unpack an EID from [" + email + 
 								"] resulted in a null or empty string");

@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Not a stub per-se, so much as a {@link BaseResourcePropertiesEdit} extension
@@ -52,7 +52,7 @@ public class ResourcePropertiesEditStub extends BaseResourcePropertiesEdit {
 		if ( defaultConfig != null && !(defaultConfig.isEmpty()) ) {
 			for ( Enumeration i = defaultConfig.propertyNames() ; i.hasMoreElements() ; ) {
 				String propertyName = (String)i.nextElement();
-				String propertyValue = StringUtil.trimToNull((String)defaultConfig.getProperty(propertyName));
+				String propertyValue = StringUtils.trimToNull((String)defaultConfig.getProperty(propertyName));
 				if ( propertyValue == null ) {
 					continue;
 				}
@@ -73,7 +73,7 @@ public class ResourcePropertiesEditStub extends BaseResourcePropertiesEdit {
 			for ( Enumeration i = configOverrides.propertyNames() ; i.hasMoreElements() ; ) {
 				String propertyName = (String)i.nextElement();
 				super.removeProperty(propertyName);
-				String propertyValue = StringUtil.trimToNull((String)configOverrides.getProperty(propertyName));
+				String propertyValue = StringUtils.trimToNull((String)configOverrides.getProperty(propertyName));
 				String[] propertyValues = propertyValue.split(";");
 				if ( propertyValues.length > 1 ) {
 					for ( String splitPropertyValue : propertyValues ) {

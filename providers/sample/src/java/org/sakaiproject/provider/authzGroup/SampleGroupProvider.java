@@ -32,7 +32,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.GroupProvider;
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <p>
@@ -399,7 +399,7 @@ public class SampleGroupProvider implements GroupProvider
 		// otherwise split by the '+'
 		else
 		{
-			rv = StringUtil.split(id, "+");
+			rv = StringUtils.split(id, "+");
 		}
 
 		return rv;

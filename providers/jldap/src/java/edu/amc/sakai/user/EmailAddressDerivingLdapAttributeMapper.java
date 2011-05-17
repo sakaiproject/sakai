@@ -23,7 +23,7 @@ package edu.amc.sakai.user;
 
 import java.util.regex.Pattern;
 
-import org.sakaiproject.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import com.novell.ldap.LDAPEntry;
 
@@ -48,7 +48,7 @@ extends SimpleLdapAttributeMapper implements EidDerivedEmailAddressHandler {
 			throw new InvalidEmailAddressException("Unable to unpack EID from email address [" + 
 					address + "]. Expected pattern = [" + getAddressPattern() + "]");
 		}
-		String eid = StringUtil.trimToNull(doUnpackEidFromAddress(address));
+		String eid = StringUtils.trimToNull(doUnpackEidFromAddress(address));
 		if ( eid == null ) {
 			throw new InvalidEmailAddressException("Unpacked an empty EID from email address [" + 
 					address + "].");
@@ -115,7 +115,7 @@ extends SimpleLdapAttributeMapper implements EidDerivedEmailAddressHandler {
 		if ( defaultAddressDomain == null ) {
 			return null;
 		}
-		eid = StringUtil.trimToNull(eid);
+		eid = StringUtils.trimToNull(eid);
 		if ( eid == null ) {
 			return null;
 		}
