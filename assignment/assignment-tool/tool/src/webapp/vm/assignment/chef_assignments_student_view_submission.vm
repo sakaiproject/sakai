@@ -32,6 +32,19 @@ var notifyDeleteControl = function(){
         $('#addMoreAttachmentControlsInactive').hide();
     }
 };
+
+function submitform(id)
+{
+	var theForm = document.getElementById(id);
+	if(theForm && theForm.onsubmit)
+	{
+		theForm.onsubmit();
+	}
+	if(theForm && theForm.submit)
+	{
+		theForm.submit();
+	}
+}
 		
 </script>
 
@@ -481,9 +494,9 @@ var notifyDeleteControl = function(){
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" />
 			</form>
 		#else
-	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
+	<form name="addSubmissionForm" id="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
-		<input type="hidden" name="option" value="cancel" />
+		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
 		#if ($!canSubmit)
@@ -554,7 +567,7 @@ var notifyDeleteControl = function(){
 					#end*#
 				#end
 			#end
-			#if (($submissionType==2) || ($submissionType==3)) 
+			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5)) 
 				#if ($submissionType==2)
 					<p class="instruction">
 						#if (($submitted && !$returned) || ($returned && $!timeReturned && $!timeSubmitted && $!timeReturned.before($!timeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
@@ -606,77 +619,73 @@ var notifyDeleteControl = function(){
 								#end
 							#end
 						</table>
-					#end	 
-					<div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
-						#if ($!deleted.equalsIgnoreCase("true")) 	 
-	    					##if the assignment has been deleted, disable the action button 	 
-	     					<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
-	     				#else
-							#if ($!canSubmit)
-								#if ($size==0) 
-									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
-									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
-								#else
-									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabelmore"))
-									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+					#end
+					#if (($submissionType==2) || ($submissionType==3))
+						<div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
+							#if ($!deleted.equalsIgnoreCase("true")) 	 
+		    					##if the assignment has been deleted, disable the action button 	 
+		     					<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
+		     				#else
+								#if ($!canSubmit)
+									#if ($size==0) 
+										#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
+										#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
+									#else
+										#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabelmore"))
+										#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+									#end
+									<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+									<table border="0" cellpadding="0" cellspacing="0" class="listHier  centerLines" style="width:auto;margin:0">
+										<tr>
+											<td>
+												<span>$howManySubAtts</span>
+											</td>
+											<td>
+												<div id="clonableUpload"> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "")';submitform('addSubmissionForm');""/> 
+													<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">Uploading file</span>
+												</div>
+											</td>
+											<td>
+												<span class="navIntraToolLink">
+													<input
+														class="disableme enabled" 
+														type="button" 
+														value="$howManySubAttsLinks"
+														name="attach" 
+														id="attach"
+														accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+														onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+													/>
+												</span>	
+											</td>
+										</tr>	
+										<tr>
+											<td></td>
+											<td id="clonedHolder"></td>
+											<td></td>
+											<td></td>										
+											</tr>
+									</table>	
+									
 								#end
-								<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
-								<table border="0" cellpadding="0" cellspacing="0" class="listHier  centerLines" style="width:auto;margin:0">
-									<tr>
-										<td>
-											<span>$howManySubAtts</span>
-										</td>
-										<td>
-
-											<div id="clonableUpload"> 
-												<input type="file" name="upload0" class="upload" id="clonableUpload"/><a class="removeAttachmentControl" onclick="event.preventDefault();$(this).parent('div').remove();resizeFrame('shrink');notifyDeleteControl()" href="#"  style="display:none"><img alt="expand" class="expand" src="/library/image/silk/delete.png" alt="(-)" title="Delete this file" /> </a>
-											</div>
-										</td>
-										<td><a href="#" id="addMoreAttachmentControls">
-												<img src="/library/image/silk/add.png" alt="+" title="Add another file" /> 
-											</a>
-											<span class="inactive" id="addMoreAttachmentControlsInactive" style="display:none">
-												<img src="/library/image/silk/add.png" alt="+" title="Add another file"  style="opacity:0.4;filter:alpha(opacity=40) !important;"/> 
-											</span>
-										</td>
-										<td>
-											<span class="navIntraToolLink">
-												<input
-													class="disableme enabled" 
-													type="button" 
-													value="$howManySubAttsLinks"
-													name="attach" 
-													id="attach"
-													accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-													onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-												/>
-											</span>	
-										</td>
-									</tr>	
-									<tr>
-										<td></td>
-										<td id="clonedHolder"></td>
-										<td></td>
-										<td></td>										
-										</tr>
-								</table>	
-								
 							#end
-						#end
-					</div>
+						</div>
+					#end
+					## for single file upload case
+					#if ($submissionType==5 && $attachments && $attachments.size() == 0)
+						<div class="highlightPanel">
+							<p class="shorttext">
+								<label for="upload">$tlang.getString("att.upl")</label>
+								<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/> 
+								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+								<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+							</p>	
+				 		</div>
+					#end
 				#end
 				</div>
-				## for single file upload case
-				#if ($submissionType==5)
-					<div class="highlightPanel">
-						<p class="shorttext">
-							<label for="upload">$tlang.getString("att.upl")</label>
-							<input type="file" name="upload0" id="upload0" class="upload" />
-							<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
-							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
-						</p>	
-			 	</div>
-				#end
+				
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)

@@ -4335,9 +4335,6 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if (submissionType == 2)
 			{
-				// dealing with single file uplaod
-				doAttachUpload(data, false);
-				
 				// for the attachment only submission
 				List v = (List) state.getAttribute(ATTACHMENTS);
 				if ((v == null) || (v.size() == 0))
@@ -4346,21 +4343,13 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 			else if (submissionType == 3)
-			{
-				// dealing with single file uplaod
-				doAttachUpload(data, false);
-				
+			{	
 				// for the inline and attachment submission
 				List v = (List) state.getAttribute(ATTACHMENTS);
 				if ((text.length() == 0 || "<br/>".equals(text)) && ((v == null) || (v.size() == 0)))
 				{
 					addAlert(state, rb.getString("youmust2"));
 				}
-			}
-			else if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
-			{
-				// dealing with single file uplaod
-				doAttachUpload(data, true);
 			}
 		}
 	}
@@ -10848,6 +10837,16 @@ public class AssignmentAction extends PagedResourceActionII
 			// remove selected attachment
 			doRemove_attachment(data);
 		}
+		else if ("upload".equals(option))
+		{
+			// upload local file
+			doAttachUpload(data, true);
+		}
+		else if ("uploadSingleFile".equals(option))
+		{
+			// upload single local file
+			doAttachUpload(data, false);
+		}
 	}
 	
 	public void doRemove_attachment(RunData data)
@@ -12335,6 +12334,24 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	/**
+	 * multiple file upload
+	 * @param data
+	 */
+	public void doAttachUpload(RunData data)
+	{
+		doAttachUpload(data, false);
+	}
+	
+	/**
+	 * single file upload
+	 * @param data
+	 */
+	public void doAttachUploadSingle(RunData data)
+	{
+		doAttachUpload(data, true);
+	}
+	
+	/**
 	 * upload local file for attachment
 	 * @param data
 	 * @param singleFileUpload
@@ -12346,138 +12363,119 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters ();
 
 		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-
-		int submissionFileCount = 0;
-		String submissionFileCountString = params.getString("submissionFileCount");
-		if (params.getString("submissionFileCount") != null)
-		{
-			try
-			{
-				submissionFileCount = Integer.valueOf(params.getString("submissionFileCount"));
-			}
-			catch (NumberFormatException e)
-			{
-				M_log.warn(this + ".doAttachUpload: NumberFormatException " + params.getString("submissionFileCount"));
-			}
-		}
 		
 		// construct the state variable for attachment list
 		List attachments = state.getAttribute(ATTACHMENTS) != null? (List) state.getAttribute(ATTACHMENTS) : EntityManager.newReferenceList();
 		
-		for (int i = 0; i<submissionFileCount; i++)
+		FileItem fileitem = null;
+		try
 		{
-		
-			FileItem fileitem = null;
-			try
-			{
-				fileitem = params.getFileItem("upload" + i);
-			}
-			catch(Exception e)
-			{
-				// other exceptions should be caught earlier
-				M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getFormattedMessage("failed.upload", new Object[]{i}));
-			}
-			if(fileitem == null)
-			{
-				// "The user submitted a file to upload but it was too big!"
-				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-				//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
-			}
-			else if (singleFileUpload && (fileitem.getFileName() == null || fileitem.getFileName().length() == 0))
-			{
-				// only if in the single file upload case, need to warn user to upload a local file
-				addAlert(state, rb.getString("choosefile7"));
-			}
-			else if (fileitem.getFileName().length() > 0)
-			{
-				String filename = Validator.getFileName(fileitem.getFileName());
-				InputStream fileContentStream = fileitem.getInputStream();
-				String contentType = fileitem.getContentType();
-	
-				InputStreamReader reader = new InputStreamReader(fileContentStream);
+			fileitem = params.getFileItem("upload");
+		}
+		catch(Exception e)
+		{
+			// other exceptions should be caught earlier
+			M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+			addAlert(state, rb.getString("failed.upload"));
+		}
+		if(fileitem == null)
+		{
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+		}
+		else if (singleFileUpload && (fileitem.getFileName() == null || fileitem.getFileName().length() == 0))
+		{
+			// only if in the single file upload case, need to warn user to upload a local file
+			addAlert(state, rb.getString("choosefile7"));
+		}
+		else if (fileitem.getFileName().length() > 0)
+		{
+			String filename = Validator.getFileName(fileitem.getFileName());
+			InputStream fileContentStream = fileitem.getInputStream();
+			String contentType = fileitem.getContentType();
+
+			InputStreamReader reader = new InputStreamReader(fileContentStream);
+			
+			try{
 				
-				try{
-					
-					//check the InputStreamReader to see if the file is 0kb aka empty
-					if( reader.ready()==false )
+				//check the InputStreamReader to see if the file is 0kb aka empty
+				if( reader.ready()==false )
+				{
+					addAlert(state, rb.getFormattedMessage("attempty", new Object[]{filename} ));
+				}
+				else if(fileContentStream != null)
+				{
+					// we just want the file name part - strip off any drive and path stuff
+					String name = Validator.getFileName(filename);
+					String resourceId = Validator.escapeResourceName(name);
+	
+					// make a set of properties to add for the new resource
+					ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+	
+					// make an attachment resource for this URL
+					try
 					{
-						addAlert(state, rb.getFormattedMessage("attempty", new Object[]{filename} ));
-					}
-					else if(fileContentStream != null)
-					{
-						// we just want the file name part - strip off any drive and path stuff
-						String name = Validator.getFileName(filename);
-						String resourceId = Validator.escapeResourceName(name);
-		
-						// make a set of properties to add for the new resource
-						ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-						props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
-		
-						// make an attachment resource for this URL
+						String siteId = ToolManager.getCurrentPlacement().getContext();
+						
+						// add attachment
+						enableSecurityAdvisor();
+						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
+						disableSecurityAdvisor();
+						
 						try
 						{
-							String siteId = ToolManager.getCurrentPlacement().getContext();
-							
-							// add attachment
-							enableSecurityAdvisor();
-							ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
-							disableSecurityAdvisor();
-							
-							try
-							{
-								Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-								attachments.add(ref);
-							}
-							catch(Exception ee)
-							{
-								M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
-							}
-							state.setAttribute(ATTACHMENTS, attachments);
+							Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+							attachments.add(ref);
 						}
-						catch (PermissionException e)
+						catch(Exception ee)
 						{
-							addAlert(state, rb.getString("notpermis4"));
+							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
 						}
-						catch(RuntimeException e)
+						state.setAttribute(ATTACHMENTS, attachments);
+					}
+					catch (PermissionException e)
+					{
+						addAlert(state, rb.getString("notpermis4"));
+					}
+					catch(RuntimeException e)
+					{
+						if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 						{
-							if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
-							{
-								// couldn't we just truncate the resource-id instead of rejecting the upload?
-								addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
-							}
-							else
-							{
-								M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
-								addAlert(state, rb.getString("failed"));
-							}
+							// couldn't we just truncate the resource-id instead of rejecting the upload?
+							addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
 						}
-						catch (ServerOverloadException e)
+						else
 						{
-							// disk full or no writing permission to disk
-							M_log.debug(this + ".doAttachupload ***** Disk IO Exception ***** " + e.getMessage());
-							addAlert(state, rb.getString("failed.diskio"));
-						}
-						catch(Exception ignore)
-						{
-							// other exceptions should be caught earlier
-							M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
+							M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 					}
-					else
+					catch (ServerOverloadException e)
 					{
-						addAlert(state, rb.getString("choosefile7"));
+						// disk full or no writing permission to disk
+						M_log.debug(this + ".doAttachupload ***** Disk IO Exception ***** " + e.getMessage());
+						addAlert(state, rb.getString("failed.diskio"));
+					}
+					catch(Exception ignore)
+					{
+						// other exceptions should be caught earlier
+						M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
+						addAlert(state, rb.getString("failed"));
 					}
 				}
-				catch( IOException e){
-					M_log.debug(this + ".doAttachupload ***** IOException ***** " + e.getMessage());
-					addAlert(state, rb.getString("failed"));
+				else
+				{
+					addAlert(state, rb.getString("choosefile7"));
 				}
 			}
+			catch( IOException e){
+				M_log.debug(this + ".doAttachupload ***** IOException ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
+			}
 		}
-
 	}	// doAttachupload
 	
 	
