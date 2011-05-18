@@ -269,6 +269,9 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
     }
 
     public void updateMessageBundleProperty(MessageBundleProperty mbp) {
+	if (mbp.getDefaultValue() == null) { 
+	   mbp.setDefaultValue(""); 
+	} 
         getHibernateTemplate().saveOrUpdate(mbp);
     }
 

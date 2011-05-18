@@ -18,7 +18,7 @@
         <property name="propertyName" column="PROP_NAME" type="string" not-null="true" length="255" index="SMB_PROPNAME_IDX"/>
         <property name="value" column="PROP_VALUE" type="string" not-null="false" length="4000" />
         <property name="locale" column="LOCALE" type="string" not-null="true" length="255" index="SMB_LOCALE_IDX"/>
-        <property name="defaultValue" column="DEFAULT_VALUE" type="string" length="4000" not-null="true" />
+        <property name="defaultValue" column="DEFAULT_VALUE" type="string" length="4000" not-null="false" />
 
     </class>
 </hibernate-mapping>
