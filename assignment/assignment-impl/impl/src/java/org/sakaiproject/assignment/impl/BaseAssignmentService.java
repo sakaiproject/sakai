@@ -391,7 +391,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (SecurityService.unlock(lock1, resource)) return true;
 
 		// if the second is different, check that
-		if ((lock1 != lock2) && (SecurityService.unlock(lock2, resource))) return true;
+		if ((!lock1.equals(lock2)) && (SecurityService.unlock(lock2, resource))) return true;
 
 		return false;
 
@@ -824,7 +824,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		ResourcePropertiesEdit propertyEdit = (BaseResourcePropertiesEdit)assignment.getProperties();
 		try
 		{
-			Time createTime = propertyEdit.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+			propertyEdit.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
 		}
 		catch(EntityPropertyNotDefinedException epnde)
 		{
@@ -3090,11 +3090,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		M_log.debug(this + " getListAssignmetsForContext : CONTEXT : " + context);
 		Assignment tempAssignment = null;
 		List retVal = new ArrayList();
-		List allAssignments = new ArrayList();
 
 		if (context != null)
 		{
-			allAssignments = getAssignments(context);
+			List allAssignments = getAssignments(context);
 			for (int x = 0; x < allAssignments.size(); x++)
 			{
 				tempAssignment = (Assignment) allAssignments.get(x);
@@ -3937,7 +3936,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public byte[] getGradesSpreadsheet(String ref) throws IdUnusedException, PermissionException
 	{
-		String typeGradesString = new String(REF_TYPE_GRADES + Entity.SEPARATOR);
+		String typeGradesString = REF_TYPE_GRADES + Entity.SEPARATOR;
 		String context = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length());
 
 		// get site title for display purpose
@@ -7517,8 +7516,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						maxGradePoint = maxGradePoint + "0";
 					}
 				}
-				//FIXME Findbugs identifies this as a potential read of an unitialized field
-				m_maxGradePoint = maxGradePoint != null ? Integer.parseInt(maxGradePoint) : m_maxGradePoint;
+				if (maxGradePoint != null)
+				{
+					m_maxGradePoint = Integer.parseInt(maxGradePoint);
+				}
 			}
 			catch (Exception e)
 			{
@@ -7653,7 +7654,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_timeCreated = getTimeObject(attributes.getValue("datecreated"));
 							m_timeLastModified = getTimeObject(attributes.getValue("lastmod"));
 
-							m_instructions = FormattedTextDecodeFormattedTextAttribute(attributes, "instructions");
+							m_instructions = formattedTextDecodeFormattedTextAttribute(attributes, "instructions");
 
 							try
 							{
@@ -9242,9 +9243,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_gradeReleased = getBool(attributes.getValue("gradereleased"));
 							m_honorPledgeFlag = getBool(attributes.getValue("pledgeflag"));
 
-							m_submittedText = FormattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
-							m_feedbackComment = FormattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
-							m_feedbackText = FormattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
+							m_submittedText = formattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
+							m_feedbackComment = formattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
+							m_feedbackText = formattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
 							 
 
 							// READ THE SUBMITTERS
@@ -12033,7 +12034,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * the AssignmentComparator clas
 	 */
-	private class AssignmentComparator implements Comparator
+	static private class AssignmentComparator implements Comparator
 	{	
 		/**
 		 * the criteria
@@ -12222,22 +12223,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * This is to mimic the FormattedText.decodeFormattedTextAttribute but use SAX serialization instead
 	 * @return
 	 */
-	protected String FormattedTextDecodeFormattedTextAttribute(Attributes attributes, String baseAttributeName)
+	protected String formattedTextDecodeFormattedTextAttribute(Attributes attributes, String baseAttributeName)
 	{
 		String ret;
 
 		// first check if an HTML-encoded attribute exists, for example "foo-html", and use it if available
-		ret = StringUtils.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-html"));
+		ret = StringUtils.trimToNull(xmlDecodeAttribute(attributes, baseAttributeName + "-html"));
 		if (ret != null) return ret;
 
 		// next try the older kind of formatted text like "foo-formatted", and convert it if found
-		ret = StringUtils.trimToNull(XmlDecodeAttribute(attributes, baseAttributeName + "-formatted"));
+		ret = StringUtils.trimToNull(xmlDecodeAttribute(attributes, baseAttributeName + "-formatted"));
 		ret = FormattedText.convertOldFormattedText(ret);
 		if (ret != null) return ret;
 
 		// next try just a plaintext attribute and convert the plaintext to formatted text if found
 		// convert from old plaintext instructions to new formatted text instruction
-		ret = XmlDecodeAttribute(attributes, baseAttributeName);
+		ret = xmlDecodeAttribute(attributes, baseAttributeName);
 		ret = FormattedText.convertPlaintextToFormattedText(ret);
 		return ret;
 	}
@@ -12248,7 +12249,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @param tag
 	 * @return
 	 */
-	protected String XmlDecodeAttribute(Attributes attributes, String tag)
+	protected String xmlDecodeAttribute(Attributes attributes, String tag)
 	{
 		String charset = StringUtils.trimToNull(attributes.getValue("charset"));
 		if (charset == null) charset = "UTF-8";

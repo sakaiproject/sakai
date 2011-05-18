@@ -41,7 +41,6 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         Resolvable, ActionsExecutable, Describeable, AutoRegisterEntityProvider, PropertyProvideable {
 
     private AssignmentService assignmentService;
-    private DeveloperHelperService developerHelperService;
     private EntityBroker entityBroker;
     private SecurityService securityService;
     private SessionManager sessionManager;
@@ -366,7 +365,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
      * A simple SecurityAdviser that can be used to override permissions on one reference string for
      * one user for one function.
      */
-    private class MySecurityAdvisor implements SecurityAdvisor {
+    static private class MySecurityAdvisor implements SecurityAdvisor {
 
         protected String m_userId;
 
@@ -408,10 +407,6 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 
     public void setEntityBroker(EntityBroker entityBroker) {
         this.entityBroker = entityBroker;
-    }
-
-    public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
-        this.developerHelperService = developerHelperService;
     }
 
     public void setSessionManager(SessionManager sessionManager) {
