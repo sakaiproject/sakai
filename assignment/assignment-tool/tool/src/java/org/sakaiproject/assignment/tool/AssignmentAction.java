@@ -9276,19 +9276,24 @@ public class AssignmentAction extends PagedResourceActionII
 				// initialize
 				int subNum1 = 0;
 				int subNum2 = 0;
-
+				Time t1,t2;
+				
 				Iterator submissions1 = AssignmentService.getSubmissions((Assignment) o1).iterator();
 				while (submissions1.hasNext())
 				{
 					AssignmentSubmission submission1 = (AssignmentSubmission) submissions1.next();
-					if (submission1.getSubmitted()) subNum1++;
+					t1 = submission1.getTimeSubmitted();
+					
+					if (t1!=null) subNum1++;
 				}
 
 				Iterator submissions2 = AssignmentService.getSubmissions((Assignment) o2).iterator();
 				while (submissions2.hasNext())
 				{
 					AssignmentSubmission submission2 = (AssignmentSubmission) submissions2.next();
-					if (submission2.getSubmitted()) subNum2++;
+					t2 = submission2.getTimeSubmitted();
+					
+					if (t2!=null) subNum2++;
 				}
 
 				result = (subNum1 > subNum2) ? 1 : -1;
@@ -9301,19 +9306,24 @@ public class AssignmentAction extends PagedResourceActionII
 				// initialize
 				int ungraded1 = 0;
 				int ungraded2 = 0;
-
+				Time t1,t2;
+				
 				Iterator submissions1 = AssignmentService.getSubmissions((Assignment) o1).iterator();
 				while (submissions1.hasNext())
 				{
 					AssignmentSubmission submission1 = (AssignmentSubmission) submissions1.next();
-					if (submission1.getSubmitted() && !submission1.getGraded()) ungraded1++;
+					t1 = submission1.getTimeSubmitted();
+					
+					if (t1!=null && !submission1.getGraded()) ungraded1++;
 				}
 
 				Iterator submissions2 = AssignmentService.getSubmissions((Assignment) o2).iterator();
 				while (submissions2.hasNext())
 				{
 					AssignmentSubmission submission2 = (AssignmentSubmission) submissions2.next();
-					if (submission2.getSubmitted() && !submission2.getGraded()) ungraded2++;
+					t2 = submission2.getTimeSubmitted();
+					
+					if (t2!=null && !submission2.getGraded()) ungraded2++;
 				}
 
 				result = (ungraded1 > ungraded2) ? 1 : -1;
