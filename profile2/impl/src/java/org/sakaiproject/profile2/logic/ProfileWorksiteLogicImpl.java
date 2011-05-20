@@ -3,11 +3,14 @@
  */
 package org.sakaiproject.profile2.logic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -38,30 +41,98 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	/**
 	 * Profile2 creates <code>project</code> type worksites.
 	 */
-	public static final String SITE_TYPE_PROJECT = "project";
+	private static final String SITE_TYPE_PROJECT = "project";
 	
 	/**
 	 * Connections invited to worksites are initially given the
 	 * <code>access</code> role.
 	 */
-	public static final String ROLE_ACCESS = "access";
+	private static final String ROLE_ACCESS = "access";
 	
 	/**
 	 * Users who create worksites are initially given the <code>maintain</code>
 	 * role.
 	 */
-	public static final String ROLE_MAINTAIN = "maintain";
+	private static final String ROLE_MAINTAIN = "maintain";
 	
-	// the id of the worksite home page
+	/**
+	 * The id of the worksite home page.
+	 */
 	private static final String TOOL_ID_HOME = "home";
-	// the id of synoptic tools
+
+	/**
+	 * The id of the iframe tool.
+	 */
+	private static final String TOOL_ID_IFRAME = "sakai.iframe";
+	
+	/**
+	 * The id of the privacy tool.
+	 */
+	private static final String TOOL_ID_PRIVACY = "sakai.privacy";
+	
+	/**
+	 * The id of synoptic tools.
+	 */
 	private static final String TOOL_ID_SYNOPTIC = "sakai.synoptic.";
-	// the tool to place on the home page
+	
+	/**
+	 * The id of the synoptic calendar tool.
+	 */
+	private static final String TOOL_ID_SUMMARY_CALENDAR = "sakai.summary.calendar";
+	
+	/**
+	 * The id of the synoptic announcements tool.
+	 */
+	private static final String TOOL_ID_SYNOPTIC_ANNOUNCEMENT = "sakai.synoptic.announcement";
+
+	/**
+	 * The id of the synoptic chat tool.
+	 */
+	private static final String TOOL_ID_SYNOPTIC_CHAT = "sakai.synoptic.chat";
+
+	/**
+	 * The id of the synoptic discussions tool.
+	 */
+	private static final String TOOL_ID_SYNOPTIC_DISCUSSION = "sakai.synoptic.discussion";
+	
+	/**
+	 * The id of the synoptic message center tool.
+	 */
+	private static final String TOOL_ID_SYNOPTIC_MESSAGECENTER = "sakai.synoptic.messagecenter";
+	
+	/**
+	 *  Map of synoptic tool and the related tool ids.
+	 */
+	private final static Map<String, List<String>> SYNOPTIC_TOOL_ID_MAP;
+	static
+	{
+		SYNOPTIC_TOOL_ID_MAP = new HashMap<String, List<String>>();
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SUMMARY_CALENDAR, new ArrayList<String>(Arrays.asList("sakai.schedule")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, new ArrayList<String>(Arrays.asList("sakai.announcements")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_CHAT, new ArrayList<String>(Arrays.asList("sakai.chat")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_DISCUSSION, new ArrayList<String>(Arrays.asList("sakai.discussion")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, new ArrayList<String>(Arrays.asList("sakai.messages", "sakai.forums", "sakai.messagecenter")));
+	}
+	
+	/**
+	 * The tool to place on the home page.
+	 */
 	private static final String HOME_TOOL = "sakai.iframe.site";
-	// the tool used to modify the worksite after creation
+	
+	/**
+	 * The tool used to modify the worksite after creation.
+	 */
 	private static final String SITEINFO_TOOL = "sakai.siteinfo";
-	// the tool used to unjoin worksites
+
+	/**
+	 * The tool used to unjoin worksites.
+	 */
 	private static final String MEMBERSHIP_TOOL = "sakai.membership";
+	
+	/**
+	 * Worksite setup tools.
+	 */
+	private static final String WORKSITE_SETUP_TOOLS = "wsetup.home.toolids";
 	
 	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
 	
@@ -141,24 +212,41 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			// for synoptic tools
 			homePage.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 			
+			// normally brings in sakai.siteinfo
 			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
 			
+			// brings in tools specified in sakai.properties or default set of tools
+			if (null != serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT)) {
+				toolIds.addAll(new ArrayList<String>(Arrays.asList(
+					serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT))));
+			} else if (null != serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS)) {
+				toolIds.addAll(new ArrayList<String>(Arrays.asList(
+						serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS))));
+			}
+						
 			int synopticToolIndex = 0;
 			for (String toolId : toolIds) {
-								
-				if (toolId.contains(TOOL_ID_SYNOPTIC)) {
-					
-					ToolConfiguration toolConfig = homePage.addTool(toolId);
-					toolConfig.setLayoutHints(synopticToolIndex + ",1");
-
-					for (int i = 0; i < synopticToolIndex; i++) {
-						toolConfig.moveUp();
+				
+				if (toolId.equals(TOOL_ID_IFRAME) || toolId.equals(TOOL_ID_PRIVACY)) {
+					continue;
+				} else if (toolId.startsWith(TOOL_ID_SYNOPTIC) || toolId.equals(TOOL_ID_SUMMARY_CALENDAR)) {
+										
+					// test if its corresponding tool is installed.
+					if (true == CollectionUtils.containsAny(toolIds, SYNOPTIC_TOOL_ID_MAP.get(toolId))) {
+						
+						ToolConfiguration toolConfig = homePage.addTool(toolId);
+						toolConfig.setLayoutHints(synopticToolIndex + ",1");
+	
+						for (int i = 0; i < synopticToolIndex; i++) {
+							toolConfig.moveUp();
+						}
+						
+						synopticToolIndex++;
+						
 					}
-					
-					synopticToolIndex++;
-					
 				} else {
 					if (null != toolManager.getTool(toolId)) {
+												
 						SitePage toolPage = site.addPage();
 						toolPage.addTool(toolId);
 					}
