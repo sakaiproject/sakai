@@ -8798,13 +8798,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					
 					String contentId = cr.getId();
 					
-					if (SecurityService.unlock(UserDirectoryService.getCurrentUser(), "asn.grade", "/site/" + this.m_context))
+					if (allowGradeSubmission(getReference()))
 						return contentReviewService.getReviewReportInstructor(contentId);
 					else
 						return contentReviewService.getReviewReportStudent(contentId);
 					
 				} catch (Exception e) {
-					//e.printStackTrace();
 					M_log.warn(":getReviewReport() " + e.getMessage());
 					return "Error";
 				}
