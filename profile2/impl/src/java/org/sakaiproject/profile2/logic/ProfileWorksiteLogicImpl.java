@@ -64,12 +64,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	 * The id of the iframe tool.
 	 */
 	private static final String TOOL_ID_IFRAME = "sakai.iframe";
-	
-	/**
-	 * The id of the privacy tool.
-	 */
-	private static final String TOOL_ID_PRIVACY = "sakai.privacy";
-	
+		
 	/**
 	 * The id of synoptic tools.
 	 */
@@ -227,7 +222,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			int synopticToolIndex = 0;
 			for (String toolId : toolIds) {
 				
-				if (toolId.equals(TOOL_ID_IFRAME) || toolId.equals(TOOL_ID_PRIVACY)) {
+				if (toolId.equals(TOOL_ID_IFRAME)) {
 					continue;
 				} else if (toolId.startsWith(TOOL_ID_SYNOPTIC) || toolId.equals(TOOL_ID_SUMMARY_CALENDAR)) {
 										
