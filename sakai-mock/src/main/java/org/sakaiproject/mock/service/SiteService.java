@@ -71,6 +71,10 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		return true;
 	}
 
+	public boolean allowAddPortfolioSite() {
+		return true;
+	}
+	
 	public boolean allowAddSite(String id) {
 		return true;
 	}
