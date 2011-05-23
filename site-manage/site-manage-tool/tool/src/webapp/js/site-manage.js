@@ -3,6 +3,11 @@ var sakai = sakai ||
 var utils = utils ||
 {};
 
+ 
+$.ajaxSetup({
+  cache: false
+});
+ 
 /*
  calling template has dom placeholder for dialog,
  args:class of trigger, id of dialog, message strings
