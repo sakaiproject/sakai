@@ -222,7 +222,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			int synopticToolIndex = 0;
 			for (String toolId : toolIds) {
 				
-				if (toolId.equals(TOOL_ID_IFRAME)) {
+				if (toolId.equals(TOOL_ID_IFRAME) || toolId.equals(HOME_TOOL)) {
 					continue;
 				} else if (toolId.startsWith(TOOL_ID_SYNOPTIC) || toolId.equals(TOOL_ID_SUMMARY_CALENDAR)) {
 										
