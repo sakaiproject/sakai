@@ -8,3 +8,8 @@ alter table SAKAI_SITE add SOFTLY_DELETED_DATE datetime;
 
 -- KNL-725 use a column type that stores the timezone
 alter table SAKAI_CLUSTER change UPDATE_TIME UPDATE_TIME TIMESTAMP;
+
+-- KNL-734 type of session and event date column
+alter table SAKAI_SESSION change SESSION_START SESSION_START TIMESTAMP;
+alter table SAKAI_SESSION change SESSION_END SESSION_END TIMESTAMP;
+alter table SAKAI_EVENT change EVENT_DATE EVENT_DATE TIMESTAMP;
