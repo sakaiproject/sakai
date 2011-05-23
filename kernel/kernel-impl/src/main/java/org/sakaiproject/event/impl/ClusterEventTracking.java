@@ -281,7 +281,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                     try {
                         m_totalEventsCount = result.getLong(1);
                     } catch (SQLException ignore) {
-                        M_log.warn("Could not get count of events table using SQL (" + eventCountStmt + "): " + ignore);
+                        M_log.info("Could not get count of events table using SQL (" + eventCountStmt + ")");
                     }
                     return Long.valueOf(m_totalEventsCount);
                 }
@@ -308,7 +308,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                     try {
                         m_totalSessionsCount = result.getLong(1);
                     } catch (SQLException ignore) {
-                        M_log.warn("Could not get count of sessions table using SQL (" + sessionCountStmt + "): " + ignore);
+                        M_log.info("Could not get count of sessions table using SQL (" + sessionCountStmt + ")");
                     }
                     return Long.valueOf(m_totalSessionsCount);
                 }
