@@ -38,6 +38,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
+	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
+	
 	/**
 	 * Profile2 creates <code>project</code> type worksites.
 	 */
@@ -65,11 +67,6 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	 */
 	private static final String TOOL_ID_IFRAME = "sakai.iframe";
 		
-	/**
-	 * The id of synoptic tools.
-	 */
-	private static final String TOOL_ID_SYNOPTIC = "sakai.synoptic.";
-	
 	/**
 	 * The id of the synoptic calendar tool.
 	 */
@@ -110,6 +107,22 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	}
 	
 	/**
+	 * Map of tools and the related synoptic tool ids.
+	 */
+	private final static Map<String, String> TOOLS_WITH_SYNOPTIC_ID_MAP;
+	static
+	{
+		TOOLS_WITH_SYNOPTIC_ID_MAP = new HashMap<String, String>();
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.schedule", TOOL_ID_SUMMARY_CALENDAR);
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.announcements", TOOL_ID_SYNOPTIC_ANNOUNCEMENT);
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.chat", TOOL_ID_SYNOPTIC_CHAT);
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.discussion", TOOL_ID_SYNOPTIC_DISCUSSION);
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.messages", TOOL_ID_SYNOPTIC_MESSAGECENTER);
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.forums", TOOL_ID_SYNOPTIC_MESSAGECENTER);
+		TOOLS_WITH_SYNOPTIC_ID_MAP.put("sakai.messagecenter", TOOL_ID_SYNOPTIC_MESSAGECENTER);
+	}
+	
+	/**
 	 * The tool to place on the home page.
 	 */
 	private static final String HOME_TOOL = "sakai.iframe.site";
@@ -128,8 +141,6 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	 * Worksite setup tools.
 	 */
 	private static final String WORKSITE_SETUP_TOOLS = "wsetup.home.toolids";
-	
-	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
 	
 	/**
 	 * {@inheritDoc}
@@ -152,10 +163,10 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		try {
 			final Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
 			
-			// TODO false == provided (not if sure this matters)
 			try {
 				User user = userDirectoryService.getUser(ownerId);
 				if (null != user) {
+					// false == provided
 					site.addMember(ownerId, ROLE_MAINTAIN, true, false);					
 				}
 			} catch (UserNotDefinedException e) {
@@ -173,7 +184,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 							
 							// TODO privacy/preference check if/when added?
 							
-							// TODO false == provided (not if sure this matters)
+							// false == provided
 							site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
 						}
 					} catch (UserNotDefinedException e) {
@@ -209,27 +220,34 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			
 			// normally brings in sakai.siteinfo
 			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
-			
-			// brings in tools specified in sakai.properties or default set of tools
+
+			// home tools specified in sakai.properties or default set of home tools
+			List<String> homeToolIds;
+
 			if (null != serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT)) {
-				toolIds.addAll(new ArrayList<String>(Arrays.asList(
-					serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT))));
+				homeToolIds = new ArrayList<String>(Arrays.asList(
+					serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT)));
 			} else if (null != serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS)) {
-				toolIds.addAll(new ArrayList<String>(Arrays.asList(
-						serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS))));
+				homeToolIds = new ArrayList<String>(Arrays.asList(
+						serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS)));
+			} else {
+				homeToolIds = new ArrayList<String>();
 			}
 						
 			int synopticToolIndex = 0;
 			for (String toolId : toolIds) {
 				
-				if (toolId.equals(TOOL_ID_IFRAME) || toolId.equals(HOME_TOOL)) {
+				if (isToolToIgnore(toolId)) {
 					continue;
-				} else if (toolId.startsWith(TOOL_ID_SYNOPTIC) || toolId.equals(TOOL_ID_SUMMARY_CALENDAR)) {
-										
-					// test if its corresponding tool is installed.
-					if (true == CollectionUtils.containsAny(toolIds, SYNOPTIC_TOOL_ID_MAP.get(toolId))) {
-						
-						ToolConfiguration toolConfig = homePage.addTool(toolId);
+				} else if (isToolWithSynopticTool(toolId)) {
+					
+					// add tool
+					SitePage toolPage = site.addPage();
+					toolPage.addTool(toolId);
+					
+					// add corresponding synoptic tool
+					ToolConfiguration toolConfig = homePage.addTool(TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId));
+					if (null != toolConfig) {
 						toolConfig.setLayoutHints(synopticToolIndex + ",1");
 	
 						for (int i = 0; i < synopticToolIndex; i++) {
@@ -237,14 +255,35 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 						}
 						
 						synopticToolIndex++;
-						
 					}
-				} else {
-					if (null != toolManager.getTool(toolId)) {
+				} else if (null != toolManager.getTool(toolId)) {
 												
 						SitePage toolPage = site.addPage();
 						toolPage.addTool(toolId);
+				}
+			}
+			
+			for (String homeToolId : homeToolIds) {
+				
+				if (isToolToIgnore(homeToolId)) {
+					continue;
+				} else {
+					
+					// check for corresponding tool
+					if (CollectionUtils.containsAny(SYNOPTIC_TOOL_ID_MAP.get(homeToolId), toolIds)) {
+						
+						ToolConfiguration toolConfig = homePage.addTool(homeToolId);
+						if (null != toolConfig) {
+							toolConfig.setLayoutHints(synopticToolIndex + ",1");
+			
+							for (int i = 0; i < synopticToolIndex; i++) {
+								toolConfig.moveUp();
+							}
+							
+							synopticToolIndex++;
+						}						
 					}
+
 				}
 			}
 			
@@ -276,6 +315,14 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		
 		// if we get here then site creation failed.
 		return false;
+	}
+
+	private boolean isToolWithSynopticTool(String toolId) {
+		return TOOLS_WITH_SYNOPTIC_ID_MAP.containsKey(toolId);
+	}
+	
+	private boolean isToolToIgnore(String toolId) {
+		return toolId.equals(TOOL_ID_IFRAME) || toolId.equals(HOME_TOOL);
 	}
 
 	private void emailSiteMembers(String siteTitle, String siteUrl, String ownerId,
