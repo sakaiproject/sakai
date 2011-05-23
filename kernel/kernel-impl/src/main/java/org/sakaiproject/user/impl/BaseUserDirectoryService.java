@@ -81,6 +81,7 @@ import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -2530,7 +2531,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setFirstName(String name)
 		{
 		    if(!m_restrictedFirstName) {
-		    	m_firstName = name;
+		        // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
+		    	m_firstName = FormattedText.convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}
@@ -2541,7 +2543,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setLastName(String name)
 		{
 			if(!m_restrictedLastName) {
-		    	m_lastName = name;
+                // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
+		    	m_lastName = FormattedText.convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}

@@ -234,7 +234,43 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 			userDirectoryService.commitEdit(userEdit);
 		}
 	}
-	
+
+   public void testLocalUserNameEdit() throws Exception {
+        String localuserId = eidToId.get("localuser");
+        UserEdit userEdit = null;
+        User user = null;
+
+        loginAs("admin");
+
+        // check for basic edit
+        userEdit = userDirectoryService.editUser(localuserId);
+        String originalFirstName = userEdit.getFirstName();
+        String originalLastName = userEdit.getLastName();
+        userEdit.setFirstName("Aaron");
+        userEdit.setLastName("Zeckoski");
+        userDirectoryService.commitEdit(userEdit);
+
+        user = userDirectoryService.getUser(localuserId);
+        Assert.assertEquals("Aaron", user.getFirstName());
+        Assert.assertEquals("Zeckoski", user.getLastName());
+
+        // check https://jira.sakaiproject.org/browse/SAK-20226
+        userEdit = userDirectoryService.editUser(localuserId);
+        userEdit.setFirstName("<b>Aaron</b>");
+        userEdit.setLastName("Zeckoski<script>alert(document.cookie)</script>");
+        userDirectoryService.commitEdit(userEdit);
+
+        user = userDirectoryService.getUser(localuserId);
+        Assert.assertEquals("Aaron", user.getFirstName());
+        Assert.assertEquals("Zeckoskialert(document.cookie)", user.getLastName());
+
+        // Return to where we were.
+        userEdit = userDirectoryService.editUser(localuserId);
+        userEdit.setFirstName(originalFirstName);
+        userEdit.setLastName(originalLastName);
+        userDirectoryService.commitEdit(userEdit);
+    }
+
 	public void testLocalUserRemove() throws Exception {
 		// We need to be logged in to change a user record, although not to create one.
 		loginAs("admin");
