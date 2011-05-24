@@ -153,6 +153,9 @@ public class CreateWorksitePanel extends Panel {
 		form.add(createButton);
 		
 		form.add(new IconWithClueTip("createWorksiteToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.worksite.create")));
+		
+		Label refreshLabel = new Label("refreshLabel", new ResourceModel("text.worksite.refresh"));
+		form.add(refreshLabel);
 	}
 	
 	// clears site name field and palette, and slides up
