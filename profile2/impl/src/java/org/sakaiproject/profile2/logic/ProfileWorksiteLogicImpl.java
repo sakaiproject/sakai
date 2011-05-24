@@ -242,16 +242,19 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 					SitePage toolPage = site.addPage();
 					toolPage.addTool(toolId);
 					
-					// add corresponding synoptic tool
-					ToolConfiguration toolConfig = homePage.addTool(TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId));
-					if (null != toolConfig) {
-						toolConfig.setLayoutHints(synopticToolIndex + ",1");
-	
-						for (int i = 0; i < synopticToolIndex; i++) {
-							toolConfig.moveUp();
-						}
+					// add corresponding synoptic tool if not already added
+					if (false == isToolAlreadyAdded(homePage, TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId))) {
 						
-						synopticToolIndex++;
+						ToolConfiguration toolConfig = homePage.addTool(TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId));
+						if (null != toolConfig) {
+							toolConfig.setLayoutHints(synopticToolIndex + ",1");
+		
+							for (int i = 0; i < synopticToolIndex; i++) {
+								toolConfig.moveUp();
+							}
+							
+							synopticToolIndex++;
+						}
 					}
 				} else if (null != toolManager.getTool(toolId)) {
 												
@@ -273,17 +276,21 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 					
 					// check for corresponding tool
 					if (SYNOPTIC_TOOL_ID_MAP.get(homeToolId) != null && CollectionUtils.containsAny(SYNOPTIC_TOOL_ID_MAP.get(homeToolId), toolIds)) {
-						
-						ToolConfiguration toolConfig = homePage.addTool(homeToolId);
-						if (null != toolConfig) {
-							toolConfig.setLayoutHints(synopticToolIndex + ",1");
-			
-							for (int i = 0; i < synopticToolIndex; i++) {
-								toolConfig.moveUp();
+												
+						// check it hasn't been added already
+						if (false == isToolAlreadyAdded(homePage, homeToolId)) {
+														
+							ToolConfiguration toolConfig = homePage.addTool(homeToolId);
+							if (null != toolConfig) {
+								toolConfig.setLayoutHints(synopticToolIndex + ",1");
+				
+								for (int i = 0; i < synopticToolIndex; i++) {
+									toolConfig.moveUp();
+								}
+								
+								synopticToolIndex++;
 							}
-							
-							synopticToolIndex++;
-						}						
+						}
 					}
 
 				}
@@ -316,6 +323,15 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		}
 		
 		// if we get here then site creation failed.
+		return false;
+	}
+
+	private boolean isToolAlreadyAdded(SitePage homePage, String homeToolId) {
+		for (ToolConfiguration tool : homePage.getTools()) {
+			if (tool.getToolId().equals(homeToolId)) {
+				return true;
+			}
+		}
 		return false;
 	}
 
