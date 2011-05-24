@@ -214,10 +214,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			ToolConfiguration homeToolConfig = homePage.addTool();
 			homeToolConfig.setTool(TOOL_ID_HOME, homeTool);
 			homeToolConfig.setTitle(homeTool.getTitle());
-			
-			// for synoptic tools
-			homePage.setLayout(SitePage.LAYOUT_DOUBLE_COL);
-			
+						
 			// normally brings in sakai.siteinfo
 			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
 
@@ -263,6 +260,11 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				}
 			}
 			
+			// for synoptic tools
+			if (synopticToolIndex > 0) {
+				homePage.setLayout(SitePage.LAYOUT_DOUBLE_COL);
+			}
+			
 			for (String homeToolId : homeToolIds) {
 				
 				if (isToolToIgnore(homeToolId)) {
@@ -270,7 +272,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				} else {
 					
 					// check for corresponding tool
-					if (CollectionUtils.containsAny(SYNOPTIC_TOOL_ID_MAP.get(homeToolId), toolIds)) {
+					if (SYNOPTIC_TOOL_ID_MAP.get(homeToolId) != null && CollectionUtils.containsAny(SYNOPTIC_TOOL_ID_MAP.get(homeToolId), toolIds)) {
 						
 						ToolConfiguration toolConfig = homePage.addTool(homeToolId);
 						if (null != toolConfig) {
