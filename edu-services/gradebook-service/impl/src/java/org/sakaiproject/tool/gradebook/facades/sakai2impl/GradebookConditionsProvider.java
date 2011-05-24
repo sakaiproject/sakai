@@ -61,4 +61,30 @@ public class GradebookConditionsProvider implements ConditionProvider {
 		return eventLookup;
 	}
 
+  public Map<String, String> getData(String type, String context) {
+    Map<String, String> rv = new HashMap<String, String>();
+    if ("grades".equals(type)) {
+      String[] contextParts = context.split("\\|");
+      String gradebookId = contextParts[0];
+      String assignmentName = contextParts[1];
+      String studentId = contextParts[2];
+      Long assignmentId = null;
+      for (Object assignment : gbs.getAssignments(gradebookId)) {
+        if (((Assignment)assignment).getName().equals(assignmentName)) {
+          assignmentId = ((Assignment)assignment).getId();
+          break;
+        }
+      }
+      if (assignmentId != null) {
+        String score = gbs.getAssignmentScoreString(gradebookId, assignmentId, studentId);
+        if (score == null) {
+          score = "";
+        }
+        rv.put("score", score);
+      }
+    }
+
+    return rv;
+  }
+
 }
