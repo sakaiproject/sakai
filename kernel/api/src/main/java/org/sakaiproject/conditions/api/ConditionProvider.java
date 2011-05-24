@@ -54,4 +54,12 @@ public interface ConditionProvider {
 	 * and the names of classes that correspond to those events
 	 */
 	Map<String, String> getEventToDomainClassMapping();
+
+  /**
+   * make a request for information from the ConditionProvider
+   * @param type the name of the information you want back from the ConditionProvider
+   * @param context a contextual key, such as an assignment id from the gradebook
+   * @return An arbitrary map of keys and values which can be used to evaluate rules
+   */
+  Map<String, String> getData(String type, String context);
 }

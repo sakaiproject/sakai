@@ -20,13 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
@@ -38,6 +32,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.conditions.api.Condition;
+import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -74,6 +69,11 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	public void setContentHostingService(ContentHostingService chs) {
 		this.chs = chs;
 	}
+
+  private ConditionService conditionService = (ConditionService) ComponentManager.get("org.sakaiproject.conditions.api.ConditionService");
+  public void setConditionService(ConditionService conditionService) {
+    this.conditionService = conditionService;
+  }
 		
 	private SecurityService securityService = (SecurityService)ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 	public void setSecurityService(SecurityService securityService) {
@@ -208,6 +208,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 		} else if ("gradebook.updateAssignment".equals(event.getEvent()) || ("cond+gradebook.updateAssignment").equals(event.getEvent()) || ("datetime.update".equals(event.getEvent()))) {
 			// this availability applies to the whole Resource, not on a per-user basis
 			// TODO set the resource availability
+      // foo bar baz
 			AssignmentUpdate update = produceAssignmentUpdateFromEvent(event);
 			boolean shouldBeAvailable = this.evaluate(update);
 			try {
@@ -260,12 +261,19 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				Set<String> acl = new HashSet<String>();
 				for (Member member : members) {
 					boolean shouldBeAvailable = false;
-					if (member.getRole().toString().equals(group.getMaintainRole())) {
-						shouldBeAvailable = true;
+					if (member.getRole().getId().equals(group.getMaintainRole())) {
+						// we don't bother putting maintainers in the ACL
+            continue;
 					} else {
-						// TODO how do we get the actual score for each member?
-						Double score = new Double(0);
-						AssignmentGrading grading = produceAssignmentGrading(member.getUserId(), score);
+            Map<String,String> scoreData = conditionService.getConditionProvider("gradebook").getData("grades", assignmentRefParts[2] + "|" + assignmentRefParts[3] + "|" + member.getUserId());
+            String scoreString = scoreData.get("score");
+            Double score = null;
+            try {
+              score = Double.parseDouble(scoreString);
+            } catch (NumberFormatException e) {
+              continue;
+            }
+            AssignmentGrading grading = produceAssignmentGrading(member.getUserId(), score);
 						shouldBeAvailable = this.evaluate(grading);
 					}
 					if (shouldBeAvailable) acl.add(member.getUserId());

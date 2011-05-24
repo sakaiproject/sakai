@@ -67,6 +67,13 @@ public interface ConditionService {
 	 * @param provider the <code>ConditionProvider</code> to be registered
 	 */
 	public void registerConditionProvider(ConditionProvider provider);
+
+  /**
+   *
+   * @param providerId
+   * @return the named ConditionProvider, or null if the provider doesn't exist
+   */
+  public ConditionProvider getConditionProvider(String providerId);
 	
 	/**
 	 * gets the name of the class that the specified event concerns itself with.

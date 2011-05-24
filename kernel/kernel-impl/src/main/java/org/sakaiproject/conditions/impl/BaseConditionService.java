@@ -85,6 +85,10 @@ public class BaseConditionService implements ConditionService, Observer {
 		this.eventLookup.putAll(provider.getEventToDomainClassMapping());
 		this.registeredProviders.put(provider.getId(), provider);
 	}
+
+  public ConditionProvider getConditionProvider(String providerId) {
+    return this.registeredProviders.get(providerId);
+  }
 	
 	public Condition makeBooleanExpression(String eventDataClass, String missingTermQuery, String operatorValue, Object argument) {
 		return new BooleanExpression(eventDataClass, missingTermQuery, operatorValue, argument);

@@ -73,7 +73,12 @@ public class ToyConditionsService implements ConditionService {
 		
 	}
 
-	public Condition makeBooleanExpression(String eventDataClass,
+  public ConditionProvider getConditionProvider(String providerId) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public Condition makeBooleanExpression(String eventDataClass,
 			String missingTermQuery, String operatorValue, Object argument) {
 		// TODO Auto-generated method stub
 		return null;
