@@ -3948,24 +3948,20 @@ public class DiscussionForumTool
   		LOG.debug("selectedTopic is null in processDfMsgReplyThread");
   		return gotoMain();
   	}
-	  //we have to get the depth 0 message that this is in response to
+	  // we have to get the first message that is not a response
 	  DiscussionMessageBean cur = selectedMessage;
-	  int depth = 0;
-	  Long messageId = Long.valueOf(0);
-	  while(cur.getDepth() > 0){
-		  messageId = cur.getMessage().getInReplyTo().getId();
-		  depth = cur.getDepth();
+	  while (cur.getMessage().getInReplyTo() != null) {
 		  cur = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(cur.getMessage().getInReplyTo().getId()), messageManager);
-		  cur.setDepth(--depth);
 	  }
 	  selectedMessage = cur;
+	  
 	  List tempMsgs = selectedTopic.getMessages();
 	    if(tempMsgs != null)
 	    {
 	    	for(int i=0; i<tempMsgs.size(); i++)
 	    	{
 	    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
-	    		if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId().compareTo(messageId) == 0)
+	    		if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId().compareTo(selectedMessage.getMessage().getId()) == 0)
 	    		{
 	    			selectedMessage.setDepth(thisDmb.getDepth());
 	    			selectedMessage.setHasNext(thisDmb.getHasNext());
