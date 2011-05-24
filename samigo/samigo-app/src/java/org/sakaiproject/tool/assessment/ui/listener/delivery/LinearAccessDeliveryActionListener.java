@@ -89,6 +89,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // this returns a HashMap with (publishedItemId, itemGrading)
       HashMap itemGradingHash = service.getLastItemGradingData(id, agent); 
       
+      boolean isFirstTimeBegin = false;
       if (itemGradingHash!=null && itemGradingHash.size()>0){
     	  log.debug("itemGradingHash!=null && itemGradingHash.size()>0");
     	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
@@ -98,6 +99,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
     	  if (ag == null) {
     		  ag = createAssessmentGrading(publishedAssessment);
+    		  isFirstTimeBegin = true;
     	  }
     	  else {
     		  setAttemptDateIfNull(ag);
@@ -112,7 +114,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // version 2.1.1 requirement
       setFeedbackMode(delivery);
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
-    	  setTimer(delivery, publishedAssessment, true);
+    	  setTimer(delivery, publishedAssessment, true, isFirstTimeBegin);
     	  setStatus(delivery, pubService, Long.valueOf(id));
     	  // If it comes from Begin Assessment button clicks, reset isNoQuestion to false
     	  // because we want to always display the first page
@@ -157,7 +159,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     	  }    	  
       }
       else {
-    	  setTimer(delivery, publishedAssessment, false);
+    	  setTimer(delivery, publishedAssessment, false, false);
       }
 
       // extend session time out

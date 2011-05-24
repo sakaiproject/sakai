@@ -193,7 +193,8 @@ public class DeliveryActionListener
       GradingService service = new GradingService();
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
-
+      boolean isFirstTimeBegin = false;
+      
       switch (action){
       case 2: // preview assessment
               setFeedbackMode(delivery);
@@ -316,7 +317,7 @@ public class DeliveryActionListener
                   // this returns a HashMap with (publishedItemId, itemGrading)
                   itemGradingHash = service.getLastItemGradingData(id, agent); //
                   log.debug("**** DeliveryActionListener #1");
-
+                  
                   if (itemGradingHash!=null && itemGradingHash.size()>0){
                 	  log.debug("**** DeliveryActionListener #1a");
                 	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
@@ -326,6 +327,7 @@ public class DeliveryActionListener
                 	  ag = service.getLastSavedAssessmentGradingByAgentId(id, agent);
                 	  if (ag == null) {
                 		  ag = createAssessmentGrading(publishedAssessment);
+                		  isFirstTimeBegin = true;
                 	  }
                 	  else {
                 		  setAttemptDateIfNull(ag);
@@ -341,7 +343,7 @@ public class DeliveryActionListener
               setFeedbackMode(delivery);
               
               if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
-            	  setTimer(delivery, publishedAssessment, true);
+            	  setTimer(delivery, publishedAssessment, true, isFirstTimeBegin);
             	  setStatus(delivery, pubService, Long.valueOf(id));
             	  
             	  if (action == DeliveryBean.TAKE_ASSESSMENT) {
@@ -376,7 +378,7 @@ public class DeliveryActionListener
             	  }
               }
               else {
-            	  setTimer(delivery, publishedAssessment, false);
+            	  setTimer(delivery, publishedAssessment, false, false);
               }
               
               // extend session time out
@@ -2073,7 +2075,7 @@ public class DeliveryActionListener
     }
   }
 
-  protected void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment, boolean fromBeginAssessment){
+  protected void setTimer(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment, boolean fromBeginAssessment, boolean isFirstTimeBegin){
     // i hope to use the property timedAssessment but it appears that this property
     // is not recorded properly in DB - daisyf
     int timeLimit = 0;
@@ -2106,7 +2108,7 @@ public class DeliveryActionListener
         else{  // this is a new timed assessment
           delivery.setTimeElapse("0");
 	}
-        queueTimedAssessment(delivery, timeLimit, fromBeginAssessment, publishedAssessment);
+        queueTimedAssessment(delivery, timeLimit, fromBeginAssessment, publishedAssessment, isFirstTimeBegin);
         delivery.setBeginAssessment(false);
       }
       else{ // in midst of assessment taking, sync it with timedAG
@@ -2122,28 +2124,37 @@ public class DeliveryActionListener
     }
   }
 
-  private void queueTimedAssessment(DeliveryBean delivery, int timeLimit, boolean fromBeginAssessment, PublishedAssessmentFacade publishedAssessment){
-    AssessmentGradingData ag = delivery.getAssessmentGrading();
-    TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-    TimedAssessmentGradingModel timedAG = queue.get(ag.getAssessmentGradingId());
-    if (timedAG == null){
-      timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
-                timeLimit, timeLimit - ag.getTimeElapsed().intValue(),
-                new Date(), new Date(), // need modify later
-		false, getTimerId(delivery), publishedAssessment);
-      queue.add(timedAG);
-      //log.debug("***0. queue="+queue);
-      //log.debug("***1. put timedAG in queue, timedAG="+timedAG);
-    }
-    else{
-      // if timedAG exists && beginAssessment==true, this is dodgy. It means that
-      // users may have exited the assessment via unusual mean (e.g. clicking at
-      // a leftnav bar link). In order to return to the assessment that he is taking,
-      // he must go through the beginAssessment screen again, hence, beginAssessment is set
-      // to true again. In this case, we need to sync up the JScript time with the server time
-      // We need to correct 2 settings based on timedAG: delivery.timeElapse
-      syncTimeElapsedWithServer(timedAG, delivery, fromBeginAssessment);
-    }
+  private void queueTimedAssessment(DeliveryBean delivery, int timeLimit, boolean fromBeginAssessment, PublishedAssessmentFacade publishedAssessment, boolean isFirstTimeBegin){
+	  AssessmentGradingData ag = delivery.getAssessmentGrading();
+	  TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+	  TimedAssessmentGradingModel timedAG = queue.get(ag.getAssessmentGradingId());
+	  if (isFirstTimeBegin){
+		  timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
+				  timeLimit, timeLimit,
+				  new Date(), new Date(), // need modify later
+				  false, getTimerId(delivery), publishedAssessment);
+		  queue.add(timedAG);
+		  //log.debug("***0. queue="+queue);
+		  //log.debug("***1. put timedAG in queue, timedAG="+timedAG);
+	  }
+	  else{
+		  if (timedAG == null){
+			  timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
+					  timeLimit, timeLimit - Math.round((new Date().getTime() - ag.getAttemptDate().getTime())/1000.0f),
+					  new Date(), new Date(), 
+					  false, getTimerId(delivery), publishedAssessment);
+			  queue.add(timedAG);
+		  }
+		  else {
+			  // if timedAG exists && beginAssessment==true, this is dodgy. It means that
+			  // users may have exited the assessment via unusual mean (e.g. clicking at
+			  // a leftnav bar link). In order to return to the assessment that he is taking,
+			  // he must go through the beginAssessment screen again, hence, beginAssessment is set
+			  // to true again. In this case, we need to sync up the JScript time with the server time
+			  // We need to correct 2 settings based on timedAG: delivery.timeElapse
+			  syncTimeElapsedWithServer(timedAG, delivery, fromBeginAssessment);
+		  }
+	  }
   }
 
   private void syncTimeElapsedWithServer(TimedAssessmentGradingModel timedAG, DeliveryBean delivery, boolean fromBeginAssessment){
