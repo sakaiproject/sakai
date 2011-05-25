@@ -198,15 +198,17 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		buf.append(newline);
 
 		// add any attachments
-		List attachments = hdr.getAttachments();
+		List<Reference> attachments = hdr.getAttachments();
 		if (attachments.size() > 0)
 		{
 			buf.append(newline + rb.getString("Attachments") + newline);
-			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
+			for (Iterator<Reference> iAttachments = attachments.iterator(); iAttachments.hasNext();)
 			{
 				Reference attachment = (Reference) iAttachments.next();
 				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				buf.append(attachmentTitle + ": " +attachment.getUrl() + newline);
+				buf.append("<a href=\"" + attachment.getUrl() + "\">");
+				buf.append(attachmentTitle);
+				buf.append("</a>" + newline);
 			}
 		}
 
@@ -473,9 +475,72 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 	@Override
 	protected String plainTextContent(Event event) {
-		String content = htmlContent(event);
-		content = FormattedText.convertFormattedTextToPlaintext(content);
-		return content;
+		StringBuilder buf = new StringBuilder();
+		String newline = "\n\r";
+
+		// get the message
+		Reference ref = EntityManager.newReference(event.getResource());
+		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
+				
+		// use either the configured site, or if not configured, the site (context) of the resource
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+		// get a site title
+		String title = siteId;
+		try
+		{
+			Site site = SiteService.getSite(siteId);
+			title = site.getTitle();
+		}
+		catch (Exception ignore)
+		{
+		}
+
+		// Now build up the message text.
+		if (AnnouncementService.SECURE_ANNC_ADD.equals(event.getEvent()))
+		{
+			buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.add", new Object[]{title,ServerConfigurationService.getString("ui.service", "Sakai"),ServerConfigurationService.getPortalUrl(), siteId})));
+
+		}
+		else
+		{
+			buf.append(FormattedText.convertFormattedTextToPlaintext(rb.getFormattedMessage("noti.header.update", new Object[]{title,ServerConfigurationService.getString("ui.service", "Sakai"),ServerConfigurationService.getPortalUrl(), siteId})));
+
+		}
+		buf.append(newline);
+		buf.append(newline);
+		buf.append(newline);
+		buf.append(rb.getString("Subject"));
+		buf.append(hdr.getSubject());
+		//buf.append(rb.getString("Subject") + ": "); buf.append(hdr.getSubject());
+		buf.append(newline);
+		buf.append(newline);
+		buf.append(rb.getString("Group"));
+		buf.append(getAnnouncementGroup(msg));
+		buf.append(newline);
+		buf.append(newline);
+		buf.append(rb.getString("Message"));
+		buf.append(newline);
+		buf.append(newline);
+		buf.append(FormattedText.convertFormattedTextToPlaintext(msg.getBody()));
+		buf.append(newline);
+		buf.append(newline);
+
+		// add any attachments
+		List attachments = hdr.getAttachments();
+		if (attachments.size() > 0)
+		{
+			buf.append(newline + rb.getString("Attachments") + newline);
+			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
+			{
+				Reference attachment = (Reference) iAttachments.next();
+				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				buf.append(attachmentTitle + ": " +attachment.getUrl() + newline);
+			}
+		}
+
+		return buf.toString();
 	}
 
 }
