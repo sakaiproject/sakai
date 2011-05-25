@@ -308,6 +308,8 @@ public class RosterBean extends CourseDependentBean implements Serializable {
     public void export(ActionEvent event){
     	log.debug("export(");
         List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
+        
+        Map<String, String> sectionTutors = new HashMap<String, String>();
         // Get the section enrollments
         Set<String> studentUids = new HashSet<String>();
         for(Iterator iter = siteStudents.iterator(); iter.hasNext();) {
@@ -319,12 +321,14 @@ public class RosterBean extends CourseDependentBean implements Serializable {
         List<Object> header = new ArrayList<Object>();
         header.add(JsfUtil.getLocalizedMessage("roster_table_header_name"));
         header.add(JsfUtil.getLocalizedMessage("roster_table_header_id"));
+        
 
-        for (Iterator iter = getUsedCategories().iterator(); iter.hasNext();){
+        for (Iterator<String> iter = getUsedCategories().iterator(); iter.hasNext();){
             String category = (String)iter.next();          
             String categoryName = getCategoryName(category);
             header.add(categoryName);
         }
+        header.add(JsfUtil.getLocalizedMessage("roster_table_header_ta"));
         spreadsheetData.add(header);
         for(Iterator enrollmentIter = siteStudents.iterator(); enrollmentIter.hasNext();) {
             //EnrollmentDecorator enrollment = enrollmentIter.next();
@@ -339,8 +343,17 @@ public class RosterBean extends CourseDependentBean implements Serializable {
                 CourseSection section = sectionEnrollments.getSection(record.getUser().getUserUid(), category);
 
                 if(section!=null){
-                    row.add(section.getTitle());
+                	row.add(section.getTitle());
+                	//SAK-20092 add the TA's
+                	if (sectionTutors.get(section.getUuid()) != null) {
+                		row.add(sectionTutors.get(section.getUuid()));
+                	} else {
+                		String ta = getSectionTutorsAsString(section.getUuid());
+                		row.add(ta);
+                		sectionTutors.put(section.getUuid(), ta);
+                	}
                 }else{
+                    row.add("");
                     row.add("");
                 }
             }
@@ -350,6 +363,21 @@ public class RosterBean extends CourseDependentBean implements Serializable {
         SpreadsheetUtil.downloadSpreadsheetData(spreadsheetData, spreadsheetName, new SpreadsheetDataFileWriterXls());
 
     }
+
+    private String getSectionTutorsAsString(String section) {
+    	List<ParticipationRecord> tas = getSectionManager().getSectionTeachingAssistants(section);
+    	StringBuilder sb = new StringBuilder();
+    	for (int i =0; i < tas.size(); i++) {
+    		ParticipationRecord participant = tas.get(i);
+    		if (i > 0) {
+    			sb.append(", ");
+    		}
+    		sb.append(participant.getUser().getDisplayName());
+    	}
+
+    	return sb.toString();
+    }
+
 
     protected String getDownloadFileName(String rawString) {
         String dateString = DateFormat.getDateInstance(DateFormat.SHORT).format(new Date());
