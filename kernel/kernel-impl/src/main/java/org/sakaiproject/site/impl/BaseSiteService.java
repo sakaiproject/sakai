@@ -522,27 +522,46 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		{
 			Site site = getSite(id);
 			
-			//check for softly deleted visit permission
-			if(site.isSoftlyDeleted()) {
-				rv = unlockCheck(SITE_VISIT_SOFTLY_DELETED, site.getReference());
-			}
-			
-			else if (site.isPublished())
-			{
-				rv = unlockCheck(SITE_VISIT, site.getReference());
-			}
-
-			else
-			{
-				rv = unlockCheck(SITE_VISIT_UNPUBLISHED, site.getReference());
-			}
+			allowAccessSite(site);
+			rv = true;
 		}
 		catch (Exception ignore)
 		{
+			// Not needed but makes the code clearer.
+			rv = false;
 		}
 
 		return rv;
 	}
+	
+	/**
+	 * Checks to see if the current user has access to the site and throws an exception if they don't.
+	 * This was extracted to keep the code common to getSiteVisit and allowSiteAccess
+	 * @throws PermissionException If the user isn't allowed to access the site.
+	 */
+	protected void allowAccessSite(Site site) throws PermissionException
+	{
+		if (site.isSoftlyDeleted())
+		{
+			unlock(SITE_VISIT_SOFTLY_DELETED, site.getReference());
+		}
+		else
+		{
+			if (site.isPublished())
+			{
+				unlock(SITE_VISIT, site.getReference());
+			}
+			else
+			{
+				String roleswap = securityService().getUserEffectiveRole(site.getReference());
+				if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished c
+					unlock(SITE_VISIT, site.getReference());
+				else
+					unlock(SITE_VISIT_UNPUBLISHED, site.getReference());
+			}
+		}
+	}
+
 
 	/**
 	 * Access site object from Cache (if available)
@@ -759,24 +778,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// get the site
 		Site rv = getSite(id);
 		
-		//check if user has permission to visit a site that has been softly deleted
-		if(rv.isSoftlyDeleted()) {
-			unlock(SITE_VISIT_SOFTLY_DELETED, rv.getReference());
-		}
-		
-		// check for visit permission
-		if (rv.isPublished())
-		{
-			unlock(SITE_VISIT, rv.getReference());
-		}
-		else
-		{
-			String roleswap = securityService().getUserEffectiveRole(rv.getReference());
-			if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished check
-				unlock(SITE_VISIT, rv.getReference());
-			else
-				unlock(SITE_VISIT_UNPUBLISHED, rv.getReference());
-		}
+		// Check is user has access, throws PermissionException if the user doesn't
+		allowAccessSite(rv);
 
 		return rv;
 	}
