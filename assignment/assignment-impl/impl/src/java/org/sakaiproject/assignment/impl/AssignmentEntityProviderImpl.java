@@ -203,7 +203,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
                 // filter to obtain only grade-able assignments
                 while (assignmentSorter.hasNext()) {
                     Assignment a = (Assignment) assignmentSorter.next();
-                    if (assignmentService.allowGradeSubmission(a.getReference())) {
+                    if (!a.getDraft() && assignmentService.allowGradeSubmission(a.getReference())) {
                         rv.add(Entity.SEPARATOR + ENTITY_PREFIX + Entity.SEPARATOR + a.getId());
                     }
                 }
