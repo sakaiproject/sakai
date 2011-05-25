@@ -48,9 +48,9 @@
             	<h:selectBooleanCheckbox id="openSwitch" value="#{optionsBean.openSwitch}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
                 <h:outputText value="#{msgs.section_open_info}"/>
                 <h:inputText id="openDate" value="#{optionsBean.openDate}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
-                <script src="/samigo/jsf/widget/datepicker/datepicker.js" type="text/javascript"></script>
-                <img  id="calendar" onclick="javascript:var cal = new calendar2(document.getElementById('optionsForm:openDate'), cal_gen_date2_dm, cal_prs_date2_dm);cal.year_scroll = true;cal.time_comp = true;cal.popup('','/samigo/html/');"
-                      width="16"  height="16"  style="cursor:pointer;"   src="/samigo/images/calendar/cal.gif"  border="0" />
+                <script src="/samigo-app/jsf/widget/datepicker/datepicker.js" type="text/javascript"></script>
+                <img  id="calendar" onclick="javascript:var cal = new calendar2(document.getElementById('optionsForm:openDate'), cal_gen_date2_dm, cal_prs_date2_dm);cal.year_scroll = true;cal.time_comp = true;cal.popup('','/samigo-app/html/');"
+                      width="16"  height="16"  style="cursor:pointer;"   src="/samigo-app/images/calendar/cal.gif"  border="0" />
 			</t:div>
         </t:div>
     
