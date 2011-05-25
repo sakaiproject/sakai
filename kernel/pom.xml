@@ -675,6 +675,14 @@
                 <artifactId>hibernate</artifactId>
                 <version>3.2.7.ga</version>
                 <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <!-- Due to artifact now being ehcache-core eclipse:eclipse was including
+                             both copies of the JAR in the project. -->
+                        <groupId>net.sf.ehcache</groupId>
+                        <artifactId>ehcache</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>hsqldb</groupId>
