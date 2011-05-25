@@ -36,7 +36,8 @@ public class CourseImpl implements Course, Serializable {
 	public static final String EXTERNALLY_MAINTAINED = "sections_externally_maintained";
 	public static final String STUDENT_REGISTRATION_ALLOWED = "sections_student_registration_allowed";
 	public static final String STUDENT_SWITCHING_ALLOWED = "sections_student_switching_allowed";
-	
+	public static final String STUDENT_OPEN_DATE = "sections_student_open_date";
+
 	/**
 	 * Creates a course from a sakai Site
 	 * 

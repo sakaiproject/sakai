@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Calendar;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1731,5 +1732,50 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 
 	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
 		this.threadLocalManager = threadLocalManager;
+	}
+	public Calendar getOpenDate(String siteId) {
+		//Reference ref = entityManager.newReference(courseUuid);
+		//String siteId = ref.getId();
+		Site site;
+		try {
+			site = siteService().getSite(siteId);
+		} catch (IdUnusedException e) {
+			throw new RuntimeException("Can not find site " + siteId, e);
+		}
+		ResourceProperties props = site.getProperties();
+		String open=props.getProperty(CourseImpl.STUDENT_OPEN_DATE);
+		Calendar c=null;
+		if (open!=null && open.length()>0){
+			c = Calendar.getInstance();
+			c.setTimeInMillis(Long.parseLong(open));
+		}
+		return c;
+	}
+
+	public void setOpenDate(String courseUuid, Calendar openDate) {
+		// Disallow if the service is configured to be mandatory
+		Reference ref = entityManager.newReference(courseUuid);
+		String siteId = ref.getId();
+		Site site;
+		try {
+			site = siteService().getSite(siteId);
+		} catch (IdUnusedException e) {
+			throw new RuntimeException("Can not find site " + courseUuid, e);
+		}
+		ResourceProperties props = site.getProperties();
+		// Update the site
+		if (openDate!=null) {
+			props.addProperty(CourseImpl.STUDENT_OPEN_DATE, Long.toString(openDate.getTimeInMillis()));
+		} else {
+			props.addProperty(CourseImpl.STUDENT_OPEN_DATE, null);
+		}
+		try {
+			siteService().save(site);
+			if(log.isDebugEnabled()) log.debug("Saved site " + site.getTitle());
+		} catch (IdUnusedException ide) {
+			log.error("Error saving site... could not find site " + site, ide);
+		} catch (PermissionException pe) {
+			log.error("Error saving site... permission denied for " + site, pe);
+		}
 	}
 }

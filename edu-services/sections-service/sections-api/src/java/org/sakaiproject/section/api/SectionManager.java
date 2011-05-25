@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Calendar;
 
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -529,5 +530,12 @@ public interface SectionManager {
 	public ExternalIntegrationConfig getConfiguration(Object obj);
 
 	public static final String CONFIGURATION_KEY="section.info.integration";
-
+	/**
+	* Determines when the section options are open to students.
+	*
+	* @param courseUuid
+	* @return
+	*/
+	public Calendar getOpenDate(String courseUid);
+	public void setOpenDate(String courseUuid,Calendar openDate);
 }

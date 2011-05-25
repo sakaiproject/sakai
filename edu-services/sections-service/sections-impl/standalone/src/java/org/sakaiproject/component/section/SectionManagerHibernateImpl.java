@@ -35,6 +35,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Calendar;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -958,4 +959,22 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 		}
 		return hibernateEntities;
 	}
+
+	public Calendar getOpenDate(String courseUid) {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DAY_OF_MONTH,-1);
+		return c;
+	}
+
+	public void setOpenDate(final String courseUuid, final Calendar openDate) {
+		HibernateCallback hc = new HibernateCallback(){
+			public Object doInHibernate(Session session) throws HibernateException {
+				CourseImpl course = (CourseImpl)getCourseFromUuid(courseUuid, session);
+				//course.setOpenDate(openDate);
+				session.update(course);
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hc);
+	}	
 }
