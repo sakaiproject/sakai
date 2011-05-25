@@ -1,6 +1,7 @@
 package org.sakaiproject.tool.section;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +13,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
+import org.sakaiproject.section.api.SectionManager;
+import org.sakaiproject.component.section.sakai.SectionManagerImpl;
+import org.sakaiproject.tool.section.jsf.backingbean.StudentViewBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -44,7 +48,16 @@ public class EntryServlet extends HttpServlet {
             path.append("/overview.jsf");
         } else if (viewOwnSections) {
             if(log.isDebugEnabled()) log.debug("Sending user to the student view page");
-            path.append("/studentView.jsf");
+            //Control if the access to the groups is closed
+            SectionManager sm = (SectionManager)ac.getBean("org.sakaiproject.section.api.SectionManager");
+            Calendar open = sm.getOpenDate(siteContext);
+            Calendar now = Calendar.getInstance();
+            if (now.before(open)) {
+            	System.out.println("SECTIONS: Grupos Cerrados...");
+            	path.append("/closed.jsf");
+            }else {
+            	path.append("/studentView.jsf");
+            };
         } else {
             // The role filter has not been invoked yet, so this could happen here
             path.append("/noRole.jsp");

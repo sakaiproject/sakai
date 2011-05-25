@@ -119,6 +119,8 @@ public class RoleFilter implements Filter {
 			} else if (authz.isViewOwnSectionsAllowed(userUid, siteContext)
 					&& authzFilterConfigBean.getViewOwnSections().contains(pageName)) {
 				isAuthorized = true;
+			} else if (pageName.contains("closed")) {
+				isAuthorized = true;
 			}
 
 			// SAK-13408 - This fix addresses the problem of the filter receiving a blank field on WebSphere.

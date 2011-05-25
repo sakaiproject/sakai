@@ -13,6 +13,11 @@
             <to-view-id>/overview.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+         <navigation-case>
+            <from-outcome>closed</from-outcome>
+            <to-view-id>/closed.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>        
         <navigation-case>
             <from-outcome>editSection</from-outcome>
             <to-view-id>/editSection.jsp</to-view-id>

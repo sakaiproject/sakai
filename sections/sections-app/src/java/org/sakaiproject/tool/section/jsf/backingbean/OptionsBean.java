@@ -27,7 +27,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
-
+import java.util.Calendar;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 /**
  * Controls the options page.
  * 
@@ -47,7 +49,10 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private String management;
 	private boolean confirmMode;
 	private boolean managementToggleEnabled;
-
+	private boolean openSwitch;
+	private Calendar openDate;
+	private boolean errorflag;
+	
 	public void init() {
 		// We don't need to initialize the bean when we're in confirm mode
 		if(confirmMode) {
@@ -71,6 +76,12 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		} else {
 			management = INTERNAL;
 		}
+		this.openDate = sm.getOpenDate(getCourse().getSiteContext());
+		if (this.openDate!=null){
+			openSwitch=true;
+		} else {
+			openSwitch=false;
+		}
 	}
 
 	public String confirmExternallyManaged() {
@@ -82,6 +93,9 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	}
 	
 	public String update(boolean checkForConfirmation) {
+		if (errorflag) {
+			return "options";
+		}
 		if(!isSectionOptionsManagementEnabled()) {
 			// This should never happen
 			log.warn("Updating section options not permitted for user " + getUserUid());
@@ -106,6 +120,9 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		// If we're externally managed, these will automatically be set to false
 		if(INTERNAL.equals(management) || management == null) {
 			getSectionManager().setJoinOptions(courseUuid, selfRegister, selfSwitch);
+			// Update the open date
+			if (!openSwitch) {this.openDate=null;};
+			getSectionManager().setOpenDate(courseUuid,openDate);
 		}
 		
 		// TODO Customize the message depending on the action taken
@@ -129,6 +146,13 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		this.selfSwitch = selfSwitch;
 	}
 
+	public boolean isOpenSwitch() {
+		return openSwitch;
+	}
+
+	public void setOpenSwitch(boolean openSwitch) {
+		this.openSwitch = openSwitch;
+	}
 	/**
 	 * See http://issues.apache.org/jira/browse/MYFACES-570 for the reason for this boolean/String hack
 	 * @return
@@ -158,5 +182,28 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	public boolean isManagementToggleEnabled() {
 		return managementToggleEnabled;
 	}
+	public String getOpenDate() {
+		if (openDate == null) {
+			return null;
+		} else {
+			SimpleDateFormat sd = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+			return sd.format(openDate.getTime());
+		}
+	}
 
+	public void setOpenDate(String date){
+		if (date==null || date.length()==0) {
+			this.openDate=null;
+		}else{
+			SimpleDateFormat sd = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a");
+			Calendar p = Calendar.getInstance();
+			try {
+				p.setTime(sd.parse(date));
+			} catch (Exception e){
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_date_format"));
+				errorflag=true;
+			};
+			this.openDate=p;
+		}
+	}
 }
