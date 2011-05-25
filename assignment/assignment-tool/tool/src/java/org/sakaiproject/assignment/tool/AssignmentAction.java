@@ -4196,6 +4196,11 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setGraded(false);
 							sEdit.setGrade("");
 							sEdit.setGradeReleased(false);
+							
+							// clean the ContentReview attributes
+							sEdit.setReviewIconUrl(null);
+							sEdit.setReviewScore(0); // default to be 0?
+							sEdit.setReviewStatus(null);
 
 							// keep the history of assignment feed back text
 							String feedbackTextHistory = sPropertiesEdit
