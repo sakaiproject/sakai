@@ -216,7 +216,7 @@
 			
 			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
 					   	
-			<sakai:inputRichText rows="22" cols="120" id="pvt_forward_body" value="#{PrivateMessagesTool.forwardBody}">
+			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="22" cols="120" id="pvt_forward_body" value="#{PrivateMessagesTool.forwardBody}">
 				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
             
