@@ -850,6 +850,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   
   public boolean isModeratePostings(Long topicId, Boolean isForumLocked, Boolean isForumDraft, Boolean isTopicLocked, Boolean isTopicDraft, String userId, String siteId)
   {
+    // NOTE: the forum or topic being locked should not affect a user's ability to moderate,
+    // so logic related to the locked status was removed
     if (checkBaseConditions(null, null, userId, "/site/" + siteId))
     {
       return true;
@@ -861,11 +863,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         return true;
       }
       
-       if (isTopicLocked == null || isTopicLocked.equals(Boolean.TRUE))
-    {
-      LOG.debug("This topic is locked " + topicId);
-      return false;
-    }
     if (isTopicDraft == null || isTopicDraft.equals(Boolean.TRUE))
     {
       LOG.debug("This topic is at draft stage " + topicId);
@@ -876,9 +873,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         DBMembershipItem item = (DBMembershipItem) iter.next();
         if (item.getPermissionLevel().getModeratePostings().booleanValue()
             && isForumDraft.equals(Boolean.FALSE)
-            && isForumLocked.equals(Boolean.FALSE)
-            && isTopicDraft.equals(Boolean.FALSE)
-            && isTopicLocked.equals(Boolean.FALSE))
+            && isTopicDraft.equals(Boolean.FALSE))
         {
           return true;
         }
