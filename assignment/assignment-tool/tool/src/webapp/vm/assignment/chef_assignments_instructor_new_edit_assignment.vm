@@ -1290,8 +1290,8 @@ $(document).ready(function() {
 				</tbody>
 			</table>	
 			<p class="act" style="margin:0;padding:0">
-				<input class="extraNodeInput" type="button" id="allPurpose_save" value="Save" class="active"/>
-				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="Cancel" />
+				<input class="extraNodeInput" type="button" id="allPurpose_save" value="$tlang.getString("allPurpose_save")" class="active"/>
+				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
 			<div class="act">
