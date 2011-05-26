@@ -587,6 +587,7 @@ public class MemCache implements Cache, Observer
 
 		if (disabled()) return;
 
+		// We could get things wrong here.
 		final Object value = get(key);
 		boolean found = cache.remove(key);
 

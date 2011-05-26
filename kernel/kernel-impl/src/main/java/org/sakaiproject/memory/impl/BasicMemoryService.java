@@ -47,6 +47,7 @@ import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.Cacher;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.MultiRefCache;
@@ -619,6 +620,14 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	}
 
 	public MultiRefCache newMultiRefCache(String cacheName) {
+		return new MultiRefCacheImpl(
+				this,
+				eventTrackingService(),
+				authzGroupService(),
+				instantiateCache(cacheName));
+	}
+	
+	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
 		return new MultiRefCacheImpl(
 				this,
 				eventTrackingService(),

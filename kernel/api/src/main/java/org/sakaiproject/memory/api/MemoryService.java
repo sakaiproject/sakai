@@ -194,6 +194,14 @@ public interface MemoryService
 	MultiRefCache newMultiRefCache(String cacheName);
 
 	/**
+	 * Construct a multi-ref Cache. No automatic refresh: expire only, from time and events.
+	 * 
+	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 */
+	GenericMultiRefCache newGenericMultiRefCache(String cacheName);
+	
+	
+	/**
 	 * Get a status report of memory users.
 	 * 
 	 * @return A status report of memory users.

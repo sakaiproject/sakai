@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/api/src/main/java/org/sakaiproject/memory/api/MultiRefCache.java $
+ * $Id: MultiRefCache.java 66305 2009-09-06 10:14:27Z david.horwitz@uct.ac.za $
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006, 2008 Sakai Foundation
@@ -25,28 +25,17 @@ import java.util.Collection;
 
 /**
  * <p>
- * MultiRefCache is a cache that holds objects and a set of references that the cached entry are dependent on - if any change, the entry is invalidated.
- * The additional references can only be AuthzGroups.
- * @see GenericMultiRefCache
- * @deprecated Since Kernel 1.2
+ * GenricMultiRefCache is a cache that holds objects and a set of references that the cached entry are dependent on - if any change, the entry is invalidated.
  * </p>
  */
-public interface MultiRefCache extends Cache
+public interface GenericMultiRefCache extends Cache
 {
 	/**
-	 * Cache an object
-	 * 
-	 * @param key
-	 *        The key with which to find the object.
-	 * @param payload
-	 *        The object to cache.
-	 * @param duration
-	 *        The time to cache the object (seconds).
-	 * @param ref
-	 *        One entity reference that, if changed, will invalidate this entry.
-	 * @param azgIds
-	 *        AuthzGroup ids that, if the changed, will invalidate this entry.
+	 * Cache an object that depends on more than just the key. This doesn't just work for
+	 * authz but anything.
+	 * @param key The key with which to find the payload.
+	 * @param payload The cached object.
+	 * @param dependRefs All the references that this cached object depends on.
 	 */
-	void put(Object key, Object payload, int duration, String ref, Collection<String> azgIds);
-
+	void put(Object key, Object payload, String ref, Collection<String> dependRefs);
 }
