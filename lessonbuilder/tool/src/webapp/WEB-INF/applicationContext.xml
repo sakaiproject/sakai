@@ -18,6 +18,12 @@
   </bean>
  
 
+  <bean id="messageSource" 
+	class="org.sakaiproject.util.ResourceLoaderMessageSource"> 
+    <property name="basename" value="classpath:messages"/> 
+    <property name="cacheSeconds" value="10" /> 
+  </bean> 
+
 	<!-- Control the location of the html templates (default: content/templates/) -->
 	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
 		<property name="baseDirectory" value="templates/" />
