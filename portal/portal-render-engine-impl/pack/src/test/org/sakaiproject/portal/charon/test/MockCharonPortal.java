@@ -537,7 +537,9 @@ public class MockCharonPortal extends HttpServlet
 		int e = t.getParseErrors();
 		int w = t.getParseWarnings();
 		errorOut.close();
-		if ( e != 0 || w != 0 ) {
+		// JTidy r938 became more agressive about warnings
+		// if ( e != 0 || w != 0 ) {
+		if ( e != 0 ) {
 			log.info("Context Dump is " + rcontext.dump());
 			throw new RuntimeException("Error in HTML see "+errorFile);
 		}

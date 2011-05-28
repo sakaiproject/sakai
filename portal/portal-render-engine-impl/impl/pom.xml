@@ -66,8 +66,7 @@
     <dependency>
       <groupId>jtidy</groupId>
       <artifactId>jtidy</artifactId>
-      <version>4aug2000r7-dev</version>
-      <scope>test</scope>
+      <version>r938</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
