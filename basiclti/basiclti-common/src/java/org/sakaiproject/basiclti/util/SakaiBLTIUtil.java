@@ -107,7 +107,7 @@ public class SakaiBLTIUtil {
         setProperty(info, "key", getCorrectProperty(config,"key", placement) );
         setProperty(info, "debug", getCorrectProperty(config,"debug", placement) );
         setProperty(info, "frameheight", getCorrectProperty(config,"frameheight", placement) );
-        setProperty(info, "newwindow", getCorrectProperty(config,"newwindow", placement) );
+        setProperty(info, "newpage", getCorrectProperty(config,"newpage", placement) );
         setProperty(info, "title", getCorrectProperty(config,"tooltitle", placement) );
 
 	// Pull in and parse the custom parameters
@@ -190,11 +190,20 @@ public class SakaiBLTIUtil {
 			setProperty(props,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 			setProperty(props,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 		}
- 
-	        String assignment = toNull(getCorrectProperty(config,"assignment", placement));
-                String allowOutcomes = ServerConfigurationService.getString(
+
+	        String assignment = null;
+		// It is a little tricky - the tool configuration on/off decides whether
+		// We check the serverCongigurationService true/false
+		// We use the tool configuration to force outcomes off regardless of
+		// server settings (i.e. an external tool never wants the outcomes
+		// UI shown because it simply does not handle outcomes).
+	        String allowOutcomes = toNull(getCorrectProperty(config,"allowoutcomes", placement));
+                if ( ! "off".equals(allowOutcomes) ) {
+	        	assignment = toNull(getCorrectProperty(config,"assignment", placement));
+                	allowOutcomes = ServerConfigurationService.getString(
                                 SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-                if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+                	if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+		}
 
 	        String allowSettings = toNull(getCorrectProperty(config,"allowsettings", placement));
                 if ( ! "on".equals(allowSettings) ) allowSettings = null;
@@ -413,7 +422,7 @@ public class SakaiBLTIUtil {
         if ( launch == null ) return postError("<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>");
         dPrint("LAUNCH III="+launch);
 
-	boolean dodebug = toNull(info.getProperty("debug")) != null;
+	boolean dodebug = "on".equals(info.getProperty("debug"));
         String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, dodebug);
 
         String [] retval = { postData, launch_url };

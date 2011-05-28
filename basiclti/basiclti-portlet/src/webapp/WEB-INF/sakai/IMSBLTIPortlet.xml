@@ -41,6 +41,7 @@
                 <configuration name="imsti.custom" />
                 <configuration name="imsti.allowsettings" />
                 <configuration name="imsti.allowroster" />
+                <configuration name="imsti.allowoutcomes" />
                 <configuration name="imsti.contentlink" />
 
                 <!-- Setting these to true means the corresponding above values 
@@ -61,6 +62,7 @@
                 <configuration name="final.custom" value="false"/>
                 <configuration name="final.allowsettings" value="false"/>
                 <configuration name="final.allowroster" value="false"/>
+                <configuration name="final.allowoutcomes" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
@@ -68,39 +70,59 @@
 
         </tool>
 
+        <!--Add New Tools Here -->
         <!--
         <tool
-                        id="sakai.wisdom"
-                        title="Crowds"
-                        description="Wisdom of Crowds - James Surowecki.">
+                        id="sakai.imstestlti"
+                        title="Awsomeness"
+                        description="IMS Basic LTI Test.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
                 <category name="course" />
                 <category name="project" />
-		<category name="portfolio" />
+		 <category name="portfolio" />
 
                 <configuration name="functions.require" />
 
-                <configuration name="imsti.launch" value="http://wiscrowd.appspot.com/wiscrowd/12345/" />
+                <configuration name="imsti.launch"
+                   value="http://www.imsglobal.org/developers/BLTI/tool.php" />
                 <configuration name="imsti.xml" />
                 <configuration name="imsti.secret" value="secret" />
-                <configuration name="imsti.key" value="12345" />
+                <configuration name="imsti.key" value="lmsng.school.edu" />
+
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
-                <configuration name="imsti.frameheight" />
+                <configuration name="imsti.newpage" value="off" />
+                <configuration name="imsti.maximize" value="on" />
+                <configuration name="imsti.frameheight" value="1024" />
                 <configuration name="imsti.debug" />
+                <configuration name="imsti.releasename" value="off"/>  
+                <configuration name="imsti.releaseemail" value="on"/> 
+                <configuration name="imsti.custom" />
+                <configuration name="imsti.allowsettings" value="on"/>
+                <configuration name="imsti.allowroster" value="on"/> 
+                <configuration name="imsti.allowoutcomes" value="on"/> 
+                <configuration name="imsti.contentlink" />
 
                 <configuration name="final.launch" value="true"/>
                 <configuration name="final.xml" value="true"/>
                 <configuration name="final.secret" value="true"/>
                 <configuration name="final.key" value="true"/>
+
                 <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
-                <configuration name="final.newpage" value="false"/>
-                <configuration name="final.frameheight" value="false"/>
+                <configuration name="final.newpage" value="true"/>
+                <configuration name="final.maximize" value="true"/>
+                <configuration name="final.frameheight" value="true"/>
                 <configuration name="final.debug" value="false"/>
-
+                <configuration name="final.releasename" value="true"/>
+                <configuration name="final.releaseemail" value="true"/>
+                <configuration name="final.custom" value="true"/>
+                <configuration name="final.allowsettings" value="true"/>
+                <configuration name="final.allowroster" value="true"/>
+                <configuration name="final.allowoutcomes" value="true"/>
+                <configuration name="final.contentlink" value="true"/>
         </tool>
         -->
 
