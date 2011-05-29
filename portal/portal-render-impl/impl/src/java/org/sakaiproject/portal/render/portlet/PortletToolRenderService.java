@@ -23,6 +23,7 @@ package org.sakaiproject.portal.render.portlet;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -69,9 +70,12 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 
+import org.w3c.tidy.Tidy;
+
 /**
  * @author ddwolf
  * @author ieb
+ * @author csev
  * @since Sakai 2.4
  * @version $Rev$
  */
@@ -330,6 +334,24 @@ public class PortletToolRenderService implements ToolRenderService
 			{
 				renderResponse();
 				storedContent = bufferedResponse.getInternalBuffer().getBuffer().toString();
+				if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy", "true")) ) return storedContent;
+
+				Tidy tidy = new Tidy();
+				tidy.setIndentContent(true);
+				tidy.setSmartIndent(true);
+				tidy.setPrintBodyOnly(true);
+				tidy.setTidyMark(false);
+				tidy.setDocType("loose");
+				if ( ! "true".equals(ServerConfigurationService.getString("portal.portlet.tidy.warnings", "false")) )
+				{
+					tidy.setQuiet(true);
+					tidy.setShowWarnings(false);
+				}
+				StringReader is = new StringReader(storedContent);
+				StringWriter os = new StringWriter();
+				tidy.parse(is,os); // parse() throws no errors
+				String tidyOutput = os.toString();
+				if ( tidyOutput != null && tidyOutput.length() > 0 ) storedContent = tidyOutput;
 				return storedContent;
 			}
 			catch(ToolRenderException e)
