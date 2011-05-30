@@ -127,10 +127,16 @@ public class SignupUser implements Comparable {
 		if (value != 0)
 			return value;
 
-		if (firstName == null)
-			return value;// value=0
+		if (firstName == null && other.getFirstName() !=null)
+			return -1;
+		
+		if (firstName != null){
+			value = firstName.compareTo(other.getFirstName());
+			if(value !=0)
+				return value;
+		}
 
-		return firstName.compareTo(other.getFirstName());
+		return eid !=null? eid.compareTo(other.getEid()): 0;
 
 	}
 

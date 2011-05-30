@@ -25,6 +25,7 @@ package org.sakaiproject.signup.tool.jsf.organizer;
 import org.sakaiproject.signup.tool.jsf.AttendeeWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -99,6 +100,20 @@ public class ViewCommentSignupMBean extends SignupUIBaseBean {
 	 */
 	public SignupMeetingWrapper getMeetingWrapper() {
 		return meetingWrapper;
+	}
+	
+	/**
+	 * show the attendee's Eid (user Id)
+	 * @return eid String
+	 */
+	public String getAttendeeEid(){
+		String eid =attendeeWraper.getSignupAttendee().getAttendeeUserId();
+		User user = sakaiFacade.getUser(attendeeWraper.getSignupAttendee().getAttendeeUserId());
+		if(user !=null){
+			eid = user.getEid();
+		}
+
+		return eid;
 	}
 
 }

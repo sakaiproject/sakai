@@ -1367,8 +1367,23 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.allAttendees = new ArrayList<SelectItem>();
 		SelectItem sItem = new SelectItem("", " " + Utilities.rb.getString("label.select.attendee"));
 		allAttendees.add(sItem);
+		String previous_displayName ="";
+		int index = 0;
 		for (SignupUser user : allSignupUsers) {
-			allAttendees.add(new SelectItem(user.getEid(), user.getDisplayName()));
+			if(user.getDisplayName().equals(previous_displayName)){
+				allAttendees.add(new SelectItem(user.getEid(), user.getDisplayName()+ "(" + user.getEid() +")"));
+				SelectItem prev_sItem = allAttendees.get(index);
+				//checking: not already has eid for triple duplicates case
+				if(!prev_sItem.getLabel().contains("(")){
+					prev_sItem.setLabel(prev_sItem.getLabel() + " (" + prev_sItem.getValue() +")");
+				}
+				
+			}else {
+				allAttendees.add(new SelectItem(user.getEid(), user.getDisplayName()));
+			}
+			
+			previous_displayName = user.getDisplayName();
+			index++;
 		}
 	}
 

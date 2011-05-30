@@ -384,6 +384,7 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		}
 
 		boolean isOnWaitingList = false;
+		boolean isMeetingSpaceAvail = false;
 		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
 		for (SignupTimeslot timeslot : signupTimeSlots) {
 			List<SignupAttendee> attendees = timeslot.getAttendees();
@@ -406,10 +407,17 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 			int size = (attendees == null) ? 0 : attendees.size();
 			if (!isOnWaitingList
 					&& isSignupBegin
+					&& !timeslot.isLocked()
+					&& !timeslot.isCanceled()
 					&& (size < timeslot.getMaxNoOfAttendees() || timeslot
 							.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {
 				availableStatus = rb.getString("event.available");
+				isMeetingSpaceAvail =true;
 			}
+		}
+		
+		if(isMeetingSpaceAvail && meeting.isLocked()){
+			availableStatus = rb.getString("event.meeting.locked");
 		}
 
 		return availableStatus;
