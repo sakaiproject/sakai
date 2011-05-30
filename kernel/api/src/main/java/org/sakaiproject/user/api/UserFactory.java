@@ -34,4 +34,11 @@ public interface UserFactory
 	 * @return a new UserEdit object.
 	 */
 	UserEdit newUser();
+	
+	/**
+	 * Create a new User (UserEdit) object mapped with the given eid. This userEdit object will also have its ID attribute set.
+	 * @param eid	eid of the user to associate this object with
+	 * @return a new UserEdit object.
+	 */
+	UserEdit newUser(String eid);
 }

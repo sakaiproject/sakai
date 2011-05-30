@@ -1271,10 +1271,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		
 		if (providedUserRecords != null){
 			for (UserEdit user : providedUserRecords){
-				checkAndEnsureMappedIdForProvidedUser(user);
+				//KNL-741 these useredit objects already have the eid-id mapping
+				//checkAndEnsureMappedIdForProvidedUser(user);
 				users.add(user);
 			}
 		}
+		
 		
 		return users;
 	}
@@ -1832,6 +1834,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public UserEdit newUser()
 	{
 		return new BaseUserEdit();
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public UserEdit newUser(String eid)
+	{
+		UserEdit u = new BaseUserEdit();
+		u.setEid(eid);
+		checkAndEnsureMappedIdForProvidedUser(u);
+		return u;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
