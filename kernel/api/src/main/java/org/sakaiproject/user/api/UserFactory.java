@@ -24,13 +24,15 @@ package org.sakaiproject.user.api;
 /**
  * <p>
  * UserFactory is an interface for facility to create User objects consistent with the current UserDirectoryService implementation.
+ * This is useful when a provider is wanting to create user objects to be returned from a
+ * {@link ExternalUserSearchUDP#searchExternalUsers(String, int, int, UserFactory)} call.
  * </p>
  */
 public interface UserFactory
 {
 	/**
 	 * Create a new User (UserEdit) object.
-	 * 
+	 * @deprecated {@link #newUser(String)} should be used instead which presets the user ID.
 	 * @return a new UserEdit object.
 	 */
 	UserEdit newUser();

@@ -1271,8 +1271,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		
 		if (providedUserRecords != null){
 			for (UserEdit user : providedUserRecords){
-				//KNL-741 these useredit objects already have the eid-id mapping
-				//checkAndEnsureMappedIdForProvidedUser(user);
+				// KNL-741 these useredit objects should already have the eid-id mapping
+				// But just incase the provider hasn't mapped them.
+				checkAndEnsureMappedIdForProvidedUser(user);
 				users.add(user);
 			}
 		}

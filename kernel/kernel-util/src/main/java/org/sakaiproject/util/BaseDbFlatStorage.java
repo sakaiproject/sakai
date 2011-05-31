@@ -1117,6 +1117,9 @@ public class BaseDbFlatStorage
 	{
 		// if not properties table set, skip it
 		if (table == null) return;
+		
+		// if id is null then we won't be able to load/cache anything.
+		if (id == null) return;
 
 		// the properties to fill in
 		final Properties props = p;
