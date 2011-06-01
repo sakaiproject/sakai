@@ -298,6 +298,49 @@
           			<tagBase>https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/tags/</tagBase>
         		</configuration>
         	</plugin>
+        	
+        	<!-- license plugin -->
+        	<plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.8.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>../licenses/apache-license-2-template.txt</header>
+                    <quiet>false</quiet>
+                    <failIfMissing>false</failIfMissing>
+                    <aggregate>false</aggregate>
+                    <includes>
+                        <include>src/main/**/*.java</include>
+                        <include>src/main/webapp/pages/*.jsp</include>
+                        <include>src/main/webapp/style/*.css</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*.doc</exclude>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/*.sql</exclude>
+                    </excludes>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <properties>
+                        <year>${project.inceptionYear}-2011</year>
+                        <holder>The Australian National University</holder>
+                    </properties>
+                    <encoding>UTF-8</encoding>
+                    <strictCheck>true</strictCheck>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 			
 		</plugins>
 		
