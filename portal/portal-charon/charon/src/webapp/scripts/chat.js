@@ -100,7 +100,7 @@ function PortalChat() {
      * This is a bad news failure. Clear the getLatestData interval.
      */
     this.handleSecurityError = function () {
-	    alert("Sakai security error. Maybe your Sakai session has timed out?");
+	    //alert("Sakai security error. Maybe your Sakai session has timed out?");
 	    portalChat.clearGetLatestDataInterval();
         return;
     }
@@ -525,6 +525,7 @@ function PortalChat() {
 
 				if(403 == xhr.status) {
                     portalChat.handleSecurityError();
+                    return;
                 }
 
 				if(portalChat.connectionErrors >= 2) {
