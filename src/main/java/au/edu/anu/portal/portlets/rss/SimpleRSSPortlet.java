@@ -17,7 +17,6 @@
 package au.edu.anu.portal.portlets.rss;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.portlet.ActionRequest;
@@ -42,10 +41,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.sun.syndication.feed.synd.SyndFeed;
-
 import au.edu.anu.portal.portlets.rss.utils.Constants;
 import au.edu.anu.portal.portlets.rss.utils.Messages;
+
+import com.sun.syndication.feed.synd.SyndFeed;
 
 
 /**
@@ -70,8 +69,8 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	private Cache feedCache;
 	private Cache imageCache;
 	
-	private final String FEED_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed";
-	private final String IMAGE_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images";
+	private static final String FEED_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed";
+	private static final String IMAGE_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images";
 	
 	public void init(PortletConfig config) throws PortletException {	   
 	   super.init(config);
