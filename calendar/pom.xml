@@ -18,6 +18,7 @@
   </scm>
   <modules>
     <module>calendar-api/api</module>
+    <module>calendar-bundles</module>
     <module>calendar-help</module>
     <module>calendar-impl/impl</module>
     <module>calendar-impl/pack</module>
@@ -30,6 +31,11 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-calendar-util</artifactId>
+        <version>2.9-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-calendar-bundles</artifactId>
         <version>2.9-SNAPSHOT</version>
       </dependency>
       <dependency>

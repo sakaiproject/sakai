@@ -42,6 +42,10 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-calendar-bundles</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-util</artifactId>
     </dependency>
     <dependency>
@@ -83,12 +87,6 @@
           <include>**/*.xsl</include>
           <include>**/*.xml</include>
           <include>**/*.ttf</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../calendar-bundles</directory>
-        <includes>
-          <include>**/*.properties</include>
         </includes>
       </resource>
     </resources>

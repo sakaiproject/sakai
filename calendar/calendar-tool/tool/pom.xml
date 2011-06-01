@@ -43,6 +43,10 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-calendar-bundles</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
     <dependency>
@@ -64,12 +68,6 @@
   </dependencies>
   <build>
     <resources>
-      <resource>
-        <directory>${basedir}/../../calendar-bundles</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
       <resource>
         <directory>${basedir}/src/config</directory>
         <includes>

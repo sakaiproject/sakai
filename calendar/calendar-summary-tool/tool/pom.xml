@@ -39,6 +39,10 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-calendar-bundles</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-util</artifactId>
     </dependency>
     <dependency>
@@ -105,14 +109,6 @@
 		</dependency>
   </dependencies>
   <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/../../calendar-bundles</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-    </resources>
 <!-- java source -->
 <!-- other resources for the jar - the message bundles -->
   </build>
