@@ -180,7 +180,7 @@ public class ChangeProfilePictureUrl extends Panel{
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_URL, "/profile/"+userUuid, true);
 					
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_URL, sakaiProxy.getCurrentUserId());
 					}
 					

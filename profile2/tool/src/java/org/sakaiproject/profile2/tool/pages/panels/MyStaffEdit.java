@@ -215,7 +215,7 @@ public class MyStaffEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_STAFF_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_STAFF_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					

@@ -167,7 +167,7 @@ public class MySocialNetworkingEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE,"/profile/" + userProfile.getUserUuid(), true);
 
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_SOCIAL_NETWORKING_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					

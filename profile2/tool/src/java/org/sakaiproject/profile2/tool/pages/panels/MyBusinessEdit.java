@@ -195,7 +195,7 @@ public class MyBusinessEdit extends Panel {
 							"/profile/" + userProfile.getUserUuid(), true);
 
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserUuid())) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_BUSINESS_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					

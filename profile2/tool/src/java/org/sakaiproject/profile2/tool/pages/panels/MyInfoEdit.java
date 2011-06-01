@@ -182,7 +182,7 @@ public class MyInfoEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					

@@ -225,7 +225,7 @@ public class MyContactEdit extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_CONTACT_UPDATE, "/profile/"+userId, true);
 					
 					//post to wall if enabled
-					if (true == sakaiProxy.isWallEnabledGlobally()) {
+					if (true == sakaiProxy.isWallEnabledGlobally() && false == sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
 						wallLogic.addNewEventToWall(ProfileConstants.EVENT_PROFILE_CONTACT_UPDATE, sakaiProxy.getCurrentUserId());
 					}
 					
