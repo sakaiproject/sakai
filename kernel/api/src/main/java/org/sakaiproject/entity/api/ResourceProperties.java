@@ -484,7 +484,7 @@ public interface ResourceProperties extends Serializable
 	 *        The DOM elements, the top of which is the containing element of the new "resource" element.
 	 * @return The newly added element.
 	 */
-	Element toXml(Document doc, Stack stack);
+	Element toXml(Document doc, Stack<Element> stack);
 
 	/**
 	 * Add a single valued property.

@@ -91,5 +91,5 @@ public interface Entity
 	 *        The DOM elements, the top of which is the containing element of the new "entity" element.
 	 * @return The newly added element.
 	 */
-	Element toXml(Document doc, Stack stack);
+	Element toXml(Document doc, Stack<Element> stack);
 }

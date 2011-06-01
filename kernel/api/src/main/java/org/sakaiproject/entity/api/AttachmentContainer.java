@@ -38,5 +38,5 @@ public interface AttachmentContainer
 	 * 
 	 * @return An copy of the List of attachments (containing Reference objects) (may be empty).
 	 */
-	List getAttachments();
+	List<Reference> getAttachments();
 }

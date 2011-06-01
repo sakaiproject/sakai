@@ -52,7 +52,7 @@ public interface AttachmentContainerEdit extends AttachmentContainer
 	 * @param attachments
 	 *        A ReferenceVector that will become the new set of attachments.
 	 */
-	void replaceAttachments(List attachments);
+	void replaceAttachments(List<Reference> attachments);
 
 	/**
 	 * Clear all attachments.

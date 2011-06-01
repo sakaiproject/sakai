@@ -40,7 +40,7 @@ public interface EntityTransferrer
 	 * @param ids
 	 *        when null, all entities will be imported; otherwise, only entities with those ids will be imported
 	 */
-	void transferCopyEntities(String fromContext, String toContext, List ids);
+	void transferCopyEntities(String fromContext, String toContext, List<String> ids);
 
 	/**
 	 * Provide the string array of tool ids, for tools that we claim as manipulating our entities.
@@ -61,5 +61,5 @@ public interface EntityTransferrer
 	 * @param cleanup
 	 *        
 	 */
-	void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup);
+	void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup);
 }

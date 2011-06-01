@@ -25,7 +25,7 @@ import java.util.Collection;
 
 /**
  * <p>
- * Reference holds an immutable reference to a Sakai entity.
+ * Reference holds an immutable(?) reference to a Sakai entity.
  * </p>
  */
 public interface Reference
@@ -34,29 +34,29 @@ public interface Reference
 	 * Add the AuthzGroup(s) for context as a site.
 	 * 
 	 * @param rv
-	 *        The list.
+	 *        The list of references.
 	 */
-	void addSiteContextAuthzGroup(Collection rv);
+	void addSiteContextAuthzGroup(Collection<String> rv);
 
 	/**
 	 * Add the AuthzGroup for this user id, or for the user's type template, or for the general template.
 	 * 
 	 * @param rv
-	 *        The list.
+	 *        The list of references.
 	 * @param id
 	 *        The user id.
 	 */
-	void addUserAuthzGroup(Collection rv, String id);
+	void addUserAuthzGroup(Collection<String> rv, String id);
 
 	/**
 	 * Add the AuthzGroup for this user id, or for the user's type template, or for the general template.
 	 * 
 	 * @param rv
-	 *        The list.
+	 *        The list of references.
 	 * @param id
 	 *        The user id.
 	 */
-	void addUserTemplateAuthzGroup(Collection rv, String id);
+	void addUserTemplateAuthzGroup(Collection<String> rv, String id);
 
 	/**
 	 * Access a single container id, the from most general (or only)

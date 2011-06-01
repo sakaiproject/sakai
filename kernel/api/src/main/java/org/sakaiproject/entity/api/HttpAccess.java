@@ -56,6 +56,6 @@ public interface HttpAccess
 	 * @throws EntityCopyrightException
 	 *         Throw this if you are rejecting an otherwise valid request because the user needs to agree to the copyright and has not yet done so.
 	 */
-	void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs)
+	void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection<String> copyrightAcceptedRefs)
 			throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException;
 }

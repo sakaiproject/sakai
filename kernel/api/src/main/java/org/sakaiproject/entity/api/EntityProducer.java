@@ -43,7 +43,7 @@ public interface EntityProducer
 	String getLabel();
 
 	/**
-	 * @return true if the serice wants to be part of archive / merge, false if not.
+	 * @return true if the service wants to be part of archive / merge, false if not.
 	 */
 	boolean willArchiveMerge();
 
@@ -59,10 +59,11 @@ public interface EntityProducer
 	 * @param archivePath
 	 *        The path to the folder where we are writing auxilary files.
 	 * @param attachments
-	 *        A list of attachments - add to this if any attachments need to be included in the archive.
+	 *        This should be an empty List into which the implementation will put any attachments that are needed to support the 
+	 *        archived content. Implementation will may use {@see List#contains(Object)} so choice of implementation should reflect this.
 	 * @return A log of status messages from the archive.
 	 */
-	String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments);
+	String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments);
 
 	/**
 	 * Merge the resources from the archive into the given site.
@@ -76,11 +77,17 @@ public interface EntityProducer
 	 * @param fromSiteId
 	 *        The site id from which these items were archived.
 	 * @param attachmentNames
-	 *        A map of old attachment name (as found in the DOM) to new attachment name.
+	 *        An empty map should be supplied and during the merge and any attachments that are renamed will be put into this map the key is the old
+	 *        attachment name (as found in the DOM) and the value is the new attachment name.
+	 * @param userIdTrans
+	 *        A map supplied by the called containing keys of old user IDs and values of new user IDs that the content should be attributed to.
+	 * @param userListAllowImport
+	 *        A list of user IDs for which the content should be imported. An importer should ignore content if the user ID of the creator isn't in this
+	 *        set.
 	 * @return A log of status messages from the merge.
 	 */
-	String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport);
+	String merge(String siteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans,
+			Set<String> userListAllowImport);
 
 	/**
 	 * If the service recognizes the reference as its own, parse it and fill in the Reference
@@ -138,7 +145,7 @@ public interface EntityProducer
 	 *        The userId for a user-specific set of groups, or null for the generic set.
 	 * @return The entity's collection of authorization group ids, or null if this cannot be done.
 	 */
-	Collection getEntityAuthzGroups(Reference ref, String userId);
+	Collection<String> getEntityAuthzGroups(Reference ref, String userId);
 
 	/**
 	 * Get the HttpAccess object that supports entity access via the access servlet for my entities.
