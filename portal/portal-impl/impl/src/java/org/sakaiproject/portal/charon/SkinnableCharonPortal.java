@@ -749,7 +749,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private String getRequestHandler(HttpServletRequest req)
 	{
 		setupWURFL();
-		if ( wurflHolder == null || wurfl == null ) return null;
+		if ( req == null || wurflHolder == null || wurfl == null ) return null;
 		
 		//check sakai.properties to see if auto redirect is enabled
 		//defaults to true - if set to false, skip the PDA check
@@ -1041,7 +1041,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext)
 	{
 		setupWURFL();
-		if ( wurflHolder == null || wurfl == null ) return;
+		if ( req == null || wurflHolder == null || wurfl == null ) return;
 		
 		
 		Device device = null;
@@ -1149,7 +1149,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		// show the mobile link or not
 		Session session = SessionManager.getCurrentSession();
-		if (session.getAttribute("is_wireless_device") == null)
+		if (session.getAttribute("is_wireless_device") == null && request != null)
 		{
 			// when user logs out, all session variables are cleaned, this is to reset the is_wireless_device attribute in portal
 			Device device = null;
