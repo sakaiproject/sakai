@@ -42,6 +42,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 public interface LessonEntity {
 
     public void setNextEntity(LessonEntity e);
+    public LessonEntity getNextEntity();
 
     // can't put it here, but we need a zero-arg constuctor
     // that produces an instance with no usable information in it
@@ -86,6 +87,10 @@ public interface LessonEntity {
     public List<LessonEntity> getEntitiesInSite();
     public LessonEntity getEntity(String ref);
 
+    // returns common ID of tool, e.g. sakai.samigo
+    // from that we can get other info
+    public String getToolId();
+
     // properties of entities
     public String getTitle();
     public String getUrl();
@@ -129,5 +134,7 @@ public interface LessonEntity {
     // for most entities editItem is enough, however tests allow separate editing of
     // contents and settings. This will be null except in that situation
     public String editItemSettingsUrl(SimplePageBean bean);
+
+ 
 
 }

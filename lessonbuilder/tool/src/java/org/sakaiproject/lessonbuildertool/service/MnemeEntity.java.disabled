@@ -54,11 +54,13 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.w3c.dom.Document;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-
+import org.etudes.mneme.api.ImportQtiService;
 import uk.org.ponder.messageutil.MessageLocator;
 
 
@@ -69,7 +71,7 @@ import uk.org.ponder.messageutil.MessageLocator;
  * 
  */
 
-public class MnemeEntity implements LessonEntity {
+public class MnemeEntity implements LessonEntity, QuizEntity {
 
     private static Log log = LogFactory.getLog(MnemeEntity.class);
 
@@ -100,6 +102,9 @@ public class MnemeEntity implements LessonEntity {
     public void setNextEntity(LessonEntity e) {
 	nextEntity = e;
     }
+    public LessonEntity getNextEntity() {
+	return nextEntity;
+    }
     
     static MemoryService memoryService = null;
     public void setMemoryService(MemoryService m) {
@@ -111,9 +116,13 @@ public class MnemeEntity implements LessonEntity {
 	messageLocator = m;
     }
 
+    static ImportQtiService importQtiService = null;
+
     public void init () {
 	assessmentCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.MnemeEntity.cache");
+	importQtiService = (ImportQtiService)
+	    ComponentManager.get("org.etudes.mneme.api.ImportQtiService");
 
 	log.info("init()");
 
@@ -138,6 +147,10 @@ public class MnemeEntity implements LessonEntity {
 	this.type = type;
 	this.id = id;
 	this.level = level;
+    }
+
+    public String getToolId() {
+	return "sakai.mneme";
     }
 
     // the underlying object, something Sakaiish
@@ -341,4 +354,15 @@ public class MnemeEntity implements LessonEntity {
 	return "/portal/tool/" + tool + "/assessment_settings/" + id + "/1";
     }
 
+    public void importObject(Document document, boolean isBank, String siteId) {
+	// ignore isbank because everything has to go into pool.
+	// they have no way to import an assessment
+
+	try {
+	    importQtiService.importPool(document, siteId);
+	} catch (Exception e) {
+	    simplePageBean.setErrMessage("" + e);
+	}
+
+    }
 }

@@ -142,8 +142,9 @@ a.edit-movie:link,a.edit-movie:visited{
 .shorttext textarea {
 	width: 95%;
 }
-.wideinput {
+#cc-dialog-label {
         width: 95%;
+	margin-bottom:0.5em;
 }
 .edit-col {
     padding-right: 10px;

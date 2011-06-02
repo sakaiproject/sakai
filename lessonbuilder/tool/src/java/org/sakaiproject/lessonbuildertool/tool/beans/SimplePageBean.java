@@ -25,6 +25,7 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -43,6 +44,12 @@ import java.util.HashSet;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,6 +103,11 @@ import uk.org.ponder.rsf.components.UIInternalLink;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
+
+import org.sakaiproject.lessonbuildertool.cc.CartridgeLoader;
+import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
+import org.sakaiproject.lessonbuildertool.cc.Parser;
+import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 
 /**
  * Backing bean for Simple pages
@@ -187,6 +199,7 @@ public class SimplePageBean {
 	private boolean required;
 	private boolean subrequirement;
 	private boolean prerequisite;
+	private boolean newWindow;
 	private String dropDown;
 	private String points;
         private String mimetype;
@@ -207,6 +220,8 @@ public class SimplePageBean {
 
 	private String redirectSendingPage = null;
 	private String redirectViewId = null;
+        private String quiztool = null;
+        private String topictool = null;
 
         public Map<String, MultipartFile> multipartMap;
 
@@ -326,6 +341,11 @@ public class SimplePageBean {
 	   toolSession.setAttribute("lessonbuilder.error", s);
        }
 
+       public void setErrKey(String key, String text ) {
+	   ToolSession toolSession = sessionManager.getCurrentToolSession();
+	   toolSession.setAttribute("lessonbuilder.error", messageLocator.getMessage(key).replace("{}", text));
+       }
+
     // a lot of these are setters and getters used for the form process, as 
     // described above
 
@@ -361,6 +381,17 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
+    // gets called for non-checked boxes also, but q will be null
+	public void setQuiztool(String q) {
+	    if (q != null)
+		quiztool = q;
+	}
+
+	public void setTopictool(String q) {
+	    if (q != null)
+		topictool = q;
+	}
+
 
 	public String getName() {
 		if (itemId != null && itemId != -1) {
@@ -384,6 +415,10 @@ public class SimplePageBean {
 
 	public void setPrerequisite(boolean prerequisite) {
 		this.prerequisite = prerequisite;
+	}
+
+	public void setNewWindow(boolean newWindow) {
+		this.newWindow = newWindow;
 	}
 
 	public void setDropDown(String dropDown) {
@@ -445,7 +480,7 @@ public class SimplePageBean {
     // return. Hence we pass saveItem a list to which it adds the error message. If
     // there is a mesasge from saveItem take precedence over the message we detect here,
     // since it's the root cause.
-	boolean saveItem(Object i) {       
+	public boolean saveItem(Object i) {       
 	    String err = null;
 	    List<String>elist = new ArrayList<String>();
 	    try {
@@ -678,23 +713,22 @@ public class SimplePageBean {
 
 		String[] split = id.split("/");
 
+		SimplePageItem i;
 		if (itemId != null && itemId != -1) {
-		    SimplePageItem i;
 		    i = findItem(itemId);
 		    i.setSakaiId(id);
-		    if (type == SimplePageItem.MULTIMEDIA && mimeType != null)
+		    if (mimeType != null)
 			i.setHtml(mimeType);
 		    i.setName(name != null ? name : split[split.length - 1]);
 		    clearImageSize(i);
-		    update(i);
 		} else {
-		    SimplePageItem i;
  	            i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
-		    if (type == SimplePageItem.MULTIMEDIA && mimeType != null) {
+		    if (mimeType != null) {
 			i.setHtml(mimeType);
-			update(i);
 		    }
 		}
+		i.setSameWindow(false);
+		update(i);
 
 		return "importing";
 	}
@@ -822,6 +856,14 @@ public class SimplePageBean {
 	    return tool.getId();
 	}
 
+        public String getCurrentToolTitle(String commonToolId) {
+	    Site site = getCurrentSite();
+	    ToolConfiguration tool = site.getToolForCommonId(commonToolId);
+	    if (tool == null)
+		return null;
+	    return tool.getTitle();
+	}
+
 	private Site getCurrentSite() {
 	    if (currentSite != null) // cached value
 		return currentSite;
@@ -903,7 +945,8 @@ public class SimplePageBean {
 		if (itemType == SimplePageItem.ASSIGNMENT ||
 		    itemType == SimplePageItem.ASSESSMENT ||
 		    itemType == SimplePageItem.FORUM ||
-		    itemType == SimplePageItem.PAGE) {
+		    itemType == SimplePageItem.PAGE ||
+		    itemType == SimplePageItem.RESOURCE && nextItem.isSameWindow()) {
 		    // it's easy if the next item is available. If it's not, then
 		    // we need to see if everything other than this item is done and
 		    // this one is required. In that case the issue must be that this
@@ -957,6 +1000,14 @@ public class SimplePageBean {
 			view.setPath("next");  // page to page, just a next
 		    else
 			view.setPath("push");  // item to page, have to push the page
+		} else if (itemType == SimplePageItem.RESOURCE) { /// must be a same page resource
+		    view.setSendingPage(Long.valueOf(item.getPageId()));
+		    // to the check. We need the check to set access control appropriately
+		    // if the user has passed.
+		    if (!isItemAvailable(nextItem, nextItem.getPageId()))
+			view.setRecheck("true");
+		    view.setSource(nextItem.getURL());
+		    view.viewID = ShowItemProducer.VIEW_ID;
 		} else {
 		    view.setSendingPage(Long.valueOf(item.getPageId()));
 		    LessonEntity lessonEntity = null;
@@ -1023,6 +1074,10 @@ public class SimplePageBean {
 		    view.setPath("next");  // page to page, just a next
 		else
 		    view.setPath("push");  // item to page, have to push the page
+	    } else if (itemType == SimplePageItem.RESOURCE) { // must be a samepage resource
+		view.setSendingPage(Long.valueOf(item.getPageId()));
+		view.setSource(prevItem.getURL());
+		view.viewID = ShowItemProducer.VIEW_ID;
 	    } else {
 		view.setSendingPage(Long.valueOf(item.getPageId()));
 		LessonEntity lessonEntity = null;
@@ -1551,6 +1606,12 @@ public class SimplePageBean {
 				i.setRequirementText(dropDown);
 			}
 
+			// currently we only display HTML in the same page
+			if (i.getType() == SimplePageItem.RESOURCE)
+			    i.setSameWindow(!newWindow);
+			else
+			    i.setSameWindow(false);
+
 			update(i);
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -2052,7 +2113,7 @@ public class SimplePageBean {
 	    return "success";
 	}
 
-        private void addPage(String title, boolean copyCurrent) {
+        public SimplePage addPage(String title, boolean copyCurrent) {
 
 	    Site site = getCurrentSite();
 	    SitePage sitePage = site.addPage();
@@ -2085,6 +2146,8 @@ public class SimplePageBean {
 		    saveItem(newItem);
 		}
 	    }
+
+	    return page;
 
 	}
 
@@ -2859,6 +2922,28 @@ public class SimplePageBean {
 	    return collectionId;
 	}
 
+	public boolean isHtml(SimplePageItem i) {
+	    StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
+
+	    String extension = "";
+					    
+	    while (token.hasMoreTokens()) {
+		extension = token.nextToken().toLowerCase();
+	    }
+					    
+	    // we are just starting to store the MIME type for resources now. So existing content
+	    // won't have them.
+	    String mimeType = i.getHtml();
+	    if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
+		mimeType = null;
+	    
+	    if (mimeType != null && (mimeType.equals("text/html") || mimeType.equals("application/xhtml+xml"))
+		|| mimeType == null && (extension.equals("html") || extension.equals("htm"))) {
+		return true;
+	    }
+	    return false;
+	}
+
         public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
     // called by dialog to add inline multimedia item, or update existing
@@ -2974,6 +3059,13 @@ public class SimplePageBean {
 		// nothing to do
 		return;
 		
+	    // itemId tells us whether it's an existing item
+	    // isMultimedia tells us whether resource or multimedia
+	    // sameWindow is only passed for existing items of type HTML/XHTML
+	    //   for new items it should be set true for HTML/XTML, false otherwise
+	    //   for existing items it should be set to the passed value for HTML/XMTL, false otherwise
+	    //   it is ignored for isMultimedia, as those are always displayed inline in the current page
+
 	    SimplePageItem item = null;
 	    if (itemId == -1 && isMultimedia) {
 		int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
@@ -2981,7 +3073,6 @@ public class SimplePageBean {
 	    } else if (itemId == -1) {
 		int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
 		item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, name);
-
 	    } else {
 		item = findItem(itemId);
 		if (item == null)
@@ -2990,11 +3081,17 @@ public class SimplePageBean {
 		item.setName(name);
 	    }
 
-	    if (item.getType() == SimplePageItem.MULTIMEDIA && mimeType != null) {
+	    if (mimeType != null) {
 		item.setHtml(mimeType);
 	    } else {
 		item.setHtml(null);
 	    }
+
+	    // if this is an existing item and a resource, leave it alone
+	    // otherwise initialize to false
+	    if (isMultimedia || itemId == -1)
+		item.setSameWindow(false);
+
 	    clearImageSize(item);
 	    try {
 		if (itemId == -1)
@@ -3006,6 +3103,86 @@ public class SimplePageBean {
 	    }
 	}
 
+        public boolean deleteRecursive(File path) throws FileNotFoundException{
+	    if (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
+	    boolean ret = true;
+	    if (path.isDirectory()){
+		for (File f : path.listFiles()){
+		    ret = ret && deleteRecursive(f);
+		}
+	    }
+	    return ret && path.delete();
+	}
+
+	public void importCc() {
+	    System.out.println("importCc");
+	    if (!canEditPage())
+		return;
+
+	    MultipartFile file = null;
+
+	    if (multipartMap.size() > 0) {
+		// user specified a file, create it
+		file = multipartMap.values().iterator().next();
+		if (file.isEmpty())
+		    file = null;
+	    }
+
+	    if (file != null) {
+		File cc = null;
+		File root = null;
+		try {
+		    cc = File.createTempFile("ccloader", "file");
+		    root = File.createTempFile("ccloader", "root");
+		    if (root.exists())
+			root.delete();
+		    root.mkdir();
+		    BufferedInputStream bis = new BufferedInputStream(file.getInputStream());
+		    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cc));
+		    byte[] buffer = new byte[8096];
+		    int n = 0;
+		    while ((n = bis.read(buffer, 0, 8096)) >= 0) {
+			if (n > 0)
+			    bos.write(buffer, 0, n);
+		    }
+		    bis.close();
+		    bos.close();
+
+		    CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cc, root.getCanonicalPath());
+		    Parser parser = Parser.createCartridgeParser(cartridgeLoader);
+
+		    LessonEntity quizobject = null;
+		    for (LessonEntity q = quizEntity; q != null; q = q.getNextEntity()) {
+			if (q.getToolId().equals(quiztool))
+			    quizobject = q;
+		    }
+		    
+		    LessonEntity topicobject = null;
+		    for (LessonEntity q = forumEntity; q != null; q = q.getNextEntity()) {
+			if (q.getToolId().equals(topictool))
+			    topicobject = q;
+		    }
+
+		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject));
+
+		} catch (Exception e) {
+		    System.out.println("exception in importcc " + e);
+		    e.printStackTrace();
+		} finally {
+		    if (cc != null)
+			try {
+			    deleteRecursive(cc);
+			} catch (Exception e){
+			    System.out.println("Unable to delete temp file " + cc);
+			}
+			try {
+			    deleteRecursive(root);
+			} catch (Exception e){
+			    System.out.println("Unable to delete temp file " + cc);
+			}
+		}
+	    }
+	}
 
     // called by edit dialog to update parameters of a Youtube item
 	public void updateYoutube() {

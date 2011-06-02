@@ -72,6 +72,7 @@ setMainFrameHeight(window.name);
 		  <a class="usebutton" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a>
 		  <a class="usebutton" href="#" rsf:id="remove-page" id="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a> 
 		  <a class="usebutton" href="#" rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a> 
+		  <a class="usebutton" href="#" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
 		  <span class="navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="prev">next</a> <a href="#" rsf:id="next">next</a> </span>
 		</div>
 	
@@ -123,6 +124,7 @@ setMainFrameHeight(window.name);
 					    <span rsf:id="page-button" class="page-button"></span>
 					    <span rsf:id="edit-url" class="edit-url"></span>
 					    <span rsf:id="edit-settings-url" class="edit-settings-url"></span>
+					    <span rsf:id="item-samewindow" class="item-samewindow"></span>
 					  </div>
 					</td>
 					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
@@ -325,6 +327,10 @@ setMainFrameHeight(window.name);
 						<label for="item-button" id="label-item-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
 						</div>
 
+						<div id="newwindowstuff">
+						<input type="checkbox" name="item-newwindow" id="item-newwindow" rsf:id="item-newwindow" />
+						<label for="item-newwindow" id="label-item-newwindow"><span rsf:id="msg=simplepage.usenewwindow"></span></label><br />
+						</div>
 					</div>
 					
 					<input type="hidden" rsf:id="item-id" id="item-id" />
@@ -455,6 +461,46 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 				</form>
 			</div>
 			
+			<div id="import-cc-dialog" rsf:id="import-cc-dialog">
+				<form action="#" rsf:id="import-cc-form" method="post" enctype="multipart/form-data">
+					<div class="border">					
+					  <p class="required shorttext">
+					    <label rsf:id="msg=simplepage.import_cc_file" for="cc_file" id="cc-dialog-label">File</label> <br />
+					    <input type="file" name="mm-file" id="cc-file" style="width:95%" class="edit-multimedia-input" /><br />
+					  </p>
+
+					  <p rsf:id="quizmsg" style="margin-bottom:0px"></p>
+					  <input type="hidden" name="quiztool" rsf:id="quiztool" />
+					  <span rsf:id="quiztools"/>
+					  <div>
+					    <span rsf:id="quiztoolitem:">
+					      <input type="radio" rsf:id="quiztoolbox" id="quiztoolbox" />
+					      <label for="quiztoolbox" rsf:id="quiztoollabel"></label><br />
+					    </span>
+					  </div>
+
+					  <p rsf:id="topicmsg" style="margin-bottom:0px"></p>
+					  <input type="hidden" name="topictool" rsf:id="topictool" />
+					  <span rsf:id="topictools"/>
+					  <div>
+					    <span rsf:id="topictoolitem:">
+					      <input type="radio" rsf:id="topictoolbox" id="topictoolbox" />
+					      <label for="topictoolbox" rsf:id="topictoollabel"></label><br />
+					    </span>
+					  </div>
+
+					  <p>
+					    <input class="bold" type="submit" id="import-cc-submit" rsf:id="import-cc-submit" />
+					    <input type="submit" rsf:id="mm-cancel" onclick="closeImportCcDialog(); return false" />
+					  </p>
+					  <p class="hideOnDialog" id="loading" rsf:id="msg=simplepage.loading">
+					  </p>
+
+
+					</div>
+				</form>
+			</div>
+
 			<div id="edit-title-dialog" rsf:id="edit-title-dialog">
 				<div class="ui-widget" id="edit-title-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 

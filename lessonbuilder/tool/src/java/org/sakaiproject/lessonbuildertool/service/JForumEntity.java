@@ -37,6 +37,7 @@ import javax.servlet.ServletContext;
 
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ActiveTool;
@@ -68,7 +69,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-public class JForumEntity implements LessonEntity {
+public class JForumEntity implements LessonEntity, ForumInterface {
 
     static boolean initdone = false;
 
@@ -82,6 +83,9 @@ public class JForumEntity implements LessonEntity {
     private static LessonEntity nextEntity = null;
     public void setNextEntity(LessonEntity e) {
 	nextEntity = e;
+    }
+    public LessonEntity getNextEntity() {
+	return nextEntity;
     }
 
     private static ToolManager toolManager = null;
@@ -108,6 +112,10 @@ public class JForumEntity implements LessonEntity {
 	this.id = id;
 	this.level = level;
 	this.name = name;
+    }
+
+    public String getToolId() {
+	return "sakai.jforum.tool";
     }
 
     // standard info about object
@@ -443,6 +451,10 @@ public class JForumEntity implements LessonEntity {
     // contents and settings. This will be null except in that situation                                                                     
     public String editItemSettingsUrl(SimplePageBean bean) {
 	return null;
+    }
+
+    public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId,  List<String>attachmenthrefs) {
+	return SimplePageItem.DUMMY;
     }
 
 

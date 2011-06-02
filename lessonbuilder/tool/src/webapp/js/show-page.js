@@ -77,6 +77,15 @@ $(function() {
 		draggable: false
 	});
 	
+	$('#import-cc-dialog').dialog({
+		autoOpen: false,
+		width: 600,
+		modal: false,
+		resizable: false,
+		draggable: false
+	});
+	
+
 	$('.subpage-link').click(function(){
 		var position =  $(this).position();
 		$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
@@ -98,6 +107,19 @@ $(function() {
 		$('#edit-title-dialog').dialog('open');
 		return false;
 	});
+
+	$('#import-cc').click(function(){
+		var position =  $(this).position();
+		$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
+		$('.hideOnDialog').hide();
+		$('#import-cc-dialog').dialog('open');
+		return false;
+	});
+
+	$('#import-cc-submit').click(function() {
+		$('#loading').show();
+		return true;
+	    });
 
 	$('#releaseDiv').click(function(){
 		$('#edit-title-dialog').height(550);
@@ -143,6 +165,7 @@ $(function() {
 	    $("#edit-multimedia-dialog").dialog("option", "width", outerWidth-10);
 	    $("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
 	    $("#edit-title-dialog").dialog("option", "width", outerWidth-10);
+	    $("#import-cc-dialog").dialog("option", "width", outerWidth-10);
 	    $("#new-page-dialog").dialog("option", "width", outerWidth-10);
 	    $("#remove-page-dialog").dialog("option", "width", outerWidth-10);
 	    $("#youtube-dialog").dialog("option", "width", outerWidth-10);
@@ -236,6 +259,7 @@ $(function() {
 		$("#edit-item-object-p").hide();	
 		$("#edit-item-settings-p").hide();	
 		$("#pagestuff").hide();
+		$("#newwindowstuff").hide();
 		
 		var row = $(this).parent().parent().parent();
 		var itemid = row.find(".current-item-id2").text();
@@ -252,6 +276,15 @@ $(function() {
 			$("#item-prerequisites").attr("checked", false);
 		}
 		
+                var samewindow = row.find(".item-samewindow").text();
+                if (samewindow != '') {
+                    if (samewindow == "true")
+                        $("#item-newwindow").attr("checked", false);
+                    else
+                        $("#item-newwindow").attr("checked", true);
+                    $("#newwindowstuff").show();
+                }
+
 		var req = row.find(".requirement-text").text();
 		var type = row.find(".type").text();
 		var editurl = row.find(".edit-url").text();
@@ -582,6 +615,10 @@ function closeEditTitleDialog() {
 function closeNewPageDialog() {
 	$('#new-page-dialog').dialog('close');
 	$('#new-page-error-container').hide();
+}
+
+function closeImportCcDialog() {
+	$('#import-cc-dialog').dialog('close');
 }
 
 function closeRemovePageDialog() {

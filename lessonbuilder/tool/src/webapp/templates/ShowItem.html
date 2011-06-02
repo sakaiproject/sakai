@@ -16,13 +16,27 @@
 	html>body #outer{height:auto}
 </style>
 <script type="text/javascript">
+
+// need a delay to allow dynamic things like inserting the html editor
+function resizeiframe1() {
+setTimeout("resizeiframe()",1000);
+}
+
 function resizeiframe() {
 
 var iframe = document.getElementById('iframe1');
+var newsize = 350;
+try {
 // workarounds for differing implemtations in several browsers
 var doc = (iframe.contentWindow || iframe.contentDocument);
 if (doc.document) doc = doc.document;
-var newsize = doc.body.offsetHeight;
+newsize = doc.body.offsetHeight;
+} catch (err) {
+}
+
+var winh = window.top.innerHeight - 250;
+if (winh > newsize)
+   newsize = winh;
 
 if (newsize > 32760) newsize = 32760;
 
@@ -42,7 +56,6 @@ setMainFrameHeight(window.name);
 
 	<div class="portletBody" id="outer">
 		
-		<div class="fullwidth"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span> <span class="rightJustify"><form rsf:id="next-form" action="#"><input type="submit" rsf:id="next" /></form></span></div>
 		
 		<div rsf:id="hiddenAlert" class="ui-widget">
 			<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
@@ -60,15 +73,15 @@ setMainFrameHeight(window.name);
 		
 		<br rsf:id="breakAfterWarnings" />
 
-		<div class="returnheader navIntraTool" role="navigation">
-                <a href="#" rsf:id="return"></a> <span rsf:id="msg=simplepage.return.warning"></span><span class="navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="prev">prev</a> <a href="#" rsf:id="next">next</a> </span>
+		<div role="navigation">
+                <span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span><span class="returnheader navIntraTool"><a href="#" rsf:id="return"></a> </span> <span rsf:id="returnwarning"></span><span class="returnheader navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="prev">prev</a> <a href="#" rsf:id="next">next</a> </span>
 		</div>
 
 		<iframe rsf:id="iframe1" role="main"
 			name="iframe1"
                         id="iframe1"
 			height="350"
-                        onload="resizeiframe()"
+                        onload="resizeiframe1()"
 			width="100%"
 			frameborder="0"
 			marginwidth="0"

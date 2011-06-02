@@ -260,6 +260,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	Date releaseDate = page.getReleaseDate();
 	if (releaseDate != null)
 	    addAttr(doc, pageElement, "releasedate", releaseDate.toString());
+	Double gradebookPoints = page.getGradebookPoints();
+	if (gradebookPoints != null)
+	    addAttr(doc, pageElement, "gradebookpoints", gradebookPoints.toString());
+
 
 	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 
@@ -303,6 +307,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "requirementtext", item.getRequirementText());
 		addAttr(doc, itemElement, "nextpage", item.getNextPage() ? "true" : "false");
 		addAttr(doc, itemElement, "format", item.getFormat());
+		if (item.isSameWindow() != null)
+		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
 
 		//		if (item.getType() == SimplePageItem.PAGE)
 		//		    addPage(doc, itemElement, new Long(item.getSakaiId()));
@@ -523,6 +529,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   s = itemElement.getAttribute("format");
 		   if (s != null)
 		       item.setFormat(s);
+		   s = itemElement.getAttribute("samewindow");
+		   if (s != null)
+		       item.setSameWindow(s.equals("true"));
+
 
 		   simplePageToolDao.quickSaveItem(item);
 	       }
@@ -563,6 +573,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			 oldPageIdString = "0";
 		     Long oldPageId = Long.valueOf(oldPageIdString);
 		     SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
+		     String gradebookPoints = pageElement.getAttribute("gradebookpoints");
+		     if (gradebookPoints != null && !gradebookPoints.equals(""))
+			 page.setGradebookPoints(Double.valueOf(gradebookPoints));
 		     simplePageToolDao.quickSaveItem(page);
 		     pageMap.put(oldPageId, page.getPageId());
 		 }

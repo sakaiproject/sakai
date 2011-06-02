@@ -101,6 +101,9 @@ public class AssignmentEntity implements LessonEntity {
     public void setNextEntity(LessonEntity e) {
 	nextEntity = e;
     }
+    public LessonEntity getNextEntity() {
+	return nextEntity;
+    }
     
     static MemoryService memoryService = null;
     public void setMemoryService(MemoryService m) {
@@ -139,6 +142,10 @@ public class AssignmentEntity implements LessonEntity {
 	this.type = type;
 	this.id = id;
 	this.level = level;
+    }
+
+    public String getToolId() {
+	return "sakai.assignment.grades";
     }
 
     // the underlying object, something Sakaiish
@@ -534,6 +541,5 @@ public class AssignmentEntity implements LessonEntity {
     public String editItemSettingsUrl(SimplePageBean bean) {
 	return null;
     }
-
 
 }

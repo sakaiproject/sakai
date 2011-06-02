@@ -41,8 +41,18 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+
+import org.sakaiproject.util.FormattedText;
+import java.net.URLEncoder;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -63,7 +73,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-public class ForumEntity implements LessonEntity {
+public class ForumEntity implements LessonEntity, ForumInterface {
 
     static MessageForumsForumManager forumManager = (MessageForumsForumManager)
 	ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsForumManager");
@@ -72,6 +82,9 @@ public class ForumEntity implements LessonEntity {
     private LessonEntity nextEntity = null;
     public void setNextEntity(LessonEntity e) {
 	nextEntity = e;
+    }
+    public LessonEntity getNextEntity() {
+	return nextEntity;
     }
     
     static MessageLocator messageLocator = null;
@@ -89,6 +102,10 @@ public class ForumEntity implements LessonEntity {
 	this.type = type;
 	this.id = id;
 	this.level = level;
+    }
+
+    public String getToolId() {
+	return "sakai.forums";
     }
 
     // the underlying object, something Sakaiish
@@ -224,8 +241,17 @@ public class ForumEntity implements LessonEntity {
     }
 
     public String getUrl() {
+	Site site = null;
+	try {
+	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	} catch (Exception impossible) {
+	    return null;
+	}
+	ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
+	String placement = tool.getId();
+
 	if (type == TYPE_FORUM_TOPIC)
-	    return "/direct/forum_topic/" + id;
+	    return "/messageforums-tool/jsp/discussionForum/message/dfAllMessagesDirect.jsf?topicId=" + id + "&placementId=" + placement;
 	else
 	    return "/direct/forum/" + id;
     }
@@ -293,6 +319,108 @@ public class ForumEntity implements LessonEntity {
     // contents and settings. This will be null except in that situation                                                                     
     public String editItemSettingsUrl(SimplePageBean bean) {
 	return null;
+    }
+
+    // returns SakaiId of thing just created
+    public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId, List<String>attachmentHrefs) {
+
+	DiscussionForumManager manager = (DiscussionForumManager)
+	    ComponentManager.get("org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager");
+	AreaManager areaManager = (AreaManager)
+	    ComponentManager.get("org.sakaiproject.api.app.messageforums.AreaManager");
+	DiscussionForum ourForum = null;
+	DiscussionTopic ourTopic = null;
+
+	int forumtry = 0;
+	int topictry = 0;
+
+	for (;;) {
+
+	    ourForum = null;
+
+	    SortedSet<DiscussionForum> forums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
+	    for (DiscussionForum forum: manager.getForumsForMainPage())
+		forums.add(forum);
+
+	    for (DiscussionForum forum: forums) {
+		if (forum.getTitle().equals(title)) {
+		    ourForum = forum;
+		    break;
+		}
+	    }
+	
+	    if (ourForum == null) {
+		if (forumtry > 0) {
+		    System.out.println("oops, forum still not there the second time");
+		    return null;
+		}
+		forumtry ++;
+
+		// if a new site, may need to create the area or we'll get a backtrace when creating forum
+		areaManager.getDiscussionArea(siteId);
+
+		ourForum = manager.createForum();
+		ourForum.setTitle(title);
+		manager.saveForum(siteId, ourForum);
+		
+		continue;  // reread, better be there this time
+
+	    }
+
+	    // forum now exists, and was just reread
+
+	    ourTopic = null;
+
+	    for (Object o: ourForum.getTopicsSet()) {
+		DiscussionTopic topic = (DiscussionTopic)o;
+		if (topic.getTitle().equals(topicTitle)) {
+		    ourTopic = topic;
+		    break;
+		}
+	    }
+
+	    if (ourTopic != null) // ok, forum and topic exist
+		break;
+
+	    if (topictry > 0) {
+		System.out.println("oops, topic still not there the second time");
+		return null;
+	    }
+	    topictry ++;
+
+	    // create it
+
+	    ourTopic = manager.createTopic(ourForum);
+	    ourTopic.setTitle(topicTitle);
+	    String attachHtml = "";
+	    if (attachmentHrefs != null && attachmentHrefs.size() > 0) {
+		for (String href: attachmentHrefs) {
+		    String label = href;
+		    int slash = label.lastIndexOf("/");
+		    if (slash >= 0)
+			label = label.substring(slash+1);
+		    if (label.equals(""))
+			label = "Attachment";
+		    attachHtml = attachHtml + "<p><a target='_blank' href='" + base + href + "'>" + label + "</a>";
+		}
+	    }
+
+	    if (texthtml) {
+		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base) + attachHtml);
+		ourTopic.setShortDescription(FormattedText.convertFormattedTextToPlaintext(text));
+	    } else {
+		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text) + attachHtml);
+		ourTopic.setShortDescription(text);
+	    }
+	    // there's a better way to do attachments, but it's too complex for now
+
+	    manager.saveTopic(ourTopic);
+
+	    // now go back and mmake sure everything is there
+
+	}
+
+	return "/" + FORUM_TOPIC + "/" + ourTopic.getId();
     }
 
 }

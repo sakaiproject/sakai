@@ -77,6 +77,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIBoundString;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIComponent;
@@ -413,6 +414,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    UIOutput.make(tofill, "new-page").
 				decorate(new UIFreeAttributeDecorator("title", 
 				      messageLocator.getMessage("simplepage.new-page-tooltip")));
+			    UIOutput.make(tofill, "import-cc").
+				decorate(new UIFreeAttributeDecorator("title", 
+				      messageLocator.getMessage("simplepage.import_cc")));
 			}
 
 			UIOutput.make(tofill, "dialogDiv");
@@ -671,6 +675,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "type", "page"); 
 						UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
 						UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
+					} else if (i.getType() == SimplePageItem.RESOURCE) {
+					    UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
 					}
 
 				}
@@ -1037,6 +1043,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createEditTitleDialog(tofill, currentPage, pageItem);
 		createNewPageDialog(tofill, currentPage, pageItem);
 		createRemovePageDialog(tofill, currentPage, pageItem);
+		createImportCcDialog(tofill);
 		createYoutubeDialog(tofill);
 		createMovieDialog(tofill, currentPage);
 	}
@@ -1063,10 +1070,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 * @return Whether or not this item is available.
 	 */
 	protected static boolean makeLink(UIContainer container, String ID, SimplePageItem i, SimplePageBean simplePageBean, SimplePageToolDao simplePageToolDao, MessageLocator messageLocator, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
+
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
 
-		if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
+	        if (i.getSakaiId().equals(SimplePageItem.DUMMY)) {
+		    UILink link = UILink.make(container, ID);
+		    // disablelink adds a tooltip telling the user to complete prereq's. That's not appropriate here
+		    link.decorate(new UIFreeAttributeDecorator("onclick", "return false"));
+		    link.decorate(new UIDisabledDecorator());
+		    link.decorate(new UIStyleDecorator("disabled"));
+		} else if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
+
+		    if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
+			if (available) {
+			    GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+			    params.setSendingPage(currentPage.getPageId());
+			    params.setSource(i.getURL());
+			    params.setItemId(i.getId());
+			    UIInternalLink.make(container, "link", params);
+			} else {
+			    UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+			    disableLink(link, messageLocator);
+			}
+		    } else {
 			if (available) {
 				URL = i.getURL();
 			}
@@ -1078,6 +1105,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			} else {
 				disableLink(link, messageLocator);
 			}
+		    }
 		} else if (i.getType() == SimplePageItem.PAGE) {
 			SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
 
@@ -1272,7 +1300,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 		createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
-
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia.tooltip");
 		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), messageLocator.getMessage("simplepage.general-instructions"));
@@ -1398,6 +1425,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-required", "#{simplePageBean.required}", false);
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
+		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
+
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
@@ -1432,6 +1461,99 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "mm-is-mm", "#{simplePageBean.isMultimedia}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
+
+        private void createImportCcDialog(UIContainer tofill) {
+		UIOutput.make(tofill, "import-cc-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc")));
+
+		UIForm form = UIForm.make(tofill, "import-cc-form");
+
+		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.importCc}");
+		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+
+		class ToolData {
+		    String toolId;
+		    String toolName;
+		}
+
+		int numQuizEngines = 0;
+		List<ToolData> quizEngines = new ArrayList<ToolData>();
+
+		for (LessonEntity q = quizEntity; q != null; q = q.getNextEntity()){
+		    String toolId = q.getToolId();
+		    String toolName = simplePageBean.getCurrentToolTitle(q.getToolId());
+		    // we only want the ones that are actually in our site
+		    if (toolName != null) {
+			ToolData toolData = new ToolData();
+			toolData.toolId = toolId;
+			toolData.toolName = toolName;
+			numQuizEngines++;
+			quizEngines.add(toolData);
+		    }
+		}
+		
+		if (numQuizEngines == 0)  // warning message saying no quiz will be loaded
+		    UIVerbatim.make(form, "quizmsg", messageLocator.getMessage("simplepage.noquizengines"));
+		else if (numQuizEngines == 1)  // just one engine, choose it
+		    UIInput.make(form, "quiztool", "#{simplePageBean.quiztool}" ,quizEntity.getToolId());
+		else {  // put up message and then radio buttons for each possibility
+
+		    // need values array for RSF's select implementation. It sees radio buttons as a kind of select
+		    ArrayList<String> values = new ArrayList<String>();
+		    for (ToolData toolData: quizEngines)
+			values.add(toolData.toolId);
+
+		    // the message
+		    UIOutput.make(form, "quizmsg", messageLocator.getMessage("simplepage.choosequizengine"));
+		    // now the list of radio buttons
+		    UISelect quizselect = UISelect.make(form, "quiztools", values.toArray(new String[1]), "#{simplePageBean.quiztool}", null);
+		    int i = 0;
+		    for (ToolData toolData: quizEngines) {
+			UIBranchContainer toolItem = UIBranchContainer.make(form, "quiztoolitem:", String.valueOf(i));
+			UISelectChoice.make(toolItem, "quiztoolbox", quizselect.getFullID(), i);
+			UIOutput.make(toolItem, "quiztoollabel", toolData.toolName);
+			i++;
+		    }
+		}
+
+		int numTopicEngines = 0;
+		List<ToolData> topicEngines = new ArrayList<ToolData>();
+
+		for (LessonEntity q = forumEntity; q != null; q = q.getNextEntity()){
+		    String toolId = q.getToolId();
+		    String toolName = simplePageBean.getCurrentToolTitle(q.getToolId());
+		    // we only want the ones that are actually in our site
+		    if (toolName != null) {
+			ToolData toolData = new ToolData();
+			toolData.toolId = toolId;
+			toolData.toolName = toolName;
+			numTopicEngines++;
+			topicEngines.add(toolData);
+		    }
+		}
+
+		if (numTopicEngines == 0)
+		    UIVerbatim.make(form, "topicmsg", messageLocator.getMessage("simplepage.notopicengines"));
+		else if (numTopicEngines == 1)
+		    UIInput.make(form, "topictool", "#{simplePageBean.topictool}" ,forumEntity.getToolId());
+		else {
+		    ArrayList<String> values = new ArrayList<String>();
+		    for (ToolData toolData: topicEngines)
+			values.add(toolData.toolId);
+
+		    UIOutput.make(form, "topicmsg", messageLocator.getMessage("simplepage.choosetopicengine"));
+		    UISelect topicselect = UISelect.make(form, "topictools", values.toArray(new String[1]), "#{simplePageBean.topictool}", null);
+		    int i = 0;
+		    for (ToolData toolData: topicEngines) {
+			UIBranchContainer toolItem = UIBranchContainer.make(form, "topictoolitem:", String.valueOf(i));
+			UISelectChoice.make(toolItem, "topictoolbox", topicselect.getFullID(), i);
+			UIOutput.make(toolItem, "topictoollabel", toolData.toolName);
+			i++;
+		    }
+		}
+
+
+	}
+
 
 	private void createEditMultimediaDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "edit-multimedia-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editMultimedia")));

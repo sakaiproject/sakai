@@ -1,0 +1,9 @@
+August 31, 2010
+
+This sample code that parses IMS Common Cartridges
+was initially developed by
+
+Phil Nicholls
+http://www.psydev.com/
+
+And licensed to IMS Global Learning Consortium.

@@ -53,6 +53,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+
+import org.w3c.dom.Document;
+import org.sakaiproject.tool.assessment.services.qti.QTIService;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -83,7 +88,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-public class SamigoEntity implements LessonEntity {
+public class SamigoEntity implements LessonEntity, QuizEntity {
 
     private static Log log = LogFactory.getLog(SamigoEntity.class);
 
@@ -109,6 +114,9 @@ public class SamigoEntity implements LessonEntity {
     private LessonEntity nextEntity = null;
     public void setNextEntity(LessonEntity e) {
 	nextEntity = e;
+    }
+    public LessonEntity getNextEntity() {
+	return nextEntity;
     }
     
     static MemoryService memoryService = null;
@@ -149,6 +157,10 @@ public class SamigoEntity implements LessonEntity {
 	this.type = type;
 	this.id = id;
 	this.level = level;
+    }
+
+    public String getToolId() {
+	return "sakai.samigo";
     }
 
     // the underlying object, something Sakaiish
@@ -481,6 +493,16 @@ public class SamigoEntity implements LessonEntity {
 	else
 	    return "/portal/tool/" + tool + "/jsf/index/mainIndex";
 
+    }
+
+    public void importObject(Document document, boolean isBank, String siteId) {
+
+	QTIService qtiService = new QTIService();
+	System.out.println("importing " + isBank + " " + siteId + "\n" + document);
+	if (isBank)
+	    qtiService.createImportedQuestionPool(document, QTIVersion.VERSION_1_2);
+	else
+	    qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2);
     }
 
 

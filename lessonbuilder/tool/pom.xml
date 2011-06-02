@@ -152,6 +152,11 @@
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo-api</artifactId>
 	</dependency>
+	<dependency>
+	  <groupId>org.sakaiproject.samigo</groupId>
+          <artifactId>samigo-qti</artifactId>
+	  <version>${sakai.samigo.version}</version>
+	</dependency>
 
 <!--
 	<dependency>
@@ -186,6 +191,12 @@
 	  <artifactId>gradebook-service-api</artifactId>
 	</dependency>
 
+	<dependency>
+	  <groupId>jdom</groupId>
+	  <artifactId>jdom</artifactId>
+	  <version>1.0</version>
+	  <scope>provided</scope>
+	</dependency>
 
 </dependencies>
   
