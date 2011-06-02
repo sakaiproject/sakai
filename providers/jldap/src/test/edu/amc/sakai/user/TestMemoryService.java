@@ -6,6 +6,7 @@ import org.sakaiproject.memory.api.Cacher;
 import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.MultiRefCache;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
 
 /**
  * Quickly hacked up cache so we can run the tests.
@@ -14,6 +15,10 @@ import org.sakaiproject.memory.api.MultiRefCache;
  */
 public class TestMemoryService implements MemoryService {
 
+	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
+		return null;
+	}
+	
 	public long getAvailableMemory() {
 		// TODO Auto-generated method stub
 		return 0;
