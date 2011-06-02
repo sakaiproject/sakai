@@ -180,10 +180,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       SimplePage page = null;
       if (pages.size() == 0) {
 	  page = simplePageBean.addPage(title, false);  // add new top level page
-	  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), 1, SimplePageItem.TEXT, "", "");
-	  item.setHtml(Validator.escapeHtml(description));
-	  simplePageBean.saveItem(item);
-	  sequences.add(1);
+	  if (description != null && !description.trim().equals("")) {
+	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), 1, SimplePageItem.TEXT, "", "");
+	      item.setHtml(Validator.escapeHtml(description));
+	      simplePageBean.saveItem(item);
+	      sequences.add(2);
+	  } else
+	      sequences.add(1);
       } else {
 	  page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
 	  simplePageBean.saveItem(page);
@@ -192,7 +195,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	  SimplePageItem item = simplePageToolDao.makeItem(parent.getPageId(), seq, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
 	  simplePageBean.saveItem(item);
-	  sequences.add(0);
+	  sequences.add(1);
       }
       pages.add(page);
   }
