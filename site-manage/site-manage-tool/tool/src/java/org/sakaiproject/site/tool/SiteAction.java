@@ -1684,6 +1684,16 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(STATE_ACTION));
 				if (allowUpdateSite) 
 				{
+					// Site modified by information
+					User siteModifiedBy = site.getModifiedBy();
+					Time siteModifiedTime = site.getModifiedTime();
+					if (siteModifiedBy != null) {
+						context.put("siteModifiedBy", siteModifiedBy.getSortName());
+					}
+					if (siteModifiedTime != null) {
+						context.put("siteModifiedTime", siteModifiedTime.toStringLocalFull());
+					}
+					
 					// top menu bar
 					if (!isMyWorkspace) {
 						b.add(new MenuEntry(rb.getString("java.editsite"),

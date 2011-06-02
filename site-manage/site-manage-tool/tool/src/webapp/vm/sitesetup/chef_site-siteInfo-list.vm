@@ -188,6 +188,22 @@ function printPreview(target){
 					#end
 				</td>
 			</tr>
+ 			<tr>
+ 				<th>
+					$tlang.getString("sitegen.siteinfolist.modify")
+				</th>
+				<td>
+					$!siteModifiedTime
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.usermodify")
+				</th>
+				<td>
+					$!siteModifiedBy
+				</td>
+			</tr>
 			<tr>
 				<th>
 					$tlang.getString("ediacc.dismysit")
