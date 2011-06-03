@@ -850,7 +850,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       results.setTotalAutoScore("0");
       results.setTotalOverrideScore("-");
       results.setSubmittedDate(null);
-      results.setFinalScore("0");
+      results.setFinalScore("-");
       results.setComments("");
       results.setStatus(AssessmentGradingIfc.NO_SUBMISSION);  //  no submission
       agents.add(results);
