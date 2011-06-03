@@ -40,7 +40,7 @@ import org.sakaiproject.jsf.util.RendererUtil;
 public class PagerRenderer extends Renderer
 {	
 	private static final Log log = LogFactory.getLog(PagerRenderer.class);
-	private static final String BUNDLE_NAME = "org.sakaiproject.jsf.bundle.pager";
+	private static final String BUNDLE_NAME = "org.sakaiproject.jsf.bundle.Configuration";
 	
 	public void encodeBegin(FacesContext context, UIComponent component) throws IOException
 	{
