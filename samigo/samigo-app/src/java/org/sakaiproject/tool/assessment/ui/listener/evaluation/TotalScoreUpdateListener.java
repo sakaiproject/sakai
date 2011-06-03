@@ -172,7 +172,12 @@ public class TotalScoreUpdateListener
         			agentResults.setFinalScore(newScore+"");
         			BeanUtils.copyProperties(data, agentResults);
         			data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
-        			data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+        			if ("-".equals(agentResults.getTotalAutoScore())) {
+        				data.setTotalAutoScore(Float.valueOf(0f));
+        			}
+        			else {
+        				data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+        			}
         			data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
         			data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
         			data.setIsLate(agentResults.getIsLate());
@@ -197,7 +202,7 @@ public class TotalScoreUpdateListener
         			// tell hibernate this is a new record
         			data.setAssessmentGradingId(Long.valueOf(0));
         			data.setSubmittedDate(null);
-        			data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+        			data.setTotalAutoScore(Float.valueOf(0f));
         			data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
         			data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
         			data.setComments(agentResults.getComments());
