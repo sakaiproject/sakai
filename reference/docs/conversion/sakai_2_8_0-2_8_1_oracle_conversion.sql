@@ -5,3 +5,10 @@
 -- -- select 'alter index '||index_name||' rebuild online;' from user_indexes where status = 'INVALID' or status = 'UNUSABLE'; 
 -- -- execute all resulting statements from the previous step 
 update ANNOUNCEMENT_MESSAGE set MESSAGE_ORDER='1', XML=REPLACE(XML, ' subject=', ' message_order="1" subject=') WHERE MESSAGE_ORDER IS NULL; 
+
+-- KNL-725 use a datetype with timezone
+-- Make sure sakai is stopped when running this.
+-- Empty the SAKAI_CLUSTER, Oracle refuses to alter the table with records in it.
+DELETE FROM SAKAI_CLUSTER;
+-- Change the datatype
+ALTER TABLE SAKAI_CLUSTER MODIFY (UPDATE_TIME TIMESTAMP WITH TIME ZONE); 
