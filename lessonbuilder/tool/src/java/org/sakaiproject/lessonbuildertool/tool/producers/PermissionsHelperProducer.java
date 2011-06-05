@@ -103,7 +103,7 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
-		if (!simplePageBean.canEditPage())
+		if (!simplePageBean.canEditPage() && !simplePageBean.canEditSite())
 		    return;
 
 		// this is purely a site config, so no permission other than caneditpage needed

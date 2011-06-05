@@ -239,6 +239,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		GeneralViewParameters params = (GeneralViewParameters)viewParams;
 
 	        if (!canReadPage) {
+		    String ref = "/site/" + simplePageBean.getCurrentSiteId();
+		    if (simplePageBean.canEditSite()) {
+			SimplePage currentPage = simplePageBean.getCurrentPage();
+			UIOutput.make(tofill, "needPermissions");
+
+			GeneralViewParameters permParams = new GeneralViewParameters();
+			permParams.setSendingPage(-1L);
+			createStandardToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "callpermissions", "simplepage.permissions", permParams, "simplepage.permissions.tooltip");
+
+		    }
+
 		    UIOutput.make(tofill, "error-div");
 		    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.nopermissions"));
 		    return;

@@ -773,6 +773,10 @@ public class SimplePageBean {
 		String ref = "/site/" + toolManager.getCurrentPlacement().getContext();
 		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
 	}
+	public boolean canEditSite() {
+		String ref = "/site/" + toolManager.getCurrentPlacement().getContext();
+		return securityService.unlock("site.upd", ref);
+	}
 
 
 	public void setToolManager(ToolManager toolManager) {
