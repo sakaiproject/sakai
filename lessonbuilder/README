@@ -21,6 +21,13 @@ with the other databases.
 
 INSTALLATION
 
+The most recent version of Lesson Builder is set up so that it should
+be usable without any setup after simply installing the code. However
+some work will be needed to get full functionality. How much work that
+is depends upon the version of Sakai.
+
+FOR A MORE PERMANENT SETUP:
+
 Make sure that your maintain roles have permissions lessonbuilder.upd,
 and both maintain and access roles (i.e. all roles) have
 lessonbuilder.read
@@ -29,6 +36,9 @@ You will need
    content.html.forcedownload=false
 in sakai.properties if you want to show pages from resources
 via "add multimedia."
+
+Another approach is to get an administrator to do "edit details"
+for your site's Resource folder, and click "allow HTML files."
 
 The rest of this document talks about other things you might
 want to know about. However you can try out Lesson Builder
