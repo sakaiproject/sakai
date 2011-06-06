@@ -378,7 +378,7 @@ function allowClick(object)
 												#if ($!allowSubmit)
 													<div class="itemAction">
 														<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
-															$tlang.getString("subasstudent")
+															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</span>
 														</a>
 													</div>	
 												#end
