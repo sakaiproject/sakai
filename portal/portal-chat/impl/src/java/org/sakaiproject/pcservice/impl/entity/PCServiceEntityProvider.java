@@ -1,5 +1,6 @@
 package org.sakaiproject.pcservice.impl.entity;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -23,8 +25,6 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.presence.api.PresenceService;
-import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -54,6 +54,14 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
     private final String MESSAGE_PREAMBLE = "message:";
     /* Clear messages start with this */
     private final String CLEAR_PREAMBLE = "clear:";
+
+    /* SAK-20565. Gets set to false if Profile2 isn't available */
+    private boolean connectionsAvailable = true;
+
+    /* SAK-20565. We now use reflection to call the profile connection methods */
+    private Object profileServiceObject = null;
+    private Method getConnectionsForUserMethod = null;
+    private Method getUuidMethod = null;
 	
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -75,11 +83,6 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		this.serverConfigurationService = serverConfigurationService;
 	}
 	
-	private ProfileService profileService;
-	public void setProfileService(ProfileService profileService) {
-		this.profileService = profileService;
-	}
-
     /* A mapping of a list of messages onto the user id they are intended for */
 	private Map<String, List<UserMessage>> messageMap = new HashMap<String,List<UserMessage>>();
 	
@@ -99,6 +102,39 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
         } catch (Exception e) {
             logger.error("Error creating JGroups channel. Chat messages will now NOT BE KEPT IN SYNC", e);
         }
+
+        // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
+        try {
+            ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
+            profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
+            getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
+            Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
+            getUuidMethod = personClass.getMethod("getUuid",null);
+        } catch(Exception e) {
+            connectionsAvailable = false;
+            logger.info("Profile2 not installed so portal chat will not use connections.");
+        }
+    }
+
+    /**
+     * Uses reflection to call Profile2's connections method.
+     *
+     * @returns A list of Person instances cunningly disguised as lowly Objects
+     */
+    private List<Object> getConnectionsForUser(String uuid) {
+        List<Object> connections = new ArrayList<Object>();
+
+        if(connectionsAvailable == false) {
+            return connections;
+        }
+
+        try {
+            connections = (List<Object>) getConnectionsForUserMethod.invoke(profileServiceObject,new Object[] {uuid});
+        } catch(Exception e) {
+            logger.error("Failed to invoke the getConnectionsForUser method. Returning an empty connections list ...", e);
+        }
+
+        return connections;
     }
 	
 	public String getEntityPrefix() {
@@ -223,22 +259,31 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
             presentUsers.remove(currentUser);
         }
 		
-		List<Person> connections =  profileService.getConnectionsForUser(currentUser.getId());
+		List<Object> connections = getConnectionsForUser(currentUser.getId());
 		
 		List<String> onlineConnections = new ArrayList<String>(connections.size());
 		
 		Date now = new Date();
 		
-		for(Person person : connections) {
+		for(Object personObject : connections) {
+
+            String uuid = null;
+
+            try {
+                uuid = (String) getUuidMethod.invoke(personObject,null);
+            } catch(Exception e) {
+                logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
+                continue;
+            }
 			
 			Date lastHeartbeat = null;
 			
-			lastHeartbeat = heartbeatMap.get(person.getUuid());
+			lastHeartbeat = heartbeatMap.get(uuid);
 			
 			if(lastHeartbeat == null) continue;
 			
 			if((now.getTime() - lastHeartbeat.getTime()) < 5000L) {
-				onlineConnections.add(person.getUuid());
+				onlineConnections.add(uuid);
 			}
 		}
 		
@@ -261,6 +306,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		data.put("messages", messages);
 		data.put("online", onlineConnections);
 		data.put("presentUsers", presentUsers);
+		data.put("connectionsAvailable", connectionsAvailable);
 		
 		return data;
 	}

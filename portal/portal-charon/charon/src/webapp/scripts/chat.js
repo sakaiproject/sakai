@@ -13,6 +13,7 @@ function PortalChat() {
 	this.connectionErrors = 0;
 	this.MAX_CONTENT_HEIGHT = 250;
 	this.originalTitle = document.title;
+    this.connectionsAvailable = true;
 
     /**
      *  Utility for rendering trimpath templates. Takes the id of the template,
@@ -509,7 +510,21 @@ function PortalChat() {
 			cache: false,
 			success : function (data,status) {
 				portalChat.updateMessages(data.data.messages);
-                portalChat.updateConnections(data.data.connections,data.data.online);
+
+                // SAK-20565. Profile2 may not be installed, so no connections :(
+                if(portalChat.connectionsAvailable === true) {
+                    if(data.data.connectionsAvailable) {
+                        $('#pc_connections_wrapper').show();
+                        portalChat.updateConnections(data.data.connections,data.data.online);
+                    } else {
+                        $('#pc_connections_wrapper').hide();
+
+                        // No point checking again as profile2 can't be installed without a full restart
+                        portalChat.connectionsAvailable = false;
+		                portalChat.setSetting('connectionsAvailable',false);
+                    }
+                }
+
                 portalChat.updateSiteUsers(data.data.presentUsers);
 
                 var totalChattable = data.data.online.length + data.data.presentUsers.length;
@@ -711,6 +726,12 @@ function PortalChat() {
 	
 			if(portalChat.getSetting('expanded') && portal.loggedIn) {
                 portalChat.toggleChat();
+            }
+
+		    var connectionsAvailableSetting = portalChat.getSetting('connectionsAvailable');
+		    if(connectionsAvailableSetting !== undefined && connectionsAvailableSetting === false) {
+                // SAK-20565. Profile2 may not be installed,so no connections :(
+               $('#pc_connections_wrapper').hide();
             }
 	
 			// Clear all of the intervals when the window is closed

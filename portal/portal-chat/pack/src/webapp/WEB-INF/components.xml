@@ -7,7 +7,6 @@
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-		<property name="profileService"><ref bean="org.sakaiproject.profile2.service.ProfileService"/></property>
 		<property name="presenceService"><ref bean="org.sakaiproject.presence.api.PresenceService"/></property>
 	</bean>
 	
