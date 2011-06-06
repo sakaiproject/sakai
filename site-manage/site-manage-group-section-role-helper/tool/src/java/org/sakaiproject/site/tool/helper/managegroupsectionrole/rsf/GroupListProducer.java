@@ -194,12 +194,13 @@ public class GroupListProducer
         if (tml.size() > 0) {
 			for (int i = 0; i < tml.size(); i ++ ) {
 				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
-				/*if (tml.messageAt(i).args != null ) {	    		
-					UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
-				} else {
-		    		*/	UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode());
-				//}
-		    		
+				String outString = "";
+ 				if (tml.messageAt(i).args != null ) {
+ 					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
+ 				} else {
+ 					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
+ 				}
+ 				UIMessage.make(errorRow,"error",outString);
 			}
         }
     }
