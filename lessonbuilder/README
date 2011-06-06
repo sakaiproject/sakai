@@ -51,6 +51,12 @@ The JForum interface should cause no trouble, even if you don't use it.
 However I've had to disable support for Mneme to allow Lesson Builder
 to build on systems without it. 
 
+Note however that the jForum interface is not currently able to create
+topics when importing Common Cartridge documents. It will leave a place
+holder in the page. You will need to create the topic and choose it
+in Lesson Builder. The problem is that jForum does not have an API that
+allows another tool to create items.
+
 To put back Mneme support, 
 
 1.in tool/src/webapp/WEB-INF/applicationContext.xml,
