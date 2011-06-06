@@ -239,6 +239,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		GeneralViewParameters params = (GeneralViewParameters)viewParams;
 
 	        if (!canReadPage) {
+		    // this code is intended for the situation where site permissions haven't been set up.
+		    // So if the user can't read the page (which is pretty abnormal), see if they have site.upd.
+		    // if so, give them some explanation and offer to call the permissions helper
 		    String ref = "/site/" + simplePageBean.getCurrentSiteId();
 		    if (simplePageBean.canEditSite()) {
 			SimplePage currentPage = simplePageBean.getCurrentPage();
@@ -250,6 +253,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		    }
 
+		    // in any caae, tell them they can't read the page
 		    UIOutput.make(tofill, "error-div");
 		    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.nopermissions"));
 		    return;
@@ -315,13 +319,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		// security model:
-		// canEditPage and canReadPage are normal Sakai privileges. They all to all
+		// canEditPage and canReadPage are normal Sakai privileges. They apply to all
 		//    pages in the site.
 		// However when presented with a page, we need to make sure it's actually in
 		//    this site, or users could get to pages in other sites. That's done
 		//    by updatePageObject. The model is that producers always work on the
-		//    current page, and updatePageObject makes sure that is in the current site
-		//    at that point we can safely use canEditPage. 
+		//    current page, and updatePageObject makes sure that is in the current site.
+		//    At that point we can safely use canEditPage. 
 
 		// somewhat misleading. sendingPage specifies the page we're supposed to go to
 		if (params.getSendingPage() != -1) {
@@ -634,6 +638,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    decorate(new UIFreeAttributeDecorator("title", 
 						  messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
 
+					// the following information is displayed using <INPUT type=hidden ...
+					// it contains information needed to populate the "edit" popup dialog
 					UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
 
 					if (i.getType() == SimplePageItem.ASSIGNMENT) {
@@ -697,6 +703,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				
 			} else if (i.getType() == SimplePageItem.MULTIMEDIA) {
 
+			    // the reason this code is complex is that we try to choose the best
+			    // HTML for displaying the particular type of object. We've added complexities
+			    // over time as we get more expeerience with different object types and browsers.
+
 				StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
 
 				String extension = "";
@@ -725,7 +735,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
 				    mimeType = null;
 
-				// here goes. dispatch on the type and produce the right tag type
+				// here goes. dispatch on the type and produce the right tag type,
+				// followed by the hidden INPUT tags with informatio for the edit dialog
 				if (simplePageBean.isImageType(i)) {
 
 					UIOutput.make(tableRow, "imageSpan");
@@ -822,7 +833,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				} else if ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) ||
 					   (mimeType == null && Arrays.binarySearch(multimediaTypes, extension) >= 0)) {
 
-				    // this code is used for everything that isn't HTML. HTML is done with an IFRAME
+				    // this code is used for everything that isn't an image, Youtube, or HTML. Typically
+				    // this is a flash presentation or a movie. Try to be smart about how we show movies.
+				    // HTML is done with an IFRAME in the next "if" case
 
 				        UIComponent item2;
 					UIOutput.make(tableRow, "movieSpan");
@@ -834,7 +847,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// in theory m4v can be DMRed. But Apple's DRM is useless on a web page, so it's got to be an unprotected file.
 					boolean isMp4 =  mimeType.equals("video/mp4") || mimeType.equals("video/x-m4v");
 					// FLV is special. There's no player for flash video in the browser
-					// it shows with a special flash program, which I supply
+					// it shows with a special flash program, which I supply. For the moment MP4 is
+					// shown with the same player so it uses much of the same code
 					if (mimeType != null && ( mimeType.equals("video/x-flv") || isMp4)) {
 					    mimeType = "application/x-shockwave-flash";
 					    useJwPlayer = ServerConfigurationService.getBoolean("lessonbuilder.usejwplayer", false);

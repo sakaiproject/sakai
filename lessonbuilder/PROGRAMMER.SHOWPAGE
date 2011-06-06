@@ -9,6 +9,31 @@ producer ShowPageProducer.java. Most of the functionality comes from
 buttons in the toolbar, and from "edit" buttons next to items on the
 page.
 
+ShowPage is a bit complex to work with, because the actual page is
+produced by the interaction of 3 different things. ShowPage.html,
+ShowPageProducer.java, and show-page.js. ShowPage.html contains HTML
+tmplates. ShowPageProducer has all the logic for controlling which
+parts of the template are shown and adding information from the
+database. show-page.js is used primarily for the popup dialogs. Even
+after ShowPageProducer has filled in data from the database, many of
+the dialogs have fields that are empty. The problem is that we don't
+want to output a separate dialog box for each Edit Button. That would
+make the HTML file too big. Thus we output just one edit dialog box
+with blank fields. The Javascript code takes data from the particular
+item being edited, populates the fields in the dialog box, and then
+opens it.
+
+The structure is also complicated by the fact that we have to
+interface to various Sakai tools, and they all have their own
+peculiarities. For that reason we have a set of classes that know
+about each tool, but all implement a single Lesson Builder interface.
+ShowPage only knows about that interface class. This makes it a lot
+easier to add support for a new type of tool. Note that it is possible
+to chain more than one class of a given type. E.g. we support both
+Samigo and Mneme as testing engines. ShowPage doesn't know which
+engine you're using. In fact your site can have both, and showPage
+won't know it.
+
 In general things like "Add Quiz" are buttons that call separate
 pages, e.g. the quiz picker. The quiz picker looks up all quizes in
 the site, lets you choose one (or call Samigo to create a new one),
@@ -21,8 +46,8 @@ section at the bottom of the page in ShowPage. However they are
 initialized and popped up by Javascript code in show-page.js.
 
 There may be a dozen different quizes on the same page. But there is
-only one actual dialog box. The specific items defining the individual
-quiz are in variables right after the link for the edit button. The
+only one actual dialog box. The specific data defining the individual
+quiz is in hidden variables right after the link for the edit button. The
 Javascript code for "edit quiz" is called by the edit button with a
 pointer to the edit button. The Javascript uses that pointer to find
 the data associated with that item, initialized all the fields in the
@@ -46,13 +71,32 @@ Adding something touches a number of files:
 	./components/src/ddl/oracle/simplepage.sql
   you may need to add a new file such as SamigoEntity.java, which
       encapsulates most of the code for talking to the Sakai tool
-      that implements an object.
-      If you look at an existing one, you can see how they work.
+      that implements an object. In some cases you may also
+      need to define an interface. E.g. Common Cartridge input
+      calls a method to create a new object. Creating a test
+      requires different arguments than creating a forum.
+      Thus there's an interface definition for tests, used by
+      both Samigo and Mneme. It defines the method used to
+      create one. SamigoEntity.java implements both LessonEntity,
+      which has most of the methods used to interface to a tool,
+      and the special interface for tests, which defines the
+      one method used for creating object.
+      If you look at an existing file, you can see how they work.
   ShowPage.html - this is the template for the main web page.
-      It goes together with ShowPageProducer, using RSF
+      It goes together with ShowPageProducer, using RSF.
+      It has the template for displaying each type of thing,
+      as well as the dialogs.
   ShowPageProducer.java - the Java code behind ShowPage.html
   show-page.js - the Javascript used on ShowPage.html. The
-      popups are produced by code here.
+      popups are produced by code here. In some cases the code
+      to produce a popup is fairly complex. E.g. the same
+      popup is used to edit assignments, tests, and forums.
+      The Javascript code looks at hidden variables after
+      the visible part of the item. They define all the
+      things that the dialog box will need. The Javascript
+      code gets all that data and populates the fields in
+      the popup, unhides the ones that should show, and
+      then creates the popup.
   Simplepagetool.css - in case you need to add any styles
   messages.properties - all text should be put in this file.
       This application is internationalized, meaning that no
