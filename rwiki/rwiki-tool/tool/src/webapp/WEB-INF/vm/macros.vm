@@ -39,6 +39,7 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
  quality="high" bgcolor="#FFFFFF"  
  WIDTH="1" 
  HEIGHT="1" 
+ STYLE="visibility:hidden" 
  NAME="localstore" 
  play="false"
  loop="false"
