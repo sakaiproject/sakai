@@ -2839,17 +2839,15 @@ public class AnnouncementAction extends PagedResourceActionII
 					
 					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
 
-					// in addition to setting release date property, also set Date to release
-					// date so properly sorted
+					//SAK-18641: yorkadam, set release date property, also set Date to curr Date, to maintain Date sort
 					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, releaseDate.toString());
-					header.setDate(releaseDate);
+					header.setDate(TimeService.newTime());
 				}
 				else if (tempReleaseDate != null) // saving from Preview page
 				{
-					// in addition to setting release date property, also set Date to release
-					// date so properly sorted
+					//SAK-18641: yorkadam, set release date property, also set Date to curr Date, to maintain Date sort
 					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, tempReleaseDate.toString());
-					header.setDate(tempReleaseDate);					
+					header.setDate(TimeService.newTime());					
 				}
 				else
 				{
@@ -2859,7 +2857,7 @@ public class AnnouncementAction extends PagedResourceActionII
 							msg.getPropertiesEdit().removeProperty(AnnouncementService.RELEASE_DATE);
 					}
 
-					// since revised, set Date to current date
+					// since revised, set Date to current Date aka date modified, to maintain Date sort.
 					header.setDate(TimeService.newTime());
 				}
 				
