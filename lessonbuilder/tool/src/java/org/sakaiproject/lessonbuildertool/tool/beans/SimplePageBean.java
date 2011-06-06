@@ -1638,7 +1638,8 @@ public class SimplePageBean {
     // The caller will update the item in the database, typically after this call
 	private void checkControlGroup(SimplePageItem i) {
 	    	if (i.getType() != SimplePageItem.ASSESSMENT && 
-		    i.getType() != SimplePageItem.ASSIGNMENT) {
+		    i.getType() != SimplePageItem.ASSIGNMENT && 
+		    i.getType() != SimplePageItem.FORUM) {
 			// We only do this for assignments and assessments
 		        // currently we can't actually set it for forum topics
 			return;

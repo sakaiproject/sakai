@@ -131,6 +131,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private LessonEntity forumEntity;
    private LessonEntity quizEntity;
    private LessonEntity assignmentEntity;
+   private HttpAccess httpAccess;
 
    public void init() {
       logger.info("init()");
@@ -440,6 +441,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    {
        // not for now
        return null;
+   }
+
+   public void setHttpAccess(HttpAccess h) {
+       httpAccess = h;
    }
 
    /**
