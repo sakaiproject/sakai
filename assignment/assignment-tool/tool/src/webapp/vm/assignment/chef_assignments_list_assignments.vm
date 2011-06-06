@@ -543,7 +543,7 @@ function allowClick(object)
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
 										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
-										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label>
+										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove"): $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</label>
 								</td>
 							#end
 						</tr>
