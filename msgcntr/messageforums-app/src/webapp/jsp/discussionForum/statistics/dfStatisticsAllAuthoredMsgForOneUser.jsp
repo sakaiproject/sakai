@@ -3,7 +3,7 @@
                  org.sakaiproject.api.app.messageforums.*,
                  org.sakaiproject.site.cover.SiteService,
                  org.sakaiproject.tool.messageforums.ui.MessageForumStatisticsBean,
-                 org.sakaiproject.tool.cover.ToolManager;"%>
+                 org.sakaiproject.tool.cover.ToolManager" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>

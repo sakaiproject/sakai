@@ -2,7 +2,7 @@
                  javax.faces.el.*, org.sakaiproject.tool.messageforums.*,
                  org.sakaiproject.api.app.messageforums.*,
                  org.sakaiproject.site.cover.SiteService,
-                 org.sakaiproject.tool.cover.ToolManager;"%>
+                 org.sakaiproject.tool.cover.ToolManager" %>
 <%@ page import="org.sakaiproject.component.cover.ServerConfigurationService" %>
 <%
 
