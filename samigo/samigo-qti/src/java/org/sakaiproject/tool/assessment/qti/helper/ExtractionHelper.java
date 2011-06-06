@@ -287,11 +287,12 @@ public class ExtractionHelper
       Document transform = getTransformDocument(transformType, isRespondus);
       Document xml = asi.getDocument();
       Document model = XmlUtil.transformDocument(xml, transform);
+      /*
       DOMBuilder in = new DOMBuilder(); 
       org.jdom.Document jdomDoc = in.build(model); 
-      XMLOutputter  printer = new XMLOutputter();
+      XMLOutputter printer = new XMLOutputter();
       printer.output(jdomDoc, System.out);
-
+      */
       
       map = XmlMapper.map(model);
     }
