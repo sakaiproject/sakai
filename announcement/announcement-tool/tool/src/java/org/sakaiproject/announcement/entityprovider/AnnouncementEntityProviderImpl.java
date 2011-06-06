@@ -34,9 +34,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -47,6 +50,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
@@ -63,7 +67,14 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 
-public class AnnouncementEntityProviderImpl extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful, ActionsExecutable{
+/**
+ * Allows some basic functions on announcements.
+ * Due to limitations of EntityBroker the internal URLs of the announcements service can't be exposed
+ * directly, so we have to map them, with assumptions about characters used in IDs. Basically we pack together
+ * the {siteId}:{channelId}:{announcementId} into the ID.
+ *
+ */
+public class AnnouncementEntityProviderImpl extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, ActionsExecutable, RESTful{
 
 	public final static String ENTITY_PREFIX = "announcement";
 	
@@ -205,25 +216,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<DecoratedAnnouncement>();
 	
 		for (Message m : announcements) {
-			
+			AnnouncementMessage a = (AnnouncementMessage)m;
 			try {
-				AnnouncementMessage a = (AnnouncementMessage) m;
-				DecoratedAnnouncement da = new DecoratedAnnouncement();
-				da.setId(a.getId());
-				da.setTitle(a.getAnnouncementHeader().getSubject());
-				da.setBody(a.getBody());
-				da.setCreatedByDisplayName(a.getHeader().getFrom().getDisplayName());
-				da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
-				da.setSiteId(siteId);
-				da.setSiteTitle(siteTitle);
-				
-				//get attachments
-				List<String> attachments = new ArrayList<String>();
-				for (Reference attachment : (List<Reference>) a.getHeader().getAttachments()) {
-					attachments.add(attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName()));
-				}
-				da.setAttachments(attachments);
-				
+				DecoratedAnnouncement da = createDecoratedAnnouncement(a,
+					siteTitle);
 				decoratedAnnouncements.add(da);
 			} catch (Exception e) {
 				//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
@@ -245,6 +241,33 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		
 		
 		return decoratedAnnouncements;
+	}
+
+
+	private DecoratedAnnouncement createDecoratedAnnouncement(
+			AnnouncementMessage a, String siteTitle) {
+		String reference = a.getReference();
+		String announcementId = a.getId();
+		Reference ref = entityManager.newReference(reference);
+		String siteId = ref.getContext();
+		String channel = ref.getContainer();
+
+		DecoratedAnnouncement da = new DecoratedAnnouncement(siteId, channel, announcementId);
+
+		da.setTitle(a.getAnnouncementHeader().getSubject());
+		da.setBody(a.getBody());
+		da.setCreatedByDisplayName(a.getHeader().getFrom().getDisplayName());
+		da.setCreatedOn(new Date(a.getHeader().getDate().getTime()));
+		da.setSiteId(siteId);
+		da.setSiteTitle(siteTitle);
+		
+		//get attachments
+		List<String> attachments = new ArrayList<String>();
+		for (Reference attachment : (List<Reference>) a.getHeader().getAttachments()) {
+			attachments.add(attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName()));
+		}
+		da.setAttachments(attachments);
+		return da;
 	}
 	
 	
@@ -433,20 +456,61 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		List<?> l = getAnnouncements(MOTD_SITEID, params, false);
 		return l;
 	}
+	
+	// The reason this is EntityView.VIEW_LIST, is we want the URL pattern to be /announcement/channel/.... rather
+	// than //announcement/{id}/channel.
+	
+	/**
+	 * This handles announcements, URLs should be like, /announcement/msg/{context}/{channelId}/{announcementId} 
+	 * an example would be /announcement/msg/21b1984d-af58-43da-8583-f4adee769aa2/main/5641323b-761a-4a4d-8761-688f4928141b .
+	 * Context is normally the site ID and the channelId is normally "main" unless there are multiple channels in a site.
+	 * This is an alternative to using the packed IDs.
+	 *
+	 */
+	@EntityCustomAction(action="msg", viewKey=EntityView.VIEW_LIST)
+	public DecoratedAnnouncement showAnnouncement(EntityView view, Map<String, Object> params) throws EntityPermissionException {
+		
+		// This is all more complicated because entitybroker isn't very flexible and announcements can only be loaded once you've got the
+		// channel in which they reside first.
+		String siteId = view.getPathSegment(2);
+		String channelId = view.getPathSegment(3);
+		String announcementId = view.getPathSegment(4);
+		return getAnnouncement(siteId, channelId, announcementId);
+	}
 
 
+	private DecoratedAnnouncement getAnnouncement(String siteId,
+			String channelId, String announcementId) {
+		if (announcementId == null || announcementId.length() == 0) {
+			throw new IllegalArgumentException("You must supply an announcementId");
+		}
+		if (siteId == null || siteId.length() == 0) {
+			throw new IllegalArgumentException("You must supply the siteId.");
+		}
+		if (channelId == null || channelId.length() == 0) {
+			throw new IllegalArgumentException("You must supply an channelId");
+		}
+		String ref = announcementService.channelReference(siteId, channelId);
+		try {
+			AnnouncementChannel channel = announcementService.getAnnouncementChannel(ref);
+			AnnouncementMessage message = channel.getAnnouncementMessage(announcementId);
+			return createDecoratedAnnouncement(message, null);
+			
+		} catch (IdUnusedException e) {
+			throw new EntityNotFoundException("Couldn't find: "+ e.getId(), e.getId());
+		} catch (PermissionException e) {
+			throw new EntityException("You don't have permissions to access this channel.", e.getResource(), 403);
+		}
+	}
+	
 	public boolean entityExists(String id) {
-		return false;
+		return true;
 	}
 	
 	public Object getSampleEntity() {
 		return new DecoratedAnnouncement();
 	}
 	
-	public Object getEntity(EntityReference ref) {
-		return null;
-	}
-
 	
 	/**
 	 * Unimplemented EntityBroker methods
@@ -483,13 +547,27 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	public List<?> getEntities(EntityReference ref, Search search) {
 		return null;
 	}
-	
-	
+
+	public Object getEntity(EntityReference ref) {
+		// This is the packed ID.
+		String id = ref.getId();
+		if (id != null) {
+			String parts[] = id.split(":");
+			if (parts.length == 3) {
+				String siteId = parts[0];
+				String channelId = parts[1];
+				String announcementId = parts[2];
+				return getAnnouncement(siteId, channelId, announcementId);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Class to hold only the fields that we want to return
 	 */
-	public class DecoratedAnnouncement implements Comparable<Object>{
-		private String id;
+	public class DecoratedAnnouncement implements Comparable<Object> {
+		private String announcementId;
 		private String title;
 		private String body;
 		private String createdByDisplayName;
@@ -497,16 +575,25 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		private List<String> attachments;
 		private String siteId;
 		private String siteTitle;
+		private String channel;
 		
 		public DecoratedAnnouncement(){
 		}
 
-		public String getId() {
-			return id;
+		/**
+		 * As we are packing these fields into the ID, we need all of them.
+		 * @param siteId
+		 * @param channel
+		 * @param announcementId
+		 */
+		public DecoratedAnnouncement(String siteId, String channel, String announcementId) {
+			this.siteId = siteId;
+			this.channel = channel;
+			this.announcementId = announcementId;
 		}
 
-		public void setId(String id) {
-			this.id = id;
+		public String getId() {
+			return (siteId != null && channel != null && announcementId != null)?siteId+":"+ channel+ ":"+announcementId: null;
 		}
 
 		public String getTitle() {
@@ -557,6 +644,14 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			this.siteId = siteId;
 		}
 
+		public String getAnnouncementId() {
+			return announcementId;
+		}
+
+		public void setAnnouncementId(String announcementId) {
+			this.announcementId = announcementId;
+		}
+
 		public String getSiteTitle() {
 			return siteTitle;
 		}
@@ -573,7 +668,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		}
 		
 	}
-	
+	private EntityManager entityManager;
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
 	private SecurityService securityService;
 	public void setSecurityService(SecurityService securityService) {

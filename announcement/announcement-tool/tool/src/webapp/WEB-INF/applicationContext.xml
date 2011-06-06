@@ -13,6 +13,7 @@
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		
 	</bean>
 	
