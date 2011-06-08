@@ -26,23 +26,58 @@ be usable without any setup after simply installing the code. However
 some work will be needed to get full functionality. How much work that
 is depends upon the version of Sakai.
 
+There's one exception. If you want to test Common Cartridge import,
+you must set 
+     content.html.forcedownload=false
+in sakai.properties, or have an adminstrator set "allow HTML files"
+in "edit details" for the main collection in your site. This change
+will not be necessay for the final version of Lesson Builder in 
+Sakai 2.9.
+
+
 FOR A MORE PERMANENT SETUP:
 
-Make sure that your maintain roles have permissions lessonbuilder.upd,
-and both maintain and access roles (i.e. all roles) have
-lessonbuilder.read
+1) As an admin, using the Realm tool. Check your template realms to
+make sure that the right permissions are set. This is !site.template,
+!site.template.course, and templates for any other site type that will
+use Lesson Builder. The templates apply only to new sites. However for
+existing sites, if Lesson Builder is started by someone with the
+maintain or Instructor role, they will be given the opportunity to fix
+up permissions for their site.
+  
+  * for maintain-type roles, typically maintain and Instructor,
+set lessonbuilder.upd and lessonbuilder.read.
+  * for other roles, set just lessonbuilder.read
 
-You will need 
+That's enough to try Lesson Builder. For real you, there are
+a few more things:
+
+2) in sakai.properties, you will want
    content.html.forcedownload=false
-in sakai.properties if you want to show pages from resources
-via "add multimedia."
+if you want to show HTML pages from resources via "add multimedia",
+or use Common Cartridge import. Since we think Common Cartridge
+will be an important features, most sites will want to set this.
+By the final release of 2.9 we will take a different approach,
+which will not require this.
+  
+3) Integrating Lesson Builder with other tools may require
+some changes, depending upon the version of Sakai you are
+running:
 
-Another approach is to get an administrator to do "edit details"
-for your site's Resource folder, and click "allow HTML files."
+* If you want support for Mneme, you will need to enable it.
+See below.
 
-The rest of this document talks about other things you might
-want to know about. However you can try out Lesson Builder
-without doing anything beyond this point.
+* 2.8.1 and 2.9 -- OK otherwise
+
+* 2.8 - may need both Samigo changes and a fix to Forums, and
+also fixes to the Sakai kernel. See below for Samigo and
+kernel fixes.
+
+* before 2.8 - like 2.8, except Forums is probably OK
+
+The rest of this document talks about other things you might want to
+know about. However you can try out Lesson Builder without doing
+anything beyond this point.
 
 MNEME AND JFORUM DEPENDENCIES
 
@@ -80,22 +115,20 @@ org.sakaiproject.lessonbuildertool.service.ForumEntity
 
 SAKAI VERSIONS
 
-This code has been used at Rutgers in 2.7.0 and 2.7.1. It should
+This code has been used at Rutgers in 2.7.0, 2.7.1, and 2.8. It should
 work in 2.5 or 2.6, though some changes in the pom.xml files may be
-needed. To go between 2.7.0 and 2.7.1 all you need to change
-the version number in the <parent> declaration for pom.xml here.
-This is, in 
+needed. To pick your version, you will need to change the version
+number in the <parent> declaration for pom.xml here. This is, in
 
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <relativePath>../master/pom.xml</relativePath>
-    <version>2.7.1</version>
+    <version>2.9-SNAPSHOT</version>
 <!--   <version>M2</version>--><!-- 2.5.x -->
   </parent>
 
-use 2.7.0 or 2.7.1, to match your version of Sakai. For earlier versions
-more changes are likely to be needed.
+Instead of 2.9-SNAPSHOT, use your version of Sakai.
 
 If you are using Mneme, check the version number for org.etudes.mneme
 in tool/pom.xml. Make sure the version number matches the version of
@@ -103,13 +136,14 @@ Mneme that you are using.
 
 SAMIGO FIXES
 
-You can skip this section when you're first trying out Lesson Builder.
-However I wouldn't use it in production without looking at this
-section. There are two things you'll want to do to Samigo:
+You can skip this section when you're first trying out Lesson Builder,
+or if you are using Sakai 2.8.1 or later.
+
+There are two things you'll want to do to Samigo:
 * fix some of its HTML so that it doesn't "escape" its frame
 * add a JSP to allow Lesson Builder to edit quizes and settings
 
-1. FIX SAMIGO SO IT WON'T ESCAPE ITS FRAME
+SAMIGO FIXES, Part 1. FIX SAMIGO SO IT WON'T ESCAPE ITS FRAME
 
 As distributed, Samigo (Tests and Quizes) has a problem: when you get
 to the end of a test, the "Continue" button will take you back to the
@@ -167,7 +201,7 @@ onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
     disabled="#{delivery.actionString=='previewAssessment'}"/>
 
-2. ALLOW LESSON BUILDER TO EDIT ASSESSMENTS
+SAMIGO FIXES, part 2. ALLOW LESSON BUILDER TO EDIT ASSESSMENTS
 
 Lesson Builder will let you create and edit items directly
 from Lesson Builder. Tools other than Samigo have URLs Lesson
@@ -274,7 +308,7 @@ It defaults to "default", which will have no effect. If you set it
 to true or false, that will override whatever the sakai.properties
 sets as the default.
 
-WARNING:
+KERNEL BUGS:
 
 If you want to be able to copy instances from site to site, you must 
 install the fix for SAK-18616, if your copy of Sakai doesn't have it
@@ -299,6 +333,12 @@ Restrictions on copying and importing:
 
 * If any units are hidden, that fact is not copied. This is 
   intentional. Copying typically copies data but not status.
+
+------------------------------------------------------------------
+
+The rest of this document has nothing to do with installation.
+It's advice for people using Lesson Builder, primarily in the
+area of multimedia content.
 
 BROWSERS
 
@@ -350,7 +390,8 @@ through the Tests and Quizes or Assignments tools. Because the setup
 of the quiz or assignment itself is changed, this means that all
 references to that quiz or assignment must be consistent. That is, if
 you use the same quiz or assignment in several lessons, all must be
-set to have prerequisites or none must.
+set to have prerequisites or none must. (Similar controls are used
+for Forums starting in the next version of Lsson Builder.)
 
 It's really nice to be able to include things like Flash and movies
 in a lesson. Unfortunately it's surprisingly hard to make it work
