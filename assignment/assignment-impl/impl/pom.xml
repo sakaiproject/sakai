@@ -57,6 +57,10 @@
       <artifactId>sakai-assignment-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-assignment-bundles</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.contentreview</groupId>
       <artifactId>contentreview-model-api</artifactId>
       <version>2.8-SNAPSHOT</version> <!-- 2.8-SNAPSHOT until contentreview is branched -->
@@ -120,25 +124,6 @@
           <include>**/*.config</include>
         </includes>
       </resource>
-      <resource>
-        <directory>${basedir}/../../assignment-bundles</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-    </resources>
-<!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-		<unitTest>
-			<includes>**/*Test</includes>
-			<resources>
-				<resource>
-					<directory>${basedir}/src/testBundle</directory>
-					<includes>
-						<include>**/*.*</include>
-					</includes>
-					<filtering>false</filtering>
-				</resource>
-			</resources>
-		</unitTest> -->
+     </resources>
   </build>
 </project>

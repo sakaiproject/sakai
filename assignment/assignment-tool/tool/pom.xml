@@ -48,6 +48,10 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-assignment-bundles</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-calendar-api</artifactId>
     </dependency>
     <dependency>
@@ -89,12 +93,6 @@
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../assignment-bundles</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>
