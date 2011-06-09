@@ -64,16 +64,20 @@ document.links[newindex].onclick();
       <h:outputText value="#{generalMessages.assessment}" />
     </h:commandLink>
 
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
+<f:verbatim></span></li></f:verbatim>
+
+<h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
+<f:verbatim><li role="menuitem" ><span></f:verbatim>
 
     <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
       <h:outputText value="#{generalMessages.template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
 
-<f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
+<f:verbatim></span></li></f:verbatim>
+</h:panelGroup>
+
+<f:verbatim><li role="menuitem" ><span></f:verbatim>
 
     <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
       <h:outputText value="#{generalMessages.questionPool}" />
