@@ -279,7 +279,7 @@ document.location='../evaluation/gradeStudentResult';
 <h:inputHidden value="#{author.currentFormTime}" />
 
 <h:outputLink tabindex="-1" id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{studentScores.firstName} #{studentScores.lastName}\", \"#{studentScores.email}\", \"#{totalScores.assessmentName}\");" value="#"> 
-  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' && totalScores.anonymous ne 'true'}" />
 </h:outputLink>
 
 <h:commandLink tabindex="-1" id="hiddenlink1" value="" action="studentScores">
