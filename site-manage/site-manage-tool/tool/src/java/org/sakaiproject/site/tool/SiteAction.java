@@ -2031,9 +2031,6 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 				context.put("hasRosterAttached", Boolean.valueOf(hasRosterAttached));
-
-				// whether to show course skin selection choices or not
-				courseSkinSelection(context, state, site, siteInfo);
 				
 				if (StringUtils.trimToNull(siteInfo.term) == null) {
 					if (site != null)
@@ -2060,6 +2057,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put(FORM_ICON_URL, siteInfo.iconUrl);
 				}
 			}
+
+			// about skin and icon selection
+			skinIconSelection(context, state, siteType != null && siteType.equalsIgnoreCase(courseSiteType), site, siteInfo);
 
 			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
 				context.put("titleEditableSiteType", Boolean.FALSE);
@@ -2116,11 +2116,13 @@ public class SiteAction extends PagedResourceActionII {
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
-				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("siteTerm", siteInfo.term);
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
+			// about skin and icon selection
+			skinIconSelection(context, state, siteType != null && siteType.equalsIgnoreCase(courseSiteType), site, siteInfo);
+			
 			context.put("oTitle", site.getTitle());
 			context.put("title", siteInfo.title);
 			
@@ -3139,19 +3141,29 @@ public class SiteAction extends PagedResourceActionII {
 
 
 	/**
-	 * show course site skin selection or not
+	 * show site skin and icon selections or not
 	 * @param context
+	 * @param isCourseSite
 	 * @param state
 	 * @param site
 	 * @param siteInfo
 	 */
-	private void courseSkinSelection(Context context, SessionState state, Site site, SiteInfo siteInfo) {
-		// Display of appearance icon/url list with course site based on
-		// "disable.course.site.skin.selection" value set with
-		// sakai.properties file.
-		// The setting defaults to be false.
-		context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
-		context.put("skins", state.getAttribute(STATE_ICONS));
+	private void skinIconSelection(Context context, SessionState state, boolean isCourseSite, Site site, SiteInfo siteInfo) {
+		// 1. the skin list
+		// For course site, display skin list based on "disable.course.site.skin.selection" value set with sakai.properties file. The setting defaults to be false.
+		boolean disableCourseSkinChoice = ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true");
+		// For non-course site, display skin list based on "disable.noncourse.site.skin.selection" value set with sakai.properties file. The setting defaults to be true.
+		boolean disableNonCourseSkinChoice = ServerConfigurationService.getString("disable.noncourse.site.skin.selection", "true").equals("true");
+		if ((isCourseSite && !disableCourseSkinChoice) || (!isCourseSite && !disableNonCourseSkinChoice))
+		{
+			context.put("allowSkinChoice", Boolean.TRUE);
+			context.put("skins", state.getAttribute(STATE_ICONS));
+		}
+		else
+		{
+			context.put("allowSkinChoice", Boolean.FALSE);
+		}
+			
 		if (siteInfo != null && StringUtils.trimToNull(siteInfo.getIconUrl()) != null) 
 		{
 			context.put("selectedIcon", siteInfo.getIconUrl());
@@ -6474,14 +6486,8 @@ public class SiteAction extends PagedResourceActionII {
 		Site.setShortDescription(siteInfo.short_description);
 
 		if (site_type != null) {
-			if (site_type.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
-				// set icon url for course
-				setAppearance(state, Site, siteInfo.iconUrl);
-			} else {
-				// set icon url for others
-				Site.setIconUrl(siteInfo.iconUrl);
-			}
-
+			// set icon url for course
+			setAppearance(state, Site, siteInfo.iconUrl);
 		}
 
 		// site contact information

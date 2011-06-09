@@ -116,7 +116,7 @@
 					</td>
 				</tr>
 			#end	
-			#if ($!isCourseSite	&& !$!disableCourseSelection)
+			#if ($allowSkinChoice)
 				## course site
 				<tr>
 					<th>

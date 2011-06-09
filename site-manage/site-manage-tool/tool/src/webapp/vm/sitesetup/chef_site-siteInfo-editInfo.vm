@@ -257,26 +257,23 @@ function submitRemoveSection(index){
 			</label>
 			<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
 		</div>	
-		#if ($!isCourseSite)
-			#if (!$!disableCourseSelection && $!skins.size() > 0)
+		#if($allowSkinChoice)
 			<p class ="shorttext">
 				<label for="skin">
 					$tlang.getString("sitediinf.app")
 				</label>
-					<select name="skin" id="skin">
-						#foreach ($s in $skins)
-							#set($url="")
-							#set($url=$!s.Url)
-							<option value="$url" #if ($url == $selectedIcon)selected="selected"#end>$s.Name</option>
-						#end
-					</select>
-					</p>
-					<div class="labelindnt"
-						<span class="instruction textPanelFooter">
-							$tlang.getString("sitediinf.sit")
-						</span>
-					</div>
-				#end
+				<select name="skin" id="skin">
+					#foreach ($s in $skins)
+						#set($url="")
+						#set($url=$!s.Url)
+						<option value="$url" #if ($url == $selectedIcon)selected="selected"#end>$s.Name</option>
+					#end
+				</select>
+			</p>
+			<div class="labelindnt"
+				<span class="instruction textPanelFooter">
+					$tlang.getString("sitediinf.sit")
+				</span>
 			</div>
 		#else
 			<div class="shorttext">
