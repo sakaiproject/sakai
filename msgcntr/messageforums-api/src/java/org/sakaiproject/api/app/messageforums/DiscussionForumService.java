@@ -42,6 +42,8 @@ public interface DiscussionForumService extends EntityProducer
 
 	public static final String EVENT_MESSAGES_REMOVE = "messages.delete";
 	
+	public static final String EVENT_MESSAGES_MOVE_TO_DELETED_FOLDER = "messages.movedtodeletefolder";    
+	
 	public static final String EVENT_MESSAGES_FOLDER_REMOVE = "messages.deletefolder";
 	
 	public static final String EVENT_MESSAGES_RESPONSE = "messages.reply";

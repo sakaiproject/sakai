@@ -3276,6 +3276,9 @@ private   int   getNum(char letter,   String   a)
       
       if ("pvt_deleted".equals(msgNavMode))
     	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_REMOVE, getEventMessage((Message) element), false));
+      else
+    	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_MOVE_TO_DELETED_FOLDER, getEventMessage((Message) element), false));
+
     }
     
     if (deleted)
