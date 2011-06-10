@@ -115,7 +115,7 @@
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
   </bean>
 
-  <bean class="org.sakaiproject.content.impl.LessonBuilderAccessService"
+  <bean class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
         init-method="init"
         singleton="true">
 
