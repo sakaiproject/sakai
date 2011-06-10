@@ -332,6 +332,28 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		}
 	}
 
+	public String getItemURL() {
+		// Will Update to take type into account when adding more than just resources
+		if (type == 1 || type == 7) {
+		    // some apps may need the extension
+			String id = getSakaiId();
+			int i = id.lastIndexOf("/");
+			if (i >= 0)
+			    id = id.substring(i+1);
+			i = id.lastIndexOf(".");
+			if (i >= 0)
+			    id = getId() + "." + id.substring(i+1);
+			else
+			    id = "" + getId();
+			return "/access/lessonbuilder/item/" + id;
+		} else if (type == 6) {
+			return getSakaiId();
+		} else {
+
+			return "";
+		}
+	}
+
 	public void setSameWindow(Boolean b) {
 		if (b == null)
 		    this.sameWindow = false;

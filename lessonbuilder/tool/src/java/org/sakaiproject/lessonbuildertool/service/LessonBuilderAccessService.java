@@ -158,13 +158,15 @@ public class LessonBuilderAccessService
 									      EntityAccessOverloadException, EntityCopyrightException {
 		// if the id is null, the request was for just ".../content"
 		String refId = ref.getId();
-
 		if (refId == null) refId = "";
 		
 		if (!refId.startsWith("/item"))
 		    throw new EntityNotDefinedException(ref.getReference());
 		
 		String itemString = refId.substring("/item/".length());
+		int i = itemString.lastIndexOf(".");
+		if (i >= 0)
+		    itemString = itemString.substring(0, i);
 		Long itemId = 0L;
 		try {
 		    itemId = (Long)Long.parseLong(itemString);
@@ -173,7 +175,7 @@ public class LessonBuilderAccessService
 		}
 
 		SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
-		if (item == null || item.getType() != SimplePageItem.RESOURCE)
+		if (item == null || (item.getType() != SimplePageItem.RESOURCE && item.getType() != SimplePageItem.MULTIMEDIA))
 		    throw new EntityNotDefinedException(ref.getReference());
 
 		String id = item.getSakaiId();

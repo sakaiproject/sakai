@@ -1010,7 +1010,7 @@ public class SimplePageBean {
 		    // if the user has passed.
 		    if (!isItemAvailable(nextItem, nextItem.getPageId()))
 			view.setRecheck("true");
-		    view.setSource(nextItem.getURL());
+		    view.setSource(nextItem.getItemURL());
 		    view.viewID = ShowItemProducer.VIEW_ID;
 		} else {
 		    view.setSendingPage(Long.valueOf(item.getPageId()));
@@ -1080,7 +1080,7 @@ public class SimplePageBean {
 		    view.setPath("push");  // item to page, have to push the page
 	    } else if (itemType == SimplePageItem.RESOURCE) { // must be a samepage resource
 		view.setSendingPage(Long.valueOf(item.getPageId()));
-		view.setSource(prevItem.getURL());
+		view.setSource(prevItem.getItemURL());
 		view.viewID = ShowItemProducer.VIEW_ID;
 	    } else {
 		view.setSendingPage(Long.valueOf(item.getPageId()));

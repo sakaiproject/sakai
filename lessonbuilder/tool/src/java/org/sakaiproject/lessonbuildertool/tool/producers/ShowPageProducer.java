@@ -746,7 +746,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    imageName = abbrevUrl(i.getURL());
 
 					item = UIOutput.make(tableRow, "image").
-					    decorate(new UIFreeAttributeDecorator("src", i.getURL())).
+					    decorate(new UIFreeAttributeDecorator("src", i.getItemURL())).
 					    decorate(new UIFreeAttributeDecorator("alt", imageName));
 					if (lengthOk(height) && lengthOk(width))
 					    item.decorate(new UIFreeAttributeDecorator("width", width.getOld())).
@@ -840,7 +840,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				        UIComponent item2;
 					UIOutput.make(tableRow, "movieSpan");
 
-					String movieUrl = i.getURL();
+					String movieUrl = i.getItemURL();
 					String oMimeType = mimeType; // in case we change it for FLV or others
 					boolean useFlvPlayer = false;
 					boolean useJwPlayer = false;
@@ -887,7 +887,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    if (useFlvPlayer)
 						UIOutput.make(tableRow, "flashvars").
 						    decorate(new UIFreeAttributeDecorator("value", (useJwPlayer ? "file=" : "src=") +
-											  URLEncoder.encode(myUrl() +  i.getURL())));
+											  URLEncoder.encode(myUrl() +  i.getItemURL())));
 
 					    UIOutput.make(tableRow, "movieURLInject").
 						decorate(new UIFreeAttributeDecorator("value", movieUrl));
@@ -902,11 +902,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // do fallback. for ie use EMBED
 					    if (ieVersion > 0) {
 						item2 = UIOutput.make(tableRow, "mp4-embed").
-						    decorate(new UIFreeAttributeDecorator("src", i.getURL())).
+						    decorate(new UIFreeAttributeDecorator("src", i.getItemURL())).
 						    decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
 					    } else {
 						item2 = UIOutput.make(tableRow, "mp4-object").
-						    decorate(new UIFreeAttributeDecorator("data", i.getURL())).
+						    decorate(new UIFreeAttributeDecorator("data", i.getItemURL())).
 						    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}",abbrevUrl(i.getURL()))));
 					    }
 					    if (oMimeType != null)
@@ -919,10 +919,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 					    if (!useEmbed) {
 						UIOutput.make(tableRow, "mp4-inject").
-						    decorate(new UIFreeAttributeDecorator("value", i.getURL()));
+						    decorate(new UIFreeAttributeDecorator("value", i.getItemURL()));
 						
 						UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-						UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getURL());
+						UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL());
 					    }
 					}
 
@@ -947,7 +947,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					UIOutput.make(tableRow, "iframeSpan");
 
-					item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", i.getURL()));
+					item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", i.getItemURL()));
 					// if user specifies auto, use Javascript to resize the iframe when the
 					// content changes. This only works for URLs with the same origin, i.e.
 					// URLs in this sakai system
@@ -1111,7 +1111,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (available) {
 			    GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    params.setSendingPage(currentPage.getPageId());
-			    params.setSource(i.getURL());
+			    params.setSource(i.getItemURL());
 			    params.setItemId(i.getId());
 			    UIInternalLink.make(container, "link", params);
 			} else {
@@ -1120,7 +1120,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		    } else {
 			if (available) {
-				URL = i.getURL();
+				URL = i.getItemURL();
 			}
 
 			UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);

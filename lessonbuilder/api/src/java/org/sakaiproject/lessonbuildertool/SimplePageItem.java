@@ -131,4 +131,6 @@ public interface SimplePageItem {
 
     public String getURL();
 
+    public String getItemURL();
+
 }
