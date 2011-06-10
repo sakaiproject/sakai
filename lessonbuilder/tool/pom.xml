@@ -134,7 +134,6 @@
 	  <version>1.2</version>
 	  <scope>provided</scope>
 	</dependency>
-
 	<dependency>
 		<groupId>org.sakaiproject.entitybroker</groupId>
 		<artifactId>entitybroker-api</artifactId>

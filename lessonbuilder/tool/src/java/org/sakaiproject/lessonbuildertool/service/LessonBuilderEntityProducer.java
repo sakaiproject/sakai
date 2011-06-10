@@ -96,9 +96,8 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-
+import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.util.Xml;
-
 
 /**
  * @author hedrick
@@ -131,7 +130,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private LessonEntity forumEntity;
    private LessonEntity quizEntity;
    private LessonEntity assignmentEntity;
-   private HttpAccess httpAccess;
+   private LessonBuilderAccessAPI lessonBuilderAccessAPI;
+   public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
+       lessonBuilderAccessAPI = l;
+   }
 
    public void init() {
       logger.info("init()");
@@ -440,11 +442,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    public HttpAccess getHttpAccess()
    {
        // not for now
-       return null;
-   }
-
-   public void setHttpAccess(HttpAccess h) {
-       httpAccess = h;
+       return lessonBuilderAccessAPI.getHttpAccess();
    }
 
    /**
@@ -718,8 +716,53 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     */
    public boolean parseEntityReference(String reference, Reference ref)
    {
+       int i = reference.indexOf("/", 1);
+       if (i < 0)
+	   return false;
+       String type = reference.substring(1, i);
+       if (!type.equals("lessonbuilder"))
+	   return false;
+       String id = reference.substring(i);
+       i = id.indexOf("/", 1);
+       type = id.substring(1, i);
+       String numstring = id.substring(i+1);
+       if (!type.equals("item")) {
+	   if (type.equals("page")) {
+	       long num = 0;
+	       try {
+		   num = Long.parseLong(numstring);
+	       } catch (Exception e) {
+		   return false;
+	       }
+	       SimplePage page = simplePageToolDao.getPage(num);
+	       if (page == null) {
+		   return false;
+	       }
+	       ref.set("sakai:lessonbuilder", "page", id, null, page.getSiteId());
+	       return true;
+	   }
+	   return false;
+       }
+
+       long num = 0;
+       try {
+	   num = Long.parseLong(numstring);
+       } catch (Exception e) {
+	   return false;
+       }
+       SimplePageItem item = simplePageToolDao.findItem(num);
+       if (item == null) {
+	   return false;
+       }
+       SimplePage page = simplePageToolDao.getPage(item.getPageId());
+       if (page == null) {
+	   return false;
+       }
+	       
+       ref.set("sakai:lessonbuilder", "item", id, null, page.getSiteId());
+
        // not for the moment
-       return false;
+       return true;
    }
 
     public String trimToNull(String value)

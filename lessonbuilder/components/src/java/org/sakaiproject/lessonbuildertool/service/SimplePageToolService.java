@@ -29,12 +29,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.HttpAccess;
 
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 
 /**
  * Currently, the sole purpose of this service is to register our edit permission, and create table
@@ -43,7 +45,7 @@ import org.sakaiproject.lessonbuildertool.SimplePage;
  * @author Maarten van Hoof
  * 
  */
-public class SimplePageToolService implements ResourceLoaderAware {
+public class SimplePageToolService implements ResourceLoaderAware, LessonBuilderAccessAPI {
 	private static Log log = LogFactory.getLog(SimplePageToolService.class);
 
 	SqlService sqlService = null;
@@ -56,6 +58,15 @@ public class SimplePageToolService implements ResourceLoaderAware {
  
 	public Resource getResource(String location){
 	    return resourceLoader.getResource(location);
+	}
+
+        private HttpAccess httpAccess = null;
+        public void setHttpAccess(HttpAccess h) {
+	    httpAccess = h;
+	}
+
+	public HttpAccess getHttpAccess() {
+	    return httpAccess;
 	}
 
 	public SimplePageToolService() {}

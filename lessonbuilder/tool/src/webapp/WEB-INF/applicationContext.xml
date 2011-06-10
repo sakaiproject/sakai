@@ -112,5 +112,21 @@
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
   </bean>
+
+  <bean class="org.sakaiproject.content.impl.LessonBuilderAccessService"
+        init-method="init"
+        singleton="true">
+
+    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+    <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+    <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+
+  </bean>
+
+
  </beans>
