@@ -148,11 +148,6 @@ public class SimplePageBean {
 
 	private static String PAGE = "simplepage.page";
 	private static String SITE_UPD = "site.upd";
-	private ToolManager toolManager;
-	private SecurityService securityService;
-	private SiteService siteService;
-	private SimplePageToolDao simplePageToolDao;
-	public MessageLocator messageLocator;
 	private String contents = null;
 	private String pageTitle = null;
 	private String newPageTitle = null;
@@ -301,19 +296,27 @@ public class SimplePageBean {
 	    gradebookIfc = g;
 	}
 
-        LessonEntity forumEntity = null;
+        private LessonEntity forumEntity = null;
         public void setForumEntity(Object e) {
 	    forumEntity = (LessonEntity)e;
         }
 
-        LessonEntity quizEntity = null;
+        private LessonEntity quizEntity = null;
         public void setQuizEntity(Object e) {
 	    quizEntity = (LessonEntity)e;
         }
-        LessonEntity assignmentEntity = null;
+        private LessonEntity assignmentEntity = null;
         public void setAssignmentEntity(Object e) {
 	    assignmentEntity = (LessonEntity)e;
         }
+	private ToolManager toolManager;
+	private SecurityService securityService;
+	private SiteService siteService;
+	private SimplePageToolDao simplePageToolDao;
+	private MessageLocator messageLocator;
+	public void setMessageLocator(MessageLocator x) {
+	    messageLocator = x;
+	}
 
     // End Injection
 

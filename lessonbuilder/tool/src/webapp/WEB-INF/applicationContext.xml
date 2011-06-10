@@ -127,6 +127,14 @@
     <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+    <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+
   </bean>
 
 

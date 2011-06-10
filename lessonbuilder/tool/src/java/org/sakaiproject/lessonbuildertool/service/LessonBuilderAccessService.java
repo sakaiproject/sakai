@@ -99,6 +99,17 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 
+import uk.org.ponder.messageutil.MessageLocator;
+import org.sakaiproject.tool.api.ActiveToolManager;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.lessonbuildertool.service.ForumEntity;
+import org.sakaiproject.lessonbuildertool.service.SamigoEntity;
+import org.sakaiproject.lessonbuildertool.service.AssignmentEntity;
+import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.tool.api.ToolManager;
+
 /**
  * <p>
  * LessonBuilderAccessService implements /access/lessonbuilder
@@ -136,6 +147,42 @@ public class LessonBuilderAccessService
 	sessionManager = s;
     }
 
+    public MessageLocator messageLocator;
+    public void setMessageLocator(MessageLocator s) {
+	messageLocator = s;
+    }
+
+    private ToolManager toolManager;
+    public void setToolManager(ToolManager s) {
+	toolManager = s;
+    }
+
+    private SiteService siteService;
+    public void setSiteService(SiteService s) {
+	siteService = s;
+    }
+
+    LessonEntity forumEntity = null;
+    public void setForumEntity(Object e) {
+	forumEntity = (LessonEntity)e;
+    }
+
+    LessonEntity quizEntity = null;
+    public void setQuizEntity(Object e) {
+	quizEntity = (LessonEntity)e;
+    }
+
+    LessonEntity assignmentEntity = null;
+    public void setAssignmentEntity(Object e) {
+	assignmentEntity = (LessonEntity)e;
+    }
+
+    private GradebookIfc gradebookIfc = null;
+
+    public void setGradebookIfc(GradebookIfc g) {
+	gradebookIfc = g;
+    }
+
     protected static final long MAX_URL_LENGTH = 8192;
     protected static final int STREAM_BUFFER_SIZE = 102400;
 
@@ -156,6 +203,7 @@ public class LessonBuilderAccessService
 	    public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
 				     Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 									      EntityAccessOverloadException, EntityCopyrightException {
+
 		// if the id is null, the request was for just ".../content"
 		String refId = ref.getId();
 		if (refId == null) refId = "";
@@ -183,6 +231,30 @@ public class LessonBuilderAccessService
 		if (!allowGetResource(id))
 		    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 		
+		if (item.isPrerequisite()) {
+		    // computing requirements is so messy that it's worth instantiating
+		    // a SimplePageBean to do it. Otherwise we have to duplicate lots of
+		    // code that changes. And we want it to be a transient bean becase there are
+		    // caches that we aren't trying to manage in the long term
+		    // but don't do this unless the item needs checking
+		    SimplePageBean simplePageBean = new SimplePageBean();
+		    simplePageBean.setMessageLocator(messageLocator);
+		    simplePageBean.setToolManager(toolManager);
+		    simplePageBean.setSecurityService(securityService);
+		    simplePageBean.setSessionManager(sessionManager);
+		    simplePageBean.setSiteService(siteService);
+		    simplePageBean.setContentHostingService(contentHostingService);
+		    simplePageBean.setSimplePageToolDao(simplePageToolDao);
+		    simplePageBean.setForumEntity(forumEntity);
+		    simplePageBean.setQuizEntity(quizEntity);
+		    simplePageBean.setAssignmentEntity(assignmentEntity);
+		    simplePageBean.setGradebookIfc(gradebookIfc);
+
+		    if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
+			throw new EntityPermissionException(null, null, null);
+		    }
+		}			
+
 		ContentResource resource = null;
 		try {
 		    resource = contentHostingService.getResource(id);
