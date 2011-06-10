@@ -52,7 +52,8 @@
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.JForumEntity"
-	class="org.sakaiproject.lessonbuildertool.service.JForumEntity">
+	class="org.sakaiproject.lessonbuildertool.service.JForumEntity"
+        init-method="init">
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="messageLocator" ref="messageLocator"/>
   </bean>

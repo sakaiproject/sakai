@@ -72,9 +72,14 @@ import uk.org.ponder.messageutil.MessageLocator;
 public class JForumEntity implements LessonEntity, ForumInterface {
 
     static boolean initdone = false;
+    static boolean haveJforum = false;
 
     public void init() {
-     }
+
+	if (toolManager.getTool("sakai.jforum.tool") != null)
+	    haveJforum = true;
+	System.out.println("JforumEntity init: haveJforum = " + haveJforum);
+    }
 
     // to create bean. the bean is used only to call the pseudo-static
     // methods such as getEntitiesInSite. So type, id, etc are left uninitialized
@@ -156,6 +161,15 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 
     // find topics in site, but organized by forum and category
     public List<LessonEntity> getEntitiesInSite() {
+	// all other code is driven by current objects. If we skip this code, nothing else
+	// in this module will be called.
+	if (!haveJforum) {
+	    if (nextEntity != null) 
+		return nextEntity.getEntitiesInSite();
+	    else
+		return new ArrayList<LessonEntity>();
+	}
+
 	List<LessonEntity>ret = new ArrayList<LessonEntity>();
 	String url = null;
 
@@ -247,6 +261,9 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 		    SqlService.returnConnection(connection);
 	    } catch (Exception ignore) {};
 	}
+
+	if (nextEntity != null) 
+	    ret.addAll(nextEntity.getEntitiesInSite());
 
 	return ret;
     }

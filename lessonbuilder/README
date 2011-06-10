@@ -84,7 +84,9 @@ MNEME AND JFORUM DEPENDENCIES
 LessonBuilder will support quizes from Mneme and topics from JForum. 
 The JForum interface should cause no trouble, even if you don't use it.
 However I've had to disable support for Mneme to allow Lesson Builder
-to build on systems without it. 
+to build on systems without it.  The Jforum code starts by checking
+whether Jforum is actually present. If not, it disables itself. Thus
+there's no obvious reason to remove it, although you can do so.
 
 Note however that the jForum interface is not currently able to create
 topics when importing Common Cartridge documents. It will leave a place
@@ -105,8 +107,10 @@ tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
 
 3. in tool/pom.xml uncomment the dependency for etudes-mneme-api
 
-If you don't use JForum, removing support for it could cause a very
-minor speedup. To do so, edit tool/src/webapp/WEB-INF/applicationContext.xml,
+If you don't use JForum, you could remove support for it. There's
+no obvious reason to do so, since the code detects that Jforum is
+not present in the build and disables itself. But to remove it,
+edit tool/src/webapp/WEB-INF/applicationContext.xml,
 and remove or comment out the bean declaration for
 org.sakaiproject.lessonbuildertool.service.JForumEntity
 and the nextEntity property in 

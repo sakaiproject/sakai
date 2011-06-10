@@ -295,7 +295,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} 
 
 		try {
-		    getHibernateTemplate().update(o);
+		    getHibernateTemplate().merge(o);
 		    return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
 		    getCause(e, elist);
