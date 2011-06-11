@@ -332,9 +332,11 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		}
 	}
 
+    // for the moment don't use /access/lessonbuilder. There's no way to handle relative references.
 	public String getItemURL() {
 		// Will Update to take type into account when adding more than just resources
 		if (type == 1 || type == 7) {
+		    if (false) {
 		    // some apps may need the extension
 			String id = getSakaiId();
 			int i = id.lastIndexOf("/");
@@ -346,6 +348,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 			else
 			    id = "" + getId();
 			return "/access/lessonbuilder/item/" + id;
+		    }
+		    return "/access/content" + getSakaiId();
 		} else if (type == 6) {
 			return getSakaiId();
 		} else {
