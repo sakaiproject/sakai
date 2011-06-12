@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.test.mocks;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.Cacher;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.MultiRefCache;
@@ -119,6 +120,11 @@ public class FakeMemoryService implements MemoryService {
 	public void evictExpiredMembers() throws MemoryPermissionException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
