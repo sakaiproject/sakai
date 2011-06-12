@@ -118,7 +118,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
             et = dao.findOneBySearch(EmailTemplate.class, search);
          }
       }
-      if (et == null) {
+      else if (et == null) {
          et = dao.findOneBySearch(EmailTemplate.class, new Search("key", key));
       }
       if (et == null) {
