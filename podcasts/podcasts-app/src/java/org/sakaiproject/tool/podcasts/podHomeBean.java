@@ -1,5 +1,4 @@
 /**********************************************************************************
- * $URL$
  * $Id$
  ***********************************************************************************
  *
@@ -77,6 +76,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.tool.podcasts.jsf.renderer.util.TimeUtil;
 
 public class podHomeBean {
 	// Message Bundle handles
@@ -154,7 +154,8 @@ public class podHomeBean {
 			this.displayDateRevise = displayDateRevise;
 		}
 
-		/** Returns the revised display date for this podcast **/
+		/** Returns the revised display 
+ for this podcast **/
 		public String getDisplayDateRevise() {
 			String dispDate = null;
 			
@@ -345,6 +346,13 @@ public class podHomeBean {
 	
 	private static final String MB_NUMBER_FORMAT = "#.#";
 	private static final String BYTE_NUMBER_FORMAT = "#,###";
+	private Date addDate;
+	private boolean isValidDate = true;
+	private boolean isValidAddDate = true;
+	private String originalAddDateString;
+	private String displayDateFormat;
+	private SimpleDateFormat displayFormat;
+	private static boolean error;
 
 	// Permissions prefix
 	private final String CONTENT = "content.";
@@ -373,8 +381,8 @@ public class podHomeBean {
 
 	/** Used to pull message bundle */
 //        String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
- //       toolBundle = new ResourceLoader(bundle);
-	private ResourceLoader rb;
+ //       toolBundle = new ResourceLoader(bundle);	
+	private ResourceLoader rb = new ResourceLoader("org.sakaiproject.api.podcasts.bundle.Messages");
 
 	// inject the services needed
 	private PodcastService podcastService;
@@ -404,6 +412,8 @@ public class podHomeBean {
 			new SelectItem("high", "High - All participants") };
 
 	public podHomeBean() {
+		  this.displayDateFormat = rb.getString("date_picker_format");
+	      this.displayFormat = new SimpleDateFormat(this.displayDateFormat);
 	}
 
 	/**
@@ -1993,5 +2003,203 @@ public class podHomeBean {
 	    }
 	    return rb.getString(key);
 	}
+	  /**
+	   * format according to internal requirements of calendar widget
+	   * @param dateString "MM-dd-yyyy hh:mm:ss a"
+	   * @return Date object
+	   */
+	  private Date getDateFromDisplayFormat(String dateString) {
+	    Date date = null;
+	    this.isValidDate = true;
+	    if (dateString == null || dateString.trim().equals("")) {
+	      return date;
+	    }
 
+	     try {
+	    	 if (!dateValidation(dateString)) {
+	    		 this.isValidDate = false;
+	    		 return null;
+	    	 }
+
+	      //Date date= (Date) displayFormat.parse(dateString);
+	// dateString is in client timezone, change it to server time zone
+	      TimeUtil tu = new TimeUtil();
+	      date = tu.getServerDateTime(displayFormat, dateString);
+	    }
+	    catch (Exception ex) {
+	      // we will leave it as a null date
+	    	LOG.warn("Unable to format date.");
+	    	FacesContext context=FacesContext.getCurrentInstance();
+	    	String err;
+
+	    	err=rb.getString("deliveryDate_error");
+	    	context.addMessage(null,new FacesMessage(err));
+
+	    	error=true;
+	      //ex.printStackTrace();
+	    }
+	    return date;
+	  }
+	  
+	  private boolean dateValidation(String dateString) {
+		  int date = 0;
+		  int month = 0;
+		  int year = 0;
+		  int hour = 0;
+		  int minute = 0;
+		  int second = 0;
+		  String amPM = "";
+		  
+		  String [] splittedDateString = dateString.split(" ");
+		  if (splittedDateString.length != 3) {
+			  return false;
+		  }
+		  // Verify for MM/dd/yyyy format or dd/MM/yyyy format
+		  String [] dateArray = splittedDateString[0].split("/");
+		  if (dateArray.length != 3) {
+			  return false;
+		  }
+		  try {
+			  if (displayDateFormat.toLowerCase().startsWith("dd")) {
+				  date = Integer.parseInt(dateArray[0]);
+				  month = Integer.parseInt(dateArray[1]);
+				  year = Integer.parseInt(dateArray[2].substring(0, 4));
+			  }
+			  else {
+				  date = Integer.parseInt(dateArray[1]);
+				  month = Integer.parseInt(dateArray[0]);
+				  year = Integer.parseInt(dateArray[2].substring(0, 4));
+			  }
+		  }
+		  catch(NumberFormatException  ne){
+			  LOG.error("NumberFormatException: " + ne.getMessage());
+			  return false;
+		  }
+		  catch(IndexOutOfBoundsException ie) {
+			  LOG.error("IndexOutOfBoundsException: " + ie.getMessage());
+			  return false;
+		  }
+		  if (month > 12 || month < 1) {
+			  return false;
+		  }
+		  if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && (date > 31 || date < 1)) {
+			  return false;
+		  }
+		  if ((month == 4 || month == 6 || month == 9 || month == 11) && (date > 30 || date < 1)) {
+			  return false;
+		  }
+		  if (month == 2) {
+			  if (date < 1) {
+				  return false;
+			  }
+			  if (isLeapYear(year) == true) {
+				  if (date > 29) {
+					  return false;
+				  }
+			  }
+			  else {
+				  if (date > 28) {
+					  return false;
+				  }
+			  }
+		  }  
+		  
+		  // Verify for hh:mm:ss format
+		  String [] time = splittedDateString[1].split(":");
+		  if (splittedDateString.length != 3) {
+			  return false;
+		  }
+		  hour = Integer.parseInt(time[0]);
+		  minute = Integer.parseInt(time[1]);
+		  second = Integer.parseInt(time[2]);
+		  if (hour < 0 || hour > 24) {
+			  return false;
+		  }
+		  if (minute < 0 || minute > 60) {
+			  return false;
+		  }
+		  if (second < 0 || second > 60) {
+			  return false;
+		  }
+		  
+		  // Verify for AM or PM format
+		  amPM = splittedDateString[2];
+		  if (!(amPM.toUpperCase().equals("AM") || amPM.toUpperCase().equals("PM"))) {
+			  return false;
+		  }
+		  return true;
+	  }
+	  
+	  private boolean isLeapYear(int year) {
+		  if (year % 100 == 0) {
+			  if (year % 400 == 0) { 
+				  return true; 
+			  }
+		  }
+		  else {
+			  if ((year % 4) == 0) { 
+				  return true; 
+			  }
+		  }
+		  return false;
+	  }
+	  
+	  public String getAddDateString()
+	  {
+			if (!this.isValidAddDate) {
+				return this.originalAddDateString;
+			}
+			else {
+				return getDisplayFormatFromDate(addDate);
+			}
+	  }
+	   
+	  public void setAddDateString(String addDateString)
+	  {
+		this.isValidAddDate = true;  
+		Date tempDate = getDateFromDisplayFormat(addDateString);
+		if (!this.isValidDate) {
+			this.isValidAddDate = false;
+			this.originalAddDateString = addDateString;
+		}
+		else {
+			this.addDate= tempDate;
+		}
+	  }
+	  public Date getAddDate() {
+		    return this.addDate;
+		  }
+
+	  public void setAddDate(Date addDate) {
+	    this.addDate = addDate;
+	  }
+	  public boolean getIsValidAddDate()
+	  {
+		  return this.isValidAddDate;
+	  }
+	  /**
+	   * date from internal string of calendar widget
+	   * @param date Date object
+	   * @return date String "MM-dd-yyyy hh:mm:ss a"
+	   */
+	  private String getDisplayFormatFromDate(Date date) {
+	    String dateString = "";
+	    if (date == null) {
+	      return dateString;
+	    }
+
+	    try {
+	      //dateString = displayFormat.format(date);
+	      TimeUtil tu = new TimeUtil();
+	      dateString = tu.getDisplayDateTime(displayFormat, date);
+	    }
+	    catch (Exception ex) {
+	      // we will leave it as an empty string
+	      LOG.warn("Unable to format date.");
+	      ex.printStackTrace();
+	    }
+	    return dateString;
+	  }
+
+	
 }

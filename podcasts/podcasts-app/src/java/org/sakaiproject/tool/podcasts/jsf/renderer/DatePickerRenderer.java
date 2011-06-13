@@ -34,8 +34,10 @@ import javax.faces.component.ValueHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.tool.podcasts.jsf.renderer.util.RendererUtil;
+import org.sakaiproject.tool.podcasts.jsf.renderer.util.ContextUtil;
 
 /**
  * <p>Description: </p>
@@ -107,6 +109,7 @@ public class DatePickerRenderer extends Renderer
   public void encodeEnd(FacesContext context,
     UIComponent component) throws IOException
   {
+	ResourceLoader rb= new ResourceLoader("org.sakaiproject.api.podcasts.bundle.Messages");
     ResponseWriter writer = context.getResponseWriter();
     String contextPath = context.getExternalContext()
                          .getRequestContextPath();
@@ -143,12 +146,23 @@ public class DatePickerRenderer extends Renderer
 
       // script creates unique calendar object with input object
     }
+    String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.api.podcasts.bundle.Messages","date_picker_format");
+    String genDate = null;
+    String prsDate = null;
+    if (display_dateFormat.toLowerCase().startsWith("dd")) {
+    	genDate = "cal_gen_date2_dm";
+    	prsDate = "cal_prs_date2_dm";
+    }
+    else {
+    	genDate = "cal_gen_date2_md";
+    	prsDate = "cal_prs_date2_md";
+    }
     String calRand = "cal" + ("" + Math.random()).substring(2);
     String calScript =
-      "var " + calRand + " = new calendar2(" +
-      "document.getElementById('" + id + "'));" +
-      "" + calRand + ".year_scroll = true;" +
-      "" + calRand + ".time_comp = true;";
+        "var " + calRand + " = new calendar2(" +
+        "document.getElementById('" + id + "'), " + genDate + ", " + prsDate + ");" +
+        "" + calRand + ".year_scroll = true;" +
+        "" + calRand + ".time_comp = true;";
 
     writer.write("<input type=\"" + type + "\" name=\"" + id +
       "\" id=\"" + id + "\" size=\"" + size + "\" value=");
