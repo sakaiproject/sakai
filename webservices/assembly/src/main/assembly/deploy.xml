@@ -13,7 +13,7 @@
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>rg.sakaiproject.webservices:sakai-axis:war:*</include>
+                 <include>org.sakaiproject.webservices:sakai-axis:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
