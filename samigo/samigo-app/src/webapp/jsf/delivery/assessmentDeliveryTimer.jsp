@@ -84,6 +84,6 @@ function clickSubmitForGrade(){
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' && delivery.hasTimeLimit}" >
-	<h:graphicImage height="60" width="300" url="/images/delivery/TimerPreview.png"/>
+  <h:outputText value="#{deliveryMessages.timer_preview_not_available}" style="background-color: gray"/>
 </h:panelGroup>
 </p>
