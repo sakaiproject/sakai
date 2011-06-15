@@ -1,0 +1,86 @@
+import org.apache.axis.AxisFault;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+
+/**
+ * A set of AXis web services for ShortenUrlService
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+ *
+ */
+public class ShortenedUrl {
+
+	private static final Log LOG = LogFactory.getLog(ShortenedUrl.class);
+	
+	private ShortenedUrlService shortenedUrl;
+	private SessionManager sessionManager;
+	
+	public ShortenedUrl() {
+		shortenedUrl =(ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class.getName());
+		sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+	}
+	
+	/**
+	 * Shorten a URL. Optionally specify the secure property to get a longer key, 22 chars vs 6.
+	 * @param sessionid		id of a valid session
+	 * @param url			the url to shorten
+	 * @param secure		whether or not use 'secure' urls. Secure urls are much longer than normal shortened URLs (22 chars vs 6 chars). 
+	 * 						Must be a value of "true" if you want this, any other value will be false.
+	 * @return	the shortened url, or an empty string if errors. Note that if you have not configured the ShortenedUrlService in sakai.properties, then you will get the original url. Ie it is a no-op.
+	 * To configure ShortenedUrlService, see: https://confluence.sakaiproject.org/display/SHRTURL/Home 
+	 * 
+	 * @throws AxisFault	if session is inactive
+	 */
+	public String shorten(String sessionid, String url, String secure) throws AxisFault {
+		
+		Session session = establishSession(sessionid);
+
+		boolean isSecure = Boolean.parseBoolean(secure);
+		
+		try {
+			return shortenedUrl.shorten(url, isSecure);
+		} catch (Exception e) {
+			LOG.warn("WS shorten(): " + e.getClass().getName() + " : " + e.getMessage());
+			return "";
+		}
+
+	}
+	
+	/**
+	 * Shorten a URL.
+	 * 
+	 * @param sessionid		id of a valid session
+	 * @param url			the url to shorten
+	 * @return	the shortened url, or an empty string if errors. Note that if you have not configured the ShortenedUrlService in sakai.properties, then you will get the original url. Ie it is a no-op.
+	 * To configure ShortenedUrlService, see: https://confluence.sakaiproject.org/display/SHRTURL/Home 
+	 * @throws AxisFault 
+	 */
+	public String shorten(String sessionid, String url) throws AxisFault {
+		return shorten(sessionid, url, "false");
+	}
+
+	
+	/**
+	 * Get the Session related to the given sessionid
+	 * @param sessionid		the id of the session to retrieve
+	 * @return				the session, if it is active
+	 * @throws AxisFault	if session is inactive
+	 */
+	private Session establishSession(String sessionid) throws AxisFault 
+	{
+		Session s = sessionManager.getSession(sessionid);
+
+		if (s == null)
+		{
+			throw new AxisFault("Session \""+sessionid+"\" is not active");
+		}
+		s.setActive();
+		sessionManager.setCurrentSession(s);
+		return s;
+	}
+	
+	
+}
