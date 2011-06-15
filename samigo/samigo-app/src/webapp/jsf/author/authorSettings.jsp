@@ -654,11 +654,11 @@ function setBlockDivs()
       <f:verbatim></td><td valign="bottom"></f:verbatim>
         <h:panelGroup rendered="#{assessmentSettings.itemNavigation!=1}">
           <h:inputText size="5"  id="submissions_Allowed1" value="#{assessmentSettings.submissionsAllowed}" />
-          <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
+          <h:outputLabel for="submissions_Allowed1" value="#{assessmentSettingsMessages.limited_submission}" />
         </h:panelGroup>
         <h:panelGroup rendered="#{assessmentSettings.itemNavigation==1}">
           <h:inputText size="5"  id="submissions_Allowed2" value="1" disabled="true" />
-          <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
+          <h:outputLabel for="submissions_Allowed2" value="#{assessmentSettingsMessages.limited_submission}" />
         </h:panelGroup>
       <f:verbatim></td></tr></table></div></f:verbatim>
     </h:panelGroup>
@@ -907,14 +907,14 @@ function setBlockDivs()
 
     <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
-   <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel for="scoringType" value="#{assessmentSettingsMessages.recorded_score}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
+   <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel for="scoringType1" value="#{assessmentSettingsMessages.recorded_score}" rendered="#{author.canRecordAverage}"/><h:outputLabel for="scoringType2" value="#{assessmentSettingsMessages.recorded_score}" rendered="#{!author.canRecordAverage}"/><f:verbatim></div> <div class="tier3"> </f:verbatim>
       <h:panelGrid columns="2"  >
-        <h:selectOneRadio value="#{assessmentSettings.scoringType}" layout="pageDirection" rendered="#{author.canRecordAverage}">
+        <h:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType1" layout="pageDirection" rendered="#{author.canRecordAverage}">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
           <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.average_score}"/>
         </h:selectOneRadio>
-        <h:selectOneRadio value="#{assessmentSettings.scoringType}" layout="pageDirection" rendered="#{!author.canRecordAverage}">
+        <h:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType2" layout="pageDirection" rendered="#{!author.canRecordAverage}">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
         </h:selectOneRadio>
