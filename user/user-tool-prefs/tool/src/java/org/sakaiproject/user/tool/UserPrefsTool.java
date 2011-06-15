@@ -484,11 +484,11 @@ public class UserPrefsTool
 		// make sure this is a valid number
 		int countInt;
         try {
-            countInt = Integer.parseInt(prefTabCount);
+            countInt = Integer.parseInt(count);
         } catch (NumberFormatException e) {
             countInt = DEFAULT_TAB_COUNT;
         }
-		if ( countInt > 0 && countInt >= DEFAULT_TAB_COUNT && countInt < MAX_TAB_COUNT ) {
+		if ( countInt > 0 && countInt >= DEFAULT_TAB_COUNT && countInt <= MAX_TAB_COUNT ) {
             this.prefTabCount = count;
 		} else {
 		    this.prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
