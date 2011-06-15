@@ -21,6 +21,8 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,13 +51,17 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
+import org.sakaiproject.util.ResourceLoader;
 
 public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager implements GradebookExternalAssessmentService {
 	private static final Log log = LogFactory.getLog(GradebookExternalAssessmentServiceImpl.class);
     // Special logger for data contention analysis.
     private static final Log logData = LogFactory.getLog(GradebookExternalAssessmentServiceImpl.class.getName() + ".GB_DATA");
 
+    private NumberFormat numberFormat;
+    
     private EventTrackingService eventTrackingService;
+	
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
@@ -366,7 +372,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					Double oldPointsEarned = agr.getPointsEarned();
 					//Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
 					String newPointsEarnedString = (String)studentUidsToScores.get(studentUid);
-					Double newPointsEarned = (newPointsEarnedString == null) ? null : Double.valueOf(newPointsEarnedString); 
+					Double newPointsEarned = (newPointsEarnedString == null) ? null : convertStringToDouble(newPointsEarnedString); 
 					if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
@@ -385,12 +391,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					// Don't save unnecessary null scores.
 					String newPointsEarned = (String)studentUidsToScores.get(studentUid);
 					if (newPointsEarned != null) {
-						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, Double.valueOf(newPointsEarned));
+						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, convertStringToDouble(newPointsEarned));
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
 						session.save(agr);
 						changedStudents.add(studentUid);
-						postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, Double.valueOf(newPointsEarned));
+						postUpdateGradeEvent(gradebookUid, assignment.getName(), studentUid, convertStringToDouble(newPointsEarned));
 					}
 				}
 
@@ -584,7 +590,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				// score has actually changed.
 				//TODO: for ungraded items, needs to set ungraded-grades later...
 				Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
-				Double newPointsEarned = (points == null) ? null : Double.valueOf(points); 
+				Double newPointsEarned = (points == null) ? null : convertStringToDouble(points); 
 				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
 						((newPointsEarned == null) && (oldPointsEarned != null)) ) {
 					if (agr == null) {
@@ -623,6 +629,34 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	    if (eventTrackingService != null) {
             eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+assignmentName+"/"+studentUid+"/"+pointsEarned+"/student");
         }
+	}
+	
+	/**
+	 *
+	 * @param doubleAsString
+	 * @return a locale-aware Double value representation of the given String
+	 * @throws ParseException
+	 */
+	private Double convertStringToDouble(String doubleAsString) {
+	    Double scoreAsDouble = null;
+	    if (doubleAsString != null) {
+	        try {
+				Number numericScore = getNumberFormat().parse(doubleAsString.trim());
+				scoreAsDouble = numericScore.doubleValue();
+			} catch (ParseException e) {
+				log.error(e);
+			}
+	    }
+
+	    return scoreAsDouble;
+	}
+
+	private NumberFormat getNumberFormat() {
+	    if (numberFormat == null) {
+	        numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+	    }
+
+	    return numberFormat;
 	}
 
 }
