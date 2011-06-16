@@ -109,7 +109,7 @@ a.lastBreadCrumb{
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
 	float: left;
-	width: 11em;
+	width: 12em;
 	color: #000;
 	text-align: right;
 	padding:0 .5em 0 0;
@@ -141,7 +141,7 @@ site types are a local setting - adjust */
 #content{
 	padding: 0;
 	margin-top: .5em;
-	padding-left: 13.3em;
+	padding-left: 14em;
 
 }
 /*margin tweak for IE to avoid float drop*/
@@ -611,7 +611,7 @@ html>body .dhtml_more_tabs {
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu, #subSites{
-	width: 11em;
+	width: 12em;
 	padding: 0;
 	margin: 1em 0 0 0;
 	color: #000;
@@ -1209,6 +1209,13 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 /* PART 9 - Tool Icons */
+
+/* removing or overiding this should remove the icon from the tool links (might need to specify background as hidden) */
+#toolMenu .toolMenuIcon {
+	padding: 0 22px 0 0;
+	background-repeat: no-repeat; /* url("/library/image/silk/house.png") */
+	background-position: right center;
+}
 
 .icon-osp-evaluation {
 	background-image: url(/library/image/silk/thumb_up.png);
