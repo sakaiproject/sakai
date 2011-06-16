@@ -212,7 +212,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				
 				
 				//if this is a new account set the password
-				if (ValidationAccount.ACCOUNT_STATUS_NEW == item.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == item.getAccountStatus()) {
+				if (ValidationAccount.ACCOUNT_STATUS_NEW == item.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == item.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == item.getAccountStatus()) {
 					if (item.getPassword() == null || !item.getPassword().equals(item.getPassword2())) {
 						//Abandon the edit
 						userDirectoryService.cancelEdit(u);

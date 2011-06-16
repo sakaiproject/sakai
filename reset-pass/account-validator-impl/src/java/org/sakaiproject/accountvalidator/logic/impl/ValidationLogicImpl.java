@@ -532,7 +532,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String versionString = xmlTemplate.getChildText("version");
 		
 		
-		if (!emailTemplateService.templateExists(key, new Locale(locale)))
+		if (emailTemplateService.getEmailTemplate(key, new Locale(locale)) == null)
 		{
 			EmailTemplate template = new EmailTemplate();
 			template.setSubject(subject);

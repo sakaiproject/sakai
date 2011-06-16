@@ -85,7 +85,7 @@ public class FormHandler {
 			if (va == null) {
 				//we need to validate the account.
 				m_log.debug("This is a legacy user to validate!");
-				validationLogic.createValidationAccount(userBean.getUser().getId(), ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS);
+				validationLogic.createValidationAccount(userBean.getUser().getId(), ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 			} else {
 				m_log.debug("resending validation");
 				validationLogic.resendValidation(va.getValidationToken());

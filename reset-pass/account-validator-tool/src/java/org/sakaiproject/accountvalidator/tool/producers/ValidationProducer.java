@@ -19,7 +19,9 @@
  */
 package org.sakaiproject.accountvalidator.tool.producers;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -187,17 +189,21 @@ ViewParamsReporter, ActionResultInterceptor {
 			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
 			Iterator<String> git = groups.iterator();
 			//UIBranchContainer list = UIBranchContainer.make(tofill, "sites:");
+			List existingSites = new ArrayList();
 			while (git.hasNext()) {
 				String groupRef = git.next();
 				String groupId = EntityReference.getIdFromRef(groupRef);
-				log.debug("groupId is " + groupId);
-				try {
-					Site s = siteService.getSite(groupId);
-					UIBranchContainer list =  UIBranchContainer.make(tofill, "siteListItem:", groupId);
-					UIOutput.make(list, "siteName", s.getTitle());
-				} catch (IdUnusedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if(!existingSites.contains(groupId)){
+					log.debug("groupId is " + groupId);
+					try {
+						Site s = siteService.getSite(groupId);
+						UIBranchContainer list =  UIBranchContainer.make(tofill, "siteListItem:", groupId);
+						UIOutput.make(list, "siteName", s.getTitle());
+						existingSites.add(groupId);
+					} catch (IdUnusedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				
 			}
