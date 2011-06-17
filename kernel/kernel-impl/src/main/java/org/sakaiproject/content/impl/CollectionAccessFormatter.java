@@ -129,7 +129,7 @@ public class CollectionAccessFormatter
 			out.println("</script>");
 			out.println("</head><body class=\"specialLink\">");
 
-			out.println("<script type=\"text/javascript\">$(document).ready(function(){resizeFrame();function resizeFrame(){if (window.name != \"\") {var frame = parent.document.getElementById(window.name);if (frame) {var clientH = document.body.clientHeight + 10;$(frame).height(clientH);}}}jQuery.fn.fadeToggle = function(speed, easing, callback){return this.animate({opacity: \'toggle\'}, speed, easing, callback);};if ($(\'.textPanel\').size() < 1){$(\'a#toggler\').hide();}$(\'a#toggler\').click(function(){$(\'.textPanel\').fadeToggle(\'1000\', \'\', \'resizeFrame\');});\n$(\'.file a\').each(function (i){\n$(this).addClass(getFileExtension($(this).attr(\'href\')));\n})\nfunction getFileExtension(filename)\n{\nvar ext = /^.+\\.([^.]+)$/.exec(filename);\nreturn ext == null ? \"\" : ext[1].toLowerCase();\n}\n});</script>");				
+			out.println("<script type=\"text/javascript\" src=\"/library/js/access.js\"></script>");
 			out.println("<div class=\"directoryIndex\">");
 
 			// for content listing it's best to use a real title
