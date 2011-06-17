@@ -54,11 +54,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-dav-common</artifactId>
     </dependency>
-    <dependency>
-        <groupId>org.apache.myfaces.tomahawk</groupId>
-        <artifactId>tomahawk</artifactId>
-        <version>1.1.6</version>
-    </dependency>    
   </dependencies>
 <!-- needed so it will compile the java files,
 		process the properties bundles,

@@ -12,7 +12,8 @@
     <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view>
-      <script type="text/javascript" src="./jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
+      <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
+      
   <h:form id="podAdd" enctype="multipart/form-data">
 
     <div>  <!-- Page title and Instructions -->
@@ -50,7 +51,7 @@
       		<td class="reqStarInline">*</td>
 	      	<td><label for="podAdd:addDate"><h:outputText value="#{msgs.date_prompt}" /></label>&nbsp;&nbsp;&nbsp;</td>
 			<td>
-	      		<podcasts:datePicker value="#{podHomeBean.addDateString}" id="addDate" size="28" />
+	      		<podcasts:datePicker value="#{podHomeBean.date}" id="addDate" size="28" />
 	  			<h:outputText value="#{msgs.date_picker_format_string}" />
 	  		</td>
 	  	  </tr>
